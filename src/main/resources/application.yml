@@ -1,0 +1,23 @@
+server:
+    port: 8080
+
+spring:
+    datasource:
+        driver-class-name: "org.postgresql.Driver"
+        url: "jdbc:postgresql://localhost:5432/marketplace_db"
+        username: marketplace
+        password: marketplace
+        hikari:
+            connection-timeout: 60000
+            maximum-pool-size: 5
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+        properties:
+            hibernate: 
+                jdbc:
+                    lob: 
+                        non_contextual_creation: true
+    data:
+        solr:
+            host: "http://localhost:8983/solr"

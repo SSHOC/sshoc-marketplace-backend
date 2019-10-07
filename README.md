@@ -1,21 +1,33 @@
 # sshoc-marketplace-backend
 
-Code for the backend
+Code for the backend of SSHOC Marketplace Portal
 
-Only a draft model is currently available 
+## Running application via Docker
+Requirements:
 
-## Via Docker
-This is how to build and launch the code for now
-- mvn clean test package
+```
+docker : 19.03.0
+docker-compose : 1.24.0
+```
 
-Note: Obviously change the following environment variables
+Run:
 
-### Directly with the variables inline
-- SPRING_DATA_SOURCE_URL=jdbc:postgresql://psql:5432/marketplace POSTGRES_DB=marketplace POSTGRES_USER=mp_user
- POSTGRES_PWD=mp_pwd docker-compose build
-- SPRING_DATA_SOURCE_URL=jdbc:postgresql://psql:5432/marketplace POSTGRES_DB=marketplace POSTGRES_USER=mp_user
- POSTGRES_PWD=mp_pwd docker-compose up
- 
- ### With the variables in an .env file next to the Dockerfile which includes those 4 variables as in a property and then simply:
-- docker-compose build
-- docker-compose up
+```
+docker-compose up
+```
+
+## Running application to development
+Requirements in addition to docker:
+
+```
+java 8
+maven 3.6.0
+IntelliJ / Eclipse with Lombok (https://projectlombok.org/)
+```
+
+Run:
+
+```
+docker-compose up psql solr
+In IntelliJ / Eclipse run eu.sshopencloud.marketplace.MarketplaceApplication
+```

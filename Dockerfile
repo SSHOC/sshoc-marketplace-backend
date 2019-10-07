@@ -1,9 +1,17 @@
-FROM openjdk:8-jdk-alpine
+FROM maven:3-jdk-8 as build
 
-MAINTAINER yoann.moranville@gmail.com
+WORKDIR /usr/src/app
 
-#To fix the final name of the jar in the pom.xml later on
-COPY ./target/marketplace.jar /opt/marketplace/marketplace.jar
-WORKDIR /opt/marketplace/
+COPY pom.xml ./
+RUN mvn dependency:go-offline
+
+COPY src ./src
+RUN mvn package
+
+FROM openjdk:8-jre-slim
+
+WORKDIR /usr/app
+COPY --from=build /usr/src/app/target/marketplace-*.jar ./app.jar
+
 EXPOSE 8080
-CMD ["java", "-jar", "marketplace.jar"]
+ENTRYPOINT [ "bash", "-c", "java -Dspring.profiles.active=$SPRING_ACTIVE_PROFILE -jar app.jar" ]

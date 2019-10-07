@@ -2,3 +2,7 @@
 /target/*
 /sshoc-marketplace-backend.iml
 /.env
+/.settings/*
+/.project
+/.classpath
+
