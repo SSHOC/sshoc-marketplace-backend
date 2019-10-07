@@ -1,6 +1,7 @@
 /.idea/*
 /target/*
 /sshoc-marketplace-backend.iml
+/.marketplace.iml
 /.env
 /.settings/*
 /.project
