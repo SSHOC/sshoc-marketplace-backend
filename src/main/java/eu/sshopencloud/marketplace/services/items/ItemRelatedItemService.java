@@ -29,9 +29,9 @@ public class ItemRelatedItemService {
             relatedItem.setId(subjectRelatedItem.getObjectId());
             relatedItem.setRelation(subjectRelatedItem.getRelation());
             Item item = itemRepository.getOne(subjectRelatedItem.getObjectId());
+            relatedItem.setCategory(item.getCategory());
             relatedItem.setLabel(item.getLabel());
             relatedItem.setDescription(item.getDescription());
-            relatedItem.setUrl(item.getMarketplaceUrl() + item.getId());
             relatedItems.add(relatedItem);
         }
 
@@ -41,9 +41,9 @@ public class ItemRelatedItemService {
             relatedItem.setId(objectRelatedItem.getSubjectId());
             relatedItem.setRelation(objectRelatedItem.getRelation());
             Item item = itemRepository.getOne(objectRelatedItem.getSubjectId());
+            relatedItem.setCategory(item.getCategory());
             relatedItem.setLabel(item.getLabel());
             relatedItem.setDescription(item.getDescription());
-            relatedItem.setUrl(item.getMarketplaceUrl() + item.getId());
             relatedItems.add(relatedItem);
         }
 

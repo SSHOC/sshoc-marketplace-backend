@@ -28,7 +28,7 @@ public abstract class Item {
     @Basic
     @Column(nullable = false)
     @JsonIgnore
-    private String marketplaceUrl;
+    private ItemCategory category;
 
     @Basic
     @Column(nullable = false)

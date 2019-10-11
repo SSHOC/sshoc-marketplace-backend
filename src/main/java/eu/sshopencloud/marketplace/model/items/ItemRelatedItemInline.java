@@ -9,7 +9,7 @@ public class ItemRelatedItemInline {
 
     private Long id;
 
-    private String url;
+    private ItemCategory category;
 
     private String label;
 
