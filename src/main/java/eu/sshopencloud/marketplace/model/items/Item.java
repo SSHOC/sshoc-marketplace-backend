@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import eu.sshopencloud.marketplace.model.auth.User;
 import lombok.Data;
@@ -23,6 +24,11 @@ public abstract class Item {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_generator")
     @SequenceGenerator(name = "item_generator", sequenceName = "items_id_seq", allocationSize = 50)
     private Long id;
+
+    @Basic
+    @Column(nullable = false)
+    @JsonIgnore
+    private String marketplaceUrl;
 
     @Basic
     @Column(nullable = false)
@@ -52,9 +58,9 @@ public abstract class Item {
     @Column(nullable = true)
     private String accessibleAt;
 
-    /* This field will be handled in a separate manner because in this list should be related items with each relation and its inverse. */
+    /* This field will be handled in a separate manner because in this list should be related items with each relation and its inverse and because of cyclical dependencies */
     @Transient
-    private List<ItemRelatedItem> relatedItems;
+    private List<ItemRelatedItemInline> relatedItems;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.REFRESH })
     @JoinTable(name = "items_information_contributors", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),

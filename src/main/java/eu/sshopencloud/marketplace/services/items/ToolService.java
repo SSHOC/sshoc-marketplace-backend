@@ -14,12 +14,16 @@ public class ToolService {
 
     private final ToolRepository toolRepository;
 
+    private final ItemRelatedItemService itemRelatedItemService;
+
     public List<Tool> getAllTools() {
         return toolRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
     }
 
     public Tool getTool(Long id) {
-        return toolRepository.getOne(id);
+        Tool tool = toolRepository.getOne(id);
+        tool.setRelatedItems(itemRelatedItemService.getItemRelatedItems(id));
+        return tool;
     }
 
 }

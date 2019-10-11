@@ -7,22 +7,21 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@IdClass(ItemRelatedItemId.class)
 @Table(name = "items_related_items")
 @Data
 @NoArgsConstructor
 public class ItemRelatedItem implements Serializable {
 
     @Id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
-    @JoinColumn
-    private Item subject;
+    @JoinColumn(name="subject_id", insertable = false, updatable = false)
+    private Long subjectId;
 
     @Id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
-    @JoinColumn
-    private Item object;
+    @JoinColumn(name="object_id", insertable = false, updatable = false)
+    private Long objectId;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn
     private ItemRelation relation;
 

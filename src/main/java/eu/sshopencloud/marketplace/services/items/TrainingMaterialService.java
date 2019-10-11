@@ -14,12 +14,16 @@ public class TrainingMaterialService {
 
     private final TrainingMaterialRepository trainingMaterialRepository;
 
+    private final ItemRelatedItemService itemRelatedItemService;
+
     public List<TrainingMaterial> getAllTrainingMaterials() {
         return trainingMaterialRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
     }
 
     public TrainingMaterial getTrainingMaterial(Long id) {
-        return trainingMaterialRepository.getOne(id);
+        TrainingMaterial trainingMaterial = trainingMaterialRepository.getOne(id);
+        trainingMaterial.setRelatedItems(itemRelatedItemService.getItemRelatedItems(id));
+        return trainingMaterial;
     }
 
 }

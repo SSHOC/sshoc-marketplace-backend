@@ -14,12 +14,16 @@ public class SoftwareService {
 
     private final SoftwareRepository softwareRepository;
 
+    private final ItemRelatedItemService itemRelatedItemService;
+
     public List<Software> getAllSoftware() {
         return softwareRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
     }
 
     public Software getSoftware(Long id) {
-        return softwareRepository.getOne(id);
+        Software software = softwareRepository.getOne(id);
+        software.setRelatedItems(itemRelatedItemService.getItemRelatedItems(id));
+        return software;
     }
 
 }

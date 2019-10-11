@@ -40,6 +40,7 @@ Actor:
 Software:
 
   - !!eu.sshopencloud.marketplace.model.items.Software
+    marketplaceUrl:              /api/tools/
     label:                       Gephi
     description:                 Gephi is the leading visualization and exploration software for all kinds of graphs and networks.
     licenses:
@@ -79,6 +80,7 @@ Software:
       code:                         moderate
 
   - !!eu.sshopencloud.marketplace.model.items.Software
+    marketplaceUrl:              /api/tools/
     label:                       Stata
     description:                 Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.
     contributors:
@@ -104,6 +106,7 @@ Software:
 Service:
 
   - !!eu.sshopencloud.marketplace.model.items.Service
+    marketplaceUrl:              /api/tools/
     label:                       WebSty
     description:                 Stylometric analysis tool.
     contributors:
@@ -141,6 +144,7 @@ Service:
 TrainingMaterial:
 
   - !!eu.sshopencloud.marketplace.model.items.TrainingMaterial
+    marketplaceUrl:              /api/training-materials/
     label:                       "Gephi: an open source software for exploring and manipulating networks."
     description:                 ""
     contributors:
@@ -173,6 +177,7 @@ TrainingMaterial:
     trainingMaterialType:         PAPER
 
   - !!eu.sshopencloud.marketplace.model.items.TrainingMaterial
+    marketplaceUrl:              /api/training-materials/
     label:                       Introduction to GEPHI
     description:                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
     contributors:
@@ -191,3 +196,27 @@ TrainingMaterial:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
     trainingMaterialType:         TUTORIAL
+
+
+ItemRelatedItem:
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
+    subjectId:                  1
+    objectId:                   4
+    relation:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                       is-documented-by
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
+    subjectId:                  1
+    objectId:                   5
+    relation:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                       is-documented-by
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
+    subjectId:                  1
+    objectId:                   3
+    relation:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                       is-related-to

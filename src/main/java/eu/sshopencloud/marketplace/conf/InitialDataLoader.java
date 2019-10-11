@@ -47,6 +47,8 @@ public class InitialDataLoader {
 
     private final TrainingMaterialRepository trainingMaterialRepository;
 
+    private final ItemRelatedItemRepository itemRelatedItemRepository;
+
     @Value("${spring.profiles.active:dev}")
     private String activeProfile;
 
@@ -109,6 +111,10 @@ public class InitialDataLoader {
         List<TrainingMaterial> trainingMaterials = getInitialObjects(data, "TrainingMaterial");
         trainingMaterialRepository.saveAll(trainingMaterials);
         log.debug("Loaded " + trainingMaterials.size()  + " TrainingMaterial objects");
+
+        List<ItemRelatedItem> itemRelatedItems = getInitialObjects(data, "ItemRelatedItem");
+        itemRelatedItemRepository.saveAll(itemRelatedItems);
+        log.debug("Loaded " + itemRelatedItems.size()  + " ItemRelatedItem objects");
     }
 
     private <T> List<T> getInitialObjects(Map<String, List<Object>> data, String label) {
