@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import java.io.Serializable;
 import java.net.URL;
 
+@Deprecated
 @Entity
 public class Concept implements Serializable {
     @Id

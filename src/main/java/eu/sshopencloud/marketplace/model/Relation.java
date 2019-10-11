@@ -5,6 +5,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.io.Serializable;
 
+@Deprecated
 @javax.persistence.Entity
 public class Relation implements Serializable {
     @Id

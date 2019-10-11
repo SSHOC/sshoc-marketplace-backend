@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.model;
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Deprecated
 @Entity
 public class Property implements Serializable {
     @Id

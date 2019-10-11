@@ -1,0 +1,193 @@
+User:
+
+  - !!eu.sshopencloud.marketplace.model.auth.User
+    username:                    Olga Yones
+    preferences:                 "{}"
+
+  - !!eu.sshopencloud.marketplace.model.auth.User
+    username:                    Oleg M. Erg
+    preferences:                 "{}"
+
+
+Actor:
+
+  - !!eu.sshopencloud.marketplace.model.items.Actor
+    name:                        Austrian Academy of Sciences
+    website:                     https://www.oeaw.ac.at/
+
+  - !!eu.sshopencloud.marketplace.model.items.Actor
+    name:                        Gertrude Stein
+
+  - !!eu.sshopencloud.marketplace.model.items.Actor
+    name:                        SSHOC project consortium
+    website:                     https://sshopencloud.eu/
+
+  - !!eu.sshopencloud.marketplace.model.items.Actor
+    name:                        CESSDA
+    website:                     https://www.cessda.eu/
+    email:                       cessda@cessda.eu
+
+  - !!eu.sshopencloud.marketplace.model.items.Actor
+    name:                        John Smith
+    website:                     https://example.com/
+    email:                       john@example.com
+    affiliations:
+      - !!eu.sshopencloud.marketplace.model.items.Actor
+        id:                        3
+
+
+
+Software:
+
+  - !!eu.sshopencloud.marketplace.model.items.Software
+    label:                       Gephi
+    description:                 Gephi is the leading visualization and exploration software for all kinds of graphs and networks.
+    licenses:
+      - !!eu.sshopencloud.marketplace.model.items.License
+        code:                        cddl-1.0
+      - !!eu.sshopencloud.marketplace.model.items.License
+        code:                        gpl-3.0
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.items.Software
+          id:                        1
+        actor:
+          !!eu.sshopencloud.marketplace.model.items.Actor
+          id:                        5
+        role:
+          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          code:                      author
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.items.Software
+          id:                        1
+        actor:
+          !!eu.sshopencloud.marketplace.model.items.Actor
+          id:                        4
+        role:
+          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          code:                      funder
+    accessibleAt:                https://gephi.org/
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           2
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    easyOfUse:
+      !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+      code:                         moderate
+
+  - !!eu.sshopencloud.marketplace.model.items.Software
+    label:                       Stata
+    description:                 Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.items.Software
+          id:                        2
+        actor:
+          !!eu.sshopencloud.marketplace.model.items.Actor
+          id:                        2
+        role:
+          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          code:                      author
+    accessibleAt:                https://www.stats.com/
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    easyOfUse:
+      !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+      code:                         difficult
+
+
+Service:
+
+  - !!eu.sshopencloud.marketplace.model.items.Service
+    label:                       WebSty
+    description:                 Stylometric analysis tool.
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.items.Software
+          id:                        3
+        actor:
+          !!eu.sshopencloud.marketplace.model.items.Actor
+          id:                        3
+        role:
+          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          code:                      author
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.items.Software
+          id:                        3
+        actor:
+          !!eu.sshopencloud.marketplace.model.items.Actor
+          id:                        5
+        role:
+          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          code:                      contributor
+    accessibleAt:                http://ws.clarin-pl.eu/websty.shtml?en
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           2
+    easyOfUse:
+      !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+      code:                         easy
+
+
+TrainingMaterial:
+
+  - !!eu.sshopencloud.marketplace.model.items.TrainingMaterial
+    label:                       "Gephi: an open source software for exploring and manipulating networks."
+    description:                 ""
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.items.Software
+          id:                        4
+        actor:
+          !!eu.sshopencloud.marketplace.model.items.Actor
+          id:                        5
+        role:
+          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          code:                      author
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.items.Software
+          id:                        4
+        actor:
+          !!eu.sshopencloud.marketplace.model.items.Actor
+          id:                        4
+        role:
+          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          code:                      author
+    accessibleAt:                ""
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           2
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    trainingMaterialType:         PAPER
+
+  - !!eu.sshopencloud.marketplace.model.items.TrainingMaterial
+    label:                       Introduction to GEPHI
+    description:                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.items.Software
+          id:                        5
+        actor:
+          !!eu.sshopencloud.marketplace.model.items.Actor
+          id:                        2
+        role:
+          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          code:                      author
+    accessibleAt:                https://www.youtube.com/watch?v=2FqM4gKeNO4
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    trainingMaterialType:         TUTORIAL

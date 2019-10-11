@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+@Deprecated
 @Entity
 public class Activity extends MarketplaceEntity implements Serializable {
     @OneToMany
@@ -14,8 +15,6 @@ public class Activity extends MarketplaceEntity implements Serializable {
     private List<Property> inputProperties;
     @OneToMany
     private List<Property> outputProperties;
-    @OneToMany
-    private List<Tool> usedTools;
 
     public Activity(String label) {
         super(label);
@@ -53,11 +52,4 @@ public class Activity extends MarketplaceEntity implements Serializable {
         this.outputProperties = outputProperties;
     }
 
-    public List<Tool> getUsedTools() {
-        return usedTools;
-    }
-
-    public void setUsedTools(List<Tool> usedTools) {
-        this.usedTools = usedTools;
-    }
 }

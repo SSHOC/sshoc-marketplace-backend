@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+@Deprecated
 @Entity
 public class PropertyType implements Serializable {
     @Id

@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Date;
 
+@Deprecated
 @Entity
 public class Comment implements Serializable {
     @Id

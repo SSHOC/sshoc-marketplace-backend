@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
+@Deprecated
 @javax.persistence.Entity
 public abstract class MarketplaceEntity implements Serializable {
     @Id
@@ -14,8 +15,6 @@ public abstract class MarketplaceEntity implements Serializable {
     @Column(nullable = false)
     private String label;
     private String description;
-    @OneToMany
-    private List<Actor> contributors;
     @OneToMany
     private List<Property> properties;
     @OneToMany
@@ -106,14 +105,6 @@ public abstract class MarketplaceEntity implements Serializable {
         this.revisions = revisions;
     }
 
-    public List<Actor> getContributors() {
-        return contributors;
-    }
-
-    public void setContributors(List<Actor> contributors) {
-        this.contributors = contributors;
-    }
-    
     public List<Relation> getRelatedItems() {
         return relatedItems;
     }

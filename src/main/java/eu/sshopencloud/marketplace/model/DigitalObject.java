@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.model;
 import java.io.Serializable;
 import java.util.Date;
 
+@Deprecated
 @javax.persistence.Entity
 public class DigitalObject extends MarketplaceEntity implements Serializable {
 
