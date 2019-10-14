@@ -17,6 +17,7 @@ public class ItemRelation {
 
     @Basic
     @Column(nullable = false)
+    @JsonIgnore
     protected Integer ord;
 
     @Basic
