@@ -9,9 +9,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "services")
 @Data
-@NoArgsConstructor
 public class Service extends  Tool {
 
-    private ToolType toolType = ToolType.SERVICE;
+    public Service() {
+        this.setToolType(ToolType.SERVICE);
+    }
 
 }

@@ -27,7 +27,6 @@ public abstract class Item {
 
     @Basic
     @Column(nullable = false)
-    @JsonIgnore
     private ItemCategory category;
 
     @Basic

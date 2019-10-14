@@ -12,9 +12,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "software")
 @Data
-@NoArgsConstructor
 public class Software extends Tool {
 
-    private ToolType toolType = ToolType.SOFTWARE;
+    public Software() {
+        this.setToolType(ToolType.SOFTWARE);
+    }
 
 }

@@ -24,7 +24,7 @@ public class ItemRelation {
     @Column(nullable = false)
     private String label;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE, CascadeType.REFRESH }, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.REFRESH }, orphanRemoval = true)
     @JsonIgnore
     private ItemRelation inverseOf;
 

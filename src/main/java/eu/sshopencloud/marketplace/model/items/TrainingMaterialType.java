@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.model.items;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum TrainingMaterialType {
 
     PAPER,
@@ -11,5 +13,10 @@ public enum TrainingMaterialType {
     WEBINAR,
 
     BLOG;
+
+    @JsonValue
+    public String getMeters() {
+        return name().replace('_', '-').toLowerCase();
+    }
 
 }

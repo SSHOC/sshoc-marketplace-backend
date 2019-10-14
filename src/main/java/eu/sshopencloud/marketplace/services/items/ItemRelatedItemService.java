@@ -39,7 +39,7 @@ public class ItemRelatedItemService {
         for (ItemRelatedItem objectRelatedItem : objectRelatedItems) {
             ItemRelatedItemInline relatedItem = new ItemRelatedItemInline();
             relatedItem.setId(objectRelatedItem.getSubjectId());
-            relatedItem.setRelation(objectRelatedItem.getRelation());
+            relatedItem.setRelation(objectRelatedItem.getRelation().getInverseOf());
             Item item = itemRepository.getOne(objectRelatedItem.getSubjectId());
             relatedItem.setCategory(item.getCategory());
             relatedItem.setLabel(item.getLabel());
