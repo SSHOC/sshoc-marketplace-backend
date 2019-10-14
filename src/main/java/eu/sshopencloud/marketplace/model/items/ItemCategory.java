@@ -9,7 +9,7 @@ public enum ItemCategory {
     TRAINING_MATERIAL;
 
     @JsonValue
-    public String getMeters() {
+    public String getValue() {
         return name().replace('_', '-').toLowerCase();
     }
 

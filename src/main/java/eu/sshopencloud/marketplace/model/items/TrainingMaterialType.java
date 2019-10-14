@@ -15,7 +15,7 @@ public enum TrainingMaterialType {
     BLOG;
 
     @JsonValue
-    public String getMeters() {
+    public String getValue() {
         return name().replace('_', '-').toLowerCase();
     }
 

@@ -9,7 +9,7 @@ public enum ToolType {
     SERVICE;
 
     @JsonValue
-    public String getMeters() {
+    public String getValue() {
         return name().replace('_', '-').toLowerCase();
     }
 
