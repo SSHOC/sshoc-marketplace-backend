@@ -75,8 +75,8 @@ Software:
         id:                           2
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    easyOfUse:
-      !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+    easeOfUse:
+      !!eu.sshopencloud.marketplace.model.items.EaseOfUse
       code:                         moderate
 
   - !!eu.sshopencloud.marketplace.model.items.Software
@@ -98,8 +98,8 @@ Software:
     informationContributors:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    easyOfUse:
-      !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+    easeOfUse:
+      !!eu.sshopencloud.marketplace.model.items.EaseOfUse
       code:                         difficult
 
 
@@ -136,8 +136,8 @@ Service:
         id:                           1
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           2
-    easyOfUse:
-      !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+    easeOfUse:
+      !!eu.sshopencloud.marketplace.model.items.EaseOfUse
       code:                         easy
 
 

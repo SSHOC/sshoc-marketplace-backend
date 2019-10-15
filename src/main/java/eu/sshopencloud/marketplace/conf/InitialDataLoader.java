@@ -7,27 +7,21 @@ import eu.sshopencloud.marketplace.repositories.items.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
-import javax.transaction.TransactionScoped;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static org.apache.naming.ContextBindings.getClassLoader;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class InitialDataLoader {
 
-    private final EasyOfUseRepository easyOfUseRepository;
+    private final EaseOfUseRepository easeOfUseRepository;
 
     private final LicenseTypeRepository licenseTypeRepository;
 
@@ -59,9 +53,9 @@ public class InitialDataLoader {
         InputStream dataStream = classLoader.getResourceAsStream("initial-data/const-data.yml");
         Map<String, List<Object>> data = (Map<String, List<Object>>) new Yaml(new CustomClassLoaderConstructor(classLoader)).load(dataStream);
 
-        List<EasyOfUse> easyOfUses = getInitialObjects(data, "EasyOfUse");
-        easyOfUseRepository.saveAll(easyOfUses);
-        log.debug("Loaded " + easyOfUses.size()  + " EasyOfUse objects");
+        List<EaseOfUse> easeOfUse = getInitialObjects(data, "EaseOfUse");
+        easeOfUseRepository.saveAll(easeOfUse);
+        log.debug("Loaded " + easeOfUse.size()  + " EaseOfUse objects");
 
         List<LicenseType> licenseTypes = getInitialObjects(data, "LicenseType");
         licenseTypeRepository.saveAll(licenseTypes);

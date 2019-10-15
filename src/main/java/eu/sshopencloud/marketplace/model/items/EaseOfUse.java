@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "easy_of_use")
+@Table(name = "ease_of_use")
 @Data
 @NoArgsConstructor
-public class EasyOfUse {
+public class EaseOfUse {
 
     @Id
     protected String code;

@@ -114,7 +114,7 @@
     <field name="name" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="description" type="text_en" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="category" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="easy_of_use" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="ease_of_use" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="modified_on" type="pdate" indexed="true" stored="true" required="true" multiValued="false" />
     
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->

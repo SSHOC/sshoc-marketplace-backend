@@ -1,26 +1,26 @@
-EasyOfUse:
+EaseOfUse:
 
-  - !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+  - !!eu.sshopencloud.marketplace.model.items.EaseOfUse
     code:                        very-easy
     ord:                         1
     label:                       Very easy
 
-  - !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+  - !!eu.sshopencloud.marketplace.model.items.EaseOfUse
     code:                        easy
     ord:                         2
     label:                       Easy
 
-  - !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+  - !!eu.sshopencloud.marketplace.model.items.EaseOfUse
     code:                        moderate
     ord:                         3
     label:                       Moderate
 
-  - !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+  - !!eu.sshopencloud.marketplace.model.items.EaseOfUse
     code:                        difficult
     ord:                         4
     label:                       Difficult
 
-  - !!eu.sshopencloud.marketplace.model.items.EasyOfUse
+  - !!eu.sshopencloud.marketplace.model.items.EaseOfUse
     code:                        very-difficult
     ord:                         5
     label:                       Very difficult
@@ -239,6 +239,11 @@ ActorRole:
     code:                        funder
     ord:                         3
     label:                       Funder
+
+  - !!eu.sshopencloud.marketplace.model.items.ActorRole
+    code:                        provider
+    ord:                         3
+    label:                       Provider
 
 
 ItemRelation:
