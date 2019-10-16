@@ -6,7 +6,9 @@ public enum ItemCategory {
 
     TOOL,
 
-    TRAINING_MATERIAL;
+    TRAINING_MATERIAL,
+
+    VOCABULARY;
 
     @JsonValue
     public String getValue() {

@@ -17,7 +17,6 @@ public class ItemRelatedItemService {
 
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
-
     private final ItemRepository itemRepository;
 
     public List<ItemRelatedItemInline> getItemRelatedItems(Long itemId) {

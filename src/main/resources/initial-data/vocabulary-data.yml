@@ -1,0 +1,318 @@
+Vocabulary:
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+    category:                    VOCABULARY
+    label:                       ISO_639-3
+    description:                 ISO 639-3 is a set of codes that defines three-letter identifiers for all known human languages. At the core of ISO 639-3 are the individual languages already accounted for in ISO 639-2. The large number of living languages in the initial inventory of ISO 639-3 beyond those already included in ISO 639-2 was derived primarily from Ethnologue (15th edition). Additional extinct, ancient, historic, and constructed languages were obtained from the Linguist List.
+    accessibleAt:                https://iso639-3.sil.org/
+    concepts:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       eng
+        description:                 English
+        uri:                         https://iso639-3.sil.org/code/eng
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       pol
+        description:                 Polish
+        uri:                         https://iso639-3.sil.org/code/pol
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       deu
+        description:                 German
+        uri:                         https://iso639-3.sil.org/code/deu
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+    category:                    VOCABULARY
+    label:                       TADiRAH
+    description:                 TaDiRAH - Taxonomy of Digital Research Activities in the Humanities.
+    accessibleAt:                http://tadirah.dariah.eu/
+    concepts:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Research Activities
+        description:                 Research Activities
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Capture
+        description:                 Capture
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Conversion
+        description:                 Conversion
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Data Recognition
+        description:                 Data Recognition
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Creation
+        description:                 Creation
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Designing
+        description:                 Designing
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Programming
+        description:                 Programming
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Research Objects
+        description:                 Research Objects
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Research Techniques
+        description:                 Research Techniques
+        uri:                         ""
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+    category:                    VOCABULARY
+    label:                       "Getty Thesauri: AAT – Art & Architecture Thesaurus"
+    description:                 The AAT is a thesaurus containing generic terms, dates, relationships, sources, and notes for work types, roles, materials, styles, cultures, techniques, and other concepts related to art, architecture, and other cultural heritage (e.g., amphora, oil paint, olieverf, acetolysis, sintering, orthographic drawings, Olmeca, Rinascimento, Buddhism, watercolors, asa-no-ha-toji, sralais).
+    licenses:
+      - !!eu.sshopencloud.marketplace.model.licenses.License
+        code:                        odc-by-1.0
+    accessibleAt:                https://www.getty.edu/research/tools/vocabularies/aat/
+    concepts:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Physical Attributes Facet
+        description:                 Physical Attributes Facet
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Attributes and Properties
+        description:                 Attributes and Properties
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Conditions and Effects
+        description:                 Conditions and Effects
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Design Elements
+        description:                 Design Elements
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Color
+        description:                 Color
+        uri:                         ""
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+    category:                    VOCABULARY
+    label:                       VIAF
+    description:                 The VIAF (Virtual International Authority File) combines multiple name authority files into a single OCLC-hosted name authority service. The goal of the service is to lower the cost and increase the utility of library authority files by matching and linking widely-used authority files and making that information available on the Web.
+    licenses:
+      - !!eu.sshopencloud.marketplace.model.licenses.License
+        code:                        odc-by-1.0
+    accessibleAt:                https://viaf.org/
+    concepts:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Albert Camus
+        description:                 Camus, Albert, 1913-1960
+        uri:                         https://viaf.org/viaf/97000332/
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       La peste
+        description:                 Camus, Albert (1913-1960). | La peste
+        uri:                         http://viaf.org/viaf/192647845
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Patrick Saint-Dizier
+        description:                 Saint-Dizier, Patrick, 1954-
+        uri:                         http://viaf.org/viaf/265266760
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Initiation à la programmation en PROLOG
+        description:                 Saint-Dizier, Patrick. | Initiation à la programmation en PROLOG
+        uri:                         http://viaf.org/viaf/312385433
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+    category:                    VOCABULARY
+    label:                       IANA mime/type
+    description:                 "[RFC2046] specifies that Media Types (formerly known as MIME types) and Media Subtypes will be assigned and listed by the IANA."
+    accessibleAt:                https://www.iana.org/assignments/media-types/
+    concepts:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       image/tiff
+        description:                 TIFF (Tag Image File Format)
+        uri:                         https://www.iana.org/assignments/media-types/image/tiff
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       application/pdf
+        description:                 Portable Document Format
+        uri:                         https://www.iana.org/assignments/media-types/application/pdf
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       video/mp4
+        description:                 MPEG-4 Video file
+        uri:                         https://www.iana.org/assignments/media-types/video/mp4
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+    category:                    VOCABULARY
+    label:                       NeDiMAH Ontology
+    description:                 "NeDiMAH Methodology Ontology (NeMO) Activity Types."
+    accessibleAt:                http://nemo.dcu.gr/
+    licenses:
+      - !!eu.sshopencloud.marketplace.model.licenses.License
+        code:                        cc-by-nc-sa-4.0
+    concepts:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Media Types
+        description:                 ""
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       image
+        description:                 ""
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       tiff
+        description:                 TIFF (Tag Image File Format)
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       application
+        description:                 ""
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       pdf
+        description:                 Portable Document Format
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       video
+        description:                 ""
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       mp4
+        description:                 MPEG-4 Video file
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Activity Types
+        description:                 ""
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Acquiring
+        description:                 ""
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Collecting
+        description:                 ""
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Gathering
+        description:                 ""
+        uri:                         ""
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Learning
+        description:                 ""
+        uri:                         ""
+
+
+ConceptRelatedConcept:
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  4
+    objectId:                   5
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  5
+    objectId:                   6
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  5
+    objectId:                   7
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  4
+    objectId:                   8
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  8
+    objectId:                   9
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  8
+    objectId:                   10
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  13
+    objectId:                   14
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  13
+    objectId:                   15
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  13
+    objectId:                   16
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  13
+    objectId:                   17
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  18
+    objectId:                   18
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       related
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  20
+    objectId:                   21
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       related
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  27
+    objectId:                   22
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       same-as
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  29
+    objectId:                   23
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       same-as
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  31
+    objectId:                   24
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       same-as
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  32
+    objectId:                   4
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       related
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  33
+    objectId:                   5
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       related

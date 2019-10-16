@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

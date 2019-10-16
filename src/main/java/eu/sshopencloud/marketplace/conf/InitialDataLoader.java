@@ -1,9 +1,37 @@
 package eu.sshopencloud.marketplace.conf;
 
+import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
+import eu.sshopencloud.marketplace.model.licenses.License;
+import eu.sshopencloud.marketplace.model.licenses.LicenseType;
+import eu.sshopencloud.marketplace.model.tools.EaseOfUse;
+import eu.sshopencloud.marketplace.model.tools.Service;
+import eu.sshopencloud.marketplace.model.tools.Software;
+import eu.sshopencloud.marketplace.model.tools.ToolType;
+import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
+import eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType;
+import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
+import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
+import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
+import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
+import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.repositories.licenses.LicenseRepository;
+import eu.sshopencloud.marketplace.repositories.licenses.LicenseTypeRepository;
+import eu.sshopencloud.marketplace.repositories.tools.EaseOfUseRepository;
+import eu.sshopencloud.marketplace.repositories.tools.ServiceRepository;
+import eu.sshopencloud.marketplace.repositories.tools.SoftwareRepository;
+import eu.sshopencloud.marketplace.repositories.tools.ToolTypeRepository;
+import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
+import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialTypeRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelationRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +57,19 @@ public class InitialDataLoader {
 
     private final ActorRoleRepository actorRoleRepository;
 
+    private final ToolTypeRepository toolTypeRepository;
+
+    private final TrainingMaterialTypeRepository trainingMaterialTypeRepository;
+
     private final ItemRelationRepository itemRelationRepository;
+
+    private final ConceptRelationRepository conceptRelationRepository;
+
+    private final PropertyTypeRepository propertyTypeRepository;
+
+    private final VocabularyRepository vocabularyRepository;
+
+    private final ConceptRelatedConceptRepository conceptRelatedConceptRepository;
 
     private final UserRepository userRepository;
 
@@ -69,14 +109,42 @@ public class InitialDataLoader {
         actorRoleRepository.saveAll(actorRoles);
         log.debug("Loaded " + actorRoles.size()  + " ActorRole objects");
 
+        List<ToolType> toolTypes = getInitialObjects(data, "ToolType");
+        toolTypeRepository.saveAll(toolTypes);
+        log.debug("Loaded " + toolTypes.size()  + " ToolType objects");
+
+        List<TrainingMaterialType> trainingMaterialTypes = getInitialObjects(data, "TrainingMaterialType");
+        trainingMaterialTypeRepository.saveAll(trainingMaterialTypes);
+        log.debug("Loaded " + trainingMaterialTypes.size()  + " TrainingMaterialType objects");
+
         List<ItemRelation> itemRelations = getInitialObjects(data, "ItemRelation");
         itemRelationRepository.saveAll(itemRelations);
         log.debug("Loaded " + itemRelations.size() / 2  + " ItemRelation objects");
+
+        List<ConceptRelation> conceptRelations = getInitialObjects(data, "ConceptRelation");
+        conceptRelationRepository.saveAll(conceptRelations);
+        log.debug("Loaded " + conceptRelations.size() / 2  + " ConceptRelation objects");
+
+        List<PropertyType> propertyTypes = getInitialObjects(data, "PropertyType");
+        propertyTypeRepository.saveAll(propertyTypes);
+        log.debug("Loaded " + propertyTypes.size()  + " PropertyType objects");
     }
 
 
     public void loadVocabularies() {
         log.debug("Loading vocabularies");
+
+        ClassLoader classLoader = InitialDataLoader.class.getClassLoader();
+        InputStream dataStream = classLoader.getResourceAsStream("initial-data/vocabulary-data.yml");
+        Map<String, List<Object>> data = (Map<String, List<Object>>) new Yaml(new CustomClassLoaderConstructor(classLoader)).load(dataStream);
+
+        List<Vocabulary> vocabularies = getInitialObjects(data, "Vocabulary");
+        vocabularyRepository.saveAll(vocabularies);
+        log.debug("Loaded " + vocabularies.size() + " Vocabulary objects");
+
+        List<ConceptRelatedConcept> conceptRelatedConcept = getInitialObjects(data, "ConceptRelatedConcept");
+        conceptRelatedConceptRepository.saveAll(conceptRelatedConcept);
+        log.debug("Loaded " + conceptRelatedConcept.size()  + " ConceptRelatedConcept objects");
     }
 
     public void loadProfileData() {

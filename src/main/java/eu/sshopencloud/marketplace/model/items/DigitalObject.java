@@ -14,12 +14,10 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 public abstract class DigitalObject extends Item {
 
-
     @Basic
     @Column(nullable = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm z", locale = "en_GB")
     private ZonedDateTime dateCreated;
-
 
     @Basic
     @Column(nullable = true)

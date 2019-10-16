@@ -1,9 +1,10 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.licenses.License;
+import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,6 +27,7 @@ public abstract class Item {
     private Long id;
 
     @Basic
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemCategory category;
 
@@ -51,13 +53,15 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<ItemContributor> contributors;
 
-    // TODO properties
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "ord")
+    private List<Property> properties;
 
     @Basic
     @Column(nullable = true)
     private String accessibleAt;
 
-    /* This field will be handled in a separate manner because in this list should be related items with each relation and its inverse and because of cyclical dependencies */
+    /* This field will be handled in a separate manner because in this list should be related items considering all relations and inverses of relations and because of cyclical dependencies */
     @Transient
     private List<ItemRelatedItemInline> relatedItems;
 
@@ -72,6 +76,10 @@ public abstract class Item {
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm z", locale = "en_GB")
     private ZonedDateTime lastInfoUpdate;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH }, orphanRemoval = true)
+    @OrderColumn(name = "ord")
+    private List<ItemComment> comments;
 
     // TODO revisions
 

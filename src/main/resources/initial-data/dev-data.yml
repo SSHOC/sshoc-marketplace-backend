@@ -8,66 +8,70 @@ User:
     username:                    Oleg M. Erg
     preferences:                 "{}"
 
+  - !!eu.sshopencloud.marketplace.model.auth.User
+    username:                    Amy Domański
+    preferences:                 "{}"
+
 
 Actor:
 
-  - !!eu.sshopencloud.marketplace.model.items.Actor
+  - !!eu.sshopencloud.marketplace.model.actors.Actor
     name:                        Austrian Academy of Sciences
     website:                     https://www.oeaw.ac.at/
 
-  - !!eu.sshopencloud.marketplace.model.items.Actor
+  - !!eu.sshopencloud.marketplace.model.actors.Actor
     name:                        Gertrude Stein
 
-  - !!eu.sshopencloud.marketplace.model.items.Actor
+  - !!eu.sshopencloud.marketplace.model.actors.Actor
     name:                        SSHOC project consortium
     website:                     https://sshopencloud.eu/
 
-  - !!eu.sshopencloud.marketplace.model.items.Actor
+  - !!eu.sshopencloud.marketplace.model.actors.Actor
     name:                        CESSDA
     website:                     https://www.cessda.eu/
     email:                       cessda@cessda.eu
 
-  - !!eu.sshopencloud.marketplace.model.items.Actor
+  - !!eu.sshopencloud.marketplace.model.actors.Actor
     name:                        John Smith
     website:                     https://example.com/
     email:                       john@example.com
     affiliations:
-      - !!eu.sshopencloud.marketplace.model.items.Actor
+      - !!eu.sshopencloud.marketplace.model.actors.Actor
         id:                        3
 
 
 
 Software:
 
-  - !!eu.sshopencloud.marketplace.model.items.Software
+  - !!eu.sshopencloud.marketplace.model.tools.Software
     category:                    TOOL
     label:                       Gephi
     description:                 Gephi is the leading visualization and exploration software for all kinds of graphs and networks.
     licenses:
-      - !!eu.sshopencloud.marketplace.model.items.License
+      - !!eu.sshopencloud.marketplace.model.licenses.License
         code:                        cddl-1.0
-      - !!eu.sshopencloud.marketplace.model.items.License
+      - !!eu.sshopencloud.marketplace.model.licenses.License
         code:                        gpl-3.0
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.items.Software
-          id:                        1
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        7
         actor:
-          !!eu.sshopencloud.marketplace.model.items.Actor
+          !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
         role:
-          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.items.Software
-          id:                        1
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        7
         actor:
-          !!eu.sshopencloud.marketplace.model.items.Actor
+          !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
         role:
-          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      funder
     accessibleAt:                https://gephi.org/
     informationContributors:
@@ -76,59 +80,70 @@ Software:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
     easeOfUse:
-      !!eu.sshopencloud.marketplace.model.items.EaseOfUse
+      !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
       code:                         moderate
+    comments:
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         Gephi also appears in Project Bamboo's DiRT, a registry of digital tools suitable for academic research. DiRT contains a wide range of tools and software searchable by task, such as annotation, content management, collaborative research, or authoring. It is an excellent resource for Digital Humanists seeking the right tool for the task at hand.
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           3
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         "<p>View Gephi in DiRT: <a href='http://dirt.projectbamboo.org/resources/gephi'>http://dirt.projectbamboo.org/resources/gephi</a>.<p><p>View the full site: <a href='http://dirt.projectbamboo.org/'>http://dirt.projectbamboo.org</a></p>"
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           1
 
-  - !!eu.sshopencloud.marketplace.model.items.Software
+  - !!eu.sshopencloud.marketplace.model.tools.Software
     category:                    TOOL
     label:                       Stata
     description:                 Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.items.Software
-          id:                        2
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        8
         actor:
-          !!eu.sshopencloud.marketplace.model.items.Actor
+          !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
         role:
-          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
     accessibleAt:                https://www.stats.com/
     informationContributors:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
     easeOfUse:
-      !!eu.sshopencloud.marketplace.model.items.EaseOfUse
+      !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
       code:                         difficult
 
 
 Service:
 
-  - !!eu.sshopencloud.marketplace.model.items.Service
+  - !!eu.sshopencloud.marketplace.model.tools.Service
     category:                    TOOL
     label:                       WebSty
     description:                 Stylometric analysis tool.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.items.Software
-          id:                        3
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        9
         actor:
-          !!eu.sshopencloud.marketplace.model.items.Actor
+          !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        3
         role:
-          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.items.Software
-          id:                        3
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        9
         actor:
-          !!eu.sshopencloud.marketplace.model.items.Actor
+          !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
         role:
-          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      contributor
     accessibleAt:                http://ws.clarin-pl.eu/websty.shtml?en
     informationContributors:
@@ -137,36 +152,46 @@ Service:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           2
     easeOfUse:
-      !!eu.sshopencloud.marketplace.model.items.EaseOfUse
+      !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
       code:                         easy
-
+    comments:
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         Texts similarity analysis
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           1
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         I like it!
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           3
 
 TrainingMaterial:
 
-  - !!eu.sshopencloud.marketplace.model.items.TrainingMaterial
+  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
     label:                       "Gephi: an open source software for exploring and manipulating networks."
     description:                 ""
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.items.Software
-          id:                        4
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        10
         actor:
-          !!eu.sshopencloud.marketplace.model.items.Actor
+          !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
         role:
-          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.items.Software
-          id:                        4
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        10
         actor:
-          !!eu.sshopencloud.marketplace.model.items.Actor
+          !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
         role:
-          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
     accessibleAt:                ""
     informationContributors:
@@ -174,49 +199,75 @@ TrainingMaterial:
         id:                           2
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    trainingMaterialType:         PAPER
+    trainingMaterialType:
+      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
+      code:                             paper
+    comments:
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         Lorem ipsum ...
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           1
 
-  - !!eu.sshopencloud.marketplace.model.items.TrainingMaterial
+  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
     label:                       Introduction to GEPHI
     description:                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.items.Software
-          id:                        5
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        11
         actor:
-          !!eu.sshopencloud.marketplace.model.items.Actor
+          !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
         role:
-          !!eu.sshopencloud.marketplace.model.items.ActorRole
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
     accessibleAt:                https://www.youtube.com/watch?v=2FqM4gKeNO4
     informationContributors:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    trainingMaterialType:         TUTORIAL
+    trainingMaterialType:
+      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
+      code:                             tutorial
+    comments:
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         Thanks for sharing this - very useful!
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           3
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         I was looking to do something graph theory related for my senior capstone, so it was kinda discouraging to hear GePhi isn't good for analysis. Can you suggest any free Windows-friendly programs that can do analysis for me? (Connectivity, diameter, etc.)
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           1
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         Awesome. Thank you!
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           2
 
 
 ItemRelatedItem:
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
-    subjectId:                  1
-    objectId:                   4
+    subjectId:                  7
+    objectId:                   10
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
       code:                       is-documented-by
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
-    subjectId:                  1
-    objectId:                   5
+    subjectId:                  7
+    objectId:                   11
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
       code:                       is-documented-by
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
-    subjectId:                  1
-    objectId:                   3
+    subjectId:                  7
+    objectId:                   9
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
       code:                       is-related-to

@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.model.items;
+package eu.sshopencloud.marketplace.model.vocabularies;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
-public class ItemRelatedItemId implements Serializable {
+public class ConceptRelatedConceptId implements Serializable {
 
     private Long subjectId;
 
