@@ -13,6 +13,7 @@ docker-compose : 1.24.0
 Run:
 
 ```
+docker-compose build
 docker-compose up
 ```
 
@@ -28,6 +29,7 @@ IntelliJ / Eclipse with Lombok (https://projectlombok.org/)
 Run:
 
 ```
+docker-compose build
 docker-compose up psql solr
 In IntelliJ / Eclipse run eu.sshopencloud.marketplace.MarketplaceApplication
 ```

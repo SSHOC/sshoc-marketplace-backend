@@ -251,12 +251,104 @@ TrainingMaterial:
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
     label:                       Introduction to GEPHI
+    version:                     1.0
     description:                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
           !!eu.sshopencloud.marketplace.model.tools.Software
           id:                        11
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        2
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+    accessibleAt:                https://www.youtube.com/watch?v=2FqM4gKeNO4
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    trainingMaterialType:
+      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
+      code:                             tutorial
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          Video
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-format
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                             35
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          Capture
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                               35
+
+  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+    category:                    TRAINING_MATERIAL
+    label:                       Introduction to GEPHI
+    version:                     2.0
+    description:                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        12
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        2
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+    accessibleAt:                https://www.youtube.com/watch?v=2FqM4gKeNO4
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    trainingMaterialType:
+      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
+      code:                             tutorial
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          Video
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-format
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                             35
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          Capture
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                               35
+    comments:
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         Is there a newer version available?
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           2
+    prevVersion:
+      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+      id:                           11
+
+  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+    category:                    TRAINING_MATERIAL
+    label:                       Introduction to GEPHI
+    version:                     3.0
+    description:                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Software
+          id:                        13
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
@@ -303,6 +395,9 @@ TrainingMaterial:
         creator:
           !!eu.sshopencloud.marketplace.model.auth.User
           id:                           2
+    prevVersion:
+      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+      id:                           12
 
 
 ItemRelatedItem:

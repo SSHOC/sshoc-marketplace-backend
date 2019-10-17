@@ -20,14 +20,16 @@ public class ToolService {
 
     private final ToolRepository toolRepository;
 
-    private final ItemRelatedItemService itemRelatedItemService;
-
     private final ItemService itemService;
+
+    private final ItemRelatedItemService itemRelatedItemService;
 
     public List<Tool> getAllTools() {
         List<Tool> tools = toolRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
         for (Tool tool: tools) {
             tool.setRelatedItems(itemRelatedItemService.getItemRelatedItems(tool.getId()));
+            tool.setOlderVersions(itemService.getOlderVersionsOfItem(tool));
+            tool.setNewerVersions(itemService.getNewerVersionsOfItem(tool));
             itemService.fillAllowedVocabulariesForPropertyTypes(tool);
         }
         return tools;
@@ -36,6 +38,8 @@ public class ToolService {
     public Tool getTool(Long id) {
         Tool tool = toolRepository.getOne(id);
         tool.setRelatedItems(itemRelatedItemService.getItemRelatedItems(id));
+        tool.setOlderVersions(itemService.getOlderVersionsOfItem(tool));
+        tool.setNewerVersions(itemService.getNewerVersionsOfItem(tool));
         itemService.fillAllowedVocabulariesForPropertyTypes(tool);
         return tool;
     }

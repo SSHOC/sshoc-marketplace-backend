@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.licenses.License;
@@ -81,6 +82,16 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<ItemComment> comments;
 
-    // TODO revisions
+    @OneToOne(optional = true, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @JsonIgnore
+    private Item prevVersion;
+
+    /* All older versions of this item (except this version). Sorted from the newest. */
+    @Transient
+    private List<ItemInline> olderVersions;
+
+    /* All newer versions of this item (except this version). Sorted from the oldest. */
+    @Transient
+    private List<ItemInline> newerVersions;
 
 }
