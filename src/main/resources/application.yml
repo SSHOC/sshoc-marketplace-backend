@@ -27,5 +27,5 @@ spring:
 
 marketplace:
     pagination:
-        default-perpage: 2
+        default-perpage: 20
         maximal-perpage: 100
