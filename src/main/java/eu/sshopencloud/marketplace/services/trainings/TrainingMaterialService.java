@@ -18,7 +18,11 @@ public class TrainingMaterialService {
     private final ItemRelatedItemService itemRelatedItemService;
 
     public List<TrainingMaterial> getAllTrainingMaterials() {
-        return trainingMaterialRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
+        List<TrainingMaterial> trainingMaterials = trainingMaterialRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
+        for (TrainingMaterial trainingMaterial: trainingMaterials) {
+            trainingMaterial.setRelatedItems(itemRelatedItemService.getItemRelatedItems(trainingMaterial.getId()));
+        }
+        return trainingMaterials;
     }
 
     public TrainingMaterial getTrainingMaterial(Long id) {

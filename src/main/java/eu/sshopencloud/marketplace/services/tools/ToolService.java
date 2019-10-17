@@ -18,7 +18,11 @@ public class ToolService {
     private final ItemRelatedItemService itemRelatedItemService;
 
     public List<Tool> getAllTools() {
-        return toolRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
+        List<Tool> tools = toolRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
+        for (Tool tool: tools) {
+            tool.setRelatedItems(itemRelatedItemService.getItemRelatedItems(tool.getId()));
+        }
+        return tools;
     }
 
     public Tool getTool(Long id) {

@@ -18,7 +18,11 @@ public class SoftwareService {
     private final ItemRelatedItemService itemRelatedItemService;
 
     public List<Software> getAllSoftware() {
-        return softwareRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
+        List<Software> softwares = softwareRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
+        for (Software software: softwares) {
+            software.setRelatedItems(itemRelatedItemService.getItemRelatedItems(software.getId()));
+        }
+        return softwares;
     }
 
     public Software getSoftware(Long id) {

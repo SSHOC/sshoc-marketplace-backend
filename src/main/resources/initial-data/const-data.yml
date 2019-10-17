@@ -571,16 +571,26 @@ PropertyType:
     label:                       Activity
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        person
+    code:                        material
+    ord:                         3
+    label:                       Material
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        technique
     ord:                         4
+    label:                       Technique
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        person
+    ord:                         5
     label:                       Person
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        work
-    ord:                         5
+    ord:                         6
     label:                       Work
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        object-format
-    ord:                         6
+    ord:                         7
     label:                       Object-format

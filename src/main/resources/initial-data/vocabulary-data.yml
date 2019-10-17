@@ -72,25 +72,42 @@ Vocabulary:
     accessibleAt:                https://www.getty.edu/research/tools/vocabularies/aat/
     concepts:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       Physical Attributes Facet
-        description:                 Physical Attributes Facet
-        uri:                         ""
+        label:                       Materials Facet
+        description:                 "The Materials facet encompasses physical substances, whether naturally or synthetically derived, ranging from specific materials (e.g., 'lapis lazuli (rock)') to types of material designated by their function (e.g., 'colorants'), and from raw materials to those that have been formed or processed into products that are used in fabricating structures or objects."
+        uri:                         http://vocab.getty.edu/page/aat/300264091
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       Attributes and Properties
-        description:                 Attributes and Properties
-        uri:                         ""
+        label:                       Materials
+        description:                 "The Materials hierarchy contains terms for a broad range of substances, from natural and synthetic raw materials to material products. Material products are included here rather than in the Objects facet because they can be used in the construction of various objects (e.g., 'plank' for floors or walls), and because they are not necessary constituent parts of objects (e.g., 'shingle' is not essential to roofs in the same way as roof ridges or eaves)."
+        uri:                         http://vocab.getty.edu/page/aat/300010357
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       Conditions and Effects
-        description:                 Conditions and Effects
-        uri:                         ""
+        label:                       coating
+        description:                 "Use generally for any substance spread over a surface, usually for protection or decoration."
+        uri:                         http://vocab.getty.edu/page/aat/300014907
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       Design Elements
-        description:                 Design Elements
-        uri:                         ""
+        label:                       paint
+        description:                 "Any dispersion of pigment in a liquid binder. Paint is applied with a brush, roller, sprayer, or by dipping and dries to form a decorative or protective film."
+        uri:                         http://vocab.getty.edu/page/aat/300015029
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       Color
-        description:                 Color
-        uri:                         ""
+        label:                       oil paint
+        description:                 "A paint made by grinding pigments with a drying oil such as linseed oil. After 1940 alkyd binders were often added to oil paint to provide faster drying times."
+        uri:                         http://vocab.getty.edu/page/aat/300015050
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Activities Facet
+        description:                 "The Activities facet encompasses areas of endeavor, physical and mental actions, discrete occurrences, systematic sequences of actions, methods employed toward a certain end, and processes occurring in materials or objects. Activities covered here range from branches of learning and professional fields to specific life events, from mentally executed tasks to processes performed on or with materials and objects, from single physical actions to complex games."
+        uri:                         http://vocab.getty.edu/page/aat/300264090
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       Processes and Techniques
+        description:                 "The Processes and Techniques hierarchy contains terms for actions and methods performed physically on or with materials and objects, and for processes occurring in materials and objects."
+        uri:                         http://vocab.getty.edu/page/aat/300053001
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       physicochemical processes
+        description:                 "Collocates descriptors for processes of physical and/or chemical change in a material or object."
+        uri:                         http://vocab.getty.edu/page/aat/300229407
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+        label:                       acetolysis
+        description:                 "Various processes simultaneously involving both the introduction of one or more acetyl groups into a compound and hydrolysis by means of a chemical reaction."
+        uri:                         http://vocab.getty.edu/page/aat/300255413
+
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
     category:                    VOCABULARY
@@ -248,21 +265,21 @@ ConceptRelatedConcept:
       code:                       narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  13
+    subjectId:                  14
     objectId:                   15
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                       narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  13
+    subjectId:                  15
     objectId:                   16
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                       narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  13
+    subjectId:                  16
     objectId:                   17
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
@@ -270,49 +287,109 @@ ConceptRelatedConcept:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subjectId:                  18
-    objectId:                   18
+    objectId:                   19
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       related
+      code:                       narrower-transitive
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  19
+    objectId:                   20
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subjectId:                  20
     objectId:                   21
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       related
+      code:                       narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  27
-    objectId:                   22
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       same-as
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  29
+    subjectId:                  22
     objectId:                   23
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       same-as
+      code:                       related
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  24
+    objectId:                   25
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       related
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subjectId:                  31
-    objectId:                   24
+    objectId:                   26
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                       same-as
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  32
+    subjectId:                  33
+    objectId:                   27
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       same-as
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  35
+    objectId:                   28
+    relation:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                       same-as
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
+    subjectId:                  36
     objectId:                   4
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                       related
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  33
+    subjectId:                  37
     objectId:                   5
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                       related
+
+
+PropertyTypeVocabulary:
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyTypeCode:            language
+    vocabularyId:                1
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyTypeCode:            activity
+    vocabularyId:                2
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyTypeCode:            activity
+    vocabularyId:                6
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyTypeCode:            material
+    vocabularyId:                3
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyTypeCode:            technique
+    vocabularyId:                3
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyTypeCode:            person
+    vocabularyId:                4
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyTypeCode:            work
+    vocabularyId:                4
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyTypeCode:            object-format
+    vocabularyId:                5
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyTypeCode:            object-format
+    vocabularyId:                6

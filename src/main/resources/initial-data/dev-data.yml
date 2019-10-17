@@ -82,6 +82,17 @@ Software:
     easeOfUse:
       !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
       code:                         moderate
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          Capture
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                             5
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          2000s
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Gephi also appears in Project Bamboo's DiRT, a registry of digital tools suitable for academic research. DiRT contains a wide range of tools and software searchable by task, such as annotation, content management, collaborative research, or authoring. It is an excellent resource for Digital Humanists seeking the right tool for the task at hand.
@@ -116,6 +127,20 @@ Software:
     easeOfUse:
       !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
       code:                         difficult
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          Education
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                             40
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          Lorem ipsum
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
 
 
 Service:
@@ -202,6 +227,20 @@ TrainingMaterial:
     trainingMaterialType:
       !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
       code:                             paper
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          PDF
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-format
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                             27
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          English
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                             1
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Lorem ipsum ...
@@ -231,6 +270,23 @@ TrainingMaterial:
     trainingMaterialType:
       !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
       code:                             tutorial
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          Video
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-format
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                             35
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        value:                          Capture
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          id:                               35
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Thanks for sharing this - very useful!

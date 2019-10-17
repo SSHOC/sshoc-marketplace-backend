@@ -26,10 +26,8 @@ public class PropertyType {
     @Column(nullable = false)
     private String label;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.REFRESH })
-    @JoinTable(name = "property_types_allowed_vocabularies", joinColumns = @JoinColumn(name = "property_type_code", referencedColumnName = "code"),
-            inverseJoinColumns = @JoinColumn(name = "vocabulary_id", referencedColumnName = "id"))
-    @OrderColumn(name = "ord")
-    private List<Vocabulary> allowedVocabularies;
+    /* This relation is managed from the PropertyTypeVocabulary class in order to easier attach / detach vocabularies. */
+    @Transient
+    private List<VocabularyInline> allowedVocabularies;
 
 }

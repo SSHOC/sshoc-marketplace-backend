@@ -19,7 +19,11 @@ public class ServiceService {
     private final ItemRelatedItemService itemRelatedItemService;
 
     public List<eu.sshopencloud.marketplace.model.tools.Service> getAllServices() {
-        return serviceRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
+        List<eu.sshopencloud.marketplace.model.tools.Service> services = serviceRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
+        for(eu.sshopencloud.marketplace.model.tools.Service service: services) {
+            service.setRelatedItems(itemRelatedItemService.getItemRelatedItems(service.getId()));
+        }
+        return services;
     }
 
     public eu.sshopencloud.marketplace.model.tools.Service getService(Long id) {

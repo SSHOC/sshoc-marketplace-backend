@@ -12,10 +12,7 @@ import eu.sshopencloud.marketplace.model.tools.Software;
 import eu.sshopencloud.marketplace.model.tools.ToolType;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType;
-import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
-import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
-import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
-import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
+import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
@@ -28,10 +25,7 @@ import eu.sshopencloud.marketplace.repositories.tools.SoftwareRepository;
 import eu.sshopencloud.marketplace.repositories.tools.ToolTypeRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialTypeRepository;
-import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptRepository;
-import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelationRepository;
-import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
-import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,6 +64,8 @@ public class InitialDataLoader {
     private final VocabularyRepository vocabularyRepository;
 
     private final ConceptRelatedConceptRepository conceptRelatedConceptRepository;
+
+    private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
 
     private final UserRepository userRepository;
 
@@ -145,6 +141,10 @@ public class InitialDataLoader {
         List<ConceptRelatedConcept> conceptRelatedConcept = getInitialObjects(data, "ConceptRelatedConcept");
         conceptRelatedConceptRepository.saveAll(conceptRelatedConcept);
         log.debug("Loaded " + conceptRelatedConcept.size()  + " ConceptRelatedConcept objects");
+
+        List<PropertyTypeVocabulary> propertyTypeVocabularies = getInitialObjects(data, "PropertyTypeVocabulary");
+        propertyTypeVocabularyRepository.saveAll(propertyTypeVocabularies);
+        log.debug("Loaded " + propertyTypeVocabularies.size()  + " PropertyTypeVocabulary objects");
     }
 
     public void loadProfileData() {
