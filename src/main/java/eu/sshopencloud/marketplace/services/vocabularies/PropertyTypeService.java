@@ -30,7 +30,7 @@ public class PropertyTypeService {
         return propertyTypes;
     }
 
-    private List<VocabularyInline> getAllowedVocabulariesForPropertyType(PropertyType propertyType) {
+    public List<VocabularyInline> getAllowedVocabulariesForPropertyType(PropertyType propertyType) {
         List<VocabularyInline> allowedVocabularies = new ArrayList<VocabularyInline>();
         List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findPropertyTypeVocabularyByPropertyTypeCode(propertyType.getCode());
         for (PropertyTypeVocabulary propertyTypeVocabulary: propertyTypeVocabularies) {
