@@ -1,26 +1,37 @@
 package eu.sshopencloud.marketplace.controllers.trainings;
 
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
+import eu.sshopencloud.marketplace.services.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class TrainingMaterialController {
 
+    @Value("${marketplace.pagination.default-perpage}")
+    private Integer defualtPerpage;
+
+    @Value("${marketplace.pagination.maximal-perpage}")
+    private Integer maximalPerpage;
+
     private final TrainingMaterialService trainingMaterialService;
 
+
     @GetMapping("/training-materials")
-    public ResponseEntity<List<TrainingMaterial>> getAllTrainingMaterials() {
-        List<TrainingMaterial> trainingMaterials = trainingMaterialService.getAllTrainingMaterials();
+    public ResponseEntity<PaginatedTrainingMaterials> getTrainingMaterials(@RequestParam(value = "page", required = false) Integer page,
+                                                                           @RequestParam(value = "perpage", required = false) Integer perpage) {
+        perpage = perpage == null ? defualtPerpage : perpage;
+        if (perpage > maximalPerpage) {
+            return ResponseEntity.badRequest().build();
+        }
+        page = page == null ? 1 : page;
+
+        PaginatedTrainingMaterials trainingMaterials = trainingMaterialService.getTrainingMaterials(page, perpage);
         return ResponseEntity.ok(trainingMaterials);
     }
 

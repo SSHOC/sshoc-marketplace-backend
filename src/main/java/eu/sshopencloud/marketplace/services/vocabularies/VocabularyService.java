@@ -6,10 +6,10 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepositor
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +23,8 @@ public class VocabularyService {
 
     private final ConceptRelatedConceptService conceptRelatedConceptService;
 
-    public List<Vocabulary> getAllVocabularies() {
-        List<Vocabulary> vocabularies = vocabularyRepository.findAll(new Sort(Sort.Direction.ASC, "label"));
+    public PaginatedVocabularies getVocabularies(int page, int perpage) {
+        Page<Vocabulary> vocabularies = vocabularyRepository.findAll(PageRequest.of(page - 1, perpage, new Sort(Sort.Direction.ASC, "label")));
         for (Vocabulary vocabulary: vocabularies) {
             vocabulary.setRelatedItems(itemRelatedItemService.getItemRelatedItems(vocabulary.getId()));
             vocabulary.setOlderVersions(itemService.getOlderVersionsOfItem(vocabulary));
@@ -34,7 +34,7 @@ public class VocabularyService {
                 concept.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getId()));
             }
         }
-        return vocabularies;
+        return new PaginatedVocabularies(vocabularies, page, perpage);
     }
 
     public Vocabulary getVocabulary(Long id) {
