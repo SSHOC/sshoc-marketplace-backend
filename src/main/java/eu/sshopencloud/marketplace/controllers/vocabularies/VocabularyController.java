@@ -40,4 +40,9 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabulary);
     }
 
+    @DeleteMapping("/vocabularies/{id}")
+    public void deleteTool(@PathVariable("id") long id) {
+        vocabularyService.deleteVocabulary(id);
+    }
+
 }

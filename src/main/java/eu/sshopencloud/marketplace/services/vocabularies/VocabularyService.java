@@ -49,4 +49,13 @@ public class VocabularyService {
         return vocabulary;
     }
 
+    public void deleteVocabulary(Long id) {
+        // TODO validate uses properties - DO NOT DELETE in any of existing references
+        Vocabulary vocabulary = vocabularyRepository.getOne(id);
+        // TODO remove relations between related concepts
+        itemRelatedItemService.deleteRelationsForItem(vocabulary);
+        itemService.switchVersionForDelete(vocabulary);
+        vocabularyRepository.delete(vocabulary);
+    }
+
 }

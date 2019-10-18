@@ -40,4 +40,9 @@ public class ToolController {
         return ResponseEntity.ok(tool);
     }
 
+    @DeleteMapping("/tools/{id}")
+    public void deleteTool(@PathVariable("id") long id) {
+        toolService.deleteTool(id);
+    }
+
 }

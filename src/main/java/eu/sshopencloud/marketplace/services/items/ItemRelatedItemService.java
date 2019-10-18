@@ -49,5 +49,12 @@ public class ItemRelatedItemService {
         return relatedItems;
     }
 
+    public void deleteRelationsForItem(Item item) {
+        List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findItemRelatedItemBySubjectId(item.getId());
+        itemRelatedItemRepository.deleteAll(subjectRelatedItems);
+        List<ItemRelatedItem> objectRelatedItems = itemRelatedItemRepository.findItemRelatedItemByObjectId(item.getId());
+        itemRelatedItemRepository.deleteAll(objectRelatedItems);
+    }
+
 }
 

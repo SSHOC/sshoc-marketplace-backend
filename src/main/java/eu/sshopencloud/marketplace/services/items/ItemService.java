@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemInline;
+import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
@@ -56,6 +57,19 @@ public class ItemService {
             if (propertyType != null) {
                 propertyType.setAllowedVocabularies(propertyTypeService.getAllowedVocabulariesForPropertyType(propertyType));
             }
+        }
+    }
+
+
+    public void switchVersionForDelete(Item item) {
+        Item nextVersion = itemRepository.findItemByPrevVersion(item);
+        if (nextVersion != null) {
+            if (item.getPrevVersion() != null) {
+                nextVersion.setPrevVersion(item.getPrevVersion());
+            } else {
+                nextVersion.setPrevVersion(null);
+            }
+            itemRepository.save(item);
         }
     }
 

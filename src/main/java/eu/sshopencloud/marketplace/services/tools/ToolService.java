@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+
 @Service
 @RequiredArgsConstructor
 public class ToolService {
@@ -38,6 +40,13 @@ public class ToolService {
         tool.setNewerVersions(itemService.getNewerVersionsOfItem(tool));
         itemService.fillAllowedVocabulariesForPropertyTypes(tool);
         return tool;
+    }
+
+    public void deleteTool(Long id) {
+        Tool tool = toolRepository.getOne(id);
+        itemRelatedItemService.deleteRelationsForItem(tool);
+        itemService.switchVersionForDelete(tool);
+        toolRepository.delete(tool);
     }
 
 }

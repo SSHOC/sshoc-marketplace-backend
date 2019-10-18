@@ -41,4 +41,9 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterial);
     }
 
+    @DeleteMapping("/training-materials/{id}")
+    public void deleteTool(@PathVariable("id") long id) {
+        trainingMaterialService.deleteTrainingMaterial(id);
+    }
+
 }

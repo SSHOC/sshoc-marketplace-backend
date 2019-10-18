@@ -66,7 +66,7 @@ public abstract class Item {
     @Transient
     private List<ItemRelatedItemInline> relatedItems;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.REFRESH })
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinTable(name = "items_information_contributors", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     @OrderColumn(name = "ord")
@@ -79,6 +79,8 @@ public abstract class Item {
     private ZonedDateTime lastInfoUpdate;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH }, orphanRemoval = true)
+    @JoinTable(name = "items_items_comments", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "item_comment_id", referencedColumnName = "id"))
     @OrderColumn(name = "ord")
     private List<ItemComment> comments;
 

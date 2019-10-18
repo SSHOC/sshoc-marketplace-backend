@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public abstract class Tool extends Item {
 
-    @ManyToOne(optional =  false, fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.REFRESH })
+    @ManyToOne(optional =  false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     private ToolType toolType;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })

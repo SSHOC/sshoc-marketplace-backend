@@ -40,4 +40,11 @@ public class TrainingMaterialService {
         return trainingMaterial;
     }
 
+    public void deleteTrainingMaterial(Long id) {
+        TrainingMaterial trainingMaterial = trainingMaterialRepository.getOne(id);
+        itemRelatedItemService.deleteRelationsForItem(trainingMaterial);
+        itemService.switchVersionForDelete(trainingMaterial);
+        trainingMaterialRepository.delete(trainingMaterial);
+    }
+
 }

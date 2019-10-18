@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import javax.persistence.EntityNotFoundException;
+
 @ControllerAdvice
 @Slf4j
 public class MarketplaceExceptionHandler {
@@ -15,6 +17,12 @@ public class MarketplaceExceptionHandler {
     @ExceptionHandler(value = NoHandlerFoundException.class)
     public ResponseEntity<Object> handleException(NoHandlerFoundException ex, WebRequest request) {
         log.error("No endpoint", ex);
+        return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(value = EntityNotFoundException.class)
+    public ResponseEntity<Object> handleException(EntityNotFoundException ex, WebRequest request) {
+        log.error("No entity", ex);
         return ResponseEntity.notFound().build();
     }
 
