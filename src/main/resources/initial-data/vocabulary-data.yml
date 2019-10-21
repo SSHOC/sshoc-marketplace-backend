@@ -1,9 +1,9 @@
 Vocabulary:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-    category:                    VOCABULARY
-    label:                       ISO_639-3
-    description:                 ISO 639-3 is a set of codes that defines three-letter identifiers for all known human languages. At the core of ISO 639-3 are the individual languages already accounted for in ISO 639-2. The large number of living languages in the initial inventory of ISO 639-3 beyond those already included in ISO 639-2 was derived primarily from Ethnologue (15th edition). Additional extinct, ancient, historic, and constructed languages were obtained from the Linguist List.
+    code:                        iso-639-3
+    label:                       ISO 639-3
+    description:                 "ISO 639-3 is a set of codes that defines three-letter identifiers for all known human languages. At the core of ISO 639-3 are the individual languages already accounted for in ISO 639-2. The large number of living languages in the initial inventory of ISO 639-3 beyond those already included in ISO 639-2 was derived primarily from Ethnologue (15th edition). Additional extinct, ancient, historic, and constructed languages were obtained from the Linguist List."
     accessibleAt:                https://iso639-3.sil.org/
     concepts:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
@@ -20,9 +20,9 @@ Vocabulary:
         uri:                         https://iso639-3.sil.org/code/deu
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-    category:                    VOCABULARY
+    code:                        tadirah
     label:                       TADiRAH
-    description:                 TaDiRAH - Taxonomy of Digital Research Activities in the Humanities.
+    description:                 "TaDiRAH - Taxonomy of Digital Research Activities in the Humanities."
     accessibleAt:                http://tadirah.dariah.eu/
     concepts:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
@@ -63,34 +63,11 @@ Vocabulary:
         uri:                         ""
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-    category:                    VOCABULARY
+    code:                        getty-thesauri-aat-art-architecture-thesaurus
     label:                       "Getty Thesauri: AAT – Art & Architecture Thesaurus"
     description:                 The AAT is a thesaurus containing generic terms, dates, relationships, sources, and notes for work types, roles, materials, styles, cultures, techniques, and other concepts related to art, architecture, and other cultural heritage (e.g., amphora, oil paint, olieverf, acetolysis, sintering, orthographic drawings, Olmeca, Rinascimento, Buddhism, watercolors, asa-no-ha-toji, sralais).
-    licenses:
-      - !!eu.sshopencloud.marketplace.model.licenses.License
-        code:                        odc-by-1.0
     accessibleAt:                https://www.getty.edu/research/tools/vocabularies/aat/
     concepts:
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       Materials Facet
-        description:                 "The Materials facet encompasses physical substances, whether naturally or synthetically derived, ranging from specific materials (e.g., 'lapis lazuli (rock)') to types of material designated by their function (e.g., 'colorants'), and from raw materials to those that have been formed or processed into products that are used in fabricating structures or objects."
-        uri:                         http://vocab.getty.edu/page/aat/300264091
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       Materials
-        description:                 "The Materials hierarchy contains terms for a broad range of substances, from natural and synthetic raw materials to material products. Material products are included here rather than in the Objects facet because they can be used in the construction of various objects (e.g., 'plank' for floors or walls), and because they are not necessary constituent parts of objects (e.g., 'shingle' is not essential to roofs in the same way as roof ridges or eaves)."
-        uri:                         http://vocab.getty.edu/page/aat/300010357
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       coating
-        description:                 "Use generally for any substance spread over a surface, usually for protection or decoration."
-        uri:                         http://vocab.getty.edu/page/aat/300014907
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       paint
-        description:                 "Any dispersion of pigment in a liquid binder. Paint is applied with a brush, roller, sprayer, or by dipping and dries to form a decorative or protective film."
-        uri:                         http://vocab.getty.edu/page/aat/300015029
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       oil paint
-        description:                 "A paint made by grinding pigments with a drying oil such as linseed oil. After 1940 alkyd binders were often added to oil paint to provide faster drying times."
-        uri:                         http://vocab.getty.edu/page/aat/300015050
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
         label:                       Activities Facet
         description:                 "The Activities facet encompasses areas of endeavor, physical and mental actions, discrete occurrences, systematic sequences of actions, methods employed toward a certain end, and processes occurring in materials or objects. Activities covered here range from branches of learning and professional fields to specific life events, from mentally executed tasks to processes performed on or with materials and objects, from single physical actions to complex games."
@@ -108,14 +85,10 @@ Vocabulary:
         description:                 "Various processes simultaneously involving both the introduction of one or more acetyl groups into a compound and hydrolysis by means of a chemical reaction."
         uri:                         http://vocab.getty.edu/page/aat/300255413
 
-
   - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-    category:                    VOCABULARY
+    code:                        viaf
     label:                       VIAF
-    description:                 The VIAF (Virtual International Authority File) combines multiple name authority files into a single OCLC-hosted name authority service. The goal of the service is to lower the cost and increase the utility of library authority files by matching and linking widely-used authority files and making that information available on the Web.
-    licenses:
-      - !!eu.sshopencloud.marketplace.model.licenses.License
-        code:                        odc-by-1.0
+    description:                 "The VIAF (Virtual International Authority File) combines multiple name authority files into a single OCLC-hosted name authority service. The goal of the service is to lower the cost and increase the utility of library authority files by matching and linking widely-used authority files and making that information available on the Web."
     accessibleAt:                https://viaf.org/
     concepts:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
@@ -123,20 +96,12 @@ Vocabulary:
         description:                 Camus, Albert, 1913-1960
         uri:                         https://viaf.org/viaf/97000332/
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       La peste
-        description:                 Camus, Albert (1913-1960). | La peste
-        uri:                         http://viaf.org/viaf/192647845
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
         label:                       Patrick Saint-Dizier
         description:                 Saint-Dizier, Patrick, 1954-
         uri:                         http://viaf.org/viaf/265266760
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       Initiation à la programmation en PROLOG
-        description:                 Saint-Dizier, Patrick. | Initiation à la programmation en PROLOG
-        uri:                         http://viaf.org/viaf/312385433
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-    category:                    VOCABULARY
+    code:                        iana-mime-type
     label:                       IANA mime/type
     description:                 "[RFC2046] specifies that Media Types (formerly known as MIME types) and Media Subtypes will be assigned and listed by the IANA."
     accessibleAt:                https://www.iana.org/assignments/media-types/
@@ -155,42 +120,11 @@ Vocabulary:
         uri:                         https://www.iana.org/assignments/media-types/video/mp4
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-    category:                    VOCABULARY
+    code:                        nedimah-ontology
     label:                       NeDiMAH Ontology
     description:                 "NeDiMAH Methodology Ontology (NeMO) Activity Types."
     accessibleAt:                http://nemo.dcu.gr/
-    licenses:
-      - !!eu.sshopencloud.marketplace.model.licenses.License
-        code:                        cc-by-nc-sa-4.0
     concepts:
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       Media Types
-        description:                 ""
-        uri:                         ""
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       image
-        description:                 ""
-        uri:                         ""
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       tiff
-        description:                 TIFF (Tag Image File Format)
-        uri:                         ""
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       application
-        description:                 ""
-        uri:                         ""
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       pdf
-        description:                 Portable Document Format
-        uri:                         ""
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       video
-        description:                 ""
-        uri:                         ""
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-        label:                       mp4
-        description:                 MPEG-4 Video file
-        uri:                         ""
       - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
         label:                       Activity Types
         description:                 ""
@@ -279,77 +213,14 @@ ConceptRelatedConcept:
       code:                       narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  16
-    objectId:                   17
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       narrower-transitive
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  18
-    objectId:                   19
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       narrower-transitive
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  19
-    objectId:                   20
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       narrower-transitive
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  20
-    objectId:                   21
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       narrower-transitive
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  22
-    objectId:                   23
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       related
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  24
-    objectId:                   25
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       related
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  31
-    objectId:                   26
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       same-as
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  33
-    objectId:                   27
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       same-as
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  35
-    objectId:                   28
-    relation:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                       same-as
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  36
+    subjectId:                  23
     objectId:                   4
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                       related
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectId:                  37
+    subjectId:                  24
     objectId:                   5
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
@@ -360,36 +231,24 @@ PropertyTypeVocabulary:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyTypeCode:            language
-    vocabularyId:                1
+    vocabularyCode:              iso-639-3
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyTypeCode:            activity
-    vocabularyId:                2
+    vocabularyCode:              tadirah
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyTypeCode:            activity
-    vocabularyId:                6
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyTypeCode:            material
-    vocabularyId:                3
+    vocabularyCode:              nedimah-ontology
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyTypeCode:            technique
-    vocabularyId:                3
+    vocabularyCode:              getty-thesauri-aat-art-architecture-thesaurus
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyTypeCode:            person
-    vocabularyId:                4
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyTypeCode:            work
-    vocabularyId:                4
+    vocabularyCode:              viaf
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyTypeCode:            object-format
-    vocabularyId:                5
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyTypeCode:            object-format
-    vocabularyId:                6
+    vocabularyCode:              iana-mime-type

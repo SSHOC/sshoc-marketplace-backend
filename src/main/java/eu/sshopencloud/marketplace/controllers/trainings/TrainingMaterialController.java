@@ -41,6 +41,12 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterial);
     }
 
+    @PostMapping("/training-materials")
+    public ResponseEntity<TrainingMaterial> createTool(@RequestBody TrainingMaterial newTrainingMaterial) {
+        TrainingMaterial trainingMaterial = trainingMaterialService.addTrainingMaterial(newTrainingMaterial);
+        return ResponseEntity.ok(newTrainingMaterial);
+    }
+
     @DeleteMapping("/training-materials/{id}")
     public void deleteTool(@PathVariable("id") long id) {
         trainingMaterialService.deleteTrainingMaterial(id);

@@ -16,13 +16,13 @@ public class Property {
     @SequenceGenerator(name = "property_generator", sequenceName = "properties_id_seq", allocationSize = 50)
     private Long id;
 
-    @Basic
-    @Column(nullable = false)
-    private String value;
-
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn
     private PropertyType type;
+
+    @Basic
+    @Column(nullable = true)
+    private String value;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn

@@ -11,6 +11,6 @@ public class PropertyTypeVocabularyId implements Serializable {
 
     private String propertyTypeCode;
 
-    private Long vocabularyId;
+    private String vocabularyCode;
 
 }

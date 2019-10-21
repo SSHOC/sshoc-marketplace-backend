@@ -34,9 +34,9 @@ public class PropertyTypeService {
         List<VocabularyInline> allowedVocabularies = new ArrayList<VocabularyInline>();
         List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findPropertyTypeVocabularyByPropertyTypeCode(propertyType.getCode());
         for (PropertyTypeVocabulary propertyTypeVocabulary: propertyTypeVocabularies) {
-            Vocabulary vocabulary = vocabularyRepository.getOne(propertyTypeVocabulary.getVocabularyId());
+            Vocabulary vocabulary = vocabularyRepository.getOne(propertyTypeVocabulary.getVocabularyCode());
             VocabularyInline allowedVocabulary = new VocabularyInline();
-            allowedVocabulary.setId(vocabulary.getId());
+            allowedVocabulary.setCode(vocabulary.getCode());
             allowedVocabulary.setLabel(vocabulary.getLabel());
             allowedVocabularies.add(allowedVocabulary);
         }

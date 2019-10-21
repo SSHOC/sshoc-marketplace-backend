@@ -34,15 +34,15 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabularies);
     }
 
-    @GetMapping("/vocabularies/{id}")
-    public ResponseEntity<Vocabulary> getVocabulary(@PathVariable("id") long id) {
-        Vocabulary vocabulary = vocabularyService.getVocabulary(id);
+    @GetMapping("/vocabularies/{code}")
+    public ResponseEntity<Vocabulary> getVocabulary(@PathVariable("code") String code) {
+        Vocabulary vocabulary = vocabularyService.getVocabulary(code);
         return ResponseEntity.ok(vocabulary);
     }
 
-    @DeleteMapping("/vocabularies/{id}")
-    public void deleteTool(@PathVariable("id") long id) {
-        vocabularyService.deleteVocabulary(id);
+    @DeleteMapping("/vocabularies/{code}")
+    public void deleteTool(@PathVariable("code") String code) {
+        vocabularyService.deleteVocabulary(code);
     }
 
 }

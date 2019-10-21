@@ -56,7 +56,7 @@ Software:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
           !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        7
+          id:                        1
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
@@ -66,7 +66,7 @@ Software:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
           !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        7
+          id:                        1
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
@@ -84,7 +84,6 @@ Software:
       code:                         moderate
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          Capture
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -92,7 +91,10 @@ Software:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
           id:                             5
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          2000s
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           material
+        value:                          oil
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Gephi also appears in Project Bamboo's DiRT, a registry of digital tools suitable for academic research. DiRT contains a wide range of tools and software searchable by task, such as annotation, content management, collaborative research, or authoring. It is an excellent resource for Digital Humanists seeking the right tool for the task at hand.
@@ -113,7 +115,7 @@ Software:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
           !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        8
+          id:                        2
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
@@ -129,19 +131,17 @@ Software:
       code:                         difficult
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          Education
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             40
+          id:                             6
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          Lorem ipsum
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-          code:                           activity
-
+          code:                           material
+        value:                          Lorem ipsum
 
 Service:
 
@@ -152,8 +152,8 @@ Service:
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        9
+          !!eu.sshopencloud.marketplace.model.tools.Service
+          id:                        3
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        3
@@ -162,8 +162,8 @@ Service:
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        9
+          !!eu.sshopencloud.marketplace.model.tools.Service
+          id:                        3
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
@@ -200,8 +200,8 @@ TrainingMaterial:
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        10
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        4
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
@@ -210,8 +210,8 @@ TrainingMaterial:
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        10
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        4
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
@@ -229,15 +229,16 @@ TrainingMaterial:
       code:                             paper
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          PDF
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             27
+          id:                             21
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          English
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           language
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
           id:                             1
@@ -256,8 +257,8 @@ TrainingMaterial:
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        11
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        5
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
@@ -273,21 +274,19 @@ TrainingMaterial:
       code:                             tutorial
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          Video
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             35
+          id:                             22
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          Capture
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                               35
+          id:                               24
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
@@ -297,8 +296,8 @@ TrainingMaterial:
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        12
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        6
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
@@ -314,21 +313,19 @@ TrainingMaterial:
       code:                             tutorial
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          Video
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             35
+          id:                             22
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          Capture
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                               35
+          id:                               24
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Is there a newer version available?
@@ -337,7 +334,7 @@ TrainingMaterial:
           id:                           2
     prevVersion:
       !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-      id:                           11
+      id:                           5
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
@@ -347,8 +344,8 @@ TrainingMaterial:
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
-          id:                        13
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        7
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
@@ -364,21 +361,19 @@ TrainingMaterial:
       code:                             tutorial
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          Video
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             35
+          id:                             22
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        value:                          Capture
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                               35
+          id:                               24
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Thanks for sharing this - very useful!
@@ -397,28 +392,28 @@ TrainingMaterial:
           id:                           2
     prevVersion:
       !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-      id:                           12
+      id:                           6
 
 
 ItemRelatedItem:
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
-    subjectId:                  7
-    objectId:                   10
+    subjectId:                  1
+    objectId:                   4
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
       code:                       is-documented-by
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
-    subjectId:                  7
-    objectId:                   11
+    subjectId:                  1
+    objectId:                   5
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
       code:                       is-documented-by
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
-    subjectId:                  7
-    objectId:                   9
+    subjectId:                  1
+    objectId:                   3
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
       code:                       is-related-to

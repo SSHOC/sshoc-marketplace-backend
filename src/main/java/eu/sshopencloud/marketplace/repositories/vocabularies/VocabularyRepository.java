@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface VocabularyRepository extends JpaRepository<Vocabulary, Long> {
+public interface VocabularyRepository extends JpaRepository<Vocabulary, String> {
 
     Vocabulary findVocabularyByConcepts(Concept concept);
 

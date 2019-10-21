@@ -23,7 +23,7 @@ public class Concept {
     private String label;
 
     @Basic
-    @Column(nullable = false, length = 4096)
+    @Column(nullable = true, length = 4096)
     private String description;
 
     @Basic

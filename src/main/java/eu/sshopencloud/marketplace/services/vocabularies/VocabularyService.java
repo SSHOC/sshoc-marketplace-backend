@@ -26,10 +26,6 @@ public class VocabularyService {
     public PaginatedVocabularies getVocabularies(int page, int perpage) {
         Page<Vocabulary> vocabularies = vocabularyRepository.findAll(PageRequest.of(page - 1, perpage, new Sort(Sort.Direction.ASC, "label")));
         for (Vocabulary vocabulary: vocabularies) {
-            vocabulary.setRelatedItems(itemRelatedItemService.getItemRelatedItems(vocabulary.getId()));
-            vocabulary.setOlderVersions(itemService.getOlderVersionsOfItem(vocabulary));
-            vocabulary.setNewerVersions(itemService.getNewerVersionsOfItem(vocabulary));
-            itemService.fillAllowedVocabulariesForPropertyTypes(vocabulary);
             for (Concept concept: vocabulary.getConcepts()) {
                 concept.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getId()));
             }
@@ -37,24 +33,18 @@ public class VocabularyService {
         return new PaginatedVocabularies(vocabularies, page, perpage);
     }
 
-    public Vocabulary getVocabulary(Long id) {
-        Vocabulary vocabulary = vocabularyRepository.getOne(id);
-        vocabulary.setRelatedItems(itemRelatedItemService.getItemRelatedItems(id));
-        vocabulary.setOlderVersions(itemService.getOlderVersionsOfItem(vocabulary));
-        vocabulary.setNewerVersions(itemService.getNewerVersionsOfItem(vocabulary));
-        itemService.fillAllowedVocabulariesForPropertyTypes(vocabulary);
+    public Vocabulary getVocabulary(String code) {
+        Vocabulary vocabulary = vocabularyRepository.getOne(code);
         for (Concept concept: vocabulary.getConcepts()) {
             concept.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getId()));
         }
         return vocabulary;
     }
 
-    public void deleteVocabulary(Long id) {
+    public void deleteVocabulary(String code) {
         // TODO validate uses properties - DO NOT DELETE in any of existing references
-        Vocabulary vocabulary = vocabularyRepository.getOne(id);
+        Vocabulary vocabulary = vocabularyRepository.getOne(code);
         // TODO remove relations between related concepts
-        itemRelatedItemService.deleteRelationsForItem(vocabulary);
-        itemService.switchVersionForDelete(vocabulary);
         vocabularyRepository.delete(vocabulary);
     }
 

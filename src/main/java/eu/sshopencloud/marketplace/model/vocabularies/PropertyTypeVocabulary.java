@@ -18,7 +18,7 @@ public class PropertyTypeVocabulary implements Serializable {
     private String propertyTypeCode;
 
     @Id
-    @JoinColumn(name="vocabulary_id", insertable = false, updatable = false)
-    private Long vocabularyId;
+    @JoinColumn(name="vocabulary_code", insertable = false, updatable = false)
+    private String vocabularyCode;
 
 }

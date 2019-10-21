@@ -40,6 +40,12 @@ public class TrainingMaterialService {
         return trainingMaterial;
     }
 
+    public TrainingMaterial addTrainingMaterial(TrainingMaterial newTrainingMaterial) {
+        TrainingMaterial trainingMaterial = trainingMaterialRepository.save(newTrainingMaterial);
+        // TODO index in SOLR
+        return trainingMaterial;
+    }
+
     public void deleteTrainingMaterial(Long id) {
         TrainingMaterial trainingMaterial = trainingMaterialRepository.getOne(id);
         itemRelatedItemService.deleteRelationsForItem(trainingMaterial);

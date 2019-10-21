@@ -1,18 +1,38 @@
 package eu.sshopencloud.marketplace.model.vocabularies;
 
-import eu.sshopencloud.marketplace.model.items.DigitalObject;
-import eu.sshopencloud.marketplace.model.items.ItemContributor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.items.*;
+import eu.sshopencloud.marketplace.model.licenses.License;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "vocabularies")
 @Data
 @NoArgsConstructor
-public class Vocabulary extends DigitalObject {
+public class Vocabulary {
+
+    @Id
+    protected String code;
+
+    @Basic
+    @Column(nullable = false)
+    private String label;
+
+    @Basic
+    @Column(nullable = false, length = 4096)
+    private String description;
+
+    @Basic
+    @Column(nullable = true)
+    private String accessibleAt;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH }, orphanRemoval = true)
     @JoinColumn

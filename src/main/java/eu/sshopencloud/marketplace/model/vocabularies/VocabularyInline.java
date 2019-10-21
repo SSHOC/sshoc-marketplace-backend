@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VocabularyInline {
 
-    private Long id;
+    private String code;
 
     private String label;
 

@@ -12,6 +12,6 @@ public interface PropertyTypeVocabularyRepository extends JpaRepository<Property
 
     List<PropertyTypeVocabulary> findPropertyTypeVocabularyByPropertyTypeCode(String propertyTypeCode);
 
-    List<PropertyTypeVocabulary> findPropertyTypeVocabularyByVocabularyId(Long vocabularyId);
+    List<PropertyTypeVocabulary> findPropertyTypeVocabularyByVocabularyCode(String vocabularyCode);
 
 }

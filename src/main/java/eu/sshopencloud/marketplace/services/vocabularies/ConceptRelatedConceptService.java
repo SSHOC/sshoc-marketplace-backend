@@ -55,7 +55,7 @@ public class ConceptRelatedConceptService {
     private VocabularyInline getRelatedVocabularyForConcept(Concept concept) {
         Vocabulary vocabulary = vocabularyRepository.findVocabularyByConcepts(concept);
         VocabularyInline relatedVocabulary = new VocabularyInline();
-        relatedVocabulary.setId(vocabulary.getId());
+        relatedVocabulary.setCode(vocabulary.getCode());
         relatedVocabulary.setLabel(vocabulary.getLabel());
         return relatedVocabulary;
     }
