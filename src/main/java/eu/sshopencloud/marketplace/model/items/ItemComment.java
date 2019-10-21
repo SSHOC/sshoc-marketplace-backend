@@ -24,7 +24,7 @@ public class ItemComment {
     @Column(nullable = false, length = 4096)
     private String body;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn
     private User creator;
 

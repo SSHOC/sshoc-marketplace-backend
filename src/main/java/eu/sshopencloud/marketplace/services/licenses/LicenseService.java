@@ -17,7 +17,6 @@ public class LicenseService {
     private final LicenseRepository licenseRepository;
 
     public List<License> getLicenses(String q) {
-
         ExampleMatcher queryLicenseMatcher = ExampleMatcher.matchingAny()
                 .withMatcher("code", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
                 .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());

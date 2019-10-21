@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
 import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,18 @@ public class ToolController {
     public ResponseEntity<Tool> getTool(@PathVariable("id") long id) {
         Tool tool = toolService.getTool(id);
         return ResponseEntity.ok(tool);
+    }
+
+    @PostMapping("/tools")
+    public ResponseEntity<Tool> createTool(@RequestBody Tool newTool) {
+        Tool tool = toolService.createTool(newTool);
+        return ResponseEntity.ok(newTool);
+    }
+
+    @PutMapping("/tools/{id}")
+    public ResponseEntity<Tool> updateTool(@PathVariable("id") long id, @RequestBody Tool newTool) {
+        Tool tool = toolService.updateTool(id, newTool);
+        return ResponseEntity.ok(newTool);
     }
 
     @DeleteMapping("/tools/{id}")

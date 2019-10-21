@@ -36,19 +36,26 @@ public class TrainingMaterialController {
     }
 
     @GetMapping("/training-materials/{id}")
-    public ResponseEntity<TrainingMaterial> getTool(@PathVariable("id") long id) {
+    public ResponseEntity<TrainingMaterial> getTrainingMaterial(@PathVariable("id") long id) {
         TrainingMaterial trainingMaterial = trainingMaterialService.getTrainingMaterial(id);
         return ResponseEntity.ok(trainingMaterial);
     }
 
     @PostMapping("/training-materials")
-    public ResponseEntity<TrainingMaterial> createTool(@RequestBody TrainingMaterial newTrainingMaterial) {
-        TrainingMaterial trainingMaterial = trainingMaterialService.addTrainingMaterial(newTrainingMaterial);
+    public ResponseEntity<TrainingMaterial> createTrainingMaterial(@RequestBody TrainingMaterial newTrainingMaterial) {
+        TrainingMaterial trainingMaterial = trainingMaterialService.createTrainingMaterial(newTrainingMaterial);
         return ResponseEntity.ok(newTrainingMaterial);
     }
 
+    @PutMapping("/training-materials/{id}")
+    public ResponseEntity<TrainingMaterial> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterial newTrainingMaterial) {
+        TrainingMaterial trainingMaterial = trainingMaterialService.updateTrainingMaterial(id, newTrainingMaterial);
+        return ResponseEntity.ok(newTrainingMaterial);
+    }
+
+
     @DeleteMapping("/training-materials/{id}")
-    public void deleteTool(@PathVariable("id") long id) {
+    public void deleteTrainingMaterial(@PathVariable("id") long id) {
         trainingMaterialService.deleteTrainingMaterial(id);
     }
 

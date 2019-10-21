@@ -40,7 +40,15 @@ public class TrainingMaterialService {
         return trainingMaterial;
     }
 
-    public TrainingMaterial addTrainingMaterial(TrainingMaterial newTrainingMaterial) {
+    public TrainingMaterial createTrainingMaterial(TrainingMaterial newTrainingMaterial) {
+        TrainingMaterial trainingMaterial = trainingMaterialRepository.save(newTrainingMaterial);
+        // TODO index in SOLR
+        return trainingMaterial;
+    }
+
+    public TrainingMaterial updateTrainingMaterial(Long id, TrainingMaterial newTrainingMaterial) {
+        // TODO check ID
+        newTrainingMaterial.setId(id);
         TrainingMaterial trainingMaterial = trainingMaterialRepository.save(newTrainingMaterial);
         // TODO index in SOLR
         return trainingMaterial;

@@ -16,7 +16,7 @@ public class LicenseController {
     private final LicenseService licenseService;
 
     @GetMapping("/licenses")
-    public ResponseEntity<List<License>> getAllLicenses(@RequestParam(value = "q", required = false) String q) {
+    public ResponseEntity<List<License>> getLicenses(@RequestParam(value = "q", required = false) String q) {
         List<License> licenses = licenseService.getLicenses(q);
         return ResponseEntity.ok(licenses);
     }

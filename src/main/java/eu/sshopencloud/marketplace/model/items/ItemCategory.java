@@ -8,11 +8,16 @@ public enum ItemCategory {
 
     TRAINING_MATERIAL,
 
-    VOCABULARY;
+    DATASET;
 
     @JsonValue
     public String getValue() {
         return name().replace('_', '-').toLowerCase();
+    }
+
+    @Override
+    public String toString() {
+        return getValue();
     }
 
 }

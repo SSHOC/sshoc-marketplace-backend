@@ -1,8 +1,6 @@
 package eu.sshopencloud.marketplace.services.items;
 
-import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
-import eu.sshopencloud.marketplace.model.items.ItemRelatedItemInline;
+import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelatedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,12 +47,34 @@ public class ItemRelatedItemService {
         return relatedItems;
     }
 
+    public ItemRelatedItem createItemRelatedItem(long subjectId, long objectId, ItemRelation itemRelation) {
+        // TODO check if exists reverse relation
+        ItemRelatedItem newItemRelatedItem = new ItemRelatedItem();
+        newItemRelatedItem.setSubjectId(subjectId);
+        newItemRelatedItem.setObjectId(objectId);
+        newItemRelatedItem.setRelation(itemRelation);
+        ItemRelatedItem itemRelatedItem = itemRelatedItemRepository.save(newItemRelatedItem);
+        return itemRelatedItem;
+    }
+
     public void deleteRelationsForItem(Item item) {
         List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findItemRelatedItemBySubjectId(item.getId());
         itemRelatedItemRepository.deleteAll(subjectRelatedItems);
         List<ItemRelatedItem> objectRelatedItems = itemRelatedItemRepository.findItemRelatedItemByObjectId(item.getId());
         itemRelatedItemRepository.deleteAll(objectRelatedItems);
     }
+
+    public void deleteItemRelatedItem(long subjectId, long objectId) {
+        ItemRelatedItemId dirId = new ItemRelatedItemId();
+        dirId.setSubjectId(subjectId);
+        dirId.setObjectId(objectId);
+        itemRelatedItemRepository.deleteById(dirId);
+        ItemRelatedItemId revId = new ItemRelatedItemId();
+        revId.setSubjectId(objectId);
+        revId.setObjectId(subjectId);
+        itemRelatedItemRepository.deleteById(revId);
+    }
+
 
 }
 

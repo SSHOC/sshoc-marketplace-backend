@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.tools;
 
 import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
@@ -39,6 +40,21 @@ public class ToolService {
         tool.setOlderVersions(itemService.getOlderVersionsOfItem(tool));
         tool.setNewerVersions(itemService.getNewerVersionsOfItem(tool));
         itemService.fillAllowedVocabulariesForPropertyTypes(tool);
+        return tool;
+    }
+
+    public Tool createTool(Tool newTool) {
+        // TODO service or software
+        Tool tool = toolRepository.save(newTool);
+        // TODO index in SOLR
+        return tool;
+    }
+
+    public Tool updateTool(Long id, Tool newTool) {
+        // TODO check ID
+        newTool.setId(id);
+        Tool tool = toolRepository.save(newTool);
+        // TODO index in SOLR
         return tool;
     }
 

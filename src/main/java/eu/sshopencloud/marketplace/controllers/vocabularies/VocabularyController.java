@@ -41,7 +41,7 @@ public class VocabularyController {
     }
 
     @DeleteMapping("/vocabularies/{code}")
-    public void deleteTool(@PathVariable("code") String code) {
+    public void deleteVocabulary(@PathVariable("code") String code) {
         vocabularyService.deleteVocabulary(code);
     }
 

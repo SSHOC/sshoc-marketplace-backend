@@ -27,6 +27,14 @@ public class VocabularyService {
 
     public PaginatedVocabularies getVocabularies(int page, int perpage) {
         Page<Vocabulary> vocabularies = vocabularyRepository.findAll(PageRequest.of(page - 1, perpage, new Sort(Sort.Direction.ASC, "label")));
+        for (Vocabulary vocabulary: vocabularies) {
+            List<Concept> concepts = new ArrayList<Concept>();
+            for (Concept concept: conceptRepository.findConceptByVocabularyCode(vocabulary.getCode(), new Sort(Sort.Direction.ASC, "ord"))) {
+                concept.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getCode(), vocabulary.getCode()));
+                concepts.add(concept);
+            }
+            vocabulary.setConcepts(concepts);
+        }
         return new PaginatedVocabularies(vocabularies, page, perpage);
     }
 
