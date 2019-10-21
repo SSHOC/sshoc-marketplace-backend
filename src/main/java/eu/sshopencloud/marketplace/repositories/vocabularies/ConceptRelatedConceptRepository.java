@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ConceptRelatedConceptRepository  extends JpaRepository<ConceptRelatedConcept, ConceptRelatedConceptId> {
+public interface ConceptRelatedConceptRepository extends JpaRepository<ConceptRelatedConcept, ConceptRelatedConceptId> {
 
-    List<ConceptRelatedConcept> findConceptRelatedConceptBySubjectId(Long subjectId);
+    List<ConceptRelatedConcept> findConceptRelatedConceptBySubjectCodeAndSubjectVocabularyCode(String subjectCode, String subjectVocabularyCode);
 
-    List<ConceptRelatedConcept> findConceptRelatedConceptByObjectId(Long objectId);
+    List<ConceptRelatedConcept> findConceptRelatedConceptByObjectCodeAndObjectVocabularyCode(String objectCode, String objectVocabularyCode);
 
 }

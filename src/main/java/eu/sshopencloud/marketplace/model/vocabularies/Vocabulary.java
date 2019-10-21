@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.model.vocabularies;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.model.licenses.License;
@@ -17,6 +18,7 @@ import java.util.List;
 @Table(name = "vocabularies")
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Vocabulary {
 
     @Id
@@ -34,9 +36,7 @@ public class Vocabulary {
     @Column(nullable = true)
     private String accessibleAt;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH }, orphanRemoval = true)
-    @JoinColumn
-    @OrderColumn(name = "ord")
+    @Transient
     private List<Concept> concepts;
 
 }

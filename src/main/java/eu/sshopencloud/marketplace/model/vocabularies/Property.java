@@ -25,7 +25,10 @@ public class Property {
     private String value;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumn
+    @JoinColumns({
+            @JoinColumn(name = "code", insertable = true, updatable = true),
+            @JoinColumn(name = "vocabulary_code", insertable = true, updatable = true)
+    })
     private Concept concept;
 
 }

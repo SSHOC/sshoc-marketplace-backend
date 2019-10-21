@@ -79,17 +79,23 @@ Software:
         id:                           2
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    easeOfUse:
-      !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
-      code:                         moderate
     properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           ease-of-use
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           moderate
+          vocabularyCode:                 ease-of-use
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             5
+          code:                           capture
+          vocabularyCode:                 tadirah
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -126,17 +132,23 @@ Software:
     informationContributors:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    easeOfUse:
-      !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
-      code:                         difficult
     properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           ease-of-use
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           difficult
+          vocabularyCode:                 ease-of-use
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             6
+          code:                           conversion
+          vocabularyCode:                 tadirah
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -176,9 +188,15 @@ Service:
         id:                           1
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           2
-    easeOfUse:
-      !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
-      code:                         easy
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           ease-of-use
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           easy
+          vocabularyCode:                 ease-of-use
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Texts similarity analysis
@@ -234,14 +252,16 @@ TrainingMaterial:
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             21
+          code:                           application-pdf
+          vocabularyCode:                 iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           language
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             1
+          code:                           eng
+          vocabularyCode:                 iso-639-3
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Lorem ipsum ...
@@ -279,14 +299,16 @@ TrainingMaterial:
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             22
+          code:                           video-mp4
+          vocabularyCode:                 iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                               24
+          code:                           collecting
+          vocabularyCode:                 nedimah-ontology
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
@@ -318,14 +340,16 @@ TrainingMaterial:
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             22
+          code:                           video-mp4
+          vocabularyCode:                 iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                               24
+          code:                           collecting
+          vocabularyCode:                 nedimah-ontology
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Is there a newer version available?
@@ -366,14 +390,16 @@ TrainingMaterial:
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                             22
+          code:                           video-mp4
+          vocabularyCode:                 iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          id:                               24
+          code:                           collecting
+          vocabularyCode:                 nedimah-ontology
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Thanks for sharing this - very useful!

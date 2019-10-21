@@ -14,12 +14,20 @@ import java.io.Serializable;
 public class ConceptRelatedConcept implements Serializable {
 
     @Id
-    @JoinColumn(name="subject_id", insertable = false, updatable = false)
-    private Long subjectId;
+    @JoinColumn(name="subject_code", insertable = false, updatable = false)
+    private String subjectCode;
 
     @Id
-    @JoinColumn(name="object_id", insertable = false, updatable = false)
-    private Long objectId;
+    @JoinColumn(name="subject_vocabulary_code", insertable = false, updatable = false)
+    private String subjectVocabularyCode;
+
+    @Id
+    @JoinColumn(name="object_code", insertable = false, updatable = false)
+    private String objectCode;
+
+    @Id
+    @JoinColumn(name="object_vocabulary_code", insertable = false, updatable = false)
+    private String objectVocabularyCode;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn

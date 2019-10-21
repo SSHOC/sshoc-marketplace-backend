@@ -17,7 +17,8 @@ public class ActorController {
 
     private final ActorService actorService;
 
-    @GetMapping("/actors")
+    // TODO searching actors by name
+    //@GetMapping("/actors")
     public ResponseEntity<List<Actor>> getAllActors() {
         List<Actor> actors = actorService.getAllActors();
         return ResponseEntity.ok(actors);

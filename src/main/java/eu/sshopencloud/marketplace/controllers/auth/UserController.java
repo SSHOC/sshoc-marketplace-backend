@@ -17,7 +17,8 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/users")
+    // TODO searching users by username
+    //@GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);

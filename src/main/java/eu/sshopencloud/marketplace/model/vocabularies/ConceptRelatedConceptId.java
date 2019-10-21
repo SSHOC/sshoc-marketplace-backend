@@ -9,8 +9,12 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class ConceptRelatedConceptId implements Serializable {
 
-    private Long subjectId;
+    private String subjectCode;
 
-    private Long objectId;
+    private String subjectVocabularyCode;
+
+    private String objectCode;
+
+    private String objectVocabularyCode;
 
 }

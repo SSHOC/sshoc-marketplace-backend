@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ConceptRelatedConceptInline {
 
-    private Long id;
+    private String code;
 
     private VocabularyInline vocabulary;
 

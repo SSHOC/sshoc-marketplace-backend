@@ -1,31 +1,3 @@
-EaseOfUse:
-
-  - !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
-    code:                        very-easy
-    ord:                         1
-    label:                       Very easy
-
-  - !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
-    code:                        easy
-    ord:                         2
-    label:                       Easy
-
-  - !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
-    code:                        moderate
-    ord:                         3
-    label:                       Moderate
-
-  - !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
-    code:                        difficult
-    ord:                         4
-    label:                       Difficult
-
-  - !!eu.sshopencloud.marketplace.model.tools.EaseOfUse
-    code:                        very-difficult
-    ord:                         5
-    label:                       Very difficult
-
-
 LicenseType:
 
   - !!eu.sshopencloud.marketplace.model.licenses.LicenseType
@@ -588,4 +560,9 @@ PropertyType:
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        object-format
     ord:                         6
-    label:                       Object-format
+    label:                       Object format
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        ease-of-use
+    ord:                         7
+    label:                       Ease of use

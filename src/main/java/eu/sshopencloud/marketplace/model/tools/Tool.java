@@ -16,9 +16,4 @@ public abstract class Tool extends Item {
     @ManyToOne(optional =  false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     private ToolType toolType;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    private EaseOfUse easeOfUse;
-
-    // TODO properties
-
 }

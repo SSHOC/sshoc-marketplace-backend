@@ -25,6 +25,12 @@ spring:
     mvc.:
         throw-exception-if-no-handler-found: true
 
+springdoc:
+    version: '@api.version@'
+    api-docs:
+        enabled: true
+        path: /v3/api-docs
+
 marketplace:
     pagination:
         default-perpage: 20

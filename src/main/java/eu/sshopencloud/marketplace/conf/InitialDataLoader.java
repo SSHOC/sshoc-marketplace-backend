@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.model.licenses.License;
 import eu.sshopencloud.marketplace.model.licenses.LicenseType;
-import eu.sshopencloud.marketplace.model.tools.EaseOfUse;
 import eu.sshopencloud.marketplace.model.tools.Service;
 import eu.sshopencloud.marketplace.model.tools.Software;
 import eu.sshopencloud.marketplace.model.tools.ToolType;
@@ -19,13 +18,13 @@ import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseRepository;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseTypeRepository;
-import eu.sshopencloud.marketplace.repositories.tools.EaseOfUseRepository;
 import eu.sshopencloud.marketplace.repositories.tools.ServiceRepository;
 import eu.sshopencloud.marketplace.repositories.tools.SoftwareRepository;
 import eu.sshopencloud.marketplace.repositories.tools.ToolTypeRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,8 +41,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class InitialDataLoader {
-
-    private final EaseOfUseRepository easeOfUseRepository;
 
     private final LicenseTypeRepository licenseTypeRepository;
 
@@ -62,6 +59,8 @@ public class InitialDataLoader {
     private final PropertyTypeRepository propertyTypeRepository;
 
     private final VocabularyRepository vocabularyRepository;
+
+    private final ConceptRepository conceptRepository;
 
     private final ConceptRelatedConceptRepository conceptRelatedConceptRepository;
 
@@ -88,10 +87,6 @@ public class InitialDataLoader {
         ClassLoader classLoader = InitialDataLoader.class.getClassLoader();
         InputStream dataStream = classLoader.getResourceAsStream("initial-data/const-data.yml");
         Map<String, List<Object>> data = (Map<String, List<Object>>) new Yaml(new CustomClassLoaderConstructor(classLoader)).load(dataStream);
-
-        List<EaseOfUse> easeOfUse = getInitialObjects(data, "EaseOfUse");
-        easeOfUseRepository.saveAll(easeOfUse);
-        log.debug("Loaded " + easeOfUse.size()  + " EaseOfUse objects");
 
         List<LicenseType> licenseTypes = getInitialObjects(data, "LicenseType");
         licenseTypeRepository.saveAll(licenseTypes);
@@ -137,6 +132,10 @@ public class InitialDataLoader {
         List<Vocabulary> vocabularies = getInitialObjects(data, "Vocabulary");
         vocabularyRepository.saveAll(vocabularies);
         log.debug("Loaded " + vocabularies.size() + " Vocabulary objects");
+
+        List<Concept> conecpts = getInitialObjects(data, "Concept");
+        conceptRepository.saveAll(conecpts);
+        log.debug("Loaded " + conecpts.size() + " Concept objects");
 
         List<ConceptRelatedConcept> conceptRelatedConcept = getInitialObjects(data, "ConceptRelatedConcept");
         conceptRelatedConceptRepository.saveAll(conceptRelatedConcept);

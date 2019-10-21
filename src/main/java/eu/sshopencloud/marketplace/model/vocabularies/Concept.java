@@ -8,19 +8,26 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@IdClass(ConceptId.class)
 @Table(name = "concepts")
 @Data
 @NoArgsConstructor
 public class Concept {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "concept_generator")
-    @SequenceGenerator(name = "concept_generator", sequenceName = "concepts_id_seq", allocationSize = 50)
-    private Long id;
+    private String code;
+
+    @Id
+    private String vocabularyCode;
 
     @Basic
     @Column(nullable = false)
     private String label;
+
+    @Basic
+    @Column(nullable = true)
+    @JsonIgnore
+    protected Integer ord;
 
     @Basic
     @Column(nullable = true, length = 4096)

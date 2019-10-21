@@ -20,15 +20,15 @@ public class ConceptRelatedConceptService {
 
     private final VocabularyRepository vocabularyRepository;
 
-    public List<ConceptRelatedConceptInline> getConceptRelatedConcepts(Long conceptId) {
+    public List<ConceptRelatedConceptInline> getConceptRelatedConcepts(String conceptCode, String vocabularyCode) {
         List<ConceptRelatedConceptInline> relatedConcepts = new ArrayList<ConceptRelatedConceptInline>();
 
-        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptBySubjectId(conceptId);
+        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptBySubjectCodeAndSubjectVocabularyCode(conceptCode, vocabularyCode);
         for (ConceptRelatedConcept subjectRelatedConcept : subjectRelatedConcepts) {
             ConceptRelatedConceptInline relatedConcept = new ConceptRelatedConceptInline();
-            relatedConcept.setId(subjectRelatedConcept.getObjectId());
+            relatedConcept.setCode(subjectRelatedConcept.getObjectCode());
             relatedConcept.setRelation(subjectRelatedConcept.getRelation());
-            Concept concept = conceptRepository.getOne(subjectRelatedConcept.getObjectId());
+            Concept concept = conceptRepository.getOne(ConceptId.builder().code(subjectRelatedConcept.getObjectCode()).vocabularyCode(subjectRelatedConcept.getObjectVocabularyCode()).build());
             relatedConcept.setLabel(concept.getLabel());
             relatedConcept.setDescription(concept.getDescription());
             relatedConcept.setUri(concept.getUri());
@@ -36,12 +36,12 @@ public class ConceptRelatedConceptService {
             relatedConcepts.add(relatedConcept);
         }
 
-        List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptByObjectId(conceptId);
+        List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptByObjectCodeAndObjectVocabularyCode(conceptCode, vocabularyCode);
         for (ConceptRelatedConcept objectRelatedConcept : objectRelatedConcepts) {
             ConceptRelatedConceptInline relatedConcept = new ConceptRelatedConceptInline();
-            relatedConcept.setId(objectRelatedConcept.getSubjectId());
+            relatedConcept.setCode(objectRelatedConcept.getSubjectCode());
             relatedConcept.setRelation(objectRelatedConcept.getRelation().getInverseOf());
-            Concept concept = conceptRepository.getOne(objectRelatedConcept.getSubjectId());
+            Concept concept = conceptRepository.getOne(ConceptId.builder().code(objectRelatedConcept.getSubjectCode()).vocabularyCode(objectRelatedConcept.getSubjectVocabularyCode()).build());
             relatedConcept.setLabel(concept.getLabel());
             relatedConcept.setDescription(concept.getDescription());
             relatedConcept.setUri(concept.getUri());
@@ -53,7 +53,7 @@ public class ConceptRelatedConceptService {
     }
 
     private VocabularyInline getRelatedVocabularyForConcept(Concept concept) {
-        Vocabulary vocabulary = vocabularyRepository.findVocabularyByConcepts(concept);
+        Vocabulary vocabulary = vocabularyRepository.getOne(concept.getVocabularyCode());
         VocabularyInline relatedVocabulary = new VocabularyInline();
         relatedVocabulary.setCode(vocabulary.getCode());
         relatedVocabulary.setLabel(vocabulary.getLabel());
