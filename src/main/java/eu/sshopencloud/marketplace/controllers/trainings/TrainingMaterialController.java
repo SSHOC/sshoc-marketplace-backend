@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.services.trainings.PaginatedTrainingMaterials
 import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +22,7 @@ public class TrainingMaterialController {
 
     private final TrainingMaterialService trainingMaterialService;
 
-
-    @GetMapping("/training-materials")
+    @GetMapping(path = "/training-materials", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTrainingMaterials> getTrainingMaterials(@RequestParam(value = "page", required = false) Integer page,
                                                                            @RequestParam(value = "perpage", required = false) Integer perpage) {
         perpage = perpage == null ? defualtPerpage : perpage;
@@ -35,24 +35,23 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterials);
     }
 
-    @GetMapping("/training-materials/{id}")
+    @GetMapping(path = "/training-materials/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterial> getTrainingMaterial(@PathVariable("id") long id) {
         TrainingMaterial trainingMaterial = trainingMaterialService.getTrainingMaterial(id);
         return ResponseEntity.ok(trainingMaterial);
     }
 
-    @PostMapping("/training-materials")
+    @PostMapping(path = "/training-materials", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterial> createTrainingMaterial(@RequestBody TrainingMaterial newTrainingMaterial) {
         TrainingMaterial trainingMaterial = trainingMaterialService.createTrainingMaterial(newTrainingMaterial);
-        return ResponseEntity.ok(newTrainingMaterial);
+        return ResponseEntity.ok(trainingMaterial);
     }
 
-    @PutMapping("/training-materials/{id}")
+    @PutMapping(path = "/training-materials/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterial> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterial newTrainingMaterial) {
         TrainingMaterial trainingMaterial = trainingMaterialService.updateTrainingMaterial(id, newTrainingMaterial);
-        return ResponseEntity.ok(newTrainingMaterial);
+        return ResponseEntity.ok(trainingMaterial);
     }
-
 
     @DeleteMapping("/training-materials/{id}")
     public void deleteTrainingMaterial(@PathVariable("id") long id) {

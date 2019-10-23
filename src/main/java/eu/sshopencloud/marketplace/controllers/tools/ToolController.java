@@ -1,11 +1,11 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
 import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +22,7 @@ public class ToolController {
 
     private final ToolService toolService;
 
-    @GetMapping("/tools")
+    @GetMapping(path = "/tools", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
                                                    @RequestParam(value = "perpage", required = false) Integer perpage) {
         perpage = perpage == null ? defualtPerpage : perpage;
@@ -35,22 +35,22 @@ public class ToolController {
         return ResponseEntity.ok(tools);
     }
 
-    @GetMapping("/tools/{id}")
+    @GetMapping(path = "/tools/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Tool> getTool(@PathVariable("id") long id) {
         Tool tool = toolService.getTool(id);
         return ResponseEntity.ok(tool);
     }
 
-    @PostMapping("/tools")
+    @PostMapping(path = "/tools", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Tool> createTool(@RequestBody Tool newTool) {
         Tool tool = toolService.createTool(newTool);
-        return ResponseEntity.ok(newTool);
+        return ResponseEntity.ok(tool);
     }
 
-    @PutMapping("/tools/{id}")
+    @PutMapping(path = "/tools/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Tool> updateTool(@PathVariable("id") long id, @RequestBody Tool newTool) {
         Tool tool = toolService.updateTool(id, newTool);
-        return ResponseEntity.ok(newTool);
+        return ResponseEntity.ok(tool);
     }
 
     @DeleteMapping("/tools/{id}")

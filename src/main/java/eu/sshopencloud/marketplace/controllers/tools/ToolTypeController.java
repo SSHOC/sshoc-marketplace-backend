@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.tools;
 import eu.sshopencloud.marketplace.model.tools.ToolType;
 import eu.sshopencloud.marketplace.services.tools.ToolTypeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +18,7 @@ public class ToolTypeController {
 
     private final ToolTypeService toolTypeService;
 
-    @GetMapping("/tool-types")
+    @GetMapping(path = "/tool-types", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ToolType>> getAllToolTypes() {
         List<ToolType> toolTypes = toolTypeService.getAllToolTypes();
         return ResponseEntity.ok(toolTypes);

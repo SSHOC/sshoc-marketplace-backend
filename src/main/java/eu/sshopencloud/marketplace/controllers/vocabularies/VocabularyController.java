@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.services.vocabularies.PaginatedVocabularies;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class VocabularyController {
 
     private final VocabularyService vocabularyService;
 
-    @GetMapping("/vocabularies")
+    @GetMapping(path = "/vocabularies", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedVocabularies> getVocabularies(@RequestParam(value = "page", required = false) Integer page,
                                                                  @RequestParam(value = "perpage", required = false) Integer perpage) {
         perpage = perpage == null ? defualtPerpage : perpage;
@@ -34,7 +35,7 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabularies);
     }
 
-    @GetMapping("/vocabularies/{code}")
+    @GetMapping(path = "/vocabularies/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Vocabulary> getVocabulary(@PathVariable("code") String code) {
         Vocabulary vocabulary = vocabularyService.getVocabulary(code);
         return ResponseEntity.ok(vocabulary);

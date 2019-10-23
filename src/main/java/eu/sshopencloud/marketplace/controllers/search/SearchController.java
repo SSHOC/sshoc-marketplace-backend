@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.model.search.PaginatedSearchResult;
 import eu.sshopencloud.marketplace.services.search.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +27,7 @@ public class SearchController {
 
     private final SearchService searchService;
 
-    @GetMapping("/search")
+    @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedSearchResult> searchItems(@RequestParam(value = "q", required = false) String q,
                                                       @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
                                                       @RequestParam(value = "order", required = false) String order,
