@@ -13,12 +13,12 @@ import javax.persistence.*;
 public class ConceptRelation {
 
     @Id
-    protected String code;
+    private String code;
 
     @Basic
     @Column(nullable = false)
     @JsonIgnore
-    protected Integer ord;
+    private Integer ord;
 
     @Basic
     @Column(nullable = false)

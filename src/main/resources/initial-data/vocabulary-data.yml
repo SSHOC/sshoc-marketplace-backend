@@ -47,175 +47,233 @@ Concept:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        eng
-    vocabularyCode:              iso-639-3
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        iso-639-3
     label:                       eng
     description:                 English
     uri:                         https://iso639-3.sil.org/code/eng
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        pol
-    vocabularyCode:              iso-639-3
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        iso-639-3
     label:                       pol
     description:                 Polish
     uri:                         https://iso639-3.sil.org/code/pol
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        deu
-    vocabularyCode:              iso-639-3
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        iso-639-3
     label:                       deu
     description:                 German
     uri:                         https://iso639-3.sil.org/code/deu
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        research-activities
-    vocabularyCode:              tadirah
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        tadirah
     label:                       Research Activities
     description:                 Research Activities
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        capture
-    vocabularyCode:              tadirah
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        tadirah
     label:                       Capture
     description:                 Capture
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        conversion
-    vocabularyCode:              tadirah
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        tadirah
     label:                       Conversion
     description:                 Conversion
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        data-recognition
-    vocabularyCode:              tadirah
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        tadirah
     label:                       Data Recognition
     description:                 Data Recognition
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        creation
-    vocabularyCode:              tadirah
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        tadirah
     label:                       Creation
     description:                 Creation
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        designing
-    vocabularyCode:              tadirah
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        tadirah
     label:                       Designing
     description:                 Designing
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        programming
-    vocabularyCode:              tadirah
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        tadirah
     label:                       Programming
     description:                 Programming
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        activities-facet
-    vocabularyCode:              getty-thesauri-aat-art-architecture-thesaurus
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        getty-thesauri-aat-art-architecture-thesaurus
     label:                       Activities Facet
     description:                 "The Activities facet encompasses areas of endeavor, physical and mental actions, discrete occurrences, systematic sequences of actions, methods employed toward a certain end, and processes occurring in materials or objects. Activities covered here range from branches of learning and professional fields to specific life events, from mentally executed tasks to processes performed on or with materials and objects, from single physical actions to complex games."
     uri:                         http://vocab.getty.edu/page/aat/300264090
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        processes-and-techniques
-    vocabularyCode:              getty-thesauri-aat-art-architecture-thesaurus
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        getty-thesauri-aat-art-architecture-thesaurus
     label:                       Processes and Techniques
     description:                 "The Processes and Techniques hierarchy contains terms for actions and methods performed physically on or with materials and objects, and for processes occurring in materials and objects."
     uri:                         http://vocab.getty.edu/page/aat/300053001
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        physicochemical-processes
-    vocabularyCode:              getty-thesauri-aat-art-architecture-thesaurus
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        getty-thesauri-aat-art-architecture-thesaurus
     label:                       physicochemical processes
     description:                 "Collocates descriptors for processes of physical and/or chemical change in a material or object."
     uri:                         http://vocab.getty.edu/page/aat/300229407
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        acetolysis
-    vocabularyCode:              getty-thesauri-aat-art-architecture-thesaurus
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        getty-thesauri-aat-art-architecture-thesaurus
     label:                       acetolysis
     description:                 "Various processes simultaneously involving both the introduction of one or more acetyl groups into a compound and hydrolysis by means of a chemical reaction."
     uri:                         http://vocab.getty.edu/page/aat/300255413
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        albert-camus
-    vocabularyCode:              viaf
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        viaf
     label:                       Albert Camus
     description:                 Camus, Albert, 1913-1960
     uri:                         https://viaf.org/viaf/97000332/
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        patrick-saint-dizier
-    vocabularyCode:              viaf
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        viaf
     label:                       Patrick Saint-Dizier
     description:                 Saint-Dizier, Patrick, 1954-
     uri:                         http://viaf.org/viaf/265266760
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        image-tiff
-    vocabularyCode:              iana-mime-type
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        iana-mime-type
     label:                       image/tiff
     description:                 TIFF (Tag Image File Format)
     uri:                         https://www.iana.org/assignments/media-types/image/tiff
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        application-pdf
-    vocabularyCode:              iana-mime-type
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        iana-mime-type
     label:                       application/pdf
     description:                 Portable Document Format
     uri:                         https://www.iana.org/assignments/media-types/application/pdf
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        video-mp4
-    vocabularyCode:              iana-mime-type
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        iana-mime-type
     label:                       video/mp4
     description:                 MPEG-4 Video file
     uri:                         https://www.iana.org/assignments/media-types/video/mp4
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        activity-types
-    vocabularyCode:              nedimah-ontology
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        nedimah-ontology
     label:                       Activity Types
     description:                 ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        acquiring
-    vocabularyCode:              nedimah-ontology
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        nedimah-ontology
     label:                       Acquiring
     description:                 ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        collecting
-    vocabularyCode:              nedimah-ontology
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        nedimah-ontology
     label:                       Collecting
     description:                 ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        gathering
-    vocabularyCode:              nedimah-ontology
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        nedimah-ontology
     label:                       Gathering
     description:                 ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        learning
-    vocabularyCode:              nedimah-ontology
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        nedimah-ontology
     label:                       Learning
     description:                 ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        very-easy
-    vocabularyCode:              ease-of-use
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        ease-of-use
     label:                       Very easy
     description:                 ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        easy
-    vocabularyCode:              ease-of-use
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        ease-of-use
     label:                       Easy
     description:                 ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        moderate
-    vocabularyCode:              ease-of-use
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        ease-of-use
     label:                       Moderate
     description:                 ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        difficult
-    vocabularyCode:              ease-of-use
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        ease-of-use
     label:                       Difficult
     description:                 ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        very-difficult
-    vocabularyCode:              ease-of-use
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        ease-of-use
     label:                       Very difficult
     description:                 ""
     uri:                         ""
@@ -224,100 +282,188 @@ Concept:
 ConceptRelatedConcept:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 research-activities
-    subjectVocabularyCode:       tadirah
-    objectCode:                  capture
-    objectVocabularyCode:        tadirah
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        research-activities
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        capture
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 capture
-    subjectVocabularyCode:       tadirah
-    objectCode:                  conversion
-    objectVocabularyCode:        tadirah
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        capture
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        conversion
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 capture
-    subjectVocabularyCode:       tadirah
-    objectCode:                  data-recognition
-    objectVocabularyCode:        tadirah
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        capture
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        data-recognition
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 research-activities
-    subjectVocabularyCode:       tadirah
-    objectCode:                  creation
-    objectVocabularyCode:        tadirah
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        research-activities
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        creation
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 creation
-    subjectVocabularyCode:       tadirah
-    objectCode:                  designing
-    objectVocabularyCode:        tadirah
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        creation
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        designing
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 creation
-    subjectVocabularyCode:       tadirah
-    objectCode:                  programming
-    objectVocabularyCode:        tadirah
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        creation
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        programming
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 activities-facet
-    subjectVocabularyCode:       getty-thesauri-aat-art-architecture-thesaurus
-    objectCode:                  processes-and-techniques
-    objectVocabularyCode:        getty-thesauri-aat-art-architecture-thesaurus
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        activities-facet
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        getty-thesauri-aat-art-architecture-thesaurus
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        processes-and-techniques
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        getty-thesauri-aat-art-architecture-thesaurus
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 processes-and-techniques
-    subjectVocabularyCode:       getty-thesauri-aat-art-architecture-thesaurus
-    objectCode:                  physicochemical-processes
-    objectVocabularyCode:        getty-thesauri-aat-art-architecture-thesaurus
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        processes-and-techniques
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        getty-thesauri-aat-art-architecture-thesaurus
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        physicochemical-processes
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        getty-thesauri-aat-art-architecture-thesaurus
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 physicochemical-processes
-    subjectVocabularyCode:       getty-thesauri-aat-art-architecture-thesaurus
-    objectCode:                  acetolysis
-    objectVocabularyCode:        getty-thesauri-aat-art-architecture-thesaurus
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        physicochemical-processes
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        getty-thesauri-aat-art-architecture-thesaurus
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        acetolysis
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        getty-thesauri-aat-art-architecture-thesaurus
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        narrower-transitive
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 activity-types
-    subjectVocabularyCode:       nedimah-ontology
-    objectCode:                  research-activities
-    objectVocabularyCode:        tadirah
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        activity-types
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        nedimah-ontology
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        research-activities
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        related
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
-    subjectCode:                 acquiring
-    subjectVocabularyCode:       nedimah-ontology
-    objectCode:                  capture
-    objectVocabularyCode:        tadirah
+    subject:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        acquiring
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        nedimah-ontology
+    object:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+      code:                        capture
+      vocabulary:
+        !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+        code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                        related
@@ -326,25 +472,49 @@ ConceptRelatedConcept:
 PropertyTypeVocabulary:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyTypeCode:            language
-    vocabularyCode:              iso-639-3
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code:                        language
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        iso-639-3
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyTypeCode:            activity
-    vocabularyCode:              tadirah
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code:                        activity
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        tadirah
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyTypeCode:            activity
-    vocabularyCode:              nedimah-ontology
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code:                        activity
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        nedimah-ontology
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyTypeCode:            technique
-    vocabularyCode:              getty-thesauri-aat-art-architecture-thesaurus
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code:                        technique
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        getty-thesauri-aat-art-architecture-thesaurus
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyTypeCode:            person
-    vocabularyCode:              viaf
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code:                        person
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        viaf
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyTypeCode:            object-format
-    vocabularyCode:              iana-mime-type
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code:                        object-format
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        iana-mime-type

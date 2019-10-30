@@ -9,8 +9,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class PropertyTypeVocabularyId implements Serializable {
 
-    private String propertyTypeCode;
+    private String propertyType;
 
-    private String vocabularyCode;
+    private String vocabulary;
 
 }

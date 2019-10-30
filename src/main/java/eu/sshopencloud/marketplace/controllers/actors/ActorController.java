@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.actors;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +18,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ActorController {
 
+    @Value("${marketplace.pagination.default-perpage}")
+    private Integer defualtPerpage;
+
     private final ActorService actorService;
 
     @GetMapping(path = "/actors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Actor>> getActors(@RequestParam(value = "q", required = false) String q) {
-        List<Actor> actors = actorService.getActors(q);
+        List<Actor> actors = actorService.getActors(q, defualtPerpage);
         return ResponseEntity.ok(actors);
     }
 

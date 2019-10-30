@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.trainings;
 
+import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.services.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
@@ -24,10 +25,11 @@ public class TrainingMaterialController {
 
     @GetMapping(path = "/training-materials", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTrainingMaterials> getTrainingMaterials(@RequestParam(value = "page", required = false) Integer page,
-                                                                           @RequestParam(value = "perpage", required = false) Integer perpage) {
+                                                                           @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
         perpage = perpage == null ? defualtPerpage : perpage;
         if (perpage > maximalPerpage) {
-            return ResponseEntity.badRequest().build();
+            throw new PageTooLargeException(maximalPerpage);
         }
         page = page == null ? 1 : page;
 

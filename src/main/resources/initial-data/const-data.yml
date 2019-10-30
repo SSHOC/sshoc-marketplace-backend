@@ -291,9 +291,9 @@ ActorRole:
     label:                       Author
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
-    code:                        funder
+    code:                        founder
     ord:                         3
-    label:                       Funder
+    label:                       Founder
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        provider

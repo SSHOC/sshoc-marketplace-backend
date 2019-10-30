@@ -13,7 +13,7 @@ import java.util.List;
 public class License {
 
     @Id
-    protected String code;
+    private String code;
 
     @Basic
     @Column(nullable = false)

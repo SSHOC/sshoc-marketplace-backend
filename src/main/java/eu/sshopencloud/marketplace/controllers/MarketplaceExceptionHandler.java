@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.controllers;
 
+import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.items.OtherUserCommentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,33 +11,50 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 
 @ControllerAdvice
 @Slf4j
 public class MarketplaceExceptionHandler {
 
-    @ExceptionHandler(value = NoHandlerFoundException.class)
-    public ResponseEntity<Object> handleException(NoHandlerFoundException ex, WebRequest request) {
-        log.error("No endpoint", ex);
-        return ResponseEntity.notFound().build();
+    @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class })
+    public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
+        log.error("Exception", ex);
+        ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(value = { OtherUserCommentException.class })
+    public ResponseEntity<Object> handleInsufficientPrivilegesException(Exception ex, WebRequest request) {
+        log.error("Exception", ex);
+        ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.FORBIDDEN.value()).error(ex.getMessage()).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 
     @ExceptionHandler(value = EntityNotFoundException.class)
-    public ResponseEntity<Object> handleException(EntityNotFoundException ex, WebRequest request) {
+    public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
         log.error("No entity", ex);
         return ResponseEntity.notFound().build();
     }
 
+    @ExceptionHandler(value = NoHandlerFoundException.class)
+    public ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, WebRequest request) {
+        log.error("No endpoint", ex);
+        return ResponseEntity.notFound().build();
+    }
+
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<Object> handleException(Exception ex, WebRequest request) {
-        log.error("Exception", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    public ResponseEntity<Object> handleServerException(Exception ex, WebRequest request) {
+        log.error("Server Exception", ex);
+        ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.INTERNAL_SERVER_ERROR.value()).error(ex.getMessage()).build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
     @ExceptionHandler(value = RuntimeException.class)
     public ResponseEntity handleServerError(Exception ex, WebRequest request) {
         log.error("Runtime exception", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.INTERNAL_SERVER_ERROR.value()).error(ex.getMessage()).build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
 }

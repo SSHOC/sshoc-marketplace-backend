@@ -6,8 +6,10 @@ import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +25,9 @@ public class ItemRelatedItemService {
         List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findItemRelatedItemBySubjectId(itemId);
         for (ItemRelatedItem subjectRelatedItem : subjectRelatedItems) {
             ItemRelatedItemInline relatedItem = new ItemRelatedItemInline();
-            relatedItem.setId(subjectRelatedItem.getObjectId());
+            relatedItem.setId(subjectRelatedItem.getObject().getId());
             relatedItem.setRelation(subjectRelatedItem.getRelation());
-            Item item = itemRepository.getOne(subjectRelatedItem.getObjectId());
+            Item item = itemRepository.getOne(subjectRelatedItem.getObject().getId());
             relatedItem.setCategory(item.getCategory());
             relatedItem.setLabel(item.getLabel());
             relatedItem.setDescription(item.getDescription());
@@ -35,9 +37,9 @@ public class ItemRelatedItemService {
         List<ItemRelatedItem> objectRelatedItems = itemRelatedItemRepository.findItemRelatedItemByObjectId(itemId);
         for (ItemRelatedItem objectRelatedItem : objectRelatedItems) {
             ItemRelatedItemInline relatedItem = new ItemRelatedItemInline();
-            relatedItem.setId(objectRelatedItem.getSubjectId());
+            relatedItem.setId(objectRelatedItem.getSubject().getId());
             relatedItem.setRelation(objectRelatedItem.getRelation().getInverseOf());
-            Item item = itemRepository.getOne(objectRelatedItem.getSubjectId());
+            Item item = itemRepository.getOne(objectRelatedItem.getSubject().getId());
             relatedItem.setCategory(item.getCategory());
             relatedItem.setLabel(item.getLabel());
             relatedItem.setDescription(item.getDescription());
@@ -47,11 +49,34 @@ public class ItemRelatedItemService {
         return relatedItems;
     }
 
-    public ItemRelatedItem createItemRelatedItem(long subjectId, long objectId, ItemRelation itemRelation) {
-        // TODO check if exists reverse relation
+    public ItemRelatedItem createItemRelatedItem(long subjectId, long objectId, ItemRelation itemRelation) throws ItemsRelationAlreadyExistsException {
+        Optional<Item> subject = itemRepository.findById(subjectId);
+        if (!subject.isPresent()) {
+            throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + subjectId);
+        }
+        Optional<Item> object = itemRepository.findById(objectId);
+        if (!object.isPresent()) {
+            throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + objectId);
+        }
+
+        ItemRelatedItemId dirId = new ItemRelatedItemId();
+        dirId.setSubject(subjectId);
+        dirId.setObject(objectId);
+        Optional<ItemRelatedItem> dirItemRelatedItem = itemRelatedItemRepository.findById(dirId);
+        if (dirItemRelatedItem.isPresent()) {
+            throw new ItemsRelationAlreadyExistsException(dirItemRelatedItem.get());
+        }
+        ItemRelatedItemId revId = new ItemRelatedItemId();
+        revId.setSubject(objectId);
+        revId.setObject(subjectId);
+        Optional<ItemRelatedItem> revItemRelatedItem = itemRelatedItemRepository.findById(dirId);
+        if (revItemRelatedItem.isPresent()) {
+            throw new ItemsRelationAlreadyExistsException(revItemRelatedItem.get());
+        }
+
         ItemRelatedItem newItemRelatedItem = new ItemRelatedItem();
-        newItemRelatedItem.setSubjectId(subjectId);
-        newItemRelatedItem.setObjectId(objectId);
+        newItemRelatedItem.setSubject(subject.get());
+        newItemRelatedItem.setObject(object.get());
         newItemRelatedItem.setRelation(itemRelation);
         ItemRelatedItem itemRelatedItem = itemRelatedItemRepository.save(newItemRelatedItem);
         return itemRelatedItem;
@@ -65,16 +90,28 @@ public class ItemRelatedItemService {
     }
 
     public void deleteItemRelatedItem(long subjectId, long objectId) {
-        ItemRelatedItemId dirId = new ItemRelatedItemId();
-        dirId.setSubjectId(subjectId);
-        dirId.setObjectId(objectId);
-        itemRelatedItemRepository.deleteById(dirId);
-        ItemRelatedItemId revId = new ItemRelatedItemId();
-        revId.setSubjectId(objectId);
-        revId.setObjectId(subjectId);
-        itemRelatedItemRepository.deleteById(revId);
-    }
+        Optional<Item> subject = itemRepository.findById(subjectId);
+        if (!subject.isPresent()) {
+            throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + subjectId);
+        }
+        Optional<Item> object = itemRepository.findById(objectId);
+        if (!object.isPresent()) {
+            throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + objectId);
+        }
 
+        ItemRelatedItemId dirId = new ItemRelatedItemId();
+        dirId.setSubject(subjectId);
+        dirId.setObject(objectId);
+        if (itemRelatedItemRepository.existsById(dirId)) {
+            itemRelatedItemRepository.deleteById(dirId);
+        }
+        ItemRelatedItemId revId = new ItemRelatedItemId();
+        revId.setSubject(objectId);
+        revId.setObject(subjectId);
+        if (itemRelatedItemRepository.existsById(revId)) {
+            itemRelatedItemRepository.deleteById(revId);
+        }
+    }
 
 }
 

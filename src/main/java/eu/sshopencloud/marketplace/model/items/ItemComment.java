@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,19 +25,20 @@ public class ItemComment {
     @Column(nullable = false, length = 4096)
     private String body;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    // TODO change optional = false when authentication will be implemented
+    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn
     private User creator;
 
     @Basic
     @Column(nullable = false)
     @CreationTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm z", locale = "en_GB")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.dateTimePattern)
     private ZonedDateTime dateCreated;
 
     @Basic
     @Column(nullable = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm z", locale = "en_GB")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.dateTimePattern)
     private ZonedDateTime dateLastUpdated;
 
 }

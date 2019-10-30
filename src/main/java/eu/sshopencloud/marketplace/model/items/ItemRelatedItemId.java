@@ -9,8 +9,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class ItemRelatedItemId implements Serializable {
 
-    private Long subjectId;
+    private Long subject;
 
-    private Long objectId;
+    private Long object;
 
 }

@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.conf;
+package eu.sshopencloud.marketplace.conf.startup;
 
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
@@ -18,13 +18,13 @@ import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseRepository;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseTypeRepository;
-import eu.sshopencloud.marketplace.repositories.tools.ServiceRepository;
-import eu.sshopencloud.marketplace.repositories.tools.SoftwareRepository;
 import eu.sshopencloud.marketplace.repositories.tools.ToolTypeRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.*;
 
+import eu.sshopencloud.marketplace.services.tools.ToolService;
+import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,11 +70,9 @@ public class InitialDataLoader {
 
     private final ActorRepository actorRepository;
 
-    private final SoftwareRepository softwareRepository;
+    private final ToolService toolService;
 
-    private final ServiceRepository serviceRepository;
-
-    private final TrainingMaterialRepository trainingMaterialRepository;
+    private final TrainingMaterialService trainingMaterialService;
 
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
@@ -162,15 +160,15 @@ public class InitialDataLoader {
         log.debug("Loaded " + actors.size()  + " Actor objects");
 
         List<Software> software = getInitialObjects(data, "Software");
-        softwareRepository.saveAll(software);
+        toolService.createTools(software);
         log.debug("Loaded " + software.size()  + " Software objects");
 
         List<Service> services = getInitialObjects(data, "Service");
-        serviceRepository.saveAll(services);
+        toolService.createTools(services);
         log.debug("Loaded " + services.size()  + " Service objects");
 
         List<TrainingMaterial> trainingMaterials = getInitialObjects(data, "TrainingMaterial");
-        trainingMaterialRepository.saveAll(trainingMaterials);
+        trainingMaterialService.createTrainingMaterials(trainingMaterials);
         log.debug("Loaded " + trainingMaterials.size()  + " TrainingMaterial objects");
 
         List<ItemRelatedItem> itemRelatedItems = getInitialObjects(data, "ItemRelatedItem");
@@ -179,6 +177,9 @@ public class InitialDataLoader {
     }
 
     private <T> List<T> getInitialObjects(Map<String, List<Object>> data, String label) {
+        if (data == null) {
+            return Collections.emptyList();
+        }
         List<Object> objects = data.get(label);
         if (objects == null || objects.isEmpty()) {
             return Collections.emptyList();

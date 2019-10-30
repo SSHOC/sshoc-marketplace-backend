@@ -12,4 +12,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Item findItemByPrevVersion(Item item);
 
+    Item findItemByCommentsId(Long commentId);
+
 }

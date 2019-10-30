@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
+import aj.org.objectweb.asm.ClassTooLargeException;
+import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
@@ -24,10 +26,11 @@ public class ToolController {
 
     @GetMapping(path = "/tools", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
-                                                   @RequestParam(value = "perpage", required = false) Integer perpage) {
+                                                   @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
         perpage = perpage == null ? defualtPerpage : perpage;
         if (perpage > maximalPerpage) {
-            return ResponseEntity.badRequest().build();
+            throw new PageTooLargeException(maximalPerpage);
         }
         page = page == null ? 1 : page;
 

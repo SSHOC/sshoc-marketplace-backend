@@ -22,7 +22,7 @@ import java.util.List;
 public class Vocabulary {
 
     @Id
-    protected String code;
+    private String code;
 
     @Basic
     @Column(nullable = false)

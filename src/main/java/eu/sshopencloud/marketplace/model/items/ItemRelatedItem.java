@@ -14,12 +14,14 @@ import java.io.Serializable;
 public class ItemRelatedItem implements Serializable {
 
     @Id
-    @JoinColumn(name="subject_id", insertable = false, updatable = false)
-    private Long subjectId;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @JoinColumn(name="subject_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Item subject;
 
     @Id
-    @JoinColumn(name="object_id", insertable = false, updatable = false)
-    private Long objectId;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @JoinColumn(name="object_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Item object;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn

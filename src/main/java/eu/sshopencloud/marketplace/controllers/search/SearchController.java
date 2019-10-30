@@ -1,7 +1,8 @@
 package eu.sshopencloud.marketplace.controllers.search;
 
+import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.search.PaginatedSearchResult;
+import eu.sshopencloud.marketplace.services.search.PaginatedSearchItems;
 import eu.sshopencloud.marketplace.services.search.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,18 +29,19 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedSearchResult> searchItems(@RequestParam(value = "q", required = false) String q,
-                                                      @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
-                                                      @RequestParam(value = "order", required = false) String order,
-                                                      @RequestParam(value = "page", required = false) Integer page,
-                                                      @RequestParam(value = "perpage", required = false) Integer perpage) {
+    public ResponseEntity<PaginatedSearchItems> searchItems(@RequestParam(value = "q", required = false) String q,
+                                                            @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
+                                                            @RequestParam(value = "order", required = false) String order,
+                                                            @RequestParam(value = "page", required = false) Integer page,
+                                                            @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
         perpage = perpage == null ? defualtPerpage : perpage;
         if (perpage > maximalPerpage) {
-            return ResponseEntity.badRequest().build();
+            throw new PageTooLargeException(maximalPerpage);
         }
         page = page == null ? 1 : page;
 
-        PaginatedSearchResult items = searchService.searchItems(q, categories, order, page, perpage);
+        PaginatedSearchItems items = searchService.searchItems(q, categories, order, page, perpage);
         return ResponseEntity.ok(items);
     }
 

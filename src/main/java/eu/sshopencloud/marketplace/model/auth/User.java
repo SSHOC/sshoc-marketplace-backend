@@ -21,6 +21,8 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    // TODO credentials
+
     @Column(nullable = false, columnDefinition = "TEXT")
     @Basic(fetch = FetchType.EAGER, optional = false)
     @JsonIgnore

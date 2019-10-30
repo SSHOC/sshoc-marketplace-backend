@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
+import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.services.vocabularies.PaginatedVocabularies;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
@@ -24,10 +25,11 @@ public class VocabularyController {
 
     @GetMapping(path = "/vocabularies", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedVocabularies> getVocabularies(@RequestParam(value = "page", required = false) Integer page,
-                                                                 @RequestParam(value = "perpage", required = false) Integer perpage) {
+                                                                 @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
         perpage = perpage == null ? defualtPerpage : perpage;
         if (perpage > maximalPerpage) {
-            return ResponseEntity.badRequest().build();
+            throw new PageTooLargeException(maximalPerpage);
         }
         page = page == null ? 1 : page;
 

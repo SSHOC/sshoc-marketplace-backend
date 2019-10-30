@@ -1,9 +1,11 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
+import eu.sshopencloud.marketplace.controllers.items.dto.ItemRelationId;
 import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
 import eu.sshopencloud.marketplace.model.items.ItemRelation;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemRelationService;
+import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +31,14 @@ public class ItemRelationController {
     @PostMapping(path = "/items-relations/{subjectId}/{objectId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemRelatedItem> createItemRelatedItem(@PathVariable("subjectId") long subjectId,
                                                                  @PathVariable("objectId") long objectId,
-                                                                 @RequestBody ItemRelation itemRelation) {
-        ItemRelatedItem itemRelatedItem = itemRelatedItemService.createItemRelatedItem(subjectId, objectId, itemRelation);
+                                                                 @RequestBody ItemRelationId itemRelation)
+            throws ItemsRelationAlreadyExistsException {
+        ItemRelatedItem itemRelatedItem = itemRelatedItemService.createItemRelatedItem(subjectId, objectId, ItemRelationConverter.convert(itemRelation));
         return ResponseEntity.ok(itemRelatedItem);
     }
 
     @DeleteMapping("/items-relations/{subjectId}/{objectId}")
-    public void deleteTool(@PathVariable("subjectId") long subjectId, @PathVariable("objectId") long objectId) {
+    public void deleteItemRelatedItem(@PathVariable("subjectId") long subjectId, @PathVariable("objectId") long objectId) {
         itemRelatedItemService.deleteItemRelatedItem(subjectId, objectId);
     }
 

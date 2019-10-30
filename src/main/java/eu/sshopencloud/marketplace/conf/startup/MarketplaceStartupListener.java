@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.conf;
+package eu.sshopencloud.marketplace.conf.startup;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +13,8 @@ public class MarketplaceStartupListener {
 
     private final InitialDataLoader initialDataLoader;
 
-    @EventListener
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+    @EventListener( classes = { ContextRefreshedEvent.class })
+    public void onApplicationRefreshedEvent(ContextRefreshedEvent event) {
         log.debug("The magic begins !");
 
         initialDataLoader.loadConstData();

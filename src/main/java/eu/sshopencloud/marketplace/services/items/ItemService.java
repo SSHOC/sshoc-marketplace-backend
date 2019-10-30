@@ -51,6 +51,11 @@ public class ItemService {
         return versions;
     }
 
+    public boolean isNewestVersion(Item item) {
+        Item nextVersion = itemRepository.findItemByPrevVersion(item);
+        return (nextVersion == null);
+    }
+
     public void fillAllowedVocabulariesForPropertyTypes(Item item) {
         for (Property property: item.getProperties()) {
             PropertyType propertyType = property.getType();
@@ -72,5 +77,6 @@ public class ItemService {
             itemRepository.save(item);
         }
     }
+
 
 }

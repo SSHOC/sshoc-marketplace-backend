@@ -30,8 +30,9 @@ public class VocabularyService {
         for (Vocabulary vocabulary: vocabularies) {
             List<Concept> concepts = new ArrayList<Concept>();
             for (Concept concept: conceptRepository.findConceptByVocabularyCode(vocabulary.getCode(), new Sort(Sort.Direction.ASC, "ord"))) {
-                concept.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getCode(), vocabulary.getCode()));
-                concepts.add(concept);
+                Concept conceptWithoutVocabulary = ConceptConverter.convertWithoutVocabulary(concept);
+                conceptWithoutVocabulary.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getCode(), vocabulary.getCode()));
+                concepts.add(conceptWithoutVocabulary);
             }
             vocabulary.setConcepts(concepts);
         }
@@ -42,8 +43,9 @@ public class VocabularyService {
         Vocabulary vocabulary = vocabularyRepository.getOne(code);
         List<Concept> concepts = new ArrayList<Concept>();
         for (Concept concept: conceptRepository.findConceptByVocabularyCode(vocabulary.getCode(), new Sort(Sort.Direction.ASC, "ord"))) {
-            concept.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getCode(), code));
-            concepts.add(concept);
+            Concept conceptWithoutVocabulary = ConceptConverter.convertWithoutVocabulary(concept);
+            conceptWithoutVocabulary.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getCode(), code));
+            concepts.add(conceptWithoutVocabulary);
         }
         vocabulary.setConcepts(concepts);
         return vocabulary;

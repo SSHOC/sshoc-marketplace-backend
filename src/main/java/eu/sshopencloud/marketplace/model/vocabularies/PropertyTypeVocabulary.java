@@ -14,11 +14,13 @@ import java.io.Serializable;
 public class PropertyTypeVocabulary implements Serializable {
 
     @Id
-    @JoinColumn(name="property_type_code", insertable = false, updatable = false)
-    private String propertyTypeCode;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @JoinColumn(name="property_type_code", referencedColumnName = "code", insertable = false, updatable = false)
+    private PropertyType propertyType;
 
     @Id
-    @JoinColumn(name="vocabulary_code", insertable = false, updatable = false)
-    private String vocabularyCode;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @JoinColumn(name="vocabulary_code", referencedColumnName = "code", insertable = false, updatable = false)
+    private Vocabulary vocabulary;
 
 }

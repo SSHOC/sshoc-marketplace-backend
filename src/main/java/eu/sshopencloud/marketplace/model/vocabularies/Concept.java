@@ -20,7 +20,9 @@ public class Concept {
     private String code;
 
     @Id
-    private String vocabularyCode;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @JoinColumn(name="vocabulary_code", referencedColumnName = "code", insertable = false, updatable = false)
+    private Vocabulary vocabulary;
 
     @Basic
     @Column(nullable = false)
@@ -29,7 +31,7 @@ public class Concept {
     @Basic
     @Column(nullable = true)
     @JsonIgnore
-    protected Integer ord;
+    private Integer ord;
 
     @Basic
     @Column(nullable = true, length = 4096)
