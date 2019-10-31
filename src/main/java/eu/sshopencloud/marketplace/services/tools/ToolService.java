@@ -3,10 +3,12 @@ package eu.sshopencloud.marketplace.services.tools;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
+import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.search.SearchService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,13 +49,15 @@ public class ToolService {
         return tool;
     }
 
-    public void createTools(List<? extends Tool> newTools) {
+    public void createTools(List<? extends Tool> newTools) throws DataViolationException {
         for (Tool newTool: newTools) {
             createTool(newTool);
         }
     }
 
-    public Tool createTool(Tool newTool) {
+    public Tool createTool(Tool newTool) throws DataViolationException {
+        validateTool(newTool);
+
         // TODO set previous version by older and newer versions
         newTool.setId(null);
         Tool tool = toolRepository.save(newTool);
@@ -79,6 +83,12 @@ public class ToolService {
         itemRelatedItemService.deleteRelationsForItem(tool);
         itemService.switchVersionForDelete(tool);
         toolRepository.delete(tool);
+    }
+
+    private void validateTool(Tool newTool) throws DataViolationException {
+        if (StringUtils.isBlank(newTool.getLabel())) {
+            throw new DataViolationException("label", newTool.getLabel());
+        }
     }
 
 }

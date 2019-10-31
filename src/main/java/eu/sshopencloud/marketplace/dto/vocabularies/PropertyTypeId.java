@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.controllers.vocabularies.dto;
+package eu.sshopencloud.marketplace.dto.vocabularies;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

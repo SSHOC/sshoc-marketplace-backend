@@ -1,11 +1,11 @@
-package eu.sshopencloud.marketplace.controllers.vocabularies.dto;
+package eu.sshopencloud.marketplace.dto.tools;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class VocabularyId {
+public class ToolTypeId {
 
     private String code;
 

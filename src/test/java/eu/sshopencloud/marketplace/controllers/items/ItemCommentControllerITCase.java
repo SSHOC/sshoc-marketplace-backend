@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.sshopencloud.marketplace.controllers.items.dto.ItemCommentCore;
+import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

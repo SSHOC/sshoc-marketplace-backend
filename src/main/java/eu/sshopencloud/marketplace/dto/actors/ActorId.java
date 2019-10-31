@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.controllers.actors.dto;
+package eu.sshopencloud.marketplace.dto.actors;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

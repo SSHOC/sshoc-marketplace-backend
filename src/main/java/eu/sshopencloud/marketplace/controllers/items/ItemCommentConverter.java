@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
-import eu.sshopencloud.marketplace.controllers.items.dto.ItemCommentCore;
+import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
 import lombok.experimental.UtilityClass;
 

@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.controllers;
 
+import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.items.OtherUserCommentException;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class MarketplaceExceptionHandler {
 
-    @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class })
+    @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class, DataViolationException.class})
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();

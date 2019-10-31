@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.controllers.licenses.dto;
+package eu.sshopencloud.marketplace.dto.licenses;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,18 +1,13 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
-import eu.sshopencloud.marketplace.controllers.items.dto.ItemCommentCore;
+import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
 import eu.sshopencloud.marketplace.services.items.ItemCommentService;
 import eu.sshopencloud.marketplace.services.items.OtherUserCommentException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/api")

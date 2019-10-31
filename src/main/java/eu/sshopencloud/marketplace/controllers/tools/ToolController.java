@@ -1,10 +1,12 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
-import aj.org.objectweb.asm.ClassTooLargeException;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
+import eu.sshopencloud.marketplace.services.vocabularies.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -23,6 +25,8 @@ public class ToolController {
     private Integer maximalPerpage;
 
     private final ToolService toolService;
+
+    private final CategoryService categoryService;
 
     @GetMapping(path = "/tools", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
@@ -45,8 +49,10 @@ public class ToolController {
     }
 
     @PostMapping(path = "/tools", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tool> createTool(@RequestBody Tool newTool) {
-        Tool tool = toolService.createTool(newTool);
+    public ResponseEntity<Tool> createTool(@RequestBody ToolCore newTool)
+            throws DataViolationException {
+        String toolTypeCode = categoryService.getToolCategoryCode(newTool.getToolType());
+        Tool tool = toolService.createTool(ToolConverter.convert(newTool, toolTypeCode));
         return ResponseEntity.ok(tool);
     }
 

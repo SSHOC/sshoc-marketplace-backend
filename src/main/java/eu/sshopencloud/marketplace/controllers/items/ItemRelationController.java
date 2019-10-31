@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
-import eu.sshopencloud.marketplace.controllers.items.dto.ItemRelationId;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
 import eu.sshopencloud.marketplace.model.items.ItemRelation;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;

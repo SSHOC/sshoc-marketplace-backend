@@ -23,6 +23,7 @@ import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialReposi
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.*;
 
+import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
 import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
@@ -159,13 +160,21 @@ public class InitialDataLoader {
         actorRepository.saveAll(actors);
         log.debug("Loaded " + actors.size()  + " Actor objects");
 
-        List<Software> software = getInitialObjects(data, "Software");
-        toolService.createTools(software);
-        log.debug("Loaded " + software.size()  + " Software objects");
+        try {
+            List<Software> software = getInitialObjects(data, "Software");
+            toolService.createTools(software);
+            log.debug("Loaded " + software.size() + " Software objects");
+        } catch (DataViolationException e) {
+            log.error("Some Software objects haven't been loaded", e);
+        }
 
-        List<Service> services = getInitialObjects(data, "Service");
-        toolService.createTools(services);
-        log.debug("Loaded " + services.size()  + " Service objects");
+        try {
+            List<Service> services = getInitialObjects(data, "Service");
+            toolService.createTools(services);
+            log.debug("Loaded " + services.size()  + " Service objects");
+        } catch (DataViolationException e) {
+            log.error("Some Service objects haven't been loaded", e);
+        }
 
         List<TrainingMaterial> trainingMaterials = getInitialObjects(data, "TrainingMaterial");
         trainingMaterialService.createTrainingMaterials(trainingMaterials);
