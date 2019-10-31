@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.controllers.tools;
+package eu.sshopencloud.marketplace.controllers.trainings;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,20 +18,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ToolTypeControllerTest {
+public class TrainingMaterialTypeControllerITCase {
 
     @Autowired
     private MockMvc mvc;
 
     @Test
-    public void shouldReturnAllToolTypes() throws Exception {
+    public void shouldReturnAllTrainingMaterialTypes() throws Exception {
 
-        mvc.perform(get("/api/tool-types")
+        mvc.perform(get("/api/training-material-types")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].code", is("software")))
-                .andExpect(jsonPath("$[1].code", is("service")));
+                .andExpect(jsonPath("$", hasSize(5)))
+                .andExpect(jsonPath("$[0].code", is("paper")))
+                .andExpect(jsonPath("$[1].code", is("tutorial")))
+                .andExpect(jsonPath("$[2].code", is("online-course")))
+                .andExpect(jsonPath("$[3].code", is("webinar")))
+                .andExpect(jsonPath("$[4].code", is("blog")));
     }
 
 }

@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.controllers.trainings;
+package eu.sshopencloud.marketplace.controllers.tools;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TrainingMaterialControllerTest {
+public class ToolControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -23,7 +23,7 @@ public class TrainingMaterialControllerTest {
     @Test
     public void shouldReturnTools() throws Exception {
 
-        mvc.perform(get("/api/training-materials")
+        mvc.perform(get("/api/tools")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }

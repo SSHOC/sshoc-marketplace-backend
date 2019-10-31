@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.controllers.tools;
+package eu.sshopencloud.marketplace.controllers.auth;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,15 +15,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ToolControllerTest {
+public class UserControllerITCase {
 
     @Autowired
     private MockMvc mvc;
 
     @Test
-    public void shouldReturnTools() throws Exception {
+    public void shouldReturnUsers() throws Exception {
 
-        mvc.perform(get("/api/tools")
+        mvc.perform(get("/api/users")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }

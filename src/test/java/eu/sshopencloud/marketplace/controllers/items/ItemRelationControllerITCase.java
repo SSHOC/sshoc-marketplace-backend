@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ItemRelationControllerTest {
+public class ItemRelationControllerITCase {
 
     @Autowired
     private MockMvc mvc;

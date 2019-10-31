@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.controllers.auth;
+package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,15 +15,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest {
+public class VocabularyControllerITCase {
 
     @Autowired
     private MockMvc mvc;
 
     @Test
-    public void shouldReturnUsers() throws Exception {
+    public void shouldReturnTools() throws Exception {
 
-        mvc.perform(get("/api/users")
+        mvc.perform(get("/api/vocabularies")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
