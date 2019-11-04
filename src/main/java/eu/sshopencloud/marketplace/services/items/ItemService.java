@@ -2,10 +2,10 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemInline;
-import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.repositories.licenses.LicenseRepository;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +18,8 @@ import java.util.List;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+
+    private final LicenseRepository licenseRepository;
 
     private final PropertyTypeService propertyTypeService;
 
@@ -77,6 +79,5 @@ public class ItemService {
             itemRepository.save(item);
         }
     }
-
 
 }

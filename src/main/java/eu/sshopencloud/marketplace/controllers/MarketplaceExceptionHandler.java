@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers;
 import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.items.OtherUserCommentException;
+import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class MarketplaceExceptionHandler {
 
-    @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class, DataViolationException.class})
+    @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class, DataViolationException.class, ConceptDisallowedException.class})
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();

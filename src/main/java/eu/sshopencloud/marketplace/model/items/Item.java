@@ -46,8 +46,8 @@ public abstract class Item {
     private String description;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.REFRESH })
-    @JoinTable(name = "items_licenses", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "license_code", referencedColumnName = "code"))
+    @JoinTable(name = "items_licenses", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_license_item_id_fk")),
+            inverseJoinColumns = @JoinColumn(name = "license_code", referencedColumnName = "code", foreignKey = @ForeignKey(name="item_license_license_code_fk")))
     @OrderColumn(name = "ord")
     private List<License> licenses;
 
@@ -68,8 +68,8 @@ public abstract class Item {
     private List<ItemRelatedItemInline> relatedItems;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinTable(name = "items_information_contributors", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+    @JoinTable(name = "items_information_contributors", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_item_id_fk")),
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_user_id_fk")))
     @OrderColumn(name = "ord")
     private List<User> informationContributors;
 

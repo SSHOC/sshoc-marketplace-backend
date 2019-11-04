@@ -6,7 +6,7 @@ import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
-import eu.sshopencloud.marketplace.services.vocabularies.CategoryService;
+import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -25,8 +25,6 @@ public class ToolController {
     private Integer maximalPerpage;
 
     private final ToolService toolService;
-
-    private final CategoryService categoryService;
 
     @GetMapping(path = "/tools", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
@@ -50,9 +48,8 @@ public class ToolController {
 
     @PostMapping(path = "/tools", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Tool> createTool(@RequestBody ToolCore newTool)
-            throws DataViolationException {
-        String toolTypeCode = categoryService.getToolCategoryCode(newTool.getToolType());
-        Tool tool = toolService.createTool(ToolConverter.convert(newTool, toolTypeCode));
+            throws DataViolationException, ConceptDisallowedException {
+        Tool tool = toolService.createTool(newTool);
         return ResponseEntity.ok(tool);
     }
 

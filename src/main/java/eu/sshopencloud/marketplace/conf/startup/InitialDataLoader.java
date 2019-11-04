@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.conf.startup;
 
+import eu.sshopencloud.marketplace.conf.tools.DevToolLoader;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -71,7 +72,7 @@ public class InitialDataLoader {
 
     private final ActorRepository actorRepository;
 
-    private final ToolService toolService;
+    private final DevToolLoader toolLoader;
 
     private final TrainingMaterialService trainingMaterialService;
 
@@ -162,7 +163,7 @@ public class InitialDataLoader {
 
         try {
             List<Software> software = getInitialObjects(data, "Software");
-            toolService.createTools(software);
+            toolLoader.createTools(software);
             log.debug("Loaded " + software.size() + " Software objects");
         } catch (DataViolationException e) {
             log.error("Some Software objects haven't been loaded", e);
@@ -170,7 +171,7 @@ public class InitialDataLoader {
 
         try {
             List<Service> services = getInitialObjects(data, "Service");
-            toolService.createTools(services);
+            toolLoader.createTools(services);
             log.debug("Loaded " + services.size()  + " Service objects");
         } catch (DataViolationException e) {
             log.error("Some Service objects haven't been loaded", e);

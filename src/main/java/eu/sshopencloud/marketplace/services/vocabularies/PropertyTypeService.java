@@ -1,17 +1,19 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
-import eu.sshopencloud.marketplace.model.licenses.License;
+import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
+import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;
-import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
-import jdk.nashorn.internal.objects.NativeArray;
+import eu.sshopencloud.marketplace.services.DataViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +22,6 @@ public class PropertyTypeService {
     private final PropertyTypeRepository propertyTypeRepository;
 
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
-
-    private final VocabularyRepository vocabularyRepository;
 
     public List<PropertyType> getPropertyTypes(String q, int perpage) {
         ExampleMatcher queryPropertyTypeMatcher = ExampleMatcher.matchingAny()
@@ -49,5 +49,15 @@ public class PropertyTypeService {
         return allowedVocabularies;
     }
 
+    public PropertyType validate(String prefix, PropertyTypeId propertyType) throws DataViolationException {
+        if (propertyType.getCode() == null) {
+            throw new DataViolationException(prefix + "code", propertyType.getCode());
+        }
+        Optional<PropertyType> result = propertyTypeRepository.findById(propertyType.getCode());
+        if (!result.isPresent()) {
+            throw new DataViolationException(prefix + "code", propertyType.getCode());
+        }
+        return result.get();
+    }
 
 }
