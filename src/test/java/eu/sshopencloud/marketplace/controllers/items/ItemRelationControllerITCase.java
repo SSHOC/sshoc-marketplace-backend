@@ -61,6 +61,21 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
+    public void shouldntCreateItemsRelationsWhenRelationIsIncorrect() throws Exception {
+        Integer subjectId = 1;
+        Integer objectId = 2;
+
+        ItemRelationId itemRelation = new ItemRelationId();
+        itemRelation.setCode("qwerty");
+
+        mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
+                .content(new ObjectMapper().writeValueAsString(itemRelation))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+    }
+
+    @Test
     public void shouldntCreateItemsRelationsWhenExists() throws Exception {
         Integer subjectId = 1;
         Integer objectId = 3;
@@ -103,9 +118,6 @@ public class ItemRelationControllerITCase {
     public void shouldntDeleteItemsRelationsWhenItemNotExist() throws Exception {
         Integer subjectId = 2;
         Integer objectId = 40;
-
-        ItemRelationId itemRelation = new ItemRelationId();
-        itemRelation.setCode("mentions");
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
                 .contentType(MediaType.APPLICATION_JSON))

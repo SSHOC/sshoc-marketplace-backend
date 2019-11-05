@@ -1,8 +1,10 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelatedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.services.DataViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ public class ItemRelatedItemService {
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
     private final ItemRepository itemRepository;
+
+    private final ItemRelationService itemRelationService;
 
     public List<ItemRelatedItemInline> getItemRelatedItems(Long itemId) {
         List<ItemRelatedItemInline> relatedItems = new ArrayList<ItemRelatedItemInline>();
@@ -49,7 +53,7 @@ public class ItemRelatedItemService {
         return relatedItems;
     }
 
-    public ItemRelatedItem createItemRelatedItem(long subjectId, long objectId, ItemRelation itemRelation) throws ItemsRelationAlreadyExistsException {
+    public ItemRelatedItem createItemRelatedItem(long subjectId, long objectId, ItemRelationId itemRelation) throws DataViolationException, ItemsRelationAlreadyExistsException {
         Optional<Item> subject = itemRepository.findById(subjectId);
         if (!subject.isPresent()) {
             throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + subjectId);
@@ -77,7 +81,7 @@ public class ItemRelatedItemService {
         ItemRelatedItem newItemRelatedItem = new ItemRelatedItem();
         newItemRelatedItem.setSubject(subject.get());
         newItemRelatedItem.setObject(object.get());
-        newItemRelatedItem.setRelation(itemRelation);
+        newItemRelatedItem.setRelation(itemRelationService.validate("", itemRelation));
         ItemRelatedItem itemRelatedItem = itemRelatedItemRepository.save(newItemRelatedItem);
         return itemRelatedItem;
     }

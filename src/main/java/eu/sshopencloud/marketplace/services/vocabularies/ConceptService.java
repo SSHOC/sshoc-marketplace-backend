@@ -34,7 +34,7 @@ public class ConceptService {
         }
         Optional<Concept> result = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(concept.getCode()).vocabulary(concept.getVocabulary().getCode()).build());
         if (!result.isPresent()) {
-            throw new DataViolationException(prefix + "(code, vocabulary.code)", "(" + concept.getCode() + ", " + concept.getVocabulary().getCode() + ")");
+            throw new DataViolationException(prefix + "code", concept.getCode());
         }
         return result.get();
     }

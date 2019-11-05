@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.services.DataViolationException;
+import eu.sshopencloud.marketplace.services.tools.DisallowedToolTypeChangeException;
 import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
@@ -54,7 +55,8 @@ public class ToolController {
     }
 
     @PutMapping(path = "/tools/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tool> updateTool(@PathVariable("id") long id, @RequestBody Tool newTool) {
+    public ResponseEntity<Tool> updateTool(@PathVariable("id") long id, @RequestBody ToolCore newTool)
+            throws DataViolationException, ConceptDisallowedException, DisallowedToolTypeChangeException {
         Tool tool = toolService.updateTool(id, newTool);
         return ResponseEntity.ok(tool);
     }

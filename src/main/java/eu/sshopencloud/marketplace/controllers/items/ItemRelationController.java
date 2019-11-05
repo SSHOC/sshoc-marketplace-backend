@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.items;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
 import eu.sshopencloud.marketplace.model.items.ItemRelation;
+import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemRelationService;
 import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
@@ -32,8 +33,8 @@ public class ItemRelationController {
     public ResponseEntity<ItemRelatedItem> createItemRelatedItem(@PathVariable("subjectId") long subjectId,
                                                                  @PathVariable("objectId") long objectId,
                                                                  @RequestBody ItemRelationId itemRelation)
-            throws ItemsRelationAlreadyExistsException {
-        ItemRelatedItem itemRelatedItem = itemRelatedItemService.createItemRelatedItem(subjectId, objectId, ItemRelationConverter.convert(itemRelation));
+            throws DataViolationException, ItemsRelationAlreadyExistsException {
+        ItemRelatedItem itemRelatedItem = itemRelatedItemService.createItemRelatedItem(subjectId, objectId, itemRelation);
         return ResponseEntity.ok(itemRelatedItem);
     }
 

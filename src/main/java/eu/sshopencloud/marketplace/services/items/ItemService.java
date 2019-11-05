@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemInline;
+import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
@@ -18,8 +19,6 @@ import java.util.List;
 public class ItemService {
 
     private final ItemRepository itemRepository;
-
-    private final LicenseRepository licenseRepository;
 
     private final PropertyTypeService propertyTypeService;
 
@@ -67,6 +66,28 @@ public class ItemService {
         }
     }
 
+    public void switchVersionForCreate(Item item) {
+        if (item.getPrevVersion() != null) {
+            Item nextVersion = itemRepository.findItemByPrevVersion(item.getPrevVersion());
+            if (nextVersion != null) {
+                nextVersion.setPrevVersion(item);
+                itemRepository.save(nextVersion);
+            }
+        }
+    }
+
+
+    public void switchVersionForUpdate(Item item) {
+        if (item.getPrevVersion() != null) {
+            // TODO switch in more comlex paths
+            Item nextVersion = itemRepository.findItemByPrevVersion(item.getPrevVersion());
+            if (nextVersion != null) {
+                nextVersion.setPrevVersion(null);
+                itemRepository.save(nextVersion);
+            }
+        }
+    }
+
 
     public void switchVersionForDelete(Item item) {
         Item nextVersion = itemRepository.findItemByPrevVersion(item);
@@ -76,8 +97,9 @@ public class ItemService {
             } else {
                 nextVersion.setPrevVersion(null);
             }
-            itemRepository.save(item);
+            itemRepository.save(nextVersion);
         }
     }
+
 
 }

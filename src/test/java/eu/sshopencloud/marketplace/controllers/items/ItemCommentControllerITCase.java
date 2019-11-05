@@ -39,6 +39,19 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
+    public void shouldntCreateItemCommentWhenCommentIsEmpty() throws Exception {
+        Integer itemId = 1;
+
+        ItemCommentCore itemComment = new ItemCommentCore();
+        itemComment.setBody("");
+
+        mvc.perform(post("/api/item-comments/{itemId}", itemId)
+                .content(new ObjectMapper().writeValueAsString(itemComment))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void shouldntCreateItemCommentWhenItemNotExist() throws Exception {
         Integer itemId = 30;
 
