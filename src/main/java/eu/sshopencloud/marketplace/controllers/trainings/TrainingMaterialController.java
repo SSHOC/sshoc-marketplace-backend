@@ -1,9 +1,12 @@
 package eu.sshopencloud.marketplace.controllers.trainings;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
+import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
+import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -44,13 +47,15 @@ public class TrainingMaterialController {
     }
 
     @PostMapping(path = "/training-materials", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterial> createTrainingMaterial(@RequestBody TrainingMaterial newTrainingMaterial) {
+    public ResponseEntity<TrainingMaterial> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial)
+            throws DataViolationException, ConceptDisallowedException {
         TrainingMaterial trainingMaterial = trainingMaterialService.createTrainingMaterial(newTrainingMaterial);
         return ResponseEntity.ok(trainingMaterial);
     }
 
     @PutMapping(path = "/training-materials/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterial> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterial newTrainingMaterial) {
+    public ResponseEntity<TrainingMaterial> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterialCore newTrainingMaterial)
+            throws DataViolationException, ConceptDisallowedException {
         TrainingMaterial trainingMaterial = trainingMaterialService.updateTrainingMaterial(id, newTrainingMaterial);
         return ResponseEntity.ok(trainingMaterial);
     }

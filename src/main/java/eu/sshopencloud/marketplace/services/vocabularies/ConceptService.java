@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class ConceptService {
         if (concept.getVocabulary().getCode() == null) {
             throw new DataViolationException(prefix + "vocabulary.code", concept.getVocabulary().getCode());
         }
-        if (!allowedVocabularies.stream().map(v -> v.getCode()).collect(Collectors.toList()).contains(concept.getVocabulary().getCode())) {
+        if (!allowedVocabularies.stream().anyMatch(v -> Objects.equals(v.getCode(), concept.getVocabulary().getCode()))) {
             throw new ConceptDisallowedException(propertyType, concept.getVocabulary().getCode());
         }
         Optional<Concept> result = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(concept.getCode()).vocabulary(concept.getVocabulary().getCode()).build());

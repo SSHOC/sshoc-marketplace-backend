@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +51,7 @@ public class ItemRelationControllerITCase {
         itemRelation.setCode("mentions");
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
-                .content(new ObjectMapper().writeValueAsString(itemRelation))
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.id", is(subjectId)))
@@ -69,7 +69,7 @@ public class ItemRelationControllerITCase {
         itemRelation.setCode("qwerty");
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
-                .content(new ObjectMapper().writeValueAsString(itemRelation))
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -84,7 +84,7 @@ public class ItemRelationControllerITCase {
         itemRelation.setCode("mentions");
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
-                .content(new ObjectMapper().writeValueAsString(itemRelation))
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -99,7 +99,7 @@ public class ItemRelationControllerITCase {
         itemRelation.setCode("mentions");
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
-                .content(new ObjectMapper().writeValueAsString(itemRelation))
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

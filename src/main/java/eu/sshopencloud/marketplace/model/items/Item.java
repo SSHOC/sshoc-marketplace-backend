@@ -51,7 +51,7 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<License> licenses;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderColumn(name = "ord")
     private List<ItemContributor> contributors;
 

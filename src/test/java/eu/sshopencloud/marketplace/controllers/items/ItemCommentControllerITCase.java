@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +32,7 @@ public class ItemCommentControllerITCase {
         itemComment.setBody("I love it!");
 
         mvc.perform(post("/api/item-comments/{itemId}", itemId)
-                .content(new ObjectMapper().writeValueAsString(itemComment))
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("body", is("I love it!")));
@@ -46,7 +46,7 @@ public class ItemCommentControllerITCase {
         itemComment.setBody("");
 
         mvc.perform(post("/api/item-comments/{itemId}", itemId)
-                .content(new ObjectMapper().writeValueAsString(itemComment))
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -59,7 +59,7 @@ public class ItemCommentControllerITCase {
         itemComment.setBody("I love it!");
 
         mvc.perform(post("/api/item-comments/{itemId}", itemId)
-                .content(new ObjectMapper().writeValueAsString(itemComment))
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -72,7 +72,7 @@ public class ItemCommentControllerITCase {
         itemComment.setBody("I love it!");
 
         mvc.perform(put("/api/item-comments/{id}", commentId)
-                .content(new ObjectMapper().writeValueAsString(itemComment))
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("body", is("I love it!")));
@@ -86,7 +86,7 @@ public class ItemCommentControllerITCase {
         itemComment.setBody("I love it!");
 
         mvc.perform(put("/api/item-comments/{id}", commentId)
-                .content(new ObjectMapper().writeValueAsString(itemComment))
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

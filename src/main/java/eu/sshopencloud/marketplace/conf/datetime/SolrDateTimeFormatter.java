@@ -10,7 +10,7 @@ public class SolrDateTimeFormatter {
 
     public final String dateTimePattern = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimePattern);
+    public DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimePattern);
 
     public String formatDateTime(ZonedDateTime date) {
         return date.format(dateTimeFormatter);

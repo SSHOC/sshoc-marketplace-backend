@@ -80,8 +80,8 @@ public class ToolService {
         return tool;
     }
 
-    private Tool validate(ToolCore newTool, String toolTypeCode) throws DataViolationException, ConceptDisallowedException {
-        Tool result = createToolEntity(toolTypeCode);
+    private Tool validate(ToolCore newTool, Long toolId, String toolTypeCode) throws DataViolationException, ConceptDisallowedException {
+        Tool result = createOrGetTool(toolId, toolTypeCode);
         result.setCategory(ItemCategory.TOOL);
         if (StringUtils.isBlank(newTool.getLabel())) {
             throw new DataViolationException("label", newTool.getLabel());
@@ -92,21 +92,50 @@ public class ToolService {
             throw new DataViolationException("description", newTool.getDescription());
         }
         result.setDescription(newTool.getDescription());
-        result.setLicenses(licenseService.validate("licenses", newTool.getLicenses()));
-        result.setContributors(itemContributorService.validate("contributors", newTool.getContributors(), result));
-        result.setProperties(propertyService.validate("properties", newTool.getProperties()));
+        if (result.getLicenses() != null) {
+            result.getLicenses().clear();
+            result.getLicenses().addAll(licenseService.validate("licenses", newTool.getLicenses()));
+        } else {
+            result.setLicenses(licenseService.validate("licenses", newTool.getLicenses()));
+        }
+        if (result.getContributors() != null) {
+            result.getContributors().clear();
+            result.getContributors().addAll(itemContributorService.validate("contributors", newTool.getContributors(), result));
+        } else {
+            result.setContributors(itemContributorService.validate("contributors", newTool.getContributors(), result));
+        }
+        if (result.getProperties() != null) {
+            result.getProperties().clear();
+            result.getProperties().addAll(propertyService.validate("properties", newTool.getProperties()));
+        } else {
+            result.setProperties(propertyService.validate("properties", newTool.getProperties()));
+        }
         result.setAccessibleAt(newTool.getAccessibleAt());
         if (newTool.getPrevVersionId() != null) {
             Optional<Tool> prevVersion = toolRepository.findById(newTool.getPrevVersionId());
             if (!prevVersion.isPresent()) {
                 throw new DataViolationException("prevVersionId", newTool.getPrevVersionId());
             }
+            if (toolId != null) {
+                if (result.getId().equals(newTool.getPrevVersionId())) {
+                    throw new DataViolationException("prevVersionId", newTool.getPrevVersionId());
+                }
+            }
+            // switch version before assigning the new one
+            if (toolId == null) {
+                itemService.switchVersionForCreate(result);
+            } else {
+                itemService.switchVersionForUpdate(result);
+            }
             result.setPrevVersion(prevVersion.get());
         }
         return result;
     }
 
-    private Tool createToolEntity(String toolTypeCode) {
+    private Tool createOrGetTool(Long toolId, String toolTypeCode) {
+        if (toolId != null) {
+            return toolRepository.getOne(toolId);
+        }
         switch (toolTypeCode) {
             case "software":
                 return new Software();
@@ -118,9 +147,9 @@ public class ToolService {
     }
 
     public Tool createTool(ToolCore newTool) throws DataViolationException, ConceptDisallowedException {
+        // TODO move validation to the validate method (when vocabularies are refactored)
         String toolTypeCode = categoryService.getToolCategoryCode(newTool.getToolType());
-        Tool tool = validate(newTool, toolTypeCode);
-        itemService.switchVersionForCreate(tool);
+        Tool tool = validate(newTool, null, toolTypeCode);
         ZonedDateTime now = ZonedDateTime.now();
         tool.setLastInfoUpdate(now);
 
@@ -134,14 +163,7 @@ public class ToolService {
             tool.setInformationContributors(informationContributors);
         }
 
-        tool = toolRepository.save(tool);
-        if (itemService.isNewestVersion(tool)) {
-            if (tool.getPrevVersion() != null) {
-                searchService.removeItem(tool.getPrevVersion());
-            }
-            searchService.indexItem(tool);
-        }
-        tool = complete(tool);
+        tool = saveTool(tool);
         return tool;
     }
 
@@ -150,20 +172,14 @@ public class ToolService {
             throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
         }
         Tool currentTool = toolRepository.getOne(id);
-        // change between software and service is not allowed
+        // change between software and service is not allowed - TODO change into field and allow (add validations in validate method)
         String toolTypeCode = currentTool.getToolType().getCode();
         if (newTool.getToolType() != null) {
             if (!toolTypeCode.equals(newTool.getToolType().getCode())) {
                 throw new DisallowedToolTypeChangeException(toolTypeCode, newTool.getToolType().getCode());
             }
         }
-        Tool tool = validate(newTool, toolTypeCode);
-        tool.setId(currentTool.getId());
-        tool.setComments(currentTool.getComments());
-        if (tool.getId().equals(tool.getPrevVersion().getId())) {
-            throw new DataViolationException("prevVersionId", tool.getPrevVersion().getId());
-        }
-        itemService.switchVersionForUpdate(tool);
+        Tool tool = validate(newTool, id, toolTypeCode);
         ZonedDateTime now = ZonedDateTime.now();
         tool.setLastInfoUpdate(now);
 
@@ -183,6 +199,11 @@ public class ToolService {
             }
         }
 
+        tool = saveTool(tool);
+        return tool;
+    }
+
+    private Tool saveTool(Tool tool) {
         tool = toolRepository.save(tool);
         if (itemService.isNewestVersion(tool)) {
             if (tool.getPrevVersion() != null) {

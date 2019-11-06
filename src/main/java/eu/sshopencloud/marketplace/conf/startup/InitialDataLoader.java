@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.conf.startup;
 
 import eu.sshopencloud.marketplace.conf.tools.DevToolLoader;
+import eu.sshopencloud.marketplace.conf.trainings.DevTrainingMaterialLoader;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -74,7 +75,7 @@ public class InitialDataLoader {
 
     private final DevToolLoader toolLoader;
 
-    private final TrainingMaterialService trainingMaterialService;
+    private final DevTrainingMaterialLoader trainingMaterialLoader;
 
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
@@ -161,24 +162,16 @@ public class InitialDataLoader {
         actorRepository.saveAll(actors);
         log.debug("Loaded " + actors.size()  + " Actor objects");
 
-        try {
-            List<Software> software = getInitialObjects(data, "Software");
-            toolLoader.createTools(software);
-            log.debug("Loaded " + software.size() + " Software objects");
-        } catch (DataViolationException e) {
-            log.error("Some Software objects haven't been loaded", e);
-        }
+        List<Software> software = getInitialObjects(data, "Software");
+        toolLoader.createTools(software);
+        log.debug("Loaded " + software.size() + " Software objects");
 
-        try {
-            List<Service> services = getInitialObjects(data, "Service");
-            toolLoader.createTools(services);
-            log.debug("Loaded " + services.size()  + " Service objects");
-        } catch (DataViolationException e) {
-            log.error("Some Service objects haven't been loaded", e);
-        }
+        List<Service> services = getInitialObjects(data, "Service");
+        toolLoader.createTools(services);
+        log.debug("Loaded " + services.size()  + " Service objects");
 
         List<TrainingMaterial> trainingMaterials = getInitialObjects(data, "TrainingMaterial");
-        trainingMaterialService.createTrainingMaterials(trainingMaterials);
+        trainingMaterialLoader.createTrainingMaterials(trainingMaterials);
         log.debug("Loaded " + trainingMaterials.size()  + " TrainingMaterial objects");
 
         List<ItemRelatedItem> itemRelatedItems = getInitialObjects(data, "ItemRelatedItem");

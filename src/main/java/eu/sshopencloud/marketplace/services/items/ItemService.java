@@ -2,17 +2,17 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemInline;
-import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
-import eu.sshopencloud.marketplace.repositories.licenses.LicenseRepository;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,10 +68,10 @@ public class ItemService {
 
     public void switchVersionForCreate(Item item) {
         if (item.getPrevVersion() != null) {
-            Item nextVersion = itemRepository.findItemByPrevVersion(item.getPrevVersion());
-            if (nextVersion != null) {
-                nextVersion.setPrevVersion(item);
-                itemRepository.save(nextVersion);
+            Item prevnextVersion = itemRepository.findItemByPrevVersion(item.getPrevVersion());
+            if (prevnextVersion != null) {
+                prevnextVersion.setPrevVersion(item);
+                itemRepository.save(prevnextVersion);
             }
         }
     }
@@ -79,10 +79,17 @@ public class ItemService {
 
     public void switchVersionForUpdate(Item item) {
         if (item.getPrevVersion() != null) {
-            // TODO switch in more comlex paths
-            Item nextVersion = itemRepository.findItemByPrevVersion(item.getPrevVersion());
-            if (nextVersion != null) {
-                nextVersion.setPrevVersion(null);
+            Item prevnextVersion = itemRepository.findItemByPrevVersion(item.getPrevVersion());
+            if (prevnextVersion != null) {
+                prevnextVersion.setPrevVersion(null);
+                itemRepository.save(prevnextVersion);
+            }
+            List<ItemInline> newerVersions = getNewerVersionsOfItem(item);
+            if (newerVersions.stream().anyMatch(i -> Objects.equals(i.getId(), item.getPrevVersion().getId()))) {
+                // new previous version is one of current newer versions
+                Item currentItem = itemRepository.getOne(item.getId());
+                Item nextVersion = itemRepository.findItemByPrevVersion(item);
+                nextVersion.setPrevVersion(currentItem.getPrevVersion());
                 itemRepository.save(nextVersion);
             }
         }
@@ -92,11 +99,7 @@ public class ItemService {
     public void switchVersionForDelete(Item item) {
         Item nextVersion = itemRepository.findItemByPrevVersion(item);
         if (nextVersion != null) {
-            if (item.getPrevVersion() != null) {
-                nextVersion.setPrevVersion(item.getPrevVersion());
-            } else {
-                nextVersion.setPrevVersion(null);
-            }
+            nextVersion.setPrevVersion(item.getPrevVersion());
             itemRepository.save(nextVersion);
         }
     }
