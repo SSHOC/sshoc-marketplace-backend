@@ -6,10 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,6 +24,12 @@ public class UserController {
     public ResponseEntity<List<User>> getUsers(@RequestParam(value = "q", required = false) String q) {
         List<User> users = userService.getUsers(q, defualtPerpage);
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<User> getUser(@PathVariable("id") long id) {
+        User user = userService.getUser(id);
+        return ResponseEntity.ok(user);
     }
 
 }

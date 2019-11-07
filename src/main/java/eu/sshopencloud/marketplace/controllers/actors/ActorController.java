@@ -1,15 +1,14 @@
 package eu.sshopencloud.marketplace.controllers.actors;
 
+import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,6 +26,31 @@ public class ActorController {
     public ResponseEntity<List<Actor>> getActors(@RequestParam(value = "q", required = false) String q) {
         List<Actor> actors = actorService.getActors(q, defualtPerpage);
         return ResponseEntity.ok(actors);
+    }
+
+    @GetMapping(path = "/actors/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Actor> getActor(@PathVariable("id") long id) {
+        Actor actor = actorService.getActor(id);
+        return ResponseEntity.ok(actor);
+    }
+
+    @PostMapping(path = "/actors", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Actor> createActor(@RequestBody ActorCore newActor)
+            throws DataViolationException {
+        Actor actor = actorService.createActor(newActor);
+        return ResponseEntity.ok(actor);
+    }
+
+    @PutMapping(path = "/actors/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Actor> updateActor(@PathVariable("id") long id, @RequestBody ActorCore newActor)
+            throws DataViolationException {
+        Actor actor = actorService.updateActor(id, newActor);
+        return ResponseEntity.ok(actor);
+    }
+
+    @DeleteMapping("/actors/{id}")
+    public void deleteActor(@PathVariable("id") long id) {
+        actorService.deleteActor(id);
     }
 
 }

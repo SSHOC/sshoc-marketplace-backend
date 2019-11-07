@@ -2,9 +2,8 @@ package eu.sshopencloud.marketplace.services.tools;
 
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.items.ItemComment;
-import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.model.tools.Software;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
@@ -30,12 +29,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class ToolService {
@@ -121,13 +122,7 @@ public class ToolService {
                     throw new DataViolationException("prevVersionId", newTool.getPrevVersionId());
                 }
             }
-            // switch version before assigning the new one
-            if (toolId == null) {
-                itemService.switchVersionForCreate(result);
-            } else {
-                itemService.switchVersionForUpdate(result);
-            }
-            result.setPrevVersion(prevVersion.get());
+            result.setNewPrevVersion(prevVersion.get());
         }
         return result;
     }
@@ -163,7 +158,10 @@ public class ToolService {
             tool.setInformationContributors(informationContributors);
         }
 
+        Item nextVersion = itemService.clearVersionForCreate(tool);
         tool = saveTool(tool);
+        itemService.switchVersion(tool, nextVersion);
+        tool = complete(tool);
         return tool;
     }
 
@@ -199,7 +197,11 @@ public class ToolService {
             }
         }
 
+        Item prevVersion = tool.getPrevVersion();
+        Item nextVersion = itemService.clearVersionForUpdate(tool);
         tool = saveTool(tool);
+        itemService.switchVersion(prevVersion, nextVersion);
+        tool = complete(tool);
         return tool;
     }
 
@@ -211,7 +213,6 @@ public class ToolService {
             }
             searchService.indexItem(tool);
         }
-        tool = complete(tool);
         return tool;
     }
 
@@ -222,8 +223,10 @@ public class ToolService {
         }
         Tool tool = toolRepository.getOne(id);
         itemRelatedItemService.deleteRelationsForItem(tool);
-        itemService.switchVersionForDelete(tool);
+        Item prevVersion = tool.getPrevVersion();
+        Item nextVersion = itemService.clearVersionForDelete(tool);
         toolRepository.delete(tool);
+        itemService.switchVersion(prevVersion, nextVersion);
     }
 
 }

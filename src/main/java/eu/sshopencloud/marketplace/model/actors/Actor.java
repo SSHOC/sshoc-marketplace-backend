@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.actors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.List;
 @Table(name = "actors")
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Actor {
 
     @Id
@@ -33,8 +35,8 @@ public class Actor {
 
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.REFRESH })
-    @JoinTable(name = "actors_affiliations", joinColumns = @JoinColumn(name = "actor_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "affiliation_id", referencedColumnName = "id"))
+    @JoinTable(name = "actors_affiliations", joinColumns = @JoinColumn(name = "actor_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="actors_affiliations_actor_id_fk")),
+            inverseJoinColumns = @JoinColumn(name = "affiliation_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="actors_affiliations_affiliation_id_fk")))
     @OrderColumn(name = "ord")
     private List<Actor> affiliations;
 

@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.trainings;
 
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType;
@@ -28,12 +29,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class TrainingMaterialService {
@@ -126,13 +129,7 @@ public class TrainingMaterialService {
                     throw new DataViolationException("prevVersionId", newTrainingMaterial.getPrevVersionId());
                 }
             }
-            // switch version before assigning the new one
-            if (trainingMaterialId == null) {
-                itemService.switchVersionForCreate(result);
-            } else {
-                itemService.switchVersionForUpdate(result);
-            }
-            result.setPrevVersion(prevVersion.get());
+            result.setNewPrevVersion(prevVersion.get());
         }
         return result;
     }
@@ -164,7 +161,10 @@ public class TrainingMaterialService {
             trainingMaterial.setInformationContributors(informationContributors);
         }
 
+        Item nextVersion = itemService.clearVersionForCreate(trainingMaterial);
         trainingMaterial = saveTrainingMaterial(trainingMaterial);
+        itemService.switchVersion(trainingMaterial, nextVersion);
+        trainingMaterial = complete(trainingMaterial);
         return trainingMaterial;
     }
 
@@ -194,8 +194,11 @@ public class TrainingMaterialService {
                 trainingMaterial.setInformationContributors(informationContributors);
             }
         }
-
+        Item prevVersion = trainingMaterial.getPrevVersion();
+        Item nextVersion = itemService.clearVersionForUpdate(trainingMaterial);
         trainingMaterial = saveTrainingMaterial(trainingMaterial);
+        itemService.switchVersion(prevVersion, nextVersion);
+        trainingMaterial = complete(trainingMaterial);
         return trainingMaterial;
     }
 
@@ -207,15 +210,20 @@ public class TrainingMaterialService {
             }
             searchService.indexItem(trainingMaterial);
         }
-        trainingMaterial = complete(trainingMaterial);
         return trainingMaterial;
     }
 
     public void deleteTrainingMaterial(Long id) {
+        // TODO don't allow deleting without authentication (in WebSecurityConfig)
+        if (!trainingMaterialRepository.existsById(id)) {
+            throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
+        }
         TrainingMaterial trainingMaterial = trainingMaterialRepository.getOne(id);
         itemRelatedItemService.deleteRelationsForItem(trainingMaterial);
-        itemService.switchVersionForDelete(trainingMaterial);
+        Item prevVersion = trainingMaterial.getPrevVersion();
+        Item nextVersion = itemService.clearVersionForDelete(trainingMaterial);
         trainingMaterialRepository.delete(trainingMaterial);
+        itemService.switchVersion(prevVersion, nextVersion);
     }
 
 }

@@ -9,9 +9,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
@@ -35,6 +38,14 @@ public class UserService implements UserDetailsService {
 
         Page<User> users = userRepository.findAll(Example.of(queryUser, queryUserMatcher), PageRequest.of(0, perpage, new Sort(Sort.Direction.ASC, "username")));
         return users.getContent();
+    }
+
+    public User getUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id);
+        }
+        User user = userRepository.getOne(id);
+        return user;
     }
 
 }

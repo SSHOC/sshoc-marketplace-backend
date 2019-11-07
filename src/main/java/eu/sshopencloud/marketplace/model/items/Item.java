@@ -16,7 +16,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "items")
+@Table(name = "items", uniqueConstraints = {
+        @UniqueConstraint(name = "item_prev_version_item_id_uq", columnNames = {"prev_version_id"} )
+    })
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @NoArgsConstructor
@@ -86,8 +88,14 @@ public abstract class Item {
     private List<ItemComment> comments;
 
     @OneToOne(optional = true, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))
     @JsonIgnore
     private Item prevVersion;
+
+    /** Needed for switching versions during creating/updating of an item */
+    @Transient
+    @JsonIgnore
+    private Item newPrevVersion;
 
     /* All older versions of this item (except this version). Sorted from the newest. */
     @Transient

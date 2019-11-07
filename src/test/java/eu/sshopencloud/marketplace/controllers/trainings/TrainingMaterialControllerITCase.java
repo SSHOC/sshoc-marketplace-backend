@@ -12,12 +12,16 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,6 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TrainingMaterialControllerITCase {
 
     @Autowired
@@ -63,7 +69,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("informationContributors", hasSize(1)))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(2)));
+                .andExpect(jsonPath("newerVersions", hasSize(3)));
     }
 
     @Test
@@ -156,27 +162,60 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
-    // TODO test many cases of prev versions
     @Test
-    public void shouldCreateTrainingMaterialWithPrevVersion() throws Exception {
+    public void shouldCreateTrainingMaterialWithPrevVersionInChain() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("software");
+        trainingMaterialType.setCode("online-course");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test complex software");
+        trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem ipsum");
-        trainingMaterial.setPrevVersionId(2l);
+        trainingMaterial.setPrevVersionId(7l);
 
         mvc.perform(post("/api/training-materials")
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("trainingMaterial")))
-                .andExpect(jsonPath("label", is("Test complex software")))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(2)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Stata")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Test complex online course")))
+                .andExpect(jsonPath("olderVersions", hasSize(3)))
+                .andExpect(jsonPath("olderVersions[0].id", is(7)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions[0].version", is("3.0")))
+                .andExpect(jsonPath("olderVersions[1].id", is(6)))
+                .andExpect(jsonPath("olderVersions[1].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions[1].version", is("2.0")))
+                .andExpect(jsonPath("olderVersions[2].id", is(5)))
+                .andExpect(jsonPath("olderVersions[2].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions[2].version", is("1.0")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+
+    @Test
+    public void shouldCreateTrainingMaterialWithPrevVersionInSubChain() throws Exception {
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
+        trainingMaterialType.setCode("online-course");
+        trainingMaterial.setTrainingMaterialType(trainingMaterialType);
+        trainingMaterial.setLabel("Test complex online course");
+        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setPrevVersionId(6l);
+
+        mvc.perform(post("/api/training-materials")
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Test complex online course")))
+                .andExpect(jsonPath("olderVersions", hasSize(2)))
+                .andExpect(jsonPath("olderVersions[0].id", is(6)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions[0].version", is("2.0")))
+                .andExpect(jsonPath("newerVersions", hasSize(2)))
+                .andExpect(jsonPath("newerVersions[0].id", is(7)))
+                .andExpect(jsonPath("newerVersions[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("newerVersions[0].version", is("3.0")));
     }
 
 
@@ -186,7 +225,7 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
         trainingMaterialType.setCode("xxx");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
 
         mvc.perform(post("/api/training-materials")
@@ -200,7 +239,7 @@ public class TrainingMaterialControllerITCase {
     public void shouldntCreateTrainingMaterialWhenLabelIsNull() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setDescription("Lorem ipsum");
 
@@ -215,9 +254,9 @@ public class TrainingMaterialControllerITCase {
     public void shouldntCreateTrainingMaterialWhenLicenseIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         LicenseId license = new LicenseId();
         license.setCode("qwerty1");
@@ -236,9 +275,9 @@ public class TrainingMaterialControllerITCase {
     public void shouldntCreateTrainingMaterialWhenContributorIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
@@ -262,9 +301,9 @@ public class TrainingMaterialControllerITCase {
     public void shouldntCreateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
@@ -286,12 +325,12 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenPropertTypeIsUnknown() throws Exception {
+    public void shouldntCreateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
@@ -324,9 +363,9 @@ public class TrainingMaterialControllerITCase {
     public void shouldntCreateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
@@ -360,9 +399,9 @@ public class TrainingMaterialControllerITCase {
     public void shouldntCreateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
@@ -395,9 +434,9 @@ public class TrainingMaterialControllerITCase {
     public void shouldntCreateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
@@ -423,13 +462,13 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldUpdateTrainingMaterialWithoutRelation() throws Exception {
-        Integer trainingMaterialId = 2;
+        Integer trainingMaterialId = 5;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("software");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test simple software");
+        trainingMaterial.setLabel("Test simple training material");
         trainingMaterial.setDescription("Lorem ipsum");
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
@@ -437,8 +476,8 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(trainingMaterialId)))
-                .andExpect(jsonPath("category", is("trainingMaterial")))
-                .andExpect(jsonPath("label", is("Test simple software")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Test simple training material")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(0)));
@@ -446,13 +485,13 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldUpdateTrainingMaterialWithRelations() throws Exception {
-        Integer trainingMaterialId = 2;
+        Integer trainingMaterialId = 5;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("software");
+        trainingMaterialType.setCode("blog");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test complex software");
+        trainingMaterial.setLabel("Introduction to GEPHI");
         trainingMaterial.setDescription("Lorem ipsum");
         LicenseId license = new LicenseId();
         license.setCode("mit");
@@ -488,14 +527,18 @@ public class TrainingMaterialControllerITCase {
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2018, Month.APRIL, 1), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        trainingMaterial.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2018, Month.DECEMBER, 17), LocalTime.of(12, 20), ZoneId.of("UTC"));
+        trainingMaterial.setDateLastUpdated(dateLastUpdated);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(trainingMaterialId)))
-                .andExpect(jsonPath("category", is("trainingMaterial")))
-                .andExpect(jsonPath("label", is("Test complex software")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("licenses", hasSize(1)))
                 .andExpect(jsonPath("licenses[0].label", is("MIT License")))
                 .andExpect(jsonPath("contributors", hasSize(1)))
@@ -504,8 +547,13 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("properties", hasSize(2)))
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("newerVersions", hasSize(1)))
+                .andExpect(jsonPath("newerVersions[0].id", is(7)))
+                .andExpect(jsonPath("newerVersions[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("newerVersions[0].version", is("3.0")));
     }
 
     @Test
@@ -514,9 +562,9 @@ public class TrainingMaterialControllerITCase {
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("software");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test simple software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
@@ -526,42 +574,71 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldUpdateTrainingMaterialWithPrevVersion() throws Exception {
-        Integer trainingMaterialId = 2;
+    public void shouldUpdateTrainingMaterialWithPrevVersionForEndOfChain() throws Exception {
+        Integer trainingMaterialId = 5;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("software");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test complex software");
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setVersion("1.0");
         trainingMaterial.setDescription("Lorem ipsum");
-        trainingMaterial.setPrevVersionId(1l);
+        trainingMaterial.setPrevVersionId(7l);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(trainingMaterialId)))
-                .andExpect(jsonPath("category", is("trainingMaterial")))
-                .andExpect(jsonPath("label", is("Test complex software")))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(1)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Gephi")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions", hasSize(2)))
+                .andExpect(jsonPath("olderVersions[0].id", is(7)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions[0].version", is("3.0")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
 
     @Test
-    public void shouldntUpdateTrainingMaterialWithPrevVersionEqualToTrainingMaterial() throws Exception {
-        Integer trainingMaterialId = 2;
+    public void shouldUpdateTrainingMaterialWithPrevVersionForMiddleOfChain() throws Exception {
+        Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("software");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test complex software");
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setVersion("3.0");
         trainingMaterial.setDescription("Lorem ipsum");
-        trainingMaterial.setPrevVersionId(2l);
+        trainingMaterial.setPrevVersionId(5l);
+
+        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions", hasSize(2)))
+                .andExpect(jsonPath("olderVersions[0].id", is(5)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions[0].version", is("1.0")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+    @Test
+    public void shouldntUpdateTrainingMaterialWithPrevVersionEqualToTrainingMaterial() throws Exception {
+        Integer trainingMaterialId = 7;
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
+        trainingMaterialType.setCode("paper");
+        trainingMaterial.setTrainingMaterialType(trainingMaterialType);
+        trainingMaterial.setLabel("Test training material");
+        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setPrevVersionId(7l);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
@@ -573,11 +650,11 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldntUpdateTrainingMaterialWhenLabelIsNull() throws Exception {
-        Integer trainingMaterialId = 3;
+        Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setDescription("Lorem ipsum");
 
@@ -591,13 +668,13 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldntUpdateTrainingMaterialWhenLicenseIsUnknown() throws Exception {
-        Integer trainingMaterialId = 3;
+        Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         LicenseId license = new LicenseId();
         license.setCode("qwerty1");
@@ -614,13 +691,13 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldntUpdateTrainingMaterialWhenContributorIsUnknown() throws Exception {
-        Integer trainingMaterialId = 3;
+        Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
@@ -642,13 +719,13 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldntUpdateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
-        Integer trainingMaterialId = 3;
+        Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
@@ -670,14 +747,14 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenPropertTypeIsUnknown() throws Exception {
-        Integer trainingMaterialId = 3;
+    public void shouldntUpdateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
+        Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
@@ -708,13 +785,13 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldntUpdateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
-        Integer trainingMaterialId = 3;
+        Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
@@ -746,13 +823,13 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldntUpdateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
-        Integer trainingMaterialId = 3;
+        Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
@@ -783,13 +860,13 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldntUpdateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
-        Integer trainingMaterialId = 3;
+        Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
-        trainingMaterialType.setCode("service");
+        trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setLabel("Test Software");
+        trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
@@ -816,7 +893,7 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldDeleteTrainingMaterial() throws Exception {
-        Integer trainingMaterialId = 2;
+        Integer trainingMaterialId = 4;
 
         mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -824,7 +901,30 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldDeleteTrainingMaterialWhenNotExist() throws Exception {
+    public void shouldDeleteTrainingMaterialAndSwitchVersions() throws Exception {
+        Integer trainingMaterialId = 6;
+
+        mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        trainingMaterialId = 7;
+
+        mvc.perform(get("/api/training-materials/{id}", trainingMaterialId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(trainingMaterialId)))
+                .andExpect(jsonPath("olderVersions", hasSize(2)))
+                .andExpect(jsonPath("olderVersions[1].id", is(5)))
+                .andExpect(jsonPath("olderVersions[1].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions[1].version", is("1.0")))
+                .andExpect(jsonPath("newerVersions", hasSize(1)));
+
+    }
+
+
+    @Test
+    public void shouldntDeleteTrainingMaterialWhenNotExist() throws Exception {
         Integer trainingMaterialId = 100;
 
         mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)

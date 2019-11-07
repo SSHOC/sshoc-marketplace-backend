@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class DevTrainingMaterialLoader {
+public class TrainingMaterialLoader {
 
     private final TrainingMaterialRepository trainingMaterialRepository;
 

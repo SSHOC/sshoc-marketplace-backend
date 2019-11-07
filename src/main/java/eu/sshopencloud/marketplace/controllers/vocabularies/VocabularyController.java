@@ -43,9 +43,4 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabulary);
     }
 
-    @DeleteMapping("/vocabularies/{code}")
-    public void deleteVocabulary(@PathVariable("code") String code) {
-        vocabularyService.deleteVocabulary(code);
-    }
-
 }

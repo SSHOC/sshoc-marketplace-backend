@@ -11,16 +11,18 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +34,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Transactional
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ToolControllerITCase {
 
     @Autowired
@@ -276,7 +279,7 @@ public class ToolControllerITCase {
 
 
     @Test
-    public void shouldntCreateToolWhenPropertTypeIsUnknown() throws Exception {
+    public void shouldntCreateToolWhenPropertyTypeIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
         ToolTypeId toolType = new ToolTypeId();
         toolType.setCode("service");
@@ -413,7 +416,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldUpdateToolWithoutRelation() throws Exception {
-        Integer toolId = 2;
+        Integer toolId = 1;
 
         ToolCore tool = new ToolCore();
         ToolTypeId toolType = new ToolTypeId();
@@ -436,7 +439,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldUpdateToolWithRelations() throws Exception {
-        Integer toolId = 2;
+        Integer toolId = 1;
 
         ToolCore tool = new ToolCore();
         ToolTypeId toolType = new ToolTypeId();
@@ -517,7 +520,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldUpdateToolWithPrevVersion() throws Exception {
-        Integer toolId = 2;
+        Integer toolId = 1;
 
         ToolCore tool = new ToolCore();
         ToolTypeId toolType = new ToolTypeId();
@@ -525,7 +528,7 @@ public class ToolControllerITCase {
         tool.setToolType(toolType);
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
-        tool.setPrevVersionId(1l);
+        tool.setPrevVersionId(3l);
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -535,23 +538,23 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(1)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Gephi")))
+                .andExpect(jsonPath("olderVersions[0].id", is(3)))
+                .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
 
     @Test
     public void shouldntUpdateToolWithPrevVersionEqualToTool() throws Exception {
-        Integer toolId = 2;
+        Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
         ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("software");
+        toolType.setCode("service");
         tool.setToolType(toolType);
-        tool.setLabel("Test complex software");
+        tool.setLabel("Test service");
         tool.setDescription("Lorem ipsum");
-        tool.setPrevVersionId(2l);
+        tool.setPrevVersionId(3l);
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -660,7 +663,7 @@ public class ToolControllerITCase {
 
 
     @Test
-    public void shouldntUpdateToolWhenPropertTypeIsUnknown() throws Exception {
+    public void shouldntUpdateToolWhenPropertyTypeIsUnknown() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -814,7 +817,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldDeleteToolWhenNotExist() throws Exception {
+    public void shouldntDeleteToolWhenNotExist() throws Exception {
         Integer toolId = 100;
 
         mvc.perform(delete("/api/tools/{id}", toolId)

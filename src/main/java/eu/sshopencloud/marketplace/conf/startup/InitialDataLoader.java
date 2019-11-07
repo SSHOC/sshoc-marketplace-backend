@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.conf.startup;
 
-import eu.sshopencloud.marketplace.conf.tools.DevToolLoader;
-import eu.sshopencloud.marketplace.conf.trainings.DevTrainingMaterialLoader;
+import eu.sshopencloud.marketplace.conf.tools.ToolLoader;
+import eu.sshopencloud.marketplace.conf.trainings.TrainingMaterialLoader;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -21,13 +21,9 @@ import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseRepository;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseTypeRepository;
 import eu.sshopencloud.marketplace.repositories.tools.ToolTypeRepository;
-import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.*;
 
-import eu.sshopencloud.marketplace.services.DataViolationException;
-import eu.sshopencloud.marketplace.services.tools.ToolService;
-import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -73,9 +69,9 @@ public class InitialDataLoader {
 
     private final ActorRepository actorRepository;
 
-    private final DevToolLoader toolLoader;
+    private final ToolLoader toolLoader;
 
-    private final DevTrainingMaterialLoader trainingMaterialLoader;
+    private final TrainingMaterialLoader trainingMaterialLoader;
 
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 

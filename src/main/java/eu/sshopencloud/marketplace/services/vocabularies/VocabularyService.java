@@ -12,10 +12,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class VocabularyService {
 
@@ -49,13 +51,6 @@ public class VocabularyService {
         }
         vocabulary.setConcepts(concepts);
         return vocabulary;
-    }
-
-    public void deleteVocabulary(String code) {
-        // TODO validate uses properties - DO NOT DELETE in any of existing references
-        Vocabulary vocabulary = vocabularyRepository.getOne(code);
-        // TODO remove relations between related concepts
-        vocabularyRepository.delete(vocabulary);
     }
 
 }

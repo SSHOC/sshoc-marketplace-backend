@@ -9,12 +9,13 @@ import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ItemService {
 
@@ -66,40 +67,59 @@ public class ItemService {
         }
     }
 
-    public void switchVersionForCreate(Item item) {
-        if (item.getPrevVersion() != null) {
-            Item prevnextVersion = itemRepository.findItemByPrevVersion(item.getPrevVersion());
-            if (prevnextVersion != null) {
-                prevnextVersion.setPrevVersion(item);
-                itemRepository.save(prevnextVersion);
-            }
-        }
-    }
-
-
-    public void switchVersionForUpdate(Item item) {
-        if (item.getPrevVersion() != null) {
-            Item prevnextVersion = itemRepository.findItemByPrevVersion(item.getPrevVersion());
+    public Item clearVersionForCreate(Item item) {
+        if (item.getNewPrevVersion() != null) {
+            Item prevnextVersion = itemRepository.findItemByPrevVersion(item.getNewPrevVersion());
             if (prevnextVersion != null) {
                 prevnextVersion.setPrevVersion(null);
-                itemRepository.save(prevnextVersion);
+                prevnextVersion = itemRepository.saveAndFlush(prevnextVersion);
             }
+            item.setPrevVersion(item.getNewPrevVersion());
+            return prevnextVersion;
+        }
+        return null;
+    }
+
+    public Item clearVersionForUpdate(Item item) {
+        if (item.getNewPrevVersion() != null) {
+            Item prevnextVersion = itemRepository.findItemByPrevVersion(item.getNewPrevVersion());
+            if (prevnextVersion != null && !(prevnextVersion.getId().equals(item.getId()))) {
+                prevnextVersion.setPrevVersion(null);
+                itemRepository.saveAndFlush(prevnextVersion);
+            }
+        }
+        if (item.getNewPrevVersion() != null) {
+            Item prevnextVersion = null;
             List<ItemInline> newerVersions = getNewerVersionsOfItem(item);
-            if (newerVersions.stream().anyMatch(i -> Objects.equals(i.getId(), item.getPrevVersion().getId()))) {
-                // new previous version is one of current newer versions
-                Item currentItem = itemRepository.getOne(item.getId());
-                Item nextVersion = itemRepository.findItemByPrevVersion(item);
-                nextVersion.setPrevVersion(currentItem.getPrevVersion());
-                itemRepository.save(nextVersion);
+            if (newerVersions.stream().anyMatch(i -> Objects.equals(i.getId(), item.getNewPrevVersion().getId()))) {
+                prevnextVersion = itemRepository.findItemByPrevVersion(item);
+                prevnextVersion.setPrevVersion(null);
+                prevnextVersion = itemRepository.saveAndFlush(prevnextVersion);
             }
+            item.setPrevVersion(item.getNewPrevVersion());
+            return prevnextVersion;
+        } else {
+            item.setPrevVersion(null);
+            return null;
         }
     }
 
-
-    public void switchVersionForDelete(Item item) {
+    public Item clearVersionForDelete(Item item) {
+        if (item.getPrevVersion() != null) {
+            item.setPrevVersion(null);
+            itemRepository.saveAndFlush(item);
+        }
         Item nextVersion = itemRepository.findItemByPrevVersion(item);
         if (nextVersion != null) {
-            nextVersion.setPrevVersion(item.getPrevVersion());
+            nextVersion.setPrevVersion(null);
+            return itemRepository.save(nextVersion);
+        }
+        return null;
+    }
+
+    public void switchVersion(Item item, Item nextVersion) {
+        if (nextVersion != null) {
+            nextVersion.setPrevVersion(item);
             itemRepository.save(nextVersion);
         }
     }

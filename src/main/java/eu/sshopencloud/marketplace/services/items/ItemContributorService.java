@@ -9,10 +9,12 @@ import eu.sshopencloud.marketplace.services.actors.ActorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ItemContributorService {
 

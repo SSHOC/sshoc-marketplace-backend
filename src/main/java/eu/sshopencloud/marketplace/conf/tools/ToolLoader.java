@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class DevToolLoader {
+public class ToolLoader {
 
     private final ToolRepository toolRepository;
 

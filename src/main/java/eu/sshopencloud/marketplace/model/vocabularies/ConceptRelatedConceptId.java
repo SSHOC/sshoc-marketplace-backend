@@ -13,14 +13,4 @@ public class ConceptRelatedConceptId implements Serializable {
 
     private ConceptId object;
 
-/*
-    private String subjectCode;
-
-    private String subjectVocabularyCode;
-
-    private String objectCode;
-
-    private String objectVocabularyCode;
-*/
-
 }
