@@ -13,7 +13,7 @@ import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.licenses.LicenseService;
-import eu.sshopencloud.marketplace.services.search.SearchService;
+import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.CategoryService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
@@ -55,7 +55,7 @@ public class ToolService {
 
     private final ItemRelatedItemService itemRelatedItemService;
 
-    private final SearchService searchService;
+    private final IndexService indexService;
 
     private final UserRepository userRepository;
 
@@ -64,7 +64,10 @@ public class ToolService {
         for (Tool tool: tools) {
             tool = complete(tool);
         }
-        return new PaginatedTools(tools, page, perpage);
+
+        return PaginatedTools.builder().tools(tools.getContent())
+                .count(tools.getContent().size()).hits(tools.getTotalElements()).page(page).perpage(perpage).pages(tools.getTotalPages())
+                .build();
     }
 
     public Tool getTool(Long id) {
@@ -159,8 +162,9 @@ public class ToolService {
         }
 
         Item nextVersion = itemService.clearVersionForCreate(tool);
-        tool = saveTool(tool);
+        tool = toolRepository.save(tool);
         itemService.switchVersion(tool, nextVersion);
+        indexService.indexItem(tool);
         tool = complete(tool);
         return tool;
     }
@@ -199,20 +203,10 @@ public class ToolService {
 
         Item prevVersion = tool.getPrevVersion();
         Item nextVersion = itemService.clearVersionForUpdate(tool);
-        tool = saveTool(tool);
-        itemService.switchVersion(prevVersion, nextVersion);
-        tool = complete(tool);
-        return tool;
-    }
-
-    private Tool saveTool(Tool tool) {
         tool = toolRepository.save(tool);
-        if (itemService.isNewestVersion(tool)) {
-            if (tool.getPrevVersion() != null) {
-                searchService.removeItem(tool.getPrevVersion());
-            }
-            searchService.indexItem(tool);
-        }
+        itemService.switchVersion(prevVersion, nextVersion);
+        indexService.indexItem(tool);
+        tool = complete(tool);
         return tool;
     }
 

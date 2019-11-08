@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.search;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.services.search.PaginatedSearchItems;
 import eu.sshopencloud.marketplace.services.search.SearchService;
@@ -31,7 +32,7 @@ public class SearchController {
     @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedSearchItems> searchItems(@RequestParam(value = "q", required = false) String q,
                                                             @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
-                                                            @RequestParam(value = "order", required = false) String order,
+                                                            @RequestParam(value = "order", required = false) List<SearchOrder> order,
                                                             @RequestParam(value = "page", required = false) Integer page,
                                                             @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {

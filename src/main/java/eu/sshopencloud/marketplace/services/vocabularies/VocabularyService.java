@@ -4,8 +4,6 @@ import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
-import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
-import eu.sshopencloud.marketplace.services.items.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,7 +36,10 @@ public class VocabularyService {
             }
             vocabulary.setConcepts(concepts);
         }
-        return new PaginatedVocabularies(vocabularies, page, perpage);
+
+        return PaginatedVocabularies.builder().vocabularies(vocabularies.getContent())
+                .count(vocabularies.getContent().size()).hits(vocabularies.getTotalElements()).page(page).perpage(perpage).pages(vocabularies.getTotalPages())
+                .build();
     }
 
     public Vocabulary getVocabulary(String code) {

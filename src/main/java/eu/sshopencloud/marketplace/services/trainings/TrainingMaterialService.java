@@ -13,7 +13,7 @@ import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.licenses.LicenseService;
-import eu.sshopencloud.marketplace.services.search.SearchService;
+import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.CategoryService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
@@ -55,7 +55,7 @@ public class TrainingMaterialService {
 
     private final ItemRelatedItemService itemRelatedItemService;
 
-    private final SearchService searchService;
+    private final IndexService indexService;
 
     private final UserRepository userRepository;
 
@@ -64,7 +64,10 @@ public class TrainingMaterialService {
         for (TrainingMaterial trainingMaterial: trainingMaterials) {
             trainingMaterial = complete(trainingMaterial);
         }
-        return new PaginatedTrainingMaterials(trainingMaterials, page, perpage);
+
+        return PaginatedTrainingMaterials.builder().trainingMaterials(trainingMaterials.getContent())
+                .count(trainingMaterials.getContent().size()).hits(trainingMaterials.getTotalElements()).page(page).perpage(perpage).pages(trainingMaterials.getTotalPages())
+                .build();
     }
 
     public TrainingMaterial getTrainingMaterial(Long id) {
@@ -162,8 +165,9 @@ public class TrainingMaterialService {
         }
 
         Item nextVersion = itemService.clearVersionForCreate(trainingMaterial);
-        trainingMaterial = saveTrainingMaterial(trainingMaterial);
+        trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
         itemService.switchVersion(trainingMaterial, nextVersion);
+        indexService.indexItem(trainingMaterial);
         trainingMaterial = complete(trainingMaterial);
         return trainingMaterial;
     }
@@ -196,20 +200,10 @@ public class TrainingMaterialService {
         }
         Item prevVersion = trainingMaterial.getPrevVersion();
         Item nextVersion = itemService.clearVersionForUpdate(trainingMaterial);
-        trainingMaterial = saveTrainingMaterial(trainingMaterial);
-        itemService.switchVersion(prevVersion, nextVersion);
-        trainingMaterial = complete(trainingMaterial);
-        return trainingMaterial;
-    }
-
-    private TrainingMaterial saveTrainingMaterial(TrainingMaterial trainingMaterial) {
         trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
-        if (itemService.isNewestVersion(trainingMaterial)) {
-            if (trainingMaterial.getPrevVersion() != null) {
-                searchService.removeItem(trainingMaterial.getPrevVersion());
-            }
-            searchService.indexItem(trainingMaterial);
-        }
+        itemService.switchVersion(prevVersion, nextVersion);
+        indexService.indexItem(trainingMaterial);
+        trainingMaterial = complete(trainingMaterial);
         return trainingMaterial;
     }
 

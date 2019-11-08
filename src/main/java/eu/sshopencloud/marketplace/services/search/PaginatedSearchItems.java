@@ -1,23 +1,25 @@
 package eu.sshopencloud.marketplace.services.search;
 
-import eu.sshopencloud.marketplace.model.search.SearchItem;
+import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.dto.search.SearchItem;
 import eu.sshopencloud.marketplace.services.PaginatedResult;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
+@SuperBuilder
+@AllArgsConstructor
 public class PaginatedSearchItems extends PaginatedResult {
 
-    public PaginatedSearchItems(List<SearchItem> items, long hits, int page, int perpage, int pages) {
-        this.setItems(items);
-        this.setHits(hits);
-        this.setCount(items.size());
-        this.setPage(page);
-        this.setPerpage(perpage);
-        this.setPages(pages);
-    }
+    private List<SearchOrder> order;
 
     private List<SearchItem> items;
+
+    private Map<ItemCategory, Long> categories;
 
 }
