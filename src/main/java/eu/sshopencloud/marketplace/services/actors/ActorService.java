@@ -34,11 +34,11 @@ public class ActorService {
     }
 
     public Actor getActor(Long id) {
-        if (!actorRepository.existsById(id)) {
+        Optional<Actor> actor = actorRepository.findById(id);
+        if (!actor.isPresent()) {
             throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id);
         }
-        Actor actor = actorRepository.getOne(id);
-        return actor;
+        return actor.get();
     }
 
     private List<Actor> validate(String prefix, List<ActorId> actors) throws DataViolationException {

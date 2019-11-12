@@ -21,7 +21,7 @@ public class Concept {
 
     @Id
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumn(name="vocabulary_code", referencedColumnName = "code", insertable = false, updatable = false)
+    @JoinColumn(name="vocabulary_code", referencedColumnName = "code", insertable = false, updatable = false, foreignKey = @ForeignKey(name="concept_vocabulary_code_fk"))
     private Vocabulary vocabulary;
 
     @Basic

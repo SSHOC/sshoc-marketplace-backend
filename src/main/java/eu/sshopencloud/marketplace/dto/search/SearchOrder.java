@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SearchOrder {
 
+    SCORE,
+
     NAME,
 
     MODIFIED_ON;

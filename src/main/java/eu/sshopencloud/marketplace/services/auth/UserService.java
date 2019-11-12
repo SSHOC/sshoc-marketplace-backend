@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -41,11 +42,11 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUser(Long id) {
-        if (!userRepository.existsById(id)) {
+        Optional<User> user = userRepository.findById(id);
+        if (!user.isPresent()) {
             throw new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id);
         }
-        User user = userRepository.getOne(id);
-        return user;
+        return user.get();
     }
 
 }

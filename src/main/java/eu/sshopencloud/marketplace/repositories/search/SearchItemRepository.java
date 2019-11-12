@@ -11,6 +11,7 @@ import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -26,9 +27,21 @@ public class SearchItemRepository {
 
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q))
                 .addProjectionOnFields("id", "name", "description", "category")
-                .addSort(Sort.by(order.stream().toArray(String[]::new)));
+                .addSort(Sort.by(createQueryOrder(order)));
 
         return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
+    }
+
+    private List<Sort.Order> createQueryOrder(List<String> order) {
+        List<Sort.Order> result = new ArrayList<Sort.Order>();
+        for (String o : order) {
+            if (o.equals("score")) {
+                result.add(Sort.Order.desc(o));
+            } else {
+                result.add(Sort.Order.asc(o));
+            }
+        }
+        return result;
     }
 
     private Criteria createQueryCriteria(String q) {

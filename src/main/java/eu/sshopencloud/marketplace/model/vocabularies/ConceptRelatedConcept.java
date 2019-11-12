@@ -15,22 +15,22 @@ public class ConceptRelatedConcept implements Serializable {
 
     @Id
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumns({
+    @JoinColumns(value = {
             @JoinColumn(name = "subject_code", insertable = true, updatable = true),
             @JoinColumn(name = "subject_vocabulary_code", insertable = true, updatable = true)
-    })
+    }, foreignKey = @ForeignKey(name="concepts_related_concepts_subject_fk"))
     private Concept subject;
 
     @Id
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumns({
+    @JoinColumns(value = {
             @JoinColumn(name = "object_code", insertable = true, updatable = true),
             @JoinColumn(name = "object_vocabulary_code", insertable = true, updatable = true)
-    })
+    }, foreignKey = @ForeignKey(name="concepts_related_concepts_object_fk"))
     private Concept object;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumn
+    @JoinColumn(foreignKey = @ForeignKey(name="concepts_related_concepts_relation_code_fk"))
     private ConceptRelation relation;
 
 }

@@ -62,7 +62,7 @@ public class ToolService {
     public PaginatedTools getTools(int page, int perpage) {
         Page<Tool> tools = toolRepository.findAll(PageRequest.of(page - 1, perpage, new Sort(Sort.Direction.ASC, "label")));
         for (Tool tool: tools) {
-            tool = complete(tool);
+            complete(tool);
         }
 
         return PaginatedTools.builder().tools(tools.getContent())
@@ -71,9 +71,11 @@ public class ToolService {
     }
 
     public Tool getTool(Long id) {
-        Tool tool = toolRepository.getOne(id);
-        tool = complete(tool);
-        return tool;
+        Optional<Tool> tool = toolRepository.findById(id);
+        if (!tool.isPresent()) {
+            throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
+        }
+        return complete(tool.get());
     }
 
     private Tool complete(Tool tool) {
@@ -165,8 +167,7 @@ public class ToolService {
         tool = toolRepository.save(tool);
         itemService.switchVersion(tool, nextVersion);
         indexService.indexItem(tool);
-        tool = complete(tool);
-        return tool;
+        return complete(tool);
     }
 
     public Tool updateTool(Long id, ToolCore newTool) throws DataViolationException, ConceptDisallowedException, DisallowedToolTypeChangeException {
@@ -206,8 +207,7 @@ public class ToolService {
         tool = toolRepository.save(tool);
         itemService.switchVersion(prevVersion, nextVersion);
         indexService.indexItem(tool);
-        tool = complete(tool);
-        return tool;
+        return complete(tool);
     }
 
     public void deleteTool(Long id) {

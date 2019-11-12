@@ -18,7 +18,7 @@ public class Property {
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumn
+    @JoinColumn(foreignKey = @ForeignKey(name="property_type_code_fk"))
     private PropertyType type;
 
     @Basic
@@ -26,10 +26,10 @@ public class Property {
     private String value;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumns({
+    @JoinColumns(value = {
             @JoinColumn(name = "code", insertable = true, updatable = true),
             @JoinColumn(name = "vocabulary_code", insertable = true, updatable = true)
-    })
+    }, foreignKey = @ForeignKey(name="property_concept_fk"))
     private Concept concept;
 
 }

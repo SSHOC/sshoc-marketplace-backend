@@ -32,7 +32,7 @@ public class SearchService {
             q = "";
         }
         if (order == null || order.isEmpty()) {
-            order = Arrays.asList(new SearchOrder[] { SearchOrder.NAME });
+            order = Arrays.asList(new SearchOrder[] { SearchOrder.SCORE });
         }
 
         // TODO apply category filter

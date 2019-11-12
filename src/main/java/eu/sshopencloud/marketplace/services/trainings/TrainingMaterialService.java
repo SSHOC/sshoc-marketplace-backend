@@ -62,7 +62,7 @@ public class TrainingMaterialService {
     public PaginatedTrainingMaterials getTrainingMaterials(int page, int perpage) {
         Page<TrainingMaterial> trainingMaterials = trainingMaterialRepository.findAll(PageRequest.of(page - 1, perpage, new Sort(Sort.Direction.ASC, "label")));
         for (TrainingMaterial trainingMaterial: trainingMaterials) {
-            trainingMaterial = complete(trainingMaterial);
+            complete(trainingMaterial);
         }
 
         return PaginatedTrainingMaterials.builder().trainingMaterials(trainingMaterials.getContent())
@@ -71,9 +71,11 @@ public class TrainingMaterialService {
     }
 
     public TrainingMaterial getTrainingMaterial(Long id) {
-        TrainingMaterial trainingMaterial = trainingMaterialRepository.getOne(id);
-        trainingMaterial = complete(trainingMaterial);
-        return trainingMaterial;
+        Optional<TrainingMaterial> trainingMaterial = trainingMaterialRepository.findById(id);
+        if (!trainingMaterial.isPresent()) {
+            throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
+        }
+        return complete(trainingMaterial.get());
     }
 
     private TrainingMaterial complete(TrainingMaterial trainingMaterial) {
@@ -168,8 +170,7 @@ public class TrainingMaterialService {
         trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
         itemService.switchVersion(trainingMaterial, nextVersion);
         indexService.indexItem(trainingMaterial);
-        trainingMaterial = complete(trainingMaterial);
-        return trainingMaterial;
+        return complete(trainingMaterial);
     }
 
     public TrainingMaterial updateTrainingMaterial(Long id, TrainingMaterialCore newTrainingMaterial)
@@ -203,8 +204,7 @@ public class TrainingMaterialService {
         trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
         itemService.switchVersion(prevVersion, nextVersion);
         indexService.indexItem(trainingMaterial);
-        trainingMaterial = complete(trainingMaterial);
-        return trainingMaterial;
+        return complete(trainingMaterial);
     }
 
     public void deleteTrainingMaterial(Long id) {
