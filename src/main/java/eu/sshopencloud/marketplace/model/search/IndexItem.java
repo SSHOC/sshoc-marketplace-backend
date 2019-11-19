@@ -18,15 +18,42 @@ public class IndexItem {
 
     public static final String COLLECTION_NAME = "marketplace-items";
 
+    public static final String ID_FIELD = "id";
+
+    public static final String NAME_FIELD = "name";
+    public static final String NAME_TEXT_FIELD = "name_text";
+    public static final String NAME_TEXT_EN_FIELD = "name_text_en";
+
+    public static final String DESCRIPTION_FIELD = "description";
+    public static final String DESCRIPTION_TEXT_FIELD = "description_text";
+    public static final String DESCRIPTION_TEXT_EN_FIELD = "description_text_en";
+
+    public static final String CATEGORY_FIELD = "category";
+
+    public static final String LAST_INFO_UPDATE_FIELD = "modified_on";
+
+
     @Id
-    @Indexed(name = "id", type = "string")
+    @Indexed(name = ID_FIELD, type = "string")
     private Long id;
 
-    @Indexed(name = "name", type = "string")
+    @Indexed(name = NAME_FIELD, type = "string")
     private String name;
 
-    @Indexed(name = "description", type = "string")
+    @Indexed(name = NAME_TEXT_FIELD, type = "text_general_rev")
+    private String nameText;
+
+    @Indexed(name = NAME_TEXT_EN_FIELD, type = "text_en")
+    private String nameTextEn;
+
+    @Indexed(name = DESCRIPTION_FIELD, type = "string")
     private String description;
+
+    @Indexed(name = DESCRIPTION_TEXT_FIELD, type = "text_general_rev")
+    private String descriptionText;
+
+    @Indexed(name = DESCRIPTION_TEXT_EN_FIELD, type = "text_en")
+    private String descriptionTextEn;
 
     @Indexed(name = "category", type = "string")
     private String category;

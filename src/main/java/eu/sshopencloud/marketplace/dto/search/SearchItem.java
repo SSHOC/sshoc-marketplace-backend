@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.dto.search;
 
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Builder
@@ -22,6 +24,8 @@ public class SearchItem {
     private String name;
 
     private String description;
+
+    private List<ItemContributor> contributors;
 
     private ItemCategory category;
 

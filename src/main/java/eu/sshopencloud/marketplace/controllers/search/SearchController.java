@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.search;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
 import eu.sshopencloud.marketplace.services.search.PaginatedSearchItems;
 import eu.sshopencloud.marketplace.services.search.SearchService;
 import lombok.RequiredArgsConstructor;
@@ -35,14 +36,14 @@ public class SearchController {
                                                             @RequestParam(value = "order", required = false) List<SearchOrder> order,
                                                             @RequestParam(value = "page", required = false) Integer page,
                                                             @RequestParam(value = "perpage", required = false) Integer perpage)
-            throws PageTooLargeException {
+            throws PageTooLargeException, IllegalFilterException {
         perpage = perpage == null ? defualtPerpage : perpage;
         if (perpage > maximalPerpage) {
             throw new PageTooLargeException(maximalPerpage);
         }
         page = page == null ? 1 : page;
 
-        PaginatedSearchItems items = searchService.searchItems(q, categories, order, page, perpage);
+        PaginatedSearchItems items = searchService.searchItems(q, categories, null, order, page, perpage);
         return ResponseEntity.ok(items);
     }
 

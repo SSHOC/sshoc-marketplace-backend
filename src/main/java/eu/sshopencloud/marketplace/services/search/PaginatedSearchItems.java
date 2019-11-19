@@ -16,6 +16,8 @@ import java.util.Map;
 @AllArgsConstructor
 public class PaginatedSearchItems extends PaginatedResult {
 
+    private String q;
+
     private List<SearchOrder> order;
 
     private List<SearchItem> items;

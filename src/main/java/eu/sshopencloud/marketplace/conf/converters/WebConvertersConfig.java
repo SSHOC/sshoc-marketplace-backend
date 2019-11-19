@@ -11,6 +11,7 @@ public class WebConvertersConfig extends WebMvcConfigurationSupport {
     public FormattingConversionService mvcConversionService() {
         FormattingConversionService conversionService = super.mvcConversionService();
         conversionService.addConverter(new WebSearchOrderConverter());
+        conversionService.addConverter(new WebItemCategoryConverter());
         return conversionService;
     }
 

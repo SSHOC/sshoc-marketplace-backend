@@ -4,11 +4,21 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SearchOrder {
 
-    SCORE,
+    SCORE(false),
 
-    NAME,
+    NAME(true),
 
-    MODIFIED_ON;
+    MODIFIED_ON(false);
+
+    private boolean asc;
+
+    private SearchOrder(boolean asc) {
+        this.asc = asc;
+    }
+
+    public boolean isAsc() {
+        return this.asc;
+    }
 
     @JsonValue
     public String getValue() {

@@ -13,7 +13,10 @@ public class IndexConverter {
 
     public IndexItem covertItem(Item item) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
-        builder.id(item.getId()).name(item.getLabel()).description(item.getDescription()).category(ItemCategoryConverter.convertCategory(item.getCategory()));
+        builder.id(item.getId())
+                .name(item.getLabel()).nameText(item.getLabel()).nameTextEn(item.getLabel())
+                .description(item.getDescription()).descriptionText(item.getDescription()).descriptionTextEn(item.getDescription())
+                .category(ItemCategoryConverter.convertCategory(item.getCategory()));
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
         return builder.build();
     }
