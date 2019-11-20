@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.controllers;
 
-import eu.sshopencloud.marketplace.conf.converters.IllegalEnumException;
 import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.items.OtherUserCommentException;
@@ -16,6 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.persistence.EntityNotFoundException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 
 @ControllerAdvice
@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 public class MarketplaceExceptionHandler {
 
     @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class, DataViolationException.class, ConceptDisallowedException.class,
-            DisallowedToolTypeChangeException.class, IllegalEnumException.class, IllegalFilterException.class})
+            DisallowedToolTypeChangeException.class, ParseException.class, IllegalFilterException.class})
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();
@@ -59,7 +59,7 @@ public class MarketplaceExceptionHandler {
     @ExceptionHandler(value = RuntimeException.class)
     public ResponseEntity handleServerError(Exception ex, WebRequest request) {
         log.error("Runtime exception", ex);
-        if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause() instanceof IllegalEnumException) {
+        if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getCause() != null && ex.getCause().getCause().getCause() instanceof ParseException) {
             ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getCause().getCause().getMessage()).build();
             return ResponseEntity.badRequest().body(errorResponse);
         } else{

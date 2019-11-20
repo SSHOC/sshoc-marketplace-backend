@@ -1,18 +1,18 @@
 package eu.sshopencloud.marketplace.conf.converters;
 
+import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.format.support.FormattingConversionService;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebConvertersConfig extends WebMvcConfigurationSupport {
+public class WebConvertersConfig implements WebMvcConfigurer {
 
     @Override
-    public FormattingConversionService mvcConversionService() {
-        FormattingConversionService conversionService = super.mvcConversionService();
-        conversionService.addConverter(new WebSearchOrderConverter());
-        conversionService.addConverter(new WebItemCategoryConverter());
-        return conversionService;
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addFormatterForFieldType(ItemCategory.class, new ItemCategoryFormatter());
+        registry.addFormatterForFieldType(SearchOrder.class, new SearchOrderFormatter());
     }
 
 }
