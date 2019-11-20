@@ -446,6 +446,41 @@ TrainingMaterial:
       !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
       id:                           6
 
+  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+    category:                    TRAINING_MATERIAL
+    label:                       "Webinar on DH"
+    description:                 ""
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        8
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        5
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        8
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        4
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+    accessibleAt:                ""
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           2
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    trainingMaterialType:
+      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
+      code:                             webinar
+
 
 ItemRelatedItem:
 

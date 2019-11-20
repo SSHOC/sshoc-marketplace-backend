@@ -169,7 +169,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterialType.setCode("online-course");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Test complex online course");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum ...");
         trainingMaterial.setPrevVersionId(7l);
 
         mvc.perform(post("/api/training-materials")
@@ -583,7 +583,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Introduction to GEPHI");
         trainingMaterial.setVersion("1.0");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         trainingMaterial.setPrevVersionId(7l);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
@@ -611,7 +611,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Introduction to GEPHI");
         trainingMaterial.setVersion("3.0");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         trainingMaterial.setPrevVersionId(5l);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
@@ -637,7 +637,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         trainingMaterial.setPrevVersionId(7l);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
@@ -656,7 +656,7 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialTypeId trainingMaterialType = new TrainingMaterialTypeId();
         trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
@@ -675,7 +675,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         LicenseId license = new LicenseId();
         license.setCode("qwerty1");
         List<LicenseId> licenses = new ArrayList<LicenseId>();
@@ -698,7 +698,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
         actor.setId(99l);
@@ -726,7 +726,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
         actor.setId(2l);
@@ -755,7 +755,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("yyy");
@@ -792,7 +792,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -830,7 +830,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("activity");
@@ -867,7 +867,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterialType.setCode("paper");
         trainingMaterial.setTrainingMaterialType(trainingMaterialType);
         trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -893,7 +893,7 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     public void shouldDeleteTrainingMaterial() throws Exception {
-        Integer trainingMaterialId = 4;
+        Integer trainingMaterialId = 8;
 
         mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
                 .contentType(MediaType.APPLICATION_JSON))

@@ -218,6 +218,7 @@ public class TrainingMaterialService {
         Item nextVersion = itemService.clearVersionForDelete(trainingMaterial);
         trainingMaterialRepository.delete(trainingMaterial);
         itemService.switchVersion(prevVersion, nextVersion);
+        indexService.removeItem(trainingMaterial);
     }
 
 }

@@ -221,6 +221,7 @@ public class ToolService {
         Item nextVersion = itemService.clearVersionForDelete(tool);
         toolRepository.delete(tool);
         itemService.switchVersion(prevVersion, nextVersion);
+        indexService.removeItem(tool);
     }
 
 }
