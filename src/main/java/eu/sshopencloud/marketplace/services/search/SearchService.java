@@ -46,7 +46,7 @@ public class SearchService {
         filterCriteria.addAll(makeFiltersCriteria(filterParams));
 
         if (order == null || order.isEmpty()) {
-            order = Arrays.asList(new SearchOrder[] { SearchOrder.SCORE });
+            order = Collections.singletonList(SearchOrder.SCORE);
         }
 
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(q, filterCriteria, order, pageable);
@@ -55,7 +55,7 @@ public class SearchService {
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements()).page(page).perpage(perpage).pages(facetPage.getTotalPages())
                 .categories(facetPage.getFacetFields().stream()
                         .filter(field -> field.getName().equals(IndexItem.CATEGORY_FIELD))
-                        .map(field -> facetPage.getFacetResultPage(field))
+                        .map(facetPage::getFacetResultPage)
                         .map(SearchConverter::convertCategoryFacet).findFirst().get())
                 .build();
 
@@ -75,7 +75,7 @@ public class SearchService {
     private List<SearchFilterCriteria> makeFiltersCriteria(Map<String, List<String>> filterParams)
             throws IllegalFilterException {
         Map<String, SearchFilter> filters = filterParams.keySet().stream()
-                .collect(Collectors.toMap(filterName -> filterName, filterName -> SearchFilter.ofKey(filterName)));
+                .collect(Collectors.toMap(filterName -> filterName, SearchFilter::ofKey));
 
         for (Map.Entry<String, SearchFilter> entry: filters.entrySet()) {
             if (entry.getValue() == null) {
@@ -93,7 +93,7 @@ public class SearchService {
         switch (filter.getType()) {
             case VALUES_SELECTION_FILTER:
                 return new SearchFilterValuesSelection(filter, values);
-
+            // TODO other types of filter types
             default:
                 throw new RuntimeException();   // impossible to happen
         }
