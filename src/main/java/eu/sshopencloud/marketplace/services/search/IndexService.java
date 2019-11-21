@@ -33,4 +33,8 @@ public class IndexService {
         indexItemRepository.deleteById(item.getId());
     }
 
+    public void clearIndex() {
+        indexItemRepository.deleteAll();
+    }
+
 }

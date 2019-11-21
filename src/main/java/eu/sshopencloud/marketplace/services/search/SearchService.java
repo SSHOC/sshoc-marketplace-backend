@@ -1,10 +1,12 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.dto.search.SearchItem;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.services.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterValuesSelection;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 public class SearchService {
 
     private final SearchItemRepository searchItemRepository;
+
+    private final ItemContributorService itemContributorService;
 
     public PaginatedSearchItems searchItems(String q, List<ItemCategory> categories, Map<String, List<String>> filterParams, List<SearchOrder> order, int page, int perpage)
             throws IllegalFilterException {
@@ -54,6 +58,11 @@ public class SearchService {
                         .map(field -> facetPage.getFacetResultPage(field))
                         .map(SearchConverter::convertCategoryFacet).findFirst().get())
                 .build();
+
+        // TODO index contributors directly in SOLR in nested docs
+        for (SearchItem item: result.getItems()) {
+            item.setContributors(itemContributorService.getItemContributors(item.getId()));
+        }
 
         return result;
     }

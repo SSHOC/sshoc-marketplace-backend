@@ -24,6 +24,7 @@ import eu.sshopencloud.marketplace.repositories.tools.ToolTypeRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.*;
 
+import eu.sshopencloud.marketplace.services.search.IndexService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,6 +69,8 @@ public class InitialDataLoader {
     private final UserRepository userRepository;
 
     private final ActorRepository actorRepository;
+
+    private  final IndexService indexService;
 
     private final ToolLoader toolLoader;
 
@@ -145,6 +148,8 @@ public class InitialDataLoader {
 
     public void loadProfileData() {
         log.debug("Loading " + activeProfile + " data");
+
+        indexService.clearIndex();
 
         ClassLoader classLoader = InitialDataLoader.class.getClassLoader();
         InputStream dataStream = classLoader.getResourceAsStream("initial-data/" + activeProfile + "-data.yml");
