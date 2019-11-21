@@ -10,11 +10,13 @@ public class ConceptConverter {
         Concept result = new Concept();
         result.setCode(concept.getCode());
         result.setLabel(concept.getLabel());
+        result.setNotation(concept.getNotation());
         result.setOrd(concept.getOrd());
-        result.setDescription(concept.getDescription());
+        result.setDefinition(concept.getDefinition());
         result.setUri(concept.getUri());
         result.setRelatedConcepts(concept.getRelatedConcepts());
         return result;
     }
+
 
 }

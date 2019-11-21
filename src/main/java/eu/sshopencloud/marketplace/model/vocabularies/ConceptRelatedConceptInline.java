@@ -13,7 +13,7 @@ public class ConceptRelatedConceptInline {
 
     private String label;
 
-    private String description;
+    private String definition;
 
     private String uri;
 

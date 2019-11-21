@@ -33,7 +33,7 @@ public class ConceptRelatedConceptService {
             relatedConcept.setRelation(subjectRelatedConcept.getRelation());
             Concept concept = subjectRelatedConcept.getObject();
             relatedConcept.setLabel(concept.getLabel());
-            relatedConcept.setDescription(concept.getDescription());
+            relatedConcept.setDefinition(concept.getDefinition());
             relatedConcept.setUri(concept.getUri());
             relatedConcept.setVocabulary(getRelatedVocabularyForConcept(subjectRelatedConcept.getObject().getVocabulary().getCode()));
             relatedConcepts.add(relatedConcept);
@@ -47,7 +47,7 @@ public class ConceptRelatedConceptService {
             relatedConcept.setRelation(objectRelatedConcept.getRelation().getInverseOf());
             Concept concept = objectRelatedConcept.getSubject();
             relatedConcept.setLabel(concept.getLabel());
-            relatedConcept.setDescription(concept.getDescription());
+            relatedConcept.setDefinition(concept.getDefinition());
             relatedConcept.setUri(concept.getUri());
             relatedConcept.setVocabulary(getRelatedVocabularyForConcept(objectRelatedConcept.getSubject().getVocabulary().getCode()));
             relatedConcepts.add(relatedConcept);

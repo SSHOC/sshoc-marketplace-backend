@@ -29,13 +29,17 @@ public class Concept {
     private String label;
 
     @Basic
+    @Column(nullable = true)        // TODO change to false when vocabularies will be read from ttl files
+    private String notation;
+
+    @Basic
     @Column(nullable = true)
     @JsonIgnore
     private Integer ord;
 
     @Basic
     @Column(nullable = true, length = 4096)
-    private String description;
+    private String definition;
 
     @Basic
     @Column(nullable = false)

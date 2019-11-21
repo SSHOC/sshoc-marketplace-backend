@@ -13,12 +13,17 @@ public class MarketplaceStartupListener {
 
     private final InitialDataLoader initialDataLoader;
 
+    private final InitialVocabularyLoader initialVocabularyLoader;
+
     @EventListener( classes = { ContextRefreshedEvent.class })
     public void onApplicationRefreshedEvent(ContextRefreshedEvent event) {
         log.debug("The magic begins !");
 
         initialDataLoader.loadConstData();
         initialDataLoader.loadVocabularies();
+
+        initialVocabularyLoader.loadVocabularies();
+
         initialDataLoader.loadProfileData();
     }
 

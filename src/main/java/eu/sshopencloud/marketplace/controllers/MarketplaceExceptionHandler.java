@@ -6,7 +6,10 @@ import eu.sshopencloud.marketplace.services.items.OtherUserCommentException;
 import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
 import eu.sshopencloud.marketplace.services.tools.DisallowedToolTypeChangeException;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
+import eu.sshopencloud.marketplace.services.vocabularies.VocabularyAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -15,6 +18,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 
@@ -22,8 +26,9 @@ import java.time.LocalDateTime;
 @Slf4j
 public class MarketplaceExceptionHandler {
 
-    @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class, DataViolationException.class, ConceptDisallowedException.class,
-            DisallowedToolTypeChangeException.class, ParseException.class, IllegalFilterException.class})
+    @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class, DataViolationException.class, VocabularyAlreadyExistsException.class,
+            ConceptDisallowedException.class, DisallowedToolTypeChangeException.class, ParseException.class, RDFParseException.class, UnsupportedRDFormatException.class,
+            IllegalFilterException.class})
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();
@@ -49,7 +54,7 @@ public class MarketplaceExceptionHandler {
         return ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(value = Exception.class)
+    @ExceptionHandler(value = { IOException.class, Exception.class })
     public ResponseEntity<Object> handleServerException(Exception ex, WebRequest request) {
         log.error("Server Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.INTERNAL_SERVER_ERROR.value()).error(ex.getMessage()).build();

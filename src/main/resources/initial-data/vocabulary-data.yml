@@ -51,7 +51,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        iso-639-3
     label:                       eng
-    description:                 English
+    definition:                  English
     uri:                         https://iso639-3.sil.org/code/eng
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        pol
@@ -59,7 +59,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        iso-639-3
     label:                       pol
-    description:                 Polish
+    definition:                  Polish
     uri:                         https://iso639-3.sil.org/code/pol
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        deu
@@ -67,7 +67,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        iso-639-3
     label:                       deu
-    description:                 German
+    definition:                  German
     uri:                         https://iso639-3.sil.org/code/deu
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        research-activities
@@ -75,7 +75,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        tadirah
     label:                       Research Activities
-    description:                 Research Activities
+    definition:                  Research Activities
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        capture
@@ -83,7 +83,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        tadirah
     label:                       Capture
-    description:                 Capture
+    definition:                  Capture
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        conversion
@@ -91,7 +91,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        tadirah
     label:                       Conversion
-    description:                 Conversion
+    definition:                  Conversion
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        data-recognition
@@ -99,7 +99,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        tadirah
     label:                       Data Recognition
-    description:                 Data Recognition
+    definition:                  Data Recognition
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        creation
@@ -107,7 +107,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        tadirah
     label:                       Creation
-    description:                 Creation
+    definition:                  Creation
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        designing
@@ -115,7 +115,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        tadirah
     label:                       Designing
-    description:                 Designing
+    definition:                  Designing
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        programming
@@ -123,7 +123,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        tadirah
     label:                       Programming
-    description:                 Programming
+    definition:                  Programming
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        activities-facet
@@ -131,7 +131,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        getty-thesauri-aat-art-architecture-thesaurus
     label:                       Activities Facet
-    description:                 "The Activities facet encompasses areas of endeavor, physical and mental actions, discrete occurrences, systematic sequences of actions, methods employed toward a certain end, and processes occurring in materials or objects. Activities covered here range from branches of learning and professional fields to specific life events, from mentally executed tasks to processes performed on or with materials and objects, from single physical actions to complex games."
+    definition:                  "The Activities facet encompasses areas of endeavor, physical and mental actions, discrete occurrences, systematic sequences of actions, methods employed toward a certain end, and processes occurring in materials or objects. Activities covered here range from branches of learning and professional fields to specific life events, from mentally executed tasks to processes performed on or with materials and objects, from single physical actions to complex games."
     uri:                         http://vocab.getty.edu/page/aat/300264090
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        processes-and-techniques
@@ -139,7 +139,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        getty-thesauri-aat-art-architecture-thesaurus
     label:                       Processes and Techniques
-    description:                 "The Processes and Techniques hierarchy contains terms for actions and methods performed physically on or with materials and objects, and for processes occurring in materials and objects."
+    definition:                  "The Processes and Techniques hierarchy contains terms for actions and methods performed physically on or with materials and objects, and for processes occurring in materials and objects."
     uri:                         http://vocab.getty.edu/page/aat/300053001
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        physicochemical-processes
@@ -147,7 +147,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        getty-thesauri-aat-art-architecture-thesaurus
     label:                       physicochemical processes
-    description:                 "Collocates descriptors for processes of physical and/or chemical change in a material or object."
+    definition:                  "Collocates descriptors for processes of physical and/or chemical change in a material or object."
     uri:                         http://vocab.getty.edu/page/aat/300229407
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        acetolysis
@@ -155,7 +155,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        getty-thesauri-aat-art-architecture-thesaurus
     label:                       acetolysis
-    description:                 "Various processes simultaneously involving both the introduction of one or more acetyl groups into a compound and hydrolysis by means of a chemical reaction."
+    definition:                  "Various processes simultaneously involving both the introduction of one or more acetyl groups into a compound and hydrolysis by means of a chemical reaction."
     uri:                         http://vocab.getty.edu/page/aat/300255413
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        albert-camus
@@ -163,7 +163,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        viaf
     label:                       Albert Camus
-    description:                 Camus, Albert, 1913-1960
+    definition:                  Camus, Albert, 1913-1960
     uri:                         https://viaf.org/viaf/97000332/
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        patrick-saint-dizier
@@ -171,7 +171,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        viaf
     label:                       Patrick Saint-Dizier
-    description:                 Saint-Dizier, Patrick, 1954-
+    definition:                  Saint-Dizier, Patrick, 1954-
     uri:                         http://viaf.org/viaf/265266760
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        image-tiff
@@ -179,7 +179,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        iana-mime-type
     label:                       image/tiff
-    description:                 TIFF (Tag Image File Format)
+    definition:                  TIFF (Tag Image File Format)
     uri:                         https://www.iana.org/assignments/media-types/image/tiff
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        application-pdf
@@ -187,7 +187,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        iana-mime-type
     label:                       application/pdf
-    description:                 Portable Document Format
+    definition:                  Portable Document Format
     uri:                         https://www.iana.org/assignments/media-types/application/pdf
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        video-mp4
@@ -195,7 +195,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        iana-mime-type
     label:                       video/mp4
-    description:                 MPEG-4 Video file
+    definition:                  MPEG-4 Video file
     uri:                         https://www.iana.org/assignments/media-types/video/mp4
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        activity-types
@@ -203,7 +203,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        nedimah-ontology
     label:                       Activity Types
-    description:                 ""
+    definition:                  ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        acquiring
@@ -211,7 +211,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        nedimah-ontology
     label:                       Acquiring
-    description:                 ""
+    definition:                  ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        collecting
@@ -219,7 +219,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        nedimah-ontology
     label:                       Collecting
-    description:                 ""
+    definition:                  ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        gathering
@@ -227,7 +227,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        nedimah-ontology
     label:                       Gathering
-    description:                 ""
+    definition:                  ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        learning
@@ -235,7 +235,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        nedimah-ontology
     label:                       Learning
-    description:                 ""
+    definition:                  ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        very-easy
@@ -243,7 +243,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        ease-of-use
     label:                       Very easy
-    description:                 ""
+    definition:                  ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        easy
@@ -251,7 +251,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        ease-of-use
     label:                       Easy
-    description:                 ""
+    definition:                  ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        moderate
@@ -259,7 +259,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        ease-of-use
     label:                       Moderate
-    description:                 ""
+    definition:                  ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        difficult
@@ -267,7 +267,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        ease-of-use
     label:                       Difficult
-    description:                 ""
+    definition:                  ""
     uri:                         ""
   - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
     code:                        very-difficult
@@ -275,7 +275,7 @@ Concept:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        ease-of-use
     label:                       Very difficult
-    description:                 ""
+    definition:                  ""
     uri:                         ""
 
 
