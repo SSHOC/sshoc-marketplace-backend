@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
+import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
@@ -81,12 +82,13 @@ public class VocabularyService {
         Vocabulary vocabulary = RDFModelParser.createVocabulary(vocabularyCode, rdfModel);
         vocabularyRepository.saveAndFlush(vocabulary);
 
-        Map<Resource, Concept> concepts = RDFModelParser.createConcepts(rdfModel, vocabulary);
-        RDFModelParser.completeConcepts(concepts, rdfModel);
+        Map<String, Concept> conceptMap = RDFModelParser.createConcepts(rdfModel, vocabulary);
+        RDFModelParser.completeConcepts(conceptMap, rdfModel);
+        List<Concept> concepts = conceptRepository.saveAll(conceptMap.values());
+        vocabulary.setConcepts(concepts);
 
-        conceptRepository.saveAll(concepts.values());
-
-        // TODO complete relations
+        List<ConceptRelatedConcept> conceptRelatedConcepts = RDFModelParser.createConceptRelatedConcepts(conceptMap, rdfModel);
+        conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
 
         return vocabulary;
     }

@@ -86,10 +86,10 @@ Software:
           code:                           ease-of-use
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           moderate
+          code:                           Moderate
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           ease-of-use
+            code:                           EaseOfUse
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -143,10 +143,10 @@ Software:
           code:                           ease-of-use
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           difficult
+          code:                           Difficult
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           ease-of-use
+            code:                           EaseOfUse
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -203,10 +203,10 @@ Service:
           code:                           ease-of-use
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           easy
+          code:                           Easy
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           ease-of-use
+            code:                           EaseOfUse
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Texts similarity analysis

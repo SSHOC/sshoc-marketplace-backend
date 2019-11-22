@@ -1,18 +1,14 @@
 package eu.sshopencloud.marketplace.conf.vocabuleries;
 
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
-import eu.sshopencloud.marketplace.services.vocabularies.VocabularyAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -28,10 +24,11 @@ public class VocabularyLoader {
             String vocabularyCode = resource.getFilename().substring(0, resource.getFilename().length() - 4);
             vocabularySources.put(vocabularyCode, resource);
         }
-        // create vocabularies with simple concepts (without relations between concepts)
         for (String vocabularyCode: vocabularySources.keySet()) {
             try (InputStream turtleInputStream = vocabularySources.get(vocabularyCode).getInputStream()) {
-                vocabularyService.createVocabulary(vocabularyCode, turtleInputStream);
+                Vocabulary vocabulary = vocabularyService.createVocabulary(vocabularyCode, turtleInputStream);
+                log.debug("The vocabulary '" + vocabulary.getLabel() + "' from '" + vocabulary.getCode()  + ".ttl' file loaded successfully");
+                log.debug("The vocabulary '" + vocabulary.getLabel() + "' consists of " + vocabulary.getConcepts().size() + " concepts");
             } catch (Exception e) {
                 log.error("Error while loading an initial vocabulary from the '" + vocabularyCode + "ttl' file!", e);
             }

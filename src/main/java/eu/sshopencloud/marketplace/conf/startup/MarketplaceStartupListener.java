@@ -18,12 +18,10 @@ public class MarketplaceStartupListener {
     @EventListener( classes = { ContextRefreshedEvent.class })
     public void onApplicationRefreshedEvent(ContextRefreshedEvent event) {
         log.debug("The magic begins !");
-
         initialDataLoader.loadConstData();
-        initialDataLoader.loadVocabularies();
-
         initialVocabularyLoader.loadVocabularies();
 
+        initialDataLoader.loadVocabularies();
         initialDataLoader.loadProfileData();
     }
 

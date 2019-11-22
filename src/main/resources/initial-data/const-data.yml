@@ -465,17 +465,17 @@ ConceptRelation:
       code:                          related
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-    code:                        same-as
+    code:                        sameAs
     ord:                         2
     label:                       Same as
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-    code:                        same-as
+    code:                        sameAs
     ord:                         2
     label:                       Same as
     inverseOf:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                          same-as
+      code:                          sameAs
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
     code:                        broader
@@ -502,32 +502,6 @@ ConceptRelation:
     inverseOf:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                          broader
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-    code:                        broader-transitive
-    ord:                         5
-    label:                       Broader Transitive
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-    code:                        narrower-transitive
-    ord:                         6
-    label:                       Narrower Transitive
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-    code:                        broader-transitive
-    ord:                         5
-    label:                       Broader Transitive
-    inverseOf:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                          narrower-transitive
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-    code:                        narrower-transitive
-    ord:                         6
-    label:                       Narrower Transitive
-    inverseOf:
-      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                          broader-transitive
 
 
 PropertyType:

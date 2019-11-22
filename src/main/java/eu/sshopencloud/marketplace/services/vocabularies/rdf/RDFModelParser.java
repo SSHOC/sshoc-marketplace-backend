@@ -2,18 +2,15 @@ package eu.sshopencloud.marketplace.services.vocabularies.rdf;
 
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
+import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptConverter;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -35,7 +32,6 @@ public class RDFModelParser {
 
     private static final String SKOS_DEFINITION = "http://www.w3.org/2004/02/skos/core#definition";
 
-
     private static final String SKOS_BROADER = "http://www.w3.org/2004/02/skos/core#broader";
 
     private static final String SKOS_NARROWER = "http://www.w3.org/2004/02/skos/core#narrower";
@@ -45,7 +41,12 @@ public class RDFModelParser {
     private void completeVocabulary(Vocabulary vocabulary, Statement statement) {
         if (statement.getPredicate().stringValue().equals(RDFS_LABEL)) {
             if (StringUtils.isBlank(vocabulary.getLabel())) {
-                vocabulary.setLabel(statement.getObject().stringValue());
+                String label = statement.getObject().stringValue();
+                if (label.endsWith(".")) {
+                    vocabulary.setLabel(label.substring(0, label.length() - 1));
+                } else {
+                    vocabulary.setLabel(label);
+                }
             }
         }
         if (statement.getPredicate().stringValue().equals(RDFS_COMMENT)) {
@@ -95,12 +96,12 @@ public class RDFModelParser {
         return result;
     }
 
-    public Map<Resource, Concept> createConcepts(Model rdfModel, Vocabulary vocabulary) {
+    public Map<String, Concept> createConcepts(Model rdfModel, Vocabulary vocabulary) {
         Set<Namespace> namespaces = rdfModel.getNamespaces();
         return rdfModel.stream()
                 .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
                 .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT))
-                .collect(Collectors.toMap(Statement::getSubject, statement -> createConcept(statement, vocabulary, namespaces)));
+                .collect(Collectors.toMap(statement -> statement.getSubject().stringValue(), statement -> createConcept(statement, vocabulary, namespaces)));
     }
 
     private void completeConcept(Concept concept, Statement statement) {
@@ -121,21 +122,46 @@ public class RDFModelParser {
         }
     }
 
-    private void completeRelatedConcept(Concept concept, Statement statement, Map<Resource, Concept> concepts) {
-        if (statement.getPredicate().stringValue().equals(SKOS_BROADER)) {
-            ConceptRelatedConcept conceptRelatedConcept = new ConceptRelatedConcept();
-            conceptRelatedConcept.setSubject(concept);
-            // TODO
+    public static void completeConcepts(Map<String, Concept> conceptMap, Model rdfModel) {
+        for (String subjectUri: conceptMap.keySet()) {
+            Concept concept = conceptMap.get(subjectUri);
+            rdfModel.stream()
+                    .filter(statement -> statement.getSubject().stringValue().equals(subjectUri))
+                    .forEach(statement -> completeConcept(concept, statement));
         }
     }
 
-    public static void completeConcepts(Map<Resource, Concept> concepts, Model rdfModel) {
-        for (Resource subject: concepts.keySet()) {
-            Concept concept = concepts.get(subject);
-            rdfModel.stream()
-                    .filter(statement -> statement.getSubject().equals(subject))
-                    .forEach(statement -> completeConcept(concept, statement));
+
+    private ConceptRelatedConcept createConceptRelatedConcept(Concept concept, Statement statement, Map<String, Concept> conceptMap) {
+        String predicateUri = statement.getPredicate().stringValue();
+        if (predicateUri.equals(SKOS_BROADER) || predicateUri.equals(SKOS_NARROWER)) {
+            String relationCode = predicateUri.substring(predicateUri.indexOf("#") + 1);
+            String objectUri = statement.getObject().stringValue();
+            if (conceptMap.containsKey(objectUri)) {
+                ConceptRelatedConcept conceptRelatedConcept = new ConceptRelatedConcept();
+                conceptRelatedConcept.setSubject(concept);
+                conceptRelatedConcept.setObject(conceptMap.get(objectUri));
+                ConceptRelation relation = new ConceptRelation();
+                relation.setCode(relationCode);
+                conceptRelatedConcept.setRelation(relation);
+                return conceptRelatedConcept;
+            }
         }
+        return null;
+    }
+
+    public List<ConceptRelatedConcept> createConceptRelatedConcepts(Map<String, Concept> conceptMap, Model rdfModel) {
+        List<ConceptRelatedConcept> result = new ArrayList<ConceptRelatedConcept>();
+        for (String subjectUri: conceptMap.keySet()) {
+            Concept concept = conceptMap.get(subjectUri);
+            List<ConceptRelatedConcept> conceptRelatedConcepts = rdfModel.stream()
+                    .filter(statement -> statement.getSubject().stringValue().equals(subjectUri))
+                    .map(statement -> createConceptRelatedConcept(concept, statement, conceptMap))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            result.addAll(conceptRelatedConcepts);
+        }
+        return result;
     }
 
 }

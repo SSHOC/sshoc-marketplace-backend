@@ -75,7 +75,7 @@ public class ItemRelatedItemService {
         ItemRelatedItemId revId = new ItemRelatedItemId();
         revId.setSubject(objectId);
         revId.setObject(subjectId);
-        Optional<ItemRelatedItem> revItemRelatedItem = itemRelatedItemRepository.findById(dirId);
+        Optional<ItemRelatedItem> revItemRelatedItem = itemRelatedItemRepository.findById(revId);
         if (revItemRelatedItem.isPresent()) {
             throw new ItemsRelationAlreadyExistsException(revItemRelatedItem.get());
         }

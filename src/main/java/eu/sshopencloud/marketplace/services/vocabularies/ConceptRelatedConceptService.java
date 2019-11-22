@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -28,28 +29,16 @@ public class ConceptRelatedConceptService {
         List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptBySubjectCodeAndSubjectVocabularyCode(conceptCode, vocabularyCode);
         for (ConceptRelatedConcept subjectRelatedConcept : subjectRelatedConcepts) {
             conceptRelatedConceptDetachingRepository.detachConceptRelatedConcept(subjectRelatedConcept);
-            ConceptRelatedConceptInline relatedConcept = new ConceptRelatedConceptInline();
-            relatedConcept.setCode(subjectRelatedConcept.getObject().getCode());
-            relatedConcept.setRelation(subjectRelatedConcept.getRelation());
-            Concept concept = subjectRelatedConcept.getObject();
-            relatedConcept.setLabel(concept.getLabel());
-            relatedConcept.setDefinition(concept.getDefinition());
-            relatedConcept.setUri(concept.getUri());
-            relatedConcept.setVocabulary(getRelatedVocabularyForConcept(subjectRelatedConcept.getObject().getVocabulary().getCode()));
+            VocabularyInline objectVocabulary = getRelatedVocabularyForConcept(subjectRelatedConcept.getObject().getVocabulary().getCode());
+            ConceptRelatedConceptInline relatedConcept = ConceptConverter.convertRelatedConceptFromSubject(subjectRelatedConcept, objectVocabulary);
             relatedConcepts.add(relatedConcept);
         }
 
         List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptByObjectCodeAndObjectVocabularyCode(conceptCode, vocabularyCode);
         for (ConceptRelatedConcept objectRelatedConcept : objectRelatedConcepts) {
             conceptRelatedConceptDetachingRepository.detachConceptRelatedConcept(objectRelatedConcept);
-            ConceptRelatedConceptInline relatedConcept = new ConceptRelatedConceptInline();
-            relatedConcept.setCode(objectRelatedConcept.getSubject().getCode());
-            relatedConcept.setRelation(objectRelatedConcept.getRelation().getInverseOf());
-            Concept concept = objectRelatedConcept.getSubject();
-            relatedConcept.setLabel(concept.getLabel());
-            relatedConcept.setDefinition(concept.getDefinition());
-            relatedConcept.setUri(concept.getUri());
-            relatedConcept.setVocabulary(getRelatedVocabularyForConcept(objectRelatedConcept.getSubject().getVocabulary().getCode()));
+            VocabularyInline subjectVocabulary = getRelatedVocabularyForConcept(objectRelatedConcept.getSubject().getVocabulary().getCode());
+            ConceptRelatedConceptInline relatedConcept = ConceptConverter.convertRelatedConceptFromObject(objectRelatedConcept, subjectVocabulary);
             relatedConcepts.add(relatedConcept);
         }
 
@@ -62,6 +51,38 @@ public class ConceptRelatedConceptService {
         relatedVocabulary.setCode(vocabulary.getCode());
         relatedVocabulary.setLabel(vocabulary.getLabel());
         return relatedVocabulary;
+    }
+
+
+    public List<ConceptRelatedConcept> validateReflexivityAndSave(List<ConceptRelatedConcept> newConceptRelatedConcepts) {
+        List<ConceptRelatedConcept> conceptRelatedConcepts = new ArrayList<ConceptRelatedConcept>();
+        for (ConceptRelatedConcept newConceptRelatedConcept: newConceptRelatedConcepts) {
+            ConceptRelatedConcept conceptRelatedConcept = validateReflexivityAndSave(newConceptRelatedConcept);
+            if (conceptRelatedConcept != null) {
+                conceptRelatedConcepts.add(conceptRelatedConcept);
+            }
+        }
+        return conceptRelatedConcepts;
+    }
+
+    public ConceptRelatedConcept validateReflexivityAndSave(ConceptRelatedConcept newConceptRelatedConcept) {
+        ConceptRelatedConceptId dirId = new ConceptRelatedConceptId();
+        dirId.setSubject(new ConceptId(newConceptRelatedConcept.getSubject().getCode(), newConceptRelatedConcept.getSubject().getVocabulary().getCode()));
+        dirId.setObject(new ConceptId(newConceptRelatedConcept.getObject().getCode(), newConceptRelatedConcept.getObject().getVocabulary().getCode()));
+        Optional<ConceptRelatedConcept> dirConceptRelatedConcept = conceptRelatedConceptRepository.findById(dirId);
+        if (dirConceptRelatedConcept.isPresent()) {
+            return null;
+        }
+        ConceptRelatedConceptId revId = new ConceptRelatedConceptId();
+        revId.setSubject(new ConceptId(newConceptRelatedConcept.getObject().getCode(), newConceptRelatedConcept.getObject().getVocabulary().getCode()));
+        revId.setObject(new ConceptId(newConceptRelatedConcept.getSubject().getCode(), newConceptRelatedConcept.getSubject().getVocabulary().getCode()));
+        Optional<ConceptRelatedConcept> revConceptRelatedConcept = conceptRelatedConceptRepository.findById(revId);
+        if (revConceptRelatedConcept.isPresent()) {
+            return null;
+        }
+
+        ConceptRelatedConcept conceptRelatedConcept = conceptRelatedConceptRepository.save(newConceptRelatedConcept);
+        return conceptRelatedConcept;
     }
 
 }

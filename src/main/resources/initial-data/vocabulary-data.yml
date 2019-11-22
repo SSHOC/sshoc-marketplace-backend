@@ -36,12 +36,6 @@ Vocabulary:
     description:                 "NeDiMAH Methodology Ontology (NeMO) Activity Types."
     accessibleAt:                http://nemo.dcu.gr/
 
-  - !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-    code:                        ease-of-use
-    label:                       Ease of use
-    description:                 "Simple dictionary with 5 ease of use values."
-    accessibleAt:                ""
-
 
 Concept:
 
@@ -237,46 +231,6 @@ Concept:
     label:                       Learning
     definition:                  ""
     uri:                         ""
-  - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-    code:                        very-easy
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        ease-of-use
-    label:                       Very easy
-    definition:                  ""
-    uri:                         ""
-  - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-    code:                        easy
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        ease-of-use
-    label:                       Easy
-    definition:                  ""
-    uri:                         ""
-  - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-    code:                        moderate
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        ease-of-use
-    label:                       Moderate
-    definition:                  ""
-    uri:                         ""
-  - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-    code:                        difficult
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        ease-of-use
-    label:                       Difficult
-    definition:                  ""
-    uri:                         ""
-  - !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-    code:                        very-difficult
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        ease-of-use
-    label:                       Very difficult
-    definition:                  ""
-    uri:                         ""
 
 
 ConceptRelatedConcept:
@@ -296,7 +250,7 @@ ConceptRelatedConcept:
         code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                        narrower-transitive
+      code:                        narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subject:
@@ -313,7 +267,7 @@ ConceptRelatedConcept:
         code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                        narrower-transitive
+      code:                        narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subject:
@@ -330,7 +284,7 @@ ConceptRelatedConcept:
         code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                        narrower-transitive
+      code:                        narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subject:
@@ -347,7 +301,7 @@ ConceptRelatedConcept:
         code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                        narrower-transitive
+      code:                        narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subject:
@@ -364,7 +318,7 @@ ConceptRelatedConcept:
         code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                        narrower-transitive
+      code:                        narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subject:
@@ -381,7 +335,7 @@ ConceptRelatedConcept:
         code:                        tadirah
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                        narrower-transitive
+      code:                        narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subject:
@@ -398,7 +352,7 @@ ConceptRelatedConcept:
         code:                        getty-thesauri-aat-art-architecture-thesaurus
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                        narrower-transitive
+      code:                        narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subject:
@@ -415,7 +369,7 @@ ConceptRelatedConcept:
         code:                        getty-thesauri-aat-art-architecture-thesaurus
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                        narrower-transitive
+      code:                        narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subject:
@@ -432,7 +386,7 @@ ConceptRelatedConcept:
         code:                        getty-thesauri-aat-art-architecture-thesaurus
     relation:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
-      code:                        narrower-transitive
+      code:                        narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept
     subject:
@@ -518,3 +472,11 @@ PropertyTypeVocabulary:
     vocabulary:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        iana-mime-type
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code:                        ease-of-use
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        EaseOfUse
