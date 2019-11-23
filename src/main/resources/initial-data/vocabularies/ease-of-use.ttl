@@ -1,11 +1,11 @@
-@prefix : <http://sshopencloud.eu/ontologies/marketplaceontology/> .
+@prefix : <http://sshopencloud.eu/marketplaceontology/ease-of-use/> .
 @prefix biro: <http://purl.org/spar/biro/> .
 @prefix cito: <http://purl.org/spar/cito/> .
 @prefix dc: <http://purl.org/dc/terms/> .
 @prefix doco: <http://purl.org/spar/doco/> .
 @prefix fabio: <http://purl.org/spar/fabio/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix ease-of-use-instances: <http://sshopencloud.eu/ontologies/marketplaceontology/instances/> .
+@prefix ease-of-use-instances: <http://sshopencloud.eu/marketplaceontology/ease-of-use/instances/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -13,35 +13,35 @@
 
 ease-of-use-instances:VeryEasy a <http://www.w3.org/2004/02/skos/core#Concept>;
   <http://www.w3.org/2004/02/skos/core#definition> "The product is very easy to use by its intended users.";
-  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/ontologies/marketplaceontology/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/ease-of-use/scheme/>;
   <http://www.w3.org/2004/02/skos/core#notation> "Very easy"@en;
-  <http://www.w3.org/2004/02/skos/core#prefLabel> "1. Very easy"@en .
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Very easy"@en .
 
 ease-of-use-instances:Easy a <http://www.w3.org/2004/02/skos/core#Concept>;
   <http://www.w3.org/2004/02/skos/core#definition> "The product is easy to use by its intended users.";
-  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/ontologies/marketplaceontology/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/ease-of-use/scheme/>;
   <http://www.w3.org/2004/02/skos/core#notation> "Easy"@en;
-  <http://www.w3.org/2004/02/skos/core#prefLabel> "2. Easy"@en .
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Easy"@en .
 
 ease-of-use-instances:Moderate a <http://www.w3.org/2004/02/skos/core#Concept>;
   <http://www.w3.org/2004/02/skos/core#definition> "The product is moderate to use by its intended users.";
-  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/ontologies/marketplaceontology/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/ease-of-use/scheme/>;
   <http://www.w3.org/2004/02/skos/core#notation> "Moderate"@en;
-  <http://www.w3.org/2004/02/skos/core#prefLabel> "3. Moderate"@en .
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Moderate"@en .
 
 ease-of-use-instances:Difficult a <http://www.w3.org/2004/02/skos/core#Concept>;
   <http://www.w3.org/2004/02/skos/core#definition> "The product is difficult to use by its intended users.";
-  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/ontologies/marketplaceontology/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/ease-of-use/scheme/>;
   <http://www.w3.org/2004/02/skos/core#notation> "Difficult"@en;
-  <http://www.w3.org/2004/02/skos/core#prefLabel> "4. Difficult"@en .
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Difficult"@en .
 
 ease-of-use-instances:VeryDifficult a <http://www.w3.org/2004/02/skos/core#Concept>;
   <http://www.w3.org/2004/02/skos/core#definition> "The product is very difficult to use by its intended users.";
-  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/ontologies/marketplaceontology/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/ease-of-use/scheme/>;
   <http://www.w3.org/2004/02/skos/core#notation> "Very difficult"@en;
-  <http://www.w3.org/2004/02/skos/core#prefLabel> "1. Very difficult"@en .
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Very difficult"@en .
 
-<http://sshopencloud.eu/ontologies/marketplaceontology/scheme/> a <http://www.w3.org/2004/02/skos/core#ConceptScheme>;
+<http://sshopencloud.eu/marketplaceontology/ease-of-use/scheme/> a <http://www.w3.org/2004/02/skos/core#ConceptScheme>;
   rdfs:label "Ease of Use Concept Scheme."@en;
   rdfs:comment "Ease of use is a straightforward concept scheme – it's a measurement of how easy the product is to use by its intended users."@en;
   <http://www.w3.org/2004/02/skos/core#hasTopConcept> ease-of-use-instances:VeryEasy,

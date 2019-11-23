@@ -89,17 +89,17 @@ Software:
           code:                           Moderate
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           EaseOfUse
+            code:                           ease-of-use
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           capture
+          code:                           Capture
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           tadirah
+            code:                           tadirah-research-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -143,20 +143,20 @@ Software:
           code:                           ease-of-use
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           Difficult
+          code:                           Easy
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           EaseOfUse
+            code:                           ease-of-use
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           conversion
+          code:                           Analysis
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           tadirah
+            code:                           tadirah-research-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -206,7 +206,7 @@ Service:
           code:                           Easy
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           EaseOfUse
+            code:                           ease-of-use
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Texts similarity analysis
@@ -262,7 +262,7 @@ TrainingMaterial:
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           application-pdf
+          code:                           application/pdf
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
@@ -313,7 +313,7 @@ TrainingMaterial:
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           video-mp4
+          code:                           video/mp4
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
@@ -323,10 +323,10 @@ TrainingMaterial:
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           collecting
+          code:                           ActivityType-Collecting
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           nedimah-ontology
+            code:                           nemo-activity-type
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
@@ -358,7 +358,7 @@ TrainingMaterial:
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           video-mp4
+          code:                           video/mp4
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
@@ -368,10 +368,10 @@ TrainingMaterial:
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           collecting
+          code:                           ActivityType-Collecting
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           nedimah-ontology
+            code:                           nemo-activity-type
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Is there a newer version available?
@@ -412,7 +412,7 @@ TrainingMaterial:
           code:                           object-format
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           video-mp4
+          code:                           video/mp4
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
@@ -422,10 +422,10 @@ TrainingMaterial:
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           collecting
+          code:                           ActivityType-Collecting
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           nedimah-ontology
+            code:                           nemo-activity-type
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Thanks for sharing this - very useful!

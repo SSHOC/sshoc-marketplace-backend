@@ -1,0 +1,39 @@
+@prefix : <http://tadirah.dariah.eu/> .
+@prefix biro: <http://purl.org/spar/biro/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix doco: <http://purl.org/spar/doco/> .
+@prefix fabio: <http://purl.org/spar/fabio/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix tadirah-researchtechnique-instances: <http://tadirah.dariah.eu/researchtechnique/instances/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# TODO prepare a complete vocabulary based on http://tadirah.dariah.eu/vocab/index.php?tema=92
+
+tadirah-researchtechnique-instances:Encoding a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "Encoding";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchtechnique/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Encoding"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Encoding"@en .
+
+tadirah-researchtechnique-instances:Gamification a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#narrower> tadirah-researchtechnique-instances:Dissemination-Crowdsourcing;
+  <http://www.w3.org/2004/02/skos/core#definition> "Gamification";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchtechnique/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Gamification"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Gamification"@en .
+
+tadirah-researchtechnique-instances:Dissemination-Crowdsourcing a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#broader> tadirah-researchtechnique-instances:Gamification;
+  <http://www.w3.org/2004/02/skos/core#definition> "Dissemination-Crowdsourcing";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchtechnique/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Dissemination-Crowdsourcing"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Dissemination-Crowdsourcing"@en .
+
+<http://tadirah.dariah.eu/researchtechnique/scheme/> a <http://www.w3.org/2004/02/skos/core#ConceptScheme>;
+  rdfs:label "TaDiRAH Research Technique."@en;
+  <http://www.w3.org/2004/02/skos/core#hasTopConcept> tadirah-researchtechnique-instances:Encoding,
+    tadirah-researchtechnique-instances:Gamification .

@@ -1,0 +1,86 @@
+@prefix : <http://tadirah.dariah.eu/> .
+@prefix biro: <http://purl.org/spar/biro/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix doco: <http://purl.org/spar/doco/> .
+@prefix fabio: <http://purl.org/spar/fabio/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix tadirah-researchactivity-instances: <http://tadirah.dariah.eu/researchactivity/instances/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# TODO prepare a complete vocabulary based on http://tadirah.dariah.eu/vocab/index.php?tema=6
+
+tadirah-researchactivity-instances:Capture a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#narrower> tadirah-researchactivity-instances:Conversion,
+    tadirah-researchactivity-instances:Data_Recognition, tadirah-researchactivity-instances:Discovering,
+    tadirah-researchactivity-instances:Gathering, tadirah-researchactivity-instances:Imaging,
+    tadirah-researchactivity-instances:Recording, tadirah-researchactivity-instances:Transcription;
+  <http://www.w3.org/2004/02/skos/core#definition> "Capture generally refers to the activity of creating digital surrogates of existing cultural artefacts, or expressing existing artifacts in a digital representation (digitization). This could be a manual process (as in Transcribing) or an automated procedure (as in Imaging or DataRecognition). Such capture precedes Enrichment and Analysis, at least from a systematic point of view, if not in practice. The \"1\" is not part of the term, but used to indicate the term's order in the research process.";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchactivity/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Capture"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "1 Capture"@en .
+
+tadirah-researchactivity-instances:Creation a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#narrower> tadirah-researchactivity-instances:Designing,
+    tadirah-researchactivity-instances:Programming, tadirah-researchactivity-instances:Translation,
+    tadirah-researchactivity-instances:Web_development, tadirah-researchactivity-instances:Writing;
+  <http://www.w3.org/2004/02/skos/core#definition> "Creating things generally refers to the activity of producing born-digital digital objects, rather than creating digital objects by capturing and digitizing existing analog objects. Creating can involve writing natural language text (cf. Writing) or, understood more broadly as the creation of a string of discrete symbols, it could also concern other forms of expression, such as creating executable code (cf. Programming), composing a musical score, or creating an image. The \"2\" is not part of the term, but used to indicate the term's relative order in the research process.";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchactivity/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Creation"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "2 Creation"@en .
+
+tadirah-researchactivity-instances:Enrichment a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#narrower> tadirah-researchactivity-instances:Annotating,
+    tadirah-researchactivity-instances:Cleanup, tadirah-researchactivity-instances:Editing;
+  <http://www.w3.org/2004/02/skos/core#definition> "Enrichment refers to the activity of adding information to an object of enquiry, by making its origin, nature, structure, meaning, or elements explicit. This activity typically follows the capture of the object. The \"3\" is not part of the term, but used to indicate the term's relative order in the research process.";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchactivity/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Enrichment"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "3 Enrichment"@en .
+
+tadirah-researchactivity-instances:Analysis a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#narrower> tadirah-researchactivity-instances:Content_Analysis,
+    tadirah-researchactivity-instances:Network_Analysis, tadirah-researchactivity-instances:Relational_Analysis,
+    tadirah-researchactivity-instances:Spatial_Analysis, tadirah-researchactivity-instances:Structural_Analysis,
+    tadirah-researchactivity-instances:Stylistic_Analysis, tadirah-researchactivity-instances:Visualization;
+  <http://www.w3.org/2004/02/skos/core#definition> "This general research goal refers to the activity of extracting any kind of information from open or closed, structured or unstructured collections of data, of discovering recurring phenomena, units, elements, patterns, groupings, and the like. This can refer to structural, formal or semantic aspects of data. Analysis also includes methods used to visualize results. Methods and techniques related to this goal may be considered to follow Capture and Enrichment; however, Enrichment depends upon assumptions, research questions and results related to Analysis. The \"4\" is not part of the term, but used to indicate the term's relative order in the research process.";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchactivity/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Analysis"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "4 Analysis"@en .
+
+tadirah-researchactivity-instances:Interpretation a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#narrower> tadirah-researchactivity-instances:Contextualizing,
+    tadirah-researchactivity-instances:Modeling, tadirah-researchactivity-instances:Theorizing;
+  <http://www.w3.org/2004/02/skos/core#definition> "Interpretation is the activity of ascribing meaning to phenomena observed in Analysis. Therefore, interpretation usually follows analysis, although it could also be considered that interpretation defines the hermeneutic perspective of any method of analysis. The \"5\" is not part of the term, but used to indicate the term's relative order in the research process.";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchactivity/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Interpretation"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "5 Interpretation"@en .
+
+tadirah-researchactivity-instances:Storage a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#narrower> tadirah-researchactivity-instances:Archiving,
+    tadirah-researchactivity-instances:Identifying, tadirah-researchactivity-instances:Organizing,
+    tadirah-researchactivity-instances:Preservation;
+  <http://www.w3.org/2004/02/skos/core#definition> "Storing refers to the activity of making digital copies of objects of inquiry, results of research, or software and services and of keeping them accessible, without necessarily making them available to the public. The \"6\" is not part of the term, but used to indicate the term's relative order in the research process.";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchactivity/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Storage"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "6 Storage"@en .
+
+tadirah-researchactivity-instances:Dissemination a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#narrower> tadirah-researchactivity-instances:Collaboration,
+    tadirah-researchactivity-instances:Commenting, tadirah-researchactivity-instances:Communicating,
+    tadirah-researchactivity-instances:Crowdsourcing, tadirah-researchactivity-instances:Publishing,
+    tadirah-researchactivity-instances:Sharing;
+  <http://www.w3.org/2004/02/skos/core#definition> "Dissemination refers to the activity of making objects of inquiry, results of research, or software and services available to fellow researchers or the wider public in a variety of more or less formal ways. It builds on or requires storing and can include releasing and sharing of data using a variety of methods and techniques including the application of linked open data. The \"7\" is not part of the term, but used to indicate the term's relative order in the research process.";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://tadirah.dariah.eu/researchactivity/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Dissemination"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "7 Dissemination"@en .
+
+<http://tadirah.dariah.eu/researchactivity/scheme/> a <http://www.w3.org/2004/02/skos/core#ConceptScheme>;
+  rdfs:label "TaDiRAH Research Activity."@en;
+  rdfs:comment "Research activities are usually applied to one or several research objects. An article about modeling of manuscript properties would therefore be tagged with the tags \"Modeling\" and \"Manuscript\". A plain text editor would be tagged with the tags \"Writing\" and \"Code\" and \"Text\"."@en;
+  <http://www.w3.org/2004/02/skos/core#hasTopConcept> tadirah-researchactivity-instances:Capture,
+    tadirah-researchactivity-instances:Creation, tadirah-researchactivity-instances:Enrichment,
+    tadirah-researchactivity-instances:Analysis, tadirah-researchactivity-instances:Interpretation,
+    tadirah-researchactivity-instances:Storage, tadirah-researchactivity-instances:Dissemination .

@@ -1,0 +1,52 @@
+@prefix : <http://sshopencloud.eu/marketplaceontology/object-type/> .
+@prefix biro: <http://purl.org/spar/biro/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix doco: <http://purl.org/spar/doco/> .
+@prefix fabio: <http://purl.org/spar/fabio/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix object-type-instances: <http://sshopencloud.eu/marketplaceontology/object-type/instances/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+object-type-instances:tool a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "Tool";
+  <http://www.w3.org/2004/02/skos/core#narrower> object-type-instances:software,
+    object-type-instances:service;
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/object-type/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Tool"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Tool"@en .
+
+object-type-instances:software a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#broader> object-type-instances:tool;
+  <http://www.w3.org/2004/02/skos/core#definition> "Software";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/object-type/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Software"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Software"@en .
+
+object-type-instances:service a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#broader> object-type-instances:tool;
+  <http://www.w3.org/2004/02/skos/core#definition> "Service";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/object-type/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Service"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Service"@en .
+
+object-type-instances:training-material a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "Training material";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/object-type/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Training material"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Training material"@en .
+
+object-type-instances:dataset a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "Dataset";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/object-type/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Dataset"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Dataset"@en .
+
+<http://sshopencloud.eu/marketplaceontology/object-type/scheme/> a <http://www.w3.org/2004/02/skos/core#ConceptScheme>;
+  rdfs:label "Object Type Concept Scheme."@en;
+  rdfs:comment "Object Type defines a category (type) of an object and its subtype in SSH Open Cloud Marketplace."@en;
+  <http://www.w3.org/2004/02/skos/core#hasTopConcept> object-type-instances:tool,
+    object-type-instances:training-material, object-type-instances:dataset .

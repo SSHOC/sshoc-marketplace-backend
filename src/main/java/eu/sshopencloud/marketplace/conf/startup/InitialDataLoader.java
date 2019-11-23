@@ -58,12 +58,6 @@ public class InitialDataLoader {
 
     private final PropertyTypeRepository propertyTypeRepository;
 
-    private final VocabularyRepository vocabularyRepository;
-
-    private final ConceptRepository conceptRepository;
-
-    private final ConceptRelatedConceptRepository conceptRelatedConceptRepository;
-
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
 
     private final UserRepository userRepository;
@@ -128,18 +122,6 @@ public class InitialDataLoader {
         ClassLoader classLoader = InitialDataLoader.class.getClassLoader();
         InputStream dataStream = classLoader.getResourceAsStream("initial-data/vocabulary-data.yml");
         Map<String, List<Object>> data = (Map<String, List<Object>>) new Yaml(new CustomClassLoaderConstructor(classLoader)).load(dataStream);
-
-        List<Vocabulary> vocabularies = getInitialObjects(data, "Vocabulary");
-        vocabularyRepository.saveAll(vocabularies);
-        log.debug("Loaded " + vocabularies.size() + " Vocabulary objects");
-
-        List<Concept> conecpts = getInitialObjects(data, "Concept");
-        conceptRepository.saveAll(conecpts);
-        log.debug("Loaded " + conecpts.size() + " Concept objects");
-
-        List<ConceptRelatedConcept> conceptRelatedConcept = getInitialObjects(data, "ConceptRelatedConcept");
-        conceptRelatedConceptRepository.saveAll(conceptRelatedConcept);
-        log.debug("Loaded " + conceptRelatedConcept.size()  + " ConceptRelatedConcept objects");
 
         List<PropertyTypeVocabulary> propertyTypeVocabularies = getInitialObjects(data, "PropertyTypeVocabulary");
         propertyTypeVocabularyRepository.saveAll(propertyTypeVocabularies);

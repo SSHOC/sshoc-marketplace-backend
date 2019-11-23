@@ -1,0 +1,54 @@
+@prefix : <http://iso639-3.sil.org/> .
+@prefix biro: <http://purl.org/spar/biro/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix doco: <http://purl.org/spar/doco/> .
+@prefix fabio: <http://purl.org/spar/fabio/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix iso639-3-codes: <http://iso639-3.sil.org/code/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# TODO prepare a complete vocabulary based on https://iso639-3.sil.org/code_tables/download_tables
+
+iso639-3-codes:eng a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "English (English)";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://iso639-3.sil.org/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "English"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "eng"@en .
+
+iso639-3-codes:deu a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "German (Deutsch)";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://iso639-3.sil.org/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "German"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "deu"@en .
+
+iso639-3-codes:ell a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "Greek (ελληνικά)";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://iso639-3.sil.org/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Greek"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "ell"@en .
+
+iso639-3-codes:ita a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "Italian (Italiano)";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://iso639-3.sil.org/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Italian"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "ita"@en .
+
+iso639-3-codes:fra a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "French (français)";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://iso639-3.sil.org/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "French"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "fra"@en .
+
+iso639-3-codes:pol a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "Polish (język polski)";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://iso639-3.sil.org/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Polish"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "pol"@en .
+
+<http://iso639-3.sil.org/scheme/> a <http://www.w3.org/2004/02/skos/core#ConceptScheme>;
+  rdfs:label "ISO 639-3"@en;
+  rdfs:comment "ISO 639-3 is a set of codes that defines three-letter identifiers for all known human languages. At the core of ISO 639-3 are the individual languages already accounted for in ISO 639-2. The large number of living languages in the initial inventory of ISO 639-3 beyond those already included in ISO 639-2 was derived primarily from Ethnologue (15th edition). Additional extinct, ancient, historic, and constructed languages were obtained from the Linguist List."@en .

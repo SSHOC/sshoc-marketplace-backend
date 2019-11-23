@@ -508,28 +508,23 @@ PropertyType:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        language
-    ord:                         1
+    ord:                         2
     label:                       Languege
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        activity
-    ord:                         2
+    ord:                         3
     label:                       Activity
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        technique
-    ord:                         3
+    ord:                         4
     label:                       Technique
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        material
-    ord:                         4
-    label:                       Material
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        person
     ord:                         5
-    label:                       Person
+    label:                       Material
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        object-format
