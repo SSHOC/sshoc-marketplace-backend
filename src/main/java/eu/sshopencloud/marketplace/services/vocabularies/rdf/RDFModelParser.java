@@ -101,7 +101,10 @@ public class RDFModelParser {
         return rdfModel.stream()
                 .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
                 .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT))
-                .collect(Collectors.toMap(statement -> statement.getSubject().stringValue(), statement -> createConcept(statement, vocabulary, namespaces)));
+                .collect(Collectors.toMap(statement -> statement.getSubject().stringValue(), statement -> createConcept(statement, vocabulary, namespaces),
+                    (u, v) -> u,
+                    LinkedHashMap::new)
+                );
     }
 
     private void completeConcept(Concept concept, Statement statement) {
@@ -123,11 +126,14 @@ public class RDFModelParser {
     }
 
     public static void completeConcepts(Map<String, Concept> conceptMap, Model rdfModel) {
+        int ord = 1;
         for (String subjectUri: conceptMap.keySet()) {
             Concept concept = conceptMap.get(subjectUri);
             rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(subjectUri))
                     .forEach(statement -> completeConcept(concept, statement));
+            concept.setOrd(ord);
+            ord++;
         }
     }
 

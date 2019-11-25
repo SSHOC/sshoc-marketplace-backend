@@ -4,7 +4,6 @@ import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.tools.Software;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
@@ -14,9 +13,7 @@ import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.licenses.LicenseService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
-import eu.sshopencloud.marketplace.services.vocabularies.CategoryService;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
-import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
+import eu.sshopencloud.marketplace.services.vocabularies.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,8 +39,6 @@ import java.util.Optional;
 public class ToolService {
 
     private final ToolRepository toolRepository;
-
-    private final CategoryService categoryService;
 
     private final ItemService itemService;
 
@@ -86,8 +81,9 @@ public class ToolService {
         return tool;
     }
 
-    private Tool validate(ToolCore newTool, Long toolId, String toolTypeCode) throws DataViolationException, ConceptDisallowedException {
-        Tool result = createOrGetTool(toolId, toolTypeCode);
+    private Tool validate(ToolCore newTool, Long toolId)
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
+        Tool result = createOrGetTool(toolId);
         result.setCategory(ItemCategory.TOOL);
         if (StringUtils.isBlank(newTool.getLabel())) {
             throw new DataViolationException("label", newTool.getLabel());
@@ -112,10 +108,11 @@ public class ToolService {
         }
         if (result.getProperties() != null) {
             result.getProperties().clear();
-            result.getProperties().addAll(propertyService.validate("properties", newTool.getProperties()));
+            result.getProperties().addAll(propertyService.validate(ItemCategory.TOOL, "properties", newTool.getProperties()));
         } else {
-            result.setProperties(propertyService.validate("properties", newTool.getProperties()));
+            result.setProperties(propertyService.validate(ItemCategory.TOOL, "properties", newTool.getProperties()));
         }
+
         result.setAccessibleAt(newTool.getAccessibleAt());
         if (newTool.getPrevVersionId() != null) {
             Optional<Tool> prevVersion = toolRepository.findById(newTool.getPrevVersionId());
@@ -132,24 +129,17 @@ public class ToolService {
         return result;
     }
 
-    private Tool createOrGetTool(Long toolId, String toolTypeCode) {
+    private Tool createOrGetTool(Long toolId) {
         if (toolId != null) {
             return toolRepository.getOne(toolId);
-        }
-        switch (toolTypeCode) {
-            case "software":
-                return new Software();
-            case "service":
-                return new eu.sshopencloud.marketplace.model.tools.Service();
-            default:
-                return null; // validation is done earlier
+        } else {
+            return new Tool();
         }
     }
 
-    public Tool createTool(ToolCore newTool) throws DataViolationException, ConceptDisallowedException {
-        // TODO move validation to the validate method (when vocabularies are refactored)
-        String toolTypeCode = categoryService.getToolCategoryCode(newTool.getToolType());
-        Tool tool = validate(newTool, null, toolTypeCode);
+    public Tool createTool(ToolCore newTool)
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
+        Tool tool = validate(newTool, null);
         ZonedDateTime now = ZonedDateTime.now();
         tool.setLastInfoUpdate(now);
 
@@ -170,19 +160,12 @@ public class ToolService {
         return complete(tool);
     }
 
-    public Tool updateTool(Long id, ToolCore newTool) throws DataViolationException, ConceptDisallowedException, DisallowedToolTypeChangeException {
+    public Tool updateTool(Long id, ToolCore newTool)
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
         if (!toolRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
         }
-        Tool currentTool = toolRepository.getOne(id);
-        // change between software and service is not allowed - TODO change into field and allow (add validations in validate method)
-        String toolTypeCode = currentTool.getToolType().getCode();
-        if (newTool.getToolType() != null) {
-            if (!toolTypeCode.equals(newTool.getToolType().getCode())) {
-                throw new DisallowedToolTypeChangeException(toolTypeCode, newTool.getToolType().getCode());
-            }
-        }
-        Tool tool = validate(newTool, id, toolTypeCode);
+        Tool tool = validate(newTool, id);
         ZonedDateTime now = ZonedDateTime.now();
         tool.setLastInfoUpdate(now);
 

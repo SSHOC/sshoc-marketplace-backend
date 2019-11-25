@@ -4,6 +4,14 @@ PropertyTypeVocabulary:
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyType:
       !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code:                        object-type
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        object-type
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
       code:                        language
     vocabulary:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary

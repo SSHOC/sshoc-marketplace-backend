@@ -8,12 +8,8 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "tools")
-@Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @NoArgsConstructor
-public abstract class Tool extends Item {
-
-    @ManyToOne(optional =  false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    private ToolType toolType;
+public class Tool extends Item {
 
 }

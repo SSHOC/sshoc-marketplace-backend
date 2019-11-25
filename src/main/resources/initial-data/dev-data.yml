@@ -41,9 +41,9 @@ Actor:
 
 
 
-Software:
+Tool:
 
-  - !!eu.sshopencloud.marketplace.model.tools.Software
+  - !!eu.sshopencloud.marketplace.model.tools.Tool
     category:                    TOOL
     label:                       Gephi
     description:                 Gephi is the leading visualization and exploration software for all kinds of graphs and networks.
@@ -55,7 +55,7 @@ Software:
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
+          !!eu.sshopencloud.marketplace.model.tools.Tool
           id:                        1
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
@@ -65,7 +65,7 @@ Software:
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
+          !!eu.sshopencloud.marketplace.model.tools.Tool
           id:                        1
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
@@ -80,6 +80,16 @@ Software:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
     properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           software
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -117,14 +127,14 @@ Software:
           !!eu.sshopencloud.marketplace.model.auth.User
           id:                           1
 
-  - !!eu.sshopencloud.marketplace.model.tools.Software
+  - !!eu.sshopencloud.marketplace.model.tools.Tool
     category:                    TOOL
     label:                       Stata
     description:                 Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Software
+          !!eu.sshopencloud.marketplace.model.tools.Tool
           id:                        2
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
@@ -137,6 +147,16 @@ Software:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
     properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           software
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -163,16 +183,14 @@ Software:
           code:                           material
         value:                          Lorem ipsum
 
-Service:
-
-  - !!eu.sshopencloud.marketplace.model.tools.Service
+  - !!eu.sshopencloud.marketplace.model.tools.Tool
     category:                    TOOL
     label:                       WebSty
     description:                 Stylometric analysis tool.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Service
+          !!eu.sshopencloud.marketplace.model.tools.Tool
           id:                        3
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
@@ -182,7 +200,7 @@ Service:
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Service
+          !!eu.sshopencloud.marketplace.model.tools.Tool
           id:                        3
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
@@ -197,6 +215,16 @@ Service:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           2
     properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           service
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -252,10 +280,17 @@ TrainingMaterial:
         id:                           2
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    trainingMaterialType:
-      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-      code:                             paper
     properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           paper
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -303,10 +338,17 @@ TrainingMaterial:
     informationContributors:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    trainingMaterialType:
-      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-      code:                             tutorial
     properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           tutorial
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -348,10 +390,17 @@ TrainingMaterial:
     informationContributors:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    trainingMaterialType:
-      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-      code:                             tutorial
     properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           tutorial
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -402,10 +451,17 @@ TrainingMaterial:
     informationContributors:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    trainingMaterialType:
-      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-      code:                             tutorial
     properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           tutorial
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -477,19 +533,27 @@ TrainingMaterial:
         id:                           2
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           1
-    trainingMaterialType:
-      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-      code:                             webinar
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           webinar
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
 
 
 ItemRelatedItem:
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
     subject:
-      !!eu.sshopencloud.marketplace.model.tools.Software
+      !!eu.sshopencloud.marketplace.model.tools.Tool
       id:                         1
     object:
-      !!eu.sshopencloud.marketplace.model.tools.Software
+      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
       id:                         4
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
@@ -497,10 +561,10 @@ ItemRelatedItem:
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
     subject:
-      !!eu.sshopencloud.marketplace.model.tools.Software
+      !!eu.sshopencloud.marketplace.model.tools.Tool
       id:                         1
     object:
-      !!eu.sshopencloud.marketplace.model.tools.Software
+      !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
       id:                         5
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
@@ -508,10 +572,10 @@ ItemRelatedItem:
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
     subject:
-      !!eu.sshopencloud.marketplace.model.tools.Software
+      !!eu.sshopencloud.marketplace.model.tools.Tool
       id:                         1
     object:
-      !!eu.sshopencloud.marketplace.model.tools.Software
+      !!eu.sshopencloud.marketplace.model.tools.Tool
       id:                         3
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation

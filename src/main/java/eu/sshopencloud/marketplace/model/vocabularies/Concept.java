@@ -29,7 +29,7 @@ public class Concept {
     private String label;
 
     @Basic
-    @Column(nullable = true)        // TODO change to false when vocabularies will be read from ttl files
+    @Column(nullable = false)
     private String notation;
 
     @Basic

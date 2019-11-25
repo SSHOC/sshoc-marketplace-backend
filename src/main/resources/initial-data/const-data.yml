@@ -301,47 +301,6 @@ ActorRole:
     label:                       Provider
 
 
-ToolType:
-
-  - !!eu.sshopencloud.marketplace.model.tools.ToolType
-    code:                        software
-    ord:                         1
-    label:                       Software
-
-  - !!eu.sshopencloud.marketplace.model.tools.ToolType
-    code:                        service
-    ord:                         2
-    label:                       Service
-
-
-TrainingMaterialType:
-
-  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-    code:                        paper
-    ord:                         1
-    label:                       Paper
-
-  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-    code:                        tutorial
-    ord:                         2
-    label:                       Tutorial
-
-  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-    code:                        online-course
-    ord:                         3
-    label:                       Online course
-
-  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-    code:                        webinar
-    ord:                         4
-    label:                       Webinar
-
-  - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType
-    code:                        blog
-    ord:                         5
-    label:                       Blog
-
-
 ItemRelation:
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelation
@@ -505,6 +464,11 @@ ConceptRelation:
 
 
 PropertyType:
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        object-type
+    ord:                         1
+    label:                       Object type
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        language

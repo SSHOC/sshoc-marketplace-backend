@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
-import eu.sshopencloud.marketplace.dto.tools.ToolTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
@@ -78,9 +77,6 @@ public class ToolControllerITCase {
     @Test
     public void shouldCreateToolWithoutRelation() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("software");
-        tool.setToolType(toolType);
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
 
@@ -89,15 +85,14 @@ public class ToolControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool")))
-                .andExpect(jsonPath("label", is("Test simple software")));
+                .andExpect(jsonPath("label", is("Test simple software")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Tool")));
     }
 
     @Test
     public void shouldCreateToolWithRelations() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("software");
-        tool.setToolType(toolType);
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
         LicenseId license = new LicenseId();
@@ -115,6 +110,16 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -131,6 +136,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -144,8 +150,9 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("licenses[0].label", is("Apache License 2.0")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
-                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("properties[0].concept.label", is("Software")))
+                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[2].value", is("paper")))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
@@ -153,12 +160,22 @@ public class ToolControllerITCase {
     @Test
     public void shouldCreateToolWithPrevVersion() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("software");
-        tool.setToolType(toolType);
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
         tool.setPrevVersionId(2l);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(post("/api/tools")
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -172,15 +189,24 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
-
     @Test
-    public void shouldntCreateToolWhenTypeIsIncorrect() throws Exception {
+    public void shouldntCreateToolWhenObjectTypeIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("xxx");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("y2y4y200");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(post("/api/tools")
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -192,10 +218,20 @@ public class ToolControllerITCase {
     @Test
     public void shouldntCreateToolWhenLabelIsNull() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(post("/api/tools")
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -207,9 +243,6 @@ public class ToolControllerITCase {
     @Test
     public void shouldntCreateToolWhenLicenseIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
         LicenseId license = new LicenseId();
@@ -217,6 +250,19 @@ public class ToolControllerITCase {
         List<LicenseId> licenses = new ArrayList<LicenseId>();
         licenses.add(license);
         tool.setLicenses(licenses);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(post("/api/tools")
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -228,9 +274,6 @@ public class ToolControllerITCase {
     @Test
     public void shouldntCreateToolWhenContributorIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
@@ -243,6 +286,19 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(post("/api/tools")
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -254,9 +310,6 @@ public class ToolControllerITCase {
     @Test
     public void shouldntCreateToolWhenContributorRoleIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
@@ -269,6 +322,19 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(post("/api/tools")
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -277,15 +343,21 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
 
-
     @Test
     public void shouldntCreateToolWhenPropertyTypeIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("yyy");
@@ -302,6 +374,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -316,11 +389,18 @@ public class ToolControllerITCase {
     @Test
     public void shouldntCreateToolWhenConceptIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -337,6 +417,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -348,15 +429,21 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
 
-
     @Test
     public void shouldntCreateToolWhenVocabularyIsDisallowed() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("activity");
@@ -373,6 +460,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -387,11 +475,18 @@ public class ToolControllerITCase {
     @Test
     public void shouldntCreateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -403,6 +498,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -419,9 +515,6 @@ public class ToolControllerITCase {
         Integer toolId = 1;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("software");
-        tool.setToolType(toolType);
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
 
@@ -434,7 +527,8 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(0)));
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Tool")));
     }
 
     @Test
@@ -442,9 +536,6 @@ public class ToolControllerITCase {
         Integer toolId = 1;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("software");
-        tool.setToolType(toolType);
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
         LicenseId license = new LicenseId();
@@ -462,6 +553,16 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -478,6 +579,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -494,9 +596,10 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("contributors", hasSize(1)))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
-                .andExpect(jsonPath("properties", hasSize(2)))
-                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("properties", hasSize(3)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Software")))
+                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[2].value", is("paper")))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
@@ -506,11 +609,21 @@ public class ToolControllerITCase {
         Integer toolId = 99;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("software");
-        tool.setToolType(toolType);
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -523,12 +636,22 @@ public class ToolControllerITCase {
         Integer toolId = 1;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("software");
-        tool.setToolType(toolType);
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
         tool.setPrevVersionId(3l);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -543,18 +666,27 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
-
     @Test
     public void shouldntUpdateToolWithPrevVersionEqualToTool() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test service");
         tool.setDescription("Lorem ipsum");
         tool.setPrevVersionId(3l);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -562,17 +694,26 @@ public class ToolControllerITCase {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
-
 
     @Test
     public void shouldntUpdateToolWhenLabelIsNull() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -581,15 +722,48 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
 
+    @Test
+    public void shouldntUpdateToollWhenObjectTypeIsAmbiguous() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Test Software");
+        tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("object-type");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("software");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("object-type");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        properties.add(property1);
+        tool.setProperties(properties);
+
+        mvc.perform(post("/api/tools")
+                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+    }
 
     @Test
     public void shouldntUpdateToolWhenLicenseIsUnknown() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
         LicenseId license = new LicenseId();
@@ -597,6 +771,19 @@ public class ToolControllerITCase {
         List<LicenseId> licenses = new ArrayList<LicenseId>();
         licenses.add(license);
         tool.setLicenses(licenses);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("service");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -610,9 +797,6 @@ public class ToolControllerITCase {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
@@ -625,6 +809,19 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -638,9 +835,6 @@ public class ToolControllerITCase {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
@@ -653,6 +847,19 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        tool.setProperties(properties);
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
@@ -661,17 +868,23 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
 
-
     @Test
     public void shouldntUpdateToolWhenPropertyTypeIsUnknown() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("yyy");
@@ -688,6 +901,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -704,11 +918,18 @@ public class ToolControllerITCase {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -725,6 +946,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -736,17 +958,23 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
 
-
     @Test
     public void shouldntUpdateToolWhenVocabularyIsDisallowed() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("activity");
@@ -763,6 +991,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -779,11 +1008,18 @@ public class ToolControllerITCase {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
-        ToolTypeId toolType = new ToolTypeId();
-        toolType.setCode("service");
-        tool.setToolType(toolType);
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("software");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -795,6 +1031,7 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -805,7 +1042,6 @@ public class ToolControllerITCase {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
-
 
     @Test
     public void shouldDeleteTool() throws Exception {

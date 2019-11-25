@@ -10,6 +10,10 @@ public enum ItemCategory {
 
     DATASET;
 
+    public static final String OBJECT_TYPE_PROPERTY_TYPE_CODE = "object-type";
+
+    public static final String OBJECT_TYPE_VOCABULARY_CODE = "object-type";
+
     @JsonValue
     public String getValue() {
         return name().replace('_', '-').toLowerCase();

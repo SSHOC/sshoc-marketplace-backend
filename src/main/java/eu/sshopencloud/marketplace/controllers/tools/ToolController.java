@@ -4,10 +4,11 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.services.DataViolationException;
-import eu.sshopencloud.marketplace.services.tools.DisallowedToolTypeChangeException;
 import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
+import eu.sshopencloud.marketplace.services.vocabularies.DisallowedObjectTypeException;
+import eu.sshopencloud.marketplace.services.vocabularies.TooManyObjectTypesException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -49,14 +50,14 @@ public class ToolController {
 
     @PostMapping(path = "/tools", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Tool> createTool(@RequestBody ToolCore newTool)
-            throws DataViolationException, ConceptDisallowedException {
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
         Tool tool = toolService.createTool(newTool);
         return ResponseEntity.ok(tool);
     }
 
     @PutMapping(path = "/tools/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Tool> updateTool(@PathVariable("id") long id, @RequestBody ToolCore newTool)
-            throws DataViolationException, ConceptDisallowedException, DisallowedToolTypeChangeException {
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
         Tool tool = toolService.updateTool(id, newTool);
         return ResponseEntity.ok(tool);
     }

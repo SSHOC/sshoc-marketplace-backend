@@ -5,18 +5,15 @@ import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.services.DataViolationException;
+import eu.sshopencloud.marketplace.services.vocabularies.*;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.licenses.LicenseService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
-import eu.sshopencloud.marketplace.services.vocabularies.CategoryService;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
-import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,8 +39,6 @@ import java.util.Optional;
 public class TrainingMaterialService {
 
     private final TrainingMaterialRepository trainingMaterialRepository;
-
-    private final CategoryService categoryService;
 
     private final ItemService itemService;
 
@@ -86,13 +81,9 @@ public class TrainingMaterialService {
         return trainingMaterial;
     }
 
-    private TrainingMaterial validate(TrainingMaterialCore newTrainingMaterial, Long trainingMaterialId) throws DataViolationException, ConceptDisallowedException {
+    private TrainingMaterial validate(TrainingMaterialCore newTrainingMaterial, Long trainingMaterialId)
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
         TrainingMaterial result = createOrGetTrainingMaterial(trainingMaterialId);
-        // TODO set type refactor together with vocabularies
-        TrainingMaterialType trainingMaterialType = new TrainingMaterialType();
-        trainingMaterialType.setCode(newTrainingMaterial.getTrainingMaterialType().getCode());
-        result.setTrainingMaterialType(trainingMaterialType);
-
         result.setCategory(ItemCategory.TRAINING_MATERIAL);
         if (StringUtils.isBlank(newTrainingMaterial.getLabel())) {
             throw new DataViolationException("label", newTrainingMaterial.getLabel());
@@ -117,10 +108,11 @@ public class TrainingMaterialService {
         }
         if (result.getProperties() != null) {
             result.getProperties().clear();
-            result.getProperties().addAll(propertyService.validate("properties", newTrainingMaterial.getProperties()));
+            result.getProperties().addAll(propertyService.validate(ItemCategory.TRAINING_MATERIAL, "properties", newTrainingMaterial.getProperties()));
         } else {
-            result.setProperties(propertyService.validate("properties", newTrainingMaterial.getProperties()));
+            result.setProperties(propertyService.validate(ItemCategory.TRAINING_MATERIAL, "properties", newTrainingMaterial.getProperties()));
         }
+
         result.setAccessibleAt(newTrainingMaterial.getAccessibleAt());
         result.setDateCreated(newTrainingMaterial.getDateCreated());
         result.setDateLastUpdated(newTrainingMaterial.getDateLastUpdated());
@@ -147,11 +139,8 @@ public class TrainingMaterialService {
         }
     }
 
-
     public TrainingMaterial createTrainingMaterial(TrainingMaterialCore newTrainingMaterial)
-            throws DataViolationException, ConceptDisallowedException {
-        // TODO move validation to the validate method (when vocabularies are refactored)
-        String trainingMaterialTypeCode = categoryService.getTrainingMaterialCategoryCode(newTrainingMaterial.getTrainingMaterialType());
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
         TrainingMaterial trainingMaterial = validate(newTrainingMaterial, null);
         ZonedDateTime now = ZonedDateTime.now();
         trainingMaterial.setLastInfoUpdate(now);
@@ -174,9 +163,7 @@ public class TrainingMaterialService {
     }
 
     public TrainingMaterial updateTrainingMaterial(Long id, TrainingMaterialCore newTrainingMaterial)
-            throws DataViolationException, ConceptDisallowedException {
-        // TODO move validation to the validate method (when vocabularies are refactored)
-        String trainingMaterialTypeCode = categoryService.getTrainingMaterialCategoryCode(newTrainingMaterial.getTrainingMaterialType());
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
         if (!trainingMaterialRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
         }

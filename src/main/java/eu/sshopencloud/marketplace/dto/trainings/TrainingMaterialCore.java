@@ -8,6 +8,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TrainingMaterialCore extends DigitalObjectCore {
 
-    private TrainingMaterialTypeId trainingMaterialType;
-
 }

@@ -8,11 +8,8 @@ import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.model.licenses.License;
 import eu.sshopencloud.marketplace.model.licenses.LicenseType;
-import eu.sshopencloud.marketplace.model.tools.Service;
-import eu.sshopencloud.marketplace.model.tools.Software;
-import eu.sshopencloud.marketplace.model.tools.ToolType;
+import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.model.trainings.TrainingMaterialType;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
@@ -20,8 +17,6 @@ import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseRepository;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseTypeRepository;
-import eu.sshopencloud.marketplace.repositories.tools.ToolTypeRepository;
-import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.*;
 
 import eu.sshopencloud.marketplace.services.search.IndexService;
@@ -47,10 +42,6 @@ public class InitialDataLoader {
     private final LicenseRepository licenseRepository;
 
     private final ActorRoleRepository actorRoleRepository;
-
-    private final ToolTypeRepository toolTypeRepository;
-
-    private final TrainingMaterialTypeRepository trainingMaterialTypeRepository;
 
     private final ItemRelationRepository itemRelationRepository;
 
@@ -93,14 +84,6 @@ public class InitialDataLoader {
         List<ActorRole> actorRoles = getInitialObjects(data, "ActorRole");
         actorRoleRepository.saveAll(actorRoles);
         log.debug("Loaded " + actorRoles.size()  + " ActorRole objects");
-
-        List<ToolType> toolTypes = getInitialObjects(data, "ToolType");
-        toolTypeRepository.saveAll(toolTypes);
-        log.debug("Loaded " + toolTypes.size()  + " ToolType objects");
-
-        List<TrainingMaterialType> trainingMaterialTypes = getInitialObjects(data, "TrainingMaterialType");
-        trainingMaterialTypeRepository.saveAll(trainingMaterialTypes);
-        log.debug("Loaded " + trainingMaterialTypes.size()  + " TrainingMaterialType objects");
 
         List<ItemRelation> itemRelations = getInitialObjects(data, "ItemRelation");
         itemRelationRepository.saveAll(itemRelations);
@@ -145,13 +128,9 @@ public class InitialDataLoader {
         actorRepository.saveAll(actors);
         log.debug("Loaded " + actors.size()  + " Actor objects");
 
-        List<Software> software = getInitialObjects(data, "Software");
-        toolLoader.createTools(software);
-        log.debug("Loaded " + software.size() + " Software objects");
-
-        List<Service> services = getInitialObjects(data, "Service");
-        toolLoader.createTools(services);
-        log.debug("Loaded " + services.size()  + " Service objects");
+        List<Tool> tools = getInitialObjects(data, "Tool");
+        toolLoader.createTools(tools);
+        log.debug("Loaded " + tools.size() + " Tool objects");
 
         List<TrainingMaterial> trainingMaterials = getInitialObjects(data, "TrainingMaterial");
         trainingMaterialLoader.createTrainingMaterials(trainingMaterials);

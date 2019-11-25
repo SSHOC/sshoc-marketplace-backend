@@ -1,8 +1,6 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
-import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
-import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;
@@ -11,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +35,14 @@ public class PropertyTypeService {
             propertyType.setAllowedVocabularies(getAllowedVocabulariesForPropertyType(propertyType));
         }
         return propertyTypes.getContent();
+    }
+
+    public PropertyType getPropertyType(String code) {
+        Optional<PropertyType> propertyType = propertyTypeRepository.findById(code);
+        if (!propertyType.isPresent()) {
+            throw new EntityNotFoundException("Unable to find " + PropertyType.class.getName() + " with code " + code);
+        }
+        return propertyType.get();
     }
 
     public List<VocabularyInline> getAllowedVocabulariesForPropertyType(PropertyType propertyType) {

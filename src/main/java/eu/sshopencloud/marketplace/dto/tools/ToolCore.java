@@ -8,6 +8,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ToolCore extends ItemCore {
 
-    private ToolTypeId toolType;
-
 }

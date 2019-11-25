@@ -11,8 +11,5 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 public class TrainingMaterial extends DigitalObject {
-
-    @ManyToOne(optional =  false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    private TrainingMaterialType trainingMaterialType;
-
+    
 }

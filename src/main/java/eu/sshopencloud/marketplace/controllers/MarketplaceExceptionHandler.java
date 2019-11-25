@@ -1,11 +1,12 @@
 package eu.sshopencloud.marketplace.controllers;
 
 import eu.sshopencloud.marketplace.services.DataViolationException;
+import eu.sshopencloud.marketplace.services.vocabularies.DisallowedObjectTypeException;
 import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.items.OtherUserCommentException;
 import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
-import eu.sshopencloud.marketplace.services.tools.DisallowedToolTypeChangeException;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
+import eu.sshopencloud.marketplace.services.vocabularies.TooManyObjectTypesException;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.rio.RDFParseException;
@@ -27,8 +28,8 @@ import java.time.LocalDateTime;
 public class MarketplaceExceptionHandler {
 
     @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class, DataViolationException.class, VocabularyAlreadyExistsException.class,
-            ConceptDisallowedException.class, DisallowedToolTypeChangeException.class, ParseException.class, RDFParseException.class, UnsupportedRDFormatException.class,
-            IllegalFilterException.class})
+            ConceptDisallowedException.class, DisallowedObjectTypeException.class, TooManyObjectTypesException.class, ParseException.class, RDFParseException.class,
+            UnsupportedRDFormatException.class, IllegalFilterException.class})
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();

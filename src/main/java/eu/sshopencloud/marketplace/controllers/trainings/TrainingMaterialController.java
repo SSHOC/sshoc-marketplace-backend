@@ -7,6 +7,8 @@ import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
+import eu.sshopencloud.marketplace.services.vocabularies.DisallowedObjectTypeException;
+import eu.sshopencloud.marketplace.services.vocabularies.TooManyObjectTypesException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -48,14 +50,14 @@ public class TrainingMaterialController {
 
     @PostMapping(path = "/training-materials", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterial> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial)
-            throws DataViolationException, ConceptDisallowedException {
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
         TrainingMaterial trainingMaterial = trainingMaterialService.createTrainingMaterial(newTrainingMaterial);
         return ResponseEntity.ok(trainingMaterial);
     }
 
     @PutMapping(path = "/training-materials/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterial> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterialCore newTrainingMaterial)
-            throws DataViolationException, ConceptDisallowedException {
+            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
         TrainingMaterial trainingMaterial = trainingMaterialService.updateTrainingMaterial(id, newTrainingMaterial);
         return ResponseEntity.ok(trainingMaterial);
     }
