@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.vocabularies;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import eu.sshopencloud.marketplace.model.items.Item;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -31,5 +32,10 @@ public class Property {
             @JoinColumn(name = "vocabulary_code", insertable = true, updatable = true)
     }, foreignKey = @ForeignKey(name="property_concept_fk"))
     private Concept concept;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @JoinColumn(foreignKey = @ForeignKey(name="property_item_id_fk"))
+    @JsonIgnore
+    private Item item;
 
 }

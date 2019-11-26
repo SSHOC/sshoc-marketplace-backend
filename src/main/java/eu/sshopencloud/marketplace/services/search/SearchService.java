@@ -1,20 +1,25 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.dto.search.CountedConcept;
 import eu.sshopencloud.marketplace.dto.search.SearchItem;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
+import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.services.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterValuesSelection;
+import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
+import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +35,11 @@ public class SearchService {
 
     private final SearchItemRepository searchItemRepository;
 
+    private final ConceptService conceptService;
+
     private final ItemContributorService itemContributorService;
+
+    private final PropertyService propertyService;
 
     public PaginatedSearchItems searchItems(String q, List<ItemCategory> categories, Map<String, List<String>> filterParams, List<SearchOrder> order, int page, int perpage)
             throws IllegalFilterException {
@@ -51,17 +60,27 @@ public class SearchService {
 
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(q, filterCriteria, order, pageable);
 
+        Map<ItemCategory, Concept> concepts = conceptService.getAllDefaultObjectTypeConcepts();
+        List<CountedConcept> countedCategories = facetPage.getFacetFields().stream()
+                .filter(field -> field.getName().equals(IndexItem.CATEGORY_FIELD))
+                .map(facetPage::getFacetResultPage)
+                .flatMap(facetFieldEntries -> facetFieldEntries.getContent().stream())
+                .map(entry -> SearchConverter.convertCategoryFacet(entry, categories, concepts))
+                .collect(Collectors.toList());
+        countedCategories.sort(new CountedConceptComparator());
+
         PaginatedSearchItems result = PaginatedSearchItems.builder().q(q).order(order).items(facetPage.get().map(SearchConverter::convertIndexItem).collect(Collectors.toList()))
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements()).page(page).perpage(perpage).pages(facetPage.getTotalPages())
-                .categories(facetPage.getFacetFields().stream()
-                        .filter(field -> field.getName().equals(IndexItem.CATEGORY_FIELD))
-                        .map(facetPage::getFacetResultPage)
-                        .map(SearchConverter::convertCategoryFacet).findFirst().get())
+                .categories(countedCategories.stream()
+                        .collect(Collectors.toMap(countedConcept -> ItemCategoryConverter.convertCategory(countedConcept.getCode()), countedConcept -> countedConcept,
+                                (u, v) -> u,
+                                LinkedHashMap::new)))
                 .build();
 
         // TODO index contributors directly in SOLR in nested docs
         for (SearchItem item: result.getItems()) {
             item.setContributors(itemContributorService.getItemContributors(item.getId()));
+            item.setProperties(propertyService.getItemProperties(item.getId()));
         }
 
         return result;

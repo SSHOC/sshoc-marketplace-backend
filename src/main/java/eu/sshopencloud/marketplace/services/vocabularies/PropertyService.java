@@ -1,10 +1,12 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.VocabularyInline;
+import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyRepository;
 import eu.sshopencloud.marketplace.services.DataViolationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -19,17 +21,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PropertyService {
 
+    private final PropertyRepository propertyRepository;
+
     private final PropertyTypeService propertyTypeService;
 
     private final ConceptService conceptService;
 
-    public List<Property> validate(ItemCategory category, String prefix, List<PropertyCore> properties)
+    public List<Property> getItemProperties(Long itemId) {
+        return propertyRepository.findPropertyByItemId(itemId);
+    }
+
+    public List<Property> validate(ItemCategory category, String prefix, List<PropertyCore> properties, Item item)
             throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
         List<Property> result = new ArrayList<Property>();
         if (properties != null) {
             for (int i = 0; i < properties.size(); i++) {
                 PropertyCore property = properties.get(i);
-                result.add(validate(category, prefix + "[" + i + "].", property));
+                result.add(validate(category, prefix + "[" + i + "].", property, item));
             }
         }
         boolean missingObjectType = true;
@@ -43,14 +51,15 @@ public class PropertyService {
             }
         }
         if (missingObjectType) {
-            result.add(getDefaultObjectTypeProperty(category));
+            result.add(getDefaultObjectTypeProperty(category, item));
         }
         return result;
     }
 
-    public Property validate(ItemCategory category, String prefix, PropertyCore property)
+    public Property validate(ItemCategory category, String prefix, PropertyCore property, Item item)
             throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException {
         Property result = new Property();
+        result.setItem(item);
         if (property.getType() == null) {
             throw new DataViolationException(prefix + "type", "null");
         }
@@ -73,8 +82,9 @@ public class PropertyService {
         return result;
     }
 
-    public Property getDefaultObjectTypeProperty(ItemCategory category) {
+    private Property getDefaultObjectTypeProperty(ItemCategory category, Item item) {
         Property result = new Property();
+        result.setItem(item);
         result.setType(propertyTypeService.getPropertyType(ItemCategory.OBJECT_TYPE_PROPERTY_TYPE_CODE));
         result.setConcept(conceptService.getDefaultObjectTypeConcept(category));
         return result;

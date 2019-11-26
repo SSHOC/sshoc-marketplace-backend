@@ -54,5 +54,4 @@ public class ItemContributorService {
         return result;
     }
 
-
 }

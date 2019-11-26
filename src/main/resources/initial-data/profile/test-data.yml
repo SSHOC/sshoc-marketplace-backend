@@ -81,6 +81,9 @@ Tool:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -91,6 +94,9 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           ease-of-use
@@ -101,6 +107,9 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           ease-of-use
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -111,6 +120,9 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           tadirah-research-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           material
@@ -148,6 +160,9 @@ Tool:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        2
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -158,6 +173,9 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        2
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           ease-of-use
@@ -168,6 +186,9 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           ease-of-use
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        2
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -178,6 +199,9 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           tadirah-research-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        2
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           material
@@ -216,6 +240,9 @@ Tool:
         id:                           2
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        3
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -226,6 +253,9 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        3
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           ease-of-use
@@ -282,6 +312,9 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        4
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -292,6 +325,9 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        4
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
@@ -302,6 +338,9 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        4
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           language
@@ -340,6 +379,9 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        4
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -350,6 +392,9 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        4
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
@@ -360,6 +405,9 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        4
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -392,6 +440,9 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        6
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -402,6 +453,9 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        6
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
@@ -412,6 +466,9 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        6
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -453,6 +510,9 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        7
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -463,6 +523,9 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        7
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
@@ -473,6 +536,9 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        7
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -535,6 +601,9 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        8
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type

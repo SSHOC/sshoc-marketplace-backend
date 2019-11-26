@@ -12,7 +12,7 @@ public enum SearchOrder {
 
     private boolean asc;
 
-    private SearchOrder(boolean asc) {
+    SearchOrder(boolean asc) {
         this.asc = asc;
     }
 

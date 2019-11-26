@@ -14,10 +14,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,7 +31,7 @@ public class ConceptService {
     private final ConceptRelatedConceptDetachingRepository conceptRelatedConceptDetachingRepository;
 
 
-    public List<Concept> getAllObjectTypeConcepts(ItemCategory category) {
+    public List<Concept> getObjectTypeConcepts(ItemCategory category) {
         Concept concept = getDefaultObjectTypeConcept(category);
         List<Concept> relatedConcepts = getRelatedConceptsOfConcept(concept, conceptRelationRepository.getOne("narrower"));
         List<Concept> result = new ArrayList<Concept>();
@@ -41,6 +39,11 @@ public class ConceptService {
         result.addAll(relatedConcepts);
         result.sort(new ConceptComparator());
         return result;
+    }
+
+    public Map<ItemCategory, Concept> getAllDefaultObjectTypeConcepts() {
+        return Arrays.stream(ItemCategory.values())
+                .collect(Collectors.toMap(category -> category, this::getDefaultObjectTypeConcept));
     }
 
     public Concept getDefaultObjectTypeConcept(ItemCategory category) {

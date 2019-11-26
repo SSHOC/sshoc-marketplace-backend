@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.dto.search.CountedConcept;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.dto.search.SearchItem;
@@ -22,6 +23,6 @@ public class PaginatedSearchItems extends PaginatedResult {
 
     private List<SearchItem> items;
 
-    private Map<ItemCategory, Long> categories;
+    private Map<ItemCategory, CountedConcept> categories;
 
 }

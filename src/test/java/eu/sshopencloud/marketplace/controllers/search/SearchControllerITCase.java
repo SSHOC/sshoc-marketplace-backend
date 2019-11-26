@@ -86,8 +86,10 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(1)))
                 .andExpect(jsonPath("items[0].name", is("Gephi")))
-                .andExpect(jsonPath("categories.tool", is(1)))
-                .andExpect(jsonPath("categories.training-material", is(2)));
+                .andExpect(jsonPath("categories.tool.count", is(1)))
+                .andExpect(jsonPath("categories.tool.checked", is(true)))
+                .andExpect(jsonPath("categories.training-material.count", is(2)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)));;
     }
 
 }

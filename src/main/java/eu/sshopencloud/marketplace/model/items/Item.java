@@ -57,7 +57,7 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<ItemContributor> contributors;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy =  "item", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderColumn(name = "ord")
     private List<Property> properties;
 

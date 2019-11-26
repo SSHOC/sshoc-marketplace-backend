@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.dto.search;
 
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
+import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,8 @@ public class SearchItem {
     private String description;
 
     private List<ItemContributor> contributors;
+
+    private List<Property> properties;
 
     private ItemCategory category;
 

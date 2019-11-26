@@ -108,9 +108,9 @@ public class ToolService {
         }
         if (result.getProperties() != null) {
             result.getProperties().clear();
-            result.getProperties().addAll(propertyService.validate(ItemCategory.TOOL, "properties", newTool.getProperties()));
+            result.getProperties().addAll(propertyService.validate(ItemCategory.TOOL, "properties", newTool.getProperties(), result));
         } else {
-            result.setProperties(propertyService.validate(ItemCategory.TOOL, "properties", newTool.getProperties()));
+            result.setProperties(propertyService.validate(ItemCategory.TOOL, "properties", newTool.getProperties(), result));
         }
 
         result.setAccessibleAt(newTool.getAccessibleAt());

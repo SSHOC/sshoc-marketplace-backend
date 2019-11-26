@@ -1,0 +1,183 @@
+ActorRole:
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        contributor
+    ord:                         1
+    label:                       Contributor
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        author
+    ord:                         2
+    label:                       Author
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        founder
+    ord:                         3
+    label:                       Founder
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        provider
+    ord:                         4
+    label:                       Provider
+
+
+ItemRelation:
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        relates-to
+    ord:                         1
+    label:                       Relates to
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        is-related-to
+    ord:                         2
+    label:                       Is related to
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        relates-to
+    ord:                         1
+    label:                       Relates to
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                          is-related-to
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        is-related-to
+    ord:                         2
+    label:                       Is related to
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                          relates-to
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        documents
+    ord:                         3
+    label:                       Documents
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        is-documented-by
+    ord:                         4
+    label:                       Is documented by
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        documents
+    ord:                         3
+    label:                       Documents
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                          is-documented-by
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        is-documented-by
+    ord:                         4
+    label:                       Is documented by
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                          documents
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        mentions
+    ord:                         5
+    label:                       Mentions
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        is-mentioned-in
+    ord:                         6
+    label:                       Is mentioned in
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        mentions
+    ord:                         5
+    label:                       Mentions
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                          is-mentioned-in
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        is-mentioned-in
+    ord:                         6
+    label:                       Is mentioned in
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                          mentions
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        extends
+    ord:                         7
+    label:                       Enxtends
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        is-extended-by
+    ord:                         8
+    label:                       Is extended by
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        extends
+    ord:                         7
+    label:                       Enxtends
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                          is-extended-by
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelation
+    code:                        is-extended-by
+    ord:                         8
+    label:                       Is extended by
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                          extends
+
+
+ConceptRelation:
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+    code:                        related
+    ord:                         1
+    label:                       Related
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+    code:                        related
+    ord:                         1
+    label:                       Related
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                          related
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+    code:                        sameAs
+    ord:                         2
+    label:                       Same as
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+    code:                        sameAs
+    ord:                         2
+    label:                       Same as
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                          sameAs
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+    code:                        broader
+    ord:                         3
+    label:                       Broader
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+    code:                        narrower
+    ord:                         4
+    label:                       Narrower
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+    code:                        broader
+    ord:                         3
+    label:                       Broader
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                          narrower
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+    code:                        narrower
+    ord:                         4
+    label:                       Narrower
+    inverseOf:
+      !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
+      code:                          broader

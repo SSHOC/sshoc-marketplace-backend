@@ -4,7 +4,9 @@ import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemCategoryConverter {
@@ -18,13 +20,10 @@ public class ItemCategoryConverter {
     }
 
     public List<String> convertCategories(List<ItemCategory> categories) {
-        List<String> result = new ArrayList<String>();
-        if (categories != null) {
-            for (ItemCategory category: categories) {
-                result.add(convertCategory(category));
-            }
+        if (categories == null) {
+            return Collections.emptyList();
         }
-        return result;
+        return categories.stream().map(ItemCategoryConverter::convertCategory).collect(Collectors.toList());
     }
 
 }

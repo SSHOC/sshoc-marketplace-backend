@@ -108,9 +108,9 @@ public class TrainingMaterialService {
         }
         if (result.getProperties() != null) {
             result.getProperties().clear();
-            result.getProperties().addAll(propertyService.validate(ItemCategory.TRAINING_MATERIAL, "properties", newTrainingMaterial.getProperties()));
+            result.getProperties().addAll(propertyService.validate(ItemCategory.TRAINING_MATERIAL, "properties", newTrainingMaterial.getProperties(), result));
         } else {
-            result.setProperties(propertyService.validate(ItemCategory.TRAINING_MATERIAL, "properties", newTrainingMaterial.getProperties()));
+            result.setProperties(propertyService.validate(ItemCategory.TRAINING_MATERIAL, "properties", newTrainingMaterial.getProperties(), result));
         }
 
         result.setAccessibleAt(newTrainingMaterial.getAccessibleAt());

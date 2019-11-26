@@ -21,8 +21,8 @@ public class ConceptController {
     private final ConceptService conceptService;
 
     @GetMapping(path = "/object-type-concepts/{category}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Concept>> getAllObjectTypeConcepts(@PathVariable("category") ItemCategory category) {
-        List<Concept> concepts = conceptService.getAllObjectTypeConcepts(category);
+    public ResponseEntity<List<Concept>> getObjectTypeConcepts(@PathVariable("category") ItemCategory category) {
+        List<Concept> concepts = conceptService.getObjectTypeConcepts(category);
         return ResponseEntity.ok(concepts);
     }
 
