@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.search.filter;
 
+import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import lombok.Getter;
 
@@ -13,7 +14,12 @@ public enum SearchFacet {
 
     CATEGORY(SearchFilter.CATEGORY, IndexItem.CATEGORY_FIELD,
             Collections.singletonList(IndexItem.CATEGORY_FIELD)
+    ),
+
+    PROPERTY_TYPE(SearchFilter.PROPERTY_TYPE, IndexConcept.TYPES_FIELD,
+             Collections.singletonList(IndexConcept.TYPES_FIELD)
     );
+
 
     public static final String TAG_PREFIX = "tag_";
 

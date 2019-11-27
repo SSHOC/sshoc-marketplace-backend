@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
+import eu.sshopencloud.marketplace.services.search.PaginatedSearchConcepts;
 import eu.sshopencloud.marketplace.services.search.PaginatedSearchItems;
 import eu.sshopencloud.marketplace.services.search.SearchService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class SearchController {
 
     private final SearchService searchService;
 
-    @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/item-search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedSearchItems> searchItems(@RequestParam(value = "q", required = false) String q,
                                                             @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
                                                             @RequestParam(value = "order", required = false) List<SearchOrder> order,
@@ -45,6 +46,22 @@ public class SearchController {
 
         PaginatedSearchItems items = searchService.searchItems(q, categories, null, order, page, perpage);
         return ResponseEntity.ok(items);
+    }
+
+    @GetMapping(path = "/concept-search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedSearchConcepts> searchItems(@RequestParam(value = "q", required = false) String q,
+                                                               @RequestParam(value = "types", required = false) List<String> types,
+                                                               @RequestParam(value = "page", required = false) Integer page,
+                                                               @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
+        perpage = perpage == null ? defualtPerpage : perpage;
+        if (perpage > maximalPerpage) {
+            throw new PageTooLargeException(maximalPerpage);
+        }
+        page = page == null ? 1 : page;
+
+        PaginatedSearchConcepts concepts = searchService.searchConcepts(q, types, page, perpage);
+        return ResponseEntity.ok(concepts);
     }
 
 }

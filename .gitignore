@@ -6,4 +6,4 @@
 /.settings/*
 /.project
 /.classpath
-
+/docker-compose.override.yml

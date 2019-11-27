@@ -50,9 +50,12 @@ public class InitialDataLoader {
     @Value("${spring.profiles.active:dev}")
     private String activeProfile;
 
+    @Value("${spring.jpa.hibernate.ddl-auto:none}")
+    private String jpaDdlAuto;
+
+
     public void loadBasicData() {
         log.debug("Loading basic data");
-
         Map<String, List<Object>> data = YamlLoader.loadYamlData("initial-data/basic-data.yml");
 
         List<ActorRole> actorRoles = YamlLoader.getObjects(data, "ActorRole");
@@ -70,10 +73,12 @@ public class InitialDataLoader {
 
 
     public void loadProfileData() {
+        if (jpaDdlAuto.equals("create") || jpaDdlAuto.equals("create-drop")) {
+            log.debug("Clearing item index");
+            indexService.clearItemIndex();
+        }
+
         log.debug("Loading " + activeProfile + " data");
-
-        indexService.clearIndex();
-
         Map<String, List<Object>> data = YamlLoader.loadYamlData("initial-data/profile/" + activeProfile + "-data.yml");
 
         List<User> users = YamlLoader.getObjects(data, "User");

@@ -1,9 +1,11 @@
 spring:
     datasource:
-        url: "jdbc:postgresql://localhost:5432/${POSTGRES_DB}"
+        url: "jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
         username: ${POSTGRES_USER}
         password: ${POSTGRES_PASSWORD}
-
+    data:
+        solr:
+            host: "http://${SOLR_HOST}:${SOLR_PORT}/solr"
     jpa:
         hibernate:
             ddl-auto: update

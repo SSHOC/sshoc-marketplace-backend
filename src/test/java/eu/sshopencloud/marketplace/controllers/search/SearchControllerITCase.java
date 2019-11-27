@@ -31,7 +31,7 @@ public class SearchControllerITCase {
     @Test
     public void shouldReturnAllItems() throws Exception {
 
-        mvc.perform(get("/api/search")
+        mvc.perform(get("/api/item-search")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -39,7 +39,7 @@ public class SearchControllerITCase {
     @Test
     public void shouldReturnItemsByWord() throws Exception {
 
-        mvc.perform(get("/api/search?q=gephi")
+        mvc.perform(get("/api/item-search?q=gephi")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
@@ -54,7 +54,7 @@ public class SearchControllerITCase {
     @Test
     public void shouldReturnItemsByPhrase() throws Exception {
 
-        mvc.perform(get("/api/search?q=\"dummy text ever\"")
+        mvc.perform(get("/api/item-search?q=\"dummy text ever\"")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
@@ -65,7 +65,7 @@ public class SearchControllerITCase {
     @Test
     public void shouldReturnItemsByWordAndSortedByName() throws Exception {
 
-        mvc.perform(get("/api/search?q=gephi&order=name")
+        mvc.perform(get("/api/item-search?q=gephi&order=name")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
@@ -78,9 +78,9 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByWordAndFilteredByCategory() throws Exception {
+    public void shouldReturnItemsByWordAndFilteredByCategories() throws Exception {
 
-        mvc.perform(get("/api/search?q=gephi&categories=tool,dataset")
+        mvc.perform(get("/api/item-search?q=gephi&categories=tool,dataset")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
@@ -90,6 +90,27 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("categories.tool.checked", is(true)))
                 .andExpect(jsonPath("categories.training-material.count", is(2)))
                 .andExpect(jsonPath("categories.training-material.checked", is(false)));;
+    }
+
+    @Test
+    public void shouldReturnAllConcepts() throws Exception {
+
+        mvc.perform(get("/api/concept-search")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldReturnConceptsByWordAndFilteredByTypes() throws Exception {
+
+        mvc.perform(get("/api/concept-search?q=software&types=object-type,activity")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("concepts[0].code", is("software")))
+                .andExpect(jsonPath("concepts[0].vocabulary.code", is("object-type")))
+                .andExpect(jsonPath("concepts[0].label", is("Software")))
+                .andExpect(jsonPath("types.object-type.count", is(1)))
+                .andExpect(jsonPath("types.object-type.checked", is(true)));
     }
 
 }

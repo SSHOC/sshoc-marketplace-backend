@@ -10,6 +10,7 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelationRepo
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.services.DataViolationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -48,6 +49,10 @@ public class ConceptService {
 
     public Concept getDefaultObjectTypeConcept(ItemCategory category) {
         return getConcept(category.getValue(), ItemCategory.OBJECT_TYPE_VOCABULARY_CODE);
+    }
+
+    public List<Concept> getConcepts(String vocabularyCode) {
+        return conceptRepository.findConceptByVocabularyCode(vocabularyCode, new Sort(Sort.Direction.ASC, "ord"));
     }
 
     public Concept getConcept(String code, String vocabularyCode) {
@@ -96,7 +101,6 @@ public class ConceptService {
             }
         }
     }
-
 
     private List<Concept> getRelatedConceptsOfConcept(Concept concept, ConceptRelation relation) {
         List<Concept> result = new ArrayList<Concept>();

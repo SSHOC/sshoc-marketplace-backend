@@ -2,11 +2,16 @@ package eu.sshopencloud.marketplace.services.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.sshopencloud.marketplace.dto.search.CountedConcept;
+import eu.sshopencloud.marketplace.dto.search.CountedPropertyType;
+import eu.sshopencloud.marketplace.dto.search.SearchConcept;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.dto.search.SearchItem;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.services.items.ItemCategoryConverter;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Page;
@@ -27,11 +32,6 @@ public class SearchConverter {
                 .build();
     }
 
-    public Map<ItemCategory, Long> convertCategoryFacet(Page<FacetFieldEntry> facetResultPage) {
-        return facetResultPage.getContent().stream()
-                .collect(Collectors.toMap(entry -> ItemCategoryConverter.convertCategory(((FacetFieldEntry) entry).getValue()), FacetFieldEntry::getValueCount));
-    }
-
     public CountedConcept convertCategoryFacet(FacetFieldEntry entry, List<ItemCategory> categories, Map<ItemCategory, Concept> concepts) {
         String code = entry.getValue();
         ItemCategory category = ItemCategoryConverter.convertCategory(code);
@@ -45,6 +45,36 @@ public class SearchConverter {
             builder.checked(false);
         } else {
             builder.checked(categories.contains(category));
+        }
+        return builder.build();
+    }
+
+    public SearchConcept convertIndexConcept(IndexConcept indexConcept) {
+        VocabularyId vocabulary = new VocabularyId();
+        vocabulary.setCode(indexConcept.getVocabularyCode());
+        return SearchConcept.builder()
+                .code(indexConcept.getCode()).vocabulary(vocabulary).label(indexConcept.getLabel()).notation(indexConcept.getNotation()).definition(indexConcept.getDefinition())
+                .uri(indexConcept.getUri())
+                .types(indexConcept.getTypes().stream()
+                        .map(type -> {
+                            PropertyTypeId propertyType = new PropertyTypeId();
+                            propertyType.setCode(type);
+                            return propertyType;
+                        })
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public CountedPropertyType convertPropertyTypeFacet(FacetFieldEntry entry, List<String> types, Map<String, PropertyType> propertyTypes) {
+        String code = entry.getValue();
+        PropertyType propertyType = propertyTypes.get(code);
+        CountedPropertyType.CountedPropertyTypeBuilder builder = CountedPropertyType.builder();
+        builder.code(code).label(propertyType.getLabel());
+        builder.count(entry.getValueCount());
+        if (types == null) {
+            builder.checked(false);
+        } else {
+            builder.checked(types.contains(code));
         }
         return builder.build();
     }

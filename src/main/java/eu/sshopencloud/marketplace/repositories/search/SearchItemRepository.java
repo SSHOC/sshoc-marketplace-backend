@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.repositories.search;
 
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
+import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,6 @@ public class SearchItemRepository {
     private final SolrTemplate solrTemplate;
 
     public FacetPage<IndexItem> findByQueryAndFilters(String q, List<SearchFilterCriteria> filterCriteria, List<SearchOrder> order, Pageable pageable) {
-        // TODO extend indexItem with more values and handle then in projections
-
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q))
                 .addProjectionOnFields(IndexItem.ID_FIELD, IndexItem.NAME_FIELD, IndexItem.DESCRIPTION_FIELD, IndexItem.CATEGORY_FIELD)
                 .addSort(Sort.by(createQueryOrder(order)))
@@ -41,7 +40,7 @@ public class SearchItemRepository {
 
 
     private Criteria createQueryCriteria(String q) {
-        List<QueryPart> queryParts = parseQuery(q);
+        List<QueryPart> queryParts = QueryParser.parseQuery(q);
         if (queryParts.isEmpty()) {
             return Criteria.where(IndexItem.NAME_TEXT_FIELD).boost(4f).contains("");
         } else {
@@ -70,44 +69,6 @@ public class SearchItemRepository {
         }
     }
 
-    private List<QueryPart> parseQuery(String q) {
-        log.debug("Original query: {}", q);
-        List<QueryPart> result = new ArrayList<QueryPart>();
-        String[] words = q.split(" ", -1);
-        boolean phrase = false;
-        String expression = "";
-        for (String word : words) {
-            if (!word.isEmpty()) {
-                if (phrase) {
-                    if (word.endsWith("\"")) {
-                        expression += " " + word;
-                        result.add(new QueryPart(expression, true));
-                        expression = "";
-                        phrase = false;
-                    } else {
-                        expression += " " + word;
-                    }
-                } else {
-                    if (word.startsWith("\"")) {
-                        expression += word;
-                        phrase = true;
-                        if (word.endsWith("\"")) {
-                            result.add(new QueryPart(expression, true));
-                            expression = "";
-                            phrase = false;
-                        }
-                    } else {
-                        expression = word;
-                        result.add(new QueryPart(expression, false));
-                        expression = "";
-                    }
-                }
-            }
-        }
-        log.debug("Combined query: {}", result);
-        return result;
-    }
-
     private List<Sort.Order> createQueryOrder(List<SearchOrder> order) {
         List<Sort.Order> result = new ArrayList<Sort.Order>();
         for (SearchOrder o : order) {
@@ -128,7 +89,10 @@ public class SearchItemRepository {
         facetOptions.setFacetLimit(-1);
         facetOptions.setFacetMinCount(0);
         facetOptions.setFacetSort(FacetOptions.FacetSort.INDEX);
-        Arrays.stream(SearchFacet.values()).map(SearchFacet::toFacetField).forEach(facetOptions::addFacetOnField);
+        Arrays.stream(SearchFacet.values())
+                .filter(searchFacet -> searchFacet.getFilter().getIndexType().equals(IndexType.ITEMS))
+                .map(SearchFacet::toFacetField)
+                .forEach(facetOptions::addFacetOnField);
         return facetOptions;
     }
 

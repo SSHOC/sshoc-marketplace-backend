@@ -23,7 +23,6 @@ public class InitialLicenseLoader {
     // TODO load from ttl and SKOS ?
     public void loadLicenseData() {
         log.debug("Loading license data");
-
         Map<String, List<Object>> data = YamlLoader.loadYamlData("initial-data/license-data.yml");
 
         List<LicenseType> licenseTypes = YamlLoader.getObjects(data, "LicenseType");

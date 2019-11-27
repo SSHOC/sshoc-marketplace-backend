@@ -37,6 +37,8 @@ public class VocabularyService {
 
     private final ConceptRepository conceptRepository;
 
+    private final ConceptService conceptService;
+
     private final ConceptRelatedConceptService conceptRelatedConceptService;
 
     public PaginatedVocabularies getVocabularies(int page, int perpage) {
@@ -60,7 +62,7 @@ public class VocabularyService {
 
     private Vocabulary complete(Vocabulary vocabulary) {
         List<Concept> concepts = new ArrayList<Concept>();
-        for (Concept concept: conceptRepository.findConceptByVocabularyCode(vocabulary.getCode(), new Sort(Sort.Direction.ASC, "ord"))) {
+        for (Concept concept: conceptService.getConcepts(vocabulary.getCode())) {
             Concept conceptWithoutVocabulary = ConceptConverter.convertWithoutVocabulary(concept);
             conceptWithoutVocabulary.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getCode(), vocabulary.getCode()));
             concepts.add(conceptWithoutVocabulary);

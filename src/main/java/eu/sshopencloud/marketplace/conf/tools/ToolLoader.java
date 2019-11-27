@@ -16,7 +16,7 @@ public class ToolLoader {
 
     private  final IndexService indexService;
 
-    public void createTools(List<? extends Tool> newTools) {
+    public void createTools(List<Tool> newTools) {
         for (Tool newTool: newTools) {
             Tool tool = toolRepository.save(newTool);
             indexService.indexItem(tool);

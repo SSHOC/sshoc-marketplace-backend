@@ -55,10 +55,10 @@ public class IndexItem {
     @Indexed(name = DESCRIPTION_TEXT_EN_FIELD, type = "text_en")
     private String descriptionTextEn;
 
-    @Indexed(name = "category", type = "string")
+    @Indexed(name = CATEGORY_FIELD, type = "string")
     private String category;
 
-    @Indexed(name = "modified_on", type = "pdate")
+    @Indexed(name = LAST_INFO_UPDATE_FIELD, type = "pdate")
     private String lastInfoUpdate;
 
 }

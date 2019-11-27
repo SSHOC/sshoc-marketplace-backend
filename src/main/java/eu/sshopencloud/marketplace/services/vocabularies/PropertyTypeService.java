@@ -13,7 +13,9 @@ import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -23,6 +25,10 @@ public class PropertyTypeService {
     private final PropertyTypeRepository propertyTypeRepository;
 
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
+
+    public Map<String, PropertyType> getAllPropertyTypes() {
+        return propertyTypeRepository.findAll().stream().collect(Collectors.toMap(PropertyType::getCode, propertyType -> propertyType));
+    }
 
     public List<PropertyType> getPropertyTypes(String q, int perpage) {
         ExampleMatcher queryPropertyTypeMatcher = ExampleMatcher.matchingAny()
@@ -56,6 +62,11 @@ public class PropertyTypeService {
             allowedVocabularies.add(allowedVocabulary);
         }
         return allowedVocabularies;
+    }
+
+    public List<PropertyType> getAllowedPropertyTypesForVocabulary(Vocabulary vocabulary) {
+        List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findPropertyTypeVocabularyByVocabularyCode(vocabulary.getCode());
+        return propertyTypeVocabularies.stream().map(PropertyTypeVocabulary::getPropertyType).collect(Collectors.toList());
     }
 
     public PropertyType validate(String prefix, PropertyTypeId propertyType) throws DataViolationException {
