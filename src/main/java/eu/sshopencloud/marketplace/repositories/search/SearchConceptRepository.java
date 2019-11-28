@@ -9,14 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.RequestMethod;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.FacetOptions;
-import org.springframework.data.solr.core.query.SimpleFacetQuery;
-import org.springframework.data.solr.core.query.SimpleFilterQuery;
+import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -72,7 +70,6 @@ public class SearchConceptRepository {
 
     private FacetOptions createFacetOptions() {
         FacetOptions facetOptions = new FacetOptions();
-        facetOptions.setFacetLimit(-1);
         facetOptions.setFacetMinCount(1);
         facetOptions.setFacetSort(FacetOptions.FacetSort.COUNT);
         Arrays.stream(SearchFacet.values())

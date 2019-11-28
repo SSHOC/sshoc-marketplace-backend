@@ -85,10 +85,9 @@ public class SearchItemRepository {
 
     private FacetOptions createFacetOptions() {
         FacetOptions facetOptions = new FacetOptions();
-        // TODO set limit, min count and sort independently for each facet
         facetOptions.setFacetLimit(-1);
-        facetOptions.setFacetMinCount(0);
-        facetOptions.setFacetSort(FacetOptions.FacetSort.INDEX);
+        facetOptions.setFacetMinCount(1);
+        facetOptions.setFacetSort(FacetOptions.FacetSort.COUNT);
         Arrays.stream(SearchFacet.values())
                 .filter(searchFacet -> searchFacet.getFilter().getIndexType().equals(IndexType.ITEMS))
                 .map(SearchFacet::toFacetField)
