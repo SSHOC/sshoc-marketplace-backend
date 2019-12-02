@@ -1,4 +1,4 @@
-FROM maven:3-jdk-8 as build
+FROM maven:3-jdk-11 as build
 
 WORKDIR /usr/src/app
 
@@ -8,7 +8,7 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn package
 
-FROM openjdk:8-jre-slim
+FROM openjdk:11-jre-slim
 
 WORKDIR /usr/app
 COPY --from=build /usr/src/app/target/marketplace-*.jar ./app.jar

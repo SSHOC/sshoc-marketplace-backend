@@ -21,7 +21,7 @@ docker-compose up
 Requirements in addition to docker:
 
 ```
-java 8
+java 11
 maven 3.6.0
 IntelliJ / Eclipse with Lombok (https://projectlombok.org/)
 ```
