@@ -20,7 +20,7 @@ public class IndexConverter {
     public IndexItem covertItem(Item item) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         builder.id(item.getId())
-                .name(item.getLabel()).nameText(item.getLabel()).nameTextEn(item.getLabel())
+                .label(item.getLabel()).labelText(item.getLabel()).labelTextEn(item.getLabel())
                 .description(item.getDescription()).descriptionText(item.getDescription()).descriptionTextEn(item.getDescription())
                 .category(ItemCategoryConverter.convertCategory(item.getCategory()));
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));

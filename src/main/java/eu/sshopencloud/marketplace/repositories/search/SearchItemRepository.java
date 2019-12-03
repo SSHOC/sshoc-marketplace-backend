@@ -28,7 +28,7 @@ public class SearchItemRepository {
 
     public FacetPage<IndexItem> findByQueryAndFilters(String q, List<SearchFilterCriteria> filterCriteria, List<SearchOrder> order, Pageable pageable) {
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q))
-                .addProjectionOnFields(IndexItem.ID_FIELD, IndexItem.NAME_FIELD, IndexItem.DESCRIPTION_FIELD, IndexItem.CATEGORY_FIELD)
+                .addProjectionOnFields(IndexItem.ID_FIELD, IndexItem.LABEL_FIELD, IndexItem.DESCRIPTION_FIELD, IndexItem.CATEGORY_FIELD)
                 .addSort(Sort.by(createQueryOrder(order)))
                 .setPageRequest(pageable);
 
@@ -42,17 +42,17 @@ public class SearchItemRepository {
     private Criteria createQueryCriteria(String q) {
         List<QueryPart> queryParts = QueryParser.parseQuery(q);
         if (queryParts.isEmpty()) {
-            return Criteria.where(IndexItem.NAME_TEXT_FIELD).boost(4f).contains("");
+            return Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains("");
         } else {
             Criteria andCriteria = null;
             for (QueryPart queryPart : queryParts) {
                 Criteria orCriteria = null;
                 if (!queryPart.isPhrase()) {
-                    Criteria nameTextCriteria = Criteria.where(IndexItem.NAME_TEXT_FIELD).boost(4f).contains(queryPart.getExpression());
+                    Criteria nameTextCriteria = Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains(queryPart.getExpression());
                     Criteria descTextCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_FIELD).boost(3f).contains(queryPart.getExpression());
                     orCriteria = nameTextCriteria.or(descTextCriteria);
                 }
-                Criteria nameTextEnCriteria = Criteria.where(IndexItem.NAME_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
+                Criteria nameTextEnCriteria = Criteria.where(IndexItem.LABEL_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
                 Criteria descTextEnCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_EN_FIELD).boost(1f).is(queryPart.getExpression());
                 if (orCriteria == null) {
                     orCriteria = nameTextEnCriteria.or(descTextEnCriteria);

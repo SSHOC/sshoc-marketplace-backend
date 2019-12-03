@@ -6,7 +6,7 @@ public enum SearchOrder {
 
     SCORE(false),
 
-    NAME(true),
+    LABEL(true),
 
     MODIFIED_ON(false);
 

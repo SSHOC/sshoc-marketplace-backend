@@ -20,9 +20,9 @@ public class IndexItem {
 
     public static final String ID_FIELD = "id";
 
-    public static final String NAME_FIELD = "name";
-    public static final String NAME_TEXT_FIELD = "name_text";
-    public static final String NAME_TEXT_EN_FIELD = "name_text_en";
+    public static final String LABEL_FIELD = "label";
+    public static final String LABEL_TEXT_FIELD = "label_text";
+    public static final String LABEL_TEXT_EN_FIELD = "label_text_en";
 
     public static final String DESCRIPTION_FIELD = "description";
     public static final String DESCRIPTION_TEXT_FIELD = "description_text";
@@ -37,14 +37,14 @@ public class IndexItem {
     @Indexed(name = ID_FIELD, type = "string")
     private Long id;
 
-    @Indexed(name = NAME_FIELD, type = "string")
-    private String name;
+    @Indexed(name = LABEL_FIELD, type = "string")
+    private String label;
 
-    @Indexed(name = NAME_TEXT_FIELD, type = "text_general_rev")
-    private String nameText;
+    @Indexed(name = LABEL_TEXT_FIELD, type = "text_general_rev")
+    private String labelText;
 
-    @Indexed(name = NAME_TEXT_EN_FIELD, type = "text_en")
-    private String nameTextEn;
+    @Indexed(name = LABEL_TEXT_EN_FIELD, type = "text_en")
+    private String labelTextEn;
 
     @Indexed(name = DESCRIPTION_FIELD, type = "string")
     private String description;

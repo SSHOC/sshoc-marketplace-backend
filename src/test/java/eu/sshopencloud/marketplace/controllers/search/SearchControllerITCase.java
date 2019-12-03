@@ -44,11 +44,11 @@ public class SearchControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
                 .andExpect(jsonPath("items[0].id", is(1)))
-                .andExpect(jsonPath("items[0].name", is("Gephi")))
+                .andExpect(jsonPath("items[0].label", is("Gephi")))
                 .andExpect(jsonPath("items[1].id", is(7)))
-                .andExpect(jsonPath("items[1].name", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("items[1].label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("items[2].id", is(4)))
-                .andExpect(jsonPath("items[2].name", is("Gephi: an open source software for exploring and manipulating networks.")));
+                .andExpect(jsonPath("items[2].label", is("Gephi: an open source software for exploring and manipulating networks.")));
     }
 
     @Test
@@ -59,22 +59,22 @@ public class SearchControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(7)))
-                .andExpect(jsonPath("items[0].name", is("Introduction to GEPHI")));
+                .andExpect(jsonPath("items[0].label", is("Introduction to GEPHI")));
     }
 
     @Test
-    public void shouldReturnItemsByWordAndSortedByName() throws Exception {
+    public void shouldReturnItemsByWordAndSortedByLabel() throws Exception {
 
-        mvc.perform(get("/api/item-search?q=gephi&order=name")
+        mvc.perform(get("/api/item-search?q=gephi&order=label")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
                 .andExpect(jsonPath("items[0].id", is(1)))
-                .andExpect(jsonPath("items[0].name", is("Gephi")))
+                .andExpect(jsonPath("items[0].label", is("Gephi")))
                 .andExpect(jsonPath("items[1].id", is(4)))
-                .andExpect(jsonPath("items[1].name", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("items[1].label", is("Gephi: an open source software for exploring and manipulating networks.")))
                 .andExpect(jsonPath("items[2].id", is(7)))
-                .andExpect(jsonPath("items[2].name", is("Introduction to GEPHI")));
+                .andExpect(jsonPath("items[2].label", is("Introduction to GEPHI")));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class SearchControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(1)))
-                .andExpect(jsonPath("items[0].name", is("Gephi")))
+                .andExpect(jsonPath("items[0].label", is("Gephi")))
                 .andExpect(jsonPath("categories.tool.count", is(1)))
                 .andExpect(jsonPath("categories.tool.checked", is(true)))
                 .andExpect(jsonPath("categories.training-material.count", is(2)))
