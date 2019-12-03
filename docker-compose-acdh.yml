@@ -8,7 +8,7 @@ services:
     environment:
       SPRING_ACTIVE_PROFILE: dev
     labels:
-      - traefik.backend=marketplace
+      - traefik.backend=marketplace-api
       - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
       - traefik.docker.network=web
       - traefik.port=8080
