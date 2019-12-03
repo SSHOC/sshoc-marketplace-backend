@@ -1,10 +1,7 @@
 version: "2"
 services:
   marketplace:
-    build: .
-    depends_on:
-  - psql
-  - solr
+    build: .    
 environment:
   SPRING_ACTIVE_PROFILE: dev
 labels:
