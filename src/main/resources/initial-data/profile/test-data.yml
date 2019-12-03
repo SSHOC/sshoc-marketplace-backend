@@ -74,6 +74,7 @@ Tool:
           !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      founder
     accessibleAt:                https://gephi.org/
+    repository:                  https://github.com/gephi/gephi
     informationContributors:
       - !!eu.sshopencloud.marketplace.model.auth.User
         id:                           2

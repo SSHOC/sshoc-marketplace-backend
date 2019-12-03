@@ -43,6 +43,18 @@ public class ActorControllerITCase {
     }
 
     @Test
+    public void shouldReturnActorsByName() throws Exception {
+
+        mvc.perform(get("/api/actors?q=CESSDA")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("CESSDA")))
+                .andExpect(jsonPath("$[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("$[0].email", is("cessda@cessda.eu")));
+    }
+
+    @Test
     public void shouldReturnActor() throws Exception {
         Integer actorId = 5;
 
@@ -136,7 +148,6 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
 
-
     @Test
     public void shouldUpdateActorWithoutAffiliations() throws Exception {
         Integer actorId = 2;
@@ -225,7 +236,6 @@ public class ActorControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
-
 
     @Test
     public void shouldDeleteActor() throws Exception {

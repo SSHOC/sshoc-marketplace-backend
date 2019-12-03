@@ -12,4 +12,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class Tool extends Item {
 
+    @Basic
+    @Column(nullable = true)
+    private String repository;
+
 }

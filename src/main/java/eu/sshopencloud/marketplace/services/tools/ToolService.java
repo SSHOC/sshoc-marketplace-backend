@@ -114,6 +114,7 @@ public class ToolService {
         }
 
         result.setAccessibleAt(newTool.getAccessibleAt());
+        result.setRepository(newTool.getRepository());
         if (newTool.getPrevVersionId() != null) {
             Optional<Tool> prevVersion = toolRepository.findById(newTool.getPrevVersionId());
             if (!prevVersion.isPresent()) {
