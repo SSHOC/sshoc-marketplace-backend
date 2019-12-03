@@ -2,45 +2,49 @@ version: "2"
 services:
   marketplace:
     build: .    
-environment:
-  SPRING_ACTIVE_PROFILE: dev
-labels:
-    - traefik.backend=marketplace
-    - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
-    - traefik.docker.network=web
-    - traefik.port=8080
-
-networks:
-  - backend
-  - web
+    environment:
+      SPRING_ACTIVE_PROFILE: dev
+    labels:
+      - traefik.backend=marketplace
+      - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
+      - traefik.docker.network=web
+      - traefik.port=8080
+    networks:
+      - backend
+      - web
   psql:
     image: postgres:9.6
     volumes:
-  - psql-data:/var/lib/postgresql/data
-environment:
-  POSTGRES_DB: marketplace_db
-  POSTGRES_USER: marketplace
-  POSTGRES_PASSWORD: marketplace
-networks:
-  - backend
+      - psql-data:/var/lib/postgresql/data
+      
+    environment:
+      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+
+    networks:
+      - backend
+      
   solr:
     build: etc/solr
     volumes:
-  - solr-data:/var/solr
-labels:
-    - traefik.backend=solr
-    - traefik.frontend.rule=Host:marketplace-solr.sisyphos.arz.oeaw.ac.at
-    - traefik.docker.network=web
-    - traefik.port=8983
-networks:
-  - backend
-  - web
+      - solr-data:/var/solr
+    labels:
+        - traefik.backend=solr
+        - traefik.frontend.rule=Host:marketplace-solr.sisyphos.arz.oeaw.ac.at
+        - traefik.docker.network=web
+        - traefik.port=8983
+    networks:
+      - backend
+      - web
+      
 networks:
   backend:
     driver: bridge
   web:
     external:
       name: web
+
 volumes:
   psql-data:
     driver: local
@@ -53,4 +57,4 @@ volumes:
     driver_opts:
       type: "none"
       device: "/home/sshocmp/shares/solr-data"
-      o: "bind
+      o: "bind"
