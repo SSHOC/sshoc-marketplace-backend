@@ -82,11 +82,10 @@ public class SearchItemRepository {
         return result;
     }
 
-
     private FacetOptions createFacetOptions() {
         FacetOptions facetOptions = new FacetOptions();
         facetOptions.setFacetLimit(-1);
-        facetOptions.setFacetMinCount(1);
+        facetOptions.setFacetMinCount(0); // when bug in spring-data-solr-4.0.10 is corrected, change to 1 and move it to facet parameters
         facetOptions.setFacetSort(FacetOptions.FacetSort.COUNT);
         Arrays.stream(SearchFacet.values())
                 .filter(searchFacet -> searchFacet.getFilter().getIndexType().equals(IndexType.ITEMS))

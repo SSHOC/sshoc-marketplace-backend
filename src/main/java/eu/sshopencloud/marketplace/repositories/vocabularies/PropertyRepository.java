@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface PropertyRepository extends JpaRepository<Property, Long> {
 
-    List<Property> findPropertyByItemId(Long itemId);
+    List<Property> findPropertyByItemIdOrderByOrd(Long itemId);
 
 }

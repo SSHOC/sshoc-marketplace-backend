@@ -24,7 +24,7 @@ public class ItemContributorCriteriaRepository {
         CriteriaQuery<ItemContributor> cq = cb.createQuery(ItemContributor.class);
         Root<ItemContributor> rootItemContributor = cq.from(ItemContributor.class);
         cq.select(rootItemContributor);
-        //cq.orderBy(cb.asc(rootItemContributor.get("ord")));
+        cq.orderBy(cb.asc(rootItemContributor.get("ord")));
         cq.where(cb.equal(rootItemContributor.get("item").get("id"), itemId));
         TypedQuery<ItemContributor> query = entityManager.createQuery(cq);
         return query.getResultList();

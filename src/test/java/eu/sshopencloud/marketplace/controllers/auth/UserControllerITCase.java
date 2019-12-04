@@ -55,5 +55,4 @@ public class UserControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
-
 }

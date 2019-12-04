@@ -17,12 +17,16 @@ public enum SearchFacet {
 
     CATEGORY(SearchFilter.CATEGORY, IndexItem.CATEGORY_FIELD,
             Collections.singletonList(IndexItem.CATEGORY_FIELD),
-            new SearchFacetParameters(4, 0, FacetOptions.FacetSort.INDEX)
+            // connected with a bug in spring-data-solr-4.0.10
+            //new SearchFacetParameters(4, 0, FacetOptions.FacetSort.INDEX)
+            null
     ),
 
     PROPERTY_TYPE(SearchFilter.PROPERTY_TYPE, IndexConcept.TYPES_FIELD,
              Collections.singletonList(IndexConcept.TYPES_FIELD),
-            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+            // connected with a bug in spring-data-solr-4.0.10
+            // new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+            null
     );
 
 
@@ -61,6 +65,7 @@ public enum SearchFacet {
 
     public Field toFacetField() {
         if (parameters != null) {
+            // TODO tag cannot be in the facet field parameters! There is a bug in spring-data-solr-4.0.10
             FacetOptions.FieldWithFacetParameters facetFieldWithParameters = new FacetOptions.FieldWithFacetParameters(toFacetName());
             facetFieldWithParameters.setLimit(parameters.getLimit());
             facetFieldWithParameters.setMinCount(parameters.getMinCount());

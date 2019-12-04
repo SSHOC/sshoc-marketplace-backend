@@ -70,6 +70,8 @@ public class SearchConceptRepository {
 
     private FacetOptions createFacetOptions() {
         FacetOptions facetOptions = new FacetOptions();
+        // when other facets are added to concept-search move these parameters to facet parameters (bug in spring-data-solr-4.0.10)
+        facetOptions.setFacetLimit(-1);
         facetOptions.setFacetMinCount(1);
         facetOptions.setFacetSort(FacetOptions.FacetSort.COUNT);
         Arrays.stream(SearchFacet.values())

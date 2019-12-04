@@ -28,7 +28,7 @@ public class PropertyService {
     private final ConceptService conceptService;
 
     public List<Property> getItemProperties(Long itemId) {
-        return propertyRepository.findPropertyByItemId(itemId);
+        return propertyRepository.findPropertyByItemIdOrderByOrd(itemId);
     }
 
     public List<Property> validate(ItemCategory category, String prefix, List<PropertyCore> properties, Item item)

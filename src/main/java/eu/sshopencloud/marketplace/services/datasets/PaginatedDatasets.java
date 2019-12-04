@@ -1,6 +1,6 @@
-package eu.sshopencloud.marketplace.services.tools;
+package eu.sshopencloud.marketplace.services.datasets;
 
-import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.services.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,8 +11,8 @@ import java.util.List;
 @Data
 @SuperBuilder
 @AllArgsConstructor
-public class PaginatedTools extends PaginatedResult {
+public class PaginatedDatasets extends PaginatedResult {
 
-    private List<Tool> tools;
+    private List<Dataset> datasets;
 
 }

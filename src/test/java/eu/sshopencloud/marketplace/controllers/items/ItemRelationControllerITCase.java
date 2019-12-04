@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.controllers.items;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Slf4j
 public class ItemRelationControllerITCase {
 
     @Autowired
@@ -55,8 +57,11 @@ public class ItemRelationControllerITCase {
         ItemRelationId itemRelation = new ItemRelationId();
         itemRelation.setCode("mentions");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.id", is(subjectId)))
@@ -73,8 +78,11 @@ public class ItemRelationControllerITCase {
         ItemRelationId itemRelation = new ItemRelationId();
         itemRelation.setCode("qwerty");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -88,8 +96,11 @@ public class ItemRelationControllerITCase {
         ItemRelationId itemRelation = new ItemRelationId();
         itemRelation.setCode("mentions");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -103,8 +114,11 @@ public class ItemRelationControllerITCase {
         ItemRelationId itemRelation = new ItemRelationId();
         itemRelation.setCode("mentions");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

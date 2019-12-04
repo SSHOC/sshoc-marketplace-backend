@@ -18,6 +18,9 @@ public class Property {
     @SequenceGenerator(name = "property_generator", sequenceName = "properties_id_seq", allocationSize = 50)
     private Long id;
 
+    @Basic
+    private Integer ord;
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="property_type_code_fk"))
     private PropertyType type;

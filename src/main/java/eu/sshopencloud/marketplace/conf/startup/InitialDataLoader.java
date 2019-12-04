@@ -1,10 +1,12 @@
 package eu.sshopencloud.marketplace.conf.startup;
 
+import eu.sshopencloud.marketplace.conf.datasets.DatasetLoader;
 import eu.sshopencloud.marketplace.conf.tools.ToolLoader;
 import eu.sshopencloud.marketplace.conf.trainings.TrainingMaterialLoader;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
@@ -44,6 +46,8 @@ public class InitialDataLoader {
     private final ToolLoader toolLoader;
 
     private final TrainingMaterialLoader trainingMaterialLoader;
+
+    private final DatasetLoader datasetLoader;
 
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
@@ -96,6 +100,10 @@ public class InitialDataLoader {
         List<TrainingMaterial> trainingMaterials = YamlLoader.getObjects(data, "TrainingMaterial");
         trainingMaterialLoader.createTrainingMaterials(trainingMaterials);
         log.debug("Loaded " + trainingMaterials.size()  + " TrainingMaterial objects");
+
+        List<Dataset> datasets = YamlLoader.getObjects(data, "Dataset");
+        datasetLoader.createDatasets(datasets);
+        log.debug("Loaded " + datasets.size()  + " Dataset objects");
 
         List<ItemRelatedItem> itemRelatedItems = YamlLoader.getObjects(data, "ItemRelatedItem");
         itemRelatedItemRepository.saveAll(itemRelatedItems);

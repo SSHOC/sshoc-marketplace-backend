@@ -382,7 +382,7 @@ TrainingMaterial:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        4
+          id:                        5
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -395,7 +395,7 @@ TrainingMaterial:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        4
+          id:                        5
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
@@ -408,7 +408,7 @@ TrainingMaterial:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        4
+          id:                        5
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -616,6 +616,119 @@ TrainingMaterial:
             code:                           object-type
 
 
+Dataset:
+
+  - !!eu.sshopencloud.marketplace.model.datasets.Dataset
+    category:                    DATASET
+    label:                       "Austin Crime Data"
+    description:                 "This dataset includes Part 1 crimes for 2014 and 2015. Data is provided by the Austin Police Department and may differ from official APD crime data due to the variety of reporting and collection methods used."
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        9
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        1
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        9
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        4
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+    accessibleAt:                "https://console.cloud.google.com/marketplace/details/city-of-austin/austin-crime"
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           3
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        9
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           dataset
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        9
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           language
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           eng
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           iso-639-3
+    comments:
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         Lorem ipsum ...
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           1
+
+  - !!eu.sshopencloud.marketplace.model.datasets.Dataset
+    category:                    DATASET
+    label:                       Consortium of European Social Science Data Archives
+    description:                 The CESSDA Data Catalogue contains the metadata of all data in the holdings of CESSDA'a service providers. It is a one-stop-shop for search and discovery, enabling effective access to European social science research data.
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        10
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        4
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      provider
+    accessibleAt:                https://datacatalogue.cessda.eu/
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        10
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           data-catalogue
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        10
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           ActivityType-Seeking
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           nemo-activity-type
+
+
 ItemRelatedItem:
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
@@ -650,3 +763,14 @@ ItemRelatedItem:
     relation:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
       code:                       is-related-to
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemRelatedItem
+    subject:
+      !!eu.sshopencloud.marketplace.model.datasets.Dataset
+      id:                         9
+    object:
+      !!eu.sshopencloud.marketplace.model.datasets.Dataset
+      id:                         10
+    relation:
+      !!eu.sshopencloud.marketplace.model.items.ItemRelation
+      code:                       is-mentioned-in

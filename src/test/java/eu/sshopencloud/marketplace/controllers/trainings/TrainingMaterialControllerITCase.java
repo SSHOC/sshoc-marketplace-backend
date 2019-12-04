@@ -11,6 +11,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Slf4j
 public class TrainingMaterialControllerITCase {
 
     @Autowired
@@ -53,7 +55,6 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
-    
 
     @Test
     public void shouldReturnTrainingMaterial() throws Exception {
@@ -86,8 +87,11 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("training-material")))
@@ -151,8 +155,11 @@ public class TrainingMaterialControllerITCase {
         ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2018, Month.DECEMBER, 15), LocalTime.of(12, 0), ZoneId.of("UTC"));
         trainingMaterial.setDateLastUpdated(dateLastUpdated);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("training-material")))
@@ -189,8 +196,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("training-material")))
@@ -228,8 +238,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("training-material")))
@@ -263,8 +276,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -301,8 +317,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property1);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -326,8 +345,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -358,8 +380,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -394,8 +419,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -430,8 +458,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -473,8 +504,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -516,8 +550,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property2);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -559,8 +596,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property2);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -597,8 +637,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property2);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/training-materials")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -612,8 +655,11 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Test simple training material");
         trainingMaterial.setDescription("Lorem ipsum");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(trainingMaterialId)))
@@ -682,8 +728,11 @@ public class TrainingMaterialControllerITCase {
         ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2018, Month.DECEMBER, 17), LocalTime.of(12, 20), ZoneId.of("UTC"));
         trainingMaterial.setDateLastUpdated(dateLastUpdated);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(trainingMaterialId)))
@@ -728,8 +777,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -757,8 +809,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(trainingMaterialId)))
@@ -794,8 +849,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(trainingMaterialId)))
@@ -830,8 +888,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -857,8 +918,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -890,8 +954,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -928,8 +995,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -966,13 +1036,15 @@ public class TrainingMaterialControllerITCase {
         properties.add(property0);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
-
 
     @Test
     public void shouldntUpdateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
@@ -1012,8 +1084,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property2);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -1057,8 +1132,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property2);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -1102,8 +1180,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property2);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -1142,8 +1223,11 @@ public class TrainingMaterialControllerITCase {
         properties.add(property2);
         trainingMaterial.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));

@@ -26,6 +26,9 @@ public class ItemContributor implements Serializable {
     @JoinColumn(foreignKey = @ForeignKey(name="item_contributor_actor_id_fk"))
     private Actor actor;
 
+    @Basic
+    private Integer ord;
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="item_contributor_actor_role_code_fk"))
     private ActorRole role;

@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.actors;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Slf4j
 public class ActorControllerITCase {
 
     @Autowired
@@ -88,8 +90,11 @@ public class ActorControllerITCase {
         actor.setWebsite("http://www.example.org");
         actor.setEmail("test@example.org");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/actors")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(actor))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("name", is("Test actor")))
@@ -97,7 +102,6 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("affiliations", hasSize(0)));
     }
-
 
     @Test
     public void shouldCreateActorWithAffiliations() throws Exception {
@@ -113,8 +117,11 @@ public class ActorControllerITCase {
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/actors")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(actor))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("name", is("Test actor")))
@@ -141,8 +148,11 @@ public class ActorControllerITCase {
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/actors")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(actor))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -157,8 +167,11 @@ public class ActorControllerITCase {
         actor.setWebsite("http://www.example.org");
         actor.setEmail("test@example.org");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/actors/{id}", actorId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(actor))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(actorId)))
@@ -184,8 +197,11 @@ public class ActorControllerITCase {
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/actors/{id}", actorId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(actor))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("name", is("Test actor")))
@@ -214,13 +230,15 @@ public class ActorControllerITCase {
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/actors/{id}", actorId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(actor))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
     }
-
 
     @Test
     public void shouldntUpdateActorWhenNotExist() throws Exception {
@@ -231,8 +249,11 @@ public class ActorControllerITCase {
         actor.setWebsite("http://www.example.org");
         actor.setEmail("test@example.org");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/actors/{id}", actorId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(actor))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

@@ -10,6 +10,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Slf4j
 public class ToolControllerITCase {
 
     @Autowired
@@ -80,8 +82,11 @@ public class ToolControllerITCase {
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool")))
@@ -141,8 +146,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool")))
@@ -177,8 +185,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool")))
@@ -208,8 +219,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -233,8 +247,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -264,8 +281,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -300,8 +320,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -336,8 +359,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -379,8 +405,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -422,8 +451,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -465,8 +497,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -503,8 +538,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -518,8 +556,11 @@ public class ToolControllerITCase {
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
@@ -584,8 +625,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
@@ -625,8 +669,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -653,8 +700,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
@@ -688,8 +738,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -715,8 +768,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -752,8 +808,11 @@ public class ToolControllerITCase {
         properties.add(property1);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/tools")
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -785,8 +844,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -823,8 +885,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -861,8 +926,11 @@ public class ToolControllerITCase {
         properties.add(property0);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -906,8 +974,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -951,8 +1022,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -996,8 +1070,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));
@@ -1036,8 +1113,11 @@ public class ToolControllerITCase {
         properties.add(property2);
         tool.setProperties(properties);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/tools/{id}", toolId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(tool))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", not(isEmptyOrNullString())));

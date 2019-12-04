@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.controllers.items;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Slf4j
 public class ItemCommentControllerITCase {
 
     @Autowired
@@ -36,8 +38,11 @@ public class ItemCommentControllerITCase {
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("I love it!");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/item-comments/{itemId}", itemId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("body", is("I love it!")));
@@ -50,8 +55,11 @@ public class ItemCommentControllerITCase {
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/item-comments/{itemId}", itemId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -63,8 +71,11 @@ public class ItemCommentControllerITCase {
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("I love it!");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
         mvc.perform(post("/api/item-comments/{itemId}", itemId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -76,8 +87,11 @@ public class ItemCommentControllerITCase {
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("I love it!");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/item-comments/{id}", commentId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("body", is("I love it!")));
@@ -90,8 +104,11 @@ public class ItemCommentControllerITCase {
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("I love it!");
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
         mvc.perform(put("/api/item-comments/{id}", commentId)
-                .content(TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment))
+                .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
