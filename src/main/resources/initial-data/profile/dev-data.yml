@@ -100,19 +100,6 @@ Tool:
           id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-          code:                           ease-of-use
-        concept:
-          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           Moderate
-          vocabulary:
-            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           ease-of-use
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        1
-        type:
-          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
@@ -173,19 +160,6 @@ Tool:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        2
-        type:
-          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-          code:                           ease-of-use
-        concept:
-          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           Easy
-          vocabulary:
-            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           ease-of-use
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.tools.Tool
@@ -253,19 +227,6 @@ Tool:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
-      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        3
-        type:
-          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-          code:                           ease-of-use
-        concept:
-          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           Easy
-          vocabulary:
-            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           ease-of-use
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Texts similarity analysis

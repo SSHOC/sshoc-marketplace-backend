@@ -30,11 +30,6 @@ PropertyType:
     ord:                         6
     label:                       Object format
 
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        ease-of-use
-    ord:                         7
-    label:                       Ease of use
-
 
 PropertyTypeVocabulary:
 
@@ -86,10 +81,3 @@ PropertyTypeVocabulary:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        iana-mime-type
 
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        ease-of-use
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        ease-of-use
