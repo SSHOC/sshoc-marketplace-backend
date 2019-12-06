@@ -55,7 +55,7 @@ PropertyTypeVocabulary:
       code:                        activity
     vocabulary:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        tadirah-research-activity
+      code:                        tadirah-activity
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyType:
