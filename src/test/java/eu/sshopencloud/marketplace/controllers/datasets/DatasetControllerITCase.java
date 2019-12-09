@@ -133,10 +133,7 @@ public class DatasetControllerITCase {
         propertyType1.setCode("language");
         property1.setType(propertyType1);
         ConceptId concept1 = new ConceptId();
-        concept1.setCode("eng");
-        VocabularyId vocabulary1 = new VocabularyId();
-        vocabulary1.setCode("iso-639-3");
-        concept1.setVocabulary(vocabulary1);
+        concept1.setUri("http://iso639-3.sil.org/code/eng");
         property1.setConcept(concept1);
         PropertyCore property2 = new PropertyCore();
         PropertyTypeId propertyType2 = new PropertyTypeId();

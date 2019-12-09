@@ -65,26 +65,41 @@ public class ConceptService {
 
     public Concept validate(ItemCategory category, String prefix, ConceptId concept, PropertyType propertyType, List<VocabularyInline> allowedVocabularies)
             throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException {
-        if (concept.getCode() == null) {
-            throw new DataViolationException(prefix + "code", concept.getCode());
+        if (concept.getUri() == null) {
+            if (concept.getCode() == null) {
+                throw new DataViolationException(prefix + "code", concept.getCode());
+            }
+            if (concept.getVocabulary() == null) {
+                throw new DataViolationException(prefix + "vocabulary", "null");
+            }
+            if (concept.getVocabulary().getCode() == null) {
+                throw new DataViolationException(prefix + "vocabulary.code", concept.getVocabulary().getCode());
+            }
         }
-        if (concept.getVocabulary() == null) {
-            throw new DataViolationException(prefix + "vocabulary", "null");
-        }
-        if (concept.getVocabulary().getCode() == null) {
-            throw new DataViolationException(prefix + "vocabulary.code", concept.getVocabulary().getCode());
-        }
-        if (!allowedVocabularies.stream().anyMatch(v -> Objects.equals(v.getCode(), concept.getVocabulary().getCode()))) {
-            throw new ConceptDisallowedException(propertyType, concept.getVocabulary().getCode());
-        }
-        Optional<Concept> result = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(concept.getCode()).vocabulary(concept.getVocabulary().getCode()).build());
-        if (!result.isPresent()) {
-            throw new DataViolationException(prefix + "code", concept.getCode());
+        Concept result = getConceptByCodeOrUri(prefix, concept);
+        if (!allowedVocabularies.stream().anyMatch(v -> Objects.equals(v.getCode(), result.getVocabulary().getCode()))) {
+            throw new ConceptDisallowedException(propertyType, result.getVocabulary().getCode());
         }
         if (category != null) {
-            checkObjectType(category, prefix + "code", propertyType, result.get());
+            checkObjectType(category, prefix + "code", propertyType, result);
         }
-        return result.get();
+        return result;
+    }
+
+    private Concept getConceptByCodeOrUri(String prefix, ConceptId concept) throws DataViolationException {
+        if (concept.getUri() == null) {
+            Optional<Concept> result = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(concept.getCode()).vocabulary(concept.getVocabulary().getCode()).build());
+            if (!result.isPresent()) {
+                throw new DataViolationException(prefix + "code", concept.getCode());
+            }
+            return result.get();
+        } else {
+            Concept result = conceptRepository.findConceptByUri(concept.getUri());
+            if (result == null) {
+                throw new DataViolationException(prefix + "uri", concept.getUri());
+            }
+            return result;
+        }
     }
 
     private void checkObjectType(ItemCategory category, String prefix, PropertyType propertyType, Concept concept)

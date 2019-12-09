@@ -42,7 +42,7 @@ public class Concept {
     private String definition;
 
     @Basic
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String uri;
 
     /* This field will be handled in a separate manner because in this list should be related concepts considering all relations and inverses of relations and because of cyclical dependencies */

@@ -11,4 +11,6 @@ public class ConceptId {
 
     private VocabularyId vocabulary;
 
+    private String uri;
+
 }
