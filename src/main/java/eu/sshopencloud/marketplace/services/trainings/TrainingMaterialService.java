@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.services.DataViolationException;
+import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.services.vocabularies.*;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
@@ -93,7 +94,7 @@ public class TrainingMaterialService {
         if (StringUtils.isBlank(newTrainingMaterial.getDescription())) {
             throw new DataViolationException("description", newTrainingMaterial.getDescription());
         }
-        result.setDescription(newTrainingMaterial.getDescription());
+        result.setDescription(MarkdownConverter.convertHtmlToMarkdown(newTrainingMaterial.getDescription()));
         if (result.getLicenses() != null) {
             result.getLicenses().clear();
             result.getLicenses().addAll(licenseService.validate("licenses", newTrainingMaterial.getLicenses()));

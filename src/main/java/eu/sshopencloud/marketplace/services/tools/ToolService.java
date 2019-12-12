@@ -13,6 +13,7 @@ import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.licenses.LicenseService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.services.vocabularies.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +94,7 @@ public class ToolService {
         if (StringUtils.isBlank(newTool.getDescription())) {
             throw new DataViolationException("description", newTool.getDescription());
         }
-        result.setDescription(newTool.getDescription());
+        result.setDescription(MarkdownConverter.convertHtmlToMarkdown(newTool.getDescription()));
         if (result.getLicenses() != null) {
             result.getLicenses().clear();
             result.getLicenses().addAll(licenseService.validate("licenses", newTool.getLicenses()));

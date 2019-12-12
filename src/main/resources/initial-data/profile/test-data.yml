@@ -46,7 +46,7 @@ Tool:
   - !!eu.sshopencloud.marketplace.model.tools.Tool
     category:                    TOOL
     label:                       Gephi
-    description:                 Gephi is the leading visualization and exploration software for all kinds of graphs and networks.
+    description:                 "**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks."
     licenses:
       - !!eu.sshopencloud.marketplace.model.licenses.License
         code:                        cddl-1.0
@@ -122,7 +122,7 @@ Tool:
           !!eu.sshopencloud.marketplace.model.auth.User
           id:                           3
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
-        body:                         "<p>View Gephi in DiRT: <a href='http://dirt.projectbamboo.org/resources/gephi'>http://dirt.projectbamboo.org/resources/gephi</a>.<p><p>View the full site: <a href='http://dirt.projectbamboo.org/'>http://dirt.projectbamboo.org</a></p>"
+        body:                         "View Gephi in DiRT: <http://dirt.projectbamboo.org/resources/gephi>\n\nView the full site: <http://dirt.projectbamboo.org>\n"
         creator:
           !!eu.sshopencloud.marketplace.model.auth.User
           id:                           1
@@ -517,7 +517,7 @@ TrainingMaterial:
           !!eu.sshopencloud.marketplace.model.auth.User
           id:                           3
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
-        body:                         I was looking to do something graph theory related for my senior capstone, so it was kinda discouraging to hear GePhi isn't good for analysis. Can you suggest any free Windows-friendly programs that can do analysis for me? (Connectivity, diameter, etc.)
+        body:                         "I was looking to do something graph theory related for my senior capstone, so it was kinda discouraging to hear *GePhi* isn't good for analysis. Can you suggest any free Windows-friendly programs that can do analysis for me? (Connectivity, diameter, etc.)"
         creator:
           !!eu.sshopencloud.marketplace.model.auth.User
           id:                           1
@@ -688,6 +688,25 @@ Dataset:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           nemo-activity-type
+
+  - !!eu.sshopencloud.marketplace.model.datasets.Dataset
+    category:                    DATASET
+    label:                       Test dataset with markdown description
+    description:                 "Description\n\nLorem *ipsum* `class` [example](http://example.com)\n\n  * **Item 1**\n  *\n\n  |    Element    |  Abbreviation   |     Expansion     |\n  |---------------|-----------------|-------------------|\n  | Abbreviation  | `.abbreviation` | `*[]:`            |\n  | Code fence    | `.codefence`    | ``` ... ``` |\n  | Explicit link | `.link`         | `[]()`            |\n\n"
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        11
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           dataset
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
 
 
 ItemRelatedItem:

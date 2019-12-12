@@ -81,6 +81,12 @@
             <artifactId>rdf4j-rio-turtle</artifactId>
             <version>3.0.2</version>
         </dependency>
+        <!-- markdown -->
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-all</artifactId>
+            <version>0.50.44</version>
+        </dependency>
     </dependencies>
 
     <build>

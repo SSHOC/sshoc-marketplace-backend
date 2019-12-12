@@ -49,6 +49,23 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
+    public void shouldCreateItemCommentWithHtml() throws Exception {
+        Integer itemId = 1;
+
+        ItemCommentCore itemComment = new ItemCommentCore();
+        itemComment.setBody("<p>I <b>love</b> it<span>!</span></p>");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/item-comments/{itemId}", itemId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("body", is("I **love** it!\n")));
+    }
+
+    @Test
     public void shouldntCreateItemCommentWhenCommentIsEmpty() throws Exception {
         Integer itemId = 1;
 

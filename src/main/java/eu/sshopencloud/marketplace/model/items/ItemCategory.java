@@ -8,7 +8,9 @@ public enum ItemCategory {
 
     TRAINING_MATERIAL,
 
-    DATASET;
+    DATASET,
+
+    SOLUTION;
 
     public static final String OBJECT_TYPE_PROPERTY_TYPE_CODE = "object-type";
 

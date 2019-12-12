@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.services.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import lombok.experimental.UtilityClass;
 
 import java.time.ZoneOffset;
@@ -19,9 +20,10 @@ public class IndexConverter {
 
     public IndexItem covertItem(Item item) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
+        String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
         builder.id(item.getId())
                 .label(item.getLabel()).labelText(item.getLabel()).labelTextEn(item.getLabel())
-                .description(item.getDescription()).descriptionText(item.getDescription()).descriptionTextEn(item.getDescription())
+                .description(item.getDescription()).descriptionText(descriptionText).descriptionTextEn(descriptionText)
                 .category(ItemCategoryConverter.convertCategory(item.getCategory()));
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
         return builder.build();

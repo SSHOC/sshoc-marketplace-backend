@@ -13,6 +13,7 @@ import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.licenses.LicenseService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
 import eu.sshopencloud.marketplace.services.vocabularies.DisallowedObjectTypeException;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
@@ -97,7 +98,7 @@ public class DatasetService {
         if (StringUtils.isBlank(newDataset.getDescription())) {
             throw new DataViolationException("description", newDataset.getDescription());
         }
-        result.setDescription(newDataset.getDescription());
+        result.setDescription(MarkdownConverter.convertHtmlToMarkdown(newDataset.getDescription()));
         if (result.getLicenses() != null) {
             result.getLicenses().clear();
             result.getLicenses().addAll(licenseService.validate("licenses", newDataset.getLicenses()));

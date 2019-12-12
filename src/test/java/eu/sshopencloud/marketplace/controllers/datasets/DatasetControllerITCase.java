@@ -93,10 +93,10 @@ public class DatasetControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test simple dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("Dataset")));
     }
-
 
     @Test
     public void shouldCreateDatasetWithRelations() throws Exception {
@@ -159,6 +159,7 @@ public class DatasetControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test complex dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("licenses[0].label", is("Apache License 2.0")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
@@ -169,6 +170,56 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+
+    @Test
+    public void shouldCreatDatasetWithHtmlInDescription() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with HTML in description");
+        dataset.setDescription("<div>Description\n"
+                + "  <p>Lorem ipsum <code>class</code> <i>Ctrl</i> <strong>Alt</strong> <a href='http://example.com'>link</a></p>\n"
+                + "  <ul>\n"
+                + "    <li>Item 1</li>\n"
+                + "    <li>\n"
+                + "      <table>\n"
+                + "        <thead>\n"
+                + "          <tr><th> Element</th><th>Abbreviation</th><th>Expansion</th></tr>\n"
+                + "        </thead>\n"
+                + "        <tbody>\n"
+                + "          <tr><td>Abbreviation</td><td><code>.abbreviation</code></td><td><code>*[]:</code></td></tr>\n"
+                + "          <tr><td>Code fence</td><td><code>.codefence</code></td><td>``` ... ```</td></tr>\n"
+                + "          <tr><td>Explicit link</td><td><code>.link</code></td><td><code>[]()</code></td></tr>\n"
+                + "        </tbody>\n"
+                + "      </table>\n"
+                + "    </li>\n"
+                + "  </ul>\n"
+                + "</div>");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/datasets")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test dataset with HTML in description")))
+                .andExpect(jsonPath("description", is("Description\n"
+                        + "\n"
+                        + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"
+                        + "\n"
+                        + "* Item 1\n"
+                        + "*\n"
+                        + "\n"
+                        + "  |    Element    |  Abbreviation   |     Expansion     |\n"
+                        + "  |---------------|-----------------|-------------------|\n"
+                        + "  | Abbreviation  | `.abbreviation` | `*[]:`            |\n"
+                        + "  | Code fence    | `.codefence`    | \\`\\`\\` ... \\`\\`\\` |\n"
+                        + "  | Explicit link | `.link`         | `[]()`            |\n"
+                        + "\n")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")));
     }
 
     @Test
@@ -189,6 +240,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("id", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test simple dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(1)))
@@ -262,6 +314,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("id", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test complex dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("licenses", hasSize(1)))
                 .andExpect(jsonPath("licenses[0].label", is("MIT License")))
                 .andExpect(jsonPath("contributors", hasSize(1)))

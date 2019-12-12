@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemCommentRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.services.DataViolationException;
+import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +42,7 @@ public class ItemCommentService {
         if (StringUtils.isBlank(itemComment.getBody())) {
             throw new DataViolationException("body", itemComment.getBody());
         }
-        result.setBody(itemComment.getBody());
+        result.setBody(MarkdownConverter.convertHtmlToMarkdown(itemComment.getBody()));
         return result;
     }
 
