@@ -2,6 +2,7 @@ version: "2"
 services:
   marketplace:
     build: .   
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend
     depends_on:
       - psql
       - solr    
