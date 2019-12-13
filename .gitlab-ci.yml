@@ -7,9 +7,8 @@ stages:
   services:
     - docker:dind
   before_script:
-     - export DOCKER_HOST=127.0.0.1:2375 
      - docker info
-     - apk add --no-cache py-pip curl
+     - apk add --no-cache py-pip
      - pip install docker-compose==1.23.0
      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   
@@ -21,8 +20,6 @@ build:
   extends: .docker
   script: 
     - echo "Building the app"
-    - export DOCKER_HOST=127.0.0.1:2375 
-    - docker info
     - docker-compose -f docker-compose-acdh.yml build
     - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend:latest
   only:
