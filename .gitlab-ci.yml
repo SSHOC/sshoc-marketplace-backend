@@ -3,9 +3,11 @@ stages:
 
 .docker:
   image:
-    name: docker:18.09.7-dind
+    name: docker:19.03-dind
   services:
     - docker:dind
+  variables:
+        DOCKER_TLS_CERTDIR: ""    
   before_script:
      - docker info
      - apk add --no-cache py-pip
