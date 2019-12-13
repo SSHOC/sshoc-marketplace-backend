@@ -2,14 +2,10 @@ stages:
   - build
 
 .docker:
-  image: docker:18.09.7-dind
+  image: qmarketing/dind-docker-compose:18.09.5
   services:
     - docker:dind
   before_script:
-    - apk update
-    - apk upgrade
-    - apk add --no-cache python python-dev py-pip build-base curl
-    - pip install docker-compose==1.24.0
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   
 
