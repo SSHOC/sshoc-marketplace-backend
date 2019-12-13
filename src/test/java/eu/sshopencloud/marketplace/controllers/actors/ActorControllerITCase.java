@@ -57,6 +57,30 @@ public class ActorControllerITCase {
     }
 
     @Test
+    public void shouldReturnActorsByWebsite() throws Exception {
+
+        mvc.perform(get("/api/actors?q=https://www.cessda.eu/")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("CESSDA")))
+                .andExpect(jsonPath("$[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("$[0].email", is("cessda@cessda.eu")));
+    }
+
+    @Test
+    public void shouldReturnActorsByEmail() throws Exception {
+
+        mvc.perform(get("/api/actors?q=cessda@cessda.eu")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("CESSDA")))
+                .andExpect(jsonPath("$[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("$[0].email", is("cessda@cessda.eu")));
+    }
+
+    @Test
     public void shouldReturnActor() throws Exception {
         Integer actorId = 5;
 
