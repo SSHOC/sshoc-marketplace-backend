@@ -25,9 +25,14 @@ public class ActorService {
 
     public List<Actor> getActors(String q, int perpage) {
         ExampleMatcher queryActorMatcher = ExampleMatcher.matchingAny()
-                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
+                .withMatcher("website", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
+                .withMatcher("email", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+
         Actor queryActor = new Actor();
         queryActor.setName(q);
+        queryActor.setWebsite(q);
+        queryActor.setEmail(q);
 
         Page<Actor> actors = actorRepository.findAll(Example.of(queryActor, queryActorMatcher), PageRequest.of(0, perpage, new Sort(Sort.Direction.ASC, "name")));
         return actors.getContent();
