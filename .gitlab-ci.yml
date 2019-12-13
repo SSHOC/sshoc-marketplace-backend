@@ -2,9 +2,16 @@ stages:
   - build
 
 .docker:
-  image: qmarketing/docker-compose:18.09.6
+  image:
+    name: docker/compose:1.25.0
+    entrypoint: ["/bin/sh", "-c"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375 
   services:
     - docker:dind
+  script:
+    - docker version
+    - docker-compose version
   before_script:
      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   
