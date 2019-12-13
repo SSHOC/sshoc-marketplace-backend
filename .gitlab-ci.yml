@@ -2,12 +2,11 @@ stages:
   - build
 
 .docker:
-  image: qmarketing/dind-docker-compose:18.09.5
+  image: qmarketing/docker-compose:latest
   services:
     - docker:dind
   before_script:
-    - export DOCKER_HOST=127.0.0.1:2375
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   
 
 build:
