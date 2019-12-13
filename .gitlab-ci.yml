@@ -22,7 +22,7 @@ build:
   extends: .docker
   script: 
     - echo "Building the app"
-    - docker-compose --no-deps -f docker-compose-acdh.yml build marketplace
+    - docker-compose -f docker-compose-acdh.yml build marketplace
     - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend:latest
   only:
   - develop
