@@ -8,9 +8,8 @@ stages:
   before_script:
     - apk update
     - apk upgrade
-    - apk add python python-dev py-pip build-base curl
-    - curl -L https://github.com/docker/compose/releases/download/1.25.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-    - chmod +x /usr/local/bin/docker-compose
+    - apk add --no-cache python python-dev py-pip build-base curl
+    - pip install docker-compose==1.24.0
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   
 
