@@ -3,7 +3,7 @@ stages:
 
 .docker:
   image:
-    name: docker/compose:1.25.0
+    name: docker/compose:1.18.0
     entrypoint: ["/bin/sh", "-c"]
   variables:
     DOCKER_HOST: tcp://docker:2375 
