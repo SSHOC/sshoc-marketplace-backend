@@ -2,7 +2,7 @@ stages:
   - build
 
 .docker:
-  image: qmarketing/docker-compose:latest
+  image: qmarketing/docker-compose:18.09.6
   services:
     - docker:dind
   before_script:
