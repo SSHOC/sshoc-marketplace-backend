@@ -18,6 +18,8 @@ variables:
 
 build:
   stage: build
+  tags:
+    - sshoc-backend
   extends: .docker
   script: 
     - echo "Building the app"
