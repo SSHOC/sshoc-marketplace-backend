@@ -12,17 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
-
 @UtilityClass
 @Slf4j
 public class MarkdownConverter {
 
     public String convertHtmlToMarkdown(String html) {
-        log.debug(("input:"  + html));
         String withoutUrlInAngleBrackets = html.replaceAll("<http([^>])*>", "");
-        log.debug(("input2:"  + withoutUrlInAngleBrackets));
-        boolean valid = Jsoup.isValid(withoutUrlInAngleBrackets,  Whitelist.none());
-        log.debug("valid: " + valid);
+        boolean valid = Jsoup.isValid(withoutUrlInAngleBrackets, Whitelist.none());
         if (!valid) {
             // with empty whitelist means that there is at least one tag
             return FlexmarkHtmlConverter.builder().build().convert(html);
@@ -31,6 +27,7 @@ public class MarkdownConverter {
             return html; // which is actually markdown
         }
     }
+
 
     public String convertMarkdownToText(String markdown) {
         DataHolder options = PegdownOptionsAdapter.flexmarkOptions(Extensions.ALL);
