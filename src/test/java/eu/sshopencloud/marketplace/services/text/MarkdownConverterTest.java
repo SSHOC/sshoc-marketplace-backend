@@ -4,7 +4,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -17,7 +16,16 @@ import static org.hamcrest.Matchers.is;
 public class MarkdownConverterTest {
 
     @Test
-    public void shouldConvertHtmlToMarkdown() throws Exception {
+    public void shouldConvertSimpleHtmlToMarkdown() throws Exception {
+        String html = "<div>Description</div>";
+
+        String markdown = MarkdownConverter.convertHtmlToMarkdown(html);
+
+        assertThat(markdown, is("Description"));
+    }
+
+    @Test
+    public void shouldConvertComplexHtmlToMarkdown() throws Exception {
         String html = "<div>Description\n"
                 + "  <p>Lorem ipsum <code>class</code> <i>Ctrl</i> <strong>Alt</strong> <a href='http://example.com'>link</a></p>\n"
                 + "  <ul>\n"
@@ -54,6 +62,81 @@ public class MarkdownConverterTest {
     }
 
     @Test
+    public void shouldRemainMarkdownIntact() throws Exception {
+        String source = "Description\n"
+                + "\n"
+                + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"
+                + "\n"
+                + "* Item 1\n"
+                + "* Item 2\n"
+                + "\n"
+                + "|    Element    |  Abbreviation   |     Expansion     |\n"
+                + "|---------------|-----------------|-------------------|\n"
+                + "| Abbreviation  | `.abbreviation` | `*[]:`            |\n"
+                + "| Code fence    | `.codefence`    | ``` ... ```       |\n"
+                + "| Explicit link | `.link`         | `[]()`            |\n"
+                + "\n";
+
+        String markdown = MarkdownConverter.convertHtmlToMarkdown(source);
+
+        assertThat(markdown, is("Description\n"
+                + "\n"
+                + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"
+                + "\n"
+                + "* Item 1\n"
+                + "* Item 2\n"
+                + "\n"
+                + "|    Element    |  Abbreviation   |     Expansion     |\n"
+                + "|---------------|-----------------|-------------------|\n"
+                + "| Abbreviation  | `.abbreviation` | `*[]:`            |\n"
+                + "| Code fence    | `.codefence`    | ``` ... ```       |\n"
+                + "| Explicit link | `.link`         | `[]()`            |\n"
+                + "\n"));
+    }
+
+    @Test
+    public void shouldRemainMarkdownWithUrlIntact() throws Exception {
+        String source = "Click http://example.com/ *here*";
+
+        String markdown = MarkdownConverter.convertHtmlToMarkdown(source);
+
+        assertThat(markdown, is("Click http://example.com/ *here*"));
+    }
+
+    @Test
+    public void shouldRemainMarkdownWithAngleBracketsIntact() throws Exception {
+        String source = "Description <http://example.com>\n"
+                + "\n"
+                + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"
+                + "\n"
+                + "* Item 1\n"
+                + "* Item 2\n"
+                + "\n"
+                + "|    Element    |  Abbreviation   |     Expansion     |\n"
+                + "|---------------|-----------------|-------------------|\n"
+                + "| Abbreviation  | `.abbreviation` | `*[]:`            |\n"
+                + "| Code fence    | `.codefence`    | ``` ... ```       |\n"
+                + "| Explicit link | `.link`         | `[]()`            |\n"
+                + "\n";
+
+        String markdown = MarkdownConverter.convertHtmlToMarkdown(source);
+
+        assertThat(markdown, is("Description <http://example.com>\n"
+                + "\n"
+                + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"
+                + "\n"
+                + "* Item 1\n"
+                + "* Item 2\n"
+                + "\n"
+                + "|    Element    |  Abbreviation   |     Expansion     |\n"
+                + "|---------------|-----------------|-------------------|\n"
+                + "| Abbreviation  | `.abbreviation` | `*[]:`            |\n"
+                + "| Code fence    | `.codefence`    | ``` ... ```       |\n"
+                + "| Explicit link | `.link`         | `[]()`            |\n"
+                + "\n"));
+    }
+
+    @Test
     public void shouldConvertMarkdownToText() throws Exception {
         String markdown = "Description\n"
                 + "\n"
@@ -65,7 +148,7 @@ public class MarkdownConverterTest {
                 + "|    Element    |  Abbreviation   |     Expansion     |\n"
                 + "|---------------|-----------------|-------------------|\n"
                 + "| Abbreviation  | `.abbreviation` | `*[]:`            |\n"
-                + "| Code fence    | `.codefence`    | ``` ... ``` |\n"
+                + "| Code fence    | `.codefence`    | ``` ... ```       |\n"
                 + "| Explicit link | `.link`         | `[]()`            |\n"
                 + "\n";
 
@@ -77,7 +160,7 @@ public class MarkdownConverterTest {
                 + "\n"
                 + "Item 1\n"
                 + "\n"
-                + "Item 2    Element      Abbreviation        Expansion      Abbreviation   .abbreviation  *[]:             Code fence     .codefence      ...   Explicit link  .link          []()            "));
+                + "Item 2    Element      Abbreviation        Expansion      Abbreviation   .abbreviation  *[]:             Code fence     .codefence      ...         Explicit link  .link          []()            "));
     }
 
 }

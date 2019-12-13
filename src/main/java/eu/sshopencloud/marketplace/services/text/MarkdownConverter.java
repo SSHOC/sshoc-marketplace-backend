@@ -8,13 +8,28 @@ import com.vladsch.flexmark.profiles.pegdown.PegdownOptionsAdapter;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.DataHolder;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+
 
 @UtilityClass
+@Slf4j
 public class MarkdownConverter {
 
     public String convertHtmlToMarkdown(String html) {
-        // TODO options (?)
-        return FlexmarkHtmlConverter.builder().build().convert(html);
+        log.debug(("input:"  + html));
+        String withoutUrlInAngleBrackets = html.replaceAll("<http([^>])*>", "");
+        log.debug(("input2:"  + withoutUrlInAngleBrackets));
+        boolean valid = Jsoup.isValid(withoutUrlInAngleBrackets,  Whitelist.none());
+        log.debug("valid: " + valid);
+        if (!valid) {
+            // with empty whitelist means that there is at least one tag
+            return FlexmarkHtmlConverter.builder().build().convert(html);
+        } else {
+            // no html tag exists
+            return html; // which is actually markdown
+        }
     }
 
     public String convertMarkdownToText(String markdown) {
