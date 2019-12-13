@@ -10,7 +10,7 @@ stages:
      - apk add --no-cache py-pip curl
      - curl -L https://github.com/docker/compose/releases/download/1.23.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
      - chmod +x /usr/local/bin/docker-compose
-     - pip install docker-compose
+     - pip install docker-compose==1.23.0
      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   
 
