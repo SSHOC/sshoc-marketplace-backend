@@ -2,7 +2,8 @@ version: "2"
 services:
   marketplace:
     build: .   
-    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api
+    container_name: sshoc-marketplace-backend-api
     depends_on:
       - psql
       - solr    
@@ -18,6 +19,7 @@ services:
       - web
   psql:
     image: postgres:9.6
+    container_name: sshoc-marketplace-backend-postgres
     volumes:
       - psql-data:/var/lib/postgresql/data
       
@@ -31,7 +33,8 @@ services:
       
   solr:
     build: etc/solr
-    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend-solr
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr
+    container_name: sshoc-marketplace-backend-solr
     volumes:
       - solr-data:/var/solr
     labels:
