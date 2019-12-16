@@ -16,10 +16,12 @@ stages:
 
 build:
   stage: build
+  tags:
+    - sshoc-backend
   extends: .docker
   script: 
     - echo "Building the app"
-    - docker-compose -f docker-compose-acdh.yml build marketplace
+    - docker-compose -f docker-compose-acdh.yml build 
     - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend:latest
   only:
   - develop
