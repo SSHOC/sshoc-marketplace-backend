@@ -9,7 +9,6 @@ stages:
   variables:
         DOCKER_TLS_CERTDIR: ""    
   before_script:
-     - docker info
      - apk add --no-cache py-pip
      - pip install docker-compose==1.23.0
      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -17,8 +16,6 @@ stages:
 
 build:
   stage: build
-  tags:
-    - sshoc-backend
   extends: .docker
   script: 
     - echo "Building the app"
