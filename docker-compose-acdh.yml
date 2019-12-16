@@ -31,6 +31,7 @@ services:
       
   solr:
     build: etc/solr
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend-solr
     volumes:
       - solr-data:/var/solr
     labels:
