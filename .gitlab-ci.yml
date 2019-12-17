@@ -8,6 +8,7 @@ stages:
     - docker:dind
   variables:
         DOCKER_TLS_CERTDIR: ""    
+        DOCKER_DRIVER: overlay2
   before_script:
      - apk add --no-cache py-pip
      - pip install docker-compose==1.23.0
@@ -21,7 +22,6 @@ build:
   extends: .docker
   script: 
     - echo "Building the app"
-    - docker system prune -a -f
     - docker-compose -f docker-compose-acdh.yml build 
     - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
     - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr:latest
