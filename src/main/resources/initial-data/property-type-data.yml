@@ -80,6 +80,11 @@ PropertyType:
     ord:                         16
     label:                       Methodi CA Link
 
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        cover-image
+    ord:                         16
+    label:                       Cover Image
+
 PropertyTypeVocabulary:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
