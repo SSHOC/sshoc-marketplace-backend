@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 @UtilityClass
 public class ApiDateTimeFormatter {
 
-    public final String dateTimePattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public final String dateTimePattern = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     public DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimePattern);
 
