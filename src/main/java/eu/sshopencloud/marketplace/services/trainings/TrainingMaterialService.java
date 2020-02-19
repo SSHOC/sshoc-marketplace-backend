@@ -84,7 +84,7 @@ public class TrainingMaterialService {
 
     private TrainingMaterial validate(TrainingMaterialCore newTrainingMaterial, Long trainingMaterialId)
             throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
-        TrainingMaterial result = createOrGetTrainingMaterial(trainingMaterialId);
+        TrainingMaterial result = getOrCreateTrainingMaterial(trainingMaterialId);
         result.setCategory(ItemCategory.TRAINING_MATERIAL);
         if (StringUtils.isBlank(newTrainingMaterial.getLabel())) {
             throw new DataViolationException("label", newTrainingMaterial.getLabel());
@@ -132,7 +132,7 @@ public class TrainingMaterialService {
         return result;
     }
 
-    private TrainingMaterial createOrGetTrainingMaterial(Long trainingMaterialId) {
+    private TrainingMaterial getOrCreateTrainingMaterial(Long trainingMaterialId) {
         if (trainingMaterialId != null) {
             return trainingMaterialRepository.getOne(trainingMaterialId);
         } else {

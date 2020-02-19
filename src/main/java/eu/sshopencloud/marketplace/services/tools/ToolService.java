@@ -84,7 +84,7 @@ public class ToolService {
 
     private Tool validate(ToolCore newTool, Long toolId)
             throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
-        Tool result = createOrGetTool(toolId);
+        Tool result = getOrCreateTool(toolId);
         result.setCategory(ItemCategory.TOOL);
         if (StringUtils.isBlank(newTool.getLabel())) {
             throw new DataViolationException("label", newTool.getLabel());
@@ -131,7 +131,7 @@ public class ToolService {
         return result;
     }
 
-    private Tool createOrGetTool(Long toolId) {
+    private Tool getOrCreateTool(Long toolId) {
         if (toolId != null) {
             return toolRepository.getOne(toolId);
         } else {

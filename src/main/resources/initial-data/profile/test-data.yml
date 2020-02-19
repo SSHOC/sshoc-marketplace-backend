@@ -692,7 +692,7 @@ Dataset:
   - !!eu.sshopencloud.marketplace.model.datasets.Dataset
     category:                    DATASET
     label:                       Test dataset with markdown description
-    description:                 "Description\n\nLorem *ipsum* `class` [example](http://example.com)\n\n  * **Item 1**\n  *\n\n  |    Element    |  Abbreviation   |     Expansion     |\n  |---------------|-----------------|-------------------|\n  | Abbreviation  | `.abbreviation` | `*[]:`            |\n  | Code fence    | `.codefence`    | ``` ... ``` |\n  | Explicit link | `.link`         | `[]()`            |\n\n"
+    description:                 "Description\n\nLorem *ipsum* `class` [example](http://example.com)\n\n  * **Item 1**\n  *\n\n  |    Element    |  Abbreviation   |     Expansion     |\n  |---------------|-----------------|-------------------|\n  | Abbreviation  | `.abbreviation` | `*[]:`            |\n  | Code fence    | `.codefence`    | ``` ... ``` |\n  | Explicit link | `.link`         | `[]()`            |\n\n```js\nconst test = {\n  hello: 'world'\n};\n```\n"
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:

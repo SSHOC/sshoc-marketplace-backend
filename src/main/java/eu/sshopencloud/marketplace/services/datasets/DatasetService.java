@@ -88,7 +88,7 @@ public class DatasetService {
 
     private Dataset validate(DatasetCore newDataset, Long datasetId)
             throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
-        Dataset result = createOrGetDataset(datasetId);
+        Dataset result = getOrCreateDataset(datasetId);
         result.setCategory(ItemCategory.DATASET);
         if (StringUtils.isBlank(newDataset.getLabel())) {
             throw new DataViolationException("label", newDataset.getLabel());
@@ -136,7 +136,7 @@ public class DatasetService {
         return result;
     }
 
-    private Dataset createOrGetDataset(Long datasetId) {
+    private Dataset getOrCreateDataset(Long datasetId) {
         if (datasetId != null) {
             return datasetRepository.getOne(datasetId);
         } else {

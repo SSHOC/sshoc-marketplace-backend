@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.model.actors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,6 @@ import java.util.List;
 @Table(name = "actors")
 @Data
 @NoArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Actor {
 
     @Id

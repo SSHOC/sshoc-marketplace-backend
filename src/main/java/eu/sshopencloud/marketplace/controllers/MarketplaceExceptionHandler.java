@@ -29,7 +29,7 @@ public class MarketplaceExceptionHandler {
 
     @ExceptionHandler(value = { PageTooLargeException.class, ItemsRelationAlreadyExistsException.class, DataViolationException.class, VocabularyAlreadyExistsException.class,
             ConceptDisallowedException.class, DisallowedObjectTypeException.class, TooManyObjectTypesException.class, ParseException.class, RDFParseException.class,
-            UnsupportedRDFormatException.class, IllegalFilterException.class})
+            UnsupportedRDFormatException.class })
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();

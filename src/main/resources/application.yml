@@ -18,6 +18,9 @@ spring:
                 jdbc:
                     lob: 
                         non_contextual_creation: true
+    jackson:
+        serialization:
+            fail-on-empty-beans: false
     data:
         solr:
             host: "http://localhost:8983/solr"

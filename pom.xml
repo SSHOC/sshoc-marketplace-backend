@@ -113,23 +113,18 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.31.0</version>
+                <version>0.33.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <verbose>all</verbose>
                     <images>
                         <image>
-                            <alias>psql</alias>
+                            <alias>psql-test</alias>
                             <name>postgres:9.6</name>
                             <run>
                                 <ports>
-                                    <port>5432:5432</port>
+                                    <port>5433:5432</port>
                                 </ports>
-                                <volumes>
-                                    <bind>
-                                        <volume>psql-data:/var/lib/postgresql/data</volume>
-                                    </bind>
-                                </volumes>
                                 <env>
                                     <POSTGRES_DB>marketplace_db</POSTGRES_DB>
                                     <POSTGRES_USER>marketplace</POSTGRES_USER>
@@ -138,14 +133,14 @@
                             </run>
                         </image>
                         <image>
-                            <alias>solr</alias>
+                            <alias>solr-test</alias>
                             <name>solr-test</name>
                             <build>
                                 <contextDir>${project.basedir}/etc/solr</contextDir>
                             </build>
                             <run>
                                 <ports>
-                                    <port>8983:8983</port>
+                                    <port>8984:8983</port>
                                 </ports>
                             </run>
                         </image>
@@ -153,7 +148,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>start-psql-solr</id>
+                        <id>start-test-psql-solr</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>build</goal>
@@ -161,7 +156,7 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>stop-psql-solr</id>
+                        <id>stop-test-psql-solr</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop</goal>

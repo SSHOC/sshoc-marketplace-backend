@@ -69,7 +69,7 @@ public class ActorService {
 
 
     private Actor validate(ActorCore newActor, Long actorId) throws DataViolationException {
-        Actor result = createOrGetTool(actorId);
+        Actor result = getOrCreateTool(actorId);
         if (StringUtils.isBlank(newActor.getName())) {
             throw new DataViolationException("name", newActor.getName());
         }
@@ -87,7 +87,7 @@ public class ActorService {
         return result;
     }
 
-    private Actor createOrGetTool(Long actorId) {
+    private Actor getOrCreateTool(Long actorId) {
         if (actorId != null) {
             return actorRepository.getOne(actorId);
         } else {
