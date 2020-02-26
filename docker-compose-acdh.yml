@@ -8,7 +8,7 @@ services:
       - psql
       - solr    
     environment:
-      SPRING_ACTIVE_PROFILE: dev
+      SPRING_ACTIVE_PROFILE: prod
     labels:
       - traefik.backend=marketplace-api
       - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
