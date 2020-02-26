@@ -1,8 +1,8 @@
 package eu.sshopencloud.marketplace.conf.startup;
 
-import eu.sshopencloud.marketplace.conf.datasets.DatasetLoader;
-import eu.sshopencloud.marketplace.conf.tools.ToolLoader;
-import eu.sshopencloud.marketplace.conf.trainings.TrainingMaterialLoader;
+import eu.sshopencloud.marketplace.conf.startup.datasets.DatasetLoader;
+import eu.sshopencloud.marketplace.conf.startup.tools.ToolLoader;
+import eu.sshopencloud.marketplace.conf.startup.trainings.TrainingMaterialLoader;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;

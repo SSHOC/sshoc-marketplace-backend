@@ -1,13 +1,12 @@
 package eu.sshopencloud.marketplace.model.search;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
+
+import java.util.List;
 
 @SolrDocument(collection = IndexItem.COLLECTION_NAME)
 @Data
@@ -31,6 +30,12 @@ public class IndexItem {
     public static final String CATEGORY_FIELD = "category";
 
     public static final String LAST_INFO_UPDATE_FIELD = "modified_on";
+
+    public static final String OBJECT_TYPE_FIELD = "object_type";
+
+    public static final String ACTIVITY_FIELD = "activity";
+
+    public static final String KEYWORD_FIELD = "keyword";
 
 
     @Id
@@ -60,5 +65,16 @@ public class IndexItem {
 
     @Indexed(name = LAST_INFO_UPDATE_FIELD, type = "pdate")
     private String lastInfoUpdate;
+
+    @Indexed(name = OBJECT_TYPE_FIELD, type = "string")
+    private String objectType;
+
+    @Indexed(name = ACTIVITY_FIELD, type = "strings")
+    @Singular
+    private List<String> activities;
+
+    @Indexed(name = KEYWORD_FIELD, type = "strings")
+    @Singular
+    private List<String> keywords;
 
 }

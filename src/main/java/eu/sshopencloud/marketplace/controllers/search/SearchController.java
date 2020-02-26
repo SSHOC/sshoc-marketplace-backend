@@ -7,16 +7,21 @@ import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
 import eu.sshopencloud.marketplace.services.search.PaginatedSearchConcepts;
 import eu.sshopencloud.marketplace.services.search.PaginatedSearchItems;
 import eu.sshopencloud.marketplace.services.search.SearchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api")
@@ -32,19 +37,24 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping(path = "/item-search", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Search among items.")
     public ResponseEntity<PaginatedSearchItems> searchItems(@RequestParam(value = "q", required = false) String q,
                                                             @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
                                                             @RequestParam(value = "order", required = false) List<SearchOrder> order,
                                                             @RequestParam(value = "page", required = false) Integer page,
-                                                            @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                            @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                            @Parameter(description = "Facets parameters should provided with putting multiple f.{filter-name}={value} as request parameters.")
+                                                            @RequestParam(required = false) MultiValueMap<String, String> f)
             throws PageTooLargeException, IllegalFilterException {
+        // TODO #13 use enum FilterName to tell swagger the possible filterNames via io.swagger.v3.oas.annotations.media.Schema
         perpage = perpage == null ? defualtPerpage : perpage;
         if (perpage > maximalPerpage) {
             throw new PageTooLargeException(maximalPerpage);
         }
         page = page == null ? 1 : page;
 
-        PaginatedSearchItems items = searchService.searchItems(q, categories, null, order, page, perpage);
+        Map<String, List<String>> filterParams = FilterParamsExtractor.extractFilterParams(f);
+        PaginatedSearchItems items = searchService.searchItems(q, categories, filterParams, order, page, perpage);
         return ResponseEntity.ok(items);
     }
 

@@ -1,9 +1,6 @@
 package eu.sshopencloud.marketplace.services.search;
 
-import eu.sshopencloud.marketplace.dto.search.CountedConcept;
-import eu.sshopencloud.marketplace.dto.search.CountedPropertyType;
-import eu.sshopencloud.marketplace.dto.search.SearchItem;
-import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.dto.search.*;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
@@ -52,6 +49,7 @@ public class SearchService {
 
     public PaginatedSearchItems searchItems(String q, List<ItemCategory> categories, Map<String, List<String>> filterParams, List<SearchOrder> order, int page, int perpage)
             throws IllegalFilterException {
+        log.debug("filterParams " + filterParams.toString());
         Pageable pageable = PageRequest.of(page - 1, perpage); // SOLR counts from page 0
         if (StringUtils.isBlank(q)) {
             q = "";
@@ -133,8 +131,11 @@ public class SearchService {
 
     private List<SearchFilterCriteria> makeFiltersCriteria(Map<String, List<String>> filterParams, IndexType indexType)
             throws IllegalFilterException {
+
         Map<String, SearchFilter> filters = filterParams.keySet().stream()
-                .collect(Collectors.toMap(filterName -> filterName, filterName -> SearchFilter.ofKey(filterName, indexType)));
+        // https://bugs.openjdk.java.net/browse/JDK-8148463
+        //        .collect(Collectors.toMap(filterName -> filterName, filterName -> SearchFilter.ofKey(filterName, indexType)));
+                .collect(HashMap::new, (map, filterName) -> map.put(filterName, SearchFilter.ofKey(filterName, indexType)), HashMap::putAll);
 
         for (Map.Entry<String, SearchFilter> entry: filters.entrySet()) {
             if (entry.getValue() == null) {

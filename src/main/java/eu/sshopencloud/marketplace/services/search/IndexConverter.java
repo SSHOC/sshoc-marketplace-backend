@@ -5,17 +5,20 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
+import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.services.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @UtilityClass
+@Slf4j
 public class IndexConverter {
 
     public IndexItem covertItem(Item item) {
@@ -26,6 +29,20 @@ public class IndexConverter {
                 .description(item.getDescription()).descriptionText(descriptionText).descriptionTextEn(descriptionText)
                 .category(ItemCategoryConverter.convertCategory(item.getCategory()));
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
+        // TODO #13 map properties to fields of IndexItem
+        for (Property property: item.getProperties()) {
+            switch (property.getType().getCode()) {
+                case "object-type":
+                    builder.objectType(property.getConcept().getLabel());
+                    break;
+                case "activity":
+                    builder.activity(property.getConcept().getLabel());
+                    break;
+                case "keyword":
+                    builder.keyword(property.getValue());
+                    break;
+            }
+        }
         return builder.build();
     }
 

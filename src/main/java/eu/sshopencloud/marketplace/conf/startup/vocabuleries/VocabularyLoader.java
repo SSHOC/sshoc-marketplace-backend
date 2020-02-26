@@ -1,7 +1,5 @@
-package eu.sshopencloud.marketplace.conf.vocabuleries;
+package eu.sshopencloud.marketplace.conf.startup.vocabuleries;
 
-import eu.sshopencloud.marketplace.conf.startup.YamlLoader;
-import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;

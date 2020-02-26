@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.conf.converters;
 
+import eu.sshopencloud.marketplace.dto.search.FilterName;
+import eu.sshopencloud.marketplace.dto.search.FilterQueryParamName;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +15,8 @@ public class WebConvertersConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         registry.addFormatterForFieldType(ItemCategory.class, new ItemCategoryFormatter());
         registry.addFormatterForFieldType(SearchOrder.class, new SearchOrderFormatter());
+        registry.addFormatterForFieldType(FilterName.class, new FilterNameFormatter());
+        registry.addFormatterForFieldType(FilterQueryParamName.class, new FilterQueryParamNameFormatter());
     }
 
 }

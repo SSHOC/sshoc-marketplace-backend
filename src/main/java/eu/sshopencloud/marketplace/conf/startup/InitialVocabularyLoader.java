@@ -1,11 +1,9 @@
 package eu.sshopencloud.marketplace.conf.startup;
 
-import eu.sshopencloud.marketplace.conf.vocabuleries.VocabularyLoader;
-import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.conf.startup.vocabuleries.VocabularyLoader;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
-import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
