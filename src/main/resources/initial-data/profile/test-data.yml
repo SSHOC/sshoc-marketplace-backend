@@ -746,7 +746,7 @@ Dataset:
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
-        value:                          Topic modeling
+        value:                          topic modeling
 
 
 ItemRelatedItem:

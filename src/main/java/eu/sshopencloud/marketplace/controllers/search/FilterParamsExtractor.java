@@ -15,7 +15,7 @@ public class FilterParamsExtractor {
         for (Map.Entry<String, List<String>> entry: params.entrySet()) {
             String key = entry.getKey();
             if (key.startsWith("f.")) {
-                filterParams.put(key.substring(2, key.length()), entry.getValue());
+                filterParams.put(key.substring(2), entry.getValue());
             }
         }
         return filterParams;

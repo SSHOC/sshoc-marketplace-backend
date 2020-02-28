@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.dto.search.CheckedCount;
 import eu.sshopencloud.marketplace.dto.search.CountedConcept;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
@@ -25,6 +26,6 @@ public class PaginatedSearchItems extends PaginatedResult {
 
     private Map<ItemCategory, CountedConcept> categories;
 
-    private Map<String, Map<String, Long>> facets;
+    private Map<String, Map<String, CheckedCount>> facets;
 
 }

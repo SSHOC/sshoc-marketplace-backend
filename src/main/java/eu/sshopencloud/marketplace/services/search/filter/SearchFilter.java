@@ -9,15 +9,16 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SearchFilter {
 
-    CATEGORY(IndexType.ITEMS, IndexItem.CATEGORY_FIELD, FilterType.VALUES_SELECTION_FILTER),
+    CATEGORY(IndexType.ITEMS, IndexItem.CATEGORY_FIELD, FilterType.VALUES_SELECTION_FILTER, true),
 
-    OBJECT_TYPE(IndexType.ITEMS, IndexItem.OBJECT_TYPE_FIELD, FilterType.VALUES_SELECTION_FILTER),
+    OBJECT_TYPE(IndexType.ITEMS, IndexItem.OBJECT_TYPE_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
-    ACTIVITY(IndexType.ITEMS, IndexItem.ACTIVITY_FIELD, FilterType.VALUES_SELECTION_FILTER),
+    ACTIVITY(IndexType.ITEMS, IndexItem.ACTIVITY_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
-    KEYWORD(IndexType.ITEMS, IndexItem.KEYWORD_FIELD, FilterType.VALUES_SELECTION_FILTER),
+    KEYWORD(IndexType.ITEMS, IndexItem.KEYWORD_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
-    PROPERTY_TYPE(IndexType.CONCEPTS, IndexConcept.TYPES_FIELD, FilterType.VALUES_SELECTION_FILTER);
+    PROPERTY_TYPE(IndexType.CONCEPTS, IndexConcept.TYPES_FIELD, FilterType.VALUES_SELECTION_FILTER, true);
+
 
     private IndexType indexType;
 
@@ -25,13 +26,17 @@ public enum SearchFilter {
 
     private FilterType type;
 
+    private boolean main;
+
     public static SearchFilter ofKey(String filterName, IndexType indexType) {
         for (SearchFilter filter : SearchFilter.values()) {
-            if (filter.key.replace('_', '-').equalsIgnoreCase(filterName) && filter.getIndexType().equals(indexType)) {
+            if (filter.key.replace('_', '-').equalsIgnoreCase(filterName) && filter.getIndexType().equals(indexType) && !filter.isMain()) {
                 return filter;
             }
         }
         return null;
     }
+
+    public static final String ITEMS_INDEX_TYPE_FILTERS = "object-type, activity, keyword";
 
 }

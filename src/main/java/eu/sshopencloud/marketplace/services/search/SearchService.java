@@ -28,6 +28,7 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,16 +50,14 @@ public class SearchService {
 
     private final PropertyTypeService propertyTypeService;
 
-    public PaginatedSearchItems searchItems(String q, List<ItemCategory> categories, Map<String, List<String>> filterParams, List<SearchOrder> order, int page, int perpage)
+    public PaginatedSearchItems searchItems(String q, List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams, List<SearchOrder> order, int page, int perpage)
             throws IllegalFilterException {
         log.debug("filterParams " + filterParams.toString());
         Pageable pageable = PageRequest.of(page - 1, perpage); // SOLR counts from page 0
         if (StringUtils.isBlank(q)) {
             q = "";
         }
-        if (filterParams == null) {
-            filterParams = Collections.emptyMap();
-        }
+
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         filterCriteria.add(makeCategoryCriteria(categories));
         filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.ITEMS));
@@ -80,12 +79,12 @@ public class SearchService {
         SearchConverter.fillMissingCategories(countedCategories, categories, concepts);
         countedCategories.sort(new CountedConceptComparator());
 
-        Map<String, Map<String, Long>> facets  = facetPage.getFacetFields().stream()
+        Map<String, Map<String, CheckedCount>> facets = facetPage.getFacetFields().stream()
                 .filter(field -> !field.getName().equals(IndexItem.CATEGORY_FIELD))
                 .map(field -> Pair.create(
                         field.getName().replace('_', '-'),
-                        createFacetDetails(facetPage.getFacetResultPage(field.getName()).getContent())
-                 ))
+                        createFacetDetails(facetPage.getFacetResultPage(field.getName()).getContent(), filterParams.get(field.getName().replace('_', '-')))
+                ))
                 .collect(Collectors.toMap(
                         Pair::getKey, Pair::getValue,
                         (u, v) -> u,
@@ -102,7 +101,7 @@ public class SearchService {
                 .build();
 
         // TODO index contributors and properties directly in SOLR in nested docs (?)
-        for (SearchItem item: result.getItems()) {
+        for (SearchItem item : result.getItems()) {
             item.setContributors(itemContributorService.getItemContributors(item.getId()));
             item.setProperties(propertyService.getItemProperties(item.getId()));
         }
@@ -110,14 +109,24 @@ public class SearchService {
         return result;
     }
 
-    private static Map<String, Long> createFacetDetails(List<FacetFieldEntry> values) {
-        return values.stream()
-                .collect(
-                        Collectors.toMap(FacetFieldEntry::getValue, FacetFieldEntry::getValueCount,
-                                (u, v) -> u,
-                                LinkedHashMap::new
-                        )
-                );
+    private static Map<String, CheckedCount> createFacetDetails(List<FacetFieldEntry> facetValues, List<String> checkedValues) {
+        if (checkedValues != null) {
+            return facetValues.stream()
+                    .collect(
+                            Collectors.toMap(FacetFieldEntry::getValue, facetValue -> CheckedCount.builder().count(facetValue.getValueCount()).checked(checkedValues.contains(facetValue.getValue())).build(),
+                                    (u, v) -> u,
+                                    LinkedHashMap::new
+                            )
+                    );
+        } else {
+            return facetValues.stream()
+                    .collect(
+                            Collectors.toMap(FacetFieldEntry::getValue, facetValue -> CheckedCount.builder().count(facetValue.getValueCount()).build(),
+                                    (u, v) -> u,
+                                    LinkedHashMap::new
+                            )
+                    );
+        }
     }
 
     public PaginatedSearchConcepts searchConcepts(String q, List<String> types, int page, int perpage) {
@@ -156,15 +165,14 @@ public class SearchService {
         return createFilterCriteria(SearchFilter.PROPERTY_TYPE, types);
     }
 
-    private List<SearchFilterCriteria> makeFiltersCriteria(Map<String, List<String>> filterParams, IndexType indexType)
+    private List<SearchFilterCriteria> makeFiltersCriteria(@NotNull Map<String, List<String>> filterParams, IndexType indexType)
             throws IllegalFilterException {
-
         Map<String, SearchFilter> filters = filterParams.keySet().stream()
-        // https://bugs.openjdk.java.net/browse/JDK-8148463
-        //        .collect(Collectors.toMap(filterName -> filterName, filterName -> SearchFilter.ofKey(filterName, indexType)));
+                // https://bugs.openjdk.java.net/browse/JDK-8148463
+                //        .collect(Collectors.toMap(filterName -> filterName, filterName -> SearchFilter.ofKey(filterName, indexType)));
                 .collect(HashMap::new, (map, filterName) -> map.put(filterName, SearchFilter.ofKey(filterName, indexType)), HashMap::putAll);
 
-        for (Map.Entry<String, SearchFilter> entry: filters.entrySet()) {
+        for (Map.Entry<String, SearchFilter> entry : filters.entrySet()) {
             if (entry.getValue() == null) {
                 throw new IllegalFilterException(entry.getKey());
             }

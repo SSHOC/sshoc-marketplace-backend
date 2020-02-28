@@ -7,8 +7,11 @@ import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
 import eu.sshopencloud.marketplace.services.search.PaginatedSearchConcepts;
 import eu.sshopencloud.marketplace.services.search.PaginatedSearchItems;
 import eu.sshopencloud.marketplace.services.search.SearchService;
+import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -43,10 +46,10 @@ public class SearchController {
                                                             @RequestParam(value = "order", required = false) List<SearchOrder> order,
                                                             @RequestParam(value = "page", required = false) Integer page,
                                                             @RequestParam(value = "perpage", required = false) Integer perpage,
-                                                            @Parameter(description = "Facets parameters should provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: object-type, activity, keyword.")
+                                                            @Parameter(description = "Facets parameters should be provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: "
+                                                                    + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
                                                             @RequestParam(required = false) MultiValueMap<String, String> f)
             throws PageTooLargeException, IllegalFilterException {
-        // TODO #13 use enum FilterName to tell swagger the possible filterNames via io.swagger.v3.oas.annotations.media.Schema
         perpage = perpage == null ? defualtPerpage : perpage;
         if (perpage > maximalPerpage) {
             throw new PageTooLargeException(maximalPerpage);
@@ -59,6 +62,7 @@ public class SearchController {
     }
 
     @GetMapping(path = "/concept-search", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Search among concepts.")
     public ResponseEntity<PaginatedSearchConcepts> searchItems(@RequestParam(value = "q", required = false) String q,
                                                                @RequestParam(value = "types", required = false) List<String> types,
                                                                @RequestParam(value = "page", required = false) Integer page,
