@@ -17,7 +17,7 @@ public class LicenseTypeService {
     private final LicenseTypeRepository licenseTypeRepository;
 
     public List<LicenseType> getAllLicenseTypes() {
-        return licenseTypeRepository.findAll(new Sort(Sort.Direction.ASC, "ord"));
+        return licenseTypeRepository.findAll(Sort.by(Sort.Order.asc("ord")));
     }
 
 }

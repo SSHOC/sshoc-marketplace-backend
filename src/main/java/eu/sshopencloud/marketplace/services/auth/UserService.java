@@ -37,7 +37,7 @@ public class UserService implements UserDetailsService {
         User queryUser = new User();
         queryUser.setUsername(q);
 
-        Page<User> users = userRepository.findAll(Example.of(queryUser, queryUserMatcher), PageRequest.of(0, perpage, new Sort(Sort.Direction.ASC, "username")));
+        Page<User> users = userRepository.findAll(Example.of(queryUser, queryUserMatcher), PageRequest.of(0, perpage, Sort.by(Sort.Order.asc("username"))));
         return users.getContent();
     }
 

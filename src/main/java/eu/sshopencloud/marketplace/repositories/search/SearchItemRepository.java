@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.repositories.search;
 
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
+import eu.sshopencloud.marketplace.repositories.search.solr.ForceFacetSortSolrTemplate;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.RequestMethod;
-import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Repository;
@@ -24,7 +24,7 @@ import java.util.List;
 @Slf4j
 public class SearchItemRepository {
 
-    private final SolrTemplate solrTemplate;
+    private final ForceFacetSortSolrTemplate solrTemplate;
 
     public FacetPage<IndexItem> findByQueryAndFilters(String q, List<SearchFilterCriteria> filterCriteria, List<SearchOrder> order, Pageable pageable) {
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q))
@@ -54,10 +54,11 @@ public class SearchItemRepository {
                 }
                 Criteria nameTextEnCriteria = Criteria.where(IndexItem.LABEL_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
                 Criteria descTextEnCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_EN_FIELD).boost(1f).is(queryPart.getExpression());
+                Criteria keywordTextCriteria = Criteria.where(IndexItem.KEYWORD_TEXT_FIELD).boost(3f).is(queryPart.getExpression());
                 if (orCriteria == null) {
-                    orCriteria = nameTextEnCriteria.or(descTextEnCriteria);
+                    orCriteria = nameTextEnCriteria.or(descTextEnCriteria).or(keywordTextCriteria);
                 } else {
-                    orCriteria = orCriteria.or(nameTextEnCriteria.or(descTextEnCriteria));
+                    orCriteria = orCriteria.or(nameTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria);
                 }
                 if (andCriteria == null) {
                     andCriteria = orCriteria;
@@ -84,8 +85,9 @@ public class SearchItemRepository {
 
     private FacetOptions createFacetOptions() {
         FacetOptions facetOptions = new FacetOptions();
+        // tag cannot be in the facet field parameters because of the bug in spring-data-solr-4.1.4. So we add global parameters for facets
         facetOptions.setFacetLimit(-1);
-        facetOptions.setFacetMinCount(0); // when bug in spring-data-solr-4.0.10 is corrected, change to 1 and move it to facet parameters
+        facetOptions.setFacetMinCount(1);
         facetOptions.setFacetSort(FacetOptions.FacetSort.COUNT);
         Arrays.stream(SearchFacet.values())
                 .filter(searchFacet -> searchFacet.getFilter().getIndexType().equals(IndexType.ITEMS))

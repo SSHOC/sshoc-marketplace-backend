@@ -29,22 +29,31 @@ public class IndexConverter {
                 .description(item.getDescription()).descriptionText(descriptionText).descriptionTextEn(descriptionText)
                 .category(ItemCategoryConverter.convertCategory(item.getCategory()));
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
-        // TODO #13 map properties to fields of IndexItem
-        for (Property property: item.getProperties()) {
+        for (Property property : item.getProperties()) {
             switch (property.getType().getCode()) {
                 case "object-type":
-                    builder.objectType(property.getConcept().getLabel());
+                    builder.objectType(getPropertyValue(property));
                     break;
                 case "activity":
-                    builder.activity(property.getConcept().getLabel());
+                    builder.activity(getPropertyValue(property));
                     break;
                 case "keyword":
-                    builder.keyword(property.getValue());
+                    String keyword = getPropertyValue(property);
+                    builder.keyword(keyword).keywordsText(keyword);
                     break;
             }
         }
         return builder.build();
     }
+
+    private String getPropertyValue(Property property) {
+        if (property.getConcept() != null) {
+            return property.getConcept().getLabel();
+        } else {
+            return property.getValue();
+        }
+    }
+
 
     public IndexConcept covertConcept(Concept concept, Vocabulary vocabulary, List<PropertyType> proopertyTypes) {
         IndexConcept.IndexConceptBuilder builder = IndexConcept.builder();

@@ -20,8 +20,10 @@ import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 
@@ -74,7 +76,21 @@ public class SearchService {
                 .flatMap(facetFieldEntries -> facetFieldEntries.getContent().stream())
                 .map(entry -> SearchConverter.convertCategoryFacet(entry, categories, concepts))
                 .collect(Collectors.toList());
+        // when bug in spring-data-solr-4.1.4 is corrected, set facet.mincount and facet.sort to facet parameters and remove manual filling the list of categories
+        SearchConverter.fillMissingCategories(countedCategories, categories, concepts);
         countedCategories.sort(new CountedConceptComparator());
+
+        Map<String, Map<String, Long>> facets  = facetPage.getFacetFields().stream()
+                .filter(field -> !field.getName().equals(IndexItem.CATEGORY_FIELD))
+                .map(field -> Pair.create(
+                        field.getName().replace('_', '-'),
+                        createFacetDetails(facetPage.getFacetResultPage(field.getName()).getContent())
+                 ))
+                .collect(Collectors.toMap(
+                        Pair::getKey, Pair::getValue,
+                        (u, v) -> u,
+                        LinkedHashMap::new
+                ));
 
         PaginatedSearchItems result = PaginatedSearchItems.builder().q(q).order(order).items(facetPage.get().map(SearchConverter::convertIndexItem).collect(Collectors.toList()))
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements()).page(page).perpage(perpage).pages(facetPage.getTotalPages())
@@ -82,6 +98,7 @@ public class SearchService {
                         .collect(Collectors.toMap(countedConcept -> ItemCategoryConverter.convertCategory(countedConcept.getCode()), countedConcept -> countedConcept,
                                 (u, v) -> u,
                                 LinkedHashMap::new)))
+                .facets(facets)
                 .build();
 
         // TODO index contributors and properties directly in SOLR in nested docs (?)
@@ -91,6 +108,16 @@ public class SearchService {
         }
 
         return result;
+    }
+
+    private static Map<String, Long> createFacetDetails(List<FacetFieldEntry> values) {
+        return values.stream()
+                .collect(
+                        Collectors.toMap(FacetFieldEntry::getValue, FacetFieldEntry::getValueCount,
+                                (u, v) -> u,
+                                LinkedHashMap::new
+                        )
+                );
     }
 
     public PaginatedSearchConcepts searchConcepts(String q, List<String> types, int page, int perpage) {

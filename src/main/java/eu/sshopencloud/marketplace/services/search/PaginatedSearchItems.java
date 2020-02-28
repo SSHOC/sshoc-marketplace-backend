@@ -25,4 +25,6 @@ public class PaginatedSearchItems extends PaginatedResult {
 
     private Map<ItemCategory, CountedConcept> categories;
 
+    private Map<String, Map<String, Long>> facets;
+
 }

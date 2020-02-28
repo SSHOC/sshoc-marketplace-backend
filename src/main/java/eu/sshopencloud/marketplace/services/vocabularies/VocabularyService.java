@@ -42,7 +42,7 @@ public class VocabularyService {
     private final ConceptRelatedConceptService conceptRelatedConceptService;
 
     public PaginatedVocabularies getVocabularies(int page, int perpage) {
-        Page<Vocabulary> vocabularies = vocabularyRepository.findAll(PageRequest.of(page - 1, perpage, new Sort(Sort.Direction.ASC, "label")));
+        Page<Vocabulary> vocabularies = vocabularyRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
         for (Vocabulary vocabulary: vocabularies) {
             complete(vocabulary);
         }

@@ -62,6 +62,32 @@ public class SearchControllerITCase {
     }
 
     @Test
+    public void shouldReturnItemsByKeyword() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=topic modeling")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(2)))
+                .andExpect(jsonPath("items[0].id", is(2)))
+                .andExpect(jsonPath("items[0].label", is("Stata")))
+                .andExpect(jsonPath("items[1].id", is(11)))
+                .andExpect(jsonPath("items[1].label", is("Test dataset with markdown description")));
+    }
+
+    @Test
+    public void shouldReturnItemsByKeywordPhrase() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=\"topic modeling\"")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(2)))
+                .andExpect(jsonPath("items[0].id", is(2)))
+                .andExpect(jsonPath("items[0].label", is("Stata")))
+                .andExpect(jsonPath("items[1].id", is(11)))
+                .andExpect(jsonPath("items[1].label", is("Test dataset with markdown description")));
+    }
+
+    @Test
     public void shouldReturnItemsByWordAndSortedByLabel() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&order=label")

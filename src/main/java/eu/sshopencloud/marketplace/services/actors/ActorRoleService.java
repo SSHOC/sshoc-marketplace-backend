@@ -20,7 +20,7 @@ public class ActorRoleService {
     private final ActorRoleRepository actorRoleRepository;
 
     public List<ActorRole> getAllActorRoles() {
-        return actorRoleRepository.findAll(new Sort(Sort.Direction.ASC, "ord"));
+        return actorRoleRepository.findAll(Sort.by(Sort.Order.asc("ord")));
     }
 
     public ActorRole validate(String prefix, ActorRoleId role) throws DataViolationException {

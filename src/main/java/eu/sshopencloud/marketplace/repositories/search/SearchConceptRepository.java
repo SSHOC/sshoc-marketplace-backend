@@ -70,7 +70,7 @@ public class SearchConceptRepository {
 
     private FacetOptions createFacetOptions() {
         FacetOptions facetOptions = new FacetOptions();
-        // when other facets are added to concept-search move these parameters to facet parameters (bug in spring-data-solr-4.0.10)
+        // tag cannot be in the facet field parameters because of the bug in spring-data-solr-4.1.4. So we add global parameters for facets
         facetOptions.setFacetLimit(-1);
         facetOptions.setFacetMinCount(1);
         facetOptions.setFacetSort(FacetOptions.FacetSort.COUNT);

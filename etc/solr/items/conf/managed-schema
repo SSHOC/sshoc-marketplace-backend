@@ -122,6 +122,7 @@
     <field name="object_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="activity" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="keyword" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="keyword_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
     <field name="_version_" type="plong" indexed="false" stored="false"/>

@@ -16,17 +16,28 @@ import java.util.stream.Collectors;
 public enum SearchFacet {
 
     CATEGORY(SearchFilter.CATEGORY, IndexItem.CATEGORY_FIELD,
-            Collections.singletonList(IndexItem.CATEGORY_FIELD),
-            // connected with a bug in spring-data-solr-4.0.10
-            //new SearchFacetParameters(4, 0, FacetOptions.FacetSort.INDEX)
-            null
+            List.of(IndexItem.CATEGORY_FIELD, IndexItem.OBJECT_TYPE_FIELD, IndexItem.ACTIVITY_FIELD, IndexItem.KEYWORD_FIELD),
+            new SearchFacetParameters(4, 0, FacetOptions.FacetSort.INDEX)
+    ),
+
+    OBJECT_TYPE(SearchFilter.OBJECT_TYPE, IndexItem.OBJECT_TYPE_FIELD,
+            List.of(IndexItem.OBJECT_TYPE_FIELD),
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
+    ACTIVITY(SearchFilter.ACTIVITY, IndexItem.ACTIVITY_FIELD,
+            List.of(IndexItem.ACTIVITY_FIELD),
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
+    KEYWORD(SearchFilter.KEYWORD, IndexItem.KEYWORD_FIELD,
+            List.of(IndexItem.KEYWORD_FIELD),
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 
     PROPERTY_TYPE(SearchFilter.PROPERTY_TYPE, IndexConcept.TYPES_FIELD,
              Collections.singletonList(IndexConcept.TYPES_FIELD),
-            // connected with a bug in spring-data-solr-4.0.10
-            // new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
-            null
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     );
 
 
@@ -65,7 +76,7 @@ public enum SearchFacet {
 
     public Field toFacetField() {
         if (parameters != null) {
-            // TODO tag cannot be in the facet field parameters! There is a bug in spring-data-solr-4.0.10
+            // TODO tag cannot be in the facet field parameters! There is a bug in spring-data-solr-4.1.4, so we force facet.sort=count if needed in ForceFacetSortSolrTemplate, and facets with other sort are handled with separately.
             FacetOptions.FieldWithFacetParameters facetFieldWithParameters = new FacetOptions.FieldWithFacetParameters(toFacetName());
             facetFieldWithParameters.setLimit(parameters.getLimit());
             facetFieldWithParameters.setMinCount(parameters.getMinCount());

@@ -43,7 +43,7 @@ public class SearchController {
                                                             @RequestParam(value = "order", required = false) List<SearchOrder> order,
                                                             @RequestParam(value = "page", required = false) Integer page,
                                                             @RequestParam(value = "perpage", required = false) Integer perpage,
-                                                            @Parameter(description = "Facets parameters should provided with putting multiple f.{filter-name}={value} as request parameters.")
+                                                            @Parameter(description = "Facets parameters should provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: object-type, activity, keyword.")
                                                             @RequestParam(required = false) MultiValueMap<String, String> f)
             throws PageTooLargeException, IllegalFilterException {
         // TODO #13 use enum FilterName to tell swagger the possible filterNames via io.swagger.v3.oas.annotations.media.Schema

@@ -56,7 +56,7 @@ public class ToolService {
     private final UserRepository userRepository;
 
     public PaginatedTools getTools(int page, int perpage) {
-        Page<Tool> tools = toolRepository.findAll(PageRequest.of(page - 1, perpage, new Sort(Sort.Direction.ASC, "label")));
+        Page<Tool> tools = toolRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
         for (Tool tool: tools) {
             complete(tool);
         }

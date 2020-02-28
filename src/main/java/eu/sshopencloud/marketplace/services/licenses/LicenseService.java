@@ -28,7 +28,7 @@ public class LicenseService {
         queryLicense.setCode(q);
         queryLicense.setLabel(q);
 
-        Page<License> licenses = licenseRepository.findAll(Example.of(queryLicense, queryLicenseMatcher), PageRequest.of(0, perpage, new Sort(Sort.Direction.ASC, "label")));
+        Page<License> licenses = licenseRepository.findAll(Example.of(queryLicense, queryLicenseMatcher), PageRequest.of(0, perpage, Sort.by(Sort.Order.asc("label"))));
         return licenses.getContent();
     }
 

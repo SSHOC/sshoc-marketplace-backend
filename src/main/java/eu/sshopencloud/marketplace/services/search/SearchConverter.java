@@ -20,6 +20,7 @@ import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -47,6 +48,25 @@ public class SearchConverter {
             builder.checked(categories.contains(category));
         }
         return builder.build();
+    }
+
+    public static void fillMissingCategories(List<CountedConcept> countedCategories, List<ItemCategory> categories, Map<ItemCategory, Concept> concepts) {
+        for (ItemCategory category : ItemCategory.values()) {
+            if (countedCategories.stream().noneMatch(countedCategory -> Objects.equals(category.getValue(), countedCategory.getCode()))) {
+                Concept concept = concepts.get(category);
+                VocabularyId vocabulary = new VocabularyId();
+                vocabulary.setCode(concept.getVocabulary().getCode());
+                CountedConcept.CountedConceptBuilder builder = CountedConcept.builder();
+                builder.code(category.getValue()).vocabulary(vocabulary).label(concept.getLabel()).notation(concept.getNotation()).ord(concept.getOrd()).definition(concept.getDefinition()).uri(concept.getUri());
+                builder.count(0);
+                if (categories == null) {
+                    builder.checked(false);
+                } else {
+                    builder.checked(categories.contains(category));
+                }
+                countedCategories.add(builder.build());
+            }
+        }
     }
 
     public SearchConcept convertIndexConcept(IndexConcept indexConcept) {

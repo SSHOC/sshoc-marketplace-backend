@@ -113,8 +113,16 @@ Tool:
           id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-          code:                           material
-        value:                          oil
+          code:                           keyword
+        value:                          graph
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        1
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           keyword
+        value:                          social network analysis
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Gephi also appears in Project Bamboo's DiRT, a registry of digital tools suitable for academic research. DiRT contains a wide range of tools and software searchable by task, such as annotation, content management, collaborative research, or authoring. It is an excellent resource for Digital Humanists seeking the right tool for the task at hand.
@@ -179,8 +187,16 @@ Tool:
           id:                        2
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-          code:                           material
+          code:                           keyword
         value:                          Lorem ipsum
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.tools.Tool
+          id:                        2
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           keyword
+        value:                          topic modeling
 
   - !!eu.sshopencloud.marketplace.model.tools.Tool
     category:                    TOOL
@@ -575,6 +591,14 @@ TrainingMaterial:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+          id:                        8
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           keyword
+        value:                          topic
 
 
 Dataset:
@@ -707,6 +731,22 @@ Dataset:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        11
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           keyword
+        value:                          Lorem ipsum
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.datasets.Dataset
+          id:                        11
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           keyword
+        value:                          topic modeling
 
 
 ItemRelatedItem:

@@ -20,7 +20,7 @@ public class ItemRelationService {
     private final ItemRelationRepository itemRelationRepository;
 
     public List<ItemRelation> getAllItemRelations() {
-        return itemRelationRepository.findAll(new Sort(Sort.Direction.ASC, "ord"));
+        return itemRelationRepository.findAll(Sort.by(Sort.Order.asc("ord")));
     }
 
     public ItemRelation validate(String prefix, ItemRelationId itemRelation) throws DataViolationException {

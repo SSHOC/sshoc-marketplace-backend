@@ -34,7 +34,7 @@ public class ActorService {
         queryActor.setWebsite(q);
         queryActor.setEmail(q);
 
-        Page<Actor> actors = actorRepository.findAll(Example.of(queryActor, queryActorMatcher), PageRequest.of(0, perpage, new Sort(Sort.Direction.ASC, "name")));
+        Page<Actor> actors = actorRepository.findAll(Example.of(queryActor, queryActorMatcher), PageRequest.of(0, perpage, Sort.by(Sort.Order.asc("name"))));
         return actors.getContent();
     }
 

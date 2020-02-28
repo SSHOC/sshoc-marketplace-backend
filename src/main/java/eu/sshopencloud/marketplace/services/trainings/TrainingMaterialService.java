@@ -56,7 +56,7 @@ public class TrainingMaterialService {
     private final UserRepository userRepository;
 
     public PaginatedTrainingMaterials getTrainingMaterials(int page, int perpage) {
-        Page<TrainingMaterial> trainingMaterials = trainingMaterialRepository.findAll(PageRequest.of(page - 1, perpage, new Sort(Sort.Direction.ASC, "label")));
+        Page<TrainingMaterial> trainingMaterials = trainingMaterialRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
         for (TrainingMaterial trainingMaterial: trainingMaterials) {
             complete(trainingMaterial);
         }

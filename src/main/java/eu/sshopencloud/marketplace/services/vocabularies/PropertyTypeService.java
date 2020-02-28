@@ -36,7 +36,7 @@ public class PropertyTypeService {
         PropertyType queryPropertyType = new PropertyType();
         queryPropertyType.setLabel(q);
 
-        Page<PropertyType> propertyTypes = propertyTypeRepository.findAll(Example.of(queryPropertyType, queryPropertyTypeMatcher), PageRequest.of(0, perpage,new Sort(Sort.Direction.ASC, "ord")));
+        Page<PropertyType> propertyTypes = propertyTypeRepository.findAll(Example.of(queryPropertyType, queryPropertyTypeMatcher), PageRequest.of(0, perpage, Sort.by(Sort.Order.asc("ord"))));
         for (PropertyType propertyType: propertyTypes.getContent()) {
             propertyType.setAllowedVocabularies(getAllowedVocabulariesForPropertyType(propertyType));
         }

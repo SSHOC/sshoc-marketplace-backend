@@ -60,7 +60,7 @@ public class DatasetService {
 
 
     public PaginatedDatasets getDatasets(int page, int perpage) {
-        Page<Dataset> datasets = datasetRepository.findAll(PageRequest.of(page - 1, perpage, new Sort(Sort.Direction.ASC, "label")));
+        Page<Dataset> datasets = datasetRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
         for (Dataset dataset: datasets) {
             complete(dataset);
         }

@@ -52,7 +52,7 @@ public class ConceptService {
     }
 
     public List<Concept> getConcepts(String vocabularyCode) {
-        return conceptRepository.findConceptByVocabularyCode(vocabularyCode, new Sort(Sort.Direction.ASC, "ord"));
+        return conceptRepository.findConceptByVocabularyCode(vocabularyCode, Sort.by(Sort.Order.asc("ord")));
     }
 
     public Concept getConcept(String code, String vocabularyCode) {

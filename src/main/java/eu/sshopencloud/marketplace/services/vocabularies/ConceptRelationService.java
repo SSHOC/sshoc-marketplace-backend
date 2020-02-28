@@ -19,7 +19,7 @@ public class ConceptRelationService {
     private final ConceptRelationRepository conceptRelationRepository;
 
     public List<ConceptRelation> getAllConceptRelations() {
-        return conceptRelationRepository.findAll(new Sort(Sort.Direction.ASC, "ord"));
+        return conceptRelationRepository.findAll(Sort.by(Sort.Order.asc("ord")));
     }
 
     public ConceptRelation validate(String prefix, String relationCode) throws DataViolationException {
