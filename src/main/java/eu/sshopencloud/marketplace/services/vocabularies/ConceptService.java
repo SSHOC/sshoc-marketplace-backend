@@ -56,11 +56,8 @@ public class ConceptService {
     }
 
     public Concept getConcept(String code, String vocabularyCode) {
-        Optional<Concept> concept = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build());
-        if (!concept.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " +vocabularyCode);
-        }
-        return concept.get();
+        return conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build())
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));
     }
 
     public Concept validate(ItemCategory category, String prefix, ConceptId concept, PropertyType propertyType, List<VocabularyInline> allowedVocabularies)
