@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.model.activities;
 
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemInline;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +20,6 @@ public class Activity extends Item {
     private List<Activity> composedOf;
 
     @Transient
-    private List<ItemInline> partOf;
+    private List<ActivityInline> partOf;
 
 }
