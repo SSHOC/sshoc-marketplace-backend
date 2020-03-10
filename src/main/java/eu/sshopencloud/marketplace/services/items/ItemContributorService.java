@@ -9,8 +9,8 @@ import eu.sshopencloud.marketplace.services.actors.ActorRoleService;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@IdClass(ActivityParthoodId.class)
 @Table(name = "activities_parthoods")
 @Data
 @NoArgsConstructor
