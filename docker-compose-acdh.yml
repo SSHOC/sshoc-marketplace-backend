@@ -9,6 +9,10 @@ services:
       - solr    
     environment:
       SPRING_ACTIVE_PROFILE: prod
+      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+      POSTGRES_HOST: psql
     labels:
       - traefik.backend=marketplace-api
       - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
@@ -46,7 +50,7 @@ services:
     networks:
       - backend
       - web
-      
+
 networks:
   backend:
     driver: bridge
