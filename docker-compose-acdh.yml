@@ -13,6 +13,9 @@ services:
       POSTGRES_USER: marketplace
       POSTGRES_PASSWORD: marketplace
       POSTGRES_HOST: psql
+      POSTGRES_PORT: 5432
+      SOLR_HOST: solr
+      SOLR_PORT: 8983
     labels:
       - traefik.backend=marketplace-api
       - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
