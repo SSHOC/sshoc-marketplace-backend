@@ -19,6 +19,17 @@ public class ItemContributorCriteriaRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
+    public ItemContributor findItemContributorByItemIdAndActorId(Long itemId, Long actorId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ItemContributor> cq = cb.createQuery(ItemContributor.class);
+        Root<ItemContributor> rootItemContributor = cq.from(ItemContributor.class);
+        cq.select(rootItemContributor);
+        cq.where(cb.and(cb.equal(rootItemContributor.get("item").get("id"), itemId), cb.equal(rootItemContributor.get("actor").get("id"), actorId)));
+        TypedQuery<ItemContributor> query = entityManager.createQuery(cq);
+        return query.getResultStream().findFirst().orElse(null);
+
+    }
+
     public List<ItemContributor> findItemContributorByItemId(Long itemId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<ItemContributor> cq = cb.createQuery(ItemContributor.class);

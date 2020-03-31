@@ -10,6 +10,8 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.model.datasets.Dataset;
+import eu.sshopencloud.marketplace.model.tools.Tool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -66,7 +68,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldntReturnToolWhenNotExist() throws Exception {
+    public void shouldNotReturnToolWhenNotExist() throws Exception {
         Integer toolId = 51;
 
         mvc.perform(get("/api/tools/{id}", toolId)
@@ -170,7 +172,7 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
-        tool.setPrevVersionId(2l);
+        tool.setPrevVersionId(3l);
         PropertyCore property0 = new PropertyCore();
         PropertyTypeId propertyType0 = new PropertyTypeId();
         propertyType0.setCode("object-type");
@@ -196,13 +198,13 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(2)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Stata")))
+                .andExpect(jsonPath("olderVersions[0].id", is(3)))
+                .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
     @Test
-    public void shouldntCreateToolWhenObjectTypeIsIncorrect() throws Exception {
+    public void shouldNotCreateToolWhenObjectTypeIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -227,11 +229,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateToolWhenLabelIsNull() throws Exception {
+    public void shouldNotCreateToolWhenLabelIsNull() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setDescription("Lorem ipsum");
         PropertyCore property0 = new PropertyCore();
@@ -255,11 +259,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("label")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateToolWhenLicenseIsUnknown() throws Exception {
+    public void shouldNotCreateToolWhenLicenseIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -289,11 +295,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateToolWhenContributorIsUnknown() throws Exception {
+    public void shouldNotCreateToolWhenContributorIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -328,11 +336,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateToolWhenContributorRoleIsIncorrect() throws Exception {
+    public void shouldNotCreateToolWhenContributorRoleIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -367,11 +377,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateToolWhenPropertyTypeIsUnknown() throws Exception {
+    public void shouldNotCreateToolWhenPropertyTypeIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -413,11 +425,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].type.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateToolWhenConceptIsIncorrect() throws Exception {
+    public void shouldNotCreateToolWhenConceptIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -459,11 +473,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateToolWhenVocabularyIsDisallowed() throws Exception {
+    public void shouldNotCreateToolWhenVocabularyIsDisallowed() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -505,11 +521,15 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
+                .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
+                .andExpect(jsonPath("errors[0].args[0]", is("iso-639-3")))
+                .andExpect(jsonPath("errors[0].args[1]", is("activity")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    public void shouldNotCreateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -546,12 +566,14 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
     public void shouldUpdateToolWithoutRelation() throws Exception {
-        Integer toolId = 1;
+        Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
@@ -576,7 +598,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldUpdateToolWithRelations() throws Exception {
-        Integer toolId = 1;
+        Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
@@ -648,11 +670,11 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("properties[1].concept.label", is("eng")))
                 .andExpect(jsonPath("properties[2].value", is("paper")))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("newerVersions", hasSize(1)));
     }
 
     @Test
-    public void shouldntUpdateToolWhenNotExist() throws Exception {
+    public void shouldNotUpdateToolWhenNotExist() throws Exception {
         Integer toolId = 99;
 
         ToolCore tool = new ToolCore();
@@ -686,9 +708,37 @@ public class ToolControllerITCase {
         Integer toolId = 1;
 
         ToolCore tool = new ToolCore();
-        tool.setLabel("Test complex software");
-        tool.setDescription("Lorem ipsum");
+        tool.setLabel("Gephi");
+        tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
         tool.setPrevVersionId(3l);
+        tool.setAccessibleAt("https://gephi.org/");
+        tool.setRepository("https://github.com/gephi/gephi");
+        LicenseId license1 = new LicenseId();
+        license1.setCode("cddl-1.0");
+        LicenseId license2 = new LicenseId();
+        license2.setCode("gpl-3.0");
+        List<LicenseId> licenses = new ArrayList<LicenseId>();
+        licenses.add(license1);
+        licenses.add(license2);
+        tool.setLicenses(licenses);
+        ItemContributorId contributor1 = new ItemContributorId();
+        ActorId actor1 = new ActorId();
+        actor1.setId(5l);
+        contributor1.setActor(actor1);
+        ActorRoleId role1 = new ActorRoleId();
+        role1.setCode("author");
+        contributor1.setRole(role1);
+        ItemContributorId contributor2 = new ItemContributorId();
+        ActorId actor2 = new ActorId();
+        actor2.setId(4l);
+        contributor2.setActor(actor2);
+        ActorRoleId role2 = new ActorRoleId();
+        role2.setCode("founder");
+        contributor2.setRole(role2);
+        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        contributors.add(contributor1);
+        contributors.add(contributor2);
+        tool.setContributors(contributors);
         PropertyCore property0 = new PropertyCore();
         PropertyTypeId propertyType0 = new PropertyTypeId();
         propertyType0.setCode("object-type");
@@ -699,8 +749,31 @@ public class ToolControllerITCase {
         vocabulary0.setCode("object-type");
         concept0.setVocabulary(vocabulary0);
         property0.setConcept(concept0);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("activity");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("Capture");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("tadirah-activity");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("keyword");
+        property2.setType(propertyType2);
+        property2.setValue("graph");
+        PropertyCore property3 = new PropertyCore();
+        PropertyTypeId propertyType3 = new PropertyTypeId();
+        propertyType3.setCode("keyword");
+        property3.setType(propertyType3);
+        property3.setValue("social network analysis");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         properties.add(property0);
+        properties.add(property1);
+        properties.add(property2);
+        properties.add(property3);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
@@ -712,16 +785,21 @@ public class ToolControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool")))
-                .andExpect(jsonPath("label", is("Test complex software")))
-                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("label", is("Gephi")))
+                .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
                 .andExpect(jsonPath("olderVersions", hasSize(1)))
                 .andExpect(jsonPath("olderVersions[0].id", is(3)))
                 .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("newerVersions", hasSize(0)))
+                .andExpect(jsonPath("accessibleAt", is("https://gephi.org/")))
+                .andExpect(jsonPath("repository", is("https://github.com/gephi/gephi")))
+                .andExpect(jsonPath("licenses", hasSize(2)))
+                .andExpect(jsonPath("contributors", hasSize(2)))
+                .andExpect(jsonPath("properties", hasSize(4)));
     }
 
     @Test
-    public void shouldntUpdateToolWithPrevVersionEqualToTool() throws Exception {
+    public void shouldNotUpdateToolWithPrevVersionEqualToTool() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -749,11 +827,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("prevVersionId")))
+                .andExpect(jsonPath("errors[0].code", is("field.cycle")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateToolWhenLabelIsNull() throws Exception {
+    public void shouldNotUpdateToolWhenLabelIsNull() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -779,11 +859,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("label")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateToollWhenObjectTypeIsAmbiguous() throws Exception {
+    public void shouldNotUpdateToollWhenObjectTypeIsAmbiguous() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -819,11 +901,15 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.tooManyObjectTypes")))
+                .andExpect(jsonPath("errors[0].args[0]", is("tool")))
+                .andExpect(jsonPath("errors[0].args[1]", is("software")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateToolWhenLicenseIsUnknown() throws Exception {
+    public void shouldNotUpdateToolWhenLicenseIsUnknown() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -855,11 +941,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateToolWhenContributorIsUnknown() throws Exception {
+    public void shouldNotUpdateToolWhenContributorIsUnknown() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -896,11 +984,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateToolWhenContributorRoleIsIncorrect() throws Exception {
+    public void shouldNotUpdateToolWhenContributorRoleIsIncorrect() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -937,11 +1027,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateToolWhenPropertyTypeIsUnknown() throws Exception {
+    public void shouldNotUpdateToolWhenPropertyTypeIsUnknown() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -985,11 +1077,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].type.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateToolWhenConceptIsIncorrect() throws Exception {
+    public void shouldNotUpdateToolWhenConceptIsIncorrect() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -1033,11 +1127,13 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateToolWhenVocabularyIsDisallowed() throws Exception {
+    public void shouldNotUpdateToolWhenVocabularyIsDisallowed() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -1081,11 +1177,15 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
+                .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
+                .andExpect(jsonPath("errors[0].args[0]", is("iso-639-3")))
+                .andExpect(jsonPath("errors[0].args[1]", is("activity")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    public void shouldNotUpdateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
@@ -1124,12 +1224,27 @@ public class ToolControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
     public void shouldDeleteTool() throws Exception {
-        Integer toolId = 2;
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Tool to delete");
+        tool.setDescription("Lorem ipsum");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/tools")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long toolId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Tool.class).getId();
 
         mvc.perform(delete("/api/tools/{id}", toolId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -1137,7 +1252,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldntDeleteToolWhenNotExist() throws Exception {
+    public void shouldNotDeleteToolWhenNotExist() throws Exception {
         Integer toolId = 100;
 
         mvc.perform(delete("/api/tools/{id}", toolId)

@@ -20,8 +20,7 @@ public class LicenseTypeController {
 
     @GetMapping(path = "/license-types", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LicenseType>> getAllLicenseTypes() {
-        List<LicenseType> licenseTypes = licenseTypeService.getAllLicenseTypes();
-        return ResponseEntity.ok(licenseTypes);
+        return ResponseEntity.ok(licenseTypeService.getAllLicenseTypes());
     }
 
 }

@@ -106,7 +106,7 @@ Tool:
           code:                           Capture
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           tadirah-research-activity
+            code:                           tadirah-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.tools.Tool
@@ -180,7 +180,7 @@ Tool:
           code:                           Analysis
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           tadirah-research-activity
+            code:                           tadirah-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.tools.Tool
@@ -892,8 +892,8 @@ Activity:
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        2
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        14
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
@@ -922,8 +922,8 @@ Activity:
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        2
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        15
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword

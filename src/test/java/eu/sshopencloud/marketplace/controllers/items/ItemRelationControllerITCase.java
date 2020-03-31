@@ -69,7 +69,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldntCreateItemsRelationsWhenRelationIsIncorrect() throws Exception {
+    public void shouldNotCreateItemsRelationsWhenRelationIsIncorrect() throws Exception {
         Integer subjectId = 1;
         Integer objectId = 2;
 
@@ -83,11 +83,13 @@ public class ItemRelationControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateItemsRelationsWhenExists() throws Exception {
+    public void shouldNotCreateItemsRelationsWhenExists() throws Exception {
         Integer subjectId = 1;
         Integer objectId = 3;
 
@@ -101,13 +103,13 @@ public class ItemRelationControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("error", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateItemsRelationsWhenItemNotExist() throws Exception {
+    public void shouldNotCreateItemsRelationsWhenItemNotExist() throws Exception {
         Integer subjectId = 1;
-        Integer objectId = 30;
+        Integer objectId = 300;
 
         ItemRelationId itemRelation = new ItemRelationId();
         itemRelation.setCode("mentions");
@@ -123,8 +125,19 @@ public class ItemRelationControllerITCase {
 
     @Test
     public void shouldDeleteItemsRelations() throws Exception {
-        Integer subjectId = 1;
-        Integer objectId = 5;
+        Integer subjectId = 2;
+        Integer objectId = 11;
+
+        ItemRelationId itemRelation = new ItemRelationId();
+        itemRelation.setCode("mentions");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}", subjectId, objectId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -132,7 +145,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldntDeleteItemsRelationsWhenItemNotExist() throws Exception {
+    public void shouldNotDeleteItemsRelationsWhenItemNotExist() throws Exception {
         Integer subjectId = 2;
         Integer objectId = 40;
 

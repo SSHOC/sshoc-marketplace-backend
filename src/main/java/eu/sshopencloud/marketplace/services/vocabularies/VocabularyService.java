@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -53,11 +52,9 @@ public class VocabularyService {
     }
 
     public Vocabulary getVocabulary(String code) {
-        Optional<Vocabulary> vocabulary = vocabularyRepository.findById(code);
-        if (!vocabulary.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + code);
-        }
-        return complete(vocabulary.get());
+        Vocabulary vocabulary = vocabularyRepository.findById(code).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + code));
+        return complete(vocabulary);
     }
 
     private Vocabulary complete(Vocabulary vocabulary) {

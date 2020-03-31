@@ -22,8 +22,7 @@ public class LicenseController {
 
     @GetMapping(path = "/licenses", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<License>> getLicenses(@RequestParam(value = "q", required = false) String q) {
-        List<License> licenses = licenseService.getLicenses(q, defualtPerpage);
-        return ResponseEntity.ok(licenses);
+        return ResponseEntity.ok(licenseService.getLicenses(q, defualtPerpage));
     }
 
 }

@@ -57,8 +57,7 @@ public class SearchController {
         page = page == null ? 1 : page;
 
         Map<String, List<String>> filterParams = FilterParamsExtractor.extractFilterParams(f);
-        PaginatedSearchItems items = searchService.searchItems(q, categories, filterParams, order, page, perpage);
-        return ResponseEntity.ok(items);
+        return ResponseEntity.ok(searchService.searchItems(q, categories, filterParams, order, page, perpage));
     }
 
     @GetMapping(path = "/concept-search", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -74,8 +73,7 @@ public class SearchController {
         }
         page = page == null ? 1 : page;
 
-        PaginatedSearchConcepts concepts = searchService.searchConcepts(q, types, page, perpage);
-        return ResponseEntity.ok(concepts);
+        return ResponseEntity.ok(searchService.searchConcepts(q, types, page, perpage));
     }
 
 }

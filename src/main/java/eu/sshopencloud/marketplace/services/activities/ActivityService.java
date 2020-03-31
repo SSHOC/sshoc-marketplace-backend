@@ -34,7 +34,8 @@ public class ActivityService {
 
 
     public Activity getActivity(Long id) {
-        Activity activity = activityRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Unable to find " + Activity.class.getName() + " with id " + id));
+        Activity activity = activityRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Activity.class.getName() + " with id " + id));
         return complete(activity);
     }
 

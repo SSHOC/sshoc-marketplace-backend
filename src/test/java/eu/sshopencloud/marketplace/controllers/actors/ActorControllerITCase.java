@@ -3,6 +3,8 @@ package eu.sshopencloud.marketplace.controllers.actors;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
+import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -93,11 +95,11 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("affiliations[0].id", is(3)))
                 .andExpect(jsonPath("affiliations[0].name", is("SSHOC project consortium")))
                 .andExpect(jsonPath("affiliations[0].website", is("https://sshopencloud.eu/")))
-                .andExpect(jsonPath("affiliations[0].email", isEmptyOrNullString()));
+                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()));
     }
 
     @Test
-    public void shouldntReturnActorWhenNotExist() throws Exception {
+    public void shouldNotReturnActorWhenNotExist() throws Exception {
         Integer actorId = 51;
 
         mvc.perform(get("/api/actors/{id}", actorId)
@@ -147,17 +149,17 @@ public class ActorControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", isEmptyOrNullString()))
+                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("affiliations", hasSize(2)))
                 .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
-                .andExpect(jsonPath("affiliations[0].email", isEmptyOrNullString()))
+                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()))
                 .andExpect(jsonPath("affiliations[1].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[1].email", is("cessda@cessda.eu")));
     }
 
     @Test
-    public void shouldCreateActorWhenAffiliationNotExist() throws Exception {
+    public void shouldNotCreateActorWhenAffiliationNotExist() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -177,7 +179,9 @@ public class ActorControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("affiliations[0].id")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
@@ -227,17 +231,17 @@ public class ActorControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", isEmptyOrNullString()))
+                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("affiliations", hasSize(2)))
                 .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
-                .andExpect(jsonPath("affiliations[0].email", isEmptyOrNullString()))
+                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()))
                 .andExpect(jsonPath("affiliations[1].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[1].email", is("cessda@cessda.eu")));
     }
 
     @Test
-    public void shouldUpdateActorWhenAffiliationNotExist() throws Exception {
+    public void shouldNotUpdateActorWhenAffiliationNotExist() throws Exception {
         Integer actorId = 2;
 
         ActorCore actor = new ActorCore();
@@ -259,11 +263,13 @@ public class ActorControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("affiliations[0].id")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateActorWhenNotExist() throws Exception {
+    public void shouldNotUpdateActorWhenNotExist() throws Exception {
         Integer actorId = 99;
 
         ActorCore actor = new ActorCore();
@@ -282,12 +288,32 @@ public class ActorControllerITCase {
 
     @Test
     public void shouldDeleteActor() throws Exception {
-        Integer actorId = 7;
+        ActorCore actor = new ActorCore();
+        actor.setName("Actor to delete");
+        actor.setEmail("test@example.org");
+        List<ActorId> affiliations = new ArrayList<ActorId>();
+        ActorId affiliation1 = new ActorId();
+        affiliation1.setId(1l);
+        affiliations.add(affiliation1);
+        ActorId affiliation2 = new ActorId();
+        affiliation2.setId(4l);
+        affiliations.add(affiliation2);
+        actor.setAffiliations(affiliations);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/actors")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long actorId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Actor.class).getId();
 
         mvc.perform(delete("/api/actors/{id}", actorId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-
     }
 
 }

@@ -20,8 +20,7 @@ public class ActorRoleController {
 
     @GetMapping(path = "/actor-roles", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ActorRole>> getAllActorRoles() {
-        List<ActorRole> actorRoles = actorRoleService.getAllActorRoles();
-        return ResponseEntity.ok(actorRoles);
+        return ResponseEntity.ok(actorRoleService.getAllActorRoles());
     }
 
 }

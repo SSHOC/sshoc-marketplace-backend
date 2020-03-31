@@ -3,12 +3,8 @@ package eu.sshopencloud.marketplace.controllers.activities;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.activities.ActivityCore;
 import eu.sshopencloud.marketplace.model.activities.Activity;
-import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.activities.ActivityService;
 import eu.sshopencloud.marketplace.services.activities.PaginatedActivities;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
-import eu.sshopencloud.marketplace.services.vocabularies.DisallowedObjectTypeException;
-import eu.sshopencloud.marketplace.services.vocabularies.TooManyObjectTypesException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -38,28 +34,22 @@ public class ActivityController {
         }
         page = page == null ? 1 : page;
 
-        PaginatedActivities activities = activityService.getActivities(page, perpage);
-        return ResponseEntity.ok(activities);
+        return ResponseEntity.ok(activityService.getActivities(page, perpage));
     }
 
     @GetMapping(path = "/activities/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Activity> getActivity(@PathVariable("id") long id) {
-        Activity activity = activityService.getActivity(id);
-        return ResponseEntity.ok(activity);
+        return ResponseEntity.ok(activityService.getActivity(id));
     }
 
     @PostMapping(path = "/activities", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Activity> createActivity(@RequestBody ActivityCore newActivity)
-            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
-        Activity activity = activityService.createActivity(newActivity);
-        return ResponseEntity.ok(activity);
+    public ResponseEntity<Activity> createActivity(@RequestBody ActivityCore newActivity) {
+        return ResponseEntity.ok(activityService.createActivity(newActivity));
     }
 
     @PutMapping(path = "/activities/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Activity> updateActivity(@PathVariable("id") long id, @RequestBody ActivityCore newActivity)
-            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
-        Activity activity = activityService.updateActivity(id, newActivity);
-        return ResponseEntity.ok(activity);
+    public ResponseEntity<Activity> updateActivity(@PathVariable("id") long id, @RequestBody ActivityCore updatedActivity) {
+        return ResponseEntity.ok(activityService.updateActivity(id, updatedActivity));
     }
 
     @DeleteMapping("/activities/{id}")

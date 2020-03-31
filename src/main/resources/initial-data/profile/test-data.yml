@@ -106,7 +106,7 @@ Tool:
           code:                           Capture
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           tadirah-research-activity
+            code:                           tadirah-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.tools.Tool
@@ -180,7 +180,7 @@ Tool:
           code:                           Analysis
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           tadirah-research-activity
+            code:                           tadirah-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.tools.Tool

@@ -11,6 +11,8 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -70,7 +72,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldntReturnTrainingMaterialWhenNotExist() throws Exception {
+    public void shouldNotReturnTrainingMaterialWhenNotExist() throws Exception {
         Integer trainingMaterialId = 51;
 
         mvc.perform(get("/api/training-materials/{id}", trainingMaterialId)
@@ -259,7 +261,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenObjectTypeIsIncorrect() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenObjectTypeIsIncorrect() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -284,12 +286,14 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenObjectTypeIsAmbiguous() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenObjectTypeIsAmbiguous() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -325,11 +329,15 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.tooManyObjectTypes")))
+                .andExpect(jsonPath("errors[0].args[0]", is("training-material")))
+                .andExpect(jsonPath("errors[0].args[1]", is("paper")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenLabelIsNull() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenLabelIsNull() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setDescription("Lorem ipsum");
         PropertyCore property0 = new PropertyCore();
@@ -353,12 +361,14 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("label")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenLicenseIsUnknown() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenLicenseIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -388,11 +398,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenContributorIsUnknown() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenContributorIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -427,11 +439,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -466,11 +480,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -512,11 +528,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[0].type.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -558,11 +576,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -604,11 +624,15 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
+                .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
+                .andExpect(jsonPath("errors[0].args[0]", is("iso-639-3")))
+                .andExpect(jsonPath("errors[0].args[1]", is("activity")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntCreateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    public void shouldNotCreateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -645,7 +669,9 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
@@ -760,7 +786,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenNotExist() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenNotExist() throws Exception {
         Integer trainingMaterialId = 99;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -872,7 +898,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWithPrevVersionEqualToTrainingMaterial() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWithPrevVersionEqualToTrainingMaterial() throws Exception {
         Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -900,11 +926,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("prevVersionId")))
+                .andExpect(jsonPath("errors[0].code", is("field.cycle")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenLabelIsNull() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenLabelIsNull() throws Exception {
         Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -930,11 +958,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("label")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenLicenseIsUnknown() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenLicenseIsUnknown() throws Exception {
         Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -966,11 +996,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenContributorIsUnknown() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenContributorIsUnknown() throws Exception {
         Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1007,11 +1039,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
         Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1048,11 +1082,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
         Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1096,11 +1132,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].type.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
         Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1144,11 +1182,13 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
         Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1192,11 +1232,15 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
+                .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
+                .andExpect(jsonPath("errors[0].args[0]", is("iso-639-3")))
+                .andExpect(jsonPath("errors[0].args[1]", is("activity")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
-    public void shouldntUpdateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         Integer trainingMaterialId = 7;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1235,12 +1279,41 @@ public class TrainingMaterialControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", not(isEmptyOrNullString())));
+                .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
     public void shouldDeleteTrainingMaterial() throws Exception {
-        Integer trainingMaterialId = 8;
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Test complex online course");
+        trainingMaterial.setDescription("Lorem Ipsum ...");
+        trainingMaterial.setPrevVersionId(8l);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("online-course");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        trainingMaterial.setProperties(properties);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/training-materials")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long trainingMaterialId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, TrainingMaterial.class).getId();
 
         mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -1270,7 +1343,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldntDeleteTrainingMaterialWhenNotExist() throws Exception {
+    public void shouldNotDeleteTrainingMaterialWhenNotExist() throws Exception {
         Integer trainingMaterialId = 100;
 
         mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
