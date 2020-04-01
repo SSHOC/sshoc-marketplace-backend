@@ -1,16 +1,14 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;
-import eu.sshopencloud.marketplace.services.DataViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -67,17 +65,6 @@ public class PropertyTypeService {
     public List<PropertyType> getAllowedPropertyTypesForVocabulary(Vocabulary vocabulary) {
         List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findPropertyTypeVocabularyByVocabularyCode(vocabulary.getCode());
         return propertyTypeVocabularies.stream().map(PropertyTypeVocabulary::getPropertyType).collect(Collectors.toList());
-    }
-
-    public PropertyType validate(String prefix, PropertyTypeId propertyType) throws DataViolationException {
-        if (propertyType.getCode() == null) {
-            throw new DataViolationException(prefix + "code", propertyType.getCode());
-        }
-        Optional<PropertyType> result = propertyTypeRepository.findById(propertyType.getCode());
-        if (!result.isPresent()) {
-            throw new DataViolationException(prefix + "code", propertyType.getCode());
-        }
-        return result.get();
     }
 
 }

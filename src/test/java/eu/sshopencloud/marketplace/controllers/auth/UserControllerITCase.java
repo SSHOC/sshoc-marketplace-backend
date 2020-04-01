@@ -45,7 +45,7 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldntReturnUserWhenNotExist() throws Exception {
+    public void shouldNotReturnUserWhenNotExist() throws Exception {
         Integer actorId = 51;
 
         mvc.perform(get("/api/users/{id}", actorId)

@@ -7,18 +7,17 @@ import eu.sshopencloud.marketplace.model.items.ItemComment;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemCommentRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
-import eu.sshopencloud.marketplace.services.DataViolationException;
-import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
+import eu.sshopencloud.marketplace.validators.items.ItemCommentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,21 +33,13 @@ public class ItemCommentService {
 
     private final ItemCommentRepository itemCommentRepository;
 
+    private final ItemCommentValidator itemCommentValidator;
+
     private final UserRepository userRepository;
 
 
-    public ItemComment validate(ItemCommentCore itemComment) throws DataViolationException {
-        ItemComment result = new ItemComment();
-        if (StringUtils.isBlank(itemComment.getBody())) {
-            throw new DataViolationException("body", itemComment.getBody());
-        }
-        result.setBody(MarkdownConverter.convertHtmlToMarkdown(itemComment.getBody()));
-        return result;
-    }
-
-
-    public ItemComment createItemComment(Long itemId, ItemCommentCore newItemComment) throws DataViolationException  {
-        ItemComment itemComment = validate(newItemComment);
+    public ItemComment createItemComment(Long itemId, ItemCommentCore itemCommentCore) {
+        ItemComment itemComment = itemCommentValidator.validate(itemCommentCore, null);
 
         Optional<Item> item = itemRepository.findById(itemId);
         if (!item.isPresent()) {
@@ -59,9 +50,9 @@ public class ItemCommentService {
         itemComment.setDateLastUpdated(now);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
-        Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug(authentication.toString());
-        if (! (authentication instanceof AnonymousAuthenticationToken)) {
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
             User user = userRepository.findUserByUsername(authentication.getName());
             itemComment.setCreator(user);
         }
@@ -77,26 +68,23 @@ public class ItemCommentService {
         return modifiedItem.getComments().get(size);
     }
 
-    public ItemComment updateItemComment(Long id, ItemCommentCore newItemComment) throws DataViolationException, OtherUserCommentException {
-        if (!itemCommentRepository.existsById(id)) {
-            throw new EntityNotFoundException("Unable to find " + ItemComment.class.getName() + " with id " + id);
-        }
-        ItemComment itemComment = validate(newItemComment);
+    public ItemComment updateItemComment(Long itemId, Long id, ItemCommentCore itemCommentCore) {
+        checkExistsItemComment(itemId, id);
+        ItemComment itemComment = itemCommentValidator.validate(itemCommentCore, id);
+
         ZonedDateTime now = ZonedDateTime.now();
+        itemComment.setDateLastUpdated(now);
 
         Item item = itemRepository.findItemByCommentsId(id);
         int pos = getItemCommentIndex(item, id);
-        ItemComment comment = item.getComments().get(pos);
-        comment.setBody(itemComment.getBody());
-        comment.setDateLastUpdated(now);
+        item.getComments().set(pos, itemComment);
         Item modifiedItem = itemRepository.save(item);
         return modifiedItem.getComments().get(pos);
     }
 
-    public void deleteItemComment(Long id) throws OtherUserCommentException {
-        if (!itemCommentRepository.existsById(id)) {
-            throw new EntityNotFoundException("Unable to find " + ItemComment.class.getName() + " with id " + id);
-        }
+
+    public void deleteItemComment(Long itemId, Long id) {
+        checkExistsItemComment(itemId, id);
 
         Item item = itemRepository.findItemByCommentsId(id);
         int pos = getItemCommentIndex(item, id);
@@ -105,17 +93,28 @@ public class ItemCommentService {
     }
 
 
-    private int getItemCommentIndex(Item item, Long id) throws OtherUserCommentException {
+    private void checkExistsItemComment(Long itemId, Long id) throws EntityNotFoundException {
+        if (!itemCommentRepository.existsById(id)) {
+            throw new EntityNotFoundException("Unable to find " + ItemComment.class.getName() + " with id " + id + " for item " + itemId);
+        }
+        Item item = itemRepository.findItemByCommentsId(id);
+        if (!item.getId().equals(itemId)) {
+            throw new EntityNotFoundException("Unable to find " + ItemComment.class.getName() + " with id " + id + " for item " + itemId);
+        }
+    }
+
+
+    private int getItemCommentIndex(Item item, Long id) {
         // TODO don't allow updating/deleting without authentication (in WebSecurityConfig)
-        Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         for (int i = 0; i < item.getComments().size(); i++) {
             if (item.getComments().get(i).getId().equals(id)) {
                 ItemComment comment = item.getComments().get(i);
                 // TODO allow updating/deleting comments for curators
-                if (! (authentication instanceof AnonymousAuthenticationToken)) {
+                if (!(authentication instanceof AnonymousAuthenticationToken)) {
                     User user = userRepository.findUserByUsername(authentication.getName());
                     if (!comment.getCreator().getId().equals(user.getId())) {
-                        throw new OtherUserCommentException(comment);
+                        throw new AccessDeniedException("No access to the comment.");
                     }
                 }
                 return i;

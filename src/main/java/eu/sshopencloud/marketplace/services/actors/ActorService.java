@@ -1,20 +1,16 @@
 package eu.sshopencloud.marketplace.services.actors;
 
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
-import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
-import eu.sshopencloud.marketplace.services.DataViolationException;
+import eu.sshopencloud.marketplace.validators.actors.ActorValidator;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -22,6 +18,9 @@ import java.util.Optional;
 public class ActorService {
 
     private final ActorRepository actorRepository;
+
+    private final ActorValidator actorValidator;
+
 
     public List<Actor> getActors(String q, int perpage) {
         ExampleMatcher queryActorMatcher = ExampleMatcher.matchingAny()
@@ -39,76 +38,26 @@ public class ActorService {
     }
 
     public Actor getActor(Long id) {
-        Optional<Actor> actor = actorRepository.findById(id);
-        if (!actor.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id);
-        }
-        return actor.get();
-    }
-
-    private List<Actor> validate(String prefix, List<ActorId> actors) throws DataViolationException {
-        List<Actor> result = new ArrayList<Actor>();
-        if (actors != null) {
-            for (int i = 0; i < actors.size(); i++) {
-                result.add(validate(prefix + "[" + i + "].", actors.get(i)));
-            }
-        }
-        return result;
-    }
-
-    public Actor validate(String prefix, ActorId actor) throws DataViolationException {
-        if (actor.getId() == null) {
-            throw new DataViolationException(prefix + "id", actor.getId());
-        }
-        Optional<Actor> result = actorRepository.findById(actor.getId());
-        if (!result.isPresent()) {
-            throw new DataViolationException(prefix + "id", actor.getId());
-        }
-        return result.get();
+        return actorRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id));
     }
 
 
-    private Actor validate(ActorCore newActor, Long actorId) throws DataViolationException {
-        Actor result = getOrCreateTool(actorId);
-        if (StringUtils.isBlank(newActor.getName())) {
-            throw new DataViolationException("name", newActor.getName());
-        }
-        result.setName(newActor.getName());
-        // TODO validate URL
-        result.setWebsite(newActor.getWebsite());
-        // TODO validate email
-        result.setEmail(newActor.getEmail());
-        if (result.getAffiliations() != null) {
-            result.getAffiliations().clear();
-            result.getAffiliations().addAll(validate("affiliations", newActor.getAffiliations()));
-        } else {
-            result.setAffiliations(validate("affiliations", newActor.getAffiliations()));
-        }
-        return result;
-    }
 
-    private Actor getOrCreateTool(Long actorId) {
-        if (actorId != null) {
-            return actorRepository.getOne(actorId);
-        } else {
-            return new Actor();
-        }
-    }
-
-    public Actor createActor(ActorCore newActor) throws DataViolationException {
+    public Actor createActor(ActorCore actorCore) {
         // TODO don't allow creating without authentication (in WebSecurityConfig)
-        Actor actor = validate(newActor, null);
+        Actor actor = actorValidator.validate(actorCore, null);
         actorRepository.save(actor);
         return actor;
     }
 
 
-    public Actor updateActor(Long id, ActorCore newActor) throws DataViolationException {
+    public Actor updateActor(Long id, ActorCore actorCore) {
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         if (!actorRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id);
         }
-        Actor actor = validate(newActor, id);
+        Actor actor = actorValidator.validate(actorCore, id);
         actorRepository.save(actor);
         return actor;
     }

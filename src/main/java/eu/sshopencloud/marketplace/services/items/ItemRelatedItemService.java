@@ -4,12 +4,12 @@ import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelatedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
-import eu.sshopencloud.marketplace.services.DataViolationException;
+import eu.sshopencloud.marketplace.validators.items.ItemRelationValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +23,8 @@ public class ItemRelatedItemService {
 
     private final ItemRepository itemRepository;
 
-    private final ItemRelationService itemRelationService;
+    private final ItemRelationValidator itemRelationValidator;
+
 
     public List<ItemRelatedItemInline> getItemRelatedItems(Long itemId) {
         List<ItemRelatedItemInline> relatedItems = new ArrayList<ItemRelatedItemInline>();
@@ -55,15 +56,13 @@ public class ItemRelatedItemService {
         return relatedItems;
     }
 
-    public ItemRelatedItem createItemRelatedItem(long subjectId, long objectId, ItemRelationId itemRelation) throws DataViolationException, ItemsRelationAlreadyExistsException {
-        Optional<Item> subject = itemRepository.findById(subjectId);
-        if (!subject.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + subjectId);
-        }
-        Optional<Item> object = itemRepository.findById(objectId);
-        if (!object.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + objectId);
-        }
+    public ItemRelatedItem createItemRelatedItem(long subjectId, long objectId, ItemRelationId itemRelationId) throws ItemsRelationAlreadyExistsException {
+        Item subject = itemRepository.findById(subjectId).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + subjectId));
+        Item object = itemRepository.findById(objectId).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + objectId));
+
+        ItemRelation itemRelation = itemRelationValidator.validate(itemRelationId);
 
         ItemRelatedItemId dirId = new ItemRelatedItemId();
         dirId.setSubject(subjectId);
@@ -81,9 +80,9 @@ public class ItemRelatedItemService {
         }
 
         ItemRelatedItem newItemRelatedItem = new ItemRelatedItem();
-        newItemRelatedItem.setSubject(subject.get());
-        newItemRelatedItem.setObject(object.get());
-        newItemRelatedItem.setRelation(itemRelationService.validate("", itemRelation));
+        newItemRelatedItem.setSubject(subject);
+        newItemRelatedItem.setObject(object);
+        newItemRelatedItem.setRelation(itemRelation);
         ItemRelatedItem itemRelatedItem = itemRelatedItemRepository.save(newItemRelatedItem);
         return itemRelatedItem;
     }
@@ -96,12 +95,10 @@ public class ItemRelatedItemService {
     }
 
     public void deleteItemRelatedItem(long subjectId, long objectId) {
-        Optional<Item> subject = itemRepository.findById(subjectId);
-        if (!subject.isPresent()) {
+        if (!itemRepository.existsById(subjectId)) {
             throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + subjectId);
         }
-        Optional<Item> object = itemRepository.findById(objectId);
-        if (!object.isPresent()) {
+        if (!itemRepository.existsById(objectId)) {
             throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + objectId);
         }
 

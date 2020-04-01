@@ -109,6 +109,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <runOrder>alphabetical</runOrder>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>

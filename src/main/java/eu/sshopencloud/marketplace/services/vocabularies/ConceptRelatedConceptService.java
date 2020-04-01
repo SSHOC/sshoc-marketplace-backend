@@ -6,8 +6,8 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConce
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

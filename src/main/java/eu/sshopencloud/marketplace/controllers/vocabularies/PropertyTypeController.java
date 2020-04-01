@@ -1,7 +1,5 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
-import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
-import eu.sshopencloud.marketplace.model.items.ItemRelation;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +22,7 @@ public class PropertyTypeController {
 
     @GetMapping(path = "/property-types", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PropertyType>> getPropertyTypes(@RequestParam(value = "q", required = false) String q) {
-        List<PropertyType> propertyTypes = propertyTypeService.getPropertyTypes(q, defualtPerpage);
-        return ResponseEntity.ok(propertyTypes);
+        return ResponseEntity.ok(propertyTypeService.getPropertyTypes(q, defualtPerpage));
     }
 
 }

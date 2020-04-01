@@ -3,12 +3,8 @@ package eu.sshopencloud.marketplace.controllers.trainings;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
-import eu.sshopencloud.marketplace.services.vocabularies.DisallowedObjectTypeException;
-import eu.sshopencloud.marketplace.services.vocabularies.TooManyObjectTypesException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -38,28 +34,22 @@ public class TrainingMaterialController {
         }
         page = page == null ? 1 : page;
 
-        PaginatedTrainingMaterials trainingMaterials = trainingMaterialService.getTrainingMaterials(page, perpage);
-        return ResponseEntity.ok(trainingMaterials);
+        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterials(page, perpage));
     }
 
     @GetMapping(path = "/training-materials/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterial> getTrainingMaterial(@PathVariable("id") long id) {
-        TrainingMaterial trainingMaterial = trainingMaterialService.getTrainingMaterial(id);
-        return ResponseEntity.ok(trainingMaterial);
+        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterial(id));
     }
 
     @PostMapping(path = "/training-materials", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterial> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial)
-            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
-        TrainingMaterial trainingMaterial = trainingMaterialService.createTrainingMaterial(newTrainingMaterial);
-        return ResponseEntity.ok(trainingMaterial);
+    public ResponseEntity<TrainingMaterial> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial) {
+        return ResponseEntity.ok(trainingMaterialService.createTrainingMaterial(newTrainingMaterial));
     }
 
     @PutMapping(path = "/training-materials/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterial> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterialCore newTrainingMaterial)
-            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
-        TrainingMaterial trainingMaterial = trainingMaterialService.updateTrainingMaterial(id, newTrainingMaterial);
-        return ResponseEntity.ok(trainingMaterial);
+    public ResponseEntity<TrainingMaterial> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterialCore updatedTrainingMaterial) {
+        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(id, updatedTrainingMaterial));
     }
 
     @DeleteMapping("/training-materials/{id}")

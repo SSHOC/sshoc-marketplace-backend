@@ -20,8 +20,7 @@ public class ConceptRelationController {
 
     @GetMapping(path = "/concept-relations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ConceptRelation>> getAllConceptRelations() {
-        List<ConceptRelation> conceptRelations = conceptRelationService.getAllConceptRelations();
-        return ResponseEntity.ok(conceptRelations);
+        return ResponseEntity.ok(conceptRelationService.getAllConceptRelations());
     }
 
 }

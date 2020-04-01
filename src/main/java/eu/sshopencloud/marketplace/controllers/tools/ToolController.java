@@ -3,12 +3,8 @@ package eu.sshopencloud.marketplace.controllers.tools;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.services.DataViolationException;
 import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptDisallowedException;
-import eu.sshopencloud.marketplace.services.vocabularies.DisallowedObjectTypeException;
-import eu.sshopencloud.marketplace.services.vocabularies.TooManyObjectTypesException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -38,28 +34,22 @@ public class ToolController {
         }
         page = page == null ? 1 : page;
 
-        PaginatedTools tools = toolService.getTools(page, perpage);
-        return ResponseEntity.ok(tools);
+        return ResponseEntity.ok(toolService.getTools(page, perpage));
     }
 
     @GetMapping(path = "/tools/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Tool> getTool(@PathVariable("id") long id) {
-        Tool tool = toolService.getTool(id);
-        return ResponseEntity.ok(tool);
+        return ResponseEntity.ok(toolService.getTool(id));
     }
 
     @PostMapping(path = "/tools", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tool> createTool(@RequestBody ToolCore newTool)
-            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
-        Tool tool = toolService.createTool(newTool);
-        return ResponseEntity.ok(tool);
+    public ResponseEntity<Tool> createTool(@RequestBody ToolCore newTool) {
+        return ResponseEntity.ok(toolService.createTool(newTool));
     }
 
     @PutMapping(path = "/tools/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tool> updateTool(@PathVariable("id") long id, @RequestBody ToolCore newTool)
-            throws DataViolationException, ConceptDisallowedException, DisallowedObjectTypeException, TooManyObjectTypesException {
-        Tool tool = toolService.updateTool(id, newTool);
-        return ResponseEntity.ok(tool);
+    public ResponseEntity<Tool> updateTool(@PathVariable("id") long id, @RequestBody ToolCore updatedTool) {
+        return ResponseEntity.ok(toolService.updateTool(id, updatedTool));
     }
 
     @DeleteMapping("/tools/{id}")

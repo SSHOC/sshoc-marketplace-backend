@@ -33,14 +33,12 @@ public class VocabularyController {
         }
         page = page == null ? 1 : page;
 
-        PaginatedVocabularies vocabularies = vocabularyService.getVocabularies(page, perpage);
-        return ResponseEntity.ok(vocabularies);
+        return ResponseEntity.ok(vocabularyService.getVocabularies(page, perpage));
     }
 
     @GetMapping(path = "/vocabularies/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Vocabulary> getVocabulary(@PathVariable("code") String code) {
-        Vocabulary vocabulary = vocabularyService.getVocabulary(code);
-        return ResponseEntity.ok(vocabulary);
+        return ResponseEntity.ok(vocabularyService.getVocabulary(code));
     }
 
 }

@@ -11,6 +11,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldntReturnDatasetWhenNotExist() throws Exception {
+    public void shouldNotReturnDatasetWhenNotExist() throws Exception {
         Integer datasetId = 1009;
 
         mvc.perform(get("/api/datasets/{id}", datasetId)
@@ -77,7 +78,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreatDatasetWithoutRelation() throws Exception {
+    public void shouldCreateDatasetWithoutRelation() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
         dataset.setDescription("Lorem ipsum");
@@ -97,82 +98,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWithRelations() throws Exception {
-        DatasetCore dataset = new DatasetCore();
-        dataset.setLabel("Test complex dataset");
-        dataset.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("apache-2.0");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        dataset.setLicenses(licenses);
-        ItemContributorId contributor = new ItemContributorId();
-        ActorId actor = new ActorId();
-        actor.setId(3l);
-        contributor.setActor(actor);
-        ActorRoleId role = new ActorRoleId();
-        role.setCode("author");
-        contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
-        contributors.add(contributor);
-        dataset.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("data-catalogue");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
-        PropertyCore property1 = new PropertyCore();
-        PropertyTypeId propertyType1 = new PropertyTypeId();
-        propertyType1.setCode("language");
-        property1.setType(propertyType1);
-        ConceptId concept1 = new ConceptId();
-        concept1.setUri("http://iso639-3.sil.org/code/eng");
-        property1.setConcept(concept1);
-        PropertyCore property2 = new PropertyCore();
-        PropertyTypeId propertyType2 = new PropertyTypeId();
-        propertyType2.setCode("material");
-        property2.setType(propertyType2);
-        property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
-        properties.add(property1);
-        properties.add(property2);
-        dataset.setProperties(properties);
-        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2018, Month.APRIL, 1), LocalTime.of(12, 0), ZoneId.of("UTC"));
-        dataset.setDateCreated(dateCreated);
-        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2018, Month.DECEMBER, 15), LocalTime.of(12, 0), ZoneId.of("UTC"));
-        dataset.setDateLastUpdated(dateLastUpdated);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("dataset")))
-                .andExpect(jsonPath("label", is("Test complex dataset")))
-                .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("licenses[0].label", is("Apache License 2.0")))
-                .andExpect(jsonPath("contributors[0].actor.id", is(3)))
-                .andExpect(jsonPath("contributors[0].role.label", is("Author")))
-                .andExpect(jsonPath("properties[0].concept.label", is("Data Catalogue")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[2].value", is("paper")))
-                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
-                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
-    }
-
-
-    @Test
-    public void shouldCreatDatasetWithHtmlInDescription() throws Exception {
+    public void shouldCreateDatasetWithHtmlInDescription() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with HTML in description");
         dataset.setDescription("<div>Description\n"
@@ -330,7 +256,66 @@ public class DatasetControllerITCase {
 
     @Test
     public void shouldDeleteDataset() throws Exception {
-        Integer datasetId = 10;
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Dataset to delete");
+        dataset.setDescription("Lorem ipsum");
+        LicenseId license = new LicenseId();
+        license.setCode("apache-2.0");
+        List<LicenseId> licenses = new ArrayList<LicenseId>();
+        licenses.add(license);
+        dataset.setLicenses(licenses);
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(3l);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        contributors.add(contributor);
+        dataset.setContributors(contributors);
+        PropertyCore property0 = new PropertyCore();
+        PropertyTypeId propertyType0 = new PropertyTypeId();
+        propertyType0.setCode("object-type");
+        property0.setType(propertyType0);
+        ConceptId concept0 = new ConceptId();
+        concept0.setCode("data-catalogue");
+        VocabularyId vocabulary0 = new VocabularyId();
+        vocabulary0.setCode("object-type");
+        concept0.setVocabulary(vocabulary0);
+        property0.setConcept(concept0);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("language");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setUri("http://iso639-3.sil.org/code/eng");
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("material");
+        property2.setType(propertyType2);
+        property2.setValue("paper");
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property0);
+        properties.add(property1);
+        properties.add(property2);
+        dataset.setProperties(properties);
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2018, Month.APRIL, 1), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        dataset.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2018, Month.DECEMBER, 15), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        dataset.setDateLastUpdated(dateLastUpdated);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/datasets")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long datasetId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Dataset.class).getId();
 
         mvc.perform(delete("/api/datasets/{id}", datasetId)
                 .contentType(MediaType.APPLICATION_JSON))

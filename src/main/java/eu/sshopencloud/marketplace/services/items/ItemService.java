@@ -1,15 +1,18 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemInline;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
+import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +25,24 @@ public class ItemService {
     private final ItemRepository itemRepository;
 
     private final PropertyTypeService propertyTypeService;
+
+    private final UserRepository userRepository;
+
+
+    public void addInformationContributorToItem(Item item, User contributor) {
+        if (contributor != null) {
+            User user = userRepository.findUserByUsername(contributor.getUsername());
+            if (item.getInformationContributors() != null) {
+                if (!item.getInformationContributors().contains(user)) {
+                    item.getInformationContributors().add(user);
+                }
+            } else {
+                List<User> informationContributors = new ArrayList<User>();
+                informationContributors.add(user);
+                item.setInformationContributors(informationContributors);
+            }
+        }
+    }
 
     public List<ItemInline> getNewerVersionsOfItem(Item item) {
         // TODO change to recursive subordinates query in ItemRepository

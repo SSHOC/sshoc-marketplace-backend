@@ -8,11 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -42,11 +41,8 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUser(Long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (!user.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id);
-        }
-        return user.get();
+        return userRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id));
     }
 
 }

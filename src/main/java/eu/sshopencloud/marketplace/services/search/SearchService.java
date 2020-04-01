@@ -26,8 +26,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;

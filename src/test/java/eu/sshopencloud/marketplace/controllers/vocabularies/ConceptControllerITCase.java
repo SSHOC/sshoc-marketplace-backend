@@ -58,4 +58,15 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$[0].vocabulary.code", is("object-type")));
     }
 
+    @Test
+    public void shouldReturnAllObjectTypeConceptsForActivity() throws Exception {
+
+        mvc.perform(get("/api/object-type-concepts/activity")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code", is("activity")))
+                .andExpect(jsonPath("$[0].notation", is("Activity")))
+                .andExpect(jsonPath("$[0].vocabulary.code", is("object-type")));
+    }
+
 }

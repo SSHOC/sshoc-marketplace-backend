@@ -106,7 +106,7 @@ Tool:
           code:                           Capture
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           tadirah-research-activity
+            code:                           tadirah-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.tools.Tool
@@ -180,7 +180,7 @@ Tool:
           code:                           Analysis
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-            code:                           tadirah-research-activity
+            code:                           tadirah-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
         item:
           !!eu.sshopencloud.marketplace.model.tools.Tool
@@ -747,6 +747,508 @@ Dataset:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          topic modeling
+
+
+Activity:
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Build the model of the dictionary"
+    description:                 "Identify the structural components of the dictionary and ..."
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        12
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        1
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        12
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        4
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           3
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        12
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        12
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           language
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           eng
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           iso-639-3
+    comments:
+      - !!eu.sshopencloud.marketplace.model.items.ItemComment
+        body:                         Lorem ipsum ...
+        creator:
+          !!eu.sshopencloud.marketplace.model.auth.User
+          id:                           1
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Selection of textual works relevant for the research question"
+    description:                 "Selection of textual works relevant for the research question ..."
+    contributors:
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        13
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        1
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+      - !!eu.sshopencloud.marketplace.model.items.ItemContributor
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        13
+        actor:
+          !!eu.sshopencloud.marketplace.model.actors.Actor
+          id:                        4
+        role:
+          !!eu.sshopencloud.marketplace.model.actors.ActorRole
+          code:                      author
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           3
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        13
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        13
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           language
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           eng
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           iso-639-3
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Corpus composition"
+    description:                 "For corpus composition a set of canonical decisions should be considered. As a starting point, the corpus type will have to be determined: Is it an opportunistic selection, a balanced corpus, etc.?"
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        14
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        14
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           keyword
+        value:                          corpus
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Linguistic annotation"
+    description:                 "Provides a set of attributes concerning linguistic features of tokens: lemmas, parts-of-speech or results of higher level linguistic analysis..."
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        15
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        15
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           keyword
+        value:                          linguistic markup
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Selection of a license"
+    description:                 ""
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        16
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Publishing"
+    description:                 ""
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           2
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        17
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Creation of a corpora"
+    description:                 ""
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           2
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        18
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           object-type
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Write a dictionary"
+    description:                 ""
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           2
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        19
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        19
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           ActivityType-Writing
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           nemo-activity-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        19
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           ActivityType-Collaborating
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           nemo-activity-type
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Creation of a dictionary"
+    description:                 "Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset."
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           2
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        20
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            code:                           object-type
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        20
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           activity
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           ActivityType-Organizing
+          vocabulary:
+            !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+            code:                           nemo-activity-type
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Run an inflectional analyzer"
+    description:                 ""
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        21
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            code:                           object-type
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Interpret results"
+    description:                 ""
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        22
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            code:                           object-type
+
+  - !!eu.sshopencloud.marketplace.model.activities.Activity
+    category:                    ACTIVITY
+    label:                       "Evaluation of an inflectional analyzer"
+    description:                 "Evaluation of an inflectional analyzer..."
+    informationContributors:
+      - !!eu.sshopencloud.marketplace.model.auth.User
+        id:                           1
+    properties:
+      - !!eu.sshopencloud.marketplace.model.vocabularies.Property
+        item:
+          !!eu.sshopencloud.marketplace.model.activities.Activity
+          id:                        23
+        type:
+          !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+          code:                           object-type
+        concept:
+          !!eu.sshopencloud.marketplace.model.vocabularies.Concept
+          code:                           activity
+          vocabulary:
+            code:                           object-type
+
+
+ActivityParthood:
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           18
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           13
+    ord:                          1
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           18
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           14
+    ord:                          2
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           18
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           15
+    ord:                          3
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           18
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           16
+    ord:                          4
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           18
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           17
+    ord:                          5
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           20
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           12
+    ord:                          1
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           20
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           18
+    ord:                          2
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           20
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           19
+    ord:                          3
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           20
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           17
+    ord:                          4
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           23
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           18
+    ord:                          1
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           23
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           21
+    ord:                          2
+
+  - !!eu.sshopencloud.marketplace.model.activities.ActivityParthood
+    parent:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           23
+    child:
+      !!eu.sshopencloud.marketplace.model.activities.Activity
+      id:                           22
+    ord:                          3
 
 
 ItemRelatedItem:
