@@ -83,7 +83,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldNotCreateItemCommentWhenItemNotExist() throws Exception {
-        Integer itemId = 30;
+        Integer itemId = 300;
 
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("I love it!");
