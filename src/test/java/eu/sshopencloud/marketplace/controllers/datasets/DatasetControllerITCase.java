@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
@@ -79,7 +78,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreatDatasetWithoutRelation() throws Exception {
+    public void shouldCreateDatasetWithoutRelation() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
         dataset.setDescription("Lorem ipsum");
@@ -99,7 +98,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreatDatasetWithHtmlInDescription() throws Exception {
+    public void shouldCreateDatasetWithHtmlInDescription() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with HTML in description");
         dataset.setDescription("<div>Description\n"

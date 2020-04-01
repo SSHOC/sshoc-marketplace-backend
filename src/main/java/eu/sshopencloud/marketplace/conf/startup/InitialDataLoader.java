@@ -56,12 +56,6 @@ public class InitialDataLoader {
 
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
-    @Value("${spring.profiles.active:dev}")
-    private String activeProfile;
-
-    @Value("${spring.jpa.hibernate.ddl-auto:none}")
-    private String jpaDdlAuto;
-
 
     public void loadBasicData() {
         log.debug("Loading basic data");
@@ -81,14 +75,17 @@ public class InitialDataLoader {
     }
 
 
-    public void loadProfileData() {
-        if (jpaDdlAuto.equals("create") || jpaDdlAuto.equals("create-drop")) {
-            log.debug("Clearing item index");
-            indexService.clearItemIndex();
-        }
+    public void clearSearchIndexes() {
+        log.debug("Clearing item index");
+        indexService.clearItemIndex();
+        log.debug("Clearing concept index");
+        indexService.clearConceptIndex();
+    }
 
-        log.debug("Loading " + activeProfile + " data");
-        Map<String, List<Object>> data = YamlLoader.loadYamlData("initial-data/profile/" + activeProfile + "-data.yml");
+
+    public void loadProfileData(String profile) {
+        log.debug("Loading " + profile + " data");
+        Map<String, List<Object>> data = YamlLoader.loadYamlData("initial-data/profile/" + profile + "-data.yml");
 
         List<User> users = YamlLoader.getObjects(data, "User");
         userRepository.saveAll(users);

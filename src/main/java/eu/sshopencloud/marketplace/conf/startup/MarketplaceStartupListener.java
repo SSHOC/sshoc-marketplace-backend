@@ -18,9 +18,19 @@ public class MarketplaceStartupListener {
 
     private final InitialVocabularyLoader initialVocabularyLoader;
 
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
+    @Value("${spring.jpa.hibernate.ddl-auto:none}")
+    private String jpaDdlAuto;
+
     @EventListener( classes = { ContextRefreshedEvent.class })
     public void onApplicationRefreshedEvent(ContextRefreshedEvent event) {
         log.debug("The magic begins !");
+
+        if (jpaDdlAuto.equals("create") || jpaDdlAuto.equals("create-drop")) {
+            initialDataLoader.clearSearchIndexes();
+        }
 
         initialDataLoader.loadBasicData();
 
@@ -29,7 +39,11 @@ public class MarketplaceStartupListener {
         initialVocabularyLoader.loadVocabularies();
         initialVocabularyLoader.loadPropertyTypeData();
 
-        initialDataLoader.loadProfileData();
+        // for test load dev-data and append test-data
+        if (activeProfile.equals("test")) {
+            initialDataLoader.loadProfileData("dev");
+        }
+        initialDataLoader.loadProfileData(activeProfile);
     }
 
 }

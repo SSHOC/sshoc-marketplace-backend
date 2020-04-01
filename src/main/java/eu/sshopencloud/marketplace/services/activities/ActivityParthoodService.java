@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class ActivityParthoodService {
 
     private final ActivityParthoodRepository activityParthoodRepository;
+
 
     public List<Activity> getSteps(Activity activity) {
         List<ActivityParthood> activityParthoods = activityParthoodRepository.findActivityParthoodsByParentOrderByOrd(activity);
@@ -31,6 +34,21 @@ public class ActivityParthoodService {
         return steps;
     }
 
+
+    public void saveSteps(Activity activity) {
+        List<ActivityParthood> activityParthoods = new ArrayList<ActivityParthood>();
+        for (int i = 0; i < activity.getComposedOf().size(); i++) {
+            Activity step = activity.getComposedOf().get(i);
+            ActivityParthood activityParthood = new ActivityParthood();
+            activityParthood.setParent(activity);
+            activityParthood.setChild(step);
+            activityParthood.setOrd(i);
+            activityParthoods.add(activityParthood);
+        }
+        activityParthoodRepository.saveAll(activityParthoods);
+    }
+
+
     public List<ActivityInline> getParents(Activity activity, Activity contextParent) {
         List<ActivityParthood> activityParthoods = activityParthoodRepository.findActivityParthoodsByChildOrderByParentLabel(activity);
         List<Activity> parents = activityParthoods.stream().map(ActivityParthood::getParent).filter(parent -> contextParent != null && !parent.getId().equals(contextParent.getId())).collect(Collectors.toList());
@@ -39,5 +57,8 @@ public class ActivityParthoodService {
         }
         return parents.stream().map(parent -> ActivityInline.builder().id(parent.getId()).label(parent.getLabel()).description(parent.getDescription()).build()).collect(Collectors.toList());
     }
+
+
+
 
 }

@@ -1,11 +1,10 @@
 package eu.sshopencloud.marketplace.services.trainings;
 
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
-import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
@@ -16,16 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,7 +38,6 @@ public class TrainingMaterialService {
 
     private final IndexService indexService;
 
-    private final UserRepository userRepository;
 
     public PaginatedTrainingMaterials getTrainingMaterials(int page, int perpage) {
         Page<TrainingMaterial> trainingMaterials = trainingMaterialRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
@@ -75,18 +68,10 @@ public class TrainingMaterialService {
 
     public TrainingMaterial createTrainingMaterial(TrainingMaterialCore trainingMaterialCore) throws ValidationException {
         TrainingMaterial trainingMaterial = trainingMaterialValidator.validate(trainingMaterialCore, null);
-        ZonedDateTime now = ZonedDateTime.now();
-        trainingMaterial.setLastInfoUpdate(now);
+        trainingMaterial.setLastInfoUpdate(ZonedDateTime.now());
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
-        Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
-        log.debug(authentication.toString());
-        if (! (authentication instanceof AnonymousAuthenticationToken)) {
-            User user = userRepository.findUserByUsername(authentication.getName());
-            List<User> informationContributors = new ArrayList<User>();
-            informationContributors.add(user);
-            trainingMaterial.setInformationContributors(informationContributors);
-        }
+        itemService.addInformationContributorToItem(trainingMaterial, LoggedInUserHolder.getLoggedInUser());
 
         Item nextVersion = itemService.clearVersionForCreate(trainingMaterial);
         trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
@@ -100,24 +85,11 @@ public class TrainingMaterialService {
             throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
         }
         TrainingMaterial trainingMaterial = trainingMaterialValidator.validate(trainingMaterialCore, id);
-        ZonedDateTime now = ZonedDateTime.now();
-        trainingMaterial.setLastInfoUpdate(now);
+        trainingMaterial.setLastInfoUpdate(ZonedDateTime.now());
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
-        Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
-        log.debug(authentication.toString());
-        if (! (authentication instanceof AnonymousAuthenticationToken)) {
-            User user = userRepository.findUserByUsername(authentication.getName());
-            if (trainingMaterial.getInformationContributors() != null) {
-                if (!trainingMaterial.getInformationContributors().contains(user)) {
-                    trainingMaterial.getInformationContributors().add(user);
-                }
-            } else {
-                List<User> informationContributors = new ArrayList<User>();
-                informationContributors.add(user);
-                trainingMaterial.setInformationContributors(informationContributors);
-            }
-        }
+        itemService.addInformationContributorToItem(trainingMaterial, LoggedInUserHolder.getLoggedInUser());
+
         Item prevVersion = trainingMaterial.getPrevVersion();
         Item nextVersion = itemService.clearVersionForUpdate(trainingMaterial);
         trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
