@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.conf.startup.vocabuleries;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ public class VocabularyLoader {
 
     private final VocabularyService vocabularyService;
 
+    private final VocabularyRepository vocabularyRepository;
+
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
 
     private  final IndexService indexService;
@@ -34,7 +37,12 @@ public class VocabularyLoader {
         }
         for (String vocabularyCode: vocabularySources.keySet()) {
             try (InputStream turtleInputStream = vocabularySources.get(vocabularyCode).getInputStream()) {
-                Vocabulary vocabulary = vocabularyService.createVocabulary(vocabularyCode, turtleInputStream);
+                Vocabulary vocabulary;
+                if (vocabularyRepository.existsById(vocabularyCode)) {
+                    vocabulary = vocabularyService.updateVocabulary(vocabularyCode, turtleInputStream);
+                } else {
+                    vocabulary = vocabularyService.createVocabulary(vocabularyCode, turtleInputStream);
+                }
                 log.debug("The vocabulary '" + vocabulary.getLabel() + "' from '" + vocabulary.getCode()  + ".ttl' file loaded successfully");
                 log.debug("The vocabulary '" + vocabulary.getLabel() + "' consists of " + vocabulary.getConcepts().size() + " concepts");
             } catch (Exception e) {

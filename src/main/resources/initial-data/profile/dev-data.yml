@@ -1,14 +1,17 @@
 User:
 
   - !!eu.sshopencloud.marketplace.model.auth.User
+    id:                          1
     username:                    Olga Yones
     preferences:                 "{}"
 
   - !!eu.sshopencloud.marketplace.model.auth.User
+    id:                          2
     username:                    Oleg M. Erg
     preferences:                 "{}"
 
   - !!eu.sshopencloud.marketplace.model.auth.User
+    id:                          3
     username:                    Amy Domański
     preferences:                 "{}"
 
@@ -16,22 +19,27 @@ User:
 Actor:
 
   - !!eu.sshopencloud.marketplace.model.actors.Actor
+    id:                          1
     name:                        Austrian Academy of Sciences
     website:                     https://www.oeaw.ac.at/
 
   - !!eu.sshopencloud.marketplace.model.actors.Actor
+    id:                          2
     name:                        Gertrude Stein
 
   - !!eu.sshopencloud.marketplace.model.actors.Actor
+    id:                          3
     name:                        SSHOC project consortium
     website:                     https://sshopencloud.eu/
 
   - !!eu.sshopencloud.marketplace.model.actors.Actor
+    id:                          4
     name:                        CESSDA
     website:                     https://www.cessda.eu/
     email:                       cessda@cessda.eu
 
   - !!eu.sshopencloud.marketplace.model.actors.Actor
+    id:                          5
     name:                        John Smith
     website:                     https://example.com/
     email:                       john@example.com
@@ -44,6 +52,7 @@ Actor:
 Tool:
 
   - !!eu.sshopencloud.marketplace.model.tools.Tool
+    id:                          1
     category:                    TOOL
     label:                       Gephi
     description:                 "**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks."
@@ -136,6 +145,7 @@ Tool:
           id:                           1
 
   - !!eu.sshopencloud.marketplace.model.tools.Tool
+    id:                          2
     category:                    TOOL
     label:                       Stata
     description:                 Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.
@@ -199,6 +209,7 @@ Tool:
         value:                          topic modeling
 
   - !!eu.sshopencloud.marketplace.model.tools.Tool
+    id:                          3
     category:                    TOOL
     label:                       WebSty
     description:                 Stylometric analysis tool.
@@ -258,6 +269,7 @@ Tool:
 TrainingMaterial:
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+    id:                          4
     category:                    TRAINING_MATERIAL
     label:                       "Gephi: an open source software for exploring and manipulating networks."
     description:                 ""
@@ -336,6 +348,7 @@ TrainingMaterial:
           id:                           1
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+    id:                          5
     category:                    TRAINING_MATERIAL
     label:                       Introduction to GEPHI
     version:                     1.0
@@ -397,6 +410,7 @@ TrainingMaterial:
             code:                           nemo-activity-type
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+    id:                          6
     category:                    TRAINING_MATERIAL
     label:                       Introduction to GEPHI
     version:                     2.0
@@ -467,6 +481,7 @@ TrainingMaterial:
       id:                           5
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+    id:                          7
     category:                    TRAINING_MATERIAL
     label:                       Introduction to GEPHI
     version:                     3.0
@@ -547,6 +562,7 @@ TrainingMaterial:
       id:                           6
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
+    id:                          8
     category:                    TRAINING_MATERIAL
     label:                       "Webinar on DH"
     description:                 ""
@@ -604,6 +620,7 @@ TrainingMaterial:
 Dataset:
 
   - !!eu.sshopencloud.marketplace.model.datasets.Dataset
+    id:                          9
     category:                    DATASET
     label:                       "Austin Crime Data"
     description:                 "This dataset includes Part 1 crimes for 2014 and 2015. Data is provided by the Austin Police Department and may differ from official APD crime data due to the variety of reporting and collection methods used."
@@ -667,6 +684,7 @@ Dataset:
           id:                           1
 
   - !!eu.sshopencloud.marketplace.model.datasets.Dataset
+    id:                          10
     category:                    DATASET
     label:                       Consortium of European Social Science Data Archives
     description:                 The CESSDA Data Catalogue contains the metadata of all data in the holdings of CESSDA'a service providers. It is a one-stop-shop for search and discovery, enabling effective access to European social science research data.
@@ -714,6 +732,7 @@ Dataset:
             code:                           nemo-activity-type
 
   - !!eu.sshopencloud.marketplace.model.datasets.Dataset
+    id:                          11
     category:                    DATASET
     label:                       Test dataset with markdown description
     description:                 "Description\n\nLorem *ipsum* `class` [example](http://example.com)\n\n  * **Item 1**\n  *\n\n  |    Element    |  Abbreviation   |     Expansion     |\n  |---------------|-----------------|-------------------|\n  | Abbreviation  | `.abbreviation` | `*[]:`            |\n  | Code fence    | `.codefence`    | ``` ... ``` |\n  | Explicit link | `.link`         | `[]()`            |\n\n```js\nconst test = {\n  hello: 'world'\n};\n```\n"
@@ -752,6 +771,7 @@ Dataset:
 Activity:
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          12
     category:                    ACTIVITY
     label:                       "Build the model of the dictionary"
     description:                 "Identify the structural components of the dictionary and ..."
@@ -814,6 +834,7 @@ Activity:
           id:                           1
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          13
     category:                    ACTIVITY
     label:                       "Selection of textual works relevant for the research question"
     description:                 "Selection of textual works relevant for the research question ..."
@@ -870,6 +891,7 @@ Activity:
             code:                           iso-639-3
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          14
     category:                    ACTIVITY
     label:                       "Corpus composition"
     description:                 "For corpus composition a set of canonical decisions should be considered. As a starting point, the corpus type will have to be determined: Is it an opportunistic selection, a balanced corpus, etc.?"
@@ -900,6 +922,7 @@ Activity:
         value:                          corpus
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          15
     category:                    ACTIVITY
     label:                       "Linguistic annotation"
     description:                 "Provides a set of attributes concerning linguistic features of tokens: lemmas, parts-of-speech or results of higher level linguistic analysis..."
@@ -930,6 +953,7 @@ Activity:
         value:                          linguistic markup
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          16
     category:                    ACTIVITY
     label:                       "Selection of a license"
     description:                 ""
@@ -952,6 +976,7 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          17
     category:                    ACTIVITY
     label:                       "Publishing"
     description:                 ""
@@ -974,6 +999,7 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          18
     category:                    ACTIVITY
     label:                       "Creation of a corpora"
     description:                 ""
@@ -996,6 +1022,7 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          19
     category:                    ACTIVITY
     label:                       "Write a dictionary"
     description:                 ""
@@ -1043,6 +1070,7 @@ Activity:
             code:                           nemo-activity-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          20
     category:                    ACTIVITY
     label:                       "Creation of a dictionary"
     description:                 "Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset."
@@ -1077,6 +1105,7 @@ Activity:
             code:                           nemo-activity-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          21
     category:                    ACTIVITY
     label:                       "Run an inflectional analyzer"
     description:                 ""
@@ -1098,6 +1127,7 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          22
     category:                    ACTIVITY
     label:                       "Interpret results"
     description:                 ""
@@ -1119,6 +1149,7 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
+    id:                          23
     category:                    ACTIVITY
     label:                       "Evaluation of an inflectional analyzer"
     description:                 "Evaluation of an inflectional analyzer..."

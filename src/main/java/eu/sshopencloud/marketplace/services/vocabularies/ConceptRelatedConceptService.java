@@ -65,7 +65,7 @@ public class ConceptRelatedConceptService {
         return conceptRelatedConcepts;
     }
 
-    public ConceptRelatedConcept validateReflexivityAndSave(ConceptRelatedConcept newConceptRelatedConcept) {
+    private ConceptRelatedConcept validateReflexivityAndSave(ConceptRelatedConcept newConceptRelatedConcept) {
         ConceptRelatedConceptId dirId = new ConceptRelatedConceptId();
         dirId.setSubject(new ConceptId(newConceptRelatedConcept.getSubject().getCode(), newConceptRelatedConcept.getSubject().getVocabulary().getCode()));
         dirId.setObject(new ConceptId(newConceptRelatedConcept.getObject().getCode(), newConceptRelatedConcept.getObject().getVocabulary().getCode()));

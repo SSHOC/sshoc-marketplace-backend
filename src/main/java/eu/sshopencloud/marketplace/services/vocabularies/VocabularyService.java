@@ -75,6 +75,21 @@ public class VocabularyService {
             throw new VocabularyAlreadyExistsException(vocabularyCode);
         }
 
+        return constructVocabularyAndSave(vocabularyCode, turtleInputStream);
+    }
+
+    public Vocabulary updateVocabulary(String vocabularyCode, InputStream turtleInputStream)
+            throws VocabularyDoesNotExistException, IOException, RDFParseException, UnsupportedRDFormatException {
+        if (!vocabularyRepository.existsById(vocabularyCode)) {
+            throw new VocabularyDoesNotExistException(vocabularyCode);
+        }
+
+        return constructVocabularyAndSave(vocabularyCode, turtleInputStream);
+    }
+
+    private Vocabulary constructVocabularyAndSave(String vocabularyCode, InputStream turtleInputStream)
+            throws IOException, RDFParseException, UnsupportedRDFormatException {
+
         Model rdfModel = Rio.parse(turtleInputStream, "", RDFFormat.TURTLE);         // TODO own exceptions
 
         Vocabulary vocabulary = RDFModelParser.createVocabulary(vocabularyCode, rdfModel);
@@ -90,6 +105,5 @@ public class VocabularyService {
 
         return vocabulary;
     }
-
 
 }
