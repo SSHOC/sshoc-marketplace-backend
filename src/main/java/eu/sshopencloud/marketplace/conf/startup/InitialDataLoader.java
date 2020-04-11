@@ -23,8 +23,6 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.*;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -64,15 +62,15 @@ public class InitialDataLoader {
 
         List<ActorRole> actorRoles = YamlLoader.getObjects(data, "ActorRole");
         actorRoleRepository.saveAll(actorRoles);
-        log.debug("Loaded " + actorRoles.size()  + " ActorRole objects");
+        log.debug("Loaded " + actorRoles.size() + " ActorRole objects");
 
         List<ItemRelation> itemRelations = YamlLoader.getObjects(data, "ItemRelation");
         itemRelationRepository.saveAll(itemRelations);
-        log.debug("Loaded " + itemRelations.size() / 2  + " ItemRelation objects");
+        log.debug("Loaded " + itemRelations.size() / 2 + " ItemRelation objects");
 
         List<ConceptRelation> conceptRelations = YamlLoader.getObjects(data, "ConceptRelation");
         conceptRelationRepository.saveAll(conceptRelations);
-        log.debug("Loaded " + conceptRelations.size() / 2  + " ConceptRelation objects");
+        log.debug("Loaded " + conceptRelations.size() / 2 + " ConceptRelation objects");
     }
 
 
@@ -90,11 +88,11 @@ public class InitialDataLoader {
 
         List<User> users = YamlLoader.getObjects(data, "User");
         userRepository.saveAll(users);
-        log.debug("Loaded " + users.size()  + " User objects");
+        log.debug("Loaded " + users.size() + " User objects");
 
         List<Actor> actors = YamlLoader.getObjects(data, "Actor");
         actorRepository.saveAll(actors);
-        log.debug("Loaded " + actors.size()  + " Actor objects");
+        log.debug("Loaded " + actors.size() + " Actor objects");
 
         List<Tool> tools = YamlLoader.getObjects(data, "Tool");
         toolLoader.createTools(tools);
@@ -102,20 +100,20 @@ public class InitialDataLoader {
 
         List<TrainingMaterial> trainingMaterials = YamlLoader.getObjects(data, "TrainingMaterial");
         trainingMaterialLoader.createTrainingMaterials(trainingMaterials);
-        log.debug("Loaded " + trainingMaterials.size()  + " TrainingMaterial objects");
+        log.debug("Loaded " + trainingMaterials.size() + " TrainingMaterial objects");
 
         List<Dataset> datasets = YamlLoader.getObjects(data, "Dataset");
         datasetLoader.createDatasets(datasets);
-        log.debug("Loaded " + datasets.size()  + " Dataset objects");
+        log.debug("Loaded " + datasets.size() + " Dataset objects");
 
         List<Activity> activities = YamlLoader.getObjects(data, "Activity");
         List<ActivityParthood> activityParthoods = YamlLoader.getObjects(data, "ActivityParthood");
         activityLoader.createActivities(activities, activityParthoods);
-        log.debug("Loaded " + activities.size()  + " Activity objects");
+        log.debug("Loaded " + activities.size() + " Activity objects");
 
         List<ItemRelatedItem> itemRelatedItems = YamlLoader.getObjects(data, "ItemRelatedItem");
         itemRelatedItemRepository.saveAll(itemRelatedItems);
-        log.debug("Loaded " + itemRelatedItems.size()  + " ItemRelatedItem objects");
+        log.debug("Loaded " + itemRelatedItems.size() + " ItemRelatedItem objects");
     }
 
 }
