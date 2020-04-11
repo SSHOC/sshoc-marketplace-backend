@@ -51,7 +51,7 @@ public class PropertyTypeService {
 
     public List<VocabularyInline> getAllowedVocabulariesForPropertyType(PropertyType propertyType) {
         List<VocabularyInline> allowedVocabularies = new ArrayList<VocabularyInline>();
-        List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findPropertyTypeVocabularyByPropertyTypeCode(propertyType.getCode());
+        List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findByPropertyTypeCode(propertyType.getCode());
         for (PropertyTypeVocabulary propertyTypeVocabulary: propertyTypeVocabularies) {
             Vocabulary vocabulary = propertyTypeVocabulary.getVocabulary();
             VocabularyInline allowedVocabulary = new VocabularyInline();
@@ -63,7 +63,7 @@ public class PropertyTypeService {
     }
 
     public List<PropertyType> getAllowedPropertyTypesForVocabulary(Vocabulary vocabulary) {
-        List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findPropertyTypeVocabularyByVocabularyCode(vocabulary.getCode());
+        List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findByVocabularyCode(vocabulary.getCode());
         return propertyTypeVocabularies.stream().map(PropertyTypeVocabulary::getPropertyType).collect(Collectors.toList());
     }
 

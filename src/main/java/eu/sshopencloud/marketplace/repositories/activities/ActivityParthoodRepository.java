@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface ActivityParthoodRepository extends JpaRepository<ActivityParthood, ActivityParthoodId> {
 
-    List<ActivityParthood> findActivityParthoodsByParentOrderByOrd(Activity parent);
+    List<ActivityParthood> findByParentOrderByOrd(Activity parent);
 
-    List<ActivityParthood> findActivityParthoodsByChildOrderByParentLabel(Activity child);
+    List<ActivityParthood> findByChildOrderByParentLabel(Activity child);
 
 }

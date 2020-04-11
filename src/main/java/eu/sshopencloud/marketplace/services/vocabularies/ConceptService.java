@@ -49,7 +49,7 @@ public class ConceptService {
     }
 
     public List<Concept> getConcepts(String vocabularyCode) {
-        return conceptRepository.findConceptByVocabularyCode(vocabularyCode, Sort.by(Sort.Order.asc("ord")));
+        return conceptRepository.findByVocabularyCode(vocabularyCode, Sort.by(Sort.Order.asc("ord")));
     }
 
     public Concept getConcept(String code, String vocabularyCode) {
@@ -59,14 +59,14 @@ public class ConceptService {
 
     public List<Concept> getRelatedConceptsOfConcept(Concept concept, ConceptRelation relation) {
         List<Concept> result = new ArrayList<Concept>();
-        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptBySubjectAndRelation(concept, relation);
+        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectAndRelation(concept, relation);
         for (ConceptRelatedConcept subjectRelatedConcept: subjectRelatedConcepts) {
-            conceptRelatedConceptDetachingRepository.detachConceptRelatedConcept(subjectRelatedConcept);
+            conceptRelatedConceptDetachingRepository.detach(subjectRelatedConcept);
             result.add(subjectRelatedConcept.getObject());
         }
-        List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptByObjectAndRelation(concept, relation.getInverseOf());
+        List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findByObjectAndRelation(concept, relation.getInverseOf());
         for (ConceptRelatedConcept objectRelatedConcept: objectRelatedConcepts) {
-            conceptRelatedConceptDetachingRepository.detachConceptRelatedConcept(objectRelatedConcept);
+            conceptRelatedConceptDetachingRepository.detach(objectRelatedConcept);
             result.add(objectRelatedConcept.getSubject());
         }
         return result;

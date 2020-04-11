@@ -53,7 +53,7 @@ public class ItemCommentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug(authentication.toString());
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            User user = userRepository.findUserByUsername(authentication.getName());
+            User user = userRepository.findByUsername(authentication.getName());
             itemComment.setCreator(user);
         }
 
@@ -75,7 +75,7 @@ public class ItemCommentService {
         ZonedDateTime now = ZonedDateTime.now();
         itemComment.setDateLastUpdated(now);
 
-        Item item = itemRepository.findItemByCommentsId(id);
+        Item item = itemRepository.findByCommentsId(id);
         int pos = getItemCommentIndex(item, id);
         item.getComments().set(pos, itemComment);
         Item modifiedItem = itemRepository.save(item);
@@ -86,7 +86,7 @@ public class ItemCommentService {
     public void deleteItemComment(Long itemId, Long id) {
         checkExistsItemComment(itemId, id);
 
-        Item item = itemRepository.findItemByCommentsId(id);
+        Item item = itemRepository.findByCommentsId(id);
         int pos = getItemCommentIndex(item, id);
         item.getComments().remove(pos);
         itemRepository.save(item);
@@ -97,7 +97,7 @@ public class ItemCommentService {
         if (!itemCommentRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + ItemComment.class.getName() + " with id " + id + " for item " + itemId);
         }
-        Item item = itemRepository.findItemByCommentsId(id);
+        Item item = itemRepository.findByCommentsId(id);
         if (!item.getId().equals(itemId)) {
             throw new EntityNotFoundException("Unable to find " + ItemComment.class.getName() + " with id " + id + " for item " + itemId);
         }
@@ -112,7 +112,7 @@ public class ItemCommentService {
                 ItemComment comment = item.getComments().get(i);
                 // TODO allow updating/deleting comments for curators
                 if (!(authentication instanceof AnonymousAuthenticationToken)) {
-                    User user = userRepository.findUserByUsername(authentication.getName());
+                    User user = userRepository.findByUsername(authentication.getName());
                     if (!comment.getCreator().getId().equals(user.getId())) {
                         throw new AccessDeniedException("No access to the comment.");
                     }

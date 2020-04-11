@@ -67,7 +67,7 @@ public class ItemContributorValidator {
         if (actor != null && role != null) {
             ItemContributor itemContributor = null;
             if (item.getId() != null) {
-                itemContributor = itemContributorRepository.findItemContributorByItemIdAndActorId(item.getId(), actor.getId());
+                itemContributor = itemContributorRepository.findByItemIdAndActorId(item.getId(), actor.getId());
             }
             if (itemContributor == null) {
                 itemContributor = new ItemContributor();

@@ -2,17 +2,26 @@ User:
 
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          1
-    username:                    Olga Yones
+    username:                    Administrator
+    password:                    $2a$10$kPF9JIeRO5BNOutUrZj3c.dn.8NNAKHdO.KO2GvkFkMBDupHx7kZi
+    enabled:                     true
+    role:                        ADMINISTRATOR
     preferences:                 "{}"
 
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          2
-    username:                    Oleg M. Erg
+    username:                    Moderator
+    password:                    $2a$10$EwnmejL1r/U6Om31yRQpt.76SEpUeYAm3YP/oBHNv8UQ5cjWtAmce
+    enabled:                     true
+    role:                        MODERATOR
     preferences:                 "{}"
 
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          3
-    username:                    Amy Domański
+    username:                    Contributor
+    password:                    $2a$10$Q1CisccL3No1CjoRokxrG.Q9kWy9uqRpPIwEGTG/zsbsJa1B6Ezju
+    enabled:                     true
+    role:                        CONTRIBUTOR
     preferences:                 "{}"
 
 

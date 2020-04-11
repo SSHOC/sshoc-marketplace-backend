@@ -8,7 +8,7 @@ import org.springframework.lang.Nullable;
 
 public class ForceFacetSortSolrTemplate extends SolrTemplate {
 
-        public ForceFacetSortSolrTemplate(SolrClient solrClient) {
+    public ForceFacetSortSolrTemplate(SolrClient solrClient) {
         super(solrClient);
     }
 

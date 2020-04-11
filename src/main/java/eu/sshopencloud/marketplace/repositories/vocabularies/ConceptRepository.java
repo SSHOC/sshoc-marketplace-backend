@@ -11,8 +11,8 @@ import java.util.List;
 @Repository
 public interface ConceptRepository extends JpaRepository<Concept, ConceptId> {
 
-    Concept findConceptByUri(String uri);
+    Concept findByUri(String uri);
 
-    List<Concept> findConceptByVocabularyCode(String vocabularyCode, Sort sort);
+    List<Concept> findByVocabularyCode(String vocabularyCode, Sort sort);
 
 }

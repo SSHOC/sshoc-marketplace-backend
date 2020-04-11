@@ -12,7 +12,7 @@ public class ConceptRelatedConceptDetachingRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public void detachConceptRelatedConcept(ConceptRelatedConcept conceptRelatedConcept) {
+    public void detach(ConceptRelatedConcept conceptRelatedConcept) {
         entityManager.detach(conceptRelatedConcept);
     }
 

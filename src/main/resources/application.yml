@@ -35,6 +35,11 @@ springdoc:
         path: /v3/api-docs
 
 marketplace:
+    auth:
+        jwt-secret: "change-me"
+        jwt-max-age-sec: 86400
+    cors:
+        max-age-sec: 3600
     pagination:
         default-perpage: 20
         maximal-perpage: 100

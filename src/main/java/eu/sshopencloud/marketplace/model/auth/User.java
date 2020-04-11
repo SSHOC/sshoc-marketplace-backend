@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.model.auth;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -21,7 +22,18 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    // TODO credentials
+    @Basic
+    @Column(nullable = true)
+    private String password;
+
+    @Basic()
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean enabled;
+
+    @Basic
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     @Basic(fetch = FetchType.EAGER, optional = false)

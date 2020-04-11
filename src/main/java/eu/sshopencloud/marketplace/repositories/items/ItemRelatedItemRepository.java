@@ -10,8 +10,8 @@ import java.util.List;
 @Repository
 public interface ItemRelatedItemRepository extends JpaRepository<ItemRelatedItem, ItemRelatedItemId> {
 
-    List<ItemRelatedItem> findItemRelatedItemBySubjectId(Long subjectId);
+    List<ItemRelatedItem> findBySubjectId(Long subjectId);
 
-    List<ItemRelatedItem> findItemRelatedItemByObjectId(Long objectId);
+    List<ItemRelatedItem> findByObjectId(Long objectId);
 
 }

@@ -16,7 +16,7 @@ public class ItemContributorService {
     private final ItemContributorCriteriaRepository itemContributorRepository;
 
     public List<ItemContributor> getItemContributors(Long itemId) {
-        return itemContributorRepository.findItemContributorByItemId(itemId);
+        return itemContributorRepository.findByItemId(itemId);
     }
 
 }

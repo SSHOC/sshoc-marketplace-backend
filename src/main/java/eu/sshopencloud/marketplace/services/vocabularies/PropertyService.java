@@ -16,7 +16,7 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
 
     public List<Property> getItemProperties(Long itemId) {
-        return propertyRepository.findPropertyByItemIdOrderByOrd(itemId);
+        return propertyRepository.findByItemIdOrderByOrd(itemId);
     }
 
 }

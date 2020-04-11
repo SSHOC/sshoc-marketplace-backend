@@ -10,8 +10,8 @@ import java.util.List;
 @Repository
 public interface PropertyTypeVocabularyRepository extends JpaRepository<PropertyTypeVocabulary, PropertyTypeVocabularyId> {
 
-    List<PropertyTypeVocabulary> findPropertyTypeVocabularyByPropertyTypeCode(String propertyTypeCode);
+    List<PropertyTypeVocabulary> findByPropertyTypeCode(String propertyTypeCode);
 
-    List<PropertyTypeVocabulary> findPropertyTypeVocabularyByVocabularyCode(String vocabularyCode);
+    List<PropertyTypeVocabulary> findByVocabularyCode(String vocabularyCode);
 
 }

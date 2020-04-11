@@ -12,12 +12,12 @@ import java.util.List;
 @Repository
 public interface ConceptRelatedConceptRepository extends JpaRepository<ConceptRelatedConcept, ConceptRelatedConceptId> {
 
-    List<ConceptRelatedConcept> findConceptRelatedConceptBySubjectCodeAndSubjectVocabularyCode(String subjectCode, String subjectVocabularyCode);
+    List<ConceptRelatedConcept> findBySubjectCodeAndSubjectVocabularyCode(String subjectCode, String subjectVocabularyCode);
 
-    List<ConceptRelatedConcept> findConceptRelatedConceptByObjectCodeAndObjectVocabularyCode(String objectCode, String objectVocabularyCode);
+    List<ConceptRelatedConcept> findByObjectCodeAndObjectVocabularyCode(String objectCode, String objectVocabularyCode);
 
-    List<ConceptRelatedConcept> findConceptRelatedConceptBySubjectAndRelation(Concept subject, ConceptRelation relation);
+    List<ConceptRelatedConcept> findBySubjectAndRelation(Concept subject, ConceptRelation relation);
 
-    List<ConceptRelatedConcept> findConceptRelatedConceptByObjectAndRelation(Concept object, ConceptRelation relation);
+    List<ConceptRelatedConcept> findByObjectAndRelation(Concept object, ConceptRelation relation);
 
 }

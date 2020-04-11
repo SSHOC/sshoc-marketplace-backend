@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
+import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.services.items.ItemService;
@@ -26,6 +27,8 @@ public class IndexService {
     private final IndexItemRepository indexItemRepository;
 
     private final ItemService itemService;
+
+    private final ItemRepository itemRepository;
 
     private final IndexConceptRepository indexConceptRepository;
 
@@ -54,18 +57,28 @@ public class IndexService {
     }
 
 
+    public void reindexItems() {
+        clearItemIndex();
+        for (Item item : itemRepository.findAll()) {
+            indexItem(item);
+        }
+    }
+
+
     public List<IndexConcept> indexConcepts(Vocabulary vocabulary) {
-        List<PropertyType> proopertyTypes = propertyTypeService.getAllowedPropertyTypesForVocabulary(vocabulary);
+        List<PropertyType> propertyTypes = propertyTypeService.getAllowedPropertyTypesForVocabulary(vocabulary);
         List<IndexConcept> indexConcepts = conceptService.getConcepts(vocabulary.getCode()).stream()
-                .map(concept -> IndexConverter.covertConcept(concept, vocabulary, proopertyTypes))
-                .collect(Collectors.toList());;
+                .map(concept -> IndexConverter.covertConcept(concept, vocabulary, propertyTypes))
+                .collect(Collectors.toList());
+        ;
         return (List<IndexConcept>) indexConceptRepository.saveAll(indexConcepts);
     }
 
     public void removeConcepts(Vocabulary vocabulary) {
         List<IndexConcept> indexConcepts = conceptService.getConcepts(vocabulary.getCode()).stream()
                 .map(concept -> IndexConverter.covertConcept(concept, vocabulary, Collections.emptyList()))
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
+        ;
         indexConceptRepository.deleteAll(indexConcepts);
     }
 

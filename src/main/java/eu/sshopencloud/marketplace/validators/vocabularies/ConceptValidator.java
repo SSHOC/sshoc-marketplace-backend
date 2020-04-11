@@ -91,7 +91,7 @@ public class ConceptValidator {
             errors.rejectValue("uri", "field.required", "Concept uri is required.");
             return null;
         }
-        Concept concept = conceptRepository.findConceptByUri(uri);
+        Concept concept = conceptRepository.findByUri(uri);
         if (concept == null) {
             errors.rejectValue("uri", "field.notExist", "Concept does not exist.");
             return null;

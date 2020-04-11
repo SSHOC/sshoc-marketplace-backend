@@ -26,17 +26,17 @@ public class ConceptRelatedConceptService {
     public List<ConceptRelatedConceptInline> getConceptRelatedConcepts(String conceptCode, String vocabularyCode) {
         List<ConceptRelatedConceptInline> relatedConcepts = new ArrayList<ConceptRelatedConceptInline>();
 
-        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptBySubjectCodeAndSubjectVocabularyCode(conceptCode, vocabularyCode);
+        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectCodeAndSubjectVocabularyCode(conceptCode, vocabularyCode);
         for (ConceptRelatedConcept subjectRelatedConcept : subjectRelatedConcepts) {
-            conceptRelatedConceptDetachingRepository.detachConceptRelatedConcept(subjectRelatedConcept);
+            conceptRelatedConceptDetachingRepository.detach(subjectRelatedConcept);
             VocabularyInline objectVocabulary = getRelatedVocabularyForConcept(subjectRelatedConcept.getObject().getVocabulary().getCode());
             ConceptRelatedConceptInline relatedConcept = ConceptConverter.convertRelatedConceptFromSubject(subjectRelatedConcept, objectVocabulary);
             relatedConcepts.add(relatedConcept);
         }
 
-        List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findConceptRelatedConceptByObjectCodeAndObjectVocabularyCode(conceptCode, vocabularyCode);
+        List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findByObjectCodeAndObjectVocabularyCode(conceptCode, vocabularyCode);
         for (ConceptRelatedConcept objectRelatedConcept : objectRelatedConcepts) {
-            conceptRelatedConceptDetachingRepository.detachConceptRelatedConcept(objectRelatedConcept);
+            conceptRelatedConceptDetachingRepository.detach(objectRelatedConcept);
             VocabularyInline subjectVocabulary = getRelatedVocabularyForConcept(objectRelatedConcept.getSubject().getVocabulary().getCode());
             ConceptRelatedConceptInline relatedConcept = ConceptConverter.convertRelatedConceptFromObject(objectRelatedConcept, subjectVocabulary);
             relatedConcepts.add(relatedConcept);

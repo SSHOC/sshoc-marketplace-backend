@@ -29,7 +29,7 @@ public class ItemRelatedItemService {
     public List<ItemRelatedItemInline> getItemRelatedItems(Long itemId) {
         List<ItemRelatedItemInline> relatedItems = new ArrayList<ItemRelatedItemInline>();
 
-        List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findItemRelatedItemBySubjectId(itemId);
+        List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findBySubjectId(itemId);
         for (ItemRelatedItem subjectRelatedItem : subjectRelatedItems) {
             ItemRelatedItemInline relatedItem = new ItemRelatedItemInline();
             relatedItem.setId(subjectRelatedItem.getObject().getId());
@@ -41,7 +41,7 @@ public class ItemRelatedItemService {
             relatedItems.add(relatedItem);
         }
 
-        List<ItemRelatedItem> objectRelatedItems = itemRelatedItemRepository.findItemRelatedItemByObjectId(itemId);
+        List<ItemRelatedItem> objectRelatedItems = itemRelatedItemRepository.findByObjectId(itemId);
         for (ItemRelatedItem objectRelatedItem : objectRelatedItems) {
             ItemRelatedItemInline relatedItem = new ItemRelatedItemInline();
             relatedItem.setId(objectRelatedItem.getSubject().getId());
@@ -88,9 +88,9 @@ public class ItemRelatedItemService {
     }
 
     public void deleteRelationsForItem(Item item) {
-        List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findItemRelatedItemBySubjectId(item.getId());
+        List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findBySubjectId(item.getId());
         itemRelatedItemRepository.deleteAll(subjectRelatedItems);
-        List<ItemRelatedItem> objectRelatedItems = itemRelatedItemRepository.findItemRelatedItemByObjectId(item.getId());
+        List<ItemRelatedItem> objectRelatedItems = itemRelatedItemRepository.findByObjectId(item.getId());
         itemRelatedItemRepository.deleteAll(objectRelatedItems);
     }
 
