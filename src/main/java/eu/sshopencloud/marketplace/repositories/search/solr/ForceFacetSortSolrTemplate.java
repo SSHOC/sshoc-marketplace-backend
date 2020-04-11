@@ -5,7 +5,9 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ForceFacetSortSolrTemplate extends SolrTemplate {
 
     public ForceFacetSortSolrTemplate(SolrClient solrClient) {
