@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.conf.startup.activities;
 
+import eu.sshopencloud.marketplace.conf.startup.items.ItemLoader;
 import eu.sshopencloud.marketplace.model.activities.Activity;
 import eu.sshopencloud.marketplace.model.activities.ActivityParthood;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptId;
@@ -19,24 +20,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ActivityLoader {
 
+    private final ItemLoader itemLoader;
+
     private final ActivityRepository activityRepository;
 
     private final ActivityParthoodRepository activityParthoodRepository;
 
     private final ActivityParthoodService activityParthoodService;
 
-    private final ConceptRepository conceptRepository;
-
     private  final IndexService indexService;
 
     public void createActivities(List<Activity> newActivities, List<ActivityParthood> activityParthoods) {
         List<Activity> activities = new ArrayList<Activity>();
         for (Activity newActivity: newActivities) {
-            for (Property property: newActivity.getProperties()) {
-                if (property.getConcept() != null) {
-                    property.setConcept(conceptRepository.findById(ConceptId.builder().code(property.getConcept().getCode()).vocabulary(property.getConcept().getVocabulary().getCode()).build()).get());
-                }
-            }
+            itemLoader.completeProperties(newActivity);
+            itemLoader.completeContributors(newActivity);
             activities.add(activityRepository.save(newActivity));
         }
         activityParthoodRepository.saveAll(activityParthoods);

@@ -61,7 +61,6 @@ Actor:
 Tool:
 
   - !!eu.sshopencloud.marketplace.model.tools.Tool
-    id:                          1
     category:                    TOOL
     label:                       Gephi
     description:                 "**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks."
@@ -72,9 +71,6 @@ Tool:
         code:                        gpl-3.0
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        1
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
@@ -82,9 +78,6 @@ Tool:
           !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        1
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
@@ -100,9 +93,6 @@ Tool:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -113,9 +103,6 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -126,17 +113,11 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           tadirah-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          graph
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        1
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
@@ -154,15 +135,11 @@ Tool:
           id:                           1
 
   - !!eu.sshopencloud.marketplace.model.tools.Tool
-    id:                          2
     category:                    TOOL
     label:                       Stata
     description:                 Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        2
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
@@ -175,9 +152,6 @@ Tool:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        2
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -188,9 +162,6 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        2
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -201,32 +172,22 @@ Tool:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           tadirah-activity
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        2
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          Lorem ipsum
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        2
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          topic modeling
 
   - !!eu.sshopencloud.marketplace.model.tools.Tool
-    id:                          3
     category:                    TOOL
     label:                       WebSty
     description:                 Stylometric analysis tool.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        3
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        3
@@ -234,9 +195,6 @@ Tool:
           !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        3
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
@@ -251,9 +209,6 @@ Tool:
         id:                           2
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.tools.Tool
-          id:                        3
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -278,15 +233,11 @@ Tool:
 TrainingMaterial:
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-    id:                          4
     category:                    TRAINING_MATERIAL
     label:                       "Gephi: an open source software for exploring and manipulating networks."
     description:                 ""
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        4
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
@@ -294,9 +245,6 @@ TrainingMaterial:
           !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        4
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
@@ -311,9 +259,6 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        4
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -324,9 +269,6 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        4
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
@@ -337,9 +279,6 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        4
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           language
@@ -357,16 +296,12 @@ TrainingMaterial:
           id:                           1
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-    id:                          5
     category:                    TRAINING_MATERIAL
     label:                       Introduction to GEPHI
     version:                     1.0
     description:                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        5
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
@@ -379,9 +314,6 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        5
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -392,9 +324,6 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        5
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
@@ -405,9 +334,6 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        5
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -419,16 +345,12 @@ TrainingMaterial:
             code:                           nemo-activity-type
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-    id:                          6
     category:                    TRAINING_MATERIAL
     label:                       Introduction to GEPHI
     version:                     2.0
     description:                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        6
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
@@ -441,9 +363,6 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        6
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -454,9 +373,6 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        6
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
@@ -467,9 +383,6 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        6
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -490,16 +403,12 @@ TrainingMaterial:
       id:                           5
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-    id:                          7
     category:                    TRAINING_MATERIAL
     label:                       Introduction to GEPHI
     version:                     3.0
     description:                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        7
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        2
@@ -512,9 +421,6 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        7
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -525,9 +431,6 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        7
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-format
@@ -538,9 +441,6 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iana-mime-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        7
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -571,15 +471,11 @@ TrainingMaterial:
       id:                           6
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-    id:                          8
     category:                    TRAINING_MATERIAL
     label:                       "Webinar on DH"
     description:                 ""
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        8
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        5
@@ -587,9 +483,6 @@ TrainingMaterial:
           !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        8
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
@@ -604,9 +497,6 @@ TrainingMaterial:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        8
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -617,9 +507,6 @@ TrainingMaterial:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
-          id:                        8
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
@@ -629,15 +516,11 @@ TrainingMaterial:
 Dataset:
 
   - !!eu.sshopencloud.marketplace.model.datasets.Dataset
-    id:                          9
     category:                    DATASET
     label:                       "Austin Crime Data"
     description:                 "This dataset includes Part 1 crimes for 2014 and 2015. Data is provided by the Austin Police Department and may differ from official APD crime data due to the variety of reporting and collection methods used."
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        9
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        1
@@ -645,9 +528,6 @@ Dataset:
           !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        9
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
@@ -660,9 +540,6 @@ Dataset:
         id:                           3
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        9
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -673,9 +550,6 @@ Dataset:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        9
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           language
@@ -693,15 +567,11 @@ Dataset:
           id:                           1
 
   - !!eu.sshopencloud.marketplace.model.datasets.Dataset
-    id:                          10
     category:                    DATASET
     label:                       Consortium of European Social Science Data Archives
     description:                 The CESSDA Data Catalogue contains the metadata of all data in the holdings of CESSDA'a service providers. It is a one-stop-shop for search and discovery, enabling effective access to European social science research data.
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        10
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
@@ -714,9 +584,6 @@ Dataset:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        10
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -727,9 +594,6 @@ Dataset:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        10
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -741,15 +605,11 @@ Dataset:
             code:                           nemo-activity-type
 
   - !!eu.sshopencloud.marketplace.model.datasets.Dataset
-    id:                          11
     category:                    DATASET
     label:                       Test dataset with markdown description
     description:                 "Description\n\nLorem *ipsum* `class` [example](http://example.com)\n\n  * **Item 1**\n  *\n\n  |    Element    |  Abbreviation   |     Expansion     |\n  |---------------|-----------------|-------------------|\n  | Abbreviation  | `.abbreviation` | `*[]:`            |\n  | Code fence    | `.codefence`    | ``` ... ``` |\n  | Explicit link | `.link`         | `[]()`            |\n\n```js\nconst test = {\n  hello: 'world'\n};\n```\n"
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        11
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -760,17 +620,11 @@ Dataset:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        11
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          Lorem ipsum
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.datasets.Dataset
-          id:                        11
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
@@ -780,15 +634,11 @@ Dataset:
 Activity:
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          12
     category:                    ACTIVITY
     label:                       "Build the model of the dictionary"
     description:                 "Identify the structural components of the dictionary and ..."
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        12
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        1
@@ -796,9 +646,6 @@ Activity:
           !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        12
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
@@ -810,9 +657,6 @@ Activity:
         id:                           3
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        12
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -823,9 +667,6 @@ Activity:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        12
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           language
@@ -843,15 +684,11 @@ Activity:
           id:                           1
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          13
     category:                    ACTIVITY
     label:                       "Selection of textual works relevant for the research question"
     description:                 "Selection of textual works relevant for the research question ..."
     contributors:
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        13
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        1
@@ -859,9 +696,6 @@ Activity:
           !!eu.sshopencloud.marketplace.model.actors.ActorRole
           code:                      author
       - !!eu.sshopencloud.marketplace.model.items.ItemContributor
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        13
         actor:
           !!eu.sshopencloud.marketplace.model.actors.Actor
           id:                        4
@@ -873,9 +707,6 @@ Activity:
         id:                           3
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        13
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -886,9 +717,6 @@ Activity:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        13
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           language
@@ -900,7 +728,6 @@ Activity:
             code:                           iso-639-3
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          14
     category:                    ACTIVITY
     label:                       "Corpus composition"
     description:                 "For corpus composition a set of canonical decisions should be considered. As a starting point, the corpus type will have to be determined: Is it an opportunistic selection, a balanced corpus, etc.?"
@@ -909,9 +736,6 @@ Activity:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        14
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -922,16 +746,12 @@ Activity:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        14
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          corpus
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          15
     category:                    ACTIVITY
     label:                       "Linguistic annotation"
     description:                 "Provides a set of attributes concerning linguistic features of tokens: lemmas, parts-of-speech or results of higher level linguistic analysis..."
@@ -940,9 +760,6 @@ Activity:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        15
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -953,16 +770,12 @@ Activity:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        15
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          linguistic markup
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          16
     category:                    ACTIVITY
     label:                       "Selection of a license"
     description:                 ""
@@ -971,9 +784,6 @@ Activity:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        16
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -985,7 +795,6 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          17
     category:                    ACTIVITY
     label:                       "Publishing"
     description:                 ""
@@ -994,9 +803,6 @@ Activity:
         id:                           2
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        17
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -1008,7 +814,6 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          18
     category:                    ACTIVITY
     label:                       "Creation of a corpora"
     description:                 ""
@@ -1017,9 +822,6 @@ Activity:
         id:                           2
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        18
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -1031,7 +833,6 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          19
     category:                    ACTIVITY
     label:                       "Write a dictionary"
     description:                 ""
@@ -1040,9 +841,6 @@ Activity:
         id:                           2
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        19
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -1052,9 +850,6 @@ Activity:
           vocabulary:
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        19
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -1065,9 +860,6 @@ Activity:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           nemo-activity-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        19
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -1079,7 +871,6 @@ Activity:
             code:                           nemo-activity-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          20
     category:                    ACTIVITY
     label:                       "Creation of a dictionary"
     description:                 "Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset."
@@ -1088,9 +879,6 @@ Activity:
         id:                           2
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        20
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -1100,9 +888,6 @@ Activity:
           vocabulary:
             code:                           object-type
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        20
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           activity
@@ -1114,7 +899,6 @@ Activity:
             code:                           nemo-activity-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          21
     category:                    ACTIVITY
     label:                       "Run an inflectional analyzer"
     description:                 ""
@@ -1123,9 +907,6 @@ Activity:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        21
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -1136,7 +917,6 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          22
     category:                    ACTIVITY
     label:                       "Interpret results"
     description:                 ""
@@ -1145,9 +925,6 @@ Activity:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        22
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type
@@ -1158,7 +935,6 @@ Activity:
             code:                           object-type
 
   - !!eu.sshopencloud.marketplace.model.activities.Activity
-    id:                          23
     category:                    ACTIVITY
     label:                       "Evaluation of an inflectional analyzer"
     description:                 "Evaluation of an inflectional analyzer..."
@@ -1167,9 +943,6 @@ Activity:
         id:                           1
     properties:
       - !!eu.sshopencloud.marketplace.model.vocabularies.Property
-        item:
-          !!eu.sshopencloud.marketplace.model.activities.Activity
-          id:                        23
         type:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           object-type

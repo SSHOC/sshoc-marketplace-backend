@@ -40,8 +40,7 @@ public class UserControllerITCase {
         mvc.perform(get("/api/users/{id}", userId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(userId)))
-                .andExpect(jsonPath("username", is("Olga Yones")));
+                .andExpect(jsonPath("id", is(userId)));
     }
 
     @Test
