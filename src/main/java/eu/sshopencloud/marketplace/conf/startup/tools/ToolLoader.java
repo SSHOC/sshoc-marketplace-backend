@@ -19,12 +19,14 @@ public class ToolLoader {
 
     private  final IndexService indexService;
 
-    public void createTools(List<Tool> newTools) {
+    public void createTools(String profile, List<Tool> newTools) {
         for (Tool newTool: newTools) {
             itemLoader.completeProperties(newTool);
             itemLoader.completeContributors(newTool);
             Tool tool = toolRepository.save(newTool);
-            indexService.indexItem(tool);
+            if (!profile.equals("prod")) {
+                indexService.indexItem(tool);
+            }
         }
     }
 

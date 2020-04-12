@@ -51,10 +51,12 @@ public class VocabularyLoader {
         }
     }
 
-    public void createPropertyTypeVocabularies(List<PropertyTypeVocabulary> newPropertyTypeVocabularies) {
+    public void createPropertyTypeVocabularies(String profile, List<PropertyTypeVocabulary> newPropertyTypeVocabularies) {
         for (PropertyTypeVocabulary newPropertyTypeVocabulary: newPropertyTypeVocabularies) {
             PropertyTypeVocabulary propertyTypeVocabulary = propertyTypeVocabularyRepository.save(newPropertyTypeVocabulary);
-            indexService.indexConcepts(propertyTypeVocabulary.getVocabulary());
+            if (!profile.equals("prod")) {
+                indexService.indexConcepts(propertyTypeVocabulary.getVocabulary());
+            }
         }
     }
 

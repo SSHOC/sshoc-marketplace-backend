@@ -8,10 +8,12 @@ import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class IndexService {
 
     private final IndexItemRepository indexItemRepository;
@@ -35,6 +38,8 @@ public class IndexService {
     private final PropertyTypeService propertyTypeService;
 
     private final ConceptService conceptService;
+
+    private final VocabularyRepository vocabularyRepository;
 
 
     public IndexItem indexItem(Item item) {
@@ -67,23 +72,34 @@ public class IndexService {
 
     public List<IndexConcept> indexConcepts(Vocabulary vocabulary) {
         List<PropertyType> propertyTypes = propertyTypeService.getAllowedPropertyTypesForVocabulary(vocabulary);
-        List<IndexConcept> indexConcepts = conceptService.getConcepts(vocabulary.getCode()).stream()
-                .map(concept -> IndexConverter.covertConcept(concept, vocabulary, propertyTypes))
-                .collect(Collectors.toList());
-        ;
-        return (List<IndexConcept>) indexConceptRepository.saveAll(indexConcepts);
+        if (!propertyTypes.isEmpty()) {
+            log.debug("indexing " + vocabulary.getCode() + " vocabulary concepts");
+            List<IndexConcept> indexConcepts = conceptService.getConcepts(vocabulary.getCode()).stream()
+                    .map(concept -> IndexConverter.covertConcept(concept, vocabulary, propertyTypes))
+                    .collect(Collectors.toList());
+            return (List<IndexConcept>) indexConceptRepository.saveAll(indexConcepts);
+        } else {
+            log.debug("vocabulary " + vocabulary.getCode() + " has no property type so no concepts are indexed");
+            return Collections.emptyList();
+        }
     }
 
     public void removeConcepts(Vocabulary vocabulary) {
         List<IndexConcept> indexConcepts = conceptService.getConcepts(vocabulary.getCode()).stream()
                 .map(concept -> IndexConverter.covertConcept(concept, vocabulary, Collections.emptyList()))
                 .collect(Collectors.toList());
-        ;
         indexConceptRepository.deleteAll(indexConcepts);
     }
 
     public void clearConceptIndex() {
         indexConceptRepository.deleteAll();
+    }
+
+    public void reindexConcepts() {
+        clearConceptIndex();
+        for (Vocabulary vocabulary : vocabularyRepository.findAll()) {
+            indexConcepts(vocabulary);
+        }
     }
 
 }

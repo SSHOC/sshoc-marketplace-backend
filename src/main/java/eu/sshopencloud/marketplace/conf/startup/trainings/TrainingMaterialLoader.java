@@ -19,12 +19,14 @@ public class TrainingMaterialLoader {
 
     private  final IndexService indexService;
 
-    public void createTrainingMaterials(List<TrainingMaterial> newTrainingMaterials) {
+    public void createTrainingMaterials(String profile, List<TrainingMaterial> newTrainingMaterials) {
         for (TrainingMaterial newTrainingMaterial: newTrainingMaterials) {
             itemLoader.completeProperties(newTrainingMaterial);
             itemLoader.completeContributors(newTrainingMaterial);
             TrainingMaterial trainingMaterial = trainingMaterialRepository.save(newTrainingMaterial);
-            indexService.indexItem(trainingMaterial);
+            if (!profile.equals("prod")) {
+                indexService.indexItem(trainingMaterial);
+            }
         }
     }
 

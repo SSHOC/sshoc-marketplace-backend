@@ -27,6 +27,9 @@ public class InitialVocabularyLoader {
 
     private final IndexService indexService;
 
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
     @Value("${spring.jpa.hibernate.ddl-auto:none}")
     private String jpaDdlAuto;
 
@@ -57,7 +60,7 @@ public class InitialVocabularyLoader {
         log.debug("Loaded " + propertyTypes.size()  + " PropertyType objects");
 
         List<PropertyTypeVocabulary> propertyTypeVocabularies = YamlLoader.getObjects(data, "PropertyTypeVocabulary");
-        vocabularyLoader.createPropertyTypeVocabularies(propertyTypeVocabularies);
+        vocabularyLoader.createPropertyTypeVocabularies(activeProfile, propertyTypeVocabularies);
         log.debug("Loaded " + propertyTypeVocabularies.size()  + " PropertyTypeVocabulary objects");
     }
 

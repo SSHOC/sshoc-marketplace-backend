@@ -17,4 +17,10 @@ public class IndexController {
         indexService.reindexItems();
     }
 
+
+    @PutMapping(path = "/concept-reindex")
+    public void reindexConcepts() {
+        indexService.reindexConcepts();
+    }
+
 }

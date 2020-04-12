@@ -19,12 +19,14 @@ public class DatasetLoader {
 
     private  final IndexService indexService;
 
-    public void createDatasets(List<Dataset> newDatasets) {
+    public void createDatasets(String profile, List<Dataset> newDatasets) {
         for (Dataset newDataset: newDatasets) {
             itemLoader.completeProperties(newDataset);
             itemLoader.completeContributors(newDataset);
             Dataset dataset = datasetRepository.save(newDataset);
-            indexService.indexItem(dataset);
+            if (!profile.equals("prod")) {
+                indexService.indexItem(dataset);
+            }
         }
     }
 

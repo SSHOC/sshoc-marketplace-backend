@@ -95,20 +95,20 @@ public class InitialDataLoader {
         log.debug("Loaded " + actors.size() + " Actor objects");
 
         List<Tool> tools = YamlLoader.getObjects(data, "Tool");
-        toolLoader.createTools(tools);
+        toolLoader.createTools(profile, tools);
         log.debug("Loaded " + tools.size() + " Tool objects");
 
         List<TrainingMaterial> trainingMaterials = YamlLoader.getObjects(data, "TrainingMaterial");
-        trainingMaterialLoader.createTrainingMaterials(trainingMaterials);
+        trainingMaterialLoader.createTrainingMaterials(profile, trainingMaterials);
         log.debug("Loaded " + trainingMaterials.size() + " TrainingMaterial objects");
 
         List<Dataset> datasets = YamlLoader.getObjects(data, "Dataset");
-        datasetLoader.createDatasets(datasets);
+        datasetLoader.createDatasets(profile, datasets);
         log.debug("Loaded " + datasets.size() + " Dataset objects");
 
         List<Activity> activities = YamlLoader.getObjects(data, "Activity");
         List<ActivityParthood> activityParthoods = YamlLoader.getObjects(data, "ActivityParthood");
-        activityLoader.createActivities(activities, activityParthoods);
+        activityLoader.createActivities(profile, activities, activityParthoods);
         log.debug("Loaded " + activities.size() + " Activity objects");
 
         List<ItemRelatedItem> itemRelatedItems = YamlLoader.getObjects(data, "ItemRelatedItem");

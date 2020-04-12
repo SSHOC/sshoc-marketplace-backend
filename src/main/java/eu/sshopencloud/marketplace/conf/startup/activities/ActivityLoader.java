@@ -30,7 +30,7 @@ public class ActivityLoader {
 
     private  final IndexService indexService;
 
-    public void createActivities(List<Activity> newActivities, List<ActivityParthood> activityParthoods) {
+    public void createActivities(String profile, List<Activity> newActivities, List<ActivityParthood> activityParthoods) {
         List<Activity> activities = new ArrayList<Activity>();
         for (Activity newActivity: newActivities) {
             itemLoader.completeProperties(newActivity);
@@ -42,7 +42,9 @@ public class ActivityLoader {
             activity.setComposedOf(activityParthoodService.getSteps(activity));
             if (!activity.getComposedOf().isEmpty()) {
                 // index only complex activities
-                indexService.indexItem(activity);
+                if (!profile.equals("prod")) {
+                    indexService.indexItem(activity);
+                }
             }
         }
     }
