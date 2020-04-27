@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.services.activities;
 
 import eu.sshopencloud.marketplace.model.activities.Activity;
-import eu.sshopencloud.marketplace.model.activities.ActivityInline;
+import eu.sshopencloud.marketplace.dto.activities.ActivityBasicDto;
 import eu.sshopencloud.marketplace.model.activities.ActivityParthood;
 import eu.sshopencloud.marketplace.repositories.activities.ActivityParthoodRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class ActivityParthoodService {
 
 
     public void saveSteps(Activity activity) {
-        List<ActivityParthood> activityParthoods = new ArrayList<ActivityParthood>();
+        List<ActivityParthood> activityParthoods = new ArrayList();
         for (int i = 0; i < activity.getComposedOf().size(); i++) {
             Activity step = activity.getComposedOf().get(i);
             ActivityParthood activityParthood = new ActivityParthood();
@@ -48,13 +48,13 @@ public class ActivityParthoodService {
     }
 
 
-    public List<ActivityInline> getParents(Activity activity, Activity contextParent) {
+    public List<ActivityBasicDto> getParents(Activity activity, Activity contextParent) {
         List<ActivityParthood> activityParthoods = activityParthoodRepository.findByChildOrderByParentLabel(activity);
         List<Activity> parents = activityParthoods.stream().map(ActivityParthood::getParent).filter(parent -> contextParent != null && !parent.getId().equals(contextParent.getId())).collect(Collectors.toList());
         if (contextParent != null) {
             parents.add(0, contextParent); // for steps its parent is always first
         }
-        return parents.stream().map(parent -> ActivityInline.builder().id(parent.getId()).label(parent.getLabel()).description(parent.getDescription()).build()).collect(Collectors.toList());
+        return parents.stream().map(parent -> ActivityBasicDto.builder().id(parent.getId()).label(parent.getLabel()).description(parent.getDescription()).build()).collect(Collectors.toList());
     }
 
 

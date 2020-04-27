@@ -1,15 +1,15 @@
-package eu.sshopencloud.marketplace.model.vocabularies;
+package eu.sshopencloud.marketplace.dto.vocabularies;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ConceptRelatedConceptInline {
+public class RelatedConceptDto {
 
     private String code;
 
-    private VocabularyInline vocabulary;
+    private VocabularyBasicDto vocabulary;
 
     private String label;
 
@@ -19,6 +19,6 @@ public class ConceptRelatedConceptInline {
 
     private String uri;
 
-    private ConceptRelation relation;
+    private ConceptRelationDto relation;
 
 }

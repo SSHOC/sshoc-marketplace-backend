@@ -1,11 +1,10 @@
 package eu.sshopencloud.marketplace.model.vocabularies;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
+
 
 @Entity
 @IdClass(ConceptId.class)
@@ -32,7 +31,6 @@ public class Concept {
 
     @Basic
     @Column(nullable = true)
-    @JsonIgnore
     private Integer ord;
 
     @Basic
@@ -42,9 +40,5 @@ public class Concept {
     @Basic
     @Column(nullable = false, unique = true)
     private String uri;
-
-    /* This field will be handled in a separate manner because in this list should be related concepts considering all relations and inverses of relations and because of cyclical dependencies */
-    @Transient
-    private List<ConceptRelatedConceptInline> relatedConcepts;
 
 }

@@ -1,10 +1,10 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.dto.items.ItemDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemInline;
-import eu.sshopencloud.marketplace.model.vocabularies.Property;
-import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
+import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -22,6 +22,8 @@ import java.util.Objects;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+
+    private final ItemRelatedItemService itemRelatedItemService;
 
     private final PropertyTypeService propertyTypeService;
 
@@ -43,12 +45,12 @@ public class ItemService {
         }
     }
 
-    public List<ItemInline> getNewerVersionsOfItem(Item item) {
+    public List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
         // TODO change to recursive subordinates query in ItemRepository
-        List<ItemInline> versions = new ArrayList<ItemInline>();
-        Item nextVersion = itemRepository.findByPrevVersion(item);
+        List<ItemBasicDto> versions = new ArrayList<>();
+        Item nextVersion = itemRepository.findByPrevVersionId(itemId);
         while (nextVersion != null) {
-            ItemInline version = new ItemInline();
+            ItemBasicDto version = new ItemBasicDto();
             version.setId(nextVersion.getId());
             version.setLabel(nextVersion.getLabel());
             version.setVersion(nextVersion.getVersion());
@@ -58,12 +60,12 @@ public class ItemService {
         return versions;
     }
 
-    public List<ItemInline> getOlderVersionsOfItem(Item item) {
+    public List<ItemBasicDto> getOlderVersionsOfItem(Long itemId) {
         // TODO change to recursive subordinates query in ItemRepository
-        List<ItemInline> versions = new ArrayList<ItemInline>();
-        Item prevVersion = item.getPrevVersion();
+        List<ItemBasicDto> versions = new ArrayList<ItemBasicDto>();
+        Item prevVersion = itemRepository.getOne(itemId).getPrevVersion();
         while (prevVersion != null) {
-            ItemInline version = new ItemInline();
+            ItemBasicDto version = new ItemBasicDto();
             version.setId(prevVersion.getId());
             version.setLabel(prevVersion.getLabel());
             version.setVersion(prevVersion.getVersion());
@@ -78,13 +80,15 @@ public class ItemService {
         return (nextVersion == null);
     }
 
-    public void fillAllowedVocabulariesForPropertyTypes(Item item) {
-        for (Property property: item.getProperties()) {
-            PropertyType propertyType = property.getType();
-            if (propertyType != null) {
-                propertyType.setAllowedVocabularies(propertyTypeService.getAllowedVocabulariesForPropertyType(propertyType));
-            }
+    @SuppressWarnings("unchecked")
+    public <T extends ItemDto> T completeItem(ItemDto item) {
+        item.setRelatedItems(itemRelatedItemService.getItemRelatedItems(item.getId()));
+        item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
+        item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
+        for (PropertyDto property: item.getProperties()) {
+            propertyTypeService.completePropertyType(property.getType());
         }
+        return (T) item;
     }
 
     public Item clearVersionForCreate(Item item) {
@@ -110,7 +114,7 @@ public class ItemService {
         }
         if (item.getNewPrevVersion() != null) {
             Item prevnextVersion = null;
-            List<ItemInline> newerVersions = getNewerVersionsOfItem(item);
+            List<ItemBasicDto> newerVersions = getNewerVersionsOfItem(item.getId());
             if (newerVersions.stream().anyMatch(i -> Objects.equals(i.getId(), item.getNewPrevVersion().getId()))) {
                 prevnextVersion = itemRepository.findByPrevVersion(item);
                 prevnextVersion.setPrevVersion(null);

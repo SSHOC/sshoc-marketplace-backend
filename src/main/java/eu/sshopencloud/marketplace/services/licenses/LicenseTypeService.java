@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.licenses;
 
-import eu.sshopencloud.marketplace.model.licenses.LicenseType;
+import eu.sshopencloud.marketplace.dto.licenses.LicenseTypeDto;
+import eu.sshopencloud.marketplace.mappers.licenses.LicenseTypeMapper;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -16,8 +17,8 @@ public class LicenseTypeService {
 
     private final LicenseTypeRepository licenseTypeRepository;
 
-    public List<LicenseType> getAllLicenseTypes() {
-        return licenseTypeRepository.findAll(Sort.by(Sort.Order.asc("ord")));
+    public List<LicenseTypeDto> getAllLicenseTypes() {
+        return LicenseTypeMapper.INSTANCE.toDto(licenseTypeRepository.findAll(Sort.by(Sort.Order.asc("ord"))));
     }
 
 }

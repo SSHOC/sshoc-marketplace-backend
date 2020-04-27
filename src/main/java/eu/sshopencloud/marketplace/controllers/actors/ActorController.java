@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.actors;
 
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
-import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.dto.actors.ActorDto;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,24 +22,22 @@ public class ActorController {
     private final ActorService actorService;
 
     @GetMapping(path = "/actors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Actor>> getActors(@RequestParam(value = "q", required = false) String q) {
-        List<Actor> actors = actorService.getActors(q, defualtPerpage);
-        return ResponseEntity.ok(actors);
+    public ResponseEntity<List<ActorDto>> getActors(@RequestParam(value = "q", required = false) String q) {
+        return ResponseEntity.ok(actorService.getActors(q, defualtPerpage));
     }
 
     @GetMapping(path = "/actors/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Actor> getActor(@PathVariable("id") long id) {
-        Actor actor = actorService.getActor(id);
-        return ResponseEntity.ok(actor);
+    public ResponseEntity<ActorDto> getActor(@PathVariable("id") long id) {
+        return ResponseEntity.ok(actorService.getActor(id));
     }
 
     @PostMapping(path = "/actors", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Actor> createActor(@RequestBody ActorCore newActor) {
+    public ResponseEntity<ActorDto> createActor(@RequestBody ActorCore newActor) {
         return ResponseEntity.ok(actorService.createActor(newActor));
     }
 
     @PutMapping(path = "/actors/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Actor> updateActor(@PathVariable("id") long id, @RequestBody ActorCore updatedActor) {
+    public ResponseEntity<ActorDto> updateActor(@PathVariable("id") long id, @RequestBody ActorCore updatedActor) {
         return ResponseEntity.ok(actorService.updateActor(id, updatedActor));
     }
 

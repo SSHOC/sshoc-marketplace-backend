@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.model.items;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -9,6 +9,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "item_relations")
 @Data
+@EqualsAndHashCode(exclude = "inverseOf")
 @NoArgsConstructor
 public class ItemRelation {
 
@@ -17,7 +18,6 @@ public class ItemRelation {
 
     @Basic
     @Column(nullable = false)
-    @JsonIgnore
     private Integer ord;
 
     @Basic
@@ -26,7 +26,6 @@ public class ItemRelation {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.REFRESH }, orphanRemoval = true)
     @JoinColumn(foreignKey = @ForeignKey(name="item_relation_inverse_of_code_fk"))
-    @JsonIgnore
     private ItemRelation inverseOf;
 
 }

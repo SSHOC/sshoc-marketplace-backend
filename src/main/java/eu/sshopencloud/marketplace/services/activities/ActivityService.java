@@ -1,6 +1,11 @@
 package eu.sshopencloud.marketplace.services.activities;
 
 import eu.sshopencloud.marketplace.dto.activities.ActivityCore;
+import eu.sshopencloud.marketplace.dto.activities.ActivityDto;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
+import eu.sshopencloud.marketplace.mappers.activities.ActivityMapper;
+import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
+import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.model.activities.Activity;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
@@ -21,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -43,34 +50,30 @@ public class ActivityService {
 
 
     public PaginatedActivities getActivities(Integer page, Integer perpage) {
-        Page<Activity> activities = activityRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
-        for (Activity activity: activities) {
-            complete(activity);
-        }
+        Page<Activity> activitiesPage = activityRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+        List<ActivityDto> activities = activitiesPage.stream().map(ActivityMapper.INSTANCE::toDto)
+                .map(this::completeActivity)
+                .collect(Collectors.toList());
 
-        return PaginatedActivities.builder().activities(activities.getContent())
-                .count(activities.getContent().size()).hits(activities.getTotalElements()).page(page).perpage(perpage).pages(activities.getTotalPages())
+        return PaginatedActivities.builder().activities(activities)
+                .count(activitiesPage.getContent().size()).hits(activitiesPage.getTotalElements()).page(page).perpage(perpage).pages(activitiesPage.getTotalPages())
                 .build();
     }
 
-
-    public Activity getActivity(Long id) {
+    public ActivityDto getActivity(Long id) {
         Activity activity = activityRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + Activity.class.getName() + " with id " + id));
-        return complete(activity);
+        return completeActivity(ActivityMapper.INSTANCE.toDto(activity));
     }
 
-    private Activity complete(Activity activity) {
-        activity.setComposedOf(activityParthoodService.getSteps(activity));
-        activity.setPartOf(activityParthoodService.getParents(activity, null));
-        activity.setRelatedItems(itemRelatedItemService.getItemRelatedItems(activity.getId()));
-        activity.setOlderVersions(itemService.getOlderVersionsOfItem(activity));
-        activity.setNewerVersions(itemService.getNewerVersionsOfItem(activity));
-        itemService.fillAllowedVocabulariesForPropertyTypes(activity);
+    private ActivityDto completeActivity(ActivityDto activity) {
+        itemService.completeItem(activity);
+        //activity.setComposedOf(activityParthoodService.getSteps(activity));
+        //activity.setPartOf(activityParthoodService.getParents(activity, null));
         return activity;
     }
 
-    public Activity createActivity(ActivityCore activityCore) {
+    public ActivityDto createActivity(ActivityCore activityCore) {
         Activity activity = activityValidator.validate(activityCore, null);
         activity.setLastInfoUpdate(ZonedDateTime.now());
 
@@ -86,10 +89,10 @@ public class ActivityService {
             // index only complex activities
             indexService.indexItem(activity);
         }
-        return complete(activity);
+        return completeActivity(ActivityMapper.INSTANCE.toDto(activity));
     }
 
-    public Activity updateActivity(Long id, ActivityCore activityCore) {
+    public ActivityDto updateActivity(Long id, ActivityCore activityCore) {
         // TODO
         return null;
     }

@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.dto.search;
 
+import eu.sshopencloud.marketplace.dto.items.ItemContributorDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
@@ -26,9 +28,9 @@ public class SearchItem {
 
     private String description;
 
-    private List<ItemContributor> contributors;
+    private List<ItemContributorDto> contributors;
 
-    private List<Property> properties;
+    private List<PropertyDto> properties;
 
     private ItemCategory category;
 

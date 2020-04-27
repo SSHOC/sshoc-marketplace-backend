@@ -1,11 +1,11 @@
-package eu.sshopencloud.marketplace.model.items;
+package eu.sshopencloud.marketplace.dto.items;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ItemInline {
+public class ItemBasicDto {
 
     private Long id;
 

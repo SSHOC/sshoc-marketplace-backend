@@ -1,6 +1,10 @@
 package eu.sshopencloud.marketplace.services.tools;
 
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
+import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
+import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
@@ -19,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -39,34 +45,26 @@ public class ToolService {
 
 
     public PaginatedTools getTools(int page, int perpage) {
-        Page<Tool> tools = toolRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
-        for (Tool tool : tools) {
-            complete(tool);
-        }
+        Page<Tool> toolsPage = toolRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+        List<ToolDto> tools = toolsPage.stream().map(ToolMapper.INSTANCE::toDto)
+                .map(tool -> {
+                    itemService.completeItem(tool);
+                    return tool;
+                })
+                .collect(Collectors.toList());
 
-        return PaginatedTools.builder().tools(tools.getContent())
-                .count(tools.getContent().size()).hits(tools.getTotalElements()).page(page).perpage(perpage).pages(tools.getTotalPages())
+        return PaginatedTools.builder().tools(tools)
+                .count(toolsPage.getContent().size()).hits(toolsPage.getTotalElements()).page(page).perpage(perpage).pages(toolsPage.getTotalPages())
                 .build();
     }
 
-    public Tool getTool(Long id) {
-        Optional<Tool> tool = toolRepository.findById(id);
-        if (!tool.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
-        }
-        return complete(tool.get());
+    public ToolDto getTool(Long id) {
+        Tool tool = toolRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id));
+        return itemService.completeItem(ToolMapper.INSTANCE.toDto(tool));
     }
 
-    private Tool complete(Tool tool) {
-        tool.setRelatedItems(itemRelatedItemService.getItemRelatedItems(tool.getId()));
-        tool.setOlderVersions(itemService.getOlderVersionsOfItem(tool));
-        tool.setNewerVersions(itemService.getNewerVersionsOfItem(tool));
-        itemService.fillAllowedVocabulariesForPropertyTypes(tool);
-        return tool;
-    }
-
-
-    public Tool createTool(ToolCore toolCore) {
+    public ToolDto createTool(ToolCore toolCore) {
         Tool tool = toolValidator.validate(toolCore, null);
         tool.setLastInfoUpdate(ZonedDateTime.now());
 
@@ -77,10 +75,11 @@ public class ToolService {
         tool = toolRepository.save(tool);
         itemService.switchVersion(tool, nextVersion);
         indexService.indexItem(tool);
-        return complete(tool);
+
+        return itemService.completeItem(ToolMapper.INSTANCE.toDto(tool));
     }
 
-    public Tool updateTool(Long id, ToolCore toolCore) {
+    public ToolDto updateTool(Long id, ToolCore toolCore) {
         if (!toolRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
         }
@@ -95,7 +94,8 @@ public class ToolService {
         tool = toolRepository.save(tool);
         itemService.switchVersion(prevVersion, nextVersion);
         indexService.indexItem(tool);
-        return complete(tool);
+
+        return itemService.completeItem(ToolMapper.INSTANCE.toDto(tool));
     }
 
     public void deleteTool(Long id) {

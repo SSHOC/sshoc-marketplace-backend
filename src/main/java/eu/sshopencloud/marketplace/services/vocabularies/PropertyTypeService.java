@@ -1,5 +1,8 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
+import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyTypeMapper;
+import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;
@@ -9,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,21 +26,27 @@ public class PropertyTypeService {
 
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
 
-    public Map<String, PropertyType> getAllPropertyTypes() {
-        return propertyTypeRepository.findAll().stream().collect(Collectors.toMap(PropertyType::getCode, propertyType -> propertyType));
-    }
-
-    public List<PropertyType> getPropertyTypes(String q, int perpage) {
+    public List<PropertyTypeDto> getPropertyTypes(String q, int page, int perpage) {
         ExampleMatcher queryPropertyTypeMatcher = ExampleMatcher.matchingAny()
                 .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
         PropertyType queryPropertyType = new PropertyType();
         queryPropertyType.setLabel(q);
 
-        Page<PropertyType> propertyTypes = propertyTypeRepository.findAll(Example.of(queryPropertyType, queryPropertyTypeMatcher), PageRequest.of(0, perpage, Sort.by(Sort.Order.asc("ord"))));
-        for (PropertyType propertyType: propertyTypes.getContent()) {
-            propertyType.setAllowedVocabularies(getAllowedVocabulariesForPropertyType(propertyType));
+        Page<PropertyType> propertyTypesPage = propertyTypeRepository.findAll(Example.of(queryPropertyType, queryPropertyTypeMatcher), PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("ord"))));
+        List<PropertyTypeDto> propertyTypes = PropertyTypeMapper.INSTANCE.toDto(propertyTypesPage.getContent());
+
+        for (PropertyTypeDto propertyType: propertyTypes) {
+            completePropertyType(propertyType);
         }
-        return propertyTypes.getContent();
+        return propertyTypes;
+    }
+
+    public void completePropertyType(PropertyTypeDto propertyType) {
+        propertyType.setAllowedVocabularies(VocabularyBasicMapper.INSTANCE.toDto(getAllowedVocabulariesForPropertyType(propertyType.getCode())));
+    }
+
+    public Map<String, PropertyType> getAllPropertyTypes() {
+        return propertyTypeRepository.findAll().stream().collect(Collectors.toMap(PropertyType::getCode, propertyType -> propertyType));
     }
 
     public PropertyType getPropertyType(String code) {
@@ -49,22 +57,22 @@ public class PropertyTypeService {
         return propertyType.get();
     }
 
-    public List<VocabularyInline> getAllowedVocabulariesForPropertyType(PropertyType propertyType) {
-        List<VocabularyInline> allowedVocabularies = new ArrayList<VocabularyInline>();
-        List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findByPropertyTypeCode(propertyType.getCode());
-        for (PropertyTypeVocabulary propertyTypeVocabulary: propertyTypeVocabularies) {
-            Vocabulary vocabulary = propertyTypeVocabulary.getVocabulary();
-            VocabularyInline allowedVocabulary = new VocabularyInline();
-            allowedVocabulary.setCode(vocabulary.getCode());
-            allowedVocabulary.setLabel(vocabulary.getLabel());
-            allowedVocabularies.add(allowedVocabulary);
-        }
-        return allowedVocabularies;
+    public List<Vocabulary> getAllowedVocabulariesForPropertyType(String propertyTypeCode) {
+        List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findByPropertyTypeCode(propertyTypeCode);
+        return propertyTypeVocabularies.stream().map(PropertyTypeVocabulary::getVocabulary).collect(Collectors.toList());
+    }
+
+    public List<Vocabulary> getAllowedVocabulariesForPropertyType(PropertyType propertyType) {
+        return getAllowedVocabulariesForPropertyType(propertyType.getCode());
+    }
+
+    public List<PropertyType> getAllowedPropertyTypesForVocabulary(String vocabularyCode) {
+        List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findByVocabularyCode(vocabularyCode);
+        return propertyTypeVocabularies.stream().map(PropertyTypeVocabulary::getPropertyType).collect(Collectors.toList());
     }
 
     public List<PropertyType> getAllowedPropertyTypesForVocabulary(Vocabulary vocabulary) {
-        List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findByVocabularyCode(vocabulary.getCode());
-        return propertyTypeVocabularies.stream().map(PropertyTypeVocabulary::getPropertyType).collect(Collectors.toList());
+        return getAllowedPropertyTypesForVocabulary(vocabulary.getCode());
     }
 
 }

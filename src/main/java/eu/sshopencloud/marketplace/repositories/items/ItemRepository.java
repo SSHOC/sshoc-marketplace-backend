@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
+    Item findByPrevVersionId(Long itemId);
+
     Item findByPrevVersion(Item item);
 
     Item findByCommentsId(Long commentId);

@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
-import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptRelationDto;
+import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptRelationMapper;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -16,8 +17,8 @@ public class ConceptRelationService {
 
     private final ConceptRelationRepository conceptRelationRepository;
 
-    public List<ConceptRelation> getAllConceptRelations() {
-        return conceptRelationRepository.findAll(Sort.by(Sort.Order.asc("ord")));
+    public List<ConceptRelationDto> getAllConceptRelations() {
+        return ConceptRelationMapper.INSTANCE.toDto(conceptRelationRepository.findAll(Sort.by(Sort.Order.asc("ord"))));
     }
 
 }

@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.controllers.trainings;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
-import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.services.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
 import lombok.RequiredArgsConstructor;
@@ -38,17 +38,17 @@ public class TrainingMaterialController {
     }
 
     @GetMapping(path = "/training-materials/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterial> getTrainingMaterial(@PathVariable("id") long id) {
+    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") long id) {
         return ResponseEntity.ok(trainingMaterialService.getTrainingMaterial(id));
     }
 
     @PostMapping(path = "/training-materials", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterial> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial) {
+    public ResponseEntity<TrainingMaterialDto> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial) {
         return ResponseEntity.ok(trainingMaterialService.createTrainingMaterial(newTrainingMaterial));
     }
 
     @PutMapping(path = "/training-materials/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterial> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterialCore updatedTrainingMaterial) {
+    public ResponseEntity<TrainingMaterialDto> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterialCore updatedTrainingMaterial) {
         return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(id, updatedTrainingMaterial));
     }
 

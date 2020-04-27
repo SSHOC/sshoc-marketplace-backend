@@ -1,6 +1,9 @@
 package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
+import eu.sshopencloud.marketplace.dto.items.ItemCommentDto;
+import eu.sshopencloud.marketplace.mappers.items.ItemCommentMapper;
+import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
@@ -38,7 +41,7 @@ public class ItemCommentService {
     private final UserRepository userRepository;
 
 
-    public ItemComment createItemComment(Long itemId, ItemCommentCore itemCommentCore) {
+    public ItemCommentDto createItemComment(Long itemId, ItemCommentCore itemCommentCore) {
         ItemComment itemComment = itemCommentValidator.validate(itemCommentCore, null);
 
         Optional<Item> item = itemRepository.findById(itemId);
@@ -65,10 +68,10 @@ public class ItemCommentService {
         }
         comments.add(itemComment);
         Item modifiedItem = itemRepository.save(item.get());
-        return modifiedItem.getComments().get(size);
+        return ItemCommentMapper.INSTANCE.toDto(modifiedItem.getComments().get(size));
     }
 
-    public ItemComment updateItemComment(Long itemId, Long id, ItemCommentCore itemCommentCore) {
+    public ItemCommentDto updateItemComment(Long itemId, Long id, ItemCommentCore itemCommentCore) {
         checkExistsItemComment(itemId, id);
         ItemComment itemComment = itemCommentValidator.validate(itemCommentCore, id);
 
@@ -79,7 +82,7 @@ public class ItemCommentService {
         int pos = getItemCommentIndex(item, id);
         item.getComments().set(pos, itemComment);
         Item modifiedItem = itemRepository.save(item);
-        return modifiedItem.getComments().get(pos);
+        return ItemCommentMapper.INSTANCE.toDto(modifiedItem.getComments().get(pos));
     }
 
 

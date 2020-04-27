@@ -5,13 +5,13 @@ import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
-import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -315,7 +315,7 @@ public class DatasetControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Long datasetId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Dataset.class).getId();
+        Long datasetId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, DatasetDto.class).getId();
 
         mvc.perform(delete("/api/datasets/{id}", datasetId)
                 .contentType(MediaType.APPLICATION_JSON))

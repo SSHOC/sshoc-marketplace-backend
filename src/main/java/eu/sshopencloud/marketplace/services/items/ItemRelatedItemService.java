@@ -1,6 +1,10 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.dto.items.ItemRelatedItemDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
+import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
+import eu.sshopencloud.marketplace.mappers.items.ItemRelatedItemMapper;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelatedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
@@ -26,37 +30,23 @@ public class ItemRelatedItemService {
     private final ItemRelationValidator itemRelationValidator;
 
 
-    public List<ItemRelatedItemInline> getItemRelatedItems(Long itemId) {
-        List<ItemRelatedItemInline> relatedItems = new ArrayList<ItemRelatedItemInline>();
+    public List<RelatedItemDto> getItemRelatedItems(Long itemId) {
+        List<RelatedItemDto> relatedItems = new ArrayList();
 
         List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findBySubjectId(itemId);
         for (ItemRelatedItem subjectRelatedItem : subjectRelatedItems) {
-            ItemRelatedItemInline relatedItem = new ItemRelatedItemInline();
-            relatedItem.setId(subjectRelatedItem.getObject().getId());
-            relatedItem.setRelation(subjectRelatedItem.getRelation());
-            Item item = itemRepository.getOne(subjectRelatedItem.getObject().getId());
-            relatedItem.setCategory(item.getCategory());
-            relatedItem.setLabel(item.getLabel());
-            relatedItem.setDescription(item.getDescription());
-            relatedItems.add(relatedItem);
+            relatedItems.add(ItemConverter.convertRelatedItemFromSubject(subjectRelatedItem));
         }
 
         List<ItemRelatedItem> objectRelatedItems = itemRelatedItemRepository.findByObjectId(itemId);
         for (ItemRelatedItem objectRelatedItem : objectRelatedItems) {
-            ItemRelatedItemInline relatedItem = new ItemRelatedItemInline();
-            relatedItem.setId(objectRelatedItem.getSubject().getId());
-            relatedItem.setRelation(objectRelatedItem.getRelation().getInverseOf());
-            Item item = itemRepository.getOne(objectRelatedItem.getSubject().getId());
-            relatedItem.setCategory(item.getCategory());
-            relatedItem.setLabel(item.getLabel());
-            relatedItem.setDescription(item.getDescription());
-            relatedItems.add(relatedItem);
+            relatedItems.add(ItemConverter.convertRelatedItemFromObject(objectRelatedItem));
         }
 
         return relatedItems;
     }
 
-    public ItemRelatedItem createItemRelatedItem(long subjectId, long objectId, ItemRelationId itemRelationId) throws ItemsRelationAlreadyExistsException {
+    public ItemRelatedItemDto createItemRelatedItem(long subjectId, long objectId, ItemRelationId itemRelationId) throws ItemsRelationAlreadyExistsException {
         Item subject = itemRepository.findById(subjectId).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + subjectId));
         Item object = itemRepository.findById(objectId).orElseThrow(
@@ -84,7 +74,7 @@ public class ItemRelatedItemService {
         newItemRelatedItem.setObject(object);
         newItemRelatedItem.setRelation(itemRelation);
         ItemRelatedItem itemRelatedItem = itemRelatedItemRepository.save(newItemRelatedItem);
-        return itemRelatedItem;
+        return ItemRelatedItemMapper.INSTANCE.toDto(itemRelatedItem);
     }
 
     public void deleteRelationsForItem(Item item) {

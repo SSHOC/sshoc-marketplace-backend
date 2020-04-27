@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.model.activities;
+package eu.sshopencloud.marketplace.dto.activities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityInline {
+public class ActivityBasicDto {
 
     private Long id;
 

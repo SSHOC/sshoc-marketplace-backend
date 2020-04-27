@@ -10,7 +10,9 @@ public enum ItemCategory {
 
     DATASET,
 
-    ACTIVITY;
+    ACTIVITY,
+
+    WORKFLOW;
 
     public static final String OBJECT_TYPE_PROPERTY_TYPE_CODE = "object-type";
 

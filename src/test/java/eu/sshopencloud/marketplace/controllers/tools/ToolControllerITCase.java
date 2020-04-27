@@ -6,12 +6,11 @@ import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
-import eu.sshopencloud.marketplace.model.datasets.Dataset;
-import eu.sshopencloud.marketplace.model.tools.Tool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -1244,7 +1243,7 @@ public class ToolControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Long toolId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Tool.class).getId();
+        Long toolId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ToolDto.class).getId();
 
         mvc.perform(delete("/api/tools/{id}", toolId)
                 .contentType(MediaType.APPLICATION_JSON))

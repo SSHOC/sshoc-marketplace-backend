@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.controllers.activities;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.activities.ActivityCore;
-import eu.sshopencloud.marketplace.model.activities.Activity;
+import eu.sshopencloud.marketplace.dto.activities.ActivityDto;
 import eu.sshopencloud.marketplace.services.activities.ActivityService;
 import eu.sshopencloud.marketplace.services.activities.PaginatedActivities;
 import lombok.RequiredArgsConstructor;
@@ -38,17 +38,17 @@ public class ActivityController {
     }
 
     @GetMapping(path = "/activities/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Activity> getActivity(@PathVariable("id") long id) {
+    public ResponseEntity<ActivityDto> getActivity(@PathVariable("id") long id) {
         return ResponseEntity.ok(activityService.getActivity(id));
     }
 
     @PostMapping(path = "/activities", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Activity> createActivity(@RequestBody ActivityCore newActivity) {
+    public ResponseEntity<ActivityDto> createActivity(@RequestBody ActivityCore newActivity) {
         return ResponseEntity.ok(activityService.createActivity(newActivity));
     }
 
     @PutMapping(path = "/activities/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Activity> updateActivity(@PathVariable("id") long id, @RequestBody ActivityCore updatedActivity) {
+    public ResponseEntity<ActivityDto> updateActivity(@PathVariable("id") long id, @RequestBody ActivityCore updatedActivity) {
         return ResponseEntity.ok(activityService.updateActivity(id, updatedActivity));
     }
 

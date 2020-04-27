@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.model.actors;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,7 +39,6 @@ public class Actor {
     private List<Actor> affiliations;
 
     @OneToMany(mappedBy = "actor", fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
-    @JsonIgnore
     private List<ItemContributor> contributorTo;
 
 }

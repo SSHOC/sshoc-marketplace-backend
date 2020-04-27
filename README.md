@@ -31,7 +31,7 @@ Requirements in addition to docker:
 ```
 java 11
 maven 3.6.0
-IntelliJ / Eclipse with Lombok (https://projectlombok.org/)
+IntelliJ / Eclipse with Lombok (https://projectlombok.org/) and MapStruct Support (https://mapstruct.org/development/ide-setup/)
 ```
 
 Run:

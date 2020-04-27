@@ -2,9 +2,8 @@ package eu.sshopencloud.marketplace.controllers.activities;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.dto.activities.ActivityCore;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.activities.ActivityDto;
 import eu.sshopencloud.marketplace.model.activities.Activity;
-import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -138,7 +137,7 @@ public class ActivityControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        long step1Id = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Activity.class).getId();
+        long step1Id = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ActivityDto.class).getId();
 
         ActivityCore step2 = new ActivityCore();
         step1.setLabel("Test step 2 activity");
@@ -153,7 +152,7 @@ public class ActivityControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        long step2Id = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Activity.class).getId();
+        long step2Id = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ActivityDto.class).getId();
 
         ActivityCore activity = new ActivityCore();
         activity.setLabel("Test complex activity");
@@ -198,7 +197,7 @@ public class ActivityControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        long step2Id = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Activity.class).getId();
+        long step2Id = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ActivityDto.class).getId();
 
         ActivityCore activity = new ActivityCore();
         activity.setLabel("Test complex activity");

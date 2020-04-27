@@ -1,9 +1,8 @@
-package eu.sshopencloud.marketplace.services.items;
+package eu.sshopencloud.marketplace.mappers.items;
 
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import lombok.experimental.UtilityClass;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;

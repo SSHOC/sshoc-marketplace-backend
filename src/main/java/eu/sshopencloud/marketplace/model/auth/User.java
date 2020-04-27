@@ -1,9 +1,7 @@
 package eu.sshopencloud.marketplace.model.auth;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -37,7 +35,6 @@ public class User {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     @Basic(fetch = FetchType.EAGER, optional = false)
-    @JsonIgnore
     private String preferences;
 
 }

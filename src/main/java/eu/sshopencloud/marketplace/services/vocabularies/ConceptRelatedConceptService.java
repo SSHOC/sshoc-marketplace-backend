@@ -1,5 +1,9 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
+import eu.sshopencloud.marketplace.dto.vocabularies.RelatedConceptDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyBasicDto;
+import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptConverter;
+import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptDetachingRepository;
@@ -23,34 +27,31 @@ public class ConceptRelatedConceptService {
 
     private final VocabularyRepository vocabularyRepository;
 
-    public List<ConceptRelatedConceptInline> getConceptRelatedConcepts(String conceptCode, String vocabularyCode) {
-        List<ConceptRelatedConceptInline> relatedConcepts = new ArrayList<ConceptRelatedConceptInline>();
+    public List<RelatedConceptDto> getRelatedConcepts(String conceptCode, String vocabularyCode) {
+        List<RelatedConceptDto> relatedConcepts = new ArrayList();
 
         List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectCodeAndSubjectVocabularyCode(conceptCode, vocabularyCode);
         for (ConceptRelatedConcept subjectRelatedConcept : subjectRelatedConcepts) {
             conceptRelatedConceptDetachingRepository.detach(subjectRelatedConcept);
-            VocabularyInline objectVocabulary = getRelatedVocabularyForConcept(subjectRelatedConcept.getObject().getVocabulary().getCode());
-            ConceptRelatedConceptInline relatedConcept = ConceptConverter.convertRelatedConceptFromSubject(subjectRelatedConcept, objectVocabulary);
+            VocabularyBasicDto objectVocabulary = getRelatedVocabularyForConcept(subjectRelatedConcept.getObject().getVocabulary().getCode());
+            RelatedConceptDto relatedConcept = ConceptConverter.convertRelatedConceptFromSubject(subjectRelatedConcept, objectVocabulary);
             relatedConcepts.add(relatedConcept);
         }
 
         List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findByObjectCodeAndObjectVocabularyCode(conceptCode, vocabularyCode);
         for (ConceptRelatedConcept objectRelatedConcept : objectRelatedConcepts) {
             conceptRelatedConceptDetachingRepository.detach(objectRelatedConcept);
-            VocabularyInline subjectVocabulary = getRelatedVocabularyForConcept(objectRelatedConcept.getSubject().getVocabulary().getCode());
-            ConceptRelatedConceptInline relatedConcept = ConceptConverter.convertRelatedConceptFromObject(objectRelatedConcept, subjectVocabulary);
+            VocabularyBasicDto subjectVocabulary = getRelatedVocabularyForConcept(objectRelatedConcept.getSubject().getVocabulary().getCode());
+            RelatedConceptDto relatedConcept = ConceptConverter.convertRelatedConceptFromObject(objectRelatedConcept, subjectVocabulary);
             relatedConcepts.add(relatedConcept);
         }
 
         return relatedConcepts;
     }
 
-    private VocabularyInline getRelatedVocabularyForConcept(String vocabularyCode) {
+    private VocabularyBasicDto getRelatedVocabularyForConcept(String vocabularyCode) {
         Vocabulary vocabulary = vocabularyRepository.getOne(vocabularyCode);
-        VocabularyInline relatedVocabulary = new VocabularyInline();
-        relatedVocabulary.setCode(vocabulary.getCode());
-        relatedVocabulary.setLabel(vocabulary.getLabel());
-        return relatedVocabulary;
+        return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
     }
 
 

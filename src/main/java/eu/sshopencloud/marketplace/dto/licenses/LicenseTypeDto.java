@@ -1,11 +1,11 @@
-package eu.sshopencloud.marketplace.model.vocabularies;
+package eu.sshopencloud.marketplace.dto.licenses;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class VocabularyInline {
+public class LicenseTypeDto {
 
     private String code;
 

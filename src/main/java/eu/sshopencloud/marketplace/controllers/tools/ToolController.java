@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.controllers.tools;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
@@ -38,17 +39,17 @@ public class ToolController {
     }
 
     @GetMapping(path = "/tools/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tool> getTool(@PathVariable("id") long id) {
+    public ResponseEntity<ToolDto> getTool(@PathVariable("id") long id) {
         return ResponseEntity.ok(toolService.getTool(id));
     }
 
     @PostMapping(path = "/tools", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tool> createTool(@RequestBody ToolCore newTool) {
+    public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool) {
         return ResponseEntity.ok(toolService.createTool(newTool));
     }
 
     @PutMapping(path = "/tools/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tool> updateTool(@PathVariable("id") long id, @RequestBody ToolCore updatedTool) {
+    public ResponseEntity<ToolDto> updateTool(@PathVariable("id") long id, @RequestBody ToolCore updatedTool) {
         return ResponseEntity.ok(toolService.updateTool(id, updatedTool));
     }
 

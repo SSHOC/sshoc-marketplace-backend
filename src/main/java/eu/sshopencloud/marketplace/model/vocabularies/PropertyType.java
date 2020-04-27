@@ -1,12 +1,9 @@
 package eu.sshopencloud.marketplace.model.vocabularies;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import eu.sshopencloud.marketplace.model.auth.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "property_types")
@@ -19,15 +16,10 @@ public class PropertyType {
 
     @Basic
     @Column(nullable = false)
-    @JsonIgnore
     private Integer ord;
 
     @Basic
     @Column(nullable = false)
     private String label;
-
-    /* This relation is managed from the PropertyTypeVocabulary class in order to easier attach / detach vocabularies. */
-    @Transient
-    private List<VocabularyInline> allowedVocabularies;
 
 }

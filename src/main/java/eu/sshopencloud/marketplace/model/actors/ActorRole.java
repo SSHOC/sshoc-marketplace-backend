@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.model.actors;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +16,6 @@ public class ActorRole {
 
     @Basic
     @Column(nullable = false)
-    @JsonIgnore
     private Integer ord;
 
     @Basic

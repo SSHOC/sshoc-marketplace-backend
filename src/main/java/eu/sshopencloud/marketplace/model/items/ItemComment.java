@@ -1,7 +1,5 @@
 package eu.sshopencloud.marketplace.model.items;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,12 +31,10 @@ public class ItemComment {
     @Basic
     @Column(nullable = false)
     @CreationTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.dateTimePattern)
     private ZonedDateTime dateCreated;
 
     @Basic
     @Column(nullable = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.dateTimePattern)
     private ZonedDateTime dateLastUpdated;
 
 }

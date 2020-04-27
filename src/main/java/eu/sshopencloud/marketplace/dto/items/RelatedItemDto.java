@@ -1,11 +1,12 @@
-package eu.sshopencloud.marketplace.model.items;
+package eu.sshopencloud.marketplace.dto.items;
 
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ItemRelatedItemInline {
+public class RelatedItemDto {
 
     private Long id;
 
@@ -15,6 +16,6 @@ public class ItemRelatedItemInline {
 
     private String description;
 
-    private ItemRelation relation;
+    private ItemRelationDto relation;
 
 }

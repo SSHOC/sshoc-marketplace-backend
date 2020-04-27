@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.services.licenses;
 
+import eu.sshopencloud.marketplace.dto.licenses.LicenseDto;
+import eu.sshopencloud.marketplace.mappers.licenses.LicenseMapper;
 import eu.sshopencloud.marketplace.model.licenses.License;
 import eu.sshopencloud.marketplace.repositories.licenses.LicenseRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,7 @@ public class LicenseService {
 
     private final LicenseRepository licenseRepository;
 
-    public List<License> getLicenses(String q, int perpage) {
+    public List<LicenseDto> getLicenses(String q, int perpage) {
         ExampleMatcher queryLicenseMatcher = ExampleMatcher.matchingAny()
                 .withMatcher("code", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
                 .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
@@ -24,8 +26,8 @@ public class LicenseService {
         queryLicense.setCode(q);
         queryLicense.setLabel(q);
 
-        Page<License> licenses = licenseRepository.findAll(Example.of(queryLicense, queryLicenseMatcher), PageRequest.of(0, perpage, Sort.by(Sort.Order.asc("label"))));
-        return licenses.getContent();
+        Page<License> licensesPage = licenseRepository.findAll(Example.of(queryLicense, queryLicenseMatcher), PageRequest.of(0, perpage, Sort.by(Sort.Order.asc("label"))));
+        return LicenseMapper.INSTANCE.toDto(licensesPage.getContent());
     }
 
 }
