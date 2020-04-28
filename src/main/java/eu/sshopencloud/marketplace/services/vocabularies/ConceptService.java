@@ -41,7 +41,7 @@ public class ConceptService {
     }
 
     public Map<ItemCategory, Concept> getAllDefaultObjectTypeConcepts() {
-        return Arrays.stream(ItemCategory.values())
+        return Arrays.stream(ItemCategory.indexedCategories())
                 .collect(Collectors.toMap(category -> category, this::getDefaultObjectTypeConcept));
     }
 

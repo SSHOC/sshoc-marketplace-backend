@@ -48,7 +48,7 @@ public class SearchConverter {
     }
 
     public static void fillMissingCategories(List<CountedConcept> countedCategories, List<ItemCategory> categories, Map<ItemCategory, Concept> concepts) {
-        for (ItemCategory category : ItemCategory.values()) {
+        for (ItemCategory category : ItemCategory.indexedCategories()) {
             if (countedCategories.stream().noneMatch(countedCategory -> Objects.equals(category.getValue(), countedCategory.getCode()))) {
                 Concept concept = concepts.get(category);
                 VocabularyId vocabulary = new VocabularyId();

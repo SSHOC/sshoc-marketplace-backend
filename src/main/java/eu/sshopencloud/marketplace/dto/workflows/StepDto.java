@@ -1,19 +1,18 @@
-package eu.sshopencloud.marketplace.dto.activities;
+package eu.sshopencloud.marketplace.dto.workflows;
 
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class ActivityDto extends ItemDto {
+public class StepDto extends ItemDto {
 
-    private List<ActivityDto> composedOf;
-
-    private List<ActivityBasicDto> partOf;
+    private List<StepDto> composedOf = new ArrayList<>();
 
 }

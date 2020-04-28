@@ -93,9 +93,17 @@ object-type-instances:data-catalogue a <http://www.w3.org/2004/02/skos/core#Conc
 
 object-type-instances:workflow a <http://www.w3.org/2004/02/skos/core#Concept>;
   <http://www.w3.org/2004/02/skos/core#definition> "Workflow";
+  <http://www.w3.org/2004/02/skos/core#narrower> object-type-instances:step;
   <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/object-type/scheme/>;
   <http://www.w3.org/2004/02/skos/core#notation> "Workflow"@en;
   <http://www.w3.org/2004/02/skos/core#prefLabel> "Workflow"@en .
+
+object-type-instances:step a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#broader> object-type-instances:workflow;
+  <http://www.w3.org/2004/02/skos/core#definition> "Step";
+  <http://www.w3.org/2004/02/skos/core#inScheme> <http://sshopencloud.eu/marketplaceontology/object-type/scheme/>;
+  <http://www.w3.org/2004/02/skos/core#notation> "Step"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "Step"@en .
 
 <http://sshopencloud.eu/marketplaceontology/object-type/scheme/> a <http://www.w3.org/2004/02/skos/core#ConceptScheme>;
   rdfs:label "Object Type Concept Scheme."@en;

@@ -44,10 +44,9 @@ public class ItemCommentService {
     public ItemCommentDto createItemComment(Long itemId, ItemCommentCore itemCommentCore) {
         ItemComment itemComment = itemCommentValidator.validate(itemCommentCore, null);
 
-        Optional<Item> item = itemRepository.findById(itemId);
-        if (!item.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + itemId);
-        }
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + itemId));
+
         ZonedDateTime now = ZonedDateTime.now();
         itemComment.setDateCreated(now);
         itemComment.setDateLastUpdated(now);
@@ -61,13 +60,15 @@ public class ItemCommentService {
         }
 
         int size = 0;
-        List<ItemComment> comments = new ArrayList<ItemComment>();
-        if (item.get().getComments() != null) {
-            size = item.get().getComments().size();
-            comments = item.get().getComments();
+        List<ItemComment> comments = new ArrayList();
+        if (item.getComments() != null) {
+            size = item.getComments().size();
+            comments = item.getComments();
+        } else {
+            item.setComments(comments);
         }
         comments.add(itemComment);
-        Item modifiedItem = itemRepository.save(item.get());
+        Item modifiedItem = itemRepository.save(item);
         return ItemCommentMapper.INSTANCE.toDto(modifiedItem.getComments().get(size));
     }
 

@@ -15,5 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 public class Workflow extends Item {
 
+    @OneToMany(mappedBy = "workflow", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "ord")
+    private List<Step> steps;
+
 
 }

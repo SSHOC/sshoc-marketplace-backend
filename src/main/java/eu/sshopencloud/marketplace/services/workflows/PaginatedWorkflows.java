@@ -1,6 +1,6 @@
-package eu.sshopencloud.marketplace.services.activities;
+package eu.sshopencloud.marketplace.services.workflows;
 
-import eu.sshopencloud.marketplace.dto.activities.ActivityDto;
+import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.services.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,8 +13,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
-public class PaginatedActivities extends PaginatedResult {
+public class PaginatedWorkflows extends PaginatedResult {
 
-    private List<ActivityDto> activities;
+    private List<WorkflowDto> workflows;
 
 }
