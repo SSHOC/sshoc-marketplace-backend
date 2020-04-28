@@ -1,11 +1,9 @@
 package eu.sshopencloud.marketplace.conf.startup;
 
-import eu.sshopencloud.marketplace.conf.startup.activities.ActivityLoader;
 import eu.sshopencloud.marketplace.conf.startup.datasets.DatasetLoader;
 import eu.sshopencloud.marketplace.conf.startup.tools.ToolLoader;
 import eu.sshopencloud.marketplace.conf.startup.trainings.TrainingMaterialLoader;
-import eu.sshopencloud.marketplace.model.activities.Activity;
-import eu.sshopencloud.marketplace.model.activities.ActivityParthood;
+import eu.sshopencloud.marketplace.conf.startup.workflows.WorkflowLoader;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -14,6 +12,7 @@ import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
+import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
@@ -51,7 +50,7 @@ public class InitialDataLoader {
 
     private final DatasetLoader datasetLoader;
 
-    private final ActivityLoader activityLoader;
+    private final WorkflowLoader workflowLoader;
 
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
@@ -106,10 +105,9 @@ public class InitialDataLoader {
         datasetLoader.createDatasets(profile, datasets);
         log.debug("Loaded " + datasets.size() + " Dataset objects");
 
-        List<Activity> activities = YamlLoader.getObjects(data, "Activity");
-        List<ActivityParthood> activityParthoods = YamlLoader.getObjects(data, "ActivityParthood");
-        activityLoader.createActivities(profile, activities, activityParthoods);
-        log.debug("Loaded " + activities.size() + " Activity objects");
+        List<Workflow> workflows = YamlLoader.getObjects(data, "Workflow");
+        workflowLoader.createWorkflows(profile, workflows);
+        log.debug("Loaded " + workflows.size() + " Workflow objects");
 
         List<ItemRelatedItem> itemRelatedItems = YamlLoader.getObjects(data, "ItemRelatedItem");
         itemRelatedItemRepository.saveAll(itemRelatedItems);

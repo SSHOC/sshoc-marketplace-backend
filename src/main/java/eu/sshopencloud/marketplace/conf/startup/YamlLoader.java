@@ -12,12 +12,14 @@ import java.util.Map;
 @UtilityClass
 public class YamlLoader {
 
+    @SuppressWarnings("unchecked")
     public Map<String, List<Object>> loadYamlData(String filepath) {
         ClassLoader classLoader = YamlLoader.class.getClassLoader();
         InputStream dataStream = classLoader.getResourceAsStream(filepath);
         return (Map<String, List<Object>>) new Yaml(new CustomClassLoaderConstructor(classLoader)).load(dataStream);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> List<T> getObjects(Map<String, List<Object>> data, String label) {
         if (data == null) {
             return Collections.emptyList();

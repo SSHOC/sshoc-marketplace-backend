@@ -3,10 +3,7 @@ package eu.sshopencloud.marketplace.validators.vocabularies;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.vocabularies.Concept;
-import eu.sshopencloud.marketplace.model.vocabularies.Property;
-import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
-import eu.sshopencloud.marketplace.model.vocabularies.VocabularyInline;
+import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +84,7 @@ public class PropertyValidator {
             return null;
         }
 
-        List<VocabularyInline> allowedVocabularies = propertyTypeService.getAllowedVocabulariesForPropertyType(propertyType);
+        List<Vocabulary> allowedVocabularies = propertyTypeService.getAllowedVocabulariesForPropertyType(propertyType);
         if (allowedVocabularies.isEmpty()) {
             // value is mandatory
             if (StringUtils.isBlank(propertyCore.getValue())) {

@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.services.datasets;
 
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.repositories.datasets.DatasetRepository;
@@ -19,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,31 +42,26 @@ public class DatasetService {
 
 
     public PaginatedDatasets getDatasets(int page, int perpage) {
-        Page<Dataset> datasets = datasetRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
-        for (Dataset dataset: datasets) {
-            complete(dataset);
-        }
+        Page<Dataset> datasetsPage = datasetRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+        List<DatasetDto> datasets = datasetsPage.stream().map(DatasetMapper.INSTANCE::toDto)
+                .map(dataset -> {
+                    itemService.completeItem(dataset);
+                    return dataset;
+                })
+                .collect(Collectors.toList());
 
-        return PaginatedDatasets.builder().datasets(datasets.getContent())
-                .count(datasets.getContent().size()).hits(datasets.getTotalElements()).page(page).perpage(perpage).pages(datasets.getTotalPages())
+        return PaginatedDatasets.builder().datasets(datasets)
+                .count(datasetsPage.getContent().size()).hits(datasetsPage.getTotalElements()).page(page).perpage(perpage).pages(datasetsPage.getTotalPages())
                 .build();
     }
 
-    public Dataset getDataset(Long id) {
+    public DatasetDto getDataset(Long id) {
         Dataset dataset = datasetRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + Dataset.class.getName() + " with id " + id));
-        return complete(dataset);
+        return itemService.completeItem(DatasetMapper.INSTANCE.toDto(dataset));
     }
 
-    private Dataset complete(Dataset dataset) {
-        dataset.setRelatedItems(itemRelatedItemService.getItemRelatedItems(dataset.getId()));
-        dataset.setOlderVersions(itemService.getOlderVersionsOfItem(dataset));
-        dataset.setNewerVersions(itemService.getNewerVersionsOfItem(dataset));
-        itemService.fillAllowedVocabulariesForPropertyTypes(dataset);
-        return dataset;
-    }
-
-    public Dataset createDataset(DatasetCore datasetCore) {
+    public DatasetDto createDataset(DatasetCore datasetCore) {
         Dataset dataset = datasetValidator.validate(datasetCore, null);
         dataset.setLastInfoUpdate(ZonedDateTime.now());
 
@@ -73,10 +72,10 @@ public class DatasetService {
         dataset = datasetRepository.save(dataset);
         itemService.switchVersion(dataset, nextVersion);
         indexService.indexItem(dataset);
-        return complete(dataset);
+        return itemService.completeItem(DatasetMapper.INSTANCE.toDto(dataset));
     }
 
-    public Dataset updateDataset(Long id, DatasetCore datasetCore) {
+    public DatasetDto updateDataset(Long id, DatasetCore datasetCore) {
         if (!datasetRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Dataset.class.getName() + " with id " + id);
         }
@@ -91,7 +90,7 @@ public class DatasetService {
         dataset = datasetRepository.save(dataset);
         itemService.switchVersion(prevVersion, nextVersion);
         indexService.indexItem(dataset);
-        return complete(dataset);
+        return itemService.completeItem(DatasetMapper.INSTANCE.toDto(dataset));
     }
 
     public void deleteDataset(Long id) {

@@ -10,11 +10,17 @@ public enum ItemCategory {
 
     DATASET,
 
-    ACTIVITY;
+    WORKFLOW,
+
+    STEP;
 
     public static final String OBJECT_TYPE_PROPERTY_TYPE_CODE = "object-type";
 
     public static final String OBJECT_TYPE_VOCABULARY_CODE = "object-type";
+
+    public static ItemCategory[] indexedCategories() {
+        return new ItemCategory[] {TOOL, TRAINING_MATERIAL, DATASET, WORKFLOW};
+    }
 
     @JsonValue
     public String getValue() {
@@ -25,5 +31,7 @@ public enum ItemCategory {
     public String toString() {
         return getValue();
     }
+
+
 
 }

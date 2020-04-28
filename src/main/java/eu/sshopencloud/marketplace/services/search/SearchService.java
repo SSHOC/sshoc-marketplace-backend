@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.dto.search.*;
+import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
+import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyMapper;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
@@ -8,7 +10,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
-import eu.sshopencloud.marketplace.services.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
@@ -102,8 +104,8 @@ public class SearchService {
 
         // TODO index contributors and properties directly in SOLR in nested docs (?)
         for (SearchItem item : result.getItems()) {
-            item.setContributors(itemContributorService.getItemContributors(item.getId()));
-            item.setProperties(propertyService.getItemProperties(item.getId()));
+            item.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(item.getId())));
+            item.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(item.getId())));
         }
 
         return result;

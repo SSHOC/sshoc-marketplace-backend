@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.actors;
 
-import eu.sshopencloud.marketplace.model.actors.ActorRole;
+import eu.sshopencloud.marketplace.dto.actors.ActorRoleDto;
 import eu.sshopencloud.marketplace.services.actors.ActorRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -19,7 +19,7 @@ public class ActorRoleController {
     private final ActorRoleService actorRoleService;
 
     @GetMapping(path = "/actor-roles", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ActorRole>> getAllActorRoles() {
+    public ResponseEntity<List<ActorRoleDto>> getAllActorRoles() {
         return ResponseEntity.ok(actorRoleService.getAllActorRoles());
     }
 

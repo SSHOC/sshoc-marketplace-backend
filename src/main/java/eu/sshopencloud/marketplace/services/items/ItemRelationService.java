@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.items;
 
-import eu.sshopencloud.marketplace.model.items.ItemRelation;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationDto;
+import eu.sshopencloud.marketplace.mappers.items.ItemRelationMapper;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -17,8 +18,8 @@ public class ItemRelationService {
 
     private final ItemRelationRepository itemRelationRepository;
 
-    public List<ItemRelation> getAllItemRelations() {
-        return itemRelationRepository.findAll(Sort.by(Sort.Order.asc("ord")));
+    public List<ItemRelationDto> getAllItemRelations() {
+        return ItemRelationMapper.INSTANCE.toDto(itemRelationRepository.findAll(Sort.by(Sort.Order.asc("ord"))));
     }
 
 }

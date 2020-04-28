@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptDto;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -21,7 +21,7 @@ public class ConceptController {
     private final ConceptService conceptService;
 
     @GetMapping(path = "/object-type-concepts/{category}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Concept>> getObjectTypeConcepts(@PathVariable("category") ItemCategory category) {
+    public ResponseEntity<List<ConceptDto>> getObjectTypeConcepts(@PathVariable("category") ItemCategory category) {
         return ResponseEntity.ok(conceptService.getObjectTypeConcepts(category));
     }
 

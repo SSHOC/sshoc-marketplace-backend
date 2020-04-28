@@ -5,7 +5,7 @@ import eu.sshopencloud.marketplace.filters.auth.JwtHeaderAuthenticationFilter;
 import eu.sshopencloud.marketplace.filters.auth.JwtProvider;
 import eu.sshopencloud.marketplace.filters.auth.UsernamePasswordBodyAuthenticationFilter;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
-import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.services.auth.LocalUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +39,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${marketplace.cors.max-age-sec}")
     private Long corsMaxAgeInSec;
 
-    private final UserService userService;
+    private final LocalUserDetailsService localUserDetailsService;
 
     private final JwtProvider jwtProvider;
 
@@ -72,7 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return userService;
+        return localUserDetailsService;
     }
 
     @Bean
@@ -108,7 +108,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/api/auth/sign-in", "POST"));
         authenticationFilter.setAuthenticationManager(authenticationManagerBean());
         authenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
-        //authenticationFilter.setAuthenticationFailureHandler(this::loginFailureHandler);
         return authenticationFilter;
     }
 

@@ -1,8 +1,8 @@
 package eu.sshopencloud.marketplace.model.vocabularies;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.sshopencloud.marketplace.model.items.Item;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "properties")
 @Data
+@EqualsAndHashCode(exclude = "item")
 @NoArgsConstructor
 public class Property {
 
@@ -38,7 +39,6 @@ public class Property {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="property_item_id_fk"))
-    @JsonIgnore
     private Item item;
 
 }

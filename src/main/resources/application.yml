@@ -13,7 +13,7 @@ spring:
     jpa:
         hibernate:
             ddl-auto: create-drop
-        show-sql: true
+        show-sql: false
         open-in-view: false
         properties:
             hibernate: 

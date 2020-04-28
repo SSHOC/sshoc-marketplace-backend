@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
 import eu.sshopencloud.marketplace.services.vocabularies.PaginatedVocabularies;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class VocabularyController {
     }
 
     @GetMapping(path = "/vocabularies/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Vocabulary> getVocabulary(@PathVariable("code") String code) {
+    public ResponseEntity<VocabularyDto> getVocabulary(@PathVariable("code") String code) {
         return ResponseEntity.ok(vocabularyService.getVocabulary(code));
     }
 

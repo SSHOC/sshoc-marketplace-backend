@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
-import eu.sshopencloud.marketplace.model.vocabularies.VocabularyInline;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelationRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
@@ -34,7 +33,7 @@ public class ConceptValidator {
     private final VocabularyValidator vocabularyValidator;
 
 
-    public Concept validate(ItemCategory category, ConceptId conceptId, PropertyType propertyType, List<VocabularyInline> allowedVocabularies, Errors errors) {
+    public Concept validate(ItemCategory category, ConceptId conceptId, PropertyType propertyType, List<Vocabulary> allowedVocabularies, Errors errors) {
         Concept concept;
         // either uri or code and vocabulary must be provided
         if (conceptId.getUri() == null) {

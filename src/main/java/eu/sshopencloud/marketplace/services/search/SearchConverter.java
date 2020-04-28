@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.services.search;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.sshopencloud.marketplace.dto.search.CountedConcept;
 import eu.sshopencloud.marketplace.dto.search.CountedPropertyType;
 import eu.sshopencloud.marketplace.dto.search.SearchConcept;
@@ -12,10 +11,8 @@ import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.dto.search.SearchItem;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
-import eu.sshopencloud.marketplace.services.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import lombok.experimental.UtilityClass;
-import org.springframework.data.domain.Page;
-import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 
 import java.util.List;
@@ -51,7 +48,7 @@ public class SearchConverter {
     }
 
     public static void fillMissingCategories(List<CountedConcept> countedCategories, List<ItemCategory> categories, Map<ItemCategory, Concept> concepts) {
-        for (ItemCategory category : ItemCategory.values()) {
+        for (ItemCategory category : ItemCategory.indexedCategories()) {
             if (countedCategories.stream().noneMatch(countedCategory -> Objects.equals(category.getValue(), countedCategory.getCode()))) {
                 Concept concept = concepts.get(category);
                 VocabularyId vocabulary = new VocabularyId();

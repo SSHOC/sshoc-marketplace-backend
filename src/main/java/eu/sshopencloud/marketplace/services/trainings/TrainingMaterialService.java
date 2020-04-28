@@ -1,6 +1,10 @@
 package eu.sshopencloud.marketplace.services.trainings;
 
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
+import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
+import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
@@ -20,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -40,33 +46,26 @@ public class TrainingMaterialService {
 
 
     public PaginatedTrainingMaterials getTrainingMaterials(int page, int perpage) {
-        Page<TrainingMaterial> trainingMaterials = trainingMaterialRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
-        for (TrainingMaterial trainingMaterial: trainingMaterials) {
-            complete(trainingMaterial);
-        }
+        Page<TrainingMaterial> trainingMaterialsPage = trainingMaterialRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+        List<TrainingMaterialDto> trainingMaterials = trainingMaterialsPage.stream().map(TrainingMaterialMapper.INSTANCE::toDto)
+                .map(trainingMaterial -> {
+                    itemService.completeItem(trainingMaterial);
+                    return trainingMaterial;
+                })
+                .collect(Collectors.toList());
 
-        return PaginatedTrainingMaterials.builder().trainingMaterials(trainingMaterials.getContent())
-                .count(trainingMaterials.getContent().size()).hits(trainingMaterials.getTotalElements()).page(page).perpage(perpage).pages(trainingMaterials.getTotalPages())
+        return PaginatedTrainingMaterials.builder().trainingMaterials(trainingMaterials)
+                .count(trainingMaterialsPage.getContent().size()).hits(trainingMaterialsPage.getTotalElements()).page(page).perpage(perpage).pages(trainingMaterialsPage.getTotalPages())
                 .build();
     }
 
-    public TrainingMaterial getTrainingMaterial(Long id) {
-        Optional<TrainingMaterial> trainingMaterial = trainingMaterialRepository.findById(id);
-        if (!trainingMaterial.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
-        }
-        return complete(trainingMaterial.get());
+    public TrainingMaterialDto getTrainingMaterial(Long id) {
+        TrainingMaterial trainingMaterial = trainingMaterialRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id));
+        return itemService.completeItem(TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial));
     }
 
-    private TrainingMaterial complete(TrainingMaterial trainingMaterial) {
-        trainingMaterial.setRelatedItems(itemRelatedItemService.getItemRelatedItems(trainingMaterial.getId()));
-        trainingMaterial.setOlderVersions(itemService.getOlderVersionsOfItem(trainingMaterial));
-        trainingMaterial.setNewerVersions(itemService.getNewerVersionsOfItem(trainingMaterial));
-        itemService.fillAllowedVocabulariesForPropertyTypes(trainingMaterial);
-        return trainingMaterial;
-    }
-
-    public TrainingMaterial createTrainingMaterial(TrainingMaterialCore trainingMaterialCore) throws ValidationException {
+    public TrainingMaterialDto createTrainingMaterial(TrainingMaterialCore trainingMaterialCore) throws ValidationException {
         TrainingMaterial trainingMaterial = trainingMaterialValidator.validate(trainingMaterialCore, null);
         trainingMaterial.setLastInfoUpdate(ZonedDateTime.now());
 
@@ -77,10 +76,10 @@ public class TrainingMaterialService {
         trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
         itemService.switchVersion(trainingMaterial, nextVersion);
         indexService.indexItem(trainingMaterial);
-        return complete(trainingMaterial);
+        return itemService.completeItem(TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial));
     }
 
-    public TrainingMaterial updateTrainingMaterial(Long id, TrainingMaterialCore trainingMaterialCore) throws ValidationException {
+    public TrainingMaterialDto updateTrainingMaterial(Long id, TrainingMaterialCore trainingMaterialCore) throws ValidationException {
         if (!trainingMaterialRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
         }
@@ -95,7 +94,7 @@ public class TrainingMaterialService {
         trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
         itemService.switchVersion(prevVersion, nextVersion);
         indexService.indexItem(trainingMaterial);
-        return complete(trainingMaterial);
+        return itemService.completeItem(TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial));
     }
 
     public void deleteTrainingMaterial(Long id) {

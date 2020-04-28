@@ -1,8 +1,8 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
+import eu.sshopencloud.marketplace.dto.items.ItemRelatedItemDto;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
-import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
-import eu.sshopencloud.marketplace.model.items.ItemRelation;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemRelationService;
 import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
@@ -23,14 +23,14 @@ public class ItemRelationController {
     private final ItemRelatedItemService itemRelatedItemService;
 
     @GetMapping(path = "/item-relations", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemRelation>> getAllItemRelations() {
+    public ResponseEntity<List<ItemRelationDto>> getAllItemRelations() {
         return ResponseEntity.ok(itemRelationService.getAllItemRelations());
     }
 
     @PostMapping(path = "/items-relations/{subjectId}/{objectId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemRelatedItem> createItemRelatedItem(@PathVariable("subjectId") long subjectId,
-                                                                 @PathVariable("objectId") long objectId,
-                                                                 @RequestBody ItemRelationId itemRelation)
+    public ResponseEntity<ItemRelatedItemDto> createItemRelatedItem(@PathVariable("subjectId") long subjectId,
+                                                                    @PathVariable("objectId") long objectId,
+                                                                    @RequestBody ItemRelationId itemRelation)
             throws ItemsRelationAlreadyExistsException {
         return ResponseEntity.ok(itemRelatedItemService.createItemRelatedItem(subjectId, objectId, itemRelation));
     }

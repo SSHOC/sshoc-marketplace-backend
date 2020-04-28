@@ -1,5 +1,8 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
+import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptMapper;
+import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
@@ -22,9 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -41,30 +44,28 @@ public class VocabularyService {
     private final ConceptRelatedConceptService conceptRelatedConceptService;
 
     public PaginatedVocabularies getVocabularies(int page, int perpage) {
-        Page<Vocabulary> vocabularies = vocabularyRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
-        for (Vocabulary vocabulary: vocabularies) {
-            complete(vocabulary);
-        }
+        Page<Vocabulary> vocabulariesPage = vocabularyRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+        List<VocabularyDto> vocabularies = vocabulariesPage.stream().map(VocabularyMapper.INSTANCE::toDto).map(this::completeVocabulary).collect(Collectors.toList());
 
-        return PaginatedVocabularies.builder().vocabularies(vocabularies.getContent())
-                .count(vocabularies.getContent().size()).hits(vocabularies.getTotalElements()).page(page).perpage(perpage).pages(vocabularies.getTotalPages())
+        return PaginatedVocabularies.builder().vocabularies(vocabularies)
+                .count(vocabulariesPage.getContent().size()).hits(vocabulariesPage.getTotalElements()).page(page).perpage(perpage).pages(vocabulariesPage.getTotalPages())
                 .build();
     }
 
-    public Vocabulary getVocabulary(String code) {
+    public VocabularyDto getVocabulary(String code) {
         Vocabulary vocabulary = vocabularyRepository.findById(code).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + code));
-        return complete(vocabulary);
+        return completeVocabulary(VocabularyMapper.INSTANCE.toDto(vocabulary));
     }
 
-    private Vocabulary complete(Vocabulary vocabulary) {
-        List<Concept> concepts = new ArrayList<Concept>();
-        for (Concept concept: conceptService.getConcepts(vocabulary.getCode())) {
-            Concept conceptWithoutVocabulary = ConceptConverter.convertWithoutVocabulary(concept);
-            conceptWithoutVocabulary.setRelatedConcepts(conceptRelatedConceptService.getConceptRelatedConcepts(concept.getCode(), vocabulary.getCode()));
-            concepts.add(conceptWithoutVocabulary);
-        }
-        vocabulary.setConcepts(concepts);
+    public VocabularyDto completeVocabulary(VocabularyDto vocabulary) {
+        vocabulary.setConcepts(
+                conceptService.getConcepts(vocabulary.getCode()).stream().map(ConceptMapper.INSTANCE::toDto)
+                .map(concept -> {
+                    concept.setRelatedConcepts(conceptRelatedConceptService.getRelatedConcepts(concept.getCode(), vocabulary.getCode()));
+                    return concept;
+                    })
+                .collect(Collectors.toList()));
         return vocabulary;
     }
 

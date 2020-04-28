@@ -7,12 +7,11 @@ import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
-import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -1313,7 +1312,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Long trainingMaterialId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, TrainingMaterial.class).getId();
+        Long trainingMaterialId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, TrainingMaterialDto.class).getId();
 
         mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
                 .contentType(MediaType.APPLICATION_JSON))
