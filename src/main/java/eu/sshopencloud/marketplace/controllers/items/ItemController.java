@@ -31,4 +31,11 @@ public class ItemController {
         itemService.rewriteSources();
     }
 
+    //TEMPORARY
+    @GetMapping(path = "/rewrite-sources-ids", produces = MediaType.APPLICATION_JSON_VALUE)
+    public void rewriteSourcesIds() {
+        itemService.rewriteSourcesIds();
+    }
+
+
 }

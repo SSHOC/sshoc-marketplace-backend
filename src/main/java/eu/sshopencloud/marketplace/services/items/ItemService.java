@@ -168,7 +168,7 @@ public class ItemService {
     }
 
     // TEMPORARY
-    public void rewriteSources() {
+    public void rewriteSourcesIds() {
         List<Item> items = itemRepository.findAll();
         for (Item item: items) {
             Optional<Property> propertyHolder = item.getProperties().stream().filter(p -> p.getType().getCode().equals("source-id")).findFirst();
@@ -177,6 +177,13 @@ public class ItemService {
                 item.setSourceItemId(propertyHolder.get().getValue());
                 itemRepository.save(item);
             }
+        }
+    }
+
+    // TEMPORARY
+    public void rewriteSources() {
+        List<Item> items = itemRepository.findAll();
+        for (Item item: items) {
             if (item.getCategory().equals(ItemCategory.TOOL)) {
                 log.debug("Item " + item.getId() + " " + item.getLabel() + " is tool");
                 if (item.getId() > 30) {
@@ -191,7 +198,6 @@ public class ItemService {
                     itemRepository.save(item);
                 }
             }
-
         }
     }
 
