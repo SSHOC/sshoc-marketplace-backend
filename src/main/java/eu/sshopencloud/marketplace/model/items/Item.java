@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.model.items;
 
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.licenses.License;
+import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -61,6 +62,14 @@ public abstract class Item {
     @Basic
     @Column(nullable = true)
     private String accessibleAt;
+
+    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @JoinColumn(foreignKey = @ForeignKey(name="item_source_id_fk"))
+    private Source source;
+
+    @Basic
+    @Column(nullable = true)
+    private String sourceItemId;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinTable(name = "items_information_contributors", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_item_id_fk")),

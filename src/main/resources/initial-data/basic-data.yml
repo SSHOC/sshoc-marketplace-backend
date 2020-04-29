@@ -181,3 +181,18 @@ ConceptRelation:
     inverseOf:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                          broader
+
+
+Source:
+
+  - !!eu.sshopencloud.marketplace.model.sources.Source
+    id:                          1
+    label:                       "TAPoR"
+    url:                         "http://tapor.ca"
+    domain:                      "tapor.ca"
+
+  - !!eu.sshopencloud.marketplace.model.sources.Source
+    id:                          2
+    label:                       "Programming Historian"
+    url:                         "https://programminghistorian.org"
+    domain:                      "programminghistorian.org"

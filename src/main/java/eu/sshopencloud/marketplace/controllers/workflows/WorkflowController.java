@@ -5,11 +5,11 @@ import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
-import eu.sshopencloud.marketplace.services.workflows.PaginatedWorkflows;
+import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
 import eu.sshopencloud.marketplace.services.workflows.StepService;
 import eu.sshopencloud.marketplace.services.workflows.WorkflowService;
+import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,28 +19,17 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class WorkflowController {
 
-    @Value("${marketplace.pagination.default-perpage}")
-    private Integer defualtPerpage;
-
-    @Value("${marketplace.pagination.maximal-perpage}")
-    private Integer maximalPerpage;
+    private final PageCoordsValidator pageCoordsValidator;
 
     private final WorkflowService workflowService;
 
     private final StepService stepService;
 
-
     @GetMapping(path = "/workflows", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedWorkflows> getWorkflows(@RequestParam(value = "page", required = false) Integer page,
-                                                                       @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                           @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
-        perpage = perpage == null ? defualtPerpage : perpage;
-        if (perpage > maximalPerpage) {
-            throw new PageTooLargeException(maximalPerpage);
-        }
-        page = page == null ? 1 : page;
-
-        return ResponseEntity.ok(workflowService.getWorkflows(page, perpage));
+        return ResponseEntity.ok(workflowService.getWorkflows(pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/workflows/{workflowId}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -3,11 +3,10 @@ package eu.sshopencloud.marketplace.controllers.tools;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
-import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.services.tools.PaginatedTools;
+import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.tools.ToolService;
+import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ToolController {
 
-    @Value("${marketplace.pagination.default-perpage}")
-    private Integer defualtPerpage;
-
-    @Value("${marketplace.pagination.maximal-perpage}")
-    private Integer maximalPerpage;
+    private final PageCoordsValidator pageCoordsValidator;
 
     private final ToolService toolService;
 
@@ -29,13 +24,7 @@ public class ToolController {
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
                                                    @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
-        perpage = perpage == null ? defualtPerpage : perpage;
-        if (perpage > maximalPerpage) {
-            throw new PageTooLargeException(maximalPerpage);
-        }
-        page = page == null ? 1 : page;
-
-        return ResponseEntity.ok(toolService.getTools(page, perpage));
+        return ResponseEntity.ok(toolService.getTools(pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/tools/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

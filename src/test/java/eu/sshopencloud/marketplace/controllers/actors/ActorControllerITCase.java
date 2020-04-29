@@ -50,10 +50,10 @@ public class ActorControllerITCase {
         mvc.perform(get("/api/actors?q=CESSDA")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name", is("CESSDA")))
-                .andExpect(jsonPath("$[0].website", is("https://www.cessda.eu/")))
-                .andExpect(jsonPath("$[0].email", is("cessda@cessda.eu")));
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")));
     }
 
     @Test
@@ -62,10 +62,10 @@ public class ActorControllerITCase {
         mvc.perform(get("/api/actors?q=https://www.cessda.eu/")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name", is("CESSDA")))
-                .andExpect(jsonPath("$[0].website", is("https://www.cessda.eu/")))
-                .andExpect(jsonPath("$[0].email", is("cessda@cessda.eu")));
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")));
     }
 
     @Test
@@ -74,10 +74,10 @@ public class ActorControllerITCase {
         mvc.perform(get("/api/actors?q=cessda@cessda.eu")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name", is("CESSDA")))
-                .andExpect(jsonPath("$[0].website", is("https://www.cessda.eu/")))
-                .andExpect(jsonPath("$[0].email", is("cessda@cessda.eu")));
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")));
     }
 
     @Test
@@ -156,6 +156,29 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("affiliations[0].email", blankOrNullString()))
                 .andExpect(jsonPath("affiliations[1].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[1].email", is("cessda@cessda.eu")));
+    }
+
+    @Test
+    public void shouldNotCreateActorWithMalformedWebsiteAndEmail() throws Exception {
+        ActorCore actor = new ActorCore();
+        actor.setName("Test malformed actor");
+        actor.setWebsite("Malformed Website");
+        actor.setEmail("Malformed Email");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/actors")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("website")))
+                .andExpect(jsonPath("errors[0].code", is("field.invalid")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()))
+                .andExpect(jsonPath("errors[1].field", is("email")))
+                .andExpect(jsonPath("errors[1].code", is("field.invalid")))
+                .andExpect(jsonPath("errors[1].message", notNullValue()));
+
     }
 
     @Test

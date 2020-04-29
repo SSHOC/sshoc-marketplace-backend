@@ -1,29 +1,32 @@
 package eu.sshopencloud.marketplace.controllers.actors;
 
+import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorDto;
+import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
+import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ActorController {
 
-    @Value("${marketplace.pagination.default-perpage}")
-    private Integer defualtPerpage;
+    private final PageCoordsValidator pageCoordsValidator;
 
     private final ActorService actorService;
 
     @GetMapping(path = "/actors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ActorDto>> getActors(@RequestParam(value = "q", required = false) String q) {
-        return ResponseEntity.ok(actorService.getActors(q, defualtPerpage));
+    public ResponseEntity<PaginatedActors> getActors(@RequestParam(value = "q", required = false) String q,
+                                                     @RequestParam(value = "page", required = false) Integer page,
+                                                     @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
+        return ResponseEntity.ok(actorService.getActors(q, pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/actors/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

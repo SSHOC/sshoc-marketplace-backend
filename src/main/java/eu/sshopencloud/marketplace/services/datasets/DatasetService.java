@@ -1,7 +1,9 @@
 package eu.sshopencloud.marketplace.services.datasets;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.Item;
@@ -41,8 +43,8 @@ public class DatasetService {
     private final IndexService indexService;
 
 
-    public PaginatedDatasets getDatasets(int page, int perpage) {
-        Page<Dataset> datasetsPage = datasetRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+    public PaginatedDatasets getDatasets(PageCoords pageCoords) {
+        Page<Dataset> datasetsPage = datasetRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
         List<DatasetDto> datasets = datasetsPage.stream().map(DatasetMapper.INSTANCE::toDto)
                 .map(dataset -> {
                     itemService.completeItem(dataset);
@@ -51,7 +53,9 @@ public class DatasetService {
                 .collect(Collectors.toList());
 
         return PaginatedDatasets.builder().datasets(datasets)
-                .count(datasetsPage.getContent().size()).hits(datasetsPage.getTotalElements()).page(page).perpage(perpage).pages(datasetsPage.getTotalPages())
+                .count(datasetsPage.getContent().size()).hits(datasetsPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(datasetsPage.getTotalPages())
                 .build();
     }
 
@@ -63,7 +67,7 @@ public class DatasetService {
 
     public DatasetDto createDataset(DatasetCore datasetCore) {
         Dataset dataset = datasetValidator.validate(datasetCore, null);
-        dataset.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(dataset);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(dataset, LoggedInUserHolder.getLoggedInUser());
@@ -80,7 +84,7 @@ public class DatasetService {
             throw new EntityNotFoundException("Unable to find " + Dataset.class.getName() + " with id " + id);
         }
         Dataset dataset = datasetValidator.validate(datasetCore, id);
-        dataset.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(dataset);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(dataset, LoggedInUserHolder.getLoggedInUser());

@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +39,7 @@ public class StepService {
 
 
     public StepDto getStep(long workflowId, long stepId) {
-        Step step = stepRepository.findById(stepId).orElseThrow(
-                () -> new EntityNotFoundException("Unable to find " + Step.class.getName() + " with id " + stepId));
+        Step step = checkWorkflowAndStepConsistency(workflowId, stepId);
         return completeStep(StepMapper.INSTANCE.toDto(step));
     }
 
@@ -55,7 +53,7 @@ public class StepService {
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId));
         Step step = stepValidator.validate(stepCore, null);
         step.setWorkflow(workflow);
-        step.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(step);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(step, LoggedInUserHolder.getLoggedInUser());
@@ -84,7 +82,7 @@ public class StepService {
 
         Step substep = stepValidator.validate(substepCore, null);
         substep.setStep(step);
-        substep.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(substep);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(substep, LoggedInUserHolder.getLoggedInUser());
@@ -115,7 +113,7 @@ public class StepService {
         checkWorkflowAndStepConsistency(workflowId, stepId);
 
         Step step = stepValidator.validate(updatedStep, stepId);
-        step.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(step);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(step, LoggedInUserHolder.getLoggedInUser());
@@ -129,6 +127,7 @@ public class StepService {
     }
 
     public void deleteStep(long workflowId, long stepId) {
+        // TODO don't allow deleting without authentication (in WebSecurityConfig)
         Step step = checkWorkflowAndStepConsistency(workflowId, stepId);
         itemRelatedItemService.deleteRelationsForItem(step);
         Item prevVersion = step.getPrevVersion();
@@ -138,7 +137,6 @@ public class StepService {
     }
 
     private Step checkWorkflowAndStepConsistency(long workflowId, long stepId) {
-        // TODO don't allow deleting without authentication (in WebSecurityConfig)
         if (!workflowRepository.existsById(workflowId)) {
             throw new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId);
         }

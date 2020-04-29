@@ -1,9 +1,9 @@
 package eu.sshopencloud.marketplace.services.trainings;
 
-import eu.sshopencloud.marketplace.dto.tools.ToolDto;
+import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
-import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
@@ -23,9 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,8 +43,8 @@ public class TrainingMaterialService {
     private final IndexService indexService;
 
 
-    public PaginatedTrainingMaterials getTrainingMaterials(int page, int perpage) {
-        Page<TrainingMaterial> trainingMaterialsPage = trainingMaterialRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+    public PaginatedTrainingMaterials getTrainingMaterials(PageCoords pageCoords) {
+        Page<TrainingMaterial> trainingMaterialsPage = trainingMaterialRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
         List<TrainingMaterialDto> trainingMaterials = trainingMaterialsPage.stream().map(TrainingMaterialMapper.INSTANCE::toDto)
                 .map(trainingMaterial -> {
                     itemService.completeItem(trainingMaterial);
@@ -55,7 +53,9 @@ public class TrainingMaterialService {
                 .collect(Collectors.toList());
 
         return PaginatedTrainingMaterials.builder().trainingMaterials(trainingMaterials)
-                .count(trainingMaterialsPage.getContent().size()).hits(trainingMaterialsPage.getTotalElements()).page(page).perpage(perpage).pages(trainingMaterialsPage.getTotalPages())
+                .count(trainingMaterialsPage.getContent().size()).hits(trainingMaterialsPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(trainingMaterialsPage.getTotalPages())
                 .build();
     }
 
@@ -67,7 +67,7 @@ public class TrainingMaterialService {
 
     public TrainingMaterialDto createTrainingMaterial(TrainingMaterialCore trainingMaterialCore) throws ValidationException {
         TrainingMaterial trainingMaterial = trainingMaterialValidator.validate(trainingMaterialCore, null);
-        trainingMaterial.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(trainingMaterial);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(trainingMaterial, LoggedInUserHolder.getLoggedInUser());
@@ -84,7 +84,7 @@ public class TrainingMaterialService {
             throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
         }
         TrainingMaterial trainingMaterial = trainingMaterialValidator.validate(trainingMaterialCore, id);
-        trainingMaterial.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(trainingMaterial);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(trainingMaterial, LoggedInUserHolder.getLoggedInUser());

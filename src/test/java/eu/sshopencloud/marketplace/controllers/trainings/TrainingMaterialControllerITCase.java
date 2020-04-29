@@ -80,10 +80,11 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateTrainingMaterialWithoutRelation() throws Exception {
+    public void shouldCreateTrainingMaterialWithImplicitSource() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setAccessibleAt("https://programminghistorian.org/en/lessons/test-simple-blog");
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
@@ -95,8 +96,21 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Test simple blog")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", is("https://programminghistorian.org/en/lessons/test-simple-blog")))
                 .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Training material")));
+                .andExpect(jsonPath("properties[0].concept.label", is("Training material")))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")));
+
+
+        mvc.perform(get("/api/sources/{id}", 2)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(2)))
+                .andExpect(jsonPath("label", is("Programming Historian")))
+                .andExpect(jsonPath("url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("lastHarvestedDate", notNullValue()));
     }
 
     @Test
@@ -674,12 +688,13 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldUpdateTrainingMaterialWithoutRelation() throws Exception {
+    public void shouldUpdateTrainingMaterialWithImplicitSource() throws Exception {
         Integer trainingMaterialId = 5;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple training material");
         trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setAccessibleAt("http://programminghistorian.org/en/lessons/test-simple-training-material");
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
@@ -692,10 +707,14 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Test simple training material")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", is("http://programminghistorian.org/en/lessons/test-simple-training-material")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Training material")));
+                .andExpect(jsonPath("properties[0].concept.label", is("Training material")))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")));
     }
 
     @Test

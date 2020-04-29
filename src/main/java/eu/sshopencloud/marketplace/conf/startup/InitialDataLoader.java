@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.*;
+import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
@@ -17,6 +18,7 @@ import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.*;
 
 import eu.sshopencloud.marketplace.services.search.IndexService;
@@ -41,6 +43,8 @@ public class InitialDataLoader {
     private final UserRepository userRepository;
 
     private final ActorRepository actorRepository;
+
+    private final SourceRepository sourceRepository;
 
     private final IndexService indexService;
 
@@ -70,6 +74,10 @@ public class InitialDataLoader {
         List<ConceptRelation> conceptRelations = YamlLoader.getObjects(data, "ConceptRelation");
         conceptRelationRepository.saveAll(conceptRelations);
         log.debug("Loaded " + conceptRelations.size() / 2 + " ConceptRelation objects");
+
+        List<Source> sources = YamlLoader.getObjects(data, "Source");
+        sourceRepository.saveAll(sources);
+        log.debug("Loaded " + sources.size() + " Source objects");
     }
 
 

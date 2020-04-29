@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
-import eu.sshopencloud.marketplace.model.items.*;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -18,8 +19,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ItemDto extends ItemBasicDto {
 
-    private ItemCategory category;
-
     private String description;
 
     private List<LicenseDto> licenses;
@@ -29,6 +28,10 @@ public class ItemDto extends ItemBasicDto {
     private List<PropertyDto> properties;
 
     private String accessibleAt;
+
+    private SourceDto source;
+
+    private String sourceItemId;
 
     private List<RelatedItemDto> relatedItems;
 

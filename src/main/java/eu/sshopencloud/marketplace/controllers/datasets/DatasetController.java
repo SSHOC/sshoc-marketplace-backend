@@ -4,9 +4,9 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.services.datasets.DatasetService;
-import eu.sshopencloud.marketplace.services.datasets.PaginatedDatasets;
+import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
+import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DatasetController {
 
-    @Value("${marketplace.pagination.default-perpage}")
-    private Integer defualtPerpage;
-
-    @Value("${marketplace.pagination.maximal-perpage}")
-    private Integer maximalPerpage;
+    private final PageCoordsValidator pageCoordsValidator;
 
     private final DatasetService datasetService;
 
@@ -28,13 +24,7 @@ public class DatasetController {
     public ResponseEntity<PaginatedDatasets> getDatasets(@RequestParam(value = "page", required = false) Integer page,
                                                          @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
-        perpage = perpage == null ? defualtPerpage : perpage;
-        if (perpage > maximalPerpage) {
-            throw new PageTooLargeException(maximalPerpage);
-        }
-        page = page == null ? 1 : page;
-
-        return ResponseEntity.ok(datasetService.getDatasets(page, perpage));
+        return ResponseEntity.ok(datasetService.getDatasets(pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/datasets/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

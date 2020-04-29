@@ -1,7 +1,6 @@
-package eu.sshopencloud.marketplace.services.workflows;
+package eu.sshopencloud.marketplace.dto.workflows;
 
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
-import eu.sshopencloud.marketplace.services.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,7 +1,6 @@
-package eu.sshopencloud.marketplace.services.datasets;
+package eu.sshopencloud.marketplace.dto.datasets;
 
-import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.services.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

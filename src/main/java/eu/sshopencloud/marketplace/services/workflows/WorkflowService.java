@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.services.workflows;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
@@ -20,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,14 +42,16 @@ public class WorkflowService {
     private final IndexService indexService;
 
 
-    public PaginatedWorkflows getWorkflows(Integer page, Integer perpage) {
-        Page<Workflow> workflowsPage = workflowRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+    public PaginatedWorkflows getWorkflows(PageCoords pageCoords) {
+        Page<Workflow> workflowsPage = workflowRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
         List<WorkflowDto> workflows = workflowsPage.stream().map(WorkflowMapper.INSTANCE::toDto)
                 .map(this::completeWorkflow)
                 .collect(Collectors.toList());
 
         return PaginatedWorkflows.builder().workflows(workflows)
-                .count(workflowsPage.getContent().size()).hits(workflowsPage.getTotalElements()).page(page).perpage(perpage).pages(workflowsPage.getTotalPages())
+                .count(workflowsPage.getContent().size()).hits(workflowsPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(workflowsPage.getTotalPages())
                 .build();
     }
 
@@ -68,7 +71,7 @@ public class WorkflowService {
 
     public WorkflowDto createWorkflow(WorkflowCore workflowCore) {
         Workflow workflow = workflowValidator.validate(workflowCore, null);
-        workflow.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(workflow);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(workflow, LoggedInUserHolder.getLoggedInUser());
@@ -87,7 +90,7 @@ public class WorkflowService {
             throw new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId);
         }
         Workflow workflow = workflowValidator.validate(workflowCore, workflowId);
-        workflow.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(workflow);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(workflow, LoggedInUserHolder.getLoggedInUser());

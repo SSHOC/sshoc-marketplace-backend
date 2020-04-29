@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.dto.items;
 
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
+import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.model.items.*;
 import lombok.Data;
@@ -25,6 +26,10 @@ public class ItemCore {
     private List<PropertyCore> properties;
 
     private String accessibleAt;
+
+    private SourceId source;
+
+    private String sourceItemId;
 
     private Long prevVersionId;
 
