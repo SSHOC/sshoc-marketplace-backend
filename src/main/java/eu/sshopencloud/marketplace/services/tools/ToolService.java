@@ -1,10 +1,10 @@
 package eu.sshopencloud.marketplace.services.tools;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
-import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
@@ -22,9 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,8 +42,8 @@ public class ToolService {
     private final IndexService indexService;
 
 
-    public PaginatedTools getTools(int page, int perpage) {
-        Page<Tool> toolsPage = toolRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+    public PaginatedTools getTools(PageCoords pageCoords) {
+        Page<Tool> toolsPage = toolRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
         List<ToolDto> tools = toolsPage.stream().map(ToolMapper.INSTANCE::toDto)
                 .map(tool -> {
                     itemService.completeItem(tool);
@@ -54,7 +52,9 @@ public class ToolService {
                 .collect(Collectors.toList());
 
         return PaginatedTools.builder().tools(tools)
-                .count(toolsPage.getContent().size()).hits(toolsPage.getTotalElements()).page(page).perpage(perpage).pages(toolsPage.getTotalPages())
+                .count(toolsPage.getContent().size()).hits(toolsPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(toolsPage.getTotalPages())
                 .build();
     }
 
@@ -66,7 +66,7 @@ public class ToolService {
 
     public ToolDto createTool(ToolCore toolCore) {
         Tool tool = toolValidator.validate(toolCore, null);
-        tool.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(tool);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(tool, LoggedInUserHolder.getLoggedInUser());
@@ -84,7 +84,7 @@ public class ToolService {
             throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
         }
         Tool tool = toolValidator.validate(toolCore, id);
-        tool.setLastInfoUpdate(ZonedDateTime.now());
+        itemService.updateInfoDates(tool);
 
         // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(tool, LoggedInUserHolder.getLoggedInUser());

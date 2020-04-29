@@ -1,28 +1,30 @@
 package eu.sshopencloud.marketplace.controllers.auth;
 
+import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.PaginatedUsers;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
 
-    @Value("${marketplace.pagination.default-perpage}")
-    private Integer defualtPerpage;
+    private final PageCoordsValidator pageCoordsValidator;
 
     private final UserService userService;
 
     @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDto>> getUsers(@RequestParam(value = "q", required = false) String q) {
-        return ResponseEntity.ok(userService.getUsers(q, defualtPerpage));
+    public ResponseEntity<PaginatedUsers> getUsers(@RequestParam(value = "q", required = false) String q,
+                                                   @RequestParam(value = "page", required = false) Integer page,
+                                                   @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
+        return ResponseEntity.ok(userService.getUsers(q, pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

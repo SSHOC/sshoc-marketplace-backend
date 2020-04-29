@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.services;
+package eu.sshopencloud.marketplace.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

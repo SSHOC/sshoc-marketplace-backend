@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.search.*;
 import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyMapper;
@@ -52,10 +53,10 @@ public class SearchService {
 
     private final PropertyTypeService propertyTypeService;
 
-    public PaginatedSearchItems searchItems(String q, List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams, List<SearchOrder> order, int page, int perpage)
+    public PaginatedSearchItems searchItems(String q, List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams, List<SearchOrder> order, PageCoords pageCoords)
             throws IllegalFilterException {
         log.debug("filterParams " + filterParams.toString());
-        Pageable pageable = PageRequest.of(page - 1, perpage); // SOLR counts from page 0
+        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         if (StringUtils.isBlank(q)) {
             q = "";
         }
@@ -94,7 +95,9 @@ public class SearchService {
                 ));
 
         PaginatedSearchItems result = PaginatedSearchItems.builder().q(q).order(order).items(facetPage.get().map(SearchConverter::convertIndexItem).collect(Collectors.toList()))
-                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements()).page(page).perpage(perpage).pages(facetPage.getTotalPages())
+                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(facetPage.getTotalPages())
                 .categories(countedCategories.stream()
                         .collect(Collectors.toMap(countedConcept -> ItemCategoryConverter.convertCategory(countedConcept.getCode()), countedConcept -> countedConcept,
                                 (u, v) -> u,
@@ -131,8 +134,8 @@ public class SearchService {
         }
     }
 
-    public PaginatedSearchConcepts searchConcepts(String q, List<String> types, int page, int perpage) {
-        Pageable pageable = PageRequest.of(page - 1, perpage); // SOLR counts from page 0
+    public PaginatedSearchConcepts searchConcepts(String q, List<String> types, PageCoords pageCoords) {
+        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         if (StringUtils.isBlank(q)) {
             q = "";
         }
@@ -150,7 +153,9 @@ public class SearchService {
                 .collect(Collectors.toList());
 
         PaginatedSearchConcepts result = PaginatedSearchConcepts.builder().q(q).concepts(facetPage.get().map(SearchConverter::convertIndexConcept).collect(Collectors.toList()))
-                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements()).page(page).perpage(perpage).pages(facetPage.getTotalPages())
+                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(facetPage.getTotalPages())
                 .types(countedPropertyTypes.stream()
                         .collect(Collectors.toMap(CountedPropertyType::getCode, countedPropertyType -> countedPropertyType,
                                 (u, v) -> u,

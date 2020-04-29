@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.validators.licenses.LicenseValidator;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
+import eu.sshopencloud.marketplace.validators.sources.SourceValidator;
 import eu.sshopencloud.marketplace.validators.vocabularies.PropertyValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 
 @Service
@@ -25,6 +31,8 @@ public class ItemValidator {
     private final ItemContributorValidator itemContributorValidator;
 
     private final PropertyValidator propertyValidator;
+
+    private final SourceValidator sourceValidator;
 
 
     public Item validate(ItemCore itemCore, ItemCategory category, Item item, Errors errors) {
@@ -61,7 +69,21 @@ public class ItemValidator {
             item.setProperties(propertyValidator.validate(category, itemCore.getProperties(), item, errors, "properties"));
         }
 
-        item.setAccessibleAt(itemCore.getAccessibleAt());
+        URI accessibleAtUri = null;
+        if (StringUtils.isNotBlank(itemCore.getAccessibleAt())) {
+            try {
+                accessibleAtUri = new URL(itemCore.getAccessibleAt()).toURI();
+                item.setAccessibleAt(accessibleAtUri.toString());
+            } catch (MalformedURLException | URISyntaxException e) {
+                errors.rejectValue("accessibleAt", "field.invalid", "Accessible at is malformed URL.");
+            }
+        }
+
+        errors.pushNestedPath("source");
+        item.setSource(sourceValidator.validate(itemCore.getSource(), accessibleAtUri, errors));
+        errors.popNestedPath();
+
+        item.setSourceItemId(itemCore.getSourceItemId());
 
         return item;
     }

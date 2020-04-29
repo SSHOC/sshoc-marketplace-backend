@@ -1,11 +1,7 @@
-package eu.sshopencloud.marketplace.services.search;
+package eu.sshopencloud.marketplace.dto.search;
 
-import eu.sshopencloud.marketplace.dto.search.CheckedCount;
-import eu.sshopencloud.marketplace.dto.search.CountedConcept;
-import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.dto.search.SearchItem;
-import eu.sshopencloud.marketplace.services.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

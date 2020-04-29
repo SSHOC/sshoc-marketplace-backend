@@ -63,7 +63,9 @@ public class ItemRelationControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.id", is(subjectId)))
+                .andExpect(jsonPath("subject.category", is("tool")))
                 .andExpect(jsonPath("object.id", is(objectId)))
+                .andExpect(jsonPath("object.category", is("tool")))
                 .andExpect(jsonPath("relation.code", is("mentions")))
                 .andExpect(jsonPath("relation.label", is("Mentions")));
     }

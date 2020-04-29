@@ -76,10 +76,11 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithoutRelation() throws Exception {
+    public void shouldCreateToolWithoutSource() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
+        tool.setAccessibleAt("http://fake.tapor.ca");
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
@@ -91,8 +92,10 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", is("http://fake.tapor.ca")))
                 .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Tool")));
+                .andExpect(jsonPath("properties[0].concept.label", is("Tool")))
+                .andExpect(jsonPath("source", nullValue()));
     }
 
     @Test
@@ -262,6 +265,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
+
 
     @Test
     public void shouldNotCreateToolWhenLicenseIsUnknown() throws Exception {
@@ -571,12 +575,13 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithoutRelation() throws Exception {
+    public void shouldUpdateToolWithoutSource() throws Exception {
         Integer toolId = 3;
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
+        tool.setAccessibleAt("http://example.com");
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
@@ -589,10 +594,12 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", is("http://example.com")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Tool")));
+                .andExpect(jsonPath("properties[0].concept.label", is("Tool")))
+                .andExpect(jsonPath("source", nullValue()));
     }
 
     @Test

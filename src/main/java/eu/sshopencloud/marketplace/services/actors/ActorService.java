@@ -1,7 +1,9 @@
 package eu.sshopencloud.marketplace.services.actors;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorDto;
+import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -24,7 +27,7 @@ public class ActorService {
     private final ActorValidator actorValidator;
 
 
-    public List<ActorDto> getActors(String q, int perpage) {
+    public PaginatedActors getActors(String q, PageCoords pageCoords) {
         ExampleMatcher queryActorMatcher = ExampleMatcher.matchingAny()
                 .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
                 .withMatcher("website", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
@@ -35,8 +38,16 @@ public class ActorService {
         queryActor.setWebsite(q);
         queryActor.setEmail(q);
 
-        Page<Actor> actorsPage = actorRepository.findAll(Example.of(queryActor, queryActorMatcher), PageRequest.of(0, perpage, Sort.by(Sort.Order.asc("name"))));
-        return ActorMapper.INSTANCE.toDto(actorsPage.getContent());
+        Page<Actor> actorsPage = actorRepository.findAll(Example.of(queryActor, queryActorMatcher),
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("name"))));
+
+        List<ActorDto> actors = actorsPage.stream().map(ActorMapper.INSTANCE::toDto).collect(Collectors.toList());
+
+        return PaginatedActors.builder().actors(actors)
+                .count(actorsPage.getContent().size()).hits(actorsPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(actorsPage.getTotalPages())
+                .build();
     }
 
     public ActorDto getActor(Long id) {

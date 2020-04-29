@@ -12,14 +12,21 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ActorValidator {
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
 
     private final ActorRepository actorRepository;
 
@@ -34,10 +41,21 @@ public class ActorValidator {
             actor.setName(actorCore.getName());
         }
 
-        // TODO validate URL
-        actor.setWebsite(actorCore.getWebsite());
-        // TODO validate email
-        actor.setEmail(actorCore.getEmail());
+        if (StringUtils.isNotBlank(actorCore.getWebsite())) {
+            try {
+                actor.setWebsite(new URL(actorCore.getWebsite()).toURI().toString());
+            } catch (MalformedURLException | URISyntaxException e) {
+                errors.rejectValue("website", "field.invalid", "Website is malformed URL.");
+            }
+        }
+
+        if (StringUtils.isNotBlank(actorCore.getEmail())) {
+            if (EMAIL_PATTERN.matcher(actorCore.getEmail()).matches()) {
+                actor.setEmail(actorCore.getEmail());
+            } else {
+                errors.rejectValue("email", "field.invalid", "Email is malformed.");
+            }
+        }
 
         if (actor.getAffiliations() != null) {
             actor.getAffiliations().addAll(validate(actorCore.getAffiliations(), actor, errors, "affiliations"));

@@ -1,7 +1,6 @@
-package eu.sshopencloud.marketplace.services.vocabularies;
+package eu.sshopencloud.marketplace.dto.vocabularies;
 
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
-import eu.sshopencloud.marketplace.services.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

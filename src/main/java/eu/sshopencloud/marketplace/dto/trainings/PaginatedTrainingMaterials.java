@@ -1,7 +1,6 @@
-package eu.sshopencloud.marketplace.services.trainings;
+package eu.sshopencloud.marketplace.dto.trainings;
 
-import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
-import eu.sshopencloud.marketplace.services.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.controllers.workflows;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
+import eu.sshopencloud.marketplace.dto.sources.SourceId;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
@@ -96,7 +98,33 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf", hasSize(0)));
     }
 
+    @Test
+    public void shouldCreateWorkflowWithSourceAndImplicitSource() throws Exception {
+        WorkflowCore workflow = new WorkflowCore();
+        workflow.setLabel("Test workflow with source");
+        workflow.setDescription("Lorem ipsum");
+        workflow.setAccessibleAt("https://programminghistorian.org/en/lessons/test-workflow");
+        SourceId source = new SourceId();
+        source.setId(1l);
+        workflow.setSource(source);
 
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(workflow);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/workflows")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Test workflow with source")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("composedOf", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(1)))
+                .andExpect(jsonPath("source.label", is("TAPoR")))
+                .andExpect(jsonPath("source.url", is("http://tapor.ca")));
+    }
 
     @Test
     public void shouldCreateSimpleWorkflowWithSteps() throws Exception {

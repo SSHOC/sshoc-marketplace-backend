@@ -4,16 +4,15 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
-import eu.sshopencloud.marketplace.services.search.PaginatedSearchConcepts;
-import eu.sshopencloud.marketplace.services.search.PaginatedSearchItems;
+import eu.sshopencloud.marketplace.dto.search.PaginatedSearchConcepts;
+import eu.sshopencloud.marketplace.dto.search.PaginatedSearchItems;
 import eu.sshopencloud.marketplace.services.search.SearchService;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
+import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
@@ -31,11 +30,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SearchController {
 
-    @Value("${marketplace.pagination.default-perpage}")
-    private Integer defualtPerpage;
-
-    @Value("${marketplace.pagination.maximal-perpage}")
-    private Integer maximalPerpage;
+    private final PageCoordsValidator pageCoordsValidator;
 
     private final SearchService searchService;
 
@@ -50,14 +45,8 @@ public class SearchController {
                                                                     + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
                                                             @RequestParam(required = false) MultiValueMap<String, String> f)
             throws PageTooLargeException, IllegalFilterException {
-        perpage = perpage == null ? defualtPerpage : perpage;
-        if (perpage > maximalPerpage) {
-            throw new PageTooLargeException(maximalPerpage);
-        }
-        page = page == null ? 1 : page;
-
         Map<String, List<String>> filterParams = FilterParamsExtractor.extractFilterParams(f);
-        return ResponseEntity.ok(searchService.searchItems(q, categories, filterParams, order, page, perpage));
+        return ResponseEntity.ok(searchService.searchItems(q, categories, filterParams, order, pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/concept-search", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,13 +56,7 @@ public class SearchController {
                                                                @RequestParam(value = "page", required = false) Integer page,
                                                                @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
-        perpage = perpage == null ? defualtPerpage : perpage;
-        if (perpage > maximalPerpage) {
-            throw new PageTooLargeException(maximalPerpage);
-        }
-        page = page == null ? 1 : page;
-
-        return ResponseEntity.ok(searchService.searchConcepts(q, types, page, perpage));
+        return ResponseEntity.ok(searchService.searchConcepts(q, types, pageCoordsValidator.validate(page, perpage)));
     }
 
 }

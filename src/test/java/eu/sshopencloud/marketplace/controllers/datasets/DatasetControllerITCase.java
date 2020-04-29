@@ -8,10 +8,12 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
+import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.model.sources.Source;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -98,6 +101,34 @@ public class DatasetControllerITCase {
     }
 
     @Test
+    public void shouldCreateDatasetWithSourceAndSourceItemId() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with source");
+        dataset.setDescription("Lorem ipsum");
+        SourceId source = new SourceId();
+        source.setId(2l);
+        dataset.setSource(source);
+        dataset.setSourceItemId("testSourceItemId");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/datasets")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test dataset with source")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("testSourceItemId")));
+    }
+
+    @Test
     public void shouldCreateDatasetWithHtmlInDescription() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with HTML in description");
@@ -144,6 +175,46 @@ public class DatasetControllerITCase {
                         + "\n")))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("Dataset")));
+    }
+
+    @Test
+    public void shouldNotCreateDatasetWhenAccessibleAtIsMalformed() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with malformed Url");
+        dataset.setDescription("Lorem ipsum");
+        dataset.setAccessibleAt("Malformed Url");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/datasets")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("accessibleAt")))
+                .andExpect(jsonPath("errors[0].code", is("field.invalid")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldNotCreateDatasetWhenSourceNotExist() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with source");
+        dataset.setDescription("Lorem ipsum");
+        SourceId source = new SourceId();
+        source.setId(-1l);
+        dataset.setSource(source);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/datasets")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("source.id")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
@@ -252,6 +323,61 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+    @Test
+    public void shouldUpdateDatasetWithSource() throws Exception {
+        Integer datasetId = 9;
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with source");
+        dataset.setDescription("Lorem ipsum");
+        SourceId source = new SourceId();
+        source.setId(2l);
+        dataset.setSource(source);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/datasets/{id}", datasetId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test dataset with source")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("licenses", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(0)))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")));
+    }
+
+
+    @Test
+    public void shouldNotUpdateDatasetWhenSourceNotExist() throws Exception {
+        Integer datasetId = 9;
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with source");
+        dataset.setDescription("Lorem ipsum");
+        SourceId source = new SourceId();
+        source.setId(-1l);
+        dataset.setSource(source);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/datasets/{id}", datasetId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("source.id")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test

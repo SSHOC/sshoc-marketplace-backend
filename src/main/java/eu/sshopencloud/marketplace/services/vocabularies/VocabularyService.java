@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedVocabularies;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
 import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
@@ -43,12 +45,14 @@ public class VocabularyService {
 
     private final ConceptRelatedConceptService conceptRelatedConceptService;
 
-    public PaginatedVocabularies getVocabularies(int page, int perpage) {
-        Page<Vocabulary> vocabulariesPage = vocabularyRepository.findAll(PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("label"))));
+    public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
+        Page<Vocabulary> vocabulariesPage = vocabularyRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
         List<VocabularyDto> vocabularies = vocabulariesPage.stream().map(VocabularyMapper.INSTANCE::toDto).map(this::completeVocabulary).collect(Collectors.toList());
 
         return PaginatedVocabularies.builder().vocabularies(vocabularies)
-                .count(vocabulariesPage.getContent().size()).hits(vocabulariesPage.getTotalElements()).page(page).perpage(perpage).pages(vocabulariesPage.getTotalPages())
+                .count(vocabulariesPage.getContent().size()).hits(vocabulariesPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(vocabulariesPage.getTotalPages())
                 .build();
     }
 
