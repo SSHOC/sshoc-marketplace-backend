@@ -25,10 +25,4 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getItems(sourceId, sourceItemId));
     }
 
-    //TEMPORARY
-    @GetMapping(path = "/rewrite-sources2", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void rewriteSources2() {
-        itemService.rewriteSources2();
-    }
-
 }
