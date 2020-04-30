@@ -1,14 +1,24 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
+import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
+import eu.sshopencloud.marketplace.model.workflows.Step;
+import eu.sshopencloud.marketplace.model.workflows.Workflow;
+import eu.sshopencloud.marketplace.repositories.datasets.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
+import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
+import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
+import eu.sshopencloud.marketplace.repositories.workflows.StepRepository;
+import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -42,6 +52,14 @@ public class IndexService {
     private final VocabularyRepository vocabularyRepository;
 
 
+    // TEMPORARY
+    private final ToolRepository toolRepository;
+    private final TrainingMaterialRepository trainingMaterialRepository;
+    private final DatasetRepository datasetRepository;
+    private final WorkflowRepository workflowRepository;
+    private final StepRepository stepRepository;
+
+
     public IndexItem indexItem(Item item) {
         if (itemService.isNewestVersion(item)) {
             if (item.getPrevVersion() != null) {
@@ -64,8 +82,24 @@ public class IndexService {
 
     public void reindexItems() {
         clearItemIndex();
-        for (Item item : itemRepository.findAll()) {
-            indexItem(item);
+        // TEMPORARY reindex in dirty manner since items is inconsistent with tools, training_materials, datasets, workflows or staps
+        //for (Item item : itemRepository.findAll()) {
+        //    indexItem(item);
+        //}
+        for (Tool tool: toolRepository.findAll()) {
+            indexItem(tool);
+        }
+        for (TrainingMaterial trainingMaterial: trainingMaterialRepository.findAll()) {
+            indexItem(trainingMaterial);
+        }
+        for (Dataset dataset: datasetRepository.findAll()) {
+            indexItem(dataset);
+        }
+        for (Workflow workflow: workflowRepository.findAll()) {
+            indexItem(workflow);
+        }
+        for (Step step: stepRepository.findAll()) {
+            indexItem(step);
         }
     }
 

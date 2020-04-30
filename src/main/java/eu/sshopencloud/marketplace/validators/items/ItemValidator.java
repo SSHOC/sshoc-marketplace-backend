@@ -85,6 +85,20 @@ public class ItemValidator {
 
         item.setSourceItemId(itemCore.getSourceItemId());
 
+        if (StringUtils.isBlank(itemCore.getSourceItemId())) {
+            if (item.getSource() != null) {
+                if (itemCore.getSource() != null) {
+                    errors.rejectValue("sourceItemId", "field.requiredInCase", "Source item id is required if Source is provided.");
+                } else {
+                    errors.rejectValue("sourceItemId", "field.requiredInCase", "Source item id is required because source was matched with '" + item.getSource().getLabel() + "' by Accessible at Url.");
+                }
+            }
+        }
+
+        if (item.getSource() == null && StringUtils.isNotBlank(itemCore.getSourceItemId())) {
+            errors.rejectValue("source", "field.requiredInCase", "Source is required if Source item id is provided.");
+        }
+
         return item;
     }
 

@@ -326,7 +326,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldUpdateDatasetWithSource() throws Exception {
+    public void shouldNotUpdateDatasetWithSourceButWithoutSourceItemId() throws Exception {
         Integer datasetId = 9;
 
         DatasetCore dataset = new DatasetCore();
@@ -342,18 +342,33 @@ public class DatasetControllerITCase {
         mvc.perform(put("/api/datasets/{id}", datasetId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(datasetId)))
-                .andExpect(jsonPath("category", is("dataset")))
-                .andExpect(jsonPath("label", is("Test dataset with source")))
-                .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")))
-                .andExpect(jsonPath("source.id", is(2)))
-                .andExpect(jsonPath("source.label", is("Programming Historian")))
-                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(1)))
+                .andExpect(jsonPath("errors[0].field", is("sourceItemId")))
+                .andExpect(jsonPath("errors[0].code", is("field.requiredInCase")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldNotUpdateDatasetWithSourceItemIdButWithoutSource() throws Exception {
+        Integer datasetId = 9;
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with source");
+        dataset.setDescription("Lorem ipsum");
+        dataset.setSourceItemId("0123");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/datasets/{id}", datasetId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(1)))
+                .andExpect(jsonPath("errors[0].field", is("source")))
+                .andExpect(jsonPath("errors[0].code", is("field.requiredInCase")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
 
@@ -375,6 +390,7 @@ public class DatasetControllerITCase {
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(1)))
                 .andExpect(jsonPath("errors[0].field", is("source.id")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
