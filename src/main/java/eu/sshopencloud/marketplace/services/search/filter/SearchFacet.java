@@ -16,22 +16,27 @@ import java.util.stream.Collectors;
 public enum SearchFacet {
 
     CATEGORY(SearchFilter.CATEGORY, IndexItem.CATEGORY_FIELD,
-            List.of(IndexItem.CATEGORY_FIELD, IndexItem.OBJECT_TYPE_FIELD, IndexItem.ACTIVITY_FIELD, IndexItem.KEYWORD_FIELD),
+            List.of(IndexItem.CATEGORY_FIELD, IndexItem.OBJECT_TYPE_FIELD, IndexItem.ACTIVITY_FIELD, IndexItem.SOURCE_FIELD, IndexItem.KEYWORD_FIELD),
             new SearchFacetParameters(4, 0, FacetOptions.FacetSort.INDEX)
     ),
 
     OBJECT_TYPE(SearchFilter.OBJECT_TYPE, IndexItem.OBJECT_TYPE_FIELD,
-            List.of(IndexItem.OBJECT_TYPE_FIELD, IndexItem.ACTIVITY_FIELD, IndexItem.KEYWORD_FIELD),
+            List.of(IndexItem.OBJECT_TYPE_FIELD, IndexItem.ACTIVITY_FIELD, IndexItem.SOURCE_FIELD, IndexItem.KEYWORD_FIELD),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 
     ACTIVITY(SearchFilter.ACTIVITY, IndexItem.ACTIVITY_FIELD,
-            List.of(IndexItem.ACTIVITY_FIELD, IndexItem.OBJECT_TYPE_FIELD, IndexItem.KEYWORD_FIELD),
+            List.of(IndexItem.ACTIVITY_FIELD, IndexItem.OBJECT_TYPE_FIELD, IndexItem.SOURCE_FIELD, IndexItem.KEYWORD_FIELD),
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
+    SOURCE(SearchFilter.SOURCE, IndexItem.SOURCE_FIELD,
+            List.of(IndexItem.SOURCE_FIELD, IndexItem.OBJECT_TYPE_FIELD, IndexItem.ACTIVITY_FIELD, IndexItem.KEYWORD_FIELD),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 
     KEYWORD(SearchFilter.KEYWORD, IndexItem.KEYWORD_FIELD,
-            List.of(IndexItem.KEYWORD_FIELD, IndexItem.OBJECT_TYPE_FIELD, IndexItem.ACTIVITY_FIELD),
+            List.of(IndexItem.KEYWORD_FIELD, IndexItem.OBJECT_TYPE_FIELD, IndexItem.ACTIVITY_FIELD, IndexItem.SOURCE_FIELD),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 

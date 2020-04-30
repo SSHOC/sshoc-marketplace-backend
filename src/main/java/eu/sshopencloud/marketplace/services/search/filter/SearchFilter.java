@@ -15,6 +15,8 @@ public enum SearchFilter {
 
     ACTIVITY(IndexType.ITEMS, IndexItem.ACTIVITY_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
+    SOURCE(IndexType.ITEMS, IndexItem.SOURCE_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
+
     KEYWORD(IndexType.ITEMS, IndexItem.KEYWORD_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
     PROPERTY_TYPE(IndexType.CONCEPTS, IndexConcept.TYPES_FIELD, FilterType.VALUES_SELECTION_FILTER, true);

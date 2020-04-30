@@ -218,6 +218,9 @@ Tool:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           object-type
+    source:
+      !!eu.sshopencloud.marketplace.model.sources.Source
+      id:                          1
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Texts similarity analysis
@@ -343,6 +346,10 @@ TrainingMaterial:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           nemo-activity-type
+    source:
+      !!eu.sshopencloud.marketplace.model.sources.Source
+      id:                          2
+
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
@@ -392,6 +399,9 @@ TrainingMaterial:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           nemo-activity-type
+    source:
+      !!eu.sshopencloud.marketplace.model.sources.Source
+      id:                          2
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Is there a newer version available?
@@ -450,6 +460,9 @@ TrainingMaterial:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           nemo-activity-type
+    source:
+      !!eu.sshopencloud.marketplace.model.sources.Source
+      id:                          2
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Thanks for sharing this - very useful!
@@ -511,6 +524,9 @@ TrainingMaterial:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          topic
+    source:
+      !!eu.sshopencloud.marketplace.model.sources.Source
+      id:                          2
 
 
 Dataset:
