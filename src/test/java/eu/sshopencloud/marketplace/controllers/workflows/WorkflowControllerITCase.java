@@ -99,7 +99,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldCreateWorkflowWithSourceAndImplicitSource() throws Exception {
+    public void shouldCreateWorkflowWithSourceAndImplicitSourceAndSourceItemId() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test workflow with source");
         workflow.setDescription("Lorem ipsum");
@@ -107,6 +107,7 @@ public class WorkflowControllerITCase {
         SourceId source = new SourceId();
         source.setId(1l);
         workflow.setSource(source);
+        workflow.setSourceItemId("https://programminghistorian.org/en/lessons/test-workflow");
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(workflow);
         log.debug("JSON: " + payload);
@@ -123,7 +124,8 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf", hasSize(0)))
                 .andExpect(jsonPath("source.id", is(1)))
                 .andExpect(jsonPath("source.label", is("TAPoR")))
-                .andExpect(jsonPath("source.url", is("http://tapor.ca")));
+                .andExpect(jsonPath("source.url", is("http://tapor.ca")))
+                .andExpect(jsonPath("sourceItemId", is("https://programminghistorian.org/en/lessons/test-workflow")));
     }
 
     @Test
