@@ -21,8 +21,7 @@ public class ToolLoader {
 
     public void createTools(String profile, List<Tool> newTools) {
         for (Tool newTool: newTools) {
-            itemLoader.completeProperties(newTool);
-            itemLoader.completeContributors(newTool);
+            itemLoader.completeItemRelations(newTool);
             Tool tool = toolRepository.save(newTool);
             if (!profile.equals("prod")) {
                 indexService.indexItem(tool);

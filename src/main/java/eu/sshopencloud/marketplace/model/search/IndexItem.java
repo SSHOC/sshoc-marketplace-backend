@@ -35,6 +35,8 @@ public class IndexItem {
 
     public static final String ACTIVITY_FIELD = "activity";
 
+    public static final String SOURCE_FIELD = "source";
+
     public static final String KEYWORD_FIELD = "keyword";
     public static final String KEYWORD_TEXT_FIELD = "keyword_text";
 
@@ -73,6 +75,9 @@ public class IndexItem {
     @Indexed(name = ACTIVITY_FIELD, type = "strings")
     @Singular
     private List<String> activities;
+
+    @Indexed(name = SOURCE_FIELD, type = "string")
+    private String source;
 
     @Indexed(name = KEYWORD_FIELD, type = "strings")
     @Singular

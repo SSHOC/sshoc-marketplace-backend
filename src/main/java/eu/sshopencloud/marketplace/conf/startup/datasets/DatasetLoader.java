@@ -21,8 +21,7 @@ public class DatasetLoader {
 
     public void createDatasets(String profile, List<Dataset> newDatasets) {
         for (Dataset newDataset: newDatasets) {
-            itemLoader.completeProperties(newDataset);
-            itemLoader.completeContributors(newDataset);
+            itemLoader.completeItemRelations(newDataset);
             Dataset dataset = datasetRepository.save(newDataset);
             if (!profile.equals("prod")) {
                 indexService.indexItem(dataset);

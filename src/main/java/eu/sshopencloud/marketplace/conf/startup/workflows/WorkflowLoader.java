@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +22,7 @@ public class WorkflowLoader {
 
     public void createWorkflows(String profile, List<Workflow> newWorkflows) {
         for (Workflow newWorkflow: newWorkflows) {
-            itemLoader.completeProperties(newWorkflow);
-            itemLoader.completeContributors(newWorkflow);
+            itemLoader.completeItemRelations(newWorkflow);
             for (Step step: newWorkflow.getSteps()) {
                 step.setWorkflow(newWorkflow);
                 completeSteps(step);
@@ -38,8 +36,7 @@ public class WorkflowLoader {
     }
 
     private void completeSteps(Step newStep) {
-        itemLoader.completeProperties(newStep);
-        itemLoader.completeContributors(newStep);
+        itemLoader.completeItemRelations(newStep);
         if (newStep.getSubsteps() != null) {
             for (Step substep : newStep.getSubsteps()) {
                 substep.setStep(newStep);

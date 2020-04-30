@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.conf.datetime.SolrDateTimeFormatter;
+import eu.sshopencloud.marketplace.mappers.sources.SourceConverter;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
@@ -27,7 +28,8 @@ public class IndexConverter {
         builder.id(item.getId())
                 .label(item.getLabel()).labelText(item.getLabel()).labelTextEn(item.getLabel())
                 .description(item.getDescription()).descriptionText(descriptionText).descriptionTextEn(descriptionText)
-                .category(ItemCategoryConverter.convertCategory(item.getCategory()));
+                .category(ItemCategoryConverter.convertCategory(item.getCategory()))
+                .source(SourceConverter.convertSource(item.getSource()));
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
         for (Property property : item.getProperties()) {
             switch (property.getType().getCode()) {

@@ -121,6 +121,7 @@
     <field name="modified_on" type="pdate" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="object_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="activity" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="source" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="keyword" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="keyword_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
 

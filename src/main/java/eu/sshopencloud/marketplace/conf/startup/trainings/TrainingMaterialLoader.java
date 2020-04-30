@@ -21,8 +21,7 @@ public class TrainingMaterialLoader {
 
     public void createTrainingMaterials(String profile, List<TrainingMaterial> newTrainingMaterials) {
         for (TrainingMaterial newTrainingMaterial: newTrainingMaterials) {
-            itemLoader.completeProperties(newTrainingMaterial);
-            itemLoader.completeContributors(newTrainingMaterial);
+            itemLoader.completeItemRelations(newTrainingMaterial);
             TrainingMaterial trainingMaterial = trainingMaterialRepository.save(newTrainingMaterial);
             if (!profile.equals("prod")) {
                 indexService.indexItem(trainingMaterial);
