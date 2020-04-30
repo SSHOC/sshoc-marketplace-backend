@@ -26,16 +26,9 @@ public class ItemController {
     }
 
     //TEMPORARY
-    @GetMapping(path = "/rewrite-sources", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void rewriteSources() {
-        itemService.rewriteSources();
+    @GetMapping(path = "/rewrite-sources2", produces = MediaType.APPLICATION_JSON_VALUE)
+    public void rewriteSources2() {
+        itemService.rewriteSources2();
     }
-
-    //TEMPORARY
-    @GetMapping(path = "/rewrite-sources-ids", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void rewriteSourcesIds() {
-        itemService.rewriteSourcesIds();
-    }
-
 
 }

@@ -7,10 +7,14 @@ import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
+import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
+import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +43,11 @@ public class ItemService {
     private final UserRepository userRepository;
 
     private final SourceRepository sourceRepository;
+
+    private final ToolRepository toolRepository;
+
+    private final TrainingMaterialRepository trainingMaterialRepository;
+
 
 
     public List<ItemBasicDto> getItems(Long sourceId, String sourceItemId) {
@@ -168,35 +177,32 @@ public class ItemService {
     }
 
     // TEMPORARY
-    public void rewriteSourcesIds() {
-        List<Item> items = itemRepository.findAll();
-        for (Item item: items) {
-            Optional<Property> propertyHolder = item.getProperties().stream().filter(p -> p.getType().getCode().equals("source-id")).findFirst();
-            log.debug("Item " + item.getId() + " " + item.getLabel() + " has source-id " + propertyHolder.isPresent());
+    public void rewriteSources2() {
+        List<Tool> tools = toolRepository.findAll();
+        for (Tool tool: tools) {
+            Optional<Property> propertyHolder = tool.getProperties().stream().filter(p -> p.getType().getCode().equals("source-id")).findFirst();
+            log.debug("Tool " + tool.getId() + " " + tool.getLabel() + " has source-id " + propertyHolder.isPresent());
             if (propertyHolder.isPresent()) {
-                item.setSourceItemId(propertyHolder.get().getValue());
-                itemRepository.save(item);
+                tool.setSourceItemId(propertyHolder.get().getValue());
+                toolRepository.save(tool);
+            }
+            if (tool.getId() > 30) {
+                tool.setSource(sourceRepository.getOne(1l)); // tapor
+                toolRepository.save(tool);
             }
         }
-    }
 
-    // TEMPORARY
-    public void rewriteSources() {
-        List<Item> items = itemRepository.findAll();
-        for (Item item: items) {
-            if (item.getCategory().equals(ItemCategory.TOOL)) {
-                log.debug("Item " + item.getId() + " " + item.getLabel() + " is tool");
-                if (item.getId() > 30) {
-                    item.setSource(sourceRepository.getOne(1l)); // tapor
-                    itemRepository.save(item);
-                }
+        List<TrainingMaterial> trainingMaterials = trainingMaterialRepository.findAll();
+        for (TrainingMaterial trainingMaterial: trainingMaterials) {
+            Optional<Property> propertyHolder = trainingMaterial.getProperties().stream().filter(p -> p.getType().getCode().equals("source-id")).findFirst();
+            log.debug("Training Material " + trainingMaterial.getId() + " " + trainingMaterial.getLabel() + " has source-id " + propertyHolder.isPresent());
+            if (propertyHolder.isPresent()) {
+                trainingMaterial.setSourceItemId(propertyHolder.get().getValue());
+                trainingMaterialRepository.save(trainingMaterial);
             }
-            if (item.getCategory().equals(ItemCategory.TRAINING_MATERIAL)) {
-                log.debug("Item " + item.getId() + " " + item.getLabel() + " is training material");
-                if (item.getId() > 30 && item.getAccessibleAt().contains("programminghistorian")) {
-                    item.setSource(sourceRepository.getOne(2l)); // programminghistorian
-                    itemRepository.save(item);
-                }
+            if (trainingMaterial.getId() > 30 && trainingMaterial.getAccessibleAt().contains("programminghistorian")) {
+                trainingMaterial.setSource(sourceRepository.getOne(2l)); // programminghistorian
+                itemRepository.save(trainingMaterial);
             }
         }
     }
