@@ -72,7 +72,8 @@ public class MarketplaceExceptionHandler {
             ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getCause().getCause().getMessage()).build();
             return ResponseEntity.badRequest().body(errorResponse);
         } else{
-            ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.INTERNAL_SERVER_ERROR.value()).error(ex.getMessage()).build();
+            // TODO
+            ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.INTERNAL_SERVER_ERROR.value()).error(ex.getCause().getCause().getMessage()).build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }

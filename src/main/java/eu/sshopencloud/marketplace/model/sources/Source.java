@@ -27,7 +27,7 @@ public class Source {
     private String url;
 
     @Basic
-    @Column(nullable = true) // TODO change it
+    @Column(nullable = false)
     private String urlTemplate;
 
     @Basic
