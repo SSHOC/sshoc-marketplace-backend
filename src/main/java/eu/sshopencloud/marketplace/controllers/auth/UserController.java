@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -19,7 +19,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedUsers> getUsers(@RequestParam(value = "q", required = false) String q,
                                                    @RequestParam(value = "page", required = false) Integer page,
                                                    @RequestParam(value = "perpage", required = false) Integer perpage)
@@ -27,7 +27,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsers(q, pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping(path = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDto> getUser(@PathVariable("id") long id) {
         return ResponseEntity.ok(userService.getUser(id));
     }

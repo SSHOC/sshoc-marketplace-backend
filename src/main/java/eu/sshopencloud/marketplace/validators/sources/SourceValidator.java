@@ -50,6 +50,14 @@ public class SourceValidator {
             }
         }
 
+        if (StringUtils.isBlank(sourceCore.getUrlTemplate())) {
+            errors.rejectValue("urlTemplate", "field.required", "Url template is required.");
+        } else if (!sourceCore.getUrlTemplate().contains("{source-item-id}")) {
+            errors.rejectValue("urlTemplate", "field.invalid", "Url template has to contain {source-item-id} substring.");
+        } else {
+            source.setUrlTemplate(sourceCore.getUrlTemplate());
+        }
+
         if (errors.hasErrors()) {
             throw new ValidationException(errors);
         } else {

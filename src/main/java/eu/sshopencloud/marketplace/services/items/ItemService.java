@@ -9,8 +9,6 @@ import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
-import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
-import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,11 +37,6 @@ public class ItemService {
 
     private final SourceRepository sourceRepository;
 
-    private final ToolRepository toolRepository;
-
-    private final TrainingMaterialRepository trainingMaterialRepository;
-
-
 
     public List<ItemBasicDto> getItems(Long sourceId, String sourceItemId) {
         List<Item> items = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);
@@ -52,17 +45,15 @@ public class ItemService {
 
 
     public void addInformationContributorToItem(Item item, User contributor) {
-        if (contributor != null) {
-            User user = userRepository.findByUsername(contributor.getUsername());
-            if (item.getInformationContributors() != null) {
-                if (!item.getInformationContributors().contains(user)) {
-                    item.getInformationContributors().add(user);
-                }
-            } else {
-                List<User> informationContributors = new ArrayList();
-                informationContributors.add(user);
-                item.setInformationContributors(informationContributors);
+        User user = userRepository.findByUsername(contributor.getUsername());
+        if (item.getInformationContributors() != null) {
+            if (!item.getInformationContributors().contains(user)) {
+                item.getInformationContributors().add(user);
             }
+        } else {
+            List<User> informationContributors = new ArrayList<>();
+            informationContributors.add(user);
+            item.setInformationContributors(informationContributors);
         }
     }
 
@@ -108,7 +99,7 @@ public class ItemService {
         item.setRelatedItems(itemRelatedItemService.getItemRelatedItems(item.getId()));
         item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
         item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
-        for (PropertyDto property: item.getProperties()) {
+        for (PropertyDto property : item.getProperties()) {
             propertyTypeService.completePropertyType(property.getType());
         }
         return (T) item;

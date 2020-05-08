@@ -9,24 +9,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/items/{itemId}/comments")
 @RequiredArgsConstructor
 public class ItemCommentController {
 
     private final ItemCommentService itemCommentService;
 
-    @PostMapping(path = "/item/{itemId}/comments", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemCommentDto> createItemComment(@PathVariable("itemId") long itemId, @RequestBody ItemCommentCore newItemComment) {
         return ResponseEntity.ok(itemCommentService.createItemComment(itemId, newItemComment));
     }
 
-    @PutMapping(path = "/item/{itemId}/comments/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemCommentDto> updateItemComment(@PathVariable("itemId") long itemId, @PathVariable("id") long id,
                                                          @RequestBody ItemCommentCore updatedItemComment) {
         return ResponseEntity.ok(itemCommentService.updateItemComment(itemId, id, updatedItemComment));
     }
 
-    @DeleteMapping("/item/{itemId}/comments/{id}")
+    @DeleteMapping("/{id}")
     public void deleteItemComment(@PathVariable("itemId") long itemId, @PathVariable("id") long id) {
         itemCommentService.deleteItemComment(itemId, id);
     }

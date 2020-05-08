@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.filters.auth.JwtGenerateAuthenticationSuccess
 import eu.sshopencloud.marketplace.filters.auth.JwtHeaderAuthenticationFilter;
 import eu.sshopencloud.marketplace.filters.auth.JwtProvider;
 import eu.sshopencloud.marketplace.filters.auth.UsernamePasswordBodyAuthenticationFilter;
-import eu.sshopencloud.marketplace.model.auth.UserRole;
+import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.services.auth.LocalUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,14 +52,52 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable();
         http
                 .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/item-reindex").hasAuthority(UserRole.ADMINISTRATOR.getAuthority());
+                .antMatchers("/api/auth/**").permitAll();
         http
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/**").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/**").permitAll()
-                .antMatchers(HttpMethod.DELETE, "/api/**").permitAll();
+                .antMatchers(HttpMethod.PUT, "/api/item-reindex").hasAuthority(Authority.ADMINISTRATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/concept-reindex").hasAuthority(Authority.ADMINISTRATOR.name())
+                .antMatchers("/api/users/**").hasAuthority(Authority.ADMINISTRATOR.name());
+        http
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/actors/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/actors/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/actors/**").hasAuthority(Authority.MODERATOR.name());
+        http
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/sources/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/sources/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/sources/**").hasAuthority(Authority.MODERATOR.name());
+        http
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/datasets/**").hasAuthority(Authority.MODERATOR.name());
+        http
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/tools/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/tools/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/tools/**").hasAuthority(Authority.MODERATOR.name());
+        http
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/training-materials/**").hasAuthority(Authority.MODERATOR.name());
+        http
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/workflows/**").hasAuthority(Authority.MODERATOR.name());
+        http
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/items-relations/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/items-relations/**").hasAuthority(Authority.CONTRIBUTOR.name());
+        http
+                .authorizeRequests()
+                .antMatchers("/api/items/*/comments/**").authenticated();
+        http
+                .authorizeRequests()
+                .antMatchers("/api/**").permitAll();
 
         http
                 .addFilterBefore(jwtHeaderAuthenticationFilter(), UsernamePasswordBodyAuthenticationFilter.class);

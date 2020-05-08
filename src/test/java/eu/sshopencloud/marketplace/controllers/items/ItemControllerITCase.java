@@ -1,9 +1,11 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
+import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +34,14 @@ public class ItemControllerITCase {
     @Autowired
     private MockMvc mvc;
 
+    private String CONTRIBUTOR_JWT;
+
+    @Before
+    public void init()
+            throws Exception {
+        CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+    }
+
     @Test
     public void shouldCreateToolWithSourceAndFindIt() throws Exception {
         ToolCore tool = new ToolCore();
@@ -48,7 +58,8 @@ public class ItemControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool")))
                 .andExpect(jsonPath("label", is("Tool to test search by source")))
@@ -60,7 +71,8 @@ public class ItemControllerITCase {
                 .andExpect(jsonPath("source.url", is("http://tapor.ca")));
 
         mvc.perform(get("/api/items?sourceId={souceId}&sourceItemId={sourceItemId}", 1, "000000")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("tool")))

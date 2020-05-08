@@ -46,38 +46,33 @@ PropertyType:
     label:                       Thumbnail
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        source-id
-    ord:                         10
-    label:                       Source Id
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        repository-url
-    ord:                         11
+    ord:                         10
     label:                       Repository Url
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        license-type
-    ord:                         12
+    ord:                         11
     label:                       License Type
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        web-usable
-    ord:                         13
+    ord:                         12
     label:                       Web Usable
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        tool-family
-    ord:                         14
+    ord:                         13
     label:                       Tool Family
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        tadirah-methods
-    ord:                         15
+    ord:                         14
     label:                       Tadirah Methods
   #
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        methodica-link
-    ord:                         16
+    ord:                         15
     label:                       Methodi CA Link
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType

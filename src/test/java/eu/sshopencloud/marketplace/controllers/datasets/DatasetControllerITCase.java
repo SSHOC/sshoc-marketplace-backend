@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
+import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
@@ -13,8 +14,8 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
-import eu.sshopencloud.marketplace.model.sources.Source;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +48,18 @@ public class DatasetControllerITCase {
     @Autowired
     private MockMvc mvc;
 
+    private String CONTRIBUTOR_JWT;
+    private String MODERATOR_JWT;
+    private String ADMINISTRATOR_JWT;
+
+    @Before
+    public void init()
+            throws Exception {
+        CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
+        ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
+    }
+
     @Test
     public void shouldReturnDatasets() throws Exception {
 
@@ -76,7 +89,8 @@ public class DatasetControllerITCase {
         Integer datasetId = 1009;
 
         mvc.perform(get("/api/datasets/{id}", datasetId)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
@@ -91,7 +105,8 @@ public class DatasetControllerITCase {
 
         mvc.perform(post("/api/datasets")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test simple dataset")))
@@ -115,7 +130,8 @@ public class DatasetControllerITCase {
 
         mvc.perform(post("/api/datasets")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with source")))
@@ -156,7 +172,8 @@ public class DatasetControllerITCase {
 
         mvc.perform(post("/api/datasets")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with HTML in description")))
@@ -189,7 +206,8 @@ public class DatasetControllerITCase {
 
         mvc.perform(post("/api/datasets")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("accessibleAt")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
@@ -210,7 +228,8 @@ public class DatasetControllerITCase {
 
         mvc.perform(post("/api/datasets")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("source.id")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -230,12 +249,16 @@ public class DatasetControllerITCase {
 
         mvc.perform(put("/api/datasets/{id}", datasetId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test simple dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("informationContributors", hasSize(2)))
+                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
+                .andExpect(jsonPath("informationContributors[1].username", is("Administrator")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(1)))
@@ -304,12 +327,16 @@ public class DatasetControllerITCase {
 
         mvc.perform(put("/api/datasets/{id}", datasetId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test complex dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("informationContributors", hasSize(2)))
+                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
+                .andExpect(jsonPath("informationContributors[1].username", is("Administrator")))
                 .andExpect(jsonPath("licenses", hasSize(1)))
                 .andExpect(jsonPath("licenses[0].label", is("MIT License")))
                 .andExpect(jsonPath("contributors", hasSize(1)))
@@ -341,7 +368,8 @@ public class DatasetControllerITCase {
 
         mvc.perform(put("/api/datasets/{id}", datasetId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(1)))
                 .andExpect(jsonPath("errors[0].field", is("sourceItemId")))
@@ -363,7 +391,8 @@ public class DatasetControllerITCase {
 
         mvc.perform(put("/api/datasets/{id}", datasetId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(1)))
                 .andExpect(jsonPath("errors[0].field", is("source")))
@@ -388,7 +417,8 @@ public class DatasetControllerITCase {
 
         mvc.perform(put("/api/datasets/{id}", datasetId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(1)))
                 .andExpect(jsonPath("errors[0].field", is("source.id")))
@@ -453,14 +483,16 @@ public class DatasetControllerITCase {
 
         String jsonResponse = mvc.perform(post("/api/datasets")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
         Long datasetId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, DatasetDto.class).getId();
 
         mvc.perform(delete("/api/datasets/{id}", datasetId)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
     }
 

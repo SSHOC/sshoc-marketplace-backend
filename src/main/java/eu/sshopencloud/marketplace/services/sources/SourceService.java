@@ -72,7 +72,6 @@ public class SourceService {
     }
 
     public void deleteSource(Long id) {
-        // TODO don't allow deleting without authentication (in WebSecurityConfig)
         if (!sourceRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + id);
         }

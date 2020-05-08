@@ -4,12 +4,14 @@ import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemCommentMapper;
 import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
+import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemCommentRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.validators.items.ItemCommentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,16 +53,10 @@ public class ItemCommentService {
         itemComment.setDateCreated(now);
         itemComment.setDateLastUpdated(now);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.debug(authentication.toString());
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            User user = userRepository.findByUsername(authentication.getName());
-            itemComment.setCreator(user);
-        }
+        itemComment.setCreator(userRepository.findByUsername(LoggedInUserHolder.getLoggedInUser().getUsername()));
 
         int size = 0;
-        List<ItemComment> comments = new ArrayList();
+        List<ItemComment> comments = new ArrayList<>();
         if (item.getComments() != null) {
             size = item.getComments().size();
             comments = item.getComments();
@@ -109,17 +105,14 @@ public class ItemCommentService {
 
 
     private int getItemCommentIndex(Item item, Long id) {
-        // TODO don't allow updating/deleting without authentication (in WebSecurityConfig)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User loggedInUser = LoggedInUserHolder.getLoggedInUser();
         for (int i = 0; i < item.getComments().size(); i++) {
             if (item.getComments().get(i).getId().equals(id)) {
                 ItemComment comment = item.getComments().get(i);
-                // TODO allow updating/deleting comments for curators
-                if (!(authentication instanceof AnonymousAuthenticationToken)) {
-                    User user = userRepository.findByUsername(authentication.getName());
-                    if (!comment.getCreator().getId().equals(user.getId())) {
-                        throw new AccessDeniedException("No access to the comment.");
-                    }
+                boolean a = loggedInUser.getRole().getAuthorities().contains(Authority.MODERATOR);
+                boolean b = comment.getCreator().getUsername().equals(loggedInUser.getUsername());
+                if (!loggedInUser.getRole().getAuthorities().contains(Authority.MODERATOR) && !comment.getCreator().getUsername().equals(loggedInUser.getUsername())) {
+                    throw new AccessDeniedException("No write/delete access to the comment.");
                 }
                 return i;
             }

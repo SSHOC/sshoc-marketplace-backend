@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.workflows;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
+import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
@@ -8,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +36,18 @@ public class WorkflowControllerITCase {
 
     @Autowired
     private MockMvc mvc;
+
+    private String CONTRIBUTOR_JWT;
+    private String MODERATOR_JWT;
+    private String ADMINISTRATOR_JWT;
+
+    @Before
+    public void init()
+            throws Exception {
+        CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
+        ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
+    }
 
     @Test
     public void shouldReturnWorkflows() throws Exception {
@@ -88,7 +102,8 @@ public class WorkflowControllerITCase {
 
         mvc.perform(post("/api/workflows")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test simple workflow")))
@@ -114,7 +129,8 @@ public class WorkflowControllerITCase {
 
         mvc.perform(post("/api/workflows")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test workflow with source")))
@@ -139,7 +155,8 @@ public class WorkflowControllerITCase {
 
         String jsonResponse = mvc.perform(post("/api/workflows")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -154,7 +171,8 @@ public class WorkflowControllerITCase {
 
         mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 1")))
@@ -172,7 +190,8 @@ public class WorkflowControllerITCase {
 
         mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 2")))
@@ -182,7 +201,8 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{workflowId}", workflowId)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is((int)workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
@@ -208,7 +228,8 @@ public class WorkflowControllerITCase {
 
         String jsonResponse = mvc.perform(post("/api/workflows")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -223,7 +244,8 @@ public class WorkflowControllerITCase {
 
         jsonResponse = mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -238,7 +260,8 @@ public class WorkflowControllerITCase {
 
         mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 2")))
@@ -256,7 +279,8 @@ public class WorkflowControllerITCase {
 
         mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowId, stepId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 1.1")))
@@ -274,7 +298,8 @@ public class WorkflowControllerITCase {
 
         mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowId, stepId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 1.2")))
@@ -325,7 +350,8 @@ public class WorkflowControllerITCase {
         Integer workflowId = 21;
 
         mvc.perform(get("/api/workflows/{id}", workflowId)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
@@ -351,7 +377,8 @@ public class WorkflowControllerITCase {
 
         mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("The last step in a workflow")))
@@ -361,7 +388,8 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{id}", workflowId)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
@@ -415,7 +443,8 @@ public class WorkflowControllerITCase {
 
         mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowId, stepId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("The substep of a step in a workflow")))
@@ -453,7 +482,8 @@ public class WorkflowControllerITCase {
         Integer workflowId = 21;
 
         mvc.perform(delete("/api/workflows/{id}", workflowId)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
     }
 

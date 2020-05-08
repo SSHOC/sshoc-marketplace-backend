@@ -55,7 +55,6 @@ public class StepService {
         step.setWorkflow(workflow);
         itemService.updateInfoDates(step);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(step, LoggedInUserHolder.getLoggedInUser());
 
         Item nextVersion = itemService.clearVersionForCreate(step);
@@ -84,7 +83,6 @@ public class StepService {
         substep.setStep(step);
         itemService.updateInfoDates(substep);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(substep, LoggedInUserHolder.getLoggedInUser());
 
         Workflow workflow = workflowRepository.getOne(workflowId);
@@ -115,7 +113,6 @@ public class StepService {
         Step step = stepValidator.validate(updatedStep, stepId);
         itemService.updateInfoDates(step);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(step, LoggedInUserHolder.getLoggedInUser());
 
         Item prevVersion = step.getPrevVersion();
@@ -127,7 +124,6 @@ public class StepService {
     }
 
     public void deleteStep(long workflowId, long stepId) {
-        // TODO don't allow deleting without authentication (in WebSecurityConfig)
         Step step = checkWorkflowAndStepConsistency(workflowId, stepId);
         itemRelatedItemService.deleteRelationsForItem(step);
         Item prevVersion = step.getPrevVersion();

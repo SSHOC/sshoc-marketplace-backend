@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/sources")
 @RequiredArgsConstructor
 public class SourceController {
 
@@ -20,7 +20,7 @@ public class SourceController {
 
     private final SourceService sourceService;
 
-    @GetMapping(path = "/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedSources> getSources(@RequestParam(value = "q", required = false) String q,
                                                        @RequestParam(value = "page", required = false) Integer page,
                                                        @RequestParam(value = "perpage", required = false) Integer perpage)
@@ -28,22 +28,22 @@ public class SourceController {
         return ResponseEntity.ok(sourceService.getSources(q, pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping(path = "/sources/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SourceDto> getSource(@PathVariable("id") Long id) {
         return ResponseEntity.ok(sourceService.getSource(id));
     }
 
-    @PostMapping(path = "/sources", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SourceDto> createSource(@RequestBody SourceCore newSource) {
         return ResponseEntity.ok(sourceService.createSource(newSource));
     }
 
-    @PutMapping(path = "/sources/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SourceDto> updateSource(@PathVariable("id") long id, @RequestBody SourceCore updatedSource) {
         return ResponseEntity.ok(sourceService.updateSource(id, updatedSource));
     }
 
-    @DeleteMapping("/sources/{id}")
+    @DeleteMapping(path = "/{id}")
     public void deleteTool(@PathVariable("id") long id) {
         sourceService.deleteSource(id);
     }

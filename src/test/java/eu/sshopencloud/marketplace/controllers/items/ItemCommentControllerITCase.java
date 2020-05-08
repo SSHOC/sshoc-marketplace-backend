@@ -1,10 +1,12 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
+import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +33,18 @@ public class ItemCommentControllerITCase {
     @Autowired
     private MockMvc mvc;
 
+    private String CONTRIBUTOR_JWT;
+    private String MODERATOR_JWT;
+    private String ADMINISTRATOR_JWT;
+
+    @Before
+    public void init()
+            throws Exception {
+        CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
+        ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
+    }
+
     @Test
     public void shouldCreateItemComment() throws Exception {
         Integer itemId = 1;
@@ -41,9 +55,10 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/item/{itemId}/comments", itemId)
+        mvc.perform(post("/api/items/{itemId}/comments", itemId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("body", is("I love it!")));
     }
@@ -58,9 +73,10 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/item/{itemId}/comments", itemId)
+        mvc.perform(post("/api/items/{itemId}/comments", itemId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("body", is("I **love** it!\n")));
     }
@@ -75,9 +91,10 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/item/{itemId}/comments", itemId)
+        mvc.perform(post("/api/items/{itemId}/comments", itemId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isBadRequest());
     }
 
@@ -91,14 +108,15 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/item/{itemId}/comments", itemId)
+        mvc.perform(post("/api/items/{itemId}/comments", itemId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    public void shouldUpdateItemComment() throws Exception {
+    public void shouldUpdateItemCommentForCreator() throws Exception {
         Integer itemId = 1;
         Integer commentId = 1;
 
@@ -108,12 +126,52 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/item/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("body", is("I love it!")));
     }
+
+    @Test
+    public void shouldUpdateItemCommentForModerator() throws Exception {
+        Integer itemId = 1;
+        Integer commentId = 2;
+
+        ItemCommentCore itemComment = new ItemCommentCore();
+        itemComment.setBody("I love it!");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("body", is("I love it!")));
+    }
+
+
+    @Test
+    public void shouldNotUpdateItemCommentForNonCreatorAndNonModerator() throws Exception {
+        Integer itemId = 1;
+        Integer commentId = 2;
+
+        ItemCommentCore itemComment = new ItemCommentCore();
+        itemComment.setBody("I love it!");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isForbidden());
+    }
+
 
     @Test
     public void shouldNotUpdateItemCommentWhenNotBelongToItem() throws Exception {
@@ -126,9 +184,10 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/item/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
@@ -143,14 +202,15 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/item/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    public void shouldDeleteItemComment() throws Exception {
+    public void shouldDeleteItemCommentForCreator() throws Exception {
         Integer itemId = 1;
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -159,26 +219,80 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        String jsonResponse = mvc.perform(post("/api/item/{itemId}/comments", itemId)
+        String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
         Long commentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ItemComment.class).getId();
 
-        mvc.perform(delete("/api/item/{itemId}/comments/{id}", itemId, commentId)
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void shouldDeleteItemCommentForModerator() throws Exception {
+        Integer itemId = 1;
+
+        ItemCommentCore itemComment = new ItemCommentCore();
+        itemComment.setBody("Comment to delete.");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long commentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ItemComment.class).getId();
+
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldNotDeleteItemCommentForNonCreatorAndNonModerator() throws Exception {
+        Integer itemId = 1;
+
+        ItemCommentCore itemComment = new ItemCommentCore();
+        itemComment.setBody("Comment to delete.");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long commentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ItemComment.class).getId();
+
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isForbidden());
+    }
+
 
     @Test
     public void shouldNotDeleteItemCommentWhenNotBelongToItem() throws Exception {
         Integer itemId = 2;
         Integer commentId = 2;
 
-        mvc.perform(delete("/api/item/{itemId}/comments/{id}", itemId, commentId)
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
@@ -187,8 +301,9 @@ public class ItemCommentControllerITCase {
         Integer itemId = 1;
         Integer commentId = 50;
 
-        mvc.perform(delete("/api/item/{itemId}/comments/{id}", itemId, commentId)
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isNotFound());
     }
 

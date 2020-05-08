@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/datasets")
 @RequiredArgsConstructor
 public class DatasetController {
 
@@ -20,29 +20,29 @@ public class DatasetController {
 
     private final DatasetService datasetService;
 
-    @GetMapping(path = "/datasets", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedDatasets> getDatasets(@RequestParam(value = "page", required = false) Integer page,
                                                          @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(datasetService.getDatasets(pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping(path = "/datasets/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") long id) {
         return ResponseEntity.ok(datasetService.getDataset(id));
     }
 
-    @PostMapping(path = "/datasets", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> createDataset(@RequestBody DatasetCore newDataset) {
         return ResponseEntity.ok(datasetService.createDataset(newDataset));
     }
 
-    @PutMapping(path = "/datasets/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> updateDataset(@PathVariable("id") long id, @RequestBody DatasetCore updatedDataset) {
         return ResponseEntity.ok(datasetService.updateDataset(id, updatedDataset));
     }
 
-    @DeleteMapping("/datasets/{id}")
+    @DeleteMapping(path = "/{id}")
     public void deleteDataset(@PathVariable("id") long id) {
         datasetService.deleteDataset(id);
     }

@@ -69,7 +69,6 @@ public class TrainingMaterialService {
         TrainingMaterial trainingMaterial = trainingMaterialValidator.validate(trainingMaterialCore, null);
         itemService.updateInfoDates(trainingMaterial);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(trainingMaterial, LoggedInUserHolder.getLoggedInUser());
 
         Item nextVersion = itemService.clearVersionForCreate(trainingMaterial);
@@ -86,7 +85,6 @@ public class TrainingMaterialService {
         TrainingMaterial trainingMaterial = trainingMaterialValidator.validate(trainingMaterialCore, id);
         itemService.updateInfoDates(trainingMaterial);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(trainingMaterial, LoggedInUserHolder.getLoggedInUser());
 
         Item prevVersion = trainingMaterial.getPrevVersion();
@@ -98,7 +96,6 @@ public class TrainingMaterialService {
     }
 
     public void deleteTrainingMaterial(Long id) {
-        // TODO don't allow deleting without authentication (in WebSecurityConfig)
         if (!trainingMaterialRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
         }

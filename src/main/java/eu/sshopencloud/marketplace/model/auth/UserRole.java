@@ -1,15 +1,23 @@
 package eu.sshopencloud.marketplace.model.auth;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import org.springframework.security.core.GrantedAuthority;
 
-public enum UserRole implements GrantedAuthority {
+import java.util.Arrays;
+import java.util.List;
 
-    CONTRIBUTOR,
+public enum UserRole {
 
-    MODERATOR,
+    CONTRIBUTOR(Arrays.asList(Authority.CONTRIBUTOR)),
 
-    ADMINISTRATOR;
+    MODERATOR(Arrays.asList(Authority.CONTRIBUTOR, Authority.MODERATOR)),
+
+    ADMINISTRATOR(Arrays.asList(Authority.CONTRIBUTOR, Authority.MODERATOR, Authority.ADMINISTRATOR));
+
+    private List<Authority> authorities;
+
+    UserRole(List<Authority> authorities) {
+        this.authorities = authorities;
+    }
 
     @JsonValue
     public String getValue() {
@@ -21,9 +29,8 @@ public enum UserRole implements GrantedAuthority {
         return getValue();
     }
 
-    @Override
-    public String getAuthority() {
-        return name();
+    public List<Authority> getAuthorities() {
+        return authorities;
     }
 
 }

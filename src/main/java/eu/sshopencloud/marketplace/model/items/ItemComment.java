@@ -23,8 +23,7 @@ public class ItemComment {
     @Column(nullable = false, length = 4096)
     private String body;
 
-    // TODO change optional = false when authentication will be implemented
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="item_comment_creator_id_fk"))
     private User creator;
 

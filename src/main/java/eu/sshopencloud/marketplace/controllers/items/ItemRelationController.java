@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/items-relations")
 @RequiredArgsConstructor
 public class ItemRelationController {
 
@@ -22,12 +22,12 @@ public class ItemRelationController {
 
     private final ItemRelatedItemService itemRelatedItemService;
 
-    @GetMapping(path = "/item-relations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemRelationDto>> getAllItemRelations() {
         return ResponseEntity.ok(itemRelationService.getAllItemRelations());
     }
 
-    @PostMapping(path = "/items-relations/{subjectId}/{objectId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/{subjectId}/{objectId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemRelatedItemDto> createItemRelatedItem(@PathVariable("subjectId") long subjectId,
                                                                     @PathVariable("objectId") long objectId,
                                                                     @RequestBody ItemRelationId itemRelation)
@@ -35,7 +35,7 @@ public class ItemRelationController {
         return ResponseEntity.ok(itemRelatedItemService.createItemRelatedItem(subjectId, objectId, itemRelation));
     }
 
-    @DeleteMapping("/items-relations/{subjectId}/{objectId}")
+    @DeleteMapping("/{subjectId}/{objectId}")
     public void deleteItemRelatedItem(@PathVariable("subjectId") long subjectId, @PathVariable("objectId") long objectId) {
         itemRelatedItemService.deleteItemRelatedItem(subjectId, objectId);
     }

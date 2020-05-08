@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,7 +68,6 @@ public class DatasetService {
         Dataset dataset = datasetValidator.validate(datasetCore, null);
         itemService.updateInfoDates(dataset);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(dataset, LoggedInUserHolder.getLoggedInUser());
 
         Item nextVersion = itemService.clearVersionForCreate(dataset);
@@ -86,7 +84,6 @@ public class DatasetService {
         Dataset dataset = datasetValidator.validate(datasetCore, id);
         itemService.updateInfoDates(dataset);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(dataset, LoggedInUserHolder.getLoggedInUser());
 
         Item prevVersion = dataset.getPrevVersion();
@@ -98,7 +95,6 @@ public class DatasetService {
     }
 
     public void deleteDataset(Long id) {
-        // TODO don't allow deleting without authentication (in WebSecurityConfig)
         if (!datasetRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Dataset.class.getName() + " with id " + id);
         }

@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 
 @Service
 @Transactional
@@ -26,7 +25,7 @@ public class LocalUserDetailsService implements UserDetailsService {
         }
         return new org.springframework.security.core.userdetails.User(username, user.getPassword(),
                 user.isEnabled(), true, true, true,
-                Collections.singleton(user.getRole()));
+                user.getRole().getAuthorities());
     }
 
 }

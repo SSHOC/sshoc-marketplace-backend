@@ -24,6 +24,14 @@ User:
     role:                        CONTRIBUTOR
     preferences:                 "{}"
 
+  - !!eu.sshopencloud.marketplace.model.auth.User
+    id:                          4
+    username:                    System importer
+    password:                    $2a$10$Qod4TYLHVIqmaPwIlCXTp.InDzTEM4QBV4AUWc2FNoDom4OjZwChC
+    enabled:                     true
+    role:                        CONTRIBUTOR
+    preferences:                 "{}"
+
 
 Actor:
 

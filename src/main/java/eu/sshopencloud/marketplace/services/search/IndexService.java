@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.tools.Tool;
@@ -61,7 +62,7 @@ public class IndexService {
 
 
     public IndexItem indexItem(Item item) {
-        if (itemService.isNewestVersion(item)) {
+        if (!item.getCategory().equals(ItemCategory.STEP) && itemService.isNewestVersion(item)) {
             if (item.getPrevVersion() != null) {
                 removeItem(item.getPrevVersion());
             }
@@ -81,25 +82,17 @@ public class IndexService {
 
 
     public void reindexItems() {
+        itemRepository.deleteAllActivityInfoContributorsOrphans();
+        itemRepository.deleteAllActivityCommentsOrphans();
+        itemRepository.deleteAllActivityLicensesOrphans();
+        itemRepository.deleteAllActivityPropertiesOrphans();
+        itemRepository.deleteAllActivityContributorsOrphans();
+
+        itemRepository.deleteAllActivityOrphans();
+
         clearItemIndex();
-        // TEMPORARY reindex in dirty manner since items is inconsistent with tools, training_materials, datasets, workflows or staps
-        //for (Item item : itemRepository.findAll()) {
-        //    indexItem(item);
-        //}
-        for (Tool tool: toolRepository.findAll()) {
-            indexItem(tool);
-        }
-        for (TrainingMaterial trainingMaterial: trainingMaterialRepository.findAll()) {
-            indexItem(trainingMaterial);
-        }
-        for (Dataset dataset: datasetRepository.findAll()) {
-            indexItem(dataset);
-        }
-        for (Workflow workflow: workflowRepository.findAll()) {
-            indexItem(workflow);
-        }
-        for (Step step: stepRepository.findAll()) {
-            indexItem(step);
+        for (Item item : itemRepository.findAll()) {
+            indexItem(item);
         }
     }
 

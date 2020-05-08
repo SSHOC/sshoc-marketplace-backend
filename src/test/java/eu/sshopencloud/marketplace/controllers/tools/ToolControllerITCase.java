@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
+import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
@@ -12,6 +13,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,18 @@ public class ToolControllerITCase {
 
     @Autowired
     private MockMvc mvc;
+
+    private String CONTRIBUTOR_JWT;
+    private String MODERATOR_JWT;
+    private String ADMINISTRATOR_JWT;
+
+    @Before
+    public void init()
+            throws Exception {
+        CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
+        ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
+    }
 
     @Test
     public void shouldReturnTools() throws Exception {
@@ -87,12 +101,15 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("accessibleAt", is("http://fake.tapor.ca")))
+                .andExpect(jsonPath("informationContributors", hasSize(1)))
+                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("Tool")))
                 .andExpect(jsonPath("source", nullValue()));
@@ -154,7 +171,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool")))
                 .andExpect(jsonPath("label", is("Test complex software")))
@@ -194,7 +212,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool")))
                 .andExpect(jsonPath("label", is("Test complex software")))
@@ -229,7 +248,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -259,7 +279,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("label")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
@@ -296,7 +317,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -337,7 +359,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -378,7 +401,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -426,7 +450,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].type.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -474,7 +499,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -522,7 +548,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
                 .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
@@ -567,7 +594,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
@@ -588,7 +616,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool")))
@@ -660,7 +689,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool")))
@@ -705,7 +735,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
@@ -787,7 +818,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool")))
@@ -831,7 +863,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("prevVersionId")))
                 .andExpect(jsonPath("errors[0].code", is("field.cycle")))
@@ -863,7 +896,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("label")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
@@ -905,7 +939,8 @@ public class ToolControllerITCase {
 
         mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.tooManyObjectTypes")))
@@ -945,7 +980,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -988,7 +1024,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -1031,7 +1068,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -1081,7 +1119,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].type.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -1131,7 +1170,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -1181,7 +1221,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
                 .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
@@ -1228,7 +1269,8 @@ public class ToolControllerITCase {
 
         mvc.perform(put("/api/tools/{id}", toolId)
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
@@ -1246,14 +1288,16 @@ public class ToolControllerITCase {
 
         String jsonResponse = mvc.perform(post("/api/tools")
                 .content(payload)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
         Long toolId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ToolDto.class).getId();
 
         mvc.perform(delete("/api/tools/{id}", toolId)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
     }
 
@@ -1262,7 +1306,8 @@ public class ToolControllerITCase {
         Integer toolId = 100;
 
         mvc.perform(delete("/api/tools/{id}", toolId)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
     }
 

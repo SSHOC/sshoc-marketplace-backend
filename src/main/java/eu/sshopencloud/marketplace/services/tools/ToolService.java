@@ -68,7 +68,6 @@ public class ToolService {
         Tool tool = toolValidator.validate(toolCore, null);
         itemService.updateInfoDates(tool);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(tool, LoggedInUserHolder.getLoggedInUser());
 
         Item nextVersion = itemService.clearVersionForCreate(tool);
@@ -86,7 +85,6 @@ public class ToolService {
         Tool tool = toolValidator.validate(toolCore, id);
         itemService.updateInfoDates(tool);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(tool, LoggedInUserHolder.getLoggedInUser());
 
         Item prevVersion = tool.getPrevVersion();
@@ -99,7 +97,6 @@ public class ToolService {
     }
 
     public void deleteTool(Long id) {
-        // TODO don't allow deleting without authentication (in WebSecurityConfig)
         if (!toolRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
         }

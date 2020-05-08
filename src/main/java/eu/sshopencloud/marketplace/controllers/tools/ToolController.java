@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/tools")
 @RequiredArgsConstructor
 public class ToolController {
 
@@ -20,29 +20,29 @@ public class ToolController {
 
     private final ToolService toolService;
 
-    @GetMapping(path = "/tools", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
                                                    @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(toolService.getTools(pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping(path = "/tools/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> getTool(@PathVariable("id") long id) {
         return ResponseEntity.ok(toolService.getTool(id));
     }
 
-    @PostMapping(path = "/tools", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool) {
         return ResponseEntity.ok(toolService.createTool(newTool));
     }
 
-    @PutMapping(path = "/tools/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> updateTool(@PathVariable("id") long id, @RequestBody ToolCore updatedTool) {
         return ResponseEntity.ok(toolService.updateTool(id, updatedTool));
     }
 
-    @DeleteMapping("/tools/{id}")
+    @DeleteMapping(path = "/{id}")
     public void deleteTool(@PathVariable("id") long id) {
         toolService.deleteTool(id);
     }

@@ -189,10 +189,12 @@ Source:
     id:                          1
     label:                       "TAPoR"
     url:                         "http://tapor.ca"
+    urlTemplate:                 "http://tapor.ca/tools/{source-item-id}"
     domain:                      "tapor.ca"
 
   - !!eu.sshopencloud.marketplace.model.sources.Source
     id:                          2
     label:                       "Programming Historian"
     url:                         "https://programminghistorian.org"
+    urlTemplate:                 "https://programminghistorian.org/en/lessons/{source-item-id}"
     domain:                      "programminghistorian.org"

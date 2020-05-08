@@ -13,4 +13,6 @@ public class SourceBasicDto {
 
     private String url;
 
+    private String urlTemplate;
+
 }

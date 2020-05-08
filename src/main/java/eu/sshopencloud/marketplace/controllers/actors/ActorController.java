@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/actors")
 @RequiredArgsConstructor
 public class ActorController {
 
@@ -21,7 +21,7 @@ public class ActorController {
 
     private final ActorService actorService;
 
-    @GetMapping(path = "/actors", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedActors> getActors(@RequestParam(value = "q", required = false) String q,
                                                      @RequestParam(value = "page", required = false) Integer page,
                                                      @RequestParam(value = "perpage", required = false) Integer perpage)
@@ -29,22 +29,22 @@ public class ActorController {
         return ResponseEntity.ok(actorService.getActors(q, pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping(path = "/actors/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ActorDto> getActor(@PathVariable("id") long id) {
         return ResponseEntity.ok(actorService.getActor(id));
     }
 
-    @PostMapping(path = "/actors", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ActorDto> createActor(@RequestBody ActorCore newActor) {
         return ResponseEntity.ok(actorService.createActor(newActor));
     }
 
-    @PutMapping(path = "/actors/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ActorDto> updateActor(@PathVariable("id") long id, @RequestBody ActorCore updatedActor) {
         return ResponseEntity.ok(actorService.updateActor(id, updatedActor));
     }
 
-    @DeleteMapping("/actors/{id}")
+    @DeleteMapping(path = "/{id}")
     public void deleteActor(@PathVariable("id") long id) {
         actorService.deleteActor(id);
     }

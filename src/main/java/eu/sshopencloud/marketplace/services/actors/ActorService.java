@@ -58,7 +58,6 @@ public class ActorService {
 
 
     public ActorDto createActor(ActorCore actorCore) {
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         Actor actor = actorValidator.validate(actorCore, null);
         actorRepository.save(actor);
         return ActorMapper.INSTANCE.toDto(actor);
@@ -66,7 +65,6 @@ public class ActorService {
 
 
     public ActorDto updateActor(Long id, ActorCore actorCore) {
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         if (!actorRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id);
         }

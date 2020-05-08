@@ -27,6 +27,10 @@ public class Source {
     private String url;
 
     @Basic
+    @Column(nullable = true) // TODO change it
+    private String urlTemplate;
+
+    @Basic
     @Column(nullable = false)
     private String domain;
 

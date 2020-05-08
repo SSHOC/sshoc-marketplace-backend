@@ -73,7 +73,6 @@ public class WorkflowService {
         Workflow workflow = workflowValidator.validate(workflowCore, null);
         itemService.updateInfoDates(workflow);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(workflow, LoggedInUserHolder.getLoggedInUser());
 
         Item nextVersion = itemService.clearVersionForCreate(workflow);
@@ -92,7 +91,6 @@ public class WorkflowService {
         Workflow workflow = workflowValidator.validate(workflowCore, workflowId);
         itemService.updateInfoDates(workflow);
 
-        // TODO don't allow creating without authentication (in WebSecurityConfig)
         itemService.addInformationContributorToItem(workflow, LoggedInUserHolder.getLoggedInUser());
 
         Item prevVersion = workflow.getPrevVersion();
@@ -106,7 +104,6 @@ public class WorkflowService {
 
 
     public void deleteWorkflow(long workflowId) {
-        // TODO don't allow deleting without authentication (in WebSecurityConfig)
         if (!workflowRepository.existsById(workflowId)) {
             throw new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId);
         }

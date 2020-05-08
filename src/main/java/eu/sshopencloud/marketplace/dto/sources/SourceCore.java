@@ -11,4 +11,6 @@ public class SourceCore {
 
     private String url;
 
+    private String urlTemplate;
+
 }
