@@ -26,6 +26,12 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     void deleteAllActivityOrphans();
 
     @Modifying
+    @Query(value = "DELETE FROM activities", nativeQuery = true)
+    void deleteAllActivityActivitiesOrphans();
+
+
+
+    @Modifying
     @Query(value = "DELETE FROM items_information_contributors WHERE item_id IN (SELECT id FROM items WHERE category = 'ACTIVITY')", nativeQuery = true)
     void deleteAllActivityInfoContributorsOrphans();
 
@@ -44,5 +50,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Modifying
     @Query(value = "DELETE FROM items_contributors WHERE item_id IN (SELECT id FROM items WHERE category = 'ACTIVITY')", nativeQuery = true)
     void deleteAllActivityContributorsOrphans();
+
 
 }

@@ -88,6 +88,8 @@ public class IndexService {
         itemRepository.deleteAllActivityPropertiesOrphans();
         itemRepository.deleteAllActivityContributorsOrphans();
 
+        itemRepository.deleteAllActivityActivitiesOrphans();
+
         itemRepository.deleteAllActivityOrphans();
 
         clearItemIndex();
