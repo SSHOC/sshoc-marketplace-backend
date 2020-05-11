@@ -358,7 +358,6 @@ TrainingMaterial:
       !!eu.sshopencloud.marketplace.model.sources.Source
       id:                          2
 
-
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
     label:                       Introduction to GEPHI

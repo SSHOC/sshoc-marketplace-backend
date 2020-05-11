@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.conf.startup;
 
+import eu.sshopencloud.marketplace.conf.startup.sequencers.SequencerInitializer;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
@@ -18,6 +19,8 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Slf4j
 public class MarketplaceStartupRunner implements CommandLineRunner {
+
+    private final SequencerInitializer sequencerInitializer;
 
     private final InitialDataLoader initialDataLoader;
 
@@ -42,6 +45,8 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         Date start = new Date();
+
+        sequencerInitializer.initSequencers();
 
         if (jpaDdlAuto.equals("create") || jpaDdlAuto.equals("create-drop")) {
             initialDataLoader.clearSearchIndexes();
