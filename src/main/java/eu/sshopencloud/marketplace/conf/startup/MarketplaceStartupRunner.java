@@ -55,7 +55,7 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
         initialDataLoader.loadBasicData();
 
         ///
-/*
+
         for (Tool tool: toolRepository.findAll()) {
             Property toRemove = null;
             for (Property property : tool.getProperties()) {
@@ -84,7 +84,7 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
         if (propertyTypeRepository.existsById("source-id")) {
             propertyTypeRepository.deleteById("source-id");
         }
-*/
+
 
         ///
 
