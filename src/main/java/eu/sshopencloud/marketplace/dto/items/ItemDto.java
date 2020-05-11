@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceBasicDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
@@ -29,7 +30,7 @@ public class ItemDto extends ItemBasicDto {
 
     private String accessibleAt;
 
-    private SourceDto source;
+    private SourceBasicDto source;
 
     private String sourceItemId;
 

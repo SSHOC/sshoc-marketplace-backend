@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.dto.vocabularies;
 
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,8 @@ public class PropertyTypeDto {
     private String code;
 
     private String label;
+
+    private PropertyTypeClass type;
 
     private List<VocabularyBasicDto> allowedVocabularies;
 

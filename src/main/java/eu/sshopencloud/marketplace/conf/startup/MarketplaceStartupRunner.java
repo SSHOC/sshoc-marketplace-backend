@@ -1,12 +1,6 @@
 package eu.sshopencloud.marketplace.conf.startup;
 
 import eu.sshopencloud.marketplace.conf.startup.sequencers.SequencerInitializer;
-import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.model.vocabularies.Property;
-import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
-import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
-import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +22,6 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
 
     private final InitialVocabularyLoader initialVocabularyLoader;
 
-    //
-    private final ToolRepository toolRepository;
-    private final TrainingMaterialRepository trainingMaterialRepository;
-
-    private final PropertyTypeRepository propertyTypeRepository;
-    //
-
 
     @Value("${spring.profiles.active:dev}")
     private String activeProfile;
@@ -53,41 +40,6 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
         }
 
         initialDataLoader.loadBasicData();
-
-        ///
-
-        for (Tool tool: toolRepository.findAll()) {
-            Property toRemove = null;
-            for (Property property : tool.getProperties()) {
-                if (property.getType().getCode().equals("source-id")) {
-                    toRemove = property;
-                }
-            }
-            if (toRemove != null) {
-                tool.getProperties().remove(toRemove);
-                toolRepository.save(tool);
-            }
-        }
-
-        for (TrainingMaterial trainingMaterial: trainingMaterialRepository.findAll()) {
-            Property toRemove = null;
-            for (Property property : trainingMaterial.getProperties()) {
-                if (property.getType().getCode().equals("source-id")) {
-                    toRemove = property;
-                }
-            }
-            if (toRemove != null) {
-                trainingMaterial.getProperties().remove(toRemove);
-                trainingMaterialRepository.save(trainingMaterial);
-            }
-        }
-        if (propertyTypeRepository.existsById("source-id")) {
-            propertyTypeRepository.deleteById("source-id");
-        }
-
-
-        ///
-
 
         initialLicenseLoader.loadLicenseData();
 

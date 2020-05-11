@@ -4,81 +4,97 @@ PropertyType:
     code:                        object-type
     ord:                         1
     label:                       Object type
+    type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        language
     ord:                         2
     label:                       Language
+    type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        activity
     ord:                         3
     label:                       Activity
+    type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        technique
     ord:                         4
     label:                       Technique
+    type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        material
     ord:                         5
     label:                       Material
+    type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        object-format
     ord:                         6
     label:                       Object format
+    type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        keyword
     ord:                         7
     label:                       Keyword
+    type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        tadirah-goals
     ord:                         8
     label:                       Tadirah Goals
+    type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        thumbnail
     ord:                         9
     label:                       Thumbnail
+    type:                        URL
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        repository-url
     ord:                         10
     label:                       Repository Url
+    type:                        URL
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        license-type
     ord:                         11
     label:                       License Type
+    type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        web-usable
     ord:                         12
     label:                       Web Usable
+    type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        tool-family
     ord:                         13
     label:                       Tool Family
+    type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        tadirah-methods
     ord:                         14
     label:                       Tadirah Methods
-  #
+    type:                        STRING
+
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        methodica-link
     ord:                         15
     label:                       Methodi CA Link
+    type:                        URL
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        cover-image
     ord:                         16
     label:                       Cover Image
+    type:                        URL
 
 PropertyTypeVocabulary:
 
