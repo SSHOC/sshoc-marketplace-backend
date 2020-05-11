@@ -82,6 +82,11 @@ public abstract class Item {
     @CreationTimestamp
     private ZonedDateTime lastInfoUpdate;
 
+    @Basic
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'INGESTED'")
+    private ItemStatus status;
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "items_items_comments", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_id_fk")),
             inverseJoinColumns = @JoinColumn(name = "item_comment_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_comment_id_fk")))

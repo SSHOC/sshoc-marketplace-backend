@@ -24,7 +24,7 @@ public class PropertyType {
 
     @Basic
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true) // TODO
+    @Column(nullable = false)
     private PropertyTypeClass type;
 
 }

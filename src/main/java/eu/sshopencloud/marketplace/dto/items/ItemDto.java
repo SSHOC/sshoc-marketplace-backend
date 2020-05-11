@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.dto.sources.SourceBasicDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,8 @@ public class ItemDto extends ItemBasicDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.dateTimePattern)
     private ZonedDateTime lastInfoUpdate;
+
+    private ItemStatus status;
 
     private List<ItemCommentDto> comments;
 
