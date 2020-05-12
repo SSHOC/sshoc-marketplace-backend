@@ -7,6 +7,7 @@ User:
     enabled:                     true
     role:                        ADMINISTRATOR
     preferences:                 "{}"
+    email:                       administrator@example.com
 
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          2
@@ -15,6 +16,7 @@ User:
     enabled:                     true
     role:                        MODERATOR
     preferences:                 "{}"
+    email:                       moderator@example.com
 
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          3
@@ -23,6 +25,7 @@ User:
     enabled:                     true
     role:                        CONTRIBUTOR
     preferences:                 "{}"
+    email:                       contributor@example.com
 
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          4
@@ -31,6 +34,7 @@ User:
     enabled:                     true
     role:                        CONTRIBUTOR
     preferences:                 "{}"
+    email:                       systemimporter@example.com
 
 
 Actor:

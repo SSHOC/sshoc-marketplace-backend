@@ -5,9 +5,15 @@ import eu.sshopencloud.marketplace.filters.auth.JwtHeaderAuthenticationFilter;
 import eu.sshopencloud.marketplace.filters.auth.JwtProvider;
 import eu.sshopencloud.marketplace.filters.auth.UsernamePasswordBodyAuthenticationFilter;
 import eu.sshopencloud.marketplace.model.auth.Authority;
+import eu.sshopencloud.marketplace.services.auth.CustomUserDetailsService;
 import eu.sshopencloud.marketplace.services.auth.LocalUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import eu.sshopencloud.marketplace.conf.auth.filter.TokenAuthenticationFilter;
+import eu.sshopencloud.marketplace.conf.auth.handler.OidcAuthenticationSuccessHandler;
+import eu.sshopencloud.marketplace.services.auth.CustomOidcUserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +29,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -36,12 +43,22 @@ import java.util.Arrays;
 @Slf4j
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    private OidcAuthenticationSuccessHandler oidcAuthenticationSuccessHandler;
+
+    @Autowired
+    private CustomOidcUserService customOidcUserService;
+
+    @Value("${marketplace.security.oauth2.redirectAfterLogout}")
+    private String redirectAfterLogout;
+
     @Value("${marketplace.cors.max-age-sec}")
     private Long corsMaxAgeInSec;
 
-    private final LocalUserDetailsService localUserDetailsService;
+//    private final LocalUserDetailsService localUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    private final JwtProvider jwtProvider;
+//    private final JwtProvider jwtProvider;
 
 
     @Override
@@ -49,7 +66,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .cors().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .csrf().disable();
+                .csrf().disable().logout()
+                .logoutSuccessUrl(redirectAfterLogout);
         http
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll();
@@ -97,10 +115,30 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/items/*/comments/**").authenticated();
         http
                 .authorizeRequests()
-                .antMatchers("/api/**").permitAll();
-
+                .antMatchers(HttpMethod.GET, "/")
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/loginFailure")
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/login/oauth2/code/eosc/")
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/oauth2/authorize/eosc")
+                .permitAll()
+                .anyRequest()
+                .authenticated();
         http
-                .addFilterBefore(jwtHeaderAuthenticationFilter(), UsernamePasswordBodyAuthenticationFilter.class);
+                .oauth2Login()
+                    .authorizationEndpoint()
+                    .baseUri("/oauth2/authorize")
+                .and()
+                .userInfoEndpoint()
+                    .oidcUserService(customOidcUserService)
+                .and()
+                .successHandler(oidcAuthenticationSuccessHandler)
+                    .failureUrl("/loginFailure");
+
+        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+//        http
+//                .addFilterBefore(jwtHeaderAuthenticationFilter(), UsernamePasswordBodyAuthenticationFilter.class);
     }
 
     @Override
@@ -110,7 +148,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return localUserDetailsService;
+        return customUserDetailsService;
     }
 
     @Bean
@@ -132,13 +170,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
-
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter();
+    }
 
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return new JwtGenerateAuthenticationSuccessHandler(jwtProvider);
+        return oidcAuthenticationSuccessHandler;
     }
-
     @Bean
     public UsernamePasswordBodyAuthenticationFilter usernamePasswordAuthenticationFilter() throws Exception {
         UsernamePasswordBodyAuthenticationFilter authenticationFilter
@@ -149,9 +189,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return authenticationFilter;
     }
 
-    @Bean
-    public JwtHeaderAuthenticationFilter jwtHeaderAuthenticationFilter() throws Exception {
-        return new JwtHeaderAuthenticationFilter(userDetailsService(), jwtProvider);
-    }
+//    @Bean
+//    public JwtHeaderAuthenticationFilter jwtHeaderAuthenticationFilter() throws Exception {
+//        return new JwtHeaderAuthenticationFilter(userDetailsService(), jwtProvider);
+//    }
 
 }

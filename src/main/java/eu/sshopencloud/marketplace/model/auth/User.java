@@ -33,6 +33,16 @@ public class User {
     @Column(nullable = true)
     private UserRole role;
 
+    @Basic
+    @Column
+    private String provider;
+    @Basic
+    @Column
+    private String providerId;
+    @Basic
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     @Basic(fetch = FetchType.EAGER, optional = false)
     private String preferences;
