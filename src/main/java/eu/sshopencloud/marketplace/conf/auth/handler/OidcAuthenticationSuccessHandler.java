@@ -34,24 +34,20 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
             response.addHeader("Authorization", tokenProvider.createToken(authentication));
         } else {
             String targetUrl = determineTargetUrl(request, response, authentication);
-
             if (response.isCommitted()) {
                 logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
                 return;
             }
 
             clearAuthenticationAttributes(request, response);
-            response.addHeader("Authorization", tokenProvider.createToken(authentication));
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }
     }
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-//        String token = tokenProvider.createToken(authentication);
-//        log.debug("Token created for frontend: " + token);
-
+        String token = tokenProvider.createToken(authentication);
         return UriComponentsBuilder.fromUriString(redirectAfterLogin)
-//                .queryParam("token", token)
+                .queryParam("token", token)
                 .build().toUriString();
     }
 
