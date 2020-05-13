@@ -29,6 +29,29 @@ spring:
 
     mvc.:
         throw-exception-if-no-handler-found: true
+    security:
+        oauth2:
+            client:
+                registration:
+                    eosc:
+                        client-id: ${egi_id}
+                        client-secret: ${egi_secret}
+                        authorization-grant-type: authorization_code
+                        scope:
+                            - openid
+                            - profile
+                            - email
+                            - eduperson_scoped_affiliation
+                            - eduperson_entitlement
+                        redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+                        client-name: EOSC
+                provider:
+                    eosc:
+                        token-uri: https://aai-dev.egi.eu/oidc/token
+                        authorization-uri: https://aai-dev.egi.eu/oidc/authorize
+                        user-info-uri: https://aai-dev.egi.eu/oidc/userinfo
+                        jwk-set-uri: https://aai-dev.egi.eu/oidc/jwk
+                        userNameAttribute: sub
 
 springdoc:
     version: '@api.version@'
@@ -45,3 +68,10 @@ marketplace:
     pagination:
         default-perpage: 20
         maximal-perpage: 100
+    security:
+        auth:
+            tokenSecret: ${token_secret}
+            tokenExpirationMsec: 86400
+        oauth2:
+            redirectAfterLogin: http://localhost:3000/oauth2/redirect
+            redirectAfterLogout: http://localhost:3000/

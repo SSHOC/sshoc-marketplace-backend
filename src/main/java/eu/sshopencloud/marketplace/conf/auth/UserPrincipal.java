@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.conf.auth;
 
+import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.model.auth.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,16 +8,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
-public class UserPrincipal /*extends DefaultOidcUser*/ implements UserDetails, OidcUser {
+public class UserPrincipal implements UserDetails, OidcUser {
     private OidcUser oidcUser;
     private Long id;
     private String email;
@@ -26,7 +23,6 @@ public class UserPrincipal /*extends DefaultOidcUser*/ implements UserDetails, O
     private Map<String, Object> attributes;
 
     public UserPrincipal(Long id, String email, String username, String password, OidcUser oidcUser) {
-//        super(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUser.getUserInfo());
         this.oidcUser = oidcUser;
         this.id = id;
         this.email = email;
@@ -44,8 +40,10 @@ public class UserPrincipal /*extends DefaultOidcUser*/ implements UserDetails, O
     }
 
     public static UserPrincipal create(User user) {
-        List<GrantedAuthority> authorities = Collections.
-                singletonList(new SimpleGrantedAuthority(user.getRole().getValue()));
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        for(Authority authority : user.getRole().getAuthorities()) {
+            authorities.add(new SimpleGrantedAuthority(authority.getAuthority()));
+        }
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),

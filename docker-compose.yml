@@ -10,6 +10,9 @@ services:
       - solr
     environment:
       SPRING_ACTIVE_PROFILE: dev
+      egi_id: ${egi_id}
+      egi_secret: ${egi_secret}
+      token_secret: ${token_secret}
 
   psql:
     image: postgres:9.6
