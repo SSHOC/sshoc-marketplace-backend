@@ -20,21 +20,25 @@ public class UserPrincipal /*extends DefaultOidcUser*/ implements UserDetails, O
     private OidcUser oidcUser;
     private Long id;
     private String email;
+    private String username;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
 
-    public UserPrincipal(Long id, String email, String password, OidcUser oidcUser) {
+    public UserPrincipal(Long id, String email, String username, String password, OidcUser oidcUser) {
 //        super(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUser.getUserInfo());
         this.oidcUser = oidcUser;
         this.id = id;
         this.email = email;
+        this.username = username;
         this.password = password;
         this.authorities = oidcUser.getAuthorities();
     }
-    public UserPrincipal(Long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String email, String username, String password,
+                         Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
+        this.username = username;
         this.password = password;
         this.authorities = authorities;
     }
@@ -45,6 +49,7 @@ public class UserPrincipal /*extends DefaultOidcUser*/ implements UserDetails, O
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
+                user.getUsername(),
                 user.getPassword(),
                 authorities
         );
@@ -54,6 +59,7 @@ public class UserPrincipal /*extends DefaultOidcUser*/ implements UserDetails, O
         UserPrincipal userPrincipal = new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
+                user.getUsername(),
                 user.getPassword(),
                 oidcUser
         );
@@ -81,7 +87,7 @@ public class UserPrincipal /*extends DefaultOidcUser*/ implements UserDetails, O
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override
@@ -119,8 +125,8 @@ public class UserPrincipal /*extends DefaultOidcUser*/ implements UserDetails, O
     }
 
     @Override
-    public String getName() { //TODO return 'name' instead?
-        return String.valueOf(email);
+    public String getName() {
+        return String.valueOf(username);
     }
 
     @Override

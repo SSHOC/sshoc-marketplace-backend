@@ -1,12 +1,8 @@
 package eu.sshopencloud.marketplace.conf.auth;
 
-import eu.sshopencloud.marketplace.filters.auth.JwtGenerateAuthenticationSuccessHandler;
-import eu.sshopencloud.marketplace.filters.auth.JwtHeaderAuthenticationFilter;
-import eu.sshopencloud.marketplace.filters.auth.JwtProvider;
 import eu.sshopencloud.marketplace.filters.auth.UsernamePasswordBodyAuthenticationFilter;
 import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.services.auth.CustomUserDetailsService;
-import eu.sshopencloud.marketplace.services.auth.LocalUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +10,6 @@ import eu.sshopencloud.marketplace.conf.auth.filter.TokenAuthenticationFilter;
 import eu.sshopencloud.marketplace.conf.auth.handler.OidcAuthenticationSuccessHandler;
 import eu.sshopencloud.marketplace.services.auth.CustomOidcUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -55,11 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${marketplace.cors.max-age-sec}")
     private Long corsMaxAgeInSec;
 
-//    private final LocalUserDetailsService localUserDetailsService;
     private final CustomUserDetailsService customUserDetailsService;
-
-//    private final JwtProvider jwtProvider;
-
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -137,8 +128,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .failureUrl("/loginFailure");
 
         http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-//        http
-//                .addFilterBefore(jwtHeaderAuthenticationFilter(), UsernamePasswordBodyAuthenticationFilter.class);
     }
 
     @Override
