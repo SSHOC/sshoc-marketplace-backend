@@ -15,9 +15,9 @@ public class OAuth2RegistrationController {
 
     private final OAuth2RegistrationService oAuth2RegistrationService;
 
-    @PutMapping(path = "/sign-up/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserDto> registerOAuth2User(@PathVariable("userId") long userId, @RequestBody OAuthRegistrationData OAuthRegistrationData) {
-        return ResponseEntity.ok(oAuth2RegistrationService.registerOAuth2User(userId, OAuthRegistrationData));
+    @PutMapping(path = "/sign-up", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDto> registerOAuth2User(@RequestBody OAuthRegistrationData oAuthRegistrationData) {
+        return ResponseEntity.ok(oAuth2RegistrationService.registerOAuth2User(oAuthRegistrationData));
     }
 
 }

@@ -24,12 +24,9 @@ public class OAuth2RegistrationService {
     private final OAuth2RegistrationValidator oAuth2RegistrationValidator;
 
 
-    public UserDto registerOAuth2User(Long userId, OAuthRegistrationData OAuthRegistrationData) {
+    public UserDto registerOAuth2User(OAuthRegistrationData oAuthRegistrationData) {
         User loggedInUser = LoggedInUserHolder.getLoggedInUser();
-        if (!loggedInUser.getId().equals(userId)) {
-            throw new AccessDeniedException("The user can only register himself/herself.");
-        }
-        User user = oAuth2RegistrationValidator.validate(OAuthRegistrationData, userId);
+        User user = oAuth2RegistrationValidator.validate(oAuthRegistrationData, loggedInUser.getId());
         user.setEnabled(true);
         user.setRole(UserRole.CONTRIBUTOR);
         user.setRegistrationDate(ZonedDateTime.now());

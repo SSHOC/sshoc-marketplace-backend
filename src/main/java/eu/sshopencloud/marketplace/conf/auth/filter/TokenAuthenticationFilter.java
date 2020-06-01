@@ -35,7 +35,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtTokenProvider.getUsernameFromToken(jwt);
             log.info("Valid Bearer JWT found for username: '" + username + "'");
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-            if (userDetails.isEnabled() || request.getRequestURI().startsWith("/api/oauth/sign-up/")) {
+            if (userDetails.isEnabled() || request.getRequestURI().equals("/api/oauth/sign-up")) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
