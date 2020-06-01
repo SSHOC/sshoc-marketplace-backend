@@ -1,7 +1,9 @@
 package eu.sshopencloud.marketplace.conf.auth;
 
+import eu.sshopencloud.marketplace.conf.auth.handler.OidcAuthenticationFailureHandler;
 import eu.sshopencloud.marketplace.filters.auth.UsernamePasswordBodyAuthenticationFilter;
 import eu.sshopencloud.marketplace.model.auth.Authority;
+import eu.sshopencloud.marketplace.repositories.auth.HttpCookieOAuth2AuthorizationRequestRepository;
 import eu.sshopencloud.marketplace.services.auth.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +24,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -42,10 +47,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private OidcAuthenticationSuccessHandler oidcAuthenticationSuccessHandler;
 
     @Autowired
-    private CustomOidcUserService customOidcUserService;
+    private OidcAuthenticationFailureHandler oidcAuthenticationFailureHandler;
 
-    @Value("${marketplace.security.oauth2.redirectAfterLogout}")
-    private String redirectAfterLogout;
+    @Autowired
+    private CustomOidcUserService customOidcUserService;
 
     @Value("${marketplace.cors.max-age-sec}")
     private Long corsMaxAgeInSec;
@@ -57,11 +62,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .cors().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .csrf().disable().logout()
-                .logoutSuccessUrl(redirectAfterLogout);
+                .csrf().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(new Http403ForbiddenEntryPoint());
         http
                 .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll();
+                .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/oauth/sign-up/**").authenticated();
         http
                 .authorizeRequests()
                 .antMatchers(HttpMethod.PUT, "/api/item-reindex").hasAuthority(Authority.ADMINISTRATOR.name())
@@ -106,26 +113,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/items/*/comments/**").authenticated();
         http
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/")
-                .permitAll()
-                .antMatchers(HttpMethod.GET, "/loginFailure")
-                .permitAll()
                 .antMatchers(HttpMethod.GET, "/login/oauth2/code/eosc/")
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/oauth2/authorize/eosc")
-                .permitAll()
-                .anyRequest()
-                .authenticated();
+                .permitAll();
+
         http
                 .oauth2Login()
                     .authorizationEndpoint()
                     .baseUri("/oauth2/authorize")
+                    .authorizationRequestRepository(authorizationRequestRepository())
                 .and()
                 .userInfoEndpoint()
                     .oidcUserService(customOidcUserService)
                 .and()
                 .successHandler(oidcAuthenticationSuccessHandler)
-                    .failureUrl("/loginFailure");
+                .failureHandler(oidcAuthenticationFailureHandler);
 
         http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
@@ -146,21 +149,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
+    }
+
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
-        configuration.setMaxAge(corsMaxAgeInSec);
-        configuration.setAllowCredentials(true);
+        CorsConfiguration apiConfiguration = new CorsConfiguration();
+        apiConfiguration.setAllowedOrigins(Arrays.asList("*"));
+        apiConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        apiConfiguration.setAllowedHeaders(Arrays.asList("Authorization"));
+        apiConfiguration.setExposedHeaders(Arrays.asList("Authorization"));
+        apiConfiguration.setMaxAge(corsMaxAgeInSec);
+        apiConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/api/**", apiConfiguration);
         return source;
     }
 
     @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+    public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
         return new TokenAuthenticationFilter();
     }
 
@@ -168,6 +176,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return oidcAuthenticationSuccessHandler;
     }
+
     @Bean
     public UsernamePasswordBodyAuthenticationFilter usernamePasswordAuthenticationFilter() throws Exception {
         UsernamePasswordBodyAuthenticationFilter authenticationFilter
@@ -177,10 +186,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         authenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
         return authenticationFilter;
     }
-
-//    @Bean
-//    public JwtHeaderAuthenticationFilter jwtHeaderAuthenticationFilter() throws Exception {
-//        return new JwtHeaderAuthenticationFilter(userDetailsService(), jwtProvider);
-//    }
 
 }

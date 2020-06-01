@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "users")
@@ -21,6 +22,10 @@ public class User {
     private String username;
 
     @Basic
+    @Column
+    private String displayName;
+
+    @Basic
     @Column(nullable = true)
     private String password;
 
@@ -28,17 +33,23 @@ public class User {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean enabled;
 
+    @Basic()
+    @Column(nullable = true)
+    private ZonedDateTime registrationDate;
+
     @Basic
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
     private UserRole role;
 
     @Basic
-    @Column
+    @Column(nullable = true)
     private String provider;
+
     @Basic
-    @Column
-    private String providerId;
+    @Column(nullable = true)
+    private String tokenKey;
+
     @Basic
     @Column(nullable = false, unique = true)
     private String email;

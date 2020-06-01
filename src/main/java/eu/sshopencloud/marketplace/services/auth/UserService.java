@@ -1,8 +1,10 @@
 package eu.sshopencloud.marketplace.services.auth;
 
+import eu.sshopencloud.marketplace.conf.auth.ImplicitGrantTokenProvider;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.PaginatedUsers;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.auth.OAuthRegistrationDto;
 import eu.sshopencloud.marketplace.mappers.auth.UserMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    private final ImplicitGrantTokenProvider implicitGrantTokenProvider;
 
 
     public PaginatedUsers getUsers(String q, PageCoords pageCoords) {
@@ -44,6 +48,12 @@ public class UserService {
     public UserDto getUser(Long id) {
         return UserMapper.INSTANCE.toDto(userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id)));
+    }
+
+    public OAuthRegistrationDto getOAuthRegistration(String token) throws InvalidTokenException {
+        Long userId = implicitGrantTokenProvider.getUserIdFromToken(token);
+        return UserMapper.INSTANCE.toOAuthRegistrationDto(userRepository.findById(userId).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + userId)));
     }
 
 }

@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace;
 
-import eu.sshopencloud.marketplace.conf.auth.AppProperties;
+import eu.sshopencloud.marketplace.conf.auth.SecurityProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,7 +16,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @SpringBootApplication
 @EnableCaching
-@EnableConfigurationProperties(AppProperties.class)
+@EnableConfigurationProperties(SecurityProperties.class)
 public class MarketplaceApplication {
 
     @Bean

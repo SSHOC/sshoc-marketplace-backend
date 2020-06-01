@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -94,6 +95,7 @@ public class InitialDataLoader {
         Map<String, List<Object>> data = YamlLoader.loadYamlData("initial-data/profile/" + profile + "-data.yml");
 
         List<User> users = YamlLoader.getObjects(data, "User");
+        users.forEach(user -> user.setRegistrationDate(ZonedDateTime.now()));
         userRepository.saveAll(users);
         log.debug("Loaded " + users.size() + " User objects");
 

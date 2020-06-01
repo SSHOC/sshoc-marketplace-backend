@@ -3,6 +3,7 @@ User:
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          1
     username:                    Administrator
+    displayName:                 Administrator
     password:                    $2a$10$kPF9JIeRO5BNOutUrZj3c.dn.8NNAKHdO.KO2GvkFkMBDupHx7kZi
     enabled:                     true
     role:                        ADMINISTRATOR
@@ -12,6 +13,7 @@ User:
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          2
     username:                    Moderator
+    displayName:                 Moderator
     password:                    $2a$10$EwnmejL1r/U6Om31yRQpt.76SEpUeYAm3YP/oBHNv8UQ5cjWtAmce
     enabled:                     true
     role:                        MODERATOR
@@ -21,6 +23,7 @@ User:
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          3
     username:                    Contributor
+    displayName:                 Contributor
     password:                    $2a$10$Q1CisccL3No1CjoRokxrG.Q9kWy9uqRpPIwEGTG/zsbsJa1B6Ezju
     enabled:                     true
     role:                        CONTRIBUTOR
@@ -30,6 +33,7 @@ User:
   - !!eu.sshopencloud.marketplace.model.auth.User
     id:                          4
     username:                    System importer
+    displayName:                 System importer
     password:                    $2a$10$Qod4TYLHVIqmaPwIlCXTp.InDzTEM4QBV4AUWc2FNoDom4OjZwChC
     enabled:                     true
     role:                        CONTRIBUTOR

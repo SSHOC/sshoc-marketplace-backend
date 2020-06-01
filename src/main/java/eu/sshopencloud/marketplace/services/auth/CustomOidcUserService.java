@@ -13,11 +13,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -43,14 +45,9 @@ public class CustomOidcUserService extends OidcUserService {
 
     private OidcUser processOidcUser(OidcUserRequest userRequest, OidcUser oidcUser) {
         OAuth2UserInfo oAuth2UserInfo = new OAuth2UserInfo(oidcUser.getAttributes());
-        if(StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
-            throw new OidcAuthenticationProcessingException("Email not found from OAuth2 provider");
-        }
 
-        Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
-        User user;
-        if(userOptional.isPresent()) {
-            user = userOptional.get();
+        User user = userRepository.findByUsername(oAuth2UserInfo.getId());
+        if (user != null) {
             if(!user.getProvider().equals(userRequest.getClientRegistration().getRegistrationId())) {
                 throw new OidcAuthenticationProcessingException("Looks like you're signed up with " +
                         user.getProvider() + " account. Please use your " + user.getProvider() +
@@ -66,19 +63,19 @@ public class CustomOidcUserService extends OidcUserService {
 
     private User registerNewUser(OidcUserRequest userRequest, OAuth2UserInfo oAuth2UserInfo) {
         User user = new User();
-
         user.setProvider(userRequest.getClientRegistration().getRegistrationId());
-        user.setProviderId(oAuth2UserInfo.getId());
-        user.setUsername(oAuth2UserInfo.getName());
+        user.setUsername(oAuth2UserInfo.getId());
+        user.setDisplayName(oAuth2UserInfo.getName());
         user.setEmail(oAuth2UserInfo.getEmail());
+        user.setTokenKey(UUID.randomUUID().toString());
+        user.setEnabled(false);
         user.setPreferences("{}");
 //        user.setImageUrl(oAuth2UserInfo.getImageUrl());
         return userRepository.save(user);
     }
 
     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
-        existingUser.setUsername(oAuth2UserInfo.getName());
-//        existingUser.setImageUrl(oAuth2UserInfo.getImageUrl());
+        existingUser.setTokenKey(UUID.randomUUID().toString());
         return userRepository.save(existingUser);
     }
 

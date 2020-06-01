@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.mappers.auth;
 
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.auth.OAuthRegistrationDto;
 import eu.sshopencloud.marketplace.model.auth.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -15,5 +16,7 @@ public interface UserMapper {
     UserDto toDto(User user);
 
     List<UserDto> toDto(List<User> users);
+
+    OAuthRegistrationDto toOAuthRegistrationDto(User user);
 
 }

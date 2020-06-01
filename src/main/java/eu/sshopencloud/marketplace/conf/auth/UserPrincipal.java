@@ -1,10 +1,8 @@
 package eu.sshopencloud.marketplace.conf.auth;
 
-import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.model.auth.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -14,42 +12,52 @@ import java.util.*;
 
 @Slf4j
 public class UserPrincipal implements UserDetails, OidcUser {
+
     private OidcUser oidcUser;
     private Long id;
     private String email;
     private String username;
     private String password;
+    private boolean enabled;
     private Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
+    private boolean registered;
+    private String tokenKey;
 
-    public UserPrincipal(Long id, String email, String username, String password, OidcUser oidcUser) {
+    public UserPrincipal(Long id, String email, String username, String password, boolean enabled, String tokenKey, boolean registered, OidcUser oidcUser) {
         this.oidcUser = oidcUser;
         this.id = id;
         this.email = email;
         this.username = username;
         this.password = password;
+        this.enabled = enabled;
         this.authorities = oidcUser.getAuthorities();
+        this.registered = registered;
+        this.tokenKey = tokenKey;
     }
-    public UserPrincipal(Long id, String email, String username, String password,
+
+    public UserPrincipal(Long id, String email, String username, String password, boolean enabled, String tokenKey, boolean registered,
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.username = username;
         this.password = password;
+        this.enabled = enabled;
         this.authorities = authorities;
+        this.registered = registered;
+        this.tokenKey = tokenKey;
     }
 
     public static UserPrincipal create(User user) {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        for(Authority authority : user.getRole().getAuthorities()) {
-            authorities.add(new SimpleGrantedAuthority(authority.getAuthority()));
-        }
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
                 user.getUsername(),
                 user.getPassword(),
-                authorities
+                user.isEnabled(),
+                user.getTokenKey(),
+                user.getRegistrationDate() != null,
+                user.getRole() != null ? user.getRole().getAuthorities() : Collections.emptyList()
         );
     }
 
@@ -59,16 +67,15 @@ public class UserPrincipal implements UserDetails, OidcUser {
                 user.getEmail(),
                 user.getUsername(),
                 user.getPassword(),
+                user.isEnabled(),
+                user.getTokenKey(),
+                user.getRegistrationDate() != null,
                 oidcUser
         );
         userPrincipal.setAttributes(oidcUser.getAttributes());
         return userPrincipal;
     }
-    public static UserPrincipal create(User user, Map<String, Object> attributes) {
-        UserPrincipal userPrincipal = UserPrincipal.create(user);
-        userPrincipal.setAttributes(attributes);
-        return userPrincipal;
-    }
+
 
     public Long getId() {
         return id;
@@ -105,7 +112,15 @@ public class UserPrincipal implements UserDetails, OidcUser {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
+    }
+
+    public String getTokenKey() {
+        return tokenKey;
+    }
+
+    public boolean isRegistered() {
+        return registered;
     }
 
     @Override

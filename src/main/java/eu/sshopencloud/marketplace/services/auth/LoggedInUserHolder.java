@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.auth;
 
+import eu.sshopencloud.marketplace.conf.auth.UserPrincipal;
 import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
@@ -9,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collection;
+import java.util.Collections;
 
 
 @UtilityClass
@@ -21,7 +23,10 @@ public class LoggedInUserHolder {
             return null;
         } else {
             User user = new User();
-            user.setUsername(authentication.getName());
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            user.setId(userPrincipal.getId());
+            user.setUsername(userPrincipal.getUsername());
+            user.setEnabled(userPrincipal.isEnabled());
             user.setRole(findRoleByAuthorities((Collection<Authority>) authentication.getAuthorities()));
             return user;
         }
@@ -37,7 +42,7 @@ public class LoggedInUserHolder {
         if (authorities.contains(Authority.CONTRIBUTOR)) {
             return UserRole.CONTRIBUTOR;
         }
-        throw new IllegalArgumentException("Unknown authority");
+        return null;
     }
 
 }
