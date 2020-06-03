@@ -162,4 +162,5 @@ public class UserPrincipal implements UserDetails, OidcUser {
             return oidcUser.getIdToken();
         return null;
     }
+
 }

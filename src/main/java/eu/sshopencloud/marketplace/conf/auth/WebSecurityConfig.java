@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.conf.auth;
 
-import eu.sshopencloud.marketplace.conf.auth.handler.OidcAuthenticationFailureHandler;
+import eu.sshopencloud.marketplace.filters.auth.OidcAuthenticationFailureHandler;
 import eu.sshopencloud.marketplace.filters.auth.UsernamePasswordBodyAuthenticationFilter;
 import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.repositories.auth.HttpCookieOAuth2AuthorizationRequestRepository;
@@ -8,10 +8,9 @@ import eu.sshopencloud.marketplace.services.auth.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import eu.sshopencloud.marketplace.conf.auth.filter.TokenAuthenticationFilter;
-import eu.sshopencloud.marketplace.conf.auth.handler.OidcAuthenticationSuccessHandler;
+import eu.sshopencloud.marketplace.filters.auth.JwtTokenAuthenticationFilter;
+import eu.sshopencloud.marketplace.filters.auth.OidcAuthenticationSuccessHandler;
 import eu.sshopencloud.marketplace.services.auth.CustomOidcUserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -43,19 +42,19 @@ import java.util.Arrays;
 @Slf4j
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private OidcAuthenticationSuccessHandler oidcAuthenticationSuccessHandler;
+    private final OidcAuthenticationSuccessHandler oidcAuthenticationSuccessHandler;
 
-    @Autowired
-    private OidcAuthenticationFailureHandler oidcAuthenticationFailureHandler;
+    private final OidcAuthenticationFailureHandler oidcAuthenticationFailureHandler;
 
-    @Autowired
-    private CustomOidcUserService customOidcUserService;
+    private final CustomOidcUserService customOidcUserService;
+
+    private final CustomUserDetailsService customUserDetailsService;
+
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${marketplace.cors.max-age-sec}")
     private Long corsMaxAgeInSec;
 
-    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -130,7 +129,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .successHandler(oidcAuthenticationSuccessHandler)
                 .failureHandler(oidcAuthenticationFailureHandler);
 
-        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtTokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override
@@ -168,8 +167,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
-        return new TokenAuthenticationFilter();
+    public JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter() {
+        return new JwtTokenAuthenticationFilter(jwtTokenProvider, customUserDetailsService);
     }
 
     @Bean

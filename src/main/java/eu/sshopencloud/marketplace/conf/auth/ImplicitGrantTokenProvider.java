@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.conf.auth;
 import eu.sshopencloud.marketplace.services.auth.InvalidTokenException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.codec.Hex;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -11,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
 
-@Service
+@Component
 @Slf4j
 public class ImplicitGrantTokenProvider {
 

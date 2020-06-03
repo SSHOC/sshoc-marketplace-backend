@@ -27,7 +27,7 @@ public class User {
     private String username;
 
     @Basic
-    @Column
+    @Column(nullable = false) // (nullable = true)
     private String displayName;
 
     @Basic
@@ -56,7 +56,7 @@ public class User {
     private String tokenKey;
 
     @Basic
-    @Column(nullable = false, unique = true)
+    @Column  // (nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, columnDefinition = "TEXT")

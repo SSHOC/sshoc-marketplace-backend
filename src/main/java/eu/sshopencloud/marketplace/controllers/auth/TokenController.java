@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.auth;
 
-import eu.sshopencloud.marketplace.dto.auth.ImplicitGrantToken;
+import eu.sshopencloud.marketplace.dto.auth.ImplicitGrantTokenData;
 import eu.sshopencloud.marketplace.dto.auth.OAuthRegistrationDto;
 import eu.sshopencloud.marketplace.services.auth.InvalidTokenException;
 import eu.sshopencloud.marketplace.services.auth.TokenService;
@@ -20,10 +20,10 @@ public class TokenController {
     private final UserService userService;
 
     @PutMapping(path = "/token", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OAuthRegistrationDto> validateImplicitGrantToken(@RequestBody ImplicitGrantToken implicitGrantToken) throws InvalidTokenException {
-        String jwtToken = tokenService.validateImplicitGrantToken(implicitGrantToken.getToken());
-        if (implicitGrantToken.isRegistration()) {
-            return ResponseEntity.ok().header("Authorization", jwtToken).body(userService.getOAuthRegistration(implicitGrantToken.getToken()));
+    public ResponseEntity<OAuthRegistrationDto> validateImplicitGrantToken(@RequestBody ImplicitGrantTokenData implicitGrantTokenData) throws InvalidTokenException {
+        String jwtToken = tokenService.validateImplicitGrantToken(implicitGrantTokenData.getToken());
+        if (implicitGrantTokenData.isRegistration()) {
+            return ResponseEntity.ok().header("Authorization", jwtToken).body(userService.getOAuthRegistration(implicitGrantTokenData.getToken()));
         } else {
             return ResponseEntity.ok().header("Authorization", jwtToken).build();
         }

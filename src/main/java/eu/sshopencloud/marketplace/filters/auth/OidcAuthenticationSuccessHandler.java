@@ -1,12 +1,11 @@
-package eu.sshopencloud.marketplace.conf.auth.handler;
+package eu.sshopencloud.marketplace.filters.auth;
 
 import eu.sshopencloud.marketplace.conf.auth.ImplicitGrantTokenProvider;
 import eu.sshopencloud.marketplace.conf.auth.JwtTokenProvider;
 import eu.sshopencloud.marketplace.conf.auth.UserPrincipal;
-import eu.sshopencloud.marketplace.filters.auth.CookieUtils;
 import eu.sshopencloud.marketplace.repositories.auth.OAuth2AuthorizationRequestParams;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -17,29 +16,28 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private JwtTokenProvider jwtTokenProvider;
-    private ImplicitGrantTokenProvider implicitGrantTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    OidcAuthenticationSuccessHandler(JwtTokenProvider jwtTokenProvider, ImplicitGrantTokenProvider implicitGrantTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.implicitGrantTokenProvider = implicitGrantTokenProvider;
-    }
+    private final ImplicitGrantTokenProvider implicitGrantTokenProvider;
 
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-        if (userPrincipal.getIdToken() == null) { //If it is directly with username/pwd
+        if (userPrincipal.getIdToken() == null) {
+            // authentication with local username and password
             response.addHeader("Authorization", jwtTokenProvider.createToken(authentication));
         } else {
-            String targetUrl = determineTargetUrl(request, response, userPrincipal);
+            log.debug("Success OAuth2 authentication for '" + userPrincipal.getUsername() + "'");
+            String targetUrl = determineTargetUrl(request, userPrincipal);
+
             if (response.isCommitted()) {
-                logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+                logger.error("Response has already been committed. Unable to redirect to " + targetUrl);
                 return;
             }
 
@@ -50,8 +48,8 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
     }
 
 
-    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, UserPrincipal userPrincipal) {
-        String targetUrl = null;
+    protected String determineTargetUrl(HttpServletRequest request, UserPrincipal userPrincipal) {
+        String targetUrl;
         if (userPrincipal.isRegistered()) {
             targetUrl = CookieUtils.getCookie(request, OAuth2AuthorizationRequestParams.SUCCESS_REDIRECT_URL)
                     .orElseThrow(() -> new IllegalArgumentException("Request param " + OAuth2AuthorizationRequestParams.SUCCESS_REDIRECT_URL + " is required and cannot be empty")).getValue();

@@ -1,9 +1,9 @@
-package eu.sshopencloud.marketplace.conf.auth.filter;
+package eu.sshopencloud.marketplace.filters.auth;
 
 import eu.sshopencloud.marketplace.conf.auth.JwtTokenProvider;
 import eu.sshopencloud.marketplace.services.auth.CustomUserDetailsService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,14 +17,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @Slf4j
-public class TokenAuthenticationFilter extends OncePerRequestFilter {
+public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
 
     @Override
@@ -35,7 +34,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtTokenProvider.getUsernameFromToken(jwt);
             log.info("Valid Bearer JWT found for username: '" + username + "'");
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-            if (userDetails.isEnabled() || request.getRequestURI().equals("/api/oauth/sign-up")) {
+            if (userDetails.isEnabled() || request.getRequestURI().equals("/api/oauth/sign-up")) { // after first login via Idp user is disabled, but they need to register by /api/oauth/sign-up
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

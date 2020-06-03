@@ -2,37 +2,30 @@ package eu.sshopencloud.marketplace.services.auth;
 
 import eu.sshopencloud.marketplace.conf.auth.OAuth2UserInfo;
 import eu.sshopencloud.marketplace.conf.auth.UserPrincipal;
-import eu.sshopencloud.marketplace.conf.auth.exception.OidcAuthenticationProcessingException;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Slf4j
+@Transactional
+@RequiredArgsConstructor
 public class CustomOidcUserService extends OidcUserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
         OidcUser oidcUser = super.loadUser(userRequest);
-        log.debug("Load user: " + oidcUser.toString());
-
         try {
             return processOidcUser(userRequest, oidcUser);
         } catch (AuthenticationException ex) {
@@ -43,15 +36,14 @@ public class CustomOidcUserService extends OidcUserService {
         }
     }
 
-    private OidcUser processOidcUser(OidcUserRequest userRequest, OidcUser oidcUser) {
+    private OidcUser processOidcUser(OidcUserRequest userRequest, OidcUser oidcUser) throws OidcAuthenticationProcessingException {
         OAuth2UserInfo oAuth2UserInfo = new OAuth2UserInfo(oidcUser.getAttributes());
 
         User user = userRepository.findByUsername(oAuth2UserInfo.getId());
         if (user != null) {
             if(!user.getProvider().equals(userRequest.getClientRegistration().getRegistrationId())) {
-                throw new OidcAuthenticationProcessingException("Looks like you're signed up with " +
-                        user.getProvider() + " account. Please use your " + user.getProvider() +
-                        " account to login.");
+                throw new OidcAuthenticationProcessingException("error.otherProvider." +  user.getProvider(),
+                        "Looks like you're signed up with " + user.getProvider() + " account. Please use your " + user.getProvider() + " account to login.");
             }
             user = updateExistingUser(user, oAuth2UserInfo);
         } else {
