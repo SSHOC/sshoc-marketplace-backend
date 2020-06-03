@@ -27,7 +27,7 @@ public class User {
     private String username;
 
     @Basic
-    @Column(nullable = false) // (nullable = true)
+    @Column(nullable = true) // (nullable = false)
     private String displayName;
 
     @Basic
