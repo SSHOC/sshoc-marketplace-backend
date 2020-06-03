@@ -16,6 +16,11 @@ services:
       POSTGRES_PORT: 5432
       SOLR_HOST: solr
       SOLR_PORT: 8983
+      egi_id: add_egi_id
+      egi_secret: add_egi_secret
+      token_secret: add_token_secret
+      recaptcha_site_key: add_recaptcha_site_key
+      recaptcha_secret_key: add_recaptcha_secret_key
     labels:
       - traefik.backend=marketplace-api
       - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
