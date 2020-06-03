@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.model.sources;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -15,7 +16,10 @@ public class Source {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "source_generator")
-    @SequenceGenerator(name = "item_generator", sequenceName = "items_id_seq", allocationSize = 50)
+    @GenericGenerator(name = "source_generator", strategy = "eu.sshopencloud.marketplace.conf.jpa.KnownIdOrSequenceStyleGenerator", parameters = {
+            @org.hibernate.annotations.Parameter(name = "sequence_name", value = "sources_id_seq"),
+            @org.hibernate.annotations.Parameter(name = "increment_size", value = "50"),
+    })
     private Long id;
 
     @Basic

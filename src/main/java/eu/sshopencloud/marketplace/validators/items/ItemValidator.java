@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.validators.items;
 import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.validators.licenses.LicenseValidator;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.validators.sources.SourceValidator;
@@ -97,6 +98,12 @@ public class ItemValidator {
 
         if (item.getSource() == null && StringUtils.isNotBlank(itemCore.getSourceItemId())) {
             errors.rejectValue("source", "field.requiredInCase", "Source is required if Source item id is provided.");
+        }
+
+        if (itemCore.getStatus() == null) {
+            item.setStatus(ItemStatus.INGESTED);
+        } else {
+            item.setStatus(itemCore.getStatus());
         }
 
         return item;

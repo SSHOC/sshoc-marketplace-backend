@@ -138,6 +138,7 @@ Tool:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          social network analysis
+    status:                      INGESTED
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Gephi also appears in Project Bamboo's DiRT, a registry of digital tools suitable for academic research. DiRT contains a wide range of tools and software searchable by task, such as annotation, content management, collaborative research, or authoring. It is an excellent resource for Digital Humanists seeking the right tool for the task at hand.
@@ -197,6 +198,7 @@ Tool:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          topic modeling
+    status:                      INGESTED
 
   - !!eu.sshopencloud.marketplace.model.tools.Tool
     category:                    TOOL
@@ -237,6 +239,7 @@ Tool:
     source:
       !!eu.sshopencloud.marketplace.model.sources.Source
       id:                          1
+    status:                      INGESTED
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Texts similarity analysis
@@ -307,6 +310,7 @@ TrainingMaterial:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iso-639-3
+    status:                      INGESTED
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Lorem ipsum ...
@@ -365,7 +369,7 @@ TrainingMaterial:
     source:
       !!eu.sshopencloud.marketplace.model.sources.Source
       id:                          2
-
+    status:                      DEPRECATED
 
   - !!eu.sshopencloud.marketplace.model.trainings.TrainingMaterial
     category:                    TRAINING_MATERIAL
@@ -418,6 +422,7 @@ TrainingMaterial:
     source:
       !!eu.sshopencloud.marketplace.model.sources.Source
       id:                          2
+    status:                      DEPRECATED
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Is there a newer version available?
@@ -479,6 +484,7 @@ TrainingMaterial:
     source:
       !!eu.sshopencloud.marketplace.model.sources.Source
       id:                          2
+    status:                      INGESTED
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Thanks for sharing this - very useful!
@@ -543,6 +549,7 @@ TrainingMaterial:
     source:
       !!eu.sshopencloud.marketplace.model.sources.Source
       id:                          2
+    status:                      INGESTED
 
 
 Dataset:
@@ -591,6 +598,7 @@ Dataset:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iso-639-3
+    status:                      INGESTED
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Lorem ipsum ...
@@ -635,6 +643,7 @@ Dataset:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           nemo-activity-type
+    status:                      INGESTED
 
   - !!eu.sshopencloud.marketplace.model.datasets.Dataset
     category:                    DATASET
@@ -661,6 +670,7 @@ Dataset:
           !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
           code:                           keyword
         value:                          topic modeling
+    status:                      INGESTED
 
 
 Workflow:
@@ -708,6 +718,7 @@ Workflow:
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           iso-639-3
+    status:                      INGESTED
     comments:
       - !!eu.sshopencloud.marketplace.model.items.ItemComment
         body:                         Lorem ipsum ...
@@ -758,6 +769,7 @@ Workflow:
               vocabulary:
                 !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
                 code:                           iso-639-3
+        status:                      INGESTED
       - !!eu.sshopencloud.marketplace.model.workflows.Step
         category:                    STEP
         label:                       "Creation of a corpora"
@@ -794,6 +806,7 @@ Workflow:
               vocabulary:
                 !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
                 code:                           iso-639-3
+        status:                      INGESTED
         substeps:
           - !!eu.sshopencloud.marketplace.model.workflows.Step
             category:                    STEP
@@ -826,6 +839,7 @@ Workflow:
                   !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
                   code:                           keyword
                 value:                          corpus
+            status:                      INGESTED
           - !!eu.sshopencloud.marketplace.model.workflows.Step
             category:                    STEP
             label:                       "Linguistic annotation"
@@ -857,6 +871,7 @@ Workflow:
                   !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
                   code:                           keyword
                 value:                          linguistic markup
+            status:                      INGESTED
           - !!eu.sshopencloud.marketplace.model.workflows.Step
             category:                    STEP
             label:                       "Selection of a license"
@@ -883,6 +898,7 @@ Workflow:
                   vocabulary:
                     !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
                     code:                           object-type
+            status:                      INGESTED
           - !!eu.sshopencloud.marketplace.model.workflows.Step
             category:                    STEP
             label:                       "Publishing"
@@ -909,6 +925,7 @@ Workflow:
                   vocabulary:
                     !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
                     code:                           object-type
+            status:                      INGESTED
       - !!eu.sshopencloud.marketplace.model.workflows.Step
         category:                    STEP
         label:                       "Write a dictionary"
@@ -935,6 +952,7 @@ Workflow:
               vocabulary:
                 !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
                 code:                           object-type
+        status:                      INGESTED
       - !!eu.sshopencloud.marketplace.model.workflows.Step
         category:                    STEP
         label:                       "Publishing"
@@ -961,6 +979,7 @@ Workflow:
               vocabulary:
                 !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
                 code:                           object-type
+        status:                      INGESTED
 
   - !!eu.sshopencloud.marketplace.model.workflows.Workflow
     category:                    WORKFLOW
@@ -979,6 +998,7 @@ Workflow:
           code:                           workflow
           vocabulary:
             code:                           object-type
+    status:                      INGESTED
     steps:
       - !!eu.sshopencloud.marketplace.model.workflows.Step
         category:                    STEP
@@ -1006,6 +1026,7 @@ Workflow:
               vocabulary:
                 !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
                 code:                           object-type
+        status:                      INGESTED
       - !!eu.sshopencloud.marketplace.model.workflows.Step
         category:                    STEP
         label:                       "Run an inflectional analyzer"
@@ -1032,6 +1053,7 @@ Workflow:
               vocabulary:
                 !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
                 code:                           object-type
+        status:                      INGESTED
       - !!eu.sshopencloud.marketplace.model.workflows.Step
         category:                    STEP
         label:                       "Interpret results"
@@ -1058,6 +1080,7 @@ Workflow:
               vocabulary:
                 !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
                 code:                           object-type
+        status:                      INGESTED
 
 
 ItemRelatedItem:

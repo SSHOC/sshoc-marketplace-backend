@@ -2,6 +2,8 @@ package eu.sshopencloud.marketplace.model.auth;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -14,7 +16,10 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
-    @SequenceGenerator(name = "user_generator", sequenceName = "users_id_seq", allocationSize = 50)
+    @GenericGenerator(name = "user_generator", strategy = "eu.sshopencloud.marketplace.conf.jpa.KnownIdOrSequenceStyleGenerator", parameters = {
+            @Parameter(name = "sequence_name", value = "users_id_seq"),
+            @Parameter(name = "increment_size", value = "50"),
+    })
     private Long id;
 
     @Basic
@@ -59,3 +64,4 @@ public class User {
     private String preferences;
 
 }
+

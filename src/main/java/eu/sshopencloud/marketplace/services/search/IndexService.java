@@ -1,16 +1,11 @@
 package eu.sshopencloud.marketplace.services.search;
 
-import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
-import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
-import eu.sshopencloud.marketplace.model.workflows.Step;
-import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import eu.sshopencloud.marketplace.repositories.datasets.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
@@ -82,16 +77,6 @@ public class IndexService {
 
 
     public void reindexItems() {
-        itemRepository.deleteAllActivityInfoContributorsOrphans();
-        itemRepository.deleteAllActivityCommentsOrphans();
-        itemRepository.deleteAllActivityLicensesOrphans();
-        itemRepository.deleteAllActivityPropertiesOrphans();
-        itemRepository.deleteAllActivityContributorsOrphans();
-
-        itemRepository.deleteAllActivityActivitiesOrphans();
-
-        itemRepository.deleteAllActivityOrphans();
-
         clearItemIndex();
         for (Item item : itemRepository.findAll()) {
             indexItem(item);

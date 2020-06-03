@@ -22,4 +22,9 @@ public class PropertyType {
     @Column(nullable = false)
     private String label;
 
+    @Basic
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PropertyTypeClass type;
+
 }
