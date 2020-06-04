@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyTypeMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
@@ -26,13 +27,14 @@ public class PropertyTypeService {
 
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
 
-    public List<PropertyTypeDto> getPropertyTypes(String q, int page, int perpage) {
+    public List<PropertyTypeDto> getPropertyTypes(String q, PageCoords pageCoords) {
         ExampleMatcher queryPropertyTypeMatcher = ExampleMatcher.matchingAny()
                 .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
         PropertyType queryPropertyType = new PropertyType();
         queryPropertyType.setLabel(q);
 
-        Page<PropertyType> propertyTypesPage = propertyTypeRepository.findAll(Example.of(queryPropertyType, queryPropertyTypeMatcher), PageRequest.of(page - 1, perpage, Sort.by(Sort.Order.asc("ord"))));
+        Page<PropertyType> propertyTypesPage = propertyTypeRepository.findAll(Example.of(queryPropertyType, queryPropertyTypeMatcher),
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("ord"))));
         List<PropertyTypeDto> propertyTypes = PropertyTypeMapper.INSTANCE.toDto(propertyTypesPage.getContent());
 
         for (PropertyTypeDto propertyType: propertyTypes) {
