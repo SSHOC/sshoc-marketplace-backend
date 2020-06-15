@@ -96,6 +96,12 @@ PropertyType:
     label:                       Cover Image
     type:                        URL
 
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        media
+    ord:                         17
+    label:                       Media
+    type:                        URL
+
 PropertyTypeVocabulary:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
