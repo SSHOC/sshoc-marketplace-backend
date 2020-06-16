@@ -1,12 +1,12 @@
 version: "2"
 services:
-  marketplace:
-    build: .   
-    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api
-    container_name: sshoc-marketplace-backend-api
+  marketplace-prod:
+    build: .
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-prod
+    container_name: sshoc-marketplace-backend-api-prod
     depends_on:
-      - psql
-      - solr    
+      - psql-prod
+      - solr-prod
     environment:
       SPRING_ACTIVE_PROFILE: prod
       POSTGRES_DB: marketplace_db
@@ -22,16 +22,16 @@ services:
       recaptcha_site_key: add_recaptcha_site_key
       recaptcha_secret_key: add_recaptcha_secret_key
     labels:
-      - traefik.backend=marketplace-api
-      - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
+      - traefik.backend=marketplace-api-prod
+      - traefik.frontend.rule=Host:marketplace-api-prod.sisyphos.arz.oeaw.ac.at
       - traefik.docker.network=web
       - traefik.port=8080
     networks:
       - backend
       - web
-  psql:
+  psql-prod:
     image: postgres:9.6
-    container_name: sshoc-marketplace-backend-postgres
+    container_name: sshoc-marketplace-backend-postgres-prod
     volumes:
       - psql-data:/var/lib/postgresql/data
       
@@ -43,16 +43,15 @@ services:
 
     networks:
       - backend
-      
-  solr:
+  solr-prod:
     build: etc/solr
-    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr
-    container_name: sshoc-marketplace-backend-solr
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr-prod
+    container_name: sshoc-marketplace-backend-solr-prod
     volumes:
       - solr-data:/var/solr
     labels:
-        - traefik.backend=solr
-        - traefik.frontend.rule=Host:marketplace-solr.sisyphos.arz.oeaw.ac.at
+        - traefik.backend=solr-prod
+        - traefik.frontend.rule=Host:marketplace-solr-prod.sisyphos.arz.oeaw.ac.at
         - traefik.docker.network=web
         - traefik.port=8983
     networks:
@@ -71,11 +70,11 @@ volumes:
     driver: local
     driver_opts:
       type: "none"
-      device: "/home/sshocmp/shares/psql-data"
+      device: "/home/sshocmarketplacecuration/shares/psql-data"
       o: "bind"
   solr-data:
     driver: local
     driver_opts:
       type: "none"
-      device: "/home/sshocmp/shares/solr-data"
+      device: "/home/sshocmarketplacecuration/shares/solr-data"
       o: "bind"
