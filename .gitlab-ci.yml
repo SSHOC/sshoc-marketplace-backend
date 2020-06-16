@@ -19,11 +19,23 @@ build:
     - sshoc-backend
   extends: .docker
   script: 
-    - echo "Building the app"
+    - echo "Building the app (dev)"
     - docker-compose -f docker-compose-acdh.yml build 
     - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
     - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr:latest
   only:
   - develop
 
-   
+build-prod:
+  stage: build
+  tags:
+    - sshoc-backend
+  extends: .docker
+  script:
+    - echo "Building the app (prod)"
+    - docker-compose -f docker-compose-acdh.yml build
+    - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-prod:latest
+    - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr-prod:latest
+  only:
+    - master
+
