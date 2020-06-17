@@ -4,6 +4,8 @@ services:
     build: .
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
     container_name: sshoc-marketplace-backend-api
+    ports:
+      - 8080:8080
     depends_on:
       - psql
       - solr
@@ -32,6 +34,8 @@ services:
   psql:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres
+    ports:
+      - 5432:5432
     volumes:
       - psql-data:/var/lib/postgresql/data
     environment:
@@ -45,6 +49,8 @@ services:
     build: etc/solr
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr
     container_name: sshoc-marketplace-backend-solr
+    ports:
+      - 8983:8983
     volumes:
       - solr-data:/var/solr
     labels:
