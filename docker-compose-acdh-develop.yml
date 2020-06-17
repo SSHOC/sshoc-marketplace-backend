@@ -1,0 +1,76 @@
+version: "2"
+services:
+  marketplace:
+    build: .
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
+    container_name: sshoc-marketplace-backend-api
+    depends_on:
+      - psql
+      - solr
+    environment:
+      SPRING_ACTIVE_PROFILE: prod
+      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+      POSTGRES_HOST: psql
+      POSTGRES_PORT: 5432
+      SOLR_HOST: solr
+      SOLR_PORT: 8983
+      egi_id: ${egi_id}
+      egi_secret: ${egi_secret}
+      token_secret: ${token_secret}
+      recaptcha_site_key: ${recaptcha_site_key}
+      recaptcha_secret_key: ${recaptcha_secret_key}
+    labels:
+      - traefik.backend=marketplace-api
+      - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
+      - traefik.docker.network=web
+      - traefik.port=8080
+    networks:
+      - backend
+      - web
+  psql:
+    image: postgres:9.6
+    container_name: sshoc-marketplace-backend-postgres
+    volumes:
+      - psql-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+      POSTGRES_HOST: psql
+    networks:
+      - backend
+  solr:
+    build: etc/solr
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr
+    container_name: sshoc-marketplace-backend-solr
+    volumes:
+      - solr-data:/var/solr
+    labels:
+      - traefik.backend=solr
+      - traefik.frontend.rule=Host:marketplace-solr.sisyphos.arz.oeaw.ac.at
+      - traefik.docker.network=web
+      - traefik.port=8983
+    networks:
+      - backend
+      - web
+networks:
+  backend:
+    driver: bridge
+  web:
+    external:
+      name: web
+volumes:
+  psql-data:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmp/shares/psql-data"
+      o: "bind"
+  solr-data:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmp/shares/solr-data"
+      o: "bind"
