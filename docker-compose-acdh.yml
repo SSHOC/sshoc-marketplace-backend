@@ -1,9 +1,11 @@
-version: "2"
+version: "3"
 services:
   marketplace-prod:
     build: .
-    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-prod
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-prod:latest
     container_name: sshoc-marketplace-backend-api-prod
+    ports:
+      - 8080:8080
     depends_on:
       - psql-prod
       - solr-prod
@@ -12,7 +14,7 @@ services:
       POSTGRES_DB: marketplace_db
       POSTGRES_USER: marketplace
       POSTGRES_PASSWORD: marketplace
-      POSTGRES_HOST: psql
+      POSTGRES_HOST: psql-prod
       POSTGRES_PORT: 5432
       SOLR_HOST: solr
       SOLR_PORT: 8983
@@ -32,39 +34,39 @@ services:
   psql-prod:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres-prod
+    ports:
+      - 5432:5432
     volumes:
       - psql-data:/var/lib/postgresql/data
-      
     environment:
       POSTGRES_DB: marketplace_db
       POSTGRES_USER: marketplace
       POSTGRES_PASSWORD: marketplace
-      POSTGRES_HOST: psql
-
+      POSTGRES_HOST: psql-prod
     networks:
       - backend
   solr-prod:
     build: etc/solr
-    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr-prod
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr-prod:latest
     container_name: sshoc-marketplace-backend-solr-prod
+    ports:
+      - 8983:8983
     volumes:
       - solr-data:/var/solr
     labels:
-        - traefik.backend=solr-prod
-        - traefik.frontend.rule=Host:marketplace-solr-prod.sisyphos.arz.oeaw.ac.at
-        - traefik.docker.network=web
-        - traefik.port=8983
+      - traefik.backend=solr-prod
+      - traefik.frontend.rule=Host:marketplace-solr-prod.sisyphos.arz.oeaw.ac.at
+      - traefik.docker.network=web
+      - traefik.port=8983
     networks:
       - backend
       - web
-
 networks:
   backend:
     driver: bridge
   web:
     external:
       name: web
-
 volumes:
   psql-data:
     driver: local
