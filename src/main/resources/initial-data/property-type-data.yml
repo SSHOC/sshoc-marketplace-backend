@@ -102,6 +102,12 @@ PropertyType:
     label:                       Media
     type:                        URL
 
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        see-also
+    ord:                         18
+    label:                       See also
+    type:                        URL
+
 PropertyTypeVocabulary:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
