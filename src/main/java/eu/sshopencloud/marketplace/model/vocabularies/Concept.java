@@ -38,7 +38,7 @@ public class Concept {
     private String definition;
 
     @Basic
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 2048)
     private String uri;
 
 }

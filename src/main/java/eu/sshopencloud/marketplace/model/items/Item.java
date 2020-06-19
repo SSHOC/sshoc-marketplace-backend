@@ -60,7 +60,7 @@ public abstract class Item {
     private List<Property> properties;
 
     @Basic
-    @Column(nullable = true)
+    @Column(nullable = true, length = 2048)
     private String accessibleAt;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })

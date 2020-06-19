@@ -27,7 +27,7 @@ public class Property {
     private PropertyType type;
 
     @Basic
-    @Column(nullable = true)
+    @Column(nullable = true, length = 2048)
     private String value;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })

@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class Tool extends Item {
 
     @Basic
-    @Column(nullable = true)
+    @Column(nullable = true, length = 2048)
     private String repository;
 
 }
