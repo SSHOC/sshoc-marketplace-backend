@@ -124,7 +124,7 @@ Tool:
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           Capture
+          code:                           7
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           tadirah-activity
@@ -184,7 +184,7 @@ Tool:
           code:                           activity
         concept:
           !!eu.sshopencloud.marketplace.model.vocabularies.Concept
-          code:                           Analysis
+          code:                           25
           vocabulary:
             !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
             code:                           tadirah-activity
