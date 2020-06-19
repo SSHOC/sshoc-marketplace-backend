@@ -16,7 +16,7 @@ services:
       POSTGRES_PASSWORD: marketplace
       POSTGRES_HOST: psql-prod
       POSTGRES_PORT: 5432
-      SOLR_HOST: solr
+      SOLR_HOST: solr-prod
       SOLR_PORT: 8983
       egi_id: ${egi_id}
       egi_secret: ${egi_secret}
