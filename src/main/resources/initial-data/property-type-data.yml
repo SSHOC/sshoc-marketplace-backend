@@ -117,6 +117,14 @@ PropertyTypeVocabulary:
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyType:
       !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code:                        language
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code:                        iso-639-3-v2
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
       code:                        activity
     vocabulary:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
