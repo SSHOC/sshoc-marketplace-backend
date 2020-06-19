@@ -10,6 +10,7 @@
 @prefix tadirah-activities: <https://sshoc.poolparty.biz/Vocabularies/tadirah-activities/> .
 
 tadirah-activities:
+  a skos:ConceptScheme ;
   dc:contributor "Luise Borek, Quinn Dombrowski, Jody Perkins, Christof Schöch" ;
   dc:creator "TaDiRAH" ;
   dc:date "2014-07-18" ;
@@ -19,6 +20,7 @@ tadirah-activities:
   dc:rights "CC-BY" ;
   dc:subject "Taxonomy, DH, Digital Humanities" ;
   dc:title "TaDiRAH - Taxonomy of Digital Research Activities in the Humanities" ;
+  rdfs:label "TaDiRAH - Taxonomy of Digital Research Activities in the Humanities"@en ;
   dcterms:modified "2014-09-18 14:39:42" ;
   dcterms:title "TaDiRAH"@en ;
   csw:hierarchyRoot true ;
