@@ -96,7 +96,7 @@ public class ActorValidator {
             return null;
         }
         Optional<Actor> actorHolder = actorRepository.findById(actorId.getId());
-        if (!actorHolder.isPresent()) {
+        if (actorHolder.isEmpty()) {
             errors.rejectValue("id", "field.notExist", "Actor does not exist.");
             return null;
         } else {

@@ -58,6 +58,7 @@ public class StepService {
         itemService.addInformationContributorToItem(step, LoggedInUserHolder.getLoggedInUser());
 
         Item nextVersion = itemService.clearVersionForCreate(step);
+        step = stepRepository.save(step);
 
         int size = 0;
         List<Step> steps = new ArrayList();
@@ -85,10 +86,8 @@ public class StepService {
 
         itemService.addInformationContributorToItem(substep, LoggedInUserHolder.getLoggedInUser());
 
-        Workflow workflow = workflowRepository.getOne(workflowId);
-        substep.setWorkflow(workflow);
-
         Item nextVersion = itemService.clearVersionForCreate(substep);
+        substep = stepRepository.save(substep);
 
         int size = 0;
         List<Step> substeps = new ArrayList();

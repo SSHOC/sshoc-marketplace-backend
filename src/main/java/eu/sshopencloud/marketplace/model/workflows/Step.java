@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "steps")
 @Data
-@ToString(exclude = {"workflow", "step"})
+@ToString(callSuper = true, exclude = {"workflow", "step"})
 @EqualsAndHashCode(callSuper = true, exclude = {"workflow", "step"})
 @NoArgsConstructor
 public class Step extends Item {

@@ -2,6 +2,9 @@ package eu.sshopencloud.marketplace.controllers.workflows;
 
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.dto.actors.ActorId;
+import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
@@ -21,7 +24,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -222,6 +229,33 @@ public class WorkflowControllerITCase {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test complex workflow with nested steps");
         workflow.setDescription("Lorem ipsum");
+        ItemContributorId contributor1 = new ItemContributorId();
+        ActorId actor1 = new ActorId();
+        actor1.setId(1l);
+        contributor1.setActor(actor1);
+        ActorRoleId role1 = new ActorRoleId();
+        role1.setCode("author");
+        contributor1.setRole(role1);
+        ItemContributorId contributor2 = new ItemContributorId();
+        ActorId actor2 = new ActorId();
+        actor2.setId(2l);
+        contributor2.setActor(actor2);
+        ActorRoleId role2 = new ActorRoleId();
+        role2.setCode("author");
+        contributor2.setRole(role2);
+        ItemContributorId contributor3 = new ItemContributorId();
+        ActorId actor3 = new ActorId();
+        actor3.setId(3l);
+        contributor3.setActor(actor3);
+        ActorRoleId role3 = new ActorRoleId();
+        role3.setCode("founder");
+        contributor3.setRole(role3);
+        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        contributors.add(contributor1);
+        contributors.add(contributor2);
+        contributors.add(contributor3);
+        workflow.setContributors(contributors);
+
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(workflow);
         log.debug("JSON: " + payload);
@@ -231,6 +265,12 @@ public class WorkflowControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(2)))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("contributors[2].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[2].role.code", is("founder")))
                 .andReturn().getResponse().getContentAsString();
 
         long workflowId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, WorkflowDto.class).getId();
@@ -371,6 +411,32 @@ public class WorkflowControllerITCase {
         StepCore step = new StepCore();
         step.setLabel("The last step in a workflow");
         step.setDescription("Lorem ipsum");
+        ItemContributorId contributor1 = new ItemContributorId();
+        ActorId actor1 = new ActorId();
+        actor1.setId(1l);
+        contributor1.setActor(actor1);
+        ActorRoleId role1 = new ActorRoleId();
+        role1.setCode("author");
+        contributor1.setRole(role1);
+        ItemContributorId contributor2 = new ItemContributorId();
+        ActorId actor2 = new ActorId();
+        actor2.setId(2l);
+        contributor2.setActor(actor2);
+        ActorRoleId role2 = new ActorRoleId();
+        role2.setCode("author");
+        contributor2.setRole(role2);
+        ItemContributorId contributor3 = new ItemContributorId();
+        ActorId actor3 = new ActorId();
+        actor3.setId(3l);
+        contributor3.setActor(actor3);
+        ActorRoleId role3 = new ActorRoleId();
+        role3.setCode("author");
+        contributor3.setRole(role3);
+        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        contributors.add(contributor1);
+        contributors.add(contributor2);
+        contributors.add(contributor3);
+        step.setContributors(contributors);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
         log.debug("JSON: " + payload);
@@ -383,6 +449,12 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("The last step in a workflow")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(2)))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("contributors[2].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[2].role.code", is("author")))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("Step")))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
@@ -437,6 +509,32 @@ public class WorkflowControllerITCase {
         StepCore step = new StepCore();
         step.setLabel("The substep of a step in a workflow");
         step.setDescription("Lorem ipsum");
+        ItemContributorId contributor1 = new ItemContributorId();
+        ActorId actor1 = new ActorId();
+        actor1.setId(2l);
+        contributor1.setActor(actor1);
+        ActorRoleId role1 = new ActorRoleId();
+        role1.setCode("provider");
+        contributor1.setRole(role1);
+        ItemContributorId contributor2 = new ItemContributorId();
+        ActorId actor2 = new ActorId();
+        actor2.setId(3l);
+        contributor2.setActor(actor2);
+        ActorRoleId role2 = new ActorRoleId();
+        role2.setCode("author");
+        contributor2.setRole(role2);
+        ItemContributorId contributor3 = new ItemContributorId();
+        ActorId actor3 = new ActorId();
+        actor3.setId(1l);
+        contributor3.setActor(actor3);
+        ActorRoleId role3 = new ActorRoleId();
+        role3.setCode("contributor");
+        contributor3.setRole(role3);
+        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        contributors.add(contributor1);
+        contributors.add(contributor2);
+        contributors.add(contributor3);
+        step.setContributors(contributors);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
         log.debug("JSON: " + payload);
@@ -449,6 +547,12 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("The substep of a step in a workflow")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(2)))
+                .andExpect(jsonPath("contributors[0].role.code", is("provider")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("contributors[2].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[2].role.code", is("contributor")))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("Step")))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
@@ -466,6 +570,13 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(1)))
                 .andExpect(jsonPath("composedOf[0].composedOf[0].label", is("The substep of a step in a workflow")))
+                .andExpect(jsonPath("composedOf[0].composedOf[0].description", is("Lorem ipsum")))
+                .andExpect(jsonPath("composedOf[0].composedOf[0].contributors[0].actor.id", is(2)))
+                .andExpect(jsonPath("composedOf[0].composedOf[0].contributors[0].role.code", is("provider")))
+                .andExpect(jsonPath("composedOf[0].composedOf[0].contributors[1].actor.id", is(3)))
+                .andExpect(jsonPath("composedOf[0].composedOf[0].contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("composedOf[0].composedOf[0].contributors[2].actor.id", is(1)))
+                .andExpect(jsonPath("composedOf[0].composedOf[0].contributors[2].role.code", is("contributor")))
                 .andExpect(jsonPath("composedOf[0].composedOf[0].composedOf", hasSize(0)))
                 .andExpect(jsonPath("composedOf[1].label", is("Run an inflectional analyzer")))
                 .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
@@ -473,7 +584,63 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
                 .andExpect(jsonPath("composedOf[3].label", is("The last step in a workflow")))
                 .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)));
+    }
 
+    @Test
+    public void shouldNotAddStepToWorkflowActorHasManyRoles() throws Exception {
+        Integer workflowId = 12;
+
+        mvc.perform(get("/api/workflows/{id}", workflowId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("category", is("workflow")));
+
+        StepCore step = new StepCore();
+        step.setLabel("A step with a triple actor");
+        step.setDescription("Lorem ipsum");
+        ItemContributorId contributor1 = new ItemContributorId();
+        ActorId actor1 = new ActorId();
+        actor1.setId(1l);
+        contributor1.setActor(actor1);
+        ActorRoleId role1 = new ActorRoleId();
+        role1.setCode("provider");
+        contributor1.setRole(role1);
+        ItemContributorId contributor2 = new ItemContributorId();
+        ActorId actor2 = new ActorId();
+        actor2.setId(1l);
+        contributor2.setActor(actor2);
+        ActorRoleId role2 = new ActorRoleId();
+        role2.setCode("author");
+        contributor2.setRole(role2);
+        ItemContributorId contributor3 = new ItemContributorId();
+        ActorId actor3 = new ActorId();
+        actor3.setId(1l);
+        contributor3.setActor(actor3);
+        ActorRoleId role3 = new ActorRoleId();
+        role3.setCode("contributor");
+        contributor3.setRole(role3);
+        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        contributors.add(contributor1);
+        contributors.add(contributor2);
+        contributors.add(contributor3);
+        step.setContributors(contributors);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(2)))
+                .andExpect(jsonPath("errors[0].field", is("contributors[1].actor.id")))
+                .andExpect(jsonPath("errors[0].code", is("field.repeated")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()))
+                .andExpect(jsonPath("errors[1].field", is("contributors[2].actor.id")))
+                .andExpect(jsonPath("errors[1].code", is("field.repeated")))
+                .andExpect(jsonPath("errors[1].message", notNullValue()));
     }
 
 

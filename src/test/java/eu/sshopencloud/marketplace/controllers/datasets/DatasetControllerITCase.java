@@ -99,6 +99,24 @@ public class DatasetControllerITCase {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
         dataset.setDescription("Lorem ipsum");
+        ItemContributorId contributor1 = new ItemContributorId();
+        ActorId actor1 = new ActorId();
+        actor1.setId(2l);
+        contributor1.setActor(actor1);
+        ActorRoleId role1 = new ActorRoleId();
+        role1.setCode("author");
+        contributor1.setRole(role1);
+        ItemContributorId contributor2 = new ItemContributorId();
+        ActorId actor2 = new ActorId();
+        actor2.setId(3l);
+        contributor2.setActor(actor2);
+        ActorRoleId role2 = new ActorRoleId();
+        role2.setCode("provider");
+        contributor2.setRole(role2);
+        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        contributors.add(contributor1);
+        contributors.add(contributor2);
+        dataset.setContributors(contributors);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
         log.debug("JSON: " + payload);
@@ -111,6 +129,10 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test simple dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(2)))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[1].role.code", is("provider")))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("Dataset")));
     }
@@ -233,6 +255,52 @@ public class DatasetControllerITCase {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("source.id")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldNotCreateDatasetWhenActorHasManyRoles() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test simple dataset");
+        dataset.setDescription("Lorem ipsum");
+        ItemContributorId contributor1 = new ItemContributorId();
+        ActorId actor1 = new ActorId();
+        actor1.setId(2l);
+        contributor1.setActor(actor1);
+        ActorRoleId role1 = new ActorRoleId();
+        role1.setCode("author");
+        contributor1.setRole(role1);
+        ItemContributorId contributor2 = new ItemContributorId();
+        ActorId actor2 = new ActorId();
+        actor2.setId(2l);
+        contributor2.setActor(actor2);
+        ActorRoleId role2 = new ActorRoleId();
+        role2.setCode("provider");
+        contributor2.setRole(role2);
+        ItemContributorId contributor3 = new ItemContributorId();
+        ActorId actor3 = new ActorId();
+        actor3.setId(3l);
+        contributor3.setActor(actor3);
+        ActorRoleId role3 = new ActorRoleId();
+        role3.setCode("provider");
+        contributor3.setRole(role3);
+        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        contributors.add(contributor1);
+        contributors.add(contributor2);
+        contributors.add(contributor3);
+        dataset.setContributors(contributors);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/datasets")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(1)))
+                .andExpect(jsonPath("errors[0].field", is("contributors[1].actor.id")))
+                .andExpect(jsonPath("errors[0].code", is("field.repeated")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 

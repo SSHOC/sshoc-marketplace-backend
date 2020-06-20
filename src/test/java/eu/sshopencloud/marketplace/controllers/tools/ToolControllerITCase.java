@@ -791,7 +791,7 @@ public class ToolControllerITCase {
         propertyType1.setCode("activity");
         property1.setType(propertyType1);
         ConceptId concept1 = new ConceptId();
-        concept1.setCode("Capture");
+        concept1.setCode("7");
         VocabularyId vocabulary1 = new VocabularyId();
         vocabulary1.setCode("tadirah-activity");
         concept1.setVocabulary(vocabulary1);

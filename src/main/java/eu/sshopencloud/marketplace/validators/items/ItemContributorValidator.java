@@ -29,11 +29,11 @@ public class ItemContributorValidator {
 
 
     public List<ItemContributor> validate(List<ItemContributorId> itemContributorIds, Item item, Errors errors, String nestedPath) {
-        List<ItemContributor> itemContributors = new ArrayList<ItemContributor>();
+        List<ItemContributor> itemContributors = new ArrayList<>();
         if (itemContributorIds != null) {
             for (int i = 0; i < itemContributorIds.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
-                ItemContributor itemContributor = validate(itemContributorIds.get(i), item, errors);
+                ItemContributor itemContributor = validate(itemContributorIds.get(i), item, itemContributors, errors);
                 if (itemContributor != null) {
                     itemContributors.add(itemContributor);
                 }
@@ -46,13 +46,21 @@ public class ItemContributorValidator {
         return itemContributors;
     }
 
-    public ItemContributor validate(ItemContributorId itemContributorId, Item item, Errors errors) {
+    public ItemContributor validate(ItemContributorId itemContributorId, Item item, List<ItemContributor> processedContributors, Errors errors) {
         Actor actor = null;
         if (itemContributorId.getActor() == null) {
             errors.rejectValue("actor", "field.required", "Actor is required.");
         } else {
             errors.pushNestedPath("actor");
             actor = actorValidator.validate(itemContributorId.getActor(), errors);
+            if (actor != null) {
+                for (ItemContributor processedContributor: processedContributors) {
+                    if (actor.getId().equals(processedContributor.getActor().getId())) {
+                        errors.rejectValue("id", "field.repeated", "The actor has already occurred.");
+                        break;
+                    }
+                }
+            }
             errors.popNestedPath();
         }
 
