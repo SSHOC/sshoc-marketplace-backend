@@ -25,9 +25,10 @@ services:
       recaptcha_secret_key: ${recaptcha_secret_key}
     labels:
       - traefik.backend=marketplace-api
-      - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at
+      - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh-dev.oeaw.ac.at,marketplace-api.sshopencloud.eu,marketplace-api.sshoc.eu
       - traefik.docker.network=web
       - traefik.port=8080
+      - ID=15824
     networks:
       - backend
       - web
