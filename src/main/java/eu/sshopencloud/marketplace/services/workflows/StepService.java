@@ -51,7 +51,16 @@ public class StepService {
     public StepDto createStep(long workflowId, StepCore stepCore) {
         Workflow workflow = workflowRepository.findById(workflowId)
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId));
-        Step step = stepValidator.validate(stepCore, null);
+        int numberOfSiblings = 0;
+        List<Step> steps = new ArrayList<>();
+        if (workflow.getSteps() != null) {
+            numberOfSiblings = workflow.getSteps().size();
+            steps = workflow.getSteps();
+        } else {
+            workflow.setSteps(steps);
+        }
+
+        Step step = stepValidator.validate(stepCore, null, numberOfSiblings);
         step.setWorkflow(workflow);
         itemService.updateInfoDates(step);
 
@@ -60,17 +69,12 @@ public class StepService {
         Item nextVersion = itemService.clearVersionForCreate(step);
         step = stepRepository.save(step);
 
-        int size = 0;
-        List<Step> steps = new ArrayList();
-        if (workflow.getSteps() != null) {
-            size = workflow.getSteps().size();
-            steps = workflow.getSteps();
+        if (stepCore.getStepNo() == null) {
+            steps.add(step);
         } else {
-            workflow.setSteps(steps);
+            steps.add(stepCore.getStepNo() - 1, step);
         }
-        steps.add(step);
-        workflow = workflowRepository.save(workflow);
-        step = workflow.getSteps().get(size);
+        workflowRepository.save(workflow);
 
         itemService.switchVersion(step, nextVersion);
 
@@ -79,8 +83,16 @@ public class StepService {
 
     public StepDto createStep(long workflowId, long stepId, StepCore substepCore) {
         Step step = checkWorkflowAndStepConsistency(workflowId, stepId);
+        int numberOfSiblings = 0;
+        List<Step> substeps = new ArrayList<>();
+        if (step.getSubsteps() != null) {
+            numberOfSiblings = step.getSubsteps().size();
+            substeps = step.getSubsteps();
+        } else {
+            step.setSubsteps(substeps);
+        }
 
-        Step substep = stepValidator.validate(substepCore, null);
+        Step substep = stepValidator.validate(substepCore, null, numberOfSiblings);
         substep.setStep(step);
         itemService.updateInfoDates(substep);
 
@@ -89,17 +101,12 @@ public class StepService {
         Item nextVersion = itemService.clearVersionForCreate(substep);
         substep = stepRepository.save(substep);
 
-        int size = 0;
-        List<Step> substeps = new ArrayList();
-        if (step.getSubsteps() != null) {
-            size = step.getSubsteps().size();
-            substeps = step.getSubsteps();
+        if (substepCore.getStepNo() == null) {
+            substeps.add(substep);
         } else {
-            step.setSubsteps(substeps);
+            substeps.add(substepCore.getStepNo() - 1, substep);
         }
-        substeps.add(substep);
-        step = stepRepository.save(step);
-        substep = step.getSubsteps().get(size);
+        stepRepository.save(step);
 
         itemService.switchVersion(substep, nextVersion);
 
@@ -107,9 +114,17 @@ public class StepService {
     }
 
     public StepDto updateStep(long workflowId, long stepId, StepCore updatedStep) {
-        checkWorkflowAndStepConsistency(workflowId, stepId);
+        Step step = checkWorkflowAndStepConsistency(workflowId, stepId);
+        boolean isSubstep = (step.getWorkflow() == null);
+        List<Step> ssteps;
+        if (!isSubstep) {
+            ssteps = step.getWorkflow().getSteps();
+        } else {
+            ssteps = step.getStep().getSubsteps();
+        }
+        int numberOfSiblings = ssteps.size();
 
-        Step step = stepValidator.validate(updatedStep, stepId);
+        step = stepValidator.validate(updatedStep, stepId, numberOfSiblings);
         itemService.updateInfoDates(step);
 
         itemService.addInformationContributorToItem(step, LoggedInUserHolder.getLoggedInUser());
@@ -117,6 +132,24 @@ public class StepService {
         Item prevVersion = step.getPrevVersion();
         Item nextVersion = itemService.clearVersionForUpdate(step);
         step = stepRepository.save(step);
+
+        if (updatedStep.getStepNo() != null) {
+            int idx = -1;
+            for (int i = 0; i < numberOfSiblings; i++) {
+                if (ssteps.get(i).getId().equals(step.getId())) {
+                    idx = i;
+                    break;
+                }
+            }
+            ssteps.remove(idx);
+            ssteps.add(updatedStep.getStepNo() - 1, step);
+            if (!isSubstep) {
+                workflowRepository.save(step.getWorkflow());
+            } else {
+                stepRepository.save(step.getStep());
+            }
+        }
+
         itemService.switchVersion(prevVersion, nextVersion);
 
         return completeStep(StepMapper.INSTANCE.toDto(step));

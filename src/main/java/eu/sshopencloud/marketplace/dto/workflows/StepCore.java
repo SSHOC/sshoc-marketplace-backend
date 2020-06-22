@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StepCore extends ItemCore {
 
+    private Integer stepNo;
+
 }

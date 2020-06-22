@@ -25,7 +25,7 @@ public class StepValidator {
     private final ItemValidator itemValidator;
 
 
-    public Step validate(StepCore stepCore, Long stepId) throws ValidationException {
+    public Step validate(StepCore stepCore, Long stepId, int numberOfSiblings) throws ValidationException {
         Step step = getOrCreateStep(stepId);
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(stepCore, "Step");
 
@@ -40,6 +40,18 @@ public class StepValidator {
                 errors.rejectValue("prevVersionId", "field.notExist", "Previous step does not exist.");
             } else {
                 step.setNewPrevVersion(prevVersionHolder.get());
+            }
+        }
+
+        if (stepCore.getStepNo() != null) {
+            if (stepId != null) {
+                if (stepCore.getStepNo() <= 0 || stepCore.getStepNo() > numberOfSiblings) {
+                    errors.rejectValue("stepNo", "field.incorrect", "Incorrect step number.");
+                }
+            } else {
+                if (stepCore.getStepNo() <= 0 || stepCore.getStepNo() > numberOfSiblings + 1) {
+                    errors.rejectValue("stepNo", "field.incorrect", "Incorrect step number.");
+                }
             }
         }
 
