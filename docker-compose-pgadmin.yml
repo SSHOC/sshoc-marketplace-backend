@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 8090:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dpage@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: dpageforthewin

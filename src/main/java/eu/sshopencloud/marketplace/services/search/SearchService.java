@@ -12,6 +12,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.repositories.search.dto.SuggestedSearchPhrases;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
@@ -204,4 +205,15 @@ public class SearchService {
         }
     }
 
+    public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase) {
+        if (StringUtils.isBlank(searchPhrase))
+            throw new IllegalArgumentException("Search phrase must not be empty nor contain only whitespace");
+
+        List<String> suggestions = searchItemRepository.autocompleteSearchQuery(searchPhrase);
+
+        return SuggestedSearchPhrases.builder()
+                .phrase(searchPhrase)
+                .suggestions(suggestions)
+                .build();
+    }
 }

@@ -7,6 +7,9 @@ import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.SuggesterResponse;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -15,6 +18,7 @@ import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -96,4 +100,19 @@ public class SearchItemRepository {
         return facetOptions;
     }
 
+    public List<String> autocompleteSearchQuery(String searchQuery) {
+        ModifiableSolrParams params = new ModifiableSolrParams();
+        params.set("qt", "/marketplace-items/suggest");
+        params.set("q", searchQuery);
+
+        try {
+            SuggesterResponse response = solrTemplate.getSolrClient()
+                    .query(params).getSuggesterResponse();
+
+            return response.getSuggestedTerms().get("itemSearch");
+        }
+        catch (SolrServerException | IOException e) {
+            throw new RuntimeException("Search engine instance connection error", e);
+        }
+    }
 }
