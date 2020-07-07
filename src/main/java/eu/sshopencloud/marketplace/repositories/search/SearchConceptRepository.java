@@ -14,7 +14,6 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -41,7 +40,7 @@ public class SearchConceptRepository {
         if (queryParts.isEmpty()) {
             return Criteria.where(IndexConcept.LABEL_FIELD).boost(4f).contains("");
         } else {
-            Criteria andCriteria = null;
+            Criteria andCriteria = AnyCriteria.any();;
             for (QueryPart queryPart : queryParts) {
                 Criteria orCriteria = null;
                 if (!queryPart.isPhrase()) {
@@ -56,13 +55,9 @@ public class SearchConceptRepository {
                 if (orCriteria == null) {
                     orCriteria = definitionTextEnCriteria.or(labelFuzzyCriteria).or(notationFuzzyCriteria);
                 } else {
-                    orCriteria = orCriteria.or(definitionTextEnCriteria.or(labelFuzzyCriteria).or(notationFuzzyCriteria));
+                    orCriteria = orCriteria.or(definitionTextEnCriteria).or(labelFuzzyCriteria).or(notationFuzzyCriteria);
                 }
-                if (andCriteria == null) {
-                    andCriteria = orCriteria;
-                } else {
-                    andCriteria = andCriteria.and(orCriteria);
-                }
+                andCriteria = andCriteria.and(orCriteria);
             }
             return andCriteria;
         }

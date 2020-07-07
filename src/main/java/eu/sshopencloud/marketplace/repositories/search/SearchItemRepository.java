@@ -48,7 +48,7 @@ public class SearchItemRepository {
         if (queryParts.isEmpty()) {
             return Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains("");
         } else {
-            Criteria andCriteria = null;
+            Criteria andCriteria = AnyCriteria.any();
             for (QueryPart queryPart : queryParts) {
                 Criteria orCriteria = null;
                 if (!queryPart.isPhrase()) {
@@ -64,11 +64,7 @@ public class SearchItemRepository {
                 } else {
                     orCriteria = orCriteria.or(nameTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria);
                 }
-                if (andCriteria == null) {
-                    andCriteria = orCriteria;
-                } else {
-                    andCriteria = andCriteria.and(orCriteria);
-                }
+                andCriteria = andCriteria.and(orCriteria);
             }
             return andCriteria;
         }
