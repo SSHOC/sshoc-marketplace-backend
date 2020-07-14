@@ -328,14 +328,14 @@
         <analyzer>
             <tokenizer class="solr.StandardTokenizerFactory" />
             <filter class="solr.LowerCaseFilterFactory" />
-            <filter class="solr.ShingleFilterFactory" minShingleSize="2" maxShingleSize="6"
-                    outputUnigrams="false" outputUnigramsIfNoShingles="true" />
+            <filter class="solr.ASCIIFoldingFilterFactory" />
         </analyzer>
     </fieldType>
     <fieldType name="query_suggest" class="solr.TextField">
         <analyzer>
             <tokenizer class="solr.KeywordTokenizerFactory" />
             <filter class="solr.LowerCaseFilterFactory" />
+            <filter class="solr.ASCIIFoldingFilterFactory" />
             <filter class="solr.TrimFilterFactory" />
         </analyzer>
     </fieldType>
