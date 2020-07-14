@@ -51,6 +51,7 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
             initialDataLoader.loadProfileData("dev");
         }
         initialDataLoader.loadProfileData(activeProfile);
+        initialDataLoader.reloadAdditionalSearchStructures();
 
         Date stop = new Date();
         double time = ((double)(stop.getTime() - start.getTime())) / 1000;

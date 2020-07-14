@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.RequestMethod;
 import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -109,6 +110,19 @@ public class SearchItemRepository {
         }
         catch (SolrServerException | IOException e) {
             throw new RuntimeException("Search engine instance connection error", e);
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void rebuildAutocompleteIndex() {
+        ModifiableSolrParams params = new ModifiableSolrParams();
+        params.set("qt", "/marketplace-items/suggest/rebuild");
+
+        try {
+            solrTemplate.getSolrClient().query(params);
+        }
+        catch (SolrServerException | IOException e) {
+            throw new RuntimeException("Failed to rebuild index for autocomplete");
         }
     }
 }

@@ -57,6 +57,9 @@ spring:
                         jwk-set-uri: https://aai-dev.egi.eu/oidc/jwk
                         user-name-attribute: sub
 
+    profiles:
+        active: ${SPRING_ACTIVE_PROFILE}
+
 springdoc:
     version: '@api.version@'
     api-docs:

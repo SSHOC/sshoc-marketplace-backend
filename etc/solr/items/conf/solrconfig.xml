@@ -970,7 +970,7 @@
     </arr>
   </requestHandler>
 
-  <requestHandler name="/suggest/rebuild" class="solr.SearchHandler">
+  <requestHandler name="/suggest/rebuild" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
       <str name="suggest">true</str>
       <str name="suggest.build">true</str>

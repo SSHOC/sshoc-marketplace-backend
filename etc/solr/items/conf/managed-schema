@@ -127,7 +127,7 @@
     <field name="suggestions" type="text_suggest" indexed="true" stored="true" multiValued="true" />
 
     <copyField source="label_text" dest="suggestions"/>
-    <copyField source="description_text" dest="suggestions"/>
+<!--    <copyField source="description_text" dest="suggestions"/>-->
     <copyField source="keyword_text" dest="suggestions"/>
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
