@@ -7,3 +7,4 @@
 /.project
 /.classpath
 /docker-compose.override.yml
+*.swp
