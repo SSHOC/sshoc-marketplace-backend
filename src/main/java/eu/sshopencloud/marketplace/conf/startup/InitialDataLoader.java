@@ -18,6 +18,7 @@ import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.*;
 
@@ -46,6 +47,8 @@ public class InitialDataLoader {
     private final ActorRepository actorRepository;
 
     private final SourceRepository sourceRepository;
+
+    private final SearchItemRepository searchItemRepository;
 
     private final IndexService indexService;
 
@@ -124,4 +127,7 @@ public class InitialDataLoader {
         log.debug("Loaded " + itemRelatedItems.size() + " ItemRelatedItem objects");
     }
 
+    public void reloadAdditionalSearchStructures() {
+        searchItemRepository.rebuildAutocompleteIndex();
+    }
 }

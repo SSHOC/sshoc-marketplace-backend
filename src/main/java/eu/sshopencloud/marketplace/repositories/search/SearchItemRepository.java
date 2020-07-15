@@ -7,14 +7,19 @@ import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.SuggesterResponse;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.RequestMethod;
 import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +49,7 @@ public class SearchItemRepository {
         if (queryParts.isEmpty()) {
             return Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains("");
         } else {
-            Criteria andCriteria = null;
+            Criteria andCriteria = AnyCriteria.any();
             for (QueryPart queryPart : queryParts) {
                 Criteria orCriteria = null;
                 if (!queryPart.isPhrase()) {
@@ -60,11 +65,7 @@ public class SearchItemRepository {
                 } else {
                     orCriteria = orCriteria.or(nameTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria);
                 }
-                if (andCriteria == null) {
-                    andCriteria = orCriteria;
-                } else {
-                    andCriteria = andCriteria.and(orCriteria);
-                }
+                andCriteria = andCriteria.and(orCriteria);
             }
             return andCriteria;
         }
@@ -96,4 +97,32 @@ public class SearchItemRepository {
         return facetOptions;
     }
 
+    public List<String> autocompleteSearchQuery(String searchQuery) {
+        ModifiableSolrParams params = new ModifiableSolrParams();
+        params.set("qt", "/marketplace-items/suggest");
+        params.set("q", searchQuery);
+
+        try {
+            SuggesterResponse response = solrTemplate.getSolrClient()
+                    .query(params).getSuggesterResponse();
+
+            return response.getSuggestedTerms().get("itemSearch");
+        }
+        catch (SolrServerException | IOException e) {
+            throw new RuntimeException("Search engine instance connection error", e);
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void rebuildAutocompleteIndex() {
+        ModifiableSolrParams params = new ModifiableSolrParams();
+        params.set("qt", "/marketplace-items/suggest/rebuild");
+
+        try {
+            solrTemplate.getSolrClient().query(params);
+        }
+        catch (SolrServerException | IOException e) {
+            throw new RuntimeException("Failed to rebuild index for autocomplete");
+        }
+    }
 }

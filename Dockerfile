@@ -13,5 +13,10 @@ FROM openjdk:11-jre-slim
 WORKDIR /usr/app
 COPY --from=build /usr/src/app/target/marketplace-*.jar ./app.jar
 
+ENV SPRING_ACTIVE_PROFILE=''
+
 EXPOSE 8080
-ENTRYPOINT [ "bash", "-c", "java -Dspring.profiles.active=$SPRING_ACTIVE_PROFILE -jar app.jar" ]
+ENTRYPOINT [ \
+"bash", "-c", \
+"java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9990 -jar app.jar" \
+]
