@@ -20,9 +20,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -101,16 +100,33 @@ public class SearchItemRepository {
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
         params.set("q", searchQuery);
+        params.set("suggest.count", 20);
 
         try {
             SuggesterResponse response = solrTemplate.getSolrClient()
                     .query(params).getSuggesterResponse();
 
-            return response.getSuggestedTerms().get("itemSearch");
+            List<String> rawSuggestions = response.getSuggestedTerms().get("itemSearch");
+            return prepareSuggestions(rawSuggestions, 10);
         }
         catch (SolrServerException | IOException e) {
             throw new RuntimeException("Search engine instance connection error", e);
         }
+    }
+
+    private List<String> prepareSuggestions(List<String> suggestions, int limit) {
+        Set<String> uniqueSuggestions = new HashSet<>();
+
+        return suggestions.stream()
+                .map(String::toLowerCase)
+                .filter(suggestion -> {
+                    boolean exists = uniqueSuggestions.contains(suggestion);
+                    uniqueSuggestions.add(suggestion);
+
+                    return exists;
+                })
+                .limit(limit)
+                .collect(Collectors.toList());
     }
 
     @Scheduled(cron = "0 0 0 * * *")
