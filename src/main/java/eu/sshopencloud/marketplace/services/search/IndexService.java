@@ -10,6 +10,7 @@ import eu.sshopencloud.marketplace.repositories.datasets.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
+import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 public class IndexService {
 
     private final IndexItemRepository indexItemRepository;
+    private final SearchItemRepository searchItemRepository;
 
     private final ItemService itemService;
 
@@ -81,6 +83,7 @@ public class IndexService {
         for (Item item : itemRepository.findAll()) {
             indexItem(item);
         }
+        searchItemRepository.rebuildAutocompleteIndex();
     }
 
 
