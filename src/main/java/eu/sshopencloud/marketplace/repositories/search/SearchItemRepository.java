@@ -100,7 +100,7 @@ public class SearchItemRepository {
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
         params.set("q", searchQuery);
-        params.set("suggest.count", 20);
+        params.set("suggest.count", 50);
 
         try {
             SuggesterResponse response = solrTemplate.getSolrClient()
@@ -120,10 +120,12 @@ public class SearchItemRepository {
         return suggestions.stream()
                 .map(String::toLowerCase)
                 .filter(suggestion -> {
-                    boolean exists = uniqueSuggestions.contains(suggestion);
-                    uniqueSuggestions.add(suggestion);
+                    if (uniqueSuggestions.contains(suggestion))
+                        return false;
+                    else
+                        uniqueSuggestions.add(suggestion);
 
-                    return exists;
+                    return true;
                 })
                 .limit(limit)
                 .collect(Collectors.toList());
