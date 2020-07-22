@@ -5,14 +5,13 @@ import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
-import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
-import eu.sshopencloud.marketplace.validators.tools.ToolValidator;
+import eu.sshopencloud.marketplace.validators.tools.ToolFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,15 +29,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ToolService {
-
     private final ToolRepository toolRepository;
-
-    private final ToolValidator toolValidator;
-
+    private final ToolFactory toolFactory;
     private final ItemService itemService;
-
     private final ItemRelatedItemService itemRelatedItemService;
-
     private final IndexService indexService;
 
 
@@ -65,47 +59,35 @@ public class ToolService {
     }
 
     public ToolDto createTool(ToolCore toolCore) {
-        Tool tool = toolValidator.validate(toolCore, null);
-        itemService.updateInfoDates(tool);
-
-        itemService.addInformationContributorToItem(tool, LoggedInUserHolder.getLoggedInUser());
-
-        Item nextVersion = itemService.clearVersionForCreate(tool);
-        tool = toolRepository.save(tool);
-        itemService.switchVersion(tool, nextVersion);
-        indexService.indexItem(tool);
-
-        return itemService.completeItem(ToolMapper.INSTANCE.toDto(tool));
+        return createNewTool(toolCore, null);
     }
 
     public ToolDto updateTool(Long id, ToolCore toolCore) {
-        if (!toolRepository.existsById(id)) {
+        if (!toolRepository.existsById(id))
             throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
-        }
-        Tool tool = toolValidator.validate(toolCore, id);
-        itemService.updateInfoDates(tool);
 
+        return createNewTool(toolCore, id);
+    }
+
+    private ToolDto createNewTool(ToolCore toolCore, Long prevToolId) {
+        Tool tool = toolFactory.create(toolCore, prevToolId);
+        itemService.updateInfoDates(tool);
         itemService.addInformationContributorToItem(tool, LoggedInUserHolder.getLoggedInUser());
 
-        Item prevVersion = tool.getPrevVersion();
-        Item nextVersion = itemService.clearVersionForUpdate(tool);
         tool = toolRepository.save(tool);
-        itemService.switchVersion(prevVersion, nextVersion);
         indexService.indexItem(tool);
 
         return itemService.completeItem(ToolMapper.INSTANCE.toDto(tool));
     }
 
     public void deleteTool(Long id) {
-        if (!toolRepository.existsById(id)) {
+        if (!toolRepository.existsById(id))
             throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
-        }
+
         Tool tool = toolRepository.getOne(id);
-        itemRelatedItemService.deleteRelationsForItem(tool);
-        Item prevVersion = tool.getPrevVersion();
-        Item nextVersion = itemService.clearVersionForDelete(tool);
+
+        itemService.cleanupItem(tool);
         toolRepository.delete(tool);
-        itemService.switchVersion(prevVersion, nextVersion);
         indexService.removeItem(tool);
     }
 

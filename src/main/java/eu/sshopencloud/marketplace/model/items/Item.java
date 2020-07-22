@@ -13,14 +13,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 @Entity
 @Table(name = "items", uniqueConstraints = {
         @UniqueConstraint(name = "item_prev_version_item_id_uq", columnNames = {"prev_version_id"} )
     })
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-@ToString(exclude = {"prevVersion", "newPrevVersion"})
-@EqualsAndHashCode(exclude = {"prevVersion", "newPrevVersion"})
+@ToString(exclude = {"prevVersion"})
+@EqualsAndHashCode(exclude = {"prevVersion"})
 public abstract class Item {
 
     @Id
@@ -99,14 +100,18 @@ public abstract class Item {
     @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))
     private Item prevVersion;
 
-    /** Needed for switching versions during creating/updating of an item */
-    @Transient
-    private Item newPrevVersion;
-
 
     public Item() {
+        this.informationContributors = new ArrayList<>();
         this.accessibleAt = new ArrayList<>();
         this.properties = new ArrayList<>();
+    }
+
+    public void addInformationContributor(User contributor) {
+        if (informationContributors.contains(contributor))
+            return;
+
+        informationContributors.add(contributor);
     }
 
     public List<String> getAccessibleAt() {

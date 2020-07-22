@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
-import eu.sshopencloud.marketplace.validators.licenses.LicenseValidator;
+import eu.sshopencloud.marketplace.validators.licenses.LicenceFactory;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.validators.sources.SourceValidator;
 import eu.sshopencloud.marketplace.validators.vocabularies.PropertyValidator;
@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class ItemValidator {
+public class ItemFactory {
 
-    private final LicenseValidator licenseValidator;
+    private final LicenceFactory licenceFactory;
 
     private final ItemContributorValidator itemContributorValidator;
 
@@ -40,7 +40,7 @@ public class ItemValidator {
     private final SourceValidator sourceValidator;
 
 
-    public Item validate(ItemCore itemCore, ItemCategory category, Item item, Errors errors) {
+    public <T extends Item> T initializeItem(ItemCore itemCore, T item, ItemCategory category, Errors errors) {
         item.setCategory(category);
         if (StringUtils.isBlank(itemCore.getLabel())) {
             errors.rejectValue("label", "field.required", "Label is required.");
@@ -57,9 +57,9 @@ public class ItemValidator {
         }
 
         if (item.getLicenses() != null) {
-            item.getLicenses().addAll(licenseValidator.validate(itemCore.getLicenses(), item, errors, "licenses"));
+            item.getLicenses().addAll(licenceFactory.create(itemCore.getLicenses(), item, errors, "licenses"));
         } else {
-            item.setLicenses(licenseValidator.validate(itemCore.getLicenses(), item, errors, "licenses"));
+            item.setLicenses(licenceFactory.create(itemCore.getLicenses(), item, errors, "licenses"));
         }
 
         if (item.getContributors() != null) {

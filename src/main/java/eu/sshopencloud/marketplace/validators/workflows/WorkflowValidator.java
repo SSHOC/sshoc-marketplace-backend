@@ -5,7 +5,7 @@ import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
-import eu.sshopencloud.marketplace.validators.items.ItemValidator;
+import eu.sshopencloud.marketplace.validators.items.ItemFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,14 +22,14 @@ public class WorkflowValidator {
 
     private final WorkflowRepository workflowRepository;
 
-    private final ItemValidator itemValidator;
+    private final ItemFactory itemFactory;
 
 
     public Workflow validate(WorkflowCore workflowCore, Long workflowId) throws ValidationException {
         Workflow workflow = getOrCreateWorkflow(workflowId);
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(workflowCore, "Workflow");
 
-        itemValidator.validate(workflowCore, ItemCategory.WORKFLOW, workflow, errors);
+        itemFactory.initializeItem(workflowCore, ItemCategory.WORKFLOW, workflow, errors);
 
         if (workflowCore.getPrevVersionId() != null) {
             if (workflowId != null && workflow.getId().equals(workflowCore.getPrevVersionId())) {

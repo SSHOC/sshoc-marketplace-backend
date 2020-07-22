@@ -5,7 +5,7 @@ import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.repositories.datasets.DatasetRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
-import eu.sshopencloud.marketplace.validators.items.ItemValidator;
+import eu.sshopencloud.marketplace.validators.items.ItemFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,14 +22,14 @@ public class DatasetValidator {
 
     private final DatasetRepository datasetRepository;
 
-    private final ItemValidator itemValidator;
+    private final ItemFactory itemFactory;
 
 
     public Dataset validate(DatasetCore datasetCore, Long datasetId) throws ValidationException {
         Dataset dataset = getOrCreateDataset(datasetId);
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(datasetCore, "Dataset");
 
-        itemValidator.validate(datasetCore, ItemCategory.DATASET, dataset, errors);
+        itemFactory.initializeItem(datasetCore, ItemCategory.DATASET, dataset, errors);
 
         dataset.setDateCreated(datasetCore.getDateCreated());
         dataset.setDateLastUpdated(datasetCore.getDateLastUpdated());

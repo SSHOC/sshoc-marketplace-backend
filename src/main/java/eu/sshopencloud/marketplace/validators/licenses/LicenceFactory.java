@@ -17,16 +17,16 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class LicenseValidator {
+public class LicenceFactory {
 
     private final LicenseRepository licenseRepository;
 
-    public List<License> validate(List<LicenseId> licenseIds, Item item, Errors errors, String nestedPath) {
+    public List<License> create(List<LicenseId> licenseIds, Item item, Errors errors, String nestedPath) {
         List<License> licenses = new ArrayList<License>();
         if (licenseIds != null) {
             for (int i = 0; i < licenseIds.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
-                License license = validate(licenseIds.get(i), errors);
+                License license = create(licenseIds.get(i), errors);
                 if (license != null) {
                     licenses.add(license);
                 }
@@ -39,7 +39,7 @@ public class LicenseValidator {
         return licenses;
     }
 
-    public License validate(LicenseId licenseId, Errors errors) {
+    public License create(LicenseId licenseId, Errors errors) {
         if (StringUtils.isBlank(licenseId.getCode())) {
             errors.rejectValue("code", "field.required", "License code is required.");
             return null;

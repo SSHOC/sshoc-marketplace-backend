@@ -46,15 +46,7 @@ public class ItemService {
 
     public void addInformationContributorToItem(Item item, User contributor) {
         User user = userRepository.findByUsername(contributor.getUsername());
-        if (item.getInformationContributors() != null) {
-            if (!item.getInformationContributors().contains(user)) {
-                item.getInformationContributors().add(user);
-            }
-        } else {
-            List<User> informationContributors = new ArrayList<>();
-            informationContributors.add(user);
-            item.setInformationContributors(informationContributors);
-        }
+        item.addInformationContributor(contributor);
     }
 
     public void updateInfoDates(Item item) {
@@ -105,61 +97,16 @@ public class ItemService {
         return (T) item;
     }
 
-    public Item clearVersionForCreate(Item item) {
-        if (item.getNewPrevVersion() != null) {
-            Item prevnextVersion = itemRepository.findByPrevVersion(item.getNewPrevVersion());
-            if (prevnextVersion != null) {
-                prevnextVersion.setPrevVersion(null);
-                prevnextVersion = itemRepository.saveAndFlush(prevnextVersion);
-            }
-            item.setPrevVersion(item.getNewPrevVersion());
-            return prevnextVersion;
-        }
-        return null;
+    public void cleanupItem(Item item) {
+        itemRelatedItemService.deleteRelationsForItem(item);
+        skipItemInUpdateHistory(item);
     }
 
-    public Item clearVersionForUpdate(Item item) {
-        if (item.getNewPrevVersion() != null) {
-            Item prevnextVersion = itemRepository.findByPrevVersion(item.getNewPrevVersion());
-            if (prevnextVersion != null && !(prevnextVersion.getId().equals(item.getId()))) {
-                prevnextVersion.setPrevVersion(null);
-                itemRepository.saveAndFlush(prevnextVersion);
-            }
-        }
-        if (item.getNewPrevVersion() != null) {
-            Item prevnextVersion = null;
-            List<ItemBasicDto> newerVersions = getNewerVersionsOfItem(item.getId());
-            if (newerVersions.stream().anyMatch(i -> Objects.equals(i.getId(), item.getNewPrevVersion().getId()))) {
-                prevnextVersion = itemRepository.findByPrevVersion(item);
-                prevnextVersion.setPrevVersion(null);
-                prevnextVersion = itemRepository.saveAndFlush(prevnextVersion);
-            }
-            item.setPrevVersion(item.getNewPrevVersion());
-            return prevnextVersion;
-        } else {
-            item.setPrevVersion(null);
-            return null;
-        }
-    }
-
-    public Item clearVersionForDelete(Item item) {
-        if (item.getPrevVersion() != null) {
-            item.setPrevVersion(null);
-            itemRepository.saveAndFlush(item);
-        }
+    private void skipItemInUpdateHistory(Item item) {
         Item nextVersion = itemRepository.findByPrevVersion(item);
-        if (nextVersion != null) {
-            nextVersion.setPrevVersion(null);
-            return itemRepository.save(nextVersion);
-        }
-        return null;
-    }
+        if (nextVersion == null)
+            return;
 
-    public void switchVersion(Item item, Item nextVersion) {
-        if (nextVersion != null) {
-            nextVersion.setPrevVersion(item);
-            itemRepository.save(nextVersion);
-        }
+        nextVersion.setPrevVersion(item.getPrevVersion());
     }
-
 }

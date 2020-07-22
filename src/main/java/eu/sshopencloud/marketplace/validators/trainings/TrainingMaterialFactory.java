@@ -1,0 +1,47 @@
+package eu.sshopencloud.marketplace.validators.trainings;
+
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
+import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
+import eu.sshopencloud.marketplace.validators.ValidationException;
+import eu.sshopencloud.marketplace.validators.items.ItemFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BeanPropertyBindingResult;
+
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+@Slf4j
+public class TrainingMaterialFactory {
+
+    private final TrainingMaterialRepository trainingMaterialRepository;
+    private final ItemFactory itemFactory;
+
+
+    public TrainingMaterial create(TrainingMaterialCore trainingMaterialCore, Long baseTrainingMaterialId) throws ValidationException {
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(trainingMaterialCore, "TrainingMaterial");
+
+        TrainingMaterial trainingMaterial = itemFactory.initializeItem(
+                trainingMaterialCore, new TrainingMaterial(), ItemCategory.TRAINING_MATERIAL, errors
+        );
+
+        trainingMaterial.setDateCreated(trainingMaterialCore.getDateCreated());
+        trainingMaterial.setDateLastUpdated(trainingMaterialCore.getDateLastUpdated());
+
+        TrainingMaterial baseTrainingMaterial =
+                (baseTrainingMaterialId != null) ? trainingMaterialRepository.getOne(baseTrainingMaterialId) : null;
+
+        trainingMaterial.setPrevVersion(baseTrainingMaterial);
+
+        if (errors.hasErrors()) {
+            throw new ValidationException(errors);
+        } else {
+            return trainingMaterial;
+        }
+    }
+}

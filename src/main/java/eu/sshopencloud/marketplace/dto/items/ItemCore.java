@@ -32,7 +32,4 @@ public class ItemCore {
     private ItemStatus status;
 
     private String sourceItemId;
-
-    private Long prevVersionId;
-
 }

@@ -5,7 +5,7 @@ import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.repositories.workflows.StepRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
-import eu.sshopencloud.marketplace.validators.items.ItemValidator;
+import eu.sshopencloud.marketplace.validators.items.ItemFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,14 +22,14 @@ public class StepValidator {
 
     private final StepRepository stepRepository;
 
-    private final ItemValidator itemValidator;
+    private final ItemFactory itemFactory;
 
 
     public Step validate(StepCore stepCore, Long stepId, int numberOfSiblings) throws ValidationException {
         Step step = getOrCreateStep(stepId);
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(stepCore, "Step");
 
-        itemValidator.validate(stepCore, ItemCategory.STEP, step, errors);
+        itemFactory.initializeItem(stepCore, ItemCategory.STEP, step, errors);
 
         if (stepCore.getPrevVersionId() != null) {
             if (stepId != null && step.getId().equals(stepCore.getPrevVersionId())) {
