@@ -18,6 +18,12 @@ public class IndexController {
     }
 
 
+
+    @PutMapping(path = "/item-autocomplete-rebuild")
+    public void rebuildAutocompleteIndex() {
+        indexService.rebuildAutocompleteIndex();
+    }
+
     @PutMapping(path = "/concept-reindex")
     public void reindexConcepts() {
         indexService.reindexConcepts();

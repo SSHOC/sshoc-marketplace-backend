@@ -6,16 +6,11 @@ import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
-import eu.sshopencloud.marketplace.repositories.datasets.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
-import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
-import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
-import eu.sshopencloud.marketplace.repositories.workflows.StepRepository;
-import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -35,6 +30,7 @@ import java.util.stream.Collectors;
 public class IndexService {
 
     private final IndexItemRepository indexItemRepository;
+
     private final SearchItemRepository searchItemRepository;
 
     private final ItemService itemService;
@@ -48,14 +44,6 @@ public class IndexService {
     private final ConceptService conceptService;
 
     private final VocabularyRepository vocabularyRepository;
-
-
-    // TEMPORARY
-    private final ToolRepository toolRepository;
-    private final TrainingMaterialRepository trainingMaterialRepository;
-    private final DatasetRepository datasetRepository;
-    private final WorkflowRepository workflowRepository;
-    private final StepRepository stepRepository;
 
 
     public IndexItem indexItem(Item item) {
@@ -83,7 +71,6 @@ public class IndexService {
         for (Item item : itemRepository.findAll()) {
             indexItem(item);
         }
-        searchItemRepository.rebuildAutocompleteIndex();
     }
 
 
@@ -99,6 +86,10 @@ public class IndexService {
             log.debug("vocabulary " + vocabulary.getCode() + " has no property type so no concepts are indexed");
             return Collections.emptyList();
         }
+    }
+
+    public void rebuildAutocompleteIndex() {
+        searchItemRepository.rebuildAutocompleteIndex();
     }
 
     public void removeConcepts(Vocabulary vocabulary) {
