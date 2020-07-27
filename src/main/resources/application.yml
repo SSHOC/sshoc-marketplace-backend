@@ -58,7 +58,7 @@ spring:
                         user-name-attribute: sub
 
     profiles:
-        active: ${SPRING_ACTIVE_PROFILE}
+        active: ${SPRING_ACTIVE_PROFILE:""}
 
 springdoc:
     version: '@api.version@'
