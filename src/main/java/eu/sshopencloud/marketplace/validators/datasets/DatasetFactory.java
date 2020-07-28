@@ -18,33 +18,19 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class DatasetValidator {
+public class DatasetFactory {
 
     private final DatasetRepository datasetRepository;
-
     private final ItemFactory itemFactory;
 
 
-    public Dataset validate(DatasetCore datasetCore, Long datasetId) throws ValidationException {
-        Dataset dataset = getOrCreateDataset(datasetId);
+    public Dataset create(DatasetCore datasetCore, Dataset prevDataset) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(datasetCore, "Dataset");
 
-        itemFactory.initializeItem(datasetCore, ItemCategory.DATASET, dataset, errors);
+        Dataset dataset = itemFactory.initializeItem(datasetCore, new Dataset(), prevDataset, ItemCategory.DATASET, errors);
 
         dataset.setDateCreated(datasetCore.getDateCreated());
         dataset.setDateLastUpdated(datasetCore.getDateLastUpdated());
-
-        if (datasetCore.getPrevVersionId() != null) {
-            if (datasetId != null && dataset.getId().equals(datasetCore.getPrevVersionId())) {
-                errors.rejectValue("prevVersionId", "field.cycle", "Previous dataset cannot be the same as the current one.");
-            }
-            Optional<Dataset> prevVersionHolder = datasetRepository.findById(datasetCore.getPrevVersionId());
-            if (!prevVersionHolder.isPresent()) {
-                errors.rejectValue("prevVersionId", "field.notExist", "Previous dataset does not exist.");
-            } else {
-                dataset.setNewPrevVersion(prevVersionHolder.get());
-            }
-        }
 
         if (errors.hasErrors()) {
             throw new ValidationException(errors);
@@ -52,14 +38,4 @@ public class DatasetValidator {
             return dataset;
         }
     }
-
-    private Dataset getOrCreateDataset(Long datasetId) {
-        if (datasetId != null) {
-            return datasetRepository.getOne(datasetId);
-        } else {
-            return new Dataset();
-        }
-    }
-
-
 }

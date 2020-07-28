@@ -23,20 +23,17 @@ public class TrainingMaterialFactory {
     private final ItemFactory itemFactory;
 
 
-    public TrainingMaterial create(TrainingMaterialCore trainingMaterialCore, Long baseTrainingMaterialId) throws ValidationException {
+    public TrainingMaterial create(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial)
+            throws ValidationException {
+
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(trainingMaterialCore, "TrainingMaterial");
 
         TrainingMaterial trainingMaterial = itemFactory.initializeItem(
-                trainingMaterialCore, new TrainingMaterial(), ItemCategory.TRAINING_MATERIAL, errors
+                trainingMaterialCore, new TrainingMaterial(), prevTrainingMaterial, ItemCategory.TRAINING_MATERIAL, errors
         );
 
         trainingMaterial.setDateCreated(trainingMaterialCore.getDateCreated());
         trainingMaterial.setDateLastUpdated(trainingMaterialCore.getDateLastUpdated());
-
-        TrainingMaterial baseTrainingMaterial =
-                (baseTrainingMaterialId != null) ? trainingMaterialRepository.getOne(baseTrainingMaterialId) : null;
-
-        trainingMaterial.setPrevVersion(baseTrainingMaterial);
 
         if (errors.hasErrors()) {
             throw new ValidationException(errors);

@@ -7,8 +7,6 @@ import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
-import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.validators.tools.ToolFactory;
@@ -32,7 +30,6 @@ public class ToolService {
     private final ToolRepository toolRepository;
     private final ToolFactory toolFactory;
     private final ItemService itemService;
-    private final ItemRelatedItemService itemRelatedItemService;
     private final IndexService indexService;
 
 
@@ -59,20 +56,19 @@ public class ToolService {
     }
 
     public ToolDto createTool(ToolCore toolCore) {
-        return createNewTool(toolCore, null);
+        return createNewToolVersion(toolCore, null);
     }
 
     public ToolDto updateTool(Long id, ToolCore toolCore) {
         if (!toolRepository.existsById(id))
             throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
 
-        return createNewTool(toolCore, id);
+        return createNewToolVersion(toolCore, id);
     }
 
-    private ToolDto createNewTool(ToolCore toolCore, Long prevToolId) {
-        Tool tool = toolFactory.create(toolCore, prevToolId);
-        itemService.updateInfoDates(tool);
-        itemService.addInformationContributorToItem(tool, LoggedInUserHolder.getLoggedInUser());
+    private ToolDto createNewToolVersion(ToolCore toolCore, Long prevToolId) {
+        Tool prevTool = (prevToolId != null) ? toolRepository.getOne(prevToolId) : null;
+        Tool tool = toolFactory.create(toolCore, prevTool);
 
         tool = toolRepository.save(tool);
         indexService.indexItem(tool);
@@ -90,5 +86,4 @@ public class ToolService {
         toolRepository.delete(tool);
         indexService.removeItem(tool);
     }
-
 }

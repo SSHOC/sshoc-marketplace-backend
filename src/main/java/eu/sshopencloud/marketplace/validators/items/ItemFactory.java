@@ -1,9 +1,12 @@
 package eu.sshopencloud.marketplace.validators.items;
 
 import eu.sshopencloud.marketplace.dto.items.ItemCore;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.validators.licenses.LicenceFactory;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.validators.sources.SourceValidator;
@@ -23,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.time.ZonedDateTime;
 
 
 @Service
@@ -32,15 +36,13 @@ import java.util.stream.Collectors;
 public class ItemFactory {
 
     private final LicenceFactory licenceFactory;
-
     private final ItemContributorValidator itemContributorValidator;
-
     private final PropertyValidator propertyValidator;
-
     private final SourceValidator sourceValidator;
+    private final UserRepository userRepository;
 
 
-    public <T extends Item> T initializeItem(ItemCore itemCore, T item, ItemCategory category, Errors errors) {
+    public <T extends Item> T initializeItem(ItemCore itemCore, T item, T prevItem, ItemCategory category, Errors errors) {
         item.setCategory(category);
         if (StringUtils.isBlank(itemCore.getLabel())) {
             errors.rejectValue("label", "field.required", "Label is required.");
@@ -49,6 +51,7 @@ public class ItemFactory {
         }
 
         item.setVersion(itemCore.getVersion());
+        item.setPrevVersion(prevItem);
 
         if (StringUtils.isBlank(itemCore.getDescription())) {
             errors.rejectValue("description", "field.required", "Description is required.");
@@ -106,6 +109,9 @@ public class ItemFactory {
             item.setStatus(itemCore.getStatus());
         }
 
+        setInfoDates(item);
+        setInformationContributors(item, prevItem);
+
         return item;
     }
 
@@ -119,13 +125,33 @@ public class ItemFactory {
                     try {
                         if (StringUtils.isNotBlank(url))
                             return new URL(url).toURI();
-                    }
-                    catch (MalformedURLException | URISyntaxException e) {
+                    } catch (MalformedURLException | URISyntaxException e) {
                         errors.rejectValue("accessibleAt", "field.invalid", "Accessible at is malformed URL.");
                     }
 
                     return null;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private void setInfoDates(Item item) {
+        ZonedDateTime now = ZonedDateTime.now();
+        item.setLastInfoUpdate(now);
+        if (item.getSource() != null) {
+            item.getSource().setLastHarvestedDate(now);
+        }
+    }
+
+    private void setInformationContributors(Item item, Item prevItem) {
+        if (prevItem != null) {
+            prevItem.getInformationContributors().forEach(item::addInformationContributor);
+        }
+
+        if (LoggedInUserHolder.getLoggedInUser() == null)
+            return;
+
+        User contributor = userRepository.findByUsername(LoggedInUserHolder.getLoggedInUser().getUsername());
+        if (contributor != null)
+            item.addInformationContributor(contributor);
     }
 }

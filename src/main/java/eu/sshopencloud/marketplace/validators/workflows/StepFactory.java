@@ -3,6 +3,8 @@ package eu.sshopencloud.marketplace.validators.workflows;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.workflows.Step;
+import eu.sshopencloud.marketplace.model.workflows.StepParent;
+import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import eu.sshopencloud.marketplace.repositories.workflows.StepRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.items.ItemFactory;
@@ -18,33 +20,21 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class StepValidator {
+public class StepFactory {
 
     private final StepRepository stepRepository;
-
     private final ItemFactory itemFactory;
 
 
-    public Step validate(StepCore stepCore, Long stepId, int numberOfSiblings) throws ValidationException {
-        Step step = getOrCreateStep(stepId);
+    public Step create(StepCore stepCore, Step prevStep, StepParent parent) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(stepCore, "Step");
 
-        itemFactory.initializeItem(stepCore, ItemCategory.STEP, step, errors);
+        Step step = itemFactory.initializeItem(stepCore, new Step(), prevStep, ItemCategory.STEP, errors);
+        copySteps(step, prevStep);
 
-        if (stepCore.getPrevVersionId() != null) {
-            if (stepId != null && step.getId().equals(stepCore.getPrevVersionId())) {
-                errors.rejectValue("prevVersionId", "field.cycle", "Previous step cannot be the same as the current one.");
-            }
-            Optional<Step> prevVersionHolder = stepRepository.findById(stepCore.getPrevVersionId());
-            if (!prevVersionHolder.isPresent()) {
-                errors.rejectValue("prevVersionId", "field.notExist", "Previous step does not exist.");
-            } else {
-                step.setNewPrevVersion(prevVersionHolder.get());
-            }
-        }
-
+        int numberOfSiblings = parent.getSteps().size();
         if (stepCore.getStepNo() != null) {
-            if (stepId != null) {
+            if (prevStep != null) {
                 if (stepCore.getStepNo() <= 0 || stepCore.getStepNo() > numberOfSiblings) {
                     errors.rejectValue("stepNo", "field.incorrect", "Incorrect step number.");
                 }
@@ -62,12 +52,10 @@ public class StepValidator {
         }
     }
 
-    private Step getOrCreateStep(Long stepId) {
-        if (stepId != null) {
-            return stepRepository.getOne(stepId);
-        } else {
-            return new Step();
-        }
-    }
+    private void copySteps(Step step, Step prevStep) {
+        if (prevStep == null)
+            return;
 
+        prevStep.getSubsteps().forEach(step::appendStep);
+    }
 }

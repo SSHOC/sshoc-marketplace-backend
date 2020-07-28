@@ -7,8 +7,6 @@ import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
-import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.validators.ValidationException;
@@ -34,7 +32,6 @@ public class TrainingMaterialService {
     private final TrainingMaterialRepository trainingMaterialRepository;
     private final TrainingMaterialFactory trainingMaterialFactory;
     private final ItemService itemService;
-    private final ItemRelatedItemService itemRelatedItemService;
     private final IndexService indexService;
 
 
@@ -61,7 +58,7 @@ public class TrainingMaterialService {
     }
 
     public TrainingMaterialDto createTrainingMaterial(TrainingMaterialCore trainingMaterialCore) throws ValidationException {
-        return createNewTrainingMaterial(trainingMaterialCore, null);
+        return createNewTrainingMaterialVersion(trainingMaterialCore, null);
     }
 
     public TrainingMaterialDto updateTrainingMaterial(Long id, TrainingMaterialCore trainingMaterialCore)
@@ -70,15 +67,16 @@ public class TrainingMaterialService {
         if (!trainingMaterialRepository.existsById(id))
             throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
 
-        return createNewTrainingMaterial(trainingMaterialCore, id);
+        return createNewTrainingMaterialVersion(trainingMaterialCore, id);
     }
 
-    private TrainingMaterialDto createNewTrainingMaterial(TrainingMaterialCore trainingMaterialCore,
-                                                          Long prevTrainingMaterialId) throws ValidationException {
+    private TrainingMaterialDto createNewTrainingMaterialVersion(TrainingMaterialCore trainingMaterialCore,
+                                                                 Long prevTrainingMaterialId) throws ValidationException {
 
-        TrainingMaterial trainingMaterial = trainingMaterialFactory.create(trainingMaterialCore, prevTrainingMaterialId);
-        itemService.updateInfoDates(trainingMaterial);
-        itemService.addInformationContributorToItem(trainingMaterial, LoggedInUserHolder.getLoggedInUser());
+        TrainingMaterial prevTrainingMaterial =
+                (prevTrainingMaterialId != null) ? trainingMaterialRepository.getOne(prevTrainingMaterialId) : null;
+
+        TrainingMaterial trainingMaterial = trainingMaterialFactory.create(trainingMaterialCore, prevTrainingMaterial);
 
         trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
         indexService.indexItem(trainingMaterial);

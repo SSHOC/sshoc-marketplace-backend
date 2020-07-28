@@ -5,14 +5,11 @@ import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
-import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
-import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
-import eu.sshopencloud.marketplace.validators.workflows.WorkflowValidator;
+import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,13 +29,8 @@ import java.util.stream.Collectors;
 public class WorkflowService {
 
     private final WorkflowRepository workflowRepository;
-
-    private final WorkflowValidator workflowValidator;
-
-    private final ItemRelatedItemService itemRelatedItemService;
-
+    private final WorkflowFactory workflowFactory;
     private final ItemService itemService;
-
     private final IndexService indexService;
 
 
@@ -68,52 +60,34 @@ public class WorkflowService {
         return workflow;
     }
 
-
     public WorkflowDto createWorkflow(WorkflowCore workflowCore) {
-        Workflow workflow = workflowValidator.validate(workflowCore, null);
-        itemService.updateInfoDates(workflow);
-
-        itemService.addInformationContributorToItem(workflow, LoggedInUserHolder.getLoggedInUser());
-
-        Item nextVersion = itemService.clearVersionForCreate(workflow);
-        workflow = workflowRepository.save(workflow);
-        itemService.switchVersion(workflow, nextVersion);
-        indexService.indexItem(workflow);
-
-        return completeWorkflow(WorkflowMapper.INSTANCE.toDto(workflow));
+        return createNewWorkflowVersion(workflowCore, null);
     }
 
-
     public WorkflowDto updateWorkflow(long workflowId, WorkflowCore workflowCore) {
-        if (!workflowRepository.existsById(workflowId)) {
+        if (!workflowRepository.existsById(workflowId))
             throw new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId);
-        }
-        Workflow workflow = workflowValidator.validate(workflowCore, workflowId);
-        itemService.updateInfoDates(workflow);
 
-        itemService.addInformationContributorToItem(workflow, LoggedInUserHolder.getLoggedInUser());
+        return createNewWorkflowVersion(workflowCore, workflowId);
+    }
 
-        Item prevVersion = workflow.getPrevVersion();
-        Item nextVersion = itemService.clearVersionForUpdate(workflow);
+    private WorkflowDto createNewWorkflowVersion(WorkflowCore workflowCore, Long prevWorkflowId) {
+        Workflow prevWorkflow = (prevWorkflowId != null) ? workflowRepository.getOne(prevWorkflowId) : null;
+        Workflow workflow = workflowFactory.create(workflowCore, prevWorkflow);
+
         workflow = workflowRepository.save(workflow);
-        itemService.switchVersion(prevVersion, nextVersion);
         indexService.indexItem(workflow);
 
         return itemService.completeItem(WorkflowMapper.INSTANCE.toDto(workflow));
     }
 
-
     public void deleteWorkflow(long workflowId) {
-        if (!workflowRepository.existsById(workflowId)) {
-            throw new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId);
-        }
-        Workflow workflow = workflowRepository.getOne(workflowId);
-        itemRelatedItemService.deleteRelationsForItem(workflow);
-        Item prevVersion = workflow.getPrevVersion();
-        Item nextVersion = itemService.clearVersionForDelete(workflow);
+        Workflow workflow = workflowRepository.findById(workflowId).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId)
+        );
+
+        itemService.cleanupItem(workflow);
         workflowRepository.delete(workflow);
-        itemService.switchVersion(prevVersion, nextVersion);
         indexService.removeItem(workflow);
     }
-
 }

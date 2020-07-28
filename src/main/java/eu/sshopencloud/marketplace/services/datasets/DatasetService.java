@@ -6,13 +6,10 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
-import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.repositories.datasets.DatasetRepository;
-import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
-import eu.sshopencloud.marketplace.validators.datasets.DatasetValidator;
+import eu.sshopencloud.marketplace.validators.datasets.DatasetFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,13 +29,8 @@ import java.util.stream.Collectors;
 public class DatasetService {
 
     private final DatasetRepository datasetRepository;
-
-    private final DatasetValidator datasetValidator;
-
+    private final DatasetFactory datasetFactory;
     private final ItemService itemService;
-
-    private final ItemRelatedItemService itemRelatedItemService;
-
     private final IndexService indexService;
 
 
@@ -65,46 +57,32 @@ public class DatasetService {
     }
 
     public DatasetDto createDataset(DatasetCore datasetCore) {
-        Dataset dataset = datasetValidator.validate(datasetCore, null);
-        itemService.updateInfoDates(dataset);
-
-        itemService.addInformationContributorToItem(dataset, LoggedInUserHolder.getLoggedInUser());
-
-        Item nextVersion = itemService.clearVersionForCreate(dataset);
-        dataset = datasetRepository.save(dataset);
-        itemService.switchVersion(dataset, nextVersion);
-        indexService.indexItem(dataset);
-        return itemService.completeItem(DatasetMapper.INSTANCE.toDto(dataset));
+        return createNewDatasetVersion(datasetCore, null);
     }
 
     public DatasetDto updateDataset(Long id, DatasetCore datasetCore) {
-        if (!datasetRepository.existsById(id)) {
+        if (!datasetRepository.existsById(id))
             throw new EntityNotFoundException("Unable to find " + Dataset.class.getName() + " with id " + id);
-        }
-        Dataset dataset = datasetValidator.validate(datasetCore, id);
-        itemService.updateInfoDates(dataset);
 
-        itemService.addInformationContributorToItem(dataset, LoggedInUserHolder.getLoggedInUser());
+        return createNewDatasetVersion(datasetCore, id);
+    }
 
-        Item prevVersion = dataset.getPrevVersion();
-        Item nextVersion = itemService.clearVersionForUpdate(dataset);
+    private DatasetDto createNewDatasetVersion(DatasetCore datasetCore, Long prevDatasetId) {
+        Dataset prevDataset = (prevDatasetId != null) ? datasetRepository.getOne(prevDatasetId) : null;
+        Dataset dataset = datasetFactory.create(datasetCore, prevDataset);
+
         dataset = datasetRepository.save(dataset);
-        itemService.switchVersion(prevVersion, nextVersion);
         indexService.indexItem(dataset);
+
         return itemService.completeItem(DatasetMapper.INSTANCE.toDto(dataset));
     }
 
     public void deleteDataset(Long id) {
-        if (!datasetRepository.existsById(id)) {
-            throw new EntityNotFoundException("Unable to find " + Dataset.class.getName() + " with id " + id);
-        }
-        Dataset dataset = datasetRepository.getOne(id);
-        itemRelatedItemService.deleteRelationsForItem(dataset);
-        Item prevVersion = dataset.getPrevVersion();
-        Item nextVersion = itemService.clearVersionForDelete(dataset);
+        Dataset dataset = datasetRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Dataset.class.getName() + " with id " + id));
+
+        itemService.cleanupItem(dataset);
         datasetRepository.delete(dataset);
-        itemService.switchVersion(prevVersion, nextVersion);
         indexService.removeItem(dataset);
     }
-
 }

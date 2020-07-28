@@ -28,36 +28,14 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
-
     private final ItemRelatedItemService itemRelatedItemService;
-
     private final PropertyTypeService propertyTypeService;
-
-    private final UserRepository userRepository;
-
-    private final SourceRepository sourceRepository;
 
 
     public List<ItemBasicDto> getItems(Long sourceId, String sourceItemId) {
         List<Item> items = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);
         return items.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
     }
-
-
-    public void addInformationContributorToItem(Item item, User contributor) {
-        User user = userRepository.findByUsername(contributor.getUsername());
-        item.addInformationContributor(contributor);
-    }
-
-    public void updateInfoDates(Item item) {
-        ZonedDateTime now = ZonedDateTime.now();
-        item.setLastInfoUpdate(now);
-        if (item.getSource() != null) {
-            item.getSource().setLastHarvestedDate(now);
-            sourceRepository.save(item.getSource());
-        }
-    }
-
 
     public List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
         // TODO change to recursive subordinates query in ItemRepository

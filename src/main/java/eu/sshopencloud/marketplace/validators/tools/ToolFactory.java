@@ -21,13 +21,11 @@ public class ToolFactory {
     private final ItemFactory itemFactory;
 
 
-    public Tool create(ToolCore toolCore, Long baseToolId) throws ValidationException {
+    public Tool create(ToolCore toolCore, Tool prevTool) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(toolCore, "Tool");
 
-        Tool tool = itemFactory.initializeItem(toolCore, new Tool(), ItemCategory.TOOL_OR_SERVICE, errors);
-
-        Tool baseTool = (baseToolId != null) ? toolRepository.getOne(baseToolId) : null;
-        tool.setPrevVersion(baseTool);
+        Tool tool = itemFactory.initializeItem(toolCore, new Tool(), prevTool, ItemCategory.TOOL_OR_SERVICE, errors);
+        tool.setPrevVersion(prevTool);
 
         if (errors.hasErrors()) {
             throw new ValidationException(errors);
