@@ -4,3 +4,6 @@ spring:
     data:
         solr:
             host: "http://solr:8983/solr"
+
+    liquibase:
+        contexts: dev

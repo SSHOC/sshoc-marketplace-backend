@@ -39,10 +39,6 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
             initialDataLoader.clearSearchIndexes();
         }
 
-        initialDataLoader.loadBasicData();
-
-        initialLicenseLoader.loadLicenseData();
-
         initialVocabularyLoader.loadVocabularies();
         initialVocabularyLoader.loadPropertyTypeData();
 
