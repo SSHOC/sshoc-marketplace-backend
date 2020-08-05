@@ -9,7 +9,4 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class ToolCore extends ItemCore {
-
-    private String repository;
-
 }

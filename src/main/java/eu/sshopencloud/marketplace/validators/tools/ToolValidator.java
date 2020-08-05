@@ -31,8 +31,6 @@ public class ToolValidator {
 
         itemValidator.validate(toolCore, ItemCategory.TOOL, tool, errors);
 
-        tool.setRepository(toolCore.getRepository());
-
         if (toolCore.getPrevVersionId() != null) {
             if (toolId != null && tool.getId().equals(toolCore.getPrevVersionId())) {
                 errors.rejectValue("prevVersionId", "field.cycle", "Previous tool cannot be the same as the current one.");

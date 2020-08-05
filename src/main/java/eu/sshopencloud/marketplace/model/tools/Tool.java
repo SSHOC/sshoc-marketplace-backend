@@ -13,9 +13,4 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class Tool extends Item {
-
-    @Basic
-    @Column(nullable = true, length = 2048)
-    private String repository;
-
 }
