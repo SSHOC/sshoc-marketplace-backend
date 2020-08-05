@@ -45,5 +45,5 @@ In IntelliJ / Eclipse run eu.sshopencloud.marketplace.MarketplaceApplication
 Run tests:
 
 ```
-mvn verify -Dspring.profiles.active=test
+APPLICATION_PROFILE=test mvn verify
 ```
