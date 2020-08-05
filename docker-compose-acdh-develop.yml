@@ -10,7 +10,7 @@ services:
       - psql
       - solr
     environment:
-      SPRING_ACTIVE_PROFILE: prod
+      APPLICATION_PROFILE: prod
       POSTGRES_DB: marketplace_db
       POSTGRES_USER: marketplace
       POSTGRES_PASSWORD: marketplace
