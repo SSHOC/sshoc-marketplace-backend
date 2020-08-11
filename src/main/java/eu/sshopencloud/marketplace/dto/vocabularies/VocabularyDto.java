@@ -12,7 +12,5 @@ import java.util.List;
 public class VocabularyDto extends VocabularyBasicDto {
 
     private String description;
-
-    private List<ConceptDto> concepts;
-
+    private PaginatedConcepts conceptResults;
 }

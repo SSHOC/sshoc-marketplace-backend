@@ -8,11 +8,12 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
-public class PaginatedVocabularies extends PaginatedResult {
+public class PaginatedConcepts extends PaginatedResult {
 
-    private List<VocabularyBasicDto> vocabularies;
+    private List<ConceptDto> concepts;
 }
