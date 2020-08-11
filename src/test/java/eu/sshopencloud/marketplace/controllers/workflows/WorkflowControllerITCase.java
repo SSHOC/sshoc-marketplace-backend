@@ -27,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Slf4j
+@Transactional
 public class WorkflowControllerITCase {
 
     @Autowired
@@ -598,15 +600,13 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
-                .andExpect(jsonPath("composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
                 .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
                 .andExpect(jsonPath("composedOf[1].label", is("Run an inflectional analyzer")))
                 .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
                 .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
-                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
-                .andExpect(jsonPath("composedOf[3].label", is("The last step in a workflow")))
-                .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)));
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
 
         Integer stepId = 22;
 
@@ -670,7 +670,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
-                .andExpect(jsonPath("composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
                 .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(1)))
                 .andExpect(jsonPath("composedOf[0].composedOf[0].label", is("The substep of a step in a workflow")))
@@ -685,9 +685,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[1].label", is("Run an inflectional analyzer")))
                 .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
                 .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
-                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
-                .andExpect(jsonPath("composedOf[3].label", is("The last step in a workflow")))
-                .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)));
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
     }
 
     @Test

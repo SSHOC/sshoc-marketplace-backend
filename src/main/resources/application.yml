@@ -11,19 +11,24 @@ spring:
         url: "jdbc:postgresql://localhost:5432/marketplace_db"
         username: marketplace
         password: marketplace
+
         hikari:
+            initialization-fail-timeout: 10000
             connection-timeout: 60000
             maximum-pool-size: 5
     jpa:
         hibernate:
-            ddl-auto: create-drop
+            ddl-auto: validate
+
         show-sql: false
         open-in-view: false
         properties:
-            hibernate: 
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQL9Dialect
                 jdbc:
                     lob: 
                         non_contextual_creation: true
+
     jackson:
         serialization:
             fail-on-empty-beans: false
@@ -58,7 +63,7 @@ spring:
                         user-name-attribute: sub
 
     profiles:
-        active: ${SPRING_ACTIVE_PROFILE:""}
+        active: ${APPLICATION_PROFILE:""}
 
 springdoc:
     version: '@api.version@'

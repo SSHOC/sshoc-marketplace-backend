@@ -6,6 +6,6 @@ spring:
     data:
         solr:
             host: "http://${SOLR_HOST}:${SOLR_PORT}/solr"
-    jpa:
-        hibernate:
-            ddl-auto: update
+
+    liquibase:
+        contexts: prod

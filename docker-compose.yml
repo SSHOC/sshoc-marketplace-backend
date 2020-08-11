@@ -10,7 +10,7 @@ services:
       - psql
       - solr
     environment:
-      SPRING_ACTIVE_PROFILE: dev
+      APPLICATION_PROFILE: dev
       egi_id: ${egi_id}
       egi_secret: ${egi_secret}
       token_secret: ${token_secret}

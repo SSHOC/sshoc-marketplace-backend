@@ -1,0 +1,1467 @@
+databaseChangeLog:
+- changeSet:
+    id: 1594046029128-1
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: property_types_pkey
+            name: code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: ord
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: type
+            type: VARCHAR(255)
+        tableName: property_types
+- changeSet:
+    id: 1594046029128-2
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: licenses_pkey
+            name: code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: accessible_at
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        tableName: licenses
+- changeSet:
+    id: 1594046029128-3
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: item_comments_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: body
+            type: VARCHAR(4096)
+        - column:
+            constraints:
+              nullable: false
+            name: date_created
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: date_last_updated
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+            name: creator_id
+            type: BIGINT
+        tableName: item_comments
+- changeSet:
+    id: 1594046029128-4
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: item_relations_pkey
+            name: code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: ord
+            type: INTEGER
+        - column:
+            name: inverse_of_code
+            type: VARCHAR(255)
+        tableName: item_relations
+- changeSet:
+    id: 1594046029128-5
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_related_items_pkey
+            name: object_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_related_items_pkey
+            name: subject_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: relation_code
+            type: VARCHAR(255)
+        tableName: items_related_items
+- changeSet:
+    id: 1594046029128-6
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: properties_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: ord
+            type: INTEGER
+        - column:
+            name: value
+            type: VARCHAR(2048)
+        - column:
+            name: code
+            type: VARCHAR(255)
+        - column:
+            name: vocabulary_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: item_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: type_code
+            type: VARCHAR(255)
+        tableName: properties
+- changeSet:
+    id: 1594046029128-7
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: datasets_pkey
+            name: id
+            type: BIGINT
+        tableName: datasets
+- changeSet:
+    id: 1594046029128-8
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: license_types_pkey
+            name: code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: ord
+            type: INTEGER
+        tableName: license_types
+- changeSet:
+    id: 1594046029128-9
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: date_created
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: date_last_updated
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: digital_objects_pkey
+            name: id
+            type: BIGINT
+        tableName: digital_objects
+- changeSet:
+    id: 1594046029128-10
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: licenses_license_types_pkey
+            name: license_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: type_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: licenses_license_types_pkey
+            name: ord
+            type: INTEGER
+        tableName: licenses_license_types
+- changeSet:
+    id: 1594046029128-11
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_information_contributors_pkey
+            name: item_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: user_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_information_contributors_pkey
+            name: ord
+            type: INTEGER
+        tableName: items_information_contributors
+- changeSet:
+    id: 1594046029128-12
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: workflows_pkey
+            name: id
+            type: BIGINT
+        tableName: workflows
+- changeSet:
+    id: 1594046029128-13
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_licenses_pkey
+            name: item_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: license_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_licenses_pkey
+            name: ord
+            type: INTEGER
+        tableName: items_licenses
+- changeSet:
+    id: 1594046029128-14
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_items_comments_pkey
+            name: item_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: item_comment_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_items_comments_pkey
+            name: ord
+            type: INTEGER
+        tableName: items_items_comments
+- changeSet:
+    id: 1594046029128-15
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: users_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: display_name
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: email
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            defaultValueBoolean: false
+            name: enabled
+            type: BOOLEAN
+        - column:
+            name: password
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: preferences
+            type: TEXT
+        - column:
+            name: provider
+            type: VARCHAR(255)
+        - column:
+            name: registration_date
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: role
+            type: VARCHAR(255)
+        - column:
+            name: token_key
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: username
+            type: VARCHAR(255)
+        tableName: users
+- changeSet:
+    id: 1594046029128-16
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: subject_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: subject_vocabulary_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: object_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: object_vocabulary_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: relation_code
+            type: VARCHAR(255)
+        tableName: concepts_related_concepts
+- changeSet:
+    id: 1594046029128-17
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: ord
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_contributors_pkey
+            name: item_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_contributors_pkey
+            name: actor_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: role_code
+            type: VARCHAR(255)
+        tableName: items_contributors
+- changeSet:
+    id: 1594046029128-18
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: property_types_vocabularies_pkey
+            name: property_type_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: property_types_vocabularies_pkey
+            name: vocabulary_code
+            type: VARCHAR(255)
+        tableName: property_types_vocabularies
+- changeSet:
+    id: 1594046029128-19
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: repository
+            type: VARCHAR(2048)
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: tools_pkey
+            name: id
+            type: BIGINT
+        tableName: tools
+- changeSet:
+    id: 1594046029128-20
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: concepts_pkey
+            name: code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: concepts_pkey
+            name: vocabulary_code
+            type: VARCHAR(255)
+        - column:
+            name: definition
+            type: VARCHAR(4096)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: notation
+            type: VARCHAR(255)
+        - column:
+            name: ord
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: uri
+            type: VARCHAR(2048)
+        tableName: concepts
+- changeSet:
+    id: 1594046029128-21
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: steps_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: step_id
+            type: BIGINT
+        - column:
+            name: workflow_id
+            type: BIGINT
+        - column:
+            name: ord
+            type: INTEGER
+        tableName: steps
+- changeSet:
+    id: 1594046029128-22
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: actors_affiliations_pkey
+            name: actor_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: affiliation_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: actors_affiliations_pkey
+            name: ord
+            type: INTEGER
+        tableName: actors_affiliations
+- changeSet:
+    id: 1594046029128-23
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: actor_roles_pkey
+            name: code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: ord
+            type: INTEGER
+        tableName: actor_roles
+- changeSet:
+    id: 1594046029128-24
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: vocabularies_pkey
+            name: code
+            type: VARCHAR(255)
+        - column:
+            name: accessible_at
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: description
+            type: VARCHAR(4096)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        tableName: vocabularies
+- changeSet:
+    id: 1594046029128-25
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: training_materials_pkey
+            name: id
+            type: BIGINT
+        tableName: training_materials
+- changeSet:
+    id: 1594046029128-26
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: sources_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: domain
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        - column:
+            name: last_harvested_date
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+            name: url
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: url_template
+            type: VARCHAR(255)
+        tableName: sources
+- changeSet:
+    id: 1594046029128-27
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: items_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: accessible_at
+            type: VARCHAR(2048)
+        - column:
+            constraints:
+              nullable: false
+            name: category
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: description
+            type: VARCHAR(4096)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: last_info_update
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: source_item_id
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            defaultValue: INGESTED
+            name: status
+            type: VARCHAR(255)
+        - column:
+            name: version
+            type: VARCHAR(255)
+        - column:
+            name: prev_version_id
+            type: BIGINT
+        - column:
+            name: source_id
+            type: BIGINT
+        tableName: items
+- changeSet:
+    id: 1594046029128-28
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: concept_relations_pkey
+            name: code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: label
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: ord
+            type: INTEGER
+        - column:
+            name: inverse_of_code
+            type: VARCHAR(255)
+        tableName: concept_relations
+- changeSet:
+    id: 1594046029128-29
+    author: swolarz (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: actors_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: email
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: name
+            type: VARCHAR(255)
+        - column:
+            name: website
+            type: VARCHAR(255)
+        tableName: actors
+- changeSet:
+    id: 1594046029128-30
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: property_type_code
+        baseTableName: property_types_vocabularies
+        constraintName: property_types_vocabularies_property_type_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: property_types
+        validate: true
+- changeSet:
+    id: 1594046029128-31
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: item_comment_id
+        baseTableName: items_items_comments
+        constraintName: items_items_comments_item_comment_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: item_comments
+        validate: true
+- changeSet:
+    id: 1594046029128-32
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: relation_code
+        baseTableName: items_related_items
+        constraintName: items_related_items_relation_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: item_relations
+        validate: true
+- changeSet:
+    id: 1594046029128-33
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: type_code
+        baseTableName: properties
+        constraintName: property_type_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: property_types
+        validate: true
+- changeSet:
+    id: 1594046029128-34
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: id
+        baseTableName: training_materials
+        constraintName: fk1fnmdflsmtuc01mfeaqxfgbdp
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: digital_objects
+        validate: true
+- changeSet:
+    id: 1594046029128-35
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: id
+        baseTableName: datasets
+        constraintName: fk67c5qf0yx3ih8c66yjndlmc0r
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: digital_objects
+        validate: true
+- changeSet:
+    id: 1594046029128-36
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: license_code
+        baseTableName: licenses_license_types
+        constraintName: licenses_license_types_license_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: licenses
+        validate: true
+- changeSet:
+    id: 1594046029128-37
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: type_code
+        baseTableName: licenses_license_types
+        constraintName: licenses_license_types_type_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: license_types
+        validate: true
+- changeSet:
+    id: 1594046029128-38
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: license_code
+        baseTableName: items_licenses
+        constraintName: item_license_license_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: licenses
+        validate: true
+- changeSet:
+    id: 1594046029128-39
+    author: swolarz (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: item_comment_id
+        constraintName: uk_3835kp5rx2pe97vaf7oyosorh
+        tableName: items_items_comments
+- changeSet:
+    id: 1594046029128-40
+    author: swolarz (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: email
+        constraintName: uk_6dotkott2kjsp8vw4d0m25fb7
+        tableName: users
+- changeSet:
+    id: 1594046029128-41
+    author: swolarz (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: username
+        constraintName: uk_r43af9ap4edm43mmtq01oddj6
+        tableName: users
+- changeSet:
+    id: 1594046029128-42
+    author: swolarz (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: object_code, object_vocabulary_code, subject_code, subject_vocabulary_code
+        constraintName: concepts_related_concepts_pkey
+        tableName: concepts_related_concepts
+- changeSet:
+    id: 1594046029128-43
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: object_code,object_vocabulary_code
+        baseTableName: concepts_related_concepts
+        constraintName: concepts_related_concepts_object_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code,vocabulary_code
+        referencedTableName: concepts
+        validate: true
+- changeSet:
+    id: 1594046029128-44
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: subject_code,subject_vocabulary_code
+        baseTableName: concepts_related_concepts
+        constraintName: concepts_related_concepts_subject_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code,vocabulary_code
+        referencedTableName: concepts
+        validate: true
+- changeSet:
+    id: 1594046029128-45
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: code,vocabulary_code
+        baseTableName: properties
+        constraintName: property_concept_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code,vocabulary_code
+        referencedTableName: concepts
+        validate: true
+- changeSet:
+    id: 1594046029128-46
+    author: swolarz (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: uri
+        constraintName: uk_q4000edxs79g5yxv7p1y2kpxi
+        tableName: concepts
+- changeSet:
+    id: 1594046029128-47
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: step_id
+        baseTableName: steps
+        constraintName: step_step_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: steps
+        validate: true
+- changeSet:
+    id: 1594046029128-48
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: workflow_id
+        baseTableName: steps
+        constraintName: step_workflow_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: workflows
+        validate: true
+- changeSet:
+    id: 1594046029128-49
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: role_code
+        baseTableName: items_contributors
+        constraintName: item_contributor_actor_role_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: actor_roles
+        validate: true
+- changeSet:
+    id: 1594046029128-50
+    author: swolarz (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: prev_version_id
+        constraintName: item_prev_version_item_id_uq
+        tableName: items
+- changeSet:
+    id: 1594046029128-51
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: source_id
+        baseTableName: items
+        constraintName: item_source_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: sources
+        validate: true
+- changeSet:
+    id: 1594046029128-52
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: object_id
+        baseTableName: items_related_items
+        constraintName: items_related_items_object_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-53
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: subject_id
+        baseTableName: items_related_items
+        constraintName: items_related_items_subject_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-54
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: item_id
+        baseTableName: properties
+        constraintName: property_item_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-55
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: relation_code
+        baseTableName: concepts_related_concepts
+        constraintName: concepts_related_concepts_relation_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: concept_relations
+        validate: true
+- changeSet:
+    id: 1594046029128-56
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: actor_id
+        baseTableName: items_contributors
+        constraintName: item_contributor_actor_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: actors
+        validate: true
+- changeSet:
+    id: 1594046029128-57
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: creator_id
+        baseTableName: item_comments
+        constraintName: item_comment_creator_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: users
+        validate: true
+- changeSet:
+    id: 1594046029128-58
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: inverse_of_code
+        baseTableName: item_relations
+        constraintName: item_relation_inverse_of_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: item_relations
+        validate: true
+- changeSet:
+    id: 1594046029128-59
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: id
+        baseTableName: digital_objects
+        constraintName: fk5v5c2fvgiqt2ms8s8aq135ew8
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-60
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: item_id
+        baseTableName: items_information_contributors
+        constraintName: item_information_contributor_item_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-61
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: items_information_contributors
+        constraintName: item_information_contributor_user_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: users
+        validate: true
+- changeSet:
+    id: 1594046029128-62
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: id
+        baseTableName: workflows
+        constraintName: fk584ill3kx8mrhlccugt97ngiv
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-63
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: item_id
+        baseTableName: items_licenses
+        constraintName: item_license_item_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-64
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: item_id
+        baseTableName: items_items_comments
+        constraintName: items_items_comments_item_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-65
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: item_id
+        baseTableName: items_contributors
+        constraintName: item_contributor_item_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-66
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: vocabulary_code
+        baseTableName: property_types_vocabularies
+        constraintName: property_types_vocabularies_vocabulary_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: vocabularies
+        validate: true
+- changeSet:
+    id: 1594046029128-67
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: id
+        baseTableName: tools
+        constraintName: fkebmq8tqbrkhas41c91ddth8n3
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-68
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: vocabulary_code
+        baseTableName: concepts
+        constraintName: concept_vocabulary_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: vocabularies
+        validate: true
+- changeSet:
+    id: 1594046029128-69
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: id
+        baseTableName: steps
+        constraintName: fkitscs8bm0gvfeqqgf4oxd49et
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-70
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: actor_id
+        baseTableName: actors_affiliations
+        constraintName: actors_affiliations_actor_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: actors
+        validate: true
+- changeSet:
+    id: 1594046029128-71
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: affiliation_id
+        baseTableName: actors_affiliations
+        constraintName: actors_affiliations_affiliation_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: actors
+        validate: true
+- changeSet:
+    id: 1594046029128-72
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: prev_version_id
+        baseTableName: items
+        constraintName: item_prev_version_item_id_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: items
+        validate: true
+- changeSet:
+    id: 1594046029128-73
+    author: swolarz (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: inverse_of_code
+        baseTableName: concept_relations
+        constraintName: concept_relation_inverse_of_code_fk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: code
+        referencedTableName: concept_relations
+        validate: true
+- changeSet:
+    id: 1594046029128-74
+    author: swolarz (generated)
+    changes:
+    - createSequence:
+        sequenceName: actors_id_seq
+        incrementBy: 50
+- changeSet:
+    id: 1594046029128-75
+    author: swolarz (generated)
+    changes:
+    - createSequence:
+        sequenceName: item_comments_id_seq
+        incrementBy: 50
+- changeSet:
+    id: 1594046029128-76
+    author: swolarz (generated)
+    changes:
+    - createSequence:
+        sequenceName: items_id_seq
+        incrementBy: 50
+- changeSet:
+    id: 1594046029128-77
+    author: swolarz (generated)
+    changes:
+    - createSequence:
+        sequenceName: properties_id_seq
+        incrementBy: 50
+- changeSet:
+    id: 1594046029128-78
+    author: swolarz (generated)
+    changes:
+    - createSequence:
+        sequenceName: sources_id_seq
+        incrementBy: 50
+- changeSet:
+    id: 1594046029128-79
+    author: swolarz (generated)
+    changes:
+    - createSequence:
+        sequenceName: users_id_seq
+        incrementBy: 50
+
+

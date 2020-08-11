@@ -25,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Slf4j
+@Transactional
 public class TrainingMaterialControllerITCase {
 
     @Autowired
@@ -81,7 +83,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("informationContributors", hasSize(1)))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(3)));
+                .andExpect(jsonPath("newerVersions", hasSize(2)));
     }
 
     @Test
@@ -287,7 +289,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("olderVersions[0].id", is(6)))
                 .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("olderVersions[0].version", is("2.0")))
-                .andExpect(jsonPath("newerVersions", hasSize(2)))
+                .andExpect(jsonPath("newerVersions", hasSize(1)))
                 .andExpect(jsonPath("newerVersions[0].id", is(7)))
                 .andExpect(jsonPath("newerVersions[0].label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("newerVersions[0].version", is("3.0")));
@@ -853,10 +855,13 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(1)))
-                .andExpect(jsonPath("newerVersions[0].id", is(7)))
+                .andExpect(jsonPath("newerVersions", hasSize(2)))
+                .andExpect(jsonPath("newerVersions[0].id", is(6)))
                 .andExpect(jsonPath("newerVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("newerVersions[0].version", is("3.0")));
+                .andExpect(jsonPath("newerVersions[0].version", is("2.0")))
+                .andExpect(jsonPath("newerVersions[1].id", is(7)))
+                .andExpect(jsonPath("newerVersions[1].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("newerVersions[1].version", is("3.0")));
     }
 
     @Test
@@ -967,7 +972,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
-                .andExpect(jsonPath("olderVersions", hasSize(2)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
                 .andExpect(jsonPath("olderVersions[0].id", is(5)))
                 .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("olderVersions[0].version", is("1.0")))
@@ -1423,11 +1428,11 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(trainingMaterialId)))
-                .andExpect(jsonPath("olderVersions", hasSize(2)))
-                .andExpect(jsonPath("olderVersions[1].id", is(5)))
-                .andExpect(jsonPath("olderVersions[1].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[1].version", is("1.0")))
-                .andExpect(jsonPath("newerVersions", hasSize(1)));
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(5)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("olderVersions[0].version", is("1.0")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
     }
 

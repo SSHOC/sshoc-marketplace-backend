@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_0-test_data-1
+      author: swolarz
+      description: Loads dev/test data
+      context: dev, test
+      changes:
+        - sqlFile:
+            dbms:  'postgresql'
+            encoding:  UTF-8
+            path:  db/changelog/sql/dev-data.sql
+            relativeToChangelogFile:  false
+
