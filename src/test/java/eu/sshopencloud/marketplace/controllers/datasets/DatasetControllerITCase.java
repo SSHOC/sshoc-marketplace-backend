@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -223,7 +224,7 @@ public class DatasetControllerITCase {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with malformed Url");
         dataset.setDescription("Lorem ipsum");
-        dataset.setAccessibleAt("Malformed Url");
+        dataset.setAccessibleAt(Arrays.asList("Malformed Url"));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
         log.debug("JSON: " + payload);
@@ -236,6 +237,85 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("errors[0].field", is("accessibleAt")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldCreateDatasetWithAccessibleAtAndSourceAndSourceItemId() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with source");
+        dataset.setDescription("Lorem ipsum");
+        SourceId source = new SourceId();
+        source.setId(2l);
+        dataset.setSource(source);
+        dataset.setSourceItemId("testSourceItemId");
+
+        dataset.setAccessibleAt(
+                Arrays.asList(
+                        "https://test1.programminghistorian.org",
+                        "https://test2.programminghistorian.org",
+                        "https://test3.programminghistorian.org"
+                )
+        );
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/datasets")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test dataset with source")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("testSourceItemId")))
+                .andExpect(jsonPath("accessibleAt", hasSize(3)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://test1.programminghistorian.org")))
+                .andExpect(jsonPath("accessibleAt[1]", is("https://test2.programminghistorian.org")))
+                .andExpect(jsonPath("accessibleAt[2]", is("https://test3.programminghistorian.org")));
+    }
+
+    @Test
+    public void shouldCreateDatasetWithAccessibleAtWithSourceUrl() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with source");
+        dataset.setDescription("Lorem ipsum");
+        dataset.setSourceItemId("testSourceItemId");
+
+        dataset.setAccessibleAt(
+                Arrays.asList(
+                        "https://programminghistorian.org",
+                        "https://test.programminghistorian.org",
+                        "https://dev.programminghistorian.org"
+                )
+        );
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/datasets")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test dataset with source")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("testSourceItemId")))
+                .andExpect(jsonPath("accessibleAt", hasSize(3)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("accessibleAt[1]", is("https://test.programminghistorian.org")))
+                .andExpect(jsonPath("accessibleAt[2]", is("https://dev.programminghistorian.org")));
     }
 
     @Test

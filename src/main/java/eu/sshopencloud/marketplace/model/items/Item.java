@@ -12,6 +12,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -22,7 +24,6 @@ import java.util.List;
 @Data
 @ToString(exclude = {"prevVersion", "newPrevVersion"})
 @EqualsAndHashCode(exclude = {"prevVersion", "newPrevVersion"})
-@NoArgsConstructor
 public abstract class Item {
 
     @Id
@@ -61,9 +62,11 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<Property> properties;
 
-    @Basic
-    @Column(nullable = true, length = 2048)
-    private String accessibleAt;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "item_links")
+    @Column(name = "url", length = 2048)
+    @OrderColumn(name = "ord")
+    private List<String> accessibleAt;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="item_source_id_fk"))
@@ -103,4 +106,20 @@ public abstract class Item {
     @Transient
     private Item newPrevVersion;
 
+
+    public Item() {
+        this.accessibleAt = new ArrayList<>();
+    }
+
+    public List<String> getAccessibleAt() {
+        return Collections.unmodifiableList(accessibleAt);
+    }
+
+    public void addAccessibleAtLink(String linkUrl) {
+        accessibleAt.add(linkUrl);
+    }
+
+    public void clearAcessibleAtLinks() {
+        accessibleAt.clear();
+    }
 }

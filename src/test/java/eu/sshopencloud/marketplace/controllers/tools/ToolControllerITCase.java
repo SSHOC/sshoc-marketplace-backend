@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -96,7 +97,7 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
-        tool.setAccessibleAt("http://fake.tapor.ca");
+        tool.setAccessibleAt(Arrays.asList("http://fake.tapor.ca"));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
@@ -109,7 +110,8 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("accessibleAt", is("http://fake.tapor.ca")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
                 .andExpect(jsonPath("informationContributors", hasSize(1)))
                 .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
                 .andExpect(jsonPath("properties", hasSize(1)))
@@ -611,7 +613,7 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
-        tool.setAccessibleAt("http://example.com");
+        tool.setAccessibleAt(Arrays.asList("http://example.com"));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
@@ -625,7 +627,8 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("accessibleAt", is("http://example.com")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("http://example.com")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(1)))
@@ -750,7 +753,7 @@ public class ToolControllerITCase {
         tool.setLabel("Gephi");
         tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
         tool.setPrevVersionId(3l);
-        tool.setAccessibleAt("https://gephi.org/");
+        tool.setAccessibleAt(Arrays.asList("https://gephi.org/"));
         tool.setRepository("https://github.com/gephi/gephi");
         LicenseId license1 = new LicenseId();
         license1.setCode("cddl-1.0");
@@ -831,7 +834,8 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("olderVersions[0].id", is(3)))
                 .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)))
-                .andExpect(jsonPath("accessibleAt", is("https://gephi.org/")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
                 .andExpect(jsonPath("repository", is("https://github.com/gephi/gephi")))
                 .andExpect(jsonPath("licenses", hasSize(2)))
                 .andExpect(jsonPath("contributors", hasSize(2)))
@@ -1313,4 +1317,38 @@ public class ToolControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void shouldCreateToolWithMultipleAccessibleAtUrlsWithoutSource() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Test simple software");
+        tool.setDescription("Lorem ipsum");
+        tool.setAccessibleAt(
+                Arrays.asList(
+                        "http://fake.tapor.ca",
+                        "http://fake.tapor.com",
+                        "http://fake.tapor.org"
+                )
+        );
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/tools")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("label", is("Test simple software")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", hasSize(3)))
+                .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
+                .andExpect(jsonPath("accessibleAt[1]", is("http://fake.tapor.com")))
+                .andExpect(jsonPath("accessibleAt[2]", is("http://fake.tapor.org")))
+                .andExpect(jsonPath("informationContributors", hasSize(1)))
+                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("Tool")))
+                .andExpect(jsonPath("source", nullValue()));
+    }
 }
