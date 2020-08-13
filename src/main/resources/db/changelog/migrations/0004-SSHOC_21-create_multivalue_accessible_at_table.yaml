@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1594046029128-1
+      author: swolarz
+      description: Create table for multivalued accessibleAt field in Item
+      changes:
+        - createTable:
+            columns:
+            - column:
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                name: id
+                type: bigint
+                autoIncrement: true
+            - column:
+                constraints:
+                  nullable: false
+                name: url
+                type: VARCHAR(2048)
+            - column:
+                constraints:
+                  nullable: false
+                name: ord
+                type: integer
+            - column:
+                constraints:
+                  nullable: false
+                  foreignKeyName: item_links_item_fk
+                  references: items(id)
+                name: item_id
+                type: bigint
+            tableName: item_links
+
+  - changeSet:
+      id: 1594046029128-2
+      author: swolarz
+      description: Copy accessibleAt data from old column to the new table for multivalued accessibleAt table
+      changes:
+        - sql:
+            sql: insert into item_links (url, ord, item_id) select i.accessible_at, 0, i.id from items as i where i.accessible_at is not NULL
+
+  - changeSet:
+      id: 1594046029128-3
+      author: swolarz
+      description: Drop old accessibleAt column in items table
+      changes:
+        - dropColumn:
+            tableName: items
+            columnName: accessible_at

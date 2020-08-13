@@ -29,7 +29,7 @@ public class ItemDto extends ItemBasicDto {
 
     private List<PropertyDto> properties;
 
-    private String accessibleAt;
+    private List<String> accessibleAt;
 
     private SourceBasicDto source;
 

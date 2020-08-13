@@ -19,6 +19,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -70,15 +74,15 @@ public class ItemValidator {
             item.setProperties(propertyValidator.validate(category, itemCore.getProperties(), item, errors, "properties"));
         }
 
-        URI accessibleAtUri = null;
-        if (StringUtils.isNotBlank(itemCore.getAccessibleAt())) {
-            try {
-                accessibleAtUri = new URL(itemCore.getAccessibleAt()).toURI();
-                item.setAccessibleAt(accessibleAtUri.toString());
-            } catch (MalformedURLException | URISyntaxException e) {
-                errors.rejectValue("accessibleAt", "field.invalid", "Accessible at is malformed URL.");
-            }
-        }
+        List<URI> urls = parseAccessibleAtLinks(itemCore, errors);
+
+        item.clearAcessibleAtLinks();
+        urls.stream()
+                .filter(Objects::nonNull)
+                .map(URI::toString)
+                .forEachOrdered(item::addAccessibleAtLink);
+
+        URI accessibleAtUri = (!urls.isEmpty()) ? urls.get(0) : null;
 
         errors.pushNestedPath("source");
         item.setSource(sourceValidator.validate(itemCore.getSource(), accessibleAtUri, errors));
@@ -109,4 +113,23 @@ public class ItemValidator {
         return item;
     }
 
+    private List<URI> parseAccessibleAtLinks(ItemCore itemCore, Errors errors) {
+        if (itemCore.getAccessibleAt() == null)
+            return Collections.emptyList();
+
+        return itemCore.getAccessibleAt()
+                .stream()
+                .map(url -> {
+                    try {
+                        if (StringUtils.isNotBlank(url))
+                            return new URL(url).toURI();
+                    }
+                    catch (MalformedURLException | URISyntaxException e) {
+                        errors.rejectValue("accessibleAt", "field.invalid", "Accessible at is malformed URL.");
+                    }
+
+                    return null;
+                })
+                .collect(Collectors.toList());
+    }
 }

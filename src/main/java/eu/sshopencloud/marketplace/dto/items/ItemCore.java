@@ -25,7 +25,7 @@ public class ItemCore {
 
     private List<PropertyCore> properties;
 
-    private String accessibleAt;
+    private List<String> accessibleAt;
 
     private SourceId source;
 

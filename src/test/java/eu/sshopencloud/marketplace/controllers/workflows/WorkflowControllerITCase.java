@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -131,7 +132,7 @@ public class WorkflowControllerITCase {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test workflow with source");
         workflow.setDescription("Lorem ipsum");
-        workflow.setAccessibleAt("https://programminghistorian.org/en/lessons/test-workflow");
+        workflow.setAccessibleAt(Arrays.asList("https://programminghistorian.org/en/lessons/test-workflow"));
         SourceId source = new SourceId();
         source.setId(1l);
         workflow.setSource(source);
