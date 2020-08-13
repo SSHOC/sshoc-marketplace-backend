@@ -10,6 +10,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ToolDto extends ItemDto {
 
-    private String repository;
-
 }
