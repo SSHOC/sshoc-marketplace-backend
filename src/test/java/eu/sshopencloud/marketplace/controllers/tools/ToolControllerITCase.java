@@ -751,7 +751,6 @@ public class ToolControllerITCase {
         tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
         tool.setPrevVersionId(3l);
         tool.setAccessibleAt("https://gephi.org/");
-        tool.setRepository("https://github.com/gephi/gephi");
         LicenseId license1 = new LicenseId();
         license1.setCode("cddl-1.0");
         LicenseId license2 = new LicenseId();
@@ -808,11 +807,20 @@ public class ToolControllerITCase {
         propertyType3.setCode("keyword");
         property3.setType(propertyType3);
         property3.setValue("social network analysis");
+
+        PropertyCore property4 = new PropertyCore();
+        PropertyTypeId propertyType4 = new PropertyTypeId();
+        propertyType4.setCode("repository-url");
+        property4.setType(propertyType4);
+        property4.setValue("https://github.com/gephi/gephi");
+
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         properties.add(property3);
+        properties.add(property4);
+
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
@@ -832,10 +840,9 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)))
                 .andExpect(jsonPath("accessibleAt", is("https://gephi.org/")))
-                .andExpect(jsonPath("repository", is("https://github.com/gephi/gephi")))
                 .andExpect(jsonPath("licenses", hasSize(2)))
                 .andExpect(jsonPath("contributors", hasSize(2)))
-                .andExpect(jsonPath("properties", hasSize(4)));
+                .andExpect(jsonPath("properties", hasSize(5)));
     }
 
     @Test

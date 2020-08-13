@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_22-repo_column-1
+      author: swolarz
+      description: Drops repository column in tools table
+      changes:
+        - dropColumn:
+            tableName: tools
+            columnName: repository
