@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedVocabularies;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
@@ -11,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/vocabularies")
 @RequiredArgsConstructor
 public class VocabularyController {
 
@@ -19,16 +20,20 @@ public class VocabularyController {
 
     private final VocabularyService vocabularyService;
 
-    @GetMapping(path = "/vocabularies", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public ResponseEntity<PaginatedVocabularies> getVocabularies(@RequestParam(value = "page", required = false) Integer page,
                                                                  @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(vocabularyService.getVocabularies(pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping(path = "/vocabularies/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<VocabularyDto> getVocabulary(@PathVariable("code") String code) {
-        return ResponseEntity.ok(vocabularyService.getVocabulary(code));
-    }
+    @GetMapping("/{code}")
+    public ResponseEntity<VocabularyDto> getVocabulary(@PathVariable("code") String code,
+                                                       @RequestParam(value = "page", required = false) Integer page,
+                                                       @RequestParam(value = "perpage", required = false) Integer perPage)
+            throws PageTooLargeException {
 
+        PageCoords pageCoords = pageCoordsValidator.validate(page, perPage);
+        return ResponseEntity.ok(vocabularyService.getVocabulary(code, pageCoords));
+    }
 }

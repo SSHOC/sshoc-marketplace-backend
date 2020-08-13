@@ -1,15 +1,18 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedVocabularies;
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyBasicDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
-import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptMapper;
+import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
 import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,16 +41,19 @@ import java.util.stream.Collectors;
 public class VocabularyService {
 
     private final VocabularyRepository vocabularyRepository;
-
     private final ConceptRepository conceptRepository;
-
     private final ConceptService conceptService;
-
     private final ConceptRelatedConceptService conceptRelatedConceptService;
 
+
     public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
-        Page<Vocabulary> vocabulariesPage = vocabularyRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
-        List<VocabularyDto> vocabularies = vocabulariesPage.stream().map(VocabularyMapper.INSTANCE::toDto).map(this::completeVocabulary).collect(Collectors.toList());
+        Page<VocabularyBasicView> vocabulariesPage = vocabularyRepository.findAllVocabulariesBasicBy(
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label")))
+        );
+
+        List<VocabularyBasicDto> vocabularies = vocabulariesPage.stream()
+                .map(VocabularyBasicMapper.INSTANCE::toDtoBasic)
+                .collect(Collectors.toList());
 
         return PaginatedVocabularies.builder().vocabularies(vocabularies)
                 .count(vocabulariesPage.getContent().size()).hits(vocabulariesPage.getTotalElements())
@@ -56,23 +62,17 @@ public class VocabularyService {
                 .build();
     }
 
-    public VocabularyDto getVocabulary(String code) {
+    public VocabularyDto getVocabulary(String code, PageCoords conceptPageCoords) {
         Vocabulary vocabulary = vocabularyRepository.findById(code).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + code));
-        return completeVocabulary(VocabularyMapper.INSTANCE.toDto(vocabulary));
-    }
 
-    public VocabularyDto completeVocabulary(VocabularyDto vocabulary) {
-        vocabulary.setConcepts(
-                conceptService.getConcepts(vocabulary.getCode()).stream().map(ConceptMapper.INSTANCE::toDto)
-                .map(concept -> {
-                    concept.setRelatedConcepts(conceptRelatedConceptService.getRelatedConcepts(concept.getCode(), vocabulary.getCode()));
-                    return concept;
-                    })
-                .collect(Collectors.toList()));
-        return vocabulary;
-    }
+        VocabularyDto resultVocabulary = VocabularyMapper.INSTANCE.toDto(vocabulary);
+        PaginatedConcepts conceptResults = conceptService.getConcepts(vocabulary.getCode(), conceptPageCoords);
 
+        resultVocabulary.setConceptResults(conceptResults);
+
+        return resultVocabulary;
+    }
 
     public Vocabulary createVocabulary(String vocabularyCode, InputStream turtleInputStream)
             throws VocabularyAlreadyExistsException, IOException, RDFParseException, UnsupportedRDFormatException {
@@ -110,5 +110,4 @@ public class VocabularyService {
 
         return vocabulary;
     }
-
 }

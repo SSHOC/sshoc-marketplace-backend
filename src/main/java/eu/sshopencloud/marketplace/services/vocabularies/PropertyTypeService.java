@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedPropertyTypes;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyTypeMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
@@ -27,7 +28,7 @@ public class PropertyTypeService {
 
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
 
-    public List<PropertyTypeDto> getPropertyTypes(String q, PageCoords pageCoords) {
+    public PaginatedPropertyTypes getPropertyTypes(String q, PageCoords pageCoords) {
         ExampleMatcher queryPropertyTypeMatcher = ExampleMatcher.matchingAny()
                 .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
         PropertyType queryPropertyType = new PropertyType();
@@ -35,12 +36,20 @@ public class PropertyTypeService {
 
         Page<PropertyType> propertyTypesPage = propertyTypeRepository.findAll(Example.of(queryPropertyType, queryPropertyTypeMatcher),
                 PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("ord"))));
-        List<PropertyTypeDto> propertyTypes = PropertyTypeMapper.INSTANCE.toDto(propertyTypesPage.getContent());
 
+        List<PropertyTypeDto> propertyTypes = PropertyTypeMapper.INSTANCE.toDto(propertyTypesPage.getContent());
         for (PropertyTypeDto propertyType: propertyTypes) {
             completePropertyType(propertyType);
         }
-        return propertyTypes;
+
+        return PaginatedPropertyTypes.builder()
+                .propertyTypes(propertyTypes)
+                .page(pageCoords.getPage())
+                .perpage(pageCoords.getPerpage())
+                .pages(propertyTypesPage.getTotalPages())
+                .hits(propertyTypesPage.getTotalElements())
+                .count(propertyTypesPage.getNumberOfElements())
+                .build();
     }
 
     public void completePropertyType(PropertyTypeDto propertyType) {

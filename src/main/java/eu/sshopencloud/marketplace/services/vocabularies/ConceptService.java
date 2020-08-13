@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
 import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptMapper;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
@@ -9,6 +11,8 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConce
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelationRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +27,10 @@ import java.util.stream.Collectors;
 public class ConceptService {
 
     private final ConceptRepository conceptRepository;
-
     private final ConceptRelationRepository conceptRelationRepository;
-
     private final ConceptRelatedConceptRepository conceptRelatedConceptRepository;
-
     private final ConceptRelatedConceptDetachingRepository conceptRelatedConceptDetachingRepository;
+    private final ConceptRelatedConceptService conceptRelatedConceptService;
 
 
     public List<ConceptDto> getObjectTypeConcepts(ItemCategory category) {
@@ -47,6 +49,36 @@ public class ConceptService {
 
     public Concept getDefaultObjectTypeConcept(ItemCategory category) {
         return getConcept(category.getValue(), ItemCategory.OBJECT_TYPE_VOCABULARY_CODE);
+    }
+
+    public PaginatedConcepts getConcepts(String vocabularyCode, PageCoords pageCoords) {
+        PageRequest pageRequest = PageRequest.of(
+                pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("ord"))
+        );
+
+        Page<Concept> conceptsPage = conceptRepository.findByVocabularyCode(vocabularyCode, pageRequest);
+
+        return PaginatedConcepts.builder()
+                .concepts(
+                        conceptsPage.stream()
+                                .map(ConceptMapper.INSTANCE::toDto)
+                                .map(concept -> attachRelatedConcepts(concept, vocabularyCode))
+                                .collect(Collectors.toList())
+                )
+                .page(pageCoords.getPage())
+                .perpage(pageCoords.getPerpage())
+                .pages(conceptsPage.getTotalPages())
+                .hits(conceptsPage.getTotalElements())
+                .count(conceptsPage.getNumberOfElements())
+                .build();
+    }
+
+    private ConceptDto attachRelatedConcepts(ConceptDto concept, String vocabularyCode) {
+        concept.setRelatedConcepts(
+                conceptRelatedConceptService.getRelatedConcepts(concept.getCode(), vocabularyCode)
+        );
+
+        return concept;
     }
 
     public List<Concept> getConcepts(String vocabularyCode) {

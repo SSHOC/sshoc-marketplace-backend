@@ -12,7 +12,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
-public class PaginatedVocabularies extends PaginatedResult {
+public class PaginatedPropertyTypes extends PaginatedResult {
 
-    private List<VocabularyBasicDto> vocabularies;
+    private List<PropertyTypeDto> propertyTypes;
 }
