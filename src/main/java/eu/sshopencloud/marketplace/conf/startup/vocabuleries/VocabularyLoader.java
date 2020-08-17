@@ -22,13 +22,12 @@ import java.util.Map;
 public class VocabularyLoader {
 
     private final VocabularyService vocabularyService;
-
     private final VocabularyRepository vocabularyRepository;
-
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
-
     private  final IndexService indexService;
 
+
+    @Deprecated
     public void createVocabulariesWithConcepts(Resource[] resources) {
         Map<String, Resource> vocabularySources = new LinkedHashMap<String, Resource>();
         for (Resource resource: resources) {
