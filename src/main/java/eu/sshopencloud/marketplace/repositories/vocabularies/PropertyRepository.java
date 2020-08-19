@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.repositories.vocabularies;
 
+import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,4 +12,5 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     List<Property> findByItemIdOrderByOrd(Long itemId);
 
+    void deleteByConceptIn(List<Concept> concepts);
 }

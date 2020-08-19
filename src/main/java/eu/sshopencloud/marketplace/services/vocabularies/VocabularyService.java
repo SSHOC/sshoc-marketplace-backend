@@ -10,7 +10,6 @@ import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
-import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
 import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelParser;
@@ -33,8 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,9 +42,12 @@ import java.util.stream.Collectors;
 public class VocabularyService {
 
     private final VocabularyRepository vocabularyRepository;
-    private final ConceptRepository conceptRepository;
+
     private final ConceptService conceptService;
     private final ConceptRelatedConceptService conceptRelatedConceptService;
+
+    private final PropertyService propertyService;
+    private final PropertyTypeService propertyTypeService;
 
 
     public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
@@ -111,24 +112,47 @@ public class VocabularyService {
 
     public Vocabulary createVocabulary(String vocabularyCode, InputStream turtleInputStream)
             throws VocabularyAlreadyExistsException, IOException, RDFParseException, UnsupportedRDFormatException {
-        if (vocabularyRepository.existsById(vocabularyCode)) {
+
+        if (vocabularyRepository.existsById(vocabularyCode))
             throw new VocabularyAlreadyExistsException(vocabularyCode);
-        }
 
         return constructVocabularyAndSave(vocabularyCode, turtleInputStream);
     }
 
     public Vocabulary updateVocabulary(String vocabularyCode, InputStream turtleInputStream)
             throws VocabularyDoesNotExistException, IOException, RDFParseException, UnsupportedRDFormatException {
-        if (!vocabularyRepository.existsById(vocabularyCode)) {
-            throw new VocabularyDoesNotExistException(vocabularyCode);
-        }
 
-        return constructVocabularyAndSave(vocabularyCode, turtleInputStream);
+        Vocabulary oldVocabulary = vocabularyRepository.findById(vocabularyCode)
+                .orElseThrow(() -> new VocabularyDoesNotExistException(vocabularyCode));
+
+        Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream);
+
+        List<Concept> conceptsToRemove = missingConcepts(oldVocabulary.getConcepts(), updatedVocabulary.getConcepts());
+        removeConcepts(conceptsToRemove);
+
+        return updatedVocabulary;
     }
 
-    public void removeVocabulary(String vocabularyCode) {
-        throw new UnsupportedOperationException("not implemented");
+    private List<Concept> missingConcepts(Collection<Concept> oldConcepts, Collection<Concept> newConcepts) {
+        Set<String> newConceptCodes = newConcepts.stream().map(Concept::getCode).collect(Collectors.toSet());
+        return oldConcepts.stream()
+                .filter(concept -> !newConceptCodes.contains(concept.getCode()))
+                .collect(Collectors.toList());
+    }
+
+    public void removeVocabulary(String vocabularyCode) throws VocabularyDoesNotExistException {
+        Vocabulary vocabulary = vocabularyRepository.findById(vocabularyCode)
+                .orElseThrow(() -> new VocabularyDoesNotExistException(vocabularyCode));
+
+        removeConcepts(vocabulary.getConcepts());
+
+        propertyTypeService.removePropertyTypesAssociations(vocabularyCode);
+        vocabularyRepository.delete(vocabulary);
+    }
+
+    private void removeConcepts(List<Concept> concepts) {
+        propertyService.removePropertiesWithConcepts(concepts);
+        conceptService.removeConcepts(concepts);
     }
 
     private Vocabulary constructVocabularyAndSave(String vocabularyCode, InputStream turtleInputStream)
@@ -137,12 +161,11 @@ public class VocabularyService {
         Model rdfModel = Rio.parse(turtleInputStream, "", RDFFormat.TURTLE);         // TODO own exceptions
 
         Vocabulary vocabulary = RDFModelParser.createVocabulary(vocabularyCode, rdfModel);
-        vocabularyRepository.saveAndFlush(vocabulary);
 
         Map<String, Concept> conceptMap = RDFModelParser.createConcepts(rdfModel, vocabulary);
-        RDFModelParser.completeConcepts(conceptMap, rdfModel);
-        List<Concept> concepts = conceptRepository.saveAll(conceptMap.values());
-        vocabulary.setConcepts(concepts);
+        vocabulary.setConcepts(new ArrayList<>(conceptMap.values()));
+
+        vocabularyRepository.save(vocabulary);
 
         List<ConceptRelatedConcept> conceptRelatedConcepts = RDFModelParser.createConceptRelatedConcepts(conceptMap, rdfModel);
         conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
