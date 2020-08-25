@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedPropertyTypes;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyTypeMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
@@ -88,5 +89,17 @@ public class PropertyTypeService {
 
     public void removePropertyTypesAssociations(String vocabularyCode) {
         propertyTypeVocabularyRepository.deleteByVocabularyCode(vocabularyCode);
+    }
+
+    public PropertyTypeDto createPropertyType(String code, PropertyTypeCore propertyTypeCore) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public PropertyTypeDto updatePropertyType(String code, PropertyTypeCore propertyTypeCore) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public void removePropertyType(String propertyTypeCode) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 }
