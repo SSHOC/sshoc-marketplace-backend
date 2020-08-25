@@ -125,9 +125,10 @@ public class VocabularyService {
         Vocabulary oldVocabulary = vocabularyRepository.findById(vocabularyCode)
                 .orElseThrow(() -> new VocabularyDoesNotExistException(vocabularyCode));
 
+        List<Concept> oldConcepts = new ArrayList<>(oldVocabulary.getConcepts());
         Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream);
 
-        List<Concept> conceptsToRemove = missingConcepts(oldVocabulary.getConcepts(), updatedVocabulary.getConcepts());
+        List<Concept> conceptsToRemove = missingConcepts(oldConcepts, updatedVocabulary.getConcepts());
         removeConcepts(conceptsToRemove);
 
         return updatedVocabulary;

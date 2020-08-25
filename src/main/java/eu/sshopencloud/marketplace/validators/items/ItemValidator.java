@@ -68,15 +68,11 @@ public class ItemValidator {
             item.setContributors(itemContributorValidator.validate(itemCore.getContributors(), item, errors, "contributors"));
         }
 
-        if (item.getProperties() != null) {
-            item.getProperties().addAll(propertyValidator.validate(category, itemCore.getProperties(), item, errors, "properties"));
-        } else {
-            item.setProperties(propertyValidator.validate(category, itemCore.getProperties(), item, errors, "properties"));
-        }
+        item.setProperties(propertyValidator.validate(category, itemCore.getProperties(), item, errors, "properties"));
 
         List<URI> urls = parseAccessibleAtLinks(itemCore, errors);
+        item.clearAccessibleAtLinks();
 
-        item.clearAcessibleAtLinks();
         urls.stream()
                 .filter(Objects::nonNull)
                 .map(URI::toString)

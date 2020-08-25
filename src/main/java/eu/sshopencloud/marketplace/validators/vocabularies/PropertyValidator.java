@@ -54,9 +54,7 @@ public class PropertyValidator {
         if (missingObjectType) {
             properties.add(getDefaultObjectTypeProperty(category, item));
         }
-        if (item.getProperties() != null) {
-            item.getProperties().clear();
-        }
+
         return properties;
     }
 

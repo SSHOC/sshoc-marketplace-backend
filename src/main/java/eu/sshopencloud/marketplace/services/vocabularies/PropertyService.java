@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -23,6 +24,7 @@ public class PropertyService {
     }
 
     public void removePropertiesWithConcepts(List<Concept> concepts) {
-        propertyRepository.deleteByConceptIn(concepts);
+        List<String> conceptCodes = concepts.stream().map(Concept::getCode).collect(Collectors.toList());
+        propertyRepository.deletePropertiesWithConcepts(conceptCodes);
     }
 }
