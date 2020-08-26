@@ -76,6 +76,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/users/**").hasAuthority(Authority.ADMINISTRATOR.name());
         http
                 .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/vocabularies/**").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/vocabularies/**").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/vocabularies/**").hasAuthority(Authority.MODERATOR.name());
+        http
+                .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/actors/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/actors/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/actors/**").hasAuthority(Authority.MODERATOR.name());

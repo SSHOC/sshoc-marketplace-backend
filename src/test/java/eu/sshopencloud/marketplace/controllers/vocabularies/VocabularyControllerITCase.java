@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
+import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,15 @@ public class VocabularyControllerITCase {
 
     @Autowired
     private MockMvc mvc;
+
+    private String contributorJwt;
+    private String moderatorJwt;
+
+    @Before
+    public void init() throws Exception {
+        contributorJwt = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        moderatorJwt = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
+    }
 
     @Test
     public void shouldReturnVocabularies() throws Exception {
@@ -68,6 +79,7 @@ public class VocabularyControllerITCase {
         mvc.perform(
                 vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
                         .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
@@ -104,6 +116,7 @@ public class VocabularyControllerITCase {
         mvc.perform(
                 vocabularyUpload(HttpMethod.POST, newVocabulary, "/api/vocabularies")
                         .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
@@ -119,6 +132,7 @@ public class VocabularyControllerITCase {
         mvc.perform(
                 vocabularyUpload(HttpMethod.PUT, updatedVocabulary, "/api/vocabularies/{code}", "iana-mime-type-test")
                         .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
@@ -161,6 +175,7 @@ public class VocabularyControllerITCase {
         mvc.perform(
                 vocabularyUpload(HttpMethod.POST, newVocabulary, "/api/vocabularies")
                         .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
@@ -176,13 +191,17 @@ public class VocabularyControllerITCase {
         mvc.perform(
                 vocabularyUpload(HttpMethod.PUT, updatedVocabulary, "/api/vocabularies/iana-mime-type-test")
                         .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void shouldRemoveVocabularyAndConceptsWithAssociatedProperties() throws Exception {
-        mvc.perform(delete("/api/vocabularies/{code}", "iana-mime-type"))
+        mvc.perform(
+                delete("/api/vocabularies/{code}", "iana-mime-type")
+                        .header("Authorization", moderatorJwt)
+        )
                 .andExpect(status().isOk());
 
         mvc.perform(
@@ -200,6 +219,60 @@ public class VocabularyControllerITCase {
                 .andExpect(
                         jsonPath("$.properties[?(@.concept.code == \"video/mp4\")]").doesNotExist()
                 );
+    }
+
+    @Test
+    public void shouldNotCreateVocabularyUnauthorized() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
+
+        MockMultipartFile vocabularyFile = new MockMultipartFile("ttl", "iana-mime-type-test.ttl", null, vocabularyStream);
+
+        mvc.perform(
+                vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isForbidden());
+
+        mvc.perform(
+                vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", contributorJwt)
+        )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void shouldNotUpdateVocabularyUnauthorized() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
+
+        MockMultipartFile vocabularyFile = new MockMultipartFile("ttl", "iana-mime-type.ttl", null, vocabularyStream);
+
+        mvc.perform(
+                vocabularyUpload(HttpMethod.PUT, vocabularyFile, "/api/vocabularies/{code}", "iana-mime-type")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isForbidden());
+
+        mvc.perform(
+                vocabularyUpload(HttpMethod.PUT, vocabularyFile, "/api/vocabularies/{code}", "iana-mime-type")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", contributorJwt)
+        )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void shouldNotDeleteVocabularyUnauthorized() throws Exception {
+        mvc.perform(delete("/api/vocabularies/iana-mime-type"))
+                .andExpect(status().isForbidden());
+
+        mvc.perform(
+                delete("/api/vocabularies/iana-mime-type")
+                        .header("Authorization", contributorJwt)
+        )
+                .andExpect(status().isForbidden());
     }
 
     private MockHttpServletRequestBuilder vocabularyUpload(HttpMethod method, MockMultipartFile vocabularyFile,
