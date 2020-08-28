@@ -34,6 +34,7 @@ public class InitialVocabularyLoader {
     private String jpaDdlAuto;
 
 
+    @Deprecated
     public void loadVocabularies() {
         log.debug("Loading vocabularies");
         ClassLoader classLoader = InitialDataLoader.class.getClassLoader();

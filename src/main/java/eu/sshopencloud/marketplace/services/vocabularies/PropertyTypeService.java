@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 public class PropertyTypeService {
 
     private final PropertyTypeRepository propertyTypeRepository;
-
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
+
 
     public PaginatedPropertyTypes getPropertyTypes(String q, PageCoords pageCoords) {
         ExampleMatcher queryPropertyTypeMatcher = ExampleMatcher.matchingAny()
@@ -86,4 +86,7 @@ public class PropertyTypeService {
         return getAllowedPropertyTypesForVocabulary(vocabulary.getCode());
     }
 
+    public void removePropertyTypesAssociations(String vocabularyCode) {
+        propertyTypeVocabularyRepository.deleteByVocabularyCode(vocabularyCode);
+    }
 }

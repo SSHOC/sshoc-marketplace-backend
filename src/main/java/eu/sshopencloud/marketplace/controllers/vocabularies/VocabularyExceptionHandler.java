@@ -20,11 +20,15 @@ import java.time.LocalDateTime;
 @Slf4j
 public class VocabularyExceptionHandler {
 
-    @ExceptionHandler(value = { VocabularyAlreadyExistsException.class, RDFParseException.class, UnsupportedRDFormatException.class })
+    @ExceptionHandler(value = {
+            VocabularyAlreadyExistsException.class,
+            RDFParseException.class,
+            UnsupportedRDFormatException.class,
+            IllegalArgumentException.class
+    })
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();
         return ResponseEntity.badRequest().body(errorResponse);
     }
-
 }

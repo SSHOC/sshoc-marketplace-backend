@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @Table(name = "properties")
 @Data
 @EqualsAndHashCode(exclude = "item")
+@ToString(exclude = "item")
 @NoArgsConstructor
 public class Property {
 

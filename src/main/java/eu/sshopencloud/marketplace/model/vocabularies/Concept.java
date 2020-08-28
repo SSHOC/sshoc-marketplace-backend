@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.model.vocabularies;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @IdClass(ConceptId.class)
 @Table(name = "concepts")
 @Data
+@ToString(exclude = "vocabulary")
 @NoArgsConstructor
 public class Concept {
 

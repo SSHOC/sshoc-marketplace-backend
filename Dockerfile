@@ -16,4 +16,4 @@ COPY --from=build /usr/src/app/target/marketplace-*.jar ./app.jar
 ENV APPLICATION_PROFILE=''
 
 EXPOSE 8080
-ENTRYPOINT [ "java", "-jar", "app.jar" ]
+ENTRYPOINT [ "java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9990", "-jar", "app.jar" ]

@@ -13,24 +13,18 @@
 
 # TODO prepare a complete vocabulary based on https://www.iana.org/assignments/media-types/
 
-<http://www.iana.org/assignments/media-types/image/tiff> a <http://www.w3.org/2004/02/skos/core#Concept>;
-  <http://www.w3.org/2004/02/skos/core#definition> "TIFF (Tag Image File Format)";
+<http://www.iana.org/assignments/media-types/audio/mpeg3> a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "MPEG-1 Audio Layer III";
   <http://www.w3.org/2004/02/skos/core#inScheme> <http://www.iana.org/assignments/scheme/>;
-  <http://www.w3.org/2004/02/skos/core#notation> "image/tiff"@en;
-  <http://www.w3.org/2004/02/skos/core#prefLabel> "image/tiff"@en .
+  <http://www.w3.org/2004/02/skos/core#notation> "audio/mpeg3"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "audio/mpeg3"@en .
 
-<http://www.iana.org/assignments/media-types/application/pdf> a <http://www.w3.org/2004/02/skos/core#Concept>;
-  <http://www.w3.org/2004/02/skos/core#definition> "Portable Document Format";
+<http://www.iana.org/assignments/media-types/application/pdff> a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#definition> "Portable Document File Format (PDF)";
   <http://www.w3.org/2004/02/skos/core#inScheme> <http://www.iana.org/assignments/scheme/>;
-  <http://www.w3.org/2004/02/skos/core#notation> "application/pdf"@en;
-  <http://www.w3.org/2004/02/skos/core#prefLabel> "application/pdf"@en .
-
-<http://www.iana.org/assignments/media-types/video/mp4> a <http://www.w3.org/2004/02/skos/core#Concept>;
-  <http://www.w3.org/2004/02/skos/core#definition> "MPEG-4 Video file";
-  <http://www.w3.org/2004/02/skos/core#inScheme> <http://www.iana.org/assignments/scheme/>;
-  <http://www.w3.org/2004/02/skos/core#notation> "video/mp4"@en;
-  <http://www.w3.org/2004/02/skos/core#prefLabel> "video/mp4"@en .
+  <http://www.w3.org/2004/02/skos/core#notation> "application/pdff"@en;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "application/pdff"@en .
 
 <http://www.iana.org/assignments/scheme/> a <http://www.w3.org/2004/02/skos/core#ConceptScheme>;
-  rdfs:label "IANA mime/type"@en;
+  rdfs:label "IANA mime/type v2"@en;
   rdfs:comment "[RFC2046] specifies that Media Types (formerly known as MIME types) and Media Subtypes will be assigned and listed by the IANA."@en .

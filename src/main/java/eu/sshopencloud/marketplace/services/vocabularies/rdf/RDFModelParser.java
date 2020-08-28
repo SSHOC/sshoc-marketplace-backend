@@ -98,13 +98,38 @@ public class RDFModelParser {
 
     public Map<String, Concept> createConcepts(Model rdfModel, Vocabulary vocabulary) {
         Set<Namespace> namespaces = rdfModel.getNamespaces();
-        return rdfModel.stream()
+        Map<String, Concept> concepts = rdfModel.stream()
                 .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
                 .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT))
-                .collect(Collectors.toMap(statement -> statement.getSubject().stringValue(), statement -> createConcept(statement, vocabulary, namespaces),
-                    (u, v) -> u,
-                    LinkedHashMap::new)
+                .collect(
+                        Collectors.toMap(
+                                statement -> statement.getSubject().stringValue(),
+                                statement -> createConcept(statement, vocabulary, namespaces),
+                                (u, v) -> u,
+                                LinkedHashMap::new
+                        )
                 );
+
+        completeConcepts(concepts, rdfModel);
+        numberConcepts(concepts.values());
+
+        return concepts;
+    }
+
+    private void numberConcepts(Collection<Concept> concepts) {
+        int ord = 0;
+        for (Concept concept : concepts)
+            concept.setOrd(ord++);
+    }
+
+    private void completeConcepts(Map<String, Concept> conceptMap, Model rdfModel) {
+        rdfModel.forEach(statement -> {
+            String subjectUri = statement.getSubject().stringValue();
+            if (!conceptMap.containsKey(subjectUri))
+                return;
+
+            completeConcept(conceptMap.get(subjectUri), statement);
+        });
     }
 
     private void completeConcept(Concept concept, Statement statement) {
@@ -124,19 +149,6 @@ public class RDFModelParser {
             }
         }
     }
-
-    public static void completeConcepts(Map<String, Concept> conceptMap, Model rdfModel) {
-        int ord = 1;
-        for (String subjectUri: conceptMap.keySet()) {
-            Concept concept = conceptMap.get(subjectUri);
-            rdfModel.stream()
-                    .filter(statement -> statement.getSubject().stringValue().equals(subjectUri))
-                    .forEach(statement -> completeConcept(concept, statement));
-            concept.setOrd(ord);
-            ord++;
-        }
-    }
-
 
     private ConceptRelatedConcept createConceptRelatedConcept(Concept concept, Statement statement, Map<String, Concept> conceptMap) {
         String predicateUri = statement.getPredicate().stringValue();

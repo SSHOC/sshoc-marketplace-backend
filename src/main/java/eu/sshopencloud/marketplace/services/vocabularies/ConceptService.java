@@ -105,4 +105,16 @@ public class ConceptService {
         return result;
     }
 
+    public List<Concept> saveConcepts(Iterable<Concept> concepts) {
+        return conceptRepository.saveAll(concepts);
+    }
+
+    public void removeConcepts(List<Concept> concepts) {
+        concepts.forEach(this::removeConceptAssociations);
+        conceptRepository.deleteAll(concepts);
+    }
+
+    private void removeConceptAssociations(Concept concept) {
+        conceptRelatedConceptRepository.deleteConceptRelations(concept.getCode());
+    }
 }
