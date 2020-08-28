@@ -43,7 +43,7 @@ public class VocabularyController {
     }
 
     @PostMapping
-    public ResponseEntity<VocabularyBasicDto> postVocabulary(@RequestParam("ttl") MultipartFile vocabularyFile)
+    public ResponseEntity<VocabularyBasicDto> createVocabulary(@RequestParam("ttl") MultipartFile vocabularyFile)
             throws IOException, VocabularyAlreadyExistsException {
 
         VocabularyBasicDto vocabulary = vocabularyService.createUploadedVocabulary(vocabularyFile);
@@ -51,7 +51,7 @@ public class VocabularyController {
     }
 
     @PutMapping("/{code}")
-    public ResponseEntity<VocabularyBasicDto> putVocabulary(@PathVariable("code") String vocabularyCode,
+    public ResponseEntity<VocabularyBasicDto> updateVocabulary(@PathVariable("code") String vocabularyCode,
                                                             @RequestParam("ttl") MultipartFile vocabularyFile)
             throws IOException, VocabularyDoesNotExistException {
 
