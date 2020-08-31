@@ -12,6 +12,8 @@ import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyDoesNotExistException;
 import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Throwable.class)
 @RequiredArgsConstructor
 @Slf4j
 public class VocabularyService {
@@ -67,15 +69,18 @@ public class VocabularyService {
     }
 
     public VocabularyDto getVocabulary(String code, PageCoords conceptPageCoords) {
-        Vocabulary vocabulary = vocabularyRepository.findById(code).orElseThrow(
-                () -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + code));
-
+        Vocabulary vocabulary = loadVocabulary(code);
         VocabularyDto resultVocabulary = VocabularyMapper.INSTANCE.toDto(vocabulary);
         PaginatedConcepts conceptResults = conceptService.getConcepts(vocabulary.getCode(), conceptPageCoords);
 
         resultVocabulary.setConceptResults(conceptResults);
 
         return resultVocabulary;
+    }
+
+    public Vocabulary loadVocabulary(String vocabularyCode) {
+        return vocabularyRepository.findById(vocabularyCode)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + vocabularyCode));
     }
 
     public VocabularyBasicDto createUploadedVocabulary(MultipartFile vocabularyFile) throws IOException, VocabularyAlreadyExistsException {

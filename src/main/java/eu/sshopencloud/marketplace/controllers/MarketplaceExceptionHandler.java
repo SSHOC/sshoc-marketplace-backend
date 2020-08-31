@@ -32,7 +32,7 @@ public class MarketplaceExceptionHandler {
         return ResponseEntity.badRequest().body(validationResponse);
     }
 
-    @ExceptionHandler(value = { PageTooLargeException.class, ParseException.class })
+    @ExceptionHandler(value = { PageTooLargeException.class, ParseException.class, IllegalArgumentException.class })
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();

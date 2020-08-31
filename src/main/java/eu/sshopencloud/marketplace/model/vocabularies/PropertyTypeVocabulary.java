@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.model.vocabularies;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Table(name = "property_types_vocabularies")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 /**
  * Relation for allowed vocabularies for property types and allowed property types for vocabulary. Managed as a separate relation in order to easily attache / detach vocabularies from property types.
  */

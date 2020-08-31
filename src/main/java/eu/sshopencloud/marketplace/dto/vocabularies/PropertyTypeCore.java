@@ -4,6 +4,8 @@ import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 
 @Data
 @NoArgsConstructor
@@ -11,5 +13,6 @@ public class PropertyTypeCore {
 
     private String label;
     private PropertyTypeClass type;
-    private int ord;
+
+    private List<String> allowedVocabularies;
 }

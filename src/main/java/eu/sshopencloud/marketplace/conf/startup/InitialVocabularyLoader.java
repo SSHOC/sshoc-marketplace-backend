@@ -47,6 +47,7 @@ public class InitialVocabularyLoader {
         }
     }
 
+    @Deprecated
     public void loadPropertyTypeData() {
         if (jpaDdlAuto.equals("create") || jpaDdlAuto.equals("create-drop")) {
             log.debug("Clearing concept index");

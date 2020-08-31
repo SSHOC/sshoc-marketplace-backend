@@ -4,7 +4,9 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedPropertyTypes;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypesReordering;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.PropertyTypeAlreadyExistsException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -32,7 +34,8 @@ public class PropertyTypeController {
 
     @PostMapping("/{code}")
     public ResponseEntity<PropertyTypeDto> postPropertyType(@PathVariable("code") String propertyTypeCode,
-                                                            @RequestBody PropertyTypeCore propertyTypeData) {
+                                                            @RequestBody PropertyTypeCore propertyTypeData)
+            throws PropertyTypeAlreadyExistsException {
 
         PropertyTypeDto propertyType = propertyTypeService.createPropertyType(propertyTypeCode, propertyTypeData);
         return ResponseEntity.ok(propertyType);
@@ -49,6 +52,12 @@ public class PropertyTypeController {
     @DeleteMapping("/{code}")
     public ResponseEntity<PropertyTypeDto> deletePropertyType(@PathVariable("code") String propertyTypeCode) {
         propertyTypeService.removePropertyType(propertyTypeCode);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reorder")
+    public ResponseEntity<Void> reorderPropertyTypes(@RequestBody PropertyTypesReordering reordering) {
+        propertyTypeService.reorderPropertyTypes(reordering);
         return ResponseEntity.ok().build();
     }
 }

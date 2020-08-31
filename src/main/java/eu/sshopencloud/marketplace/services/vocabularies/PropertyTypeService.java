@@ -4,11 +4,13 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedPropertyTypes;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypesReordering;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyTypeMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.PropertyTypeAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -21,12 +23,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Throwable.class)
 @RequiredArgsConstructor
 public class PropertyTypeService {
 
     private final PropertyTypeRepository propertyTypeRepository;
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
+
+    private VocabularyService vocabularyService;
 
 
     public PaginatedPropertyTypes getPropertyTypes(String q, PageCoords pageCoords) {
@@ -91,15 +95,67 @@ public class PropertyTypeService {
         propertyTypeVocabularyRepository.deleteByVocabularyCode(vocabularyCode);
     }
 
-    public PropertyTypeDto createPropertyType(String code, PropertyTypeCore propertyTypeCore) {
-        throw new UnsupportedOperationException("Not implemented");
+    private void updateAllowedVocabularies(List<String> allowedVocabularies, PropertyType propertyType) {
+        propertyTypeVocabularyRepository.deleteByPropertyTypeCode(propertyType.getCode());
+
+        for (String vocabularyCode : allowedVocabularies) {
+            Vocabulary vocabulary = vocabularyService.loadVocabulary(vocabularyCode);
+            PropertyTypeVocabulary propertyTypeVocabulary = new PropertyTypeVocabulary(propertyType, vocabulary);
+
+            propertyTypeVocabularyRepository.save(propertyTypeVocabulary);
+        }
+    }
+
+    private int getMaxOrdForPropertyTypes() {
+        Integer maxOrd = propertyTypeRepository.findMaxPropertyTypeOrd();
+        return (maxOrd != null) ? maxOrd : 0;
+    }
+
+    public synchronized PropertyTypeDto createPropertyType(String code, PropertyTypeCore propertyTypeCore) throws PropertyTypeAlreadyExistsException {
+        if (propertyTypeRepository.existsById(code))
+            throw new PropertyTypeAlreadyExistsException(code);
+
+        if (!PropertyTypeClass.CONCEPT.equals(propertyTypeCore.getType()) && propertyTypeCore.getAllowedVocabularies() != null)
+            throw new IllegalArgumentException("Allowed vocabularies are suitable only for property types with concept values");
+
+        int ord = getMaxOrdForPropertyTypes();
+        PropertyType propertyType = new PropertyType(code, propertyTypeCore.getType(), propertyTypeCore.getLabel(), ord + 1);
+        propertyType = propertyTypeRepository.save(propertyType);
+
+        if (propertyTypeCore.getAllowedVocabularies() != null)
+            updateAllowedVocabularies(propertyTypeCore.getAllowedVocabularies(), propertyType);
+
+        return PropertyTypeMapper.INSTANCE.toDto(propertyType);
     }
 
     public PropertyTypeDto updatePropertyType(String code, PropertyTypeCore propertyTypeCore) {
-        throw new UnsupportedOperationException("Not implemented");
+        PropertyType propertyType = propertyTypeRepository.findById(code)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Property type with code = '%s' not found", code)));
+
+        propertyType.setLabel(propertyTypeCore.getLabel());
+
+        if (propertyTypeCore != null && !propertyType.getType().equals(propertyTypeCore.getType()))
+            throw new IllegalArgumentException("Property type value class (type) is immutable");
+
+        if (propertyTypeCore.getAllowedVocabularies() != null)
+            updateAllowedVocabularies(propertyTypeCore.getAllowedVocabularies(), propertyType);
+
+        return PropertyTypeMapper.INSTANCE.toDto(propertyType);
     }
 
-    public void removePropertyType(String propertyTypeCode) {
+    public synchronized void removePropertyType(String propertyTypeCode) {
+        PropertyType propertyType = propertyTypeRepository.findById(propertyTypeCode)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Property type with code = '%s' not found", propertyTypeCode)));
+
+        int gapOrd = propertyType.getOrd();
+
+        propertyTypeVocabularyRepository.deleteByPropertyTypeCode(propertyTypeCode);
+        propertyTypeRepository.delete(propertyType);
+
+        propertyTypeRepository.shiftSucceedingPropertyTypesOrder(gapOrd, -1);
+    }
+
+    public synchronized void reorderPropertyTypes(PropertyTypesReordering reordering) {
         throw new UnsupportedOperationException("Not implemented");
     }
 }

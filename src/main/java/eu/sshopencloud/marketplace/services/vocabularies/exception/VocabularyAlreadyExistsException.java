@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.services.vocabularies;
+package eu.sshopencloud.marketplace.services.vocabularies.exception;
 
 public class VocabularyAlreadyExistsException extends Exception {
 
