@@ -1,10 +1,7 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedPropertyTypes;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeCore;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypesReordering;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyTypeMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
@@ -118,8 +115,8 @@ public class PropertyTypeService {
         if (!PropertyTypeClass.CONCEPT.equals(propertyTypeCore.getType()) && propertyTypeCore.getAllowedVocabularies() != null)
             throw new IllegalArgumentException("Allowed vocabularies are suitable only for property types with concept values");
 
-        int ord = getMaxOrdForPropertyTypes();
-        PropertyType propertyType = new PropertyType(code, propertyTypeCore.getType(), propertyTypeCore.getLabel(), ord + 1);
+        int maxOrd = getMaxOrdForPropertyTypes();
+        PropertyType propertyType = new PropertyType(code, propertyTypeCore.getType(), propertyTypeCore.getLabel(), maxOrd + 1);
         propertyType = propertyTypeRepository.save(propertyType);
 
         if (propertyTypeCore.getAllowedVocabularies() != null)
@@ -129,12 +126,11 @@ public class PropertyTypeService {
     }
 
     public PropertyTypeDto updatePropertyType(String code, PropertyTypeCore propertyTypeCore) {
-        PropertyType propertyType = propertyTypeRepository.findById(code)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Property type with code = '%s' not found", code)));
+        PropertyType propertyType = loadPropertyType(code);
 
         propertyType.setLabel(propertyTypeCore.getLabel());
 
-        if (propertyTypeCore != null && !propertyType.getType().equals(propertyTypeCore.getType()))
+        if (propertyTypeCore.getType() != null && !propertyType.getType().equals(propertyTypeCore.getType()))
             throw new IllegalArgumentException("Property type value class (type) is immutable");
 
         if (propertyTypeCore.getAllowedVocabularies() != null)
@@ -144,9 +140,7 @@ public class PropertyTypeService {
     }
 
     public synchronized void removePropertyType(String propertyTypeCode) {
-        PropertyType propertyType = propertyTypeRepository.findById(propertyTypeCode)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Property type with code = '%s' not found", propertyTypeCode)));
-
+        PropertyType propertyType = loadPropertyType(propertyTypeCode);
         int gapOrd = propertyType.getOrd();
 
         propertyTypeVocabularyRepository.deleteByPropertyTypeCode(propertyTypeCode);
@@ -156,6 +150,18 @@ public class PropertyTypeService {
     }
 
     public synchronized void reorderPropertyTypes(PropertyTypesReordering reordering) {
-        throw new UnsupportedOperationException("Not implemented");
+        reordering.getShifts().forEach(this::shiftPropertyTypeOrder);
+    }
+
+    private void shiftPropertyTypeOrder(PropertyTypeReorder shift) {
+        PropertyType propertyType = loadPropertyType(shift.getCode());
+
+        propertyType.setOrd(shift.getOrd());
+        propertyTypeRepository.shiftSucceedingPropertyTypesOrder(shift.getOrd(), 1);
+    }
+
+    private PropertyType loadPropertyType(String propertyTypeCode) {
+        return propertyTypeRepository.findById(propertyTypeCode)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Property type with code = '%s' not found", propertyTypeCode)));
     }
 }
