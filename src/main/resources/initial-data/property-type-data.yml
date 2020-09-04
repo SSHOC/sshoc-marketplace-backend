@@ -108,6 +108,60 @@ PropertyType:
     label:                       See also
     type:                        URL
 
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        journal
+    ord:                         19
+    label:                       Journal
+    type:                        STRING
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        conference
+    ord:                         20
+    label:                       Conference
+    type:                        STRING
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        volume
+    ord:                         21
+    label:                       Volume
+    type:                        STRING
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        issue
+    ord:                         22
+    label:                       Issue
+    type:                        STRING
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        pages
+    ord:                         23
+    label:                       Pages
+    type:                        STRING
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        year
+    ord:                         24
+    label:                       Year
+    type:                        INT
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        timestamp
+    ord:                         25
+    label:                       Timestamp
+    type:                        DATE
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        publication-type
+    ord:                         26
+    label:                       Publication type
+    type:                        CONCEPT
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        doi
+    ord:                         27
+    label:                       DOI
+    type:                        STRING
+
 PropertyTypeVocabulary:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
@@ -165,3 +219,11 @@ PropertyTypeVocabulary:
     vocabulary:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
       code:                        iana-mime-type
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
+    propertyType:
+      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+      code: publication-type
+    vocabulary:
+      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
+      code: publlication-type
