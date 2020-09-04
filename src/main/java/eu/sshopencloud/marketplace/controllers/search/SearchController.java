@@ -52,7 +52,7 @@ class SearchController {
     }
 
     @GetMapping("/concept-search")
-    @Operation(description = "Search among concepts.")
+    @Operation(description = "Search among concepts.", operationId = "searchConcepts")
     ResponseEntity<PaginatedSearchConcepts> searchItems(@RequestParam(value = "q", required = false) String q,
                                                         @RequestParam(value = "types", required = false) List<String> types,
                                                         @RequestParam(value = "page", required = false) Integer page,
