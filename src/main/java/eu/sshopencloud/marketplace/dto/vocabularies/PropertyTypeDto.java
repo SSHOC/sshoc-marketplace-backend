@@ -16,6 +16,8 @@ public class PropertyTypeDto {
 
     private PropertyTypeClass type;
 
+    private int ord;
+
     private List<VocabularyBasicDto> allowedVocabularies;
 
 }

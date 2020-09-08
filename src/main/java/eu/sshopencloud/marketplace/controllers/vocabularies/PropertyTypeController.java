@@ -9,7 +9,6 @@ import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.PropertyTypeAlreadyExistsException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +29,12 @@ public class PropertyTypeController {
             throws PageTooLargeException {
 
         return ResponseEntity.ok(propertyTypeService.getPropertyTypes(q, pageCoordsValidator.validate(page, perpage)));
+    }
+
+    @GetMapping("/{code}")
+    public ResponseEntity<PropertyTypeDto> getPropertyType(@PathVariable("code") String code) {
+        PropertyTypeDto propertyType = propertyTypeService.getPropertyType(code);
+        return ResponseEntity.ok(propertyType);
     }
 
     @PostMapping("/{code}")

@@ -1,14 +1,14 @@
 package eu.sshopencloud.marketplace.dto.vocabularies;
 
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 
 @Data
-@NoArgsConstructor
+@Builder
 public class PropertyTypeCore {
 
     private String label;

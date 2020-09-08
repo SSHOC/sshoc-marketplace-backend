@@ -61,7 +61,7 @@ public class PropertyValidator {
     private Property getDefaultObjectTypeProperty(ItemCategory category, Item item) {
         Property property = new Property();
         property.setItem(item);
-        property.setType(propertyTypeService.getPropertyType(ItemCategory.OBJECT_TYPE_PROPERTY_TYPE_CODE));
+        property.setType(propertyTypeService.loadPropertyType(ItemCategory.OBJECT_TYPE_PROPERTY_TYPE_CODE));
         property.setConcept(conceptService.getDefaultObjectTypeConcept(category));
         return property;
     }
