@@ -39,6 +39,8 @@ public class PropertyValidator {
                 Property property = validate(category, propertyCore, item, errors);
                 if (property != null) {
                     properties.add(property);
+
+                    /* Deprecated - object type property is no more
                     if (property.getType().getCode().equals(ItemCategory.OBJECT_TYPE_PROPERTY_TYPE_CODE)) {
                         if (!missingObjectType) {
                             String field = (propertyCore.getConcept().getUri() == null) ? "concept.code" : "concept.uri";
@@ -47,17 +49,22 @@ public class PropertyValidator {
                         }
                         missingObjectType = false;
                     }
+                     */
                 }
                 errors.popNestedPath();
             }
         }
+
+        /*
         if (missingObjectType) {
             properties.add(getDefaultObjectTypeProperty(category, item));
         }
+         */
 
         return properties;
     }
 
+    @Deprecated
     private Property getDefaultObjectTypeProperty(ItemCategory category, Item item) {
         Property property = new Property();
         property.setItem(item);

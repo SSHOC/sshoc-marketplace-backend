@@ -20,9 +20,10 @@ public class ConceptController {
 
     private final ConceptService conceptService;
 
+    /* Deprecated - object-type property is no more
     @GetMapping(path = "/object-type-concepts/{category}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ConceptDto>> getObjectTypeConcepts(@PathVariable("category") ItemCategory category) {
         return ResponseEntity.ok(conceptService.getObjectTypeConcepts(category));
     }
-
+     */
 }

@@ -50,11 +50,15 @@ public class ConceptValidator {
                     "Disallowed vocabulary '" + vocabularyCode + "' for property type '" + propertyType.getCode() + "'.");
             return null;
         }
+
+        /* Deprecated - object type property is no longer present
         if (category != null) {
             if (!checkObjectType(category, propertyType, concept, conceptId.getUri(), errors)) {
                 return null;
             }
         }
+         */
+
         return concept;
     }
 
@@ -99,6 +103,7 @@ public class ConceptValidator {
         }
     }
 
+    @Deprecated
     private boolean checkObjectType(ItemCategory category, PropertyType propertyType, Concept concept, String uri, Errors errors) {
         if (propertyType.getCode().equals(ItemCategory.OBJECT_TYPE_PROPERTY_TYPE_CODE)) {
             if (!concept.getCode().equals(category.getValue())) {

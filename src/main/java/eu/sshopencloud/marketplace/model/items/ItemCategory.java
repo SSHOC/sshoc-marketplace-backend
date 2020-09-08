@@ -3,15 +3,11 @@ package eu.sshopencloud.marketplace.model.items;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ItemCategory {
-
-    TOOL,
-
+    TOOL_OR_SERVICE,
     TRAINING_MATERIAL,
-
+    PUBLICATION,
     DATASET,
-
     WORKFLOW,
-
     STEP;
 
     public static final String OBJECT_TYPE_PROPERTY_TYPE_CODE = "object-type";
@@ -19,7 +15,7 @@ public enum ItemCategory {
     public static final String OBJECT_TYPE_VOCABULARY_CODE = "object-type";
 
     public static ItemCategory[] indexedCategories() {
-        return new ItemCategory[] {TOOL, TRAINING_MATERIAL, DATASET, WORKFLOW};
+        return new ItemCategory[] {TOOL_OR_SERVICE, TRAINING_MATERIAL, PUBLICATION, DATASET, WORKFLOW};
     }
 
     @JsonValue
