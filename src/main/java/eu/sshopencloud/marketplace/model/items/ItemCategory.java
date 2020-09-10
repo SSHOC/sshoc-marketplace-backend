@@ -10,8 +10,10 @@ public enum ItemCategory {
     WORKFLOW,
     STEP;
 
+    @Deprecated
     public static final String OBJECT_TYPE_PROPERTY_TYPE_CODE = "object-type";
 
+    @Deprecated
     public static final String OBJECT_TYPE_VOCABULARY_CODE = "object-type";
 
     public static ItemCategory[] indexedCategories() {

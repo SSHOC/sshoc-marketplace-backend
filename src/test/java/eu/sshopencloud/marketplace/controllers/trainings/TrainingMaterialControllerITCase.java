@@ -117,8 +117,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://programminghistorian.org/en/lessons/test-simple-blog")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Training material")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source.id", is(2)))
                 .andExpect(jsonPath("source.label", is("Programming Historian")))
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
@@ -163,8 +162,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("accessibleAt[0]", is("https://programminghistorian.org/en/lessons/test-simple-blog")))
                 .andExpect(jsonPath("accessibleAt[1]", is("https://test.programminghistorian.org/en/lessons/test-simple-blog")))
                 .andExpect(jsonPath("accessibleAt[2]", is("https://dev.programminghistorian.org/en/lessons/test-simple-blog")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Training material")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source.id", is(2)))
                 .andExpect(jsonPath("source.label", is("Programming Historian")))
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
@@ -200,16 +198,6 @@ public class TrainingMaterialControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("online-course");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -226,7 +214,6 @@ public class TrainingMaterialControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -249,9 +236,8 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("licenses[0].label", is("Apache License 2.0")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
-                .andExpect(jsonPath("properties[0].concept.label", is("Online course")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[2].value", is("paper")))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
@@ -264,18 +250,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem Ipsum ...");
         trainingMaterial.setPrevVersionId(7l);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("online-course");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -308,18 +283,8 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem ipsum");
         trainingMaterial.setPrevVersionId(6l);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("online-course");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
+
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -365,99 +330,10 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenObjectTypeIsIncorrect() throws Exception {
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("x1x2x1");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-
-    @Test
-    public void shouldNotCreateTrainingMaterialWhenObjectTypeIsAmbiguous() throws Exception {
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("blog");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
-        PropertyCore property1 = new PropertyCore();
-        PropertyTypeId propertyType1 = new PropertyTypeId();
-        propertyType1.setCode("object-type");
-        property1.setType(propertyType1);
-        ConceptId concept1 = new ConceptId();
-        concept1.setCode("paper");
-        VocabularyId vocabulary1 = new VocabularyId();
-        vocabulary1.setCode("object-type");
-        concept1.setVocabulary(vocabulary1);
-        property1.setConcept(concept1);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
-        properties.add(property1);
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
-                .andExpect(jsonPath("errors[0].code", is("field.tooManyObjectTypes")))
-                .andExpect(jsonPath("errors[0].args[0]", is("training-material")))
-                .andExpect(jsonPath("errors[0].args[1]", is("paper")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-    @Test
     public void shouldNotCreateTrainingMaterialWhenLabelIsNull() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -484,18 +360,7 @@ public class TrainingMaterialControllerITCase {
         List<LicenseId> licenses = new ArrayList<LicenseId>();
         licenses.add(license);
         trainingMaterial.setLicenses(licenses);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -526,18 +391,7 @@ public class TrainingMaterialControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -568,18 +422,7 @@ public class TrainingMaterialControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -600,16 +443,6 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("blog");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("yyy");
@@ -628,7 +461,6 @@ public class TrainingMaterialControllerITCase {
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         properties.add(property1);
         properties.add(property2);
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -649,16 +481,6 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -675,7 +497,6 @@ public class TrainingMaterialControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -688,7 +509,7 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -698,16 +519,6 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("activity");
@@ -724,7 +535,6 @@ public class TrainingMaterialControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -737,7 +547,7 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.vocabulary")))
                 .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
                 .andExpect(jsonPath("errors[0].args[0]", is("iso-639-3")))
                 .andExpect(jsonPath("errors[0].args[1]", is("activity")))
@@ -749,16 +559,6 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -770,7 +570,6 @@ public class TrainingMaterialControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -783,7 +582,7 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -814,8 +613,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("accessibleAt[0]", is("http://programminghistorian.org/en/lessons/test-simple-training-material")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Training material")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source.id", is(2)))
                 .andExpect(jsonPath("source.label", is("Programming Historian")))
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
@@ -845,16 +643,6 @@ public class TrainingMaterialControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("blog");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -871,7 +659,6 @@ public class TrainingMaterialControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -897,10 +684,9 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("contributors", hasSize(1)))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
-                .andExpect(jsonPath("properties", hasSize(3)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Blog")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[2].value", is("paper")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
@@ -920,18 +706,7 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -953,18 +728,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setVersion("1.0");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         trainingMaterial.setPrevVersionId(7l);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -995,18 +759,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setVersion("3.0");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         trainingMaterial.setPrevVersionId(5l);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1036,18 +789,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         trainingMaterial.setPrevVersionId(7l);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1069,18 +811,7 @@ public class TrainingMaterialControllerITCase {
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1108,18 +839,7 @@ public class TrainingMaterialControllerITCase {
         List<LicenseId> licenses = new ArrayList<LicenseId>();
         licenses.add(license);
         trainingMaterial.setLicenses(licenses);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1152,18 +872,7 @@ public class TrainingMaterialControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1196,18 +905,7 @@ public class TrainingMaterialControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1230,16 +928,6 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("yyy");
@@ -1256,7 +944,6 @@ public class TrainingMaterialControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1269,7 +956,7 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].type.code")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].type.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -1281,16 +968,6 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -1307,7 +984,6 @@ public class TrainingMaterialControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1320,7 +996,7 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -1332,16 +1008,6 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("activity");
@@ -1358,7 +1024,6 @@ public class TrainingMaterialControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1371,7 +1036,7 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.vocabulary")))
                 .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
                 .andExpect(jsonPath("errors[0].args[0]", is("iso-639-3")))
                 .andExpect(jsonPath("errors[0].args[1]", is("activity")))
@@ -1385,16 +1050,6 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("paper");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -1406,7 +1061,6 @@ public class TrainingMaterialControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1419,7 +1073,7 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -1430,18 +1084,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem Ipsum ...");
         trainingMaterial.setPrevVersionId(8l);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("online-course");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);

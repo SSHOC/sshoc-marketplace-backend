@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,37 +73,14 @@ public class SearchService {
 
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(q, filterCriteria, order, pageable);
 
-        Map<ItemCategory, Concept> concepts = conceptService.getAllDefaultObjectTypeConcepts();
-        List<CountedConcept> countedCategories = facetPage.getFacetFields().stream()
-                .filter(field -> field.getName().equals(IndexItem.CATEGORY_FIELD))
-                .map(facetPage::getFacetResultPage)
-                .flatMap(facetFieldEntries -> facetFieldEntries.getContent().stream())
-                .map(entry -> SearchConverter.convertCategoryFacet(entry, categories, concepts))
-                .collect(Collectors.toList());
-        // when bug in spring-data-solr-4.1.4 is corrected, set facet.mincount and facet.sort to facet parameters and remove manual filling the list of categories
-        SearchConverter.fillMissingCategories(countedCategories, categories, concepts);
-        countedCategories.sort(new CountedConceptComparator());
-
-        Map<String, Map<String, CheckedCount>> facets = facetPage.getFacetFields().stream()
-                .filter(field -> !field.getName().equals(IndexItem.CATEGORY_FIELD))
-                .map(field -> Pair.create(
-                        field.getName().replace('_', '-'),
-                        createFacetDetails(facetPage.getFacetResultPage(field.getName()).getContent(), filterParams.get(field.getName().replace('_', '-')))
-                ))
-                .collect(Collectors.toMap(
-                        Pair::getKey, Pair::getValue,
-                        (u, v) -> u,
-                        LinkedHashMap::new
-                ));
+        Map<ItemCategory, CheckedCount> categoryFacets = gatherCategoryFacets(facetPage, categories);
+        Map<String, Map<String, CheckedCount>> facets = gatherSearchFacets(facetPage, filterParams);
 
         PaginatedSearchItems result = PaginatedSearchItems.builder().q(q).order(order).items(facetPage.get().map(SearchConverter::convertIndexItem).collect(Collectors.toList()))
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
-                .categories(countedCategories.stream()
-                        .collect(Collectors.toMap(countedConcept -> ItemCategoryConverter.convertCategory(countedConcept.getCode()), countedConcept -> countedConcept,
-                                (u, v) -> u,
-                                LinkedHashMap::new)))
+                .categories(categoryFacets)
                 .facets(facets)
                 .build();
 
@@ -113,6 +91,54 @@ public class SearchService {
         }
 
         return result;
+    }
+
+    private Map<ItemCategory, CheckedCount> gatherCategoryFacets(FacetPage<IndexItem> facetPage, List<ItemCategory> categories) {
+        Map<ItemCategory, CheckedCount> countedCategories = facetPage.getFacetFields().stream()
+                .filter(field -> field.getName().equals(IndexItem.CATEGORY_FIELD))
+                .map(facetPage::getFacetResultPage)
+                .flatMap(facetFieldEntries -> facetFieldEntries.getContent().stream())
+                .collect(
+                        Collectors.toMap(
+                                facet -> ItemCategoryConverter.convertCategory(facet.getValue()),
+                                facet -> SearchConverter.convertCategoryFacet(facet, categories)
+                        )
+                );
+
+        Map<ItemCategory, CheckedCount> categoryFacets = new LinkedHashMap<>();
+        Arrays.stream(ItemCategory.indexedCategories())
+                .forEachOrdered(category ->
+                        categoryFacets.put(
+                                category,
+                                resolveCategoryCount(category, categories, countedCategories)
+                        )
+                );
+
+        return categoryFacets;
+    }
+
+    private CheckedCount resolveCategoryCount(ItemCategory category, List<ItemCategory> categories, Map<ItemCategory, CheckedCount> counted) {
+        if (counted.containsKey(category))
+            return counted.get(category);
+
+        return SearchConverter.convertCategoryFacet(category, 0, categories);
+    }
+
+    private Map<String, Map<String, CheckedCount>> gatherSearchFacets(FacetPage<IndexItem> facetPage, Map<String, List<String>> filterParams) {
+        return facetPage.getFacetFields().stream()
+                .filter(field -> !field.getName().equals(IndexItem.CATEGORY_FIELD))
+                .map(field -> Pair.create(
+                        field.getName().replace('_', '-'),
+                        createFacetDetails(
+                                facetPage.getFacetResultPage(field.getName()).getContent(),
+                                filterParams.get(field.getName().replace('_', '-'))
+                        )
+                ))
+                .collect(Collectors.toMap(
+                        Pair::getKey, Pair::getValue,
+                        (u, v) -> u,
+                        LinkedHashMap::new
+                ));
     }
 
     private static Map<String, CheckedCount> createFacetDetails(List<FacetFieldEntry> facetValues, List<String> checkedValues) {

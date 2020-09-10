@@ -11,8 +11,6 @@ public enum SearchFilter {
 
     CATEGORY(IndexType.ITEMS, IndexItem.CATEGORY_FIELD, FilterType.VALUES_SELECTION_FILTER, true),
 
-    OBJECT_TYPE(IndexType.ITEMS, IndexItem.OBJECT_TYPE_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
-
     ACTIVITY(IndexType.ITEMS, IndexItem.ACTIVITY_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
     SOURCE(IndexType.ITEMS, IndexItem.SOURCE_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
@@ -39,6 +37,6 @@ public enum SearchFilter {
         return null;
     }
 
-    public static final String ITEMS_INDEX_TYPE_FILTERS = "object-type, activity, keyword";
+    public static final String ITEMS_INDEX_TYPE_FILTERS = "activity, keyword";
 
 }

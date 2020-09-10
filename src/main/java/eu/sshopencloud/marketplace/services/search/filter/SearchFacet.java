@@ -20,11 +20,6 @@ public enum SearchFacet {
             new SearchFacetParameters(4, 0, FacetOptions.FacetSort.INDEX)
     ),
 
-    OBJECT_TYPE(SearchFilter.OBJECT_TYPE, IndexItem.OBJECT_TYPE_FIELD,
-            List.of(IndexItem.OBJECT_TYPE_FIELD),
-            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
-    ),
-
     ACTIVITY(SearchFilter.ACTIVITY, IndexItem.ACTIVITY_FIELD,
             List.of(IndexItem.ACTIVITY_FIELD),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)

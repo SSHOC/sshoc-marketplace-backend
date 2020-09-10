@@ -82,9 +82,8 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Creation of a dictionary")))
                 .andExpect(jsonPath("description", is("Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset.")))
-                .andExpect(jsonPath("properties", hasSize(2)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("composedOf", hasSize(4)))
                 .andExpect(jsonPath("composedOf[0].label", is("Build the model of the dictionary")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
@@ -122,8 +121,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test simple workflow")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
     }
 
@@ -149,8 +147,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test workflow with source")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)))
                 .andExpect(jsonPath("source.id", is(1)))
                 .andExpect(jsonPath("source.label", is("TAPoR")))
@@ -191,8 +188,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 1")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         StepCore step2 = new StepCore();
@@ -210,8 +206,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 2")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{workflowId}", workflowId)
@@ -222,8 +217,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test simple workflow with steps")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(2)))
                 .andExpect(jsonPath("composedOf[0].label", is("Test simple step 1")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
@@ -266,8 +260,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 2")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         StepCore step1 = new StepCore();
@@ -286,8 +279,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 1")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{workflowId}", workflowId)
@@ -298,8 +290,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test simple workflow with steps")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(2)))
                 .andExpect(jsonPath("composedOf[0].label", is("Test simple step 1")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
@@ -390,8 +381,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 2")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         StepCore step11 = new StepCore();
@@ -409,8 +399,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 1.1")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         StepCore step13 = new StepCore();
@@ -428,8 +417,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 1.3")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         StepCore step12 = new StepCore();
@@ -448,8 +436,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test simple step 1.2")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", workflowId, stepId)
@@ -459,8 +446,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test complex step 1")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(3)))
                 .andExpect(jsonPath("composedOf[0].label", is("Test simple step 1.1")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
@@ -477,8 +463,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test complex workflow with nested steps")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(2)))
                 .andExpect(jsonPath("composedOf[0].label", is("Test complex step 1")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(3)))
@@ -504,8 +489,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
                 .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(3)))
                 .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
@@ -562,8 +546,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("contributors[1].role.code", is("author")))
                 .andExpect(jsonPath("contributors[2].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[2].role.code", is("author")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{id}", workflowId)
@@ -574,8 +557,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
                 .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(4)))
                 .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
@@ -599,8 +581,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
                 .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(3)))
                 .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
@@ -658,8 +639,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("contributors[1].role.code", is("author")))
                 .andExpect(jsonPath("contributors[2].actor.id", is(1)))
                 .andExpect(jsonPath("contributors[2].role.code", is("contributor")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{id}", workflowId)
@@ -669,8 +649,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
                 .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(3)))
                 .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(1)))
@@ -787,9 +766,8 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Creation of a dictionary")))
                 .andExpect(jsonPath("description", is("Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset.")))
-                .andExpect(jsonPath("properties", hasSize(2)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("composedOf", hasSize(4)))
                 .andExpect(jsonPath("composedOf[0].label", is("Build the model of the dictionary")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
@@ -822,16 +800,6 @@ public class WorkflowControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         step.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("step");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -843,7 +811,6 @@ public class WorkflowControllerITCase {
         concept1.setVocabulary(vocabulary1);
         property1.setConcept(concept1);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         step.setProperties(properties);
         step.setStepNo(1);
@@ -861,9 +828,8 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("description", is("...")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(4)))
                 .andExpect(jsonPath("contributors[0].role.code", is("author")))
-                .andExpect(jsonPath("properties", hasSize(2)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Step")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("composedOf", hasSize(4)))
                 .andExpect(jsonPath("composedOf[0].label", is("Corpus composition")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
@@ -881,9 +847,8 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Creation of a dictionary")))
                 .andExpect(jsonPath("description", is("Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset.")))
-                .andExpect(jsonPath("properties", hasSize(2)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Workflow")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("composedOf", hasSize(4)))
                 .andExpect(jsonPath("composedOf[0].id", is(stepId)))
                 .andExpect(jsonPath("composedOf[0].label", is("Creation of a corpora")))

@@ -31,8 +31,6 @@ public class IndexItem {
 
     public static final String LAST_INFO_UPDATE_FIELD = "modified_on";
 
-    public static final String OBJECT_TYPE_FIELD = "object_type";
-
     public static final String ACTIVITY_FIELD = "activity";
 
     public static final String SOURCE_FIELD = "source";
@@ -68,9 +66,6 @@ public class IndexItem {
 
     @Indexed(name = LAST_INFO_UPDATE_FIELD, type = "pdate")
     private String lastInfoUpdate;
-
-    @Indexed(name = OBJECT_TYPE_FIELD, type = "string")
-    private String objectType;
 
     @Indexed(name = ACTIVITY_FIELD, type = "strings")
     @Singular
