@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.PropertyTypeAlreadyExistsException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class PropertyTypeController {
     private final PropertyTypeService propertyTypeService;
 
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedPropertyTypes> getPropertyTypes(@RequestParam(value = "q", required = false) String q,
                                                                    @RequestParam(value = "page", required = false) Integer page,
                                                                    @RequestParam(value = "perpage", required = false) Integer perpage)
@@ -31,14 +32,14 @@ public class PropertyTypeController {
         return ResponseEntity.ok(propertyTypeService.getPropertyTypes(q, pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping("/{code}")
+    @GetMapping(value = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PropertyTypeDto> getPropertyType(@PathVariable("code") String code) {
         PropertyTypeDto propertyType = propertyTypeService.getPropertyType(code);
         return ResponseEntity.ok(propertyType);
     }
 
-    @PostMapping("/{code}")
-    public ResponseEntity<PropertyTypeDto> postPropertyType(@PathVariable("code") String propertyTypeCode,
+    @PostMapping(value = "/{code}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PropertyTypeDto> createPropertyType(@PathVariable("code") String propertyTypeCode,
                                                             @RequestBody PropertyTypeCore propertyTypeData)
             throws PropertyTypeAlreadyExistsException {
 
@@ -46,8 +47,8 @@ public class PropertyTypeController {
         return ResponseEntity.ok(propertyType);
     }
 
-    @PutMapping("/{code}")
-    public ResponseEntity<PropertyTypeDto> putPropertyType(@PathVariable("code") String propertyTypeCode,
+    @PutMapping(value = "/{code}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PropertyTypeDto> updatePropertyType(@PathVariable("code") String propertyTypeCode,
                                                            @RequestBody PropertyTypeCore propertyTypeData) {
 
         PropertyTypeDto propertyType = propertyTypeService.updatePropertyType(propertyTypeCode, propertyTypeData);
@@ -60,9 +61,10 @@ public class PropertyTypeController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/reorder")
+    @PostMapping(value = "/reorder", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> reorderPropertyTypes(@RequestBody PropertyTypesReordering reordering) {
         propertyTypeService.reorderPropertyTypes(reordering);
         return ResponseEntity.ok().build();
     }
+
 }
