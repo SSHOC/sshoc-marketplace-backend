@@ -14,4 +14,5 @@ public interface PropertyTypeVocabularyRepository extends JpaRepository<Property
     List<PropertyTypeVocabulary> findByVocabularyCode(String vocabularyCode);
 
     void deleteByVocabularyCode(String vocabularyCode);
+    void deleteByPropertyTypeCode(String propertyTypeCode);
 }

@@ -1,31 +1,33 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedPropertyTypes;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyTypeMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.PropertyTypeAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Throwable.class)
 @RequiredArgsConstructor
 public class PropertyTypeService {
 
     private final PropertyTypeRepository propertyTypeRepository;
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
+
+    private final AllowedVocabulariesService allowedVocabulariesService;
 
 
     public PaginatedPropertyTypes getPropertyTypes(String q, PageCoords pageCoords) {
@@ -60,12 +62,18 @@ public class PropertyTypeService {
         return propertyTypeRepository.findAll().stream().collect(Collectors.toMap(PropertyType::getCode, propertyType -> propertyType));
     }
 
-    public PropertyType getPropertyType(String code) {
-        Optional<PropertyType> propertyType = propertyTypeRepository.findById(code);
-        if (!propertyType.isPresent()) {
-            throw new EntityNotFoundException("Unable to find " + PropertyType.class.getName() + " with code " + code);
-        }
-        return propertyType.get();
+    public PropertyTypeDto getPropertyType(String code) {
+        PropertyType propertyType = loadPropertyType(code);
+        PropertyTypeDto propertyTypeDto = PropertyTypeMapper.INSTANCE.toDto(propertyType);
+
+        completePropertyType(propertyTypeDto);
+
+        return propertyTypeDto;
+    }
+
+    public PropertyType loadPropertyType(String propertyTypeCode) {
+        return propertyTypeRepository.findById(propertyTypeCode)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Property type with code = '%s' not found", propertyTypeCode)));
     }
 
     public List<Vocabulary> getAllowedVocabulariesForPropertyType(String propertyTypeCode) {
@@ -88,5 +96,80 @@ public class PropertyTypeService {
 
     public void removePropertyTypesAssociations(String vocabularyCode) {
         propertyTypeVocabularyRepository.deleteByVocabularyCode(vocabularyCode);
+    }
+
+    private int getMaxOrdForPropertyTypes() {
+        Integer maxOrd = propertyTypeRepository.findMaxPropertyTypeOrd();
+        return (maxOrd != null) ? maxOrd : 1;
+    }
+
+    public synchronized PropertyTypeDto createPropertyType(String code, PropertyTypeCore propertyTypeCore) throws PropertyTypeAlreadyExistsException {
+        if (propertyTypeRepository.existsById(code))
+            throw new PropertyTypeAlreadyExistsException(code);
+
+        if (!PropertyTypeClass.CONCEPT.equals(propertyTypeCore.getType()) && propertyTypeCore.getAllowedVocabularies() != null)
+            throw new IllegalArgumentException("Allowed vocabularies are suitable only for property types with concept values");
+
+        int maxOrd = getMaxOrdForPropertyTypes();
+        PropertyType propertyType = new PropertyType(code, propertyTypeCore.getType(), propertyTypeCore.getLabel(), maxOrd + 1);
+        propertyType = propertyTypeRepository.save(propertyType);
+
+        if (propertyTypeCore.getAllowedVocabularies() != null)
+            allowedVocabulariesService.updateForPropertyType(propertyTypeCore.getAllowedVocabularies(), propertyType);
+
+        PropertyTypeDto dto = PropertyTypeMapper.INSTANCE.toDto(propertyType);
+        completePropertyType(dto);
+
+        return dto;
+    }
+
+    public PropertyTypeDto updatePropertyType(String code, PropertyTypeCore propertyTypeCore) {
+        PropertyType propertyType = loadPropertyType(code);
+
+        propertyType.setLabel(propertyTypeCore.getLabel());
+
+        if (propertyTypeCore.getType() != null && !propertyType.getType().equals(propertyTypeCore.getType()))
+            throw new IllegalArgumentException("Property type value class (type) is immutable");
+
+        if (propertyTypeCore.getAllowedVocabularies() != null)
+            allowedVocabulariesService.updateForPropertyType(propertyTypeCore.getAllowedVocabularies(), propertyType);
+
+        PropertyTypeDto dto = PropertyTypeMapper.INSTANCE.toDto(propertyType);
+        completePropertyType(dto);
+
+        return dto;
+    }
+
+    public synchronized void removePropertyType(String propertyTypeCode) {
+        PropertyType propertyType = loadPropertyType(propertyTypeCode);
+        int gapOrd = propertyType.getOrd();
+
+        allowedVocabulariesService.updateForPropertyType(Collections.emptyList(), propertyType);
+
+        propertyTypeRepository.delete(propertyType);
+        propertyTypeRepository.shiftSucceedingPropertyTypesOrder(gapOrd, -1);
+    }
+
+    public synchronized void reorderPropertyTypes(PropertyTypesReordering reordering) {
+        int maxOrd = getMaxOrdForPropertyTypes();
+
+        reordering.getShifts().forEach(shift -> {
+            int targetOrd = shift.getOrd();
+
+            if (targetOrd < 1 || targetOrd > maxOrd)
+                throw new IllegalArgumentException(String.format("Invalid shift ord value: %d", targetOrd));
+        });
+
+        reordering.getShifts().forEach(this::shiftPropertyTypeOrder);
+    }
+
+    private void shiftPropertyTypeOrder(PropertyTypeReorder shift) {
+        PropertyType propertyType = loadPropertyType(shift.getCode());
+
+        propertyTypeRepository.shiftSucceedingPropertyTypesOrder(propertyType.getOrd(), -1);
+        propertyTypeRepository.shiftSucceedingPropertyTypesOrder(shift.getOrd() - 1, 1);
+
+        propertyType = propertyTypeRepository.getOne(shift.getCode());
+        propertyType.setOrd(shift.getOrd());
     }
 }
