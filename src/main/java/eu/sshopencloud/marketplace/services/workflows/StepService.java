@@ -81,7 +81,7 @@ public class StepService {
         return completeStep(StepMapper.INSTANCE.toDto(step));
     }
 
-    public StepDto createStep(long workflowId, long stepId, StepCore substepCore) {
+    public StepDto createSubstep(long workflowId, long stepId, StepCore substepCore) {
         Step step = checkWorkflowAndStepConsistency(workflowId, stepId);
         int numberOfSiblings = 0;
         List<Step> substeps = new ArrayList<>();

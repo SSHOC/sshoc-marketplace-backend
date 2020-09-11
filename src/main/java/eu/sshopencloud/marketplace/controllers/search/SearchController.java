@@ -37,7 +37,7 @@ class SearchController {
 
     @GetMapping("/item-search")
     @Operation(description = "Search among items.")
-    ResponseEntity<PaginatedSearchItems> searchItems(@RequestParam(value = "q", required = false) String q,
+    public ResponseEntity<PaginatedSearchItems> searchItems(@RequestParam(value = "q", required = false) String q,
                                                      @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
                                                      @RequestParam(value = "order", required = false) List<SearchOrder> order,
                                                      @RequestParam(value = "page", required = false) Integer page,
@@ -53,7 +53,7 @@ class SearchController {
 
     @GetMapping("/concept-search")
     @Operation(description = "Search among concepts.")
-    ResponseEntity<PaginatedSearchConcepts> searchItems(@RequestParam(value = "q", required = false) String q,
+    public ResponseEntity<PaginatedSearchConcepts> searchConcepts(@RequestParam(value = "q", required = false) String q,
                                                         @RequestParam(value = "types", required = false) List<String> types,
                                                         @RequestParam(value = "page", required = false) Integer page,
                                                         @RequestParam(value = "perpage", required = false) Integer perpage)
@@ -64,7 +64,7 @@ class SearchController {
 
     @GetMapping("/item-search/autocomplete")
     @Operation(description = "Autocomplete for items search.")
-    ResponseEntity<SuggestedSearchPhrases> autocompleteItems(@RequestParam("q") String query) {
+    public ResponseEntity<SuggestedSearchPhrases> autocompleteItems(@RequestParam("q") String query) {
         SuggestedSearchPhrases suggestions = searchService.autocompleteItemsSearch(query);
         return ResponseEntity.ok(suggestions);
     }
