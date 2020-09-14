@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_0-publication_data-1
+      author: mkozak
+      description: Loads publication properties dev data
+      context: dev, test
+      changes:
+        - sqlFile:
+            dbms:  'postgresql'
+            encoding:  UTF-8
+            path:  db/changelog/sql/publication-properties-dev-data-1.sql
+            relativeToChangelogFile:  false
+

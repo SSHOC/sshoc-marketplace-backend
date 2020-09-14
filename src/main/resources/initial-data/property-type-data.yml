@@ -1,164 +1,158 @@
 PropertyType:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        object-type
-    ord:                         1
-    label:                       Object type
-    type:                        CONCEPT
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        language
-    ord:                         2
+    ord:                         1
     label:                       Language
     type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        activity
-    ord:                         3
+    ord:                         2
     label:                       Activity
     type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        technique
-    ord:                         4
+    ord:                         3
     label:                       Technique
     type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        material
-    ord:                         5
+    ord:                         4
     label:                       Material
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        object-format
-    ord:                         6
+    ord:                         5
     label:                       Object format
     type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        keyword
-    ord:                         7
+    ord:                         6
     label:                       Keyword
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        tadirah-goals
-    ord:                         8
+    ord:                         7
     label:                       Tadirah Goals
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        thumbnail
-    ord:                         9
+    ord:                         8
     label:                       Thumbnail
     type:                        URL
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        repository-url
-    ord:                         10
+    ord:                         9
     label:                       Repository Url
     type:                        URL
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        license-type
-    ord:                         11
+    ord:                         10
     label:                       License Type
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        web-usable
-    ord:                         12
+    ord:                         11
     label:                       Web Usable
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        tool-family
-    ord:                         13
+    ord:                         12
     label:                       Tool Family
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        tadirah-methods
-    ord:                         14
+    ord:                         13
     label:                       Tadirah Methods
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        methodica-link
-    ord:                         15
+    ord:                         14
     label:                       Methodi CA Link
     type:                        URL
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        cover-image
-    ord:                         16
+    ord:                         15
     label:                       Cover Image
     type:                        URL
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        media
-    ord:                         17
+    ord:                         16
     label:                       Media
     type:                        URL
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        see-also
-    ord:                         18
+    ord:                         17
     label:                       See also
     type:                        URL
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        journal
-    ord:                         19
+    ord:                         18
     label:                       Journal
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        conference
-    ord:                         20
+    ord:                         19
     label:                       Conference
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        volume
-    ord:                         21
+    ord:                         20
     label:                       Volume
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        issue
-    ord:                         22
+    ord:                         21
     label:                       Issue
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        pages
-    ord:                         23
+    ord:                         22
     label:                       Pages
     type:                        STRING
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        year
-    ord:                         24
+    ord:                         23
     label:                       Year
     type:                        INT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        timestamp
-    ord:                         25
+    ord:                         24
     label:                       Timestamp
     type:                        DATE
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        publication-type
-    ord:                         26
+    ord:                         25
     label:                       Publication type
     type:                        CONCEPT
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        doi
-    ord:                         27
+    ord:                         26
     label:                       DOI
     type:                        STRING
 
@@ -223,7 +217,7 @@ PropertyTypeVocabulary:
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
     propertyType:
       !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code: publication-type
+      code:                        publication-type
     vocabulary:
       !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code: publlication-type
+      code:                        publication-type

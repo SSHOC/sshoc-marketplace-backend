@@ -4,14 +4,12 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-# TODO prepare a complete vocabulary based on https://iso639-3.sil.org/code_tables/download_tables
-
 bibo:Journal a skos:Concept ;
-             skos:definition "Journal" ;
-             skos:inSheme bibo: ;
-             skos:topConceptOf bibo: ;
-             skos:notation "Journal"@en ;
-             skos:prefLabel "Journal"@en .
+          skos:definition "Journal" ;
+          skos:inSheme bibo: ;
+          skos:topConceptOf bibo: ;
+          skos:notation "Journal"@en ;
+          skos:prefLabel "Journal"@en .
 
 bibo:Book a skos:Concept ;
           skos:definition "Book" ;
@@ -43,4 +41,4 @@ bibo:Pre-Print a skos:Concept ;
 
 bibo: a skos:ConceptScheme ;
   rdfs:label "The Bibliographic Ontology Concept Scheme"@en ;
-  rdfs:comment "ISO 639-3 is a set of codes that defines three-letter identifiers for all known human languages. At the core of ISO 639-3 are the individual languages already accounted for in ISO 639-2. The large number of living languages in the initial inventory of ISO 639-3 beyond those already included in ISO 639-2 was derived primarily from Ethnologue (15th edition). Additional extinct, ancient, historic, and constructed languages were obtained from the Linguist List."@en .
+  rdfs:comment "The Bibliographic Ontology describes bibliographic things on the semantic Web in RDF. This ontology can be used as a citation ontology, as a document classification ontology, or simply as a way to describe any kind of document in RDF. It has been inspired by many existing document description metadata formats, and can be used as a common ground for converting other bibliographic data sources."@en .
