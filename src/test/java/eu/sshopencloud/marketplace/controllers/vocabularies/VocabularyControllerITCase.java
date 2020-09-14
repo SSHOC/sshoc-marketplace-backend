@@ -47,8 +47,8 @@ public class VocabularyControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.hits", is(8)))
-                .andExpect(jsonPath("$.count", is(8)))
+                .andExpect(jsonPath("$.hits", is(9)))
+                .andExpect(jsonPath("$.count", is(9)))
                 .andExpect(
                         jsonPath(
                                 "$.vocabularies[*].code",
@@ -60,7 +60,8 @@ public class VocabularyControllerITCase {
                                         "nemo-activity-type",
                                         "tadirah-activity",
                                         "software-license",
-                                        "tadirah-research-technique"
+                                        "tadirah-research-technique",
+                                        "publication-type"
                                 )
                         )
                 );
