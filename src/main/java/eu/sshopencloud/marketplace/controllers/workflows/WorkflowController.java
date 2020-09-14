@@ -63,8 +63,8 @@ public class WorkflowController {
     }
 
     @PostMapping(path = "/{workflowId}/steps/{stepId}/steps", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StepDto> createStep(@PathVariable("workflowId") long workflowId, @PathVariable("stepId") long stepId, @RequestBody StepCore newStep) {
-        return ResponseEntity.ok(stepService.createStep(workflowId, stepId, newStep));
+    public ResponseEntity<StepDto> createSubstep(@PathVariable("workflowId") long workflowId, @PathVariable("stepId") long stepId, @RequestBody StepCore newStep) {
+        return ResponseEntity.ok(stepService.createSubstep(workflowId, stepId, newStep));
     }
 
     @PutMapping(path = "/{workflowId}/steps/{stepId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -119,7 +119,6 @@
     <field name="description_text_en" type="text_en" indexed="true" stored="false" required="true" multiValued="false" />
     <field name="category" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="modified_on" type="pdate" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="object_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="activity" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="source" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="keyword" type="strings" indexed="true" stored="true" required="false" multiValued="true" />

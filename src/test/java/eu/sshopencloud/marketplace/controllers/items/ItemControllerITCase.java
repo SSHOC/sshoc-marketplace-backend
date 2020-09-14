@@ -58,16 +58,15 @@ public class ItemControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Tool to test search by source")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Tool")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source.id", is(1)))
                 .andExpect(jsonPath("source.label", is("TAPoR")))
                 .andExpect(jsonPath("source.url", is("http://tapor.ca")));
@@ -77,7 +76,7 @@ public class ItemControllerITCase {
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].category", is("tool")))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Tool to test search by source")))
                 .andExpect(jsonPath("$[0].version", is("5.1")));
     }

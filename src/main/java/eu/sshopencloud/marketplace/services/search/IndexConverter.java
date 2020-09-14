@@ -33,9 +33,6 @@ public class IndexConverter {
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
         for (Property property : item.getProperties()) {
             switch (property.getType().getCode()) {
-                case "object-type":
-                    builder.objectType(getPropertyValue(property));
-                    break;
                 case "activity":
                     builder.activity(getPropertyValue(property));
                     break;

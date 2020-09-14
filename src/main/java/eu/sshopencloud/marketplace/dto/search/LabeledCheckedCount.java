@@ -2,17 +2,15 @@ package eu.sshopencloud.marketplace.dto.search;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
-@NoArgsConstructor
-public class CheckedCount {
+public class LabeledCheckedCount extends CheckedCount {
 
-    protected long count;
-
-    protected boolean checked;
+    private String label;
 
 }

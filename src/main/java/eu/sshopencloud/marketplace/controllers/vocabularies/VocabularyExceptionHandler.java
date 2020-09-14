@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import eu.sshopencloud.marketplace.controllers.ErrorResponse;
-import eu.sshopencloud.marketplace.services.vocabularies.VocabularyAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
@@ -23,8 +23,7 @@ public class VocabularyExceptionHandler {
     @ExceptionHandler(value = {
             VocabularyAlreadyExistsException.class,
             RDFParseException.class,
-            UnsupportedRDFormatException.class,
-            IllegalArgumentException.class
+            UnsupportedRDFormatException.class
     })
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);

@@ -50,6 +50,7 @@ public class VocabularyLoader {
         }
     }
 
+    @Deprecated
     public void createPropertyTypeVocabularies(String profile, List<PropertyTypeVocabulary> newPropertyTypeVocabularies) {
         for (PropertyTypeVocabulary newPropertyTypeVocabulary: newPropertyTypeVocabularies) {
             PropertyTypeVocabulary propertyTypeVocabulary = propertyTypeVocabularyRepository.save(newPropertyTypeVocabulary);

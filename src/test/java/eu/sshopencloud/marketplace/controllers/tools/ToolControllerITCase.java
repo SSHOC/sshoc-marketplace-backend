@@ -62,7 +62,7 @@ public class ToolControllerITCase {
     @Test
     public void shouldReturnTools() throws Exception {
 
-        mvc.perform(get("/api/tools")
+        mvc.perform(get("/api/tools-services")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -71,11 +71,11 @@ public class ToolControllerITCase {
     public void shouldReturnTool() throws Exception {
         Integer toolId = 1;
 
-        mvc.perform(get("/api/tools/{id}", toolId)
+        mvc.perform(get("/api/tools-services/{id}", toolId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
-                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
                 .andExpect(jsonPath("licenses[0].label", is("Common Development and Distribution License 1.0")))
                 .andExpect(jsonPath("informationContributors", hasSize(2)))
@@ -87,7 +87,7 @@ public class ToolControllerITCase {
     public void shouldNotReturnToolWhenNotExist() throws Exception {
         Integer toolId = 51;
 
-        mvc.perform(get("/api/tools/{id}", toolId)
+        mvc.perform(get("/api/tools-services/{id}", toolId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -102,20 +102,19 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
                 .andExpect(jsonPath("informationContributors", hasSize(1)))
                 .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Tool")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source", nullValue()));
     }
 
@@ -139,16 +138,6 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -165,7 +154,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -173,20 +161,19 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("licenses[0].label", is("Apache License 2.0")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
-                .andExpect(jsonPath("properties[0].concept.label", is("Software")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[2].value", is("paper")))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
@@ -197,29 +184,18 @@ public class ToolControllerITCase {
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
         tool.setPrevVersionId(3l);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("olderVersions", hasSize(1)))
@@ -229,59 +205,17 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenObjectTypeIsIncorrect() throws Exception {
-        ToolCore tool = new ToolCore();
-        tool.setLabel("Test Software");
-        tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("y2y4y200");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
-        tool.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/tools")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-    @Test
     public void shouldNotCreateToolWhenLabelIsNull() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
+
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -302,24 +236,13 @@ public class ToolControllerITCase {
         List<LicenseId> licenses = new ArrayList<LicenseId>();
         licenses.add(license);
         tool.setLicenses(licenses);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -344,24 +267,13 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -386,24 +298,13 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -418,16 +319,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("yyy");
@@ -444,7 +335,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -452,12 +342,12 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].type.code")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].type.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -467,16 +357,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -493,7 +373,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -501,12 +380,12 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -516,16 +395,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("activity");
@@ -542,7 +411,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -550,12 +418,12 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.vocabulary")))
                 .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
                 .andExpect(jsonPath("errors[0].args[0]", is("iso-639-3")))
                 .andExpect(jsonPath("errors[0].args[1]", is("activity")))
@@ -567,16 +435,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -588,7 +446,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -596,12 +453,12 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -618,21 +475,20 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
-                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://example.com")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Tool")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source", nullValue()));
     }
 
@@ -658,16 +514,6 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -684,7 +530,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -692,13 +537,13 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
-                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("licenses", hasSize(1)))
@@ -706,10 +551,9 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("contributors", hasSize(1)))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
-                .andExpect(jsonPath("properties", hasSize(3)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Software")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[2].value", is("paper")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
@@ -721,24 +565,13 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -780,16 +613,6 @@ public class ToolControllerITCase {
         contributors.add(contributor1);
         contributors.add(contributor2);
         tool.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("activity");
@@ -818,7 +641,6 @@ public class ToolControllerITCase {
         property4.setValue("https://github.com/gephi/gephi");
 
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         properties.add(property3);
@@ -829,13 +651,13 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(toolId)))
-                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
                 .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
                 .andExpect(jsonPath("olderVersions", hasSize(1)))
@@ -846,7 +668,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
                 .andExpect(jsonPath("licenses", hasSize(2)))
                 .andExpect(jsonPath("contributors", hasSize(2)))
-                .andExpect(jsonPath("properties", hasSize(5)));
+                .andExpect(jsonPath("properties", hasSize(4)));
     }
 
     @Test
@@ -857,24 +679,13 @@ public class ToolControllerITCase {
         tool.setLabel("Test service");
         tool.setDescription("Lorem ipsum");
         tool.setPrevVersionId(3l);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -890,75 +701,19 @@ public class ToolControllerITCase {
 
         ToolCore tool = new ToolCore();
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("label")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-    @Test
-    public void shouldNotUpdateToollWhenObjectTypeIsAmbiguous() throws Exception {
-        ToolCore tool = new ToolCore();
-        tool.setLabel("Test Software");
-        tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
-        PropertyCore property1 = new PropertyCore();
-        PropertyTypeId propertyType1 = new PropertyTypeId();
-        propertyType1.setCode("object-type");
-        property1.setType(propertyType1);
-        ConceptId concept1 = new ConceptId();
-        concept1.setCode("software");
-        VocabularyId vocabulary1 = new VocabularyId();
-        vocabulary1.setCode("object-type");
-        concept1.setVocabulary(vocabulary1);
-        property1.setConcept(concept1);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
-        properties.add(property1);
-        tool.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/tools")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
-                .andExpect(jsonPath("errors[0].code", is("field.tooManyObjectTypes")))
-                .andExpect(jsonPath("errors[0].args[0]", is("tool")))
-                .andExpect(jsonPath("errors[0].args[1]", is("software")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
@@ -974,24 +729,13 @@ public class ToolControllerITCase {
         List<LicenseId> licenses = new ArrayList<LicenseId>();
         licenses.add(license);
         tool.setLicenses(licenses);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("service");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -1018,24 +762,13 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -1062,24 +795,13 @@ public class ToolControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         tool.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         tool.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -1096,16 +818,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("yyy");
@@ -1122,7 +834,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -1130,12 +841,12 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].type.code")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].type.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -1147,16 +858,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -1173,7 +874,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -1181,12 +881,12 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.code")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -1198,16 +898,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("activity");
@@ -1224,7 +914,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -1232,12 +921,12 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept.vocabulary")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept.vocabulary")))
                 .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
                 .andExpect(jsonPath("errors[0].args[0]", is("iso-639-3")))
                 .andExpect(jsonPath("errors[0].args[1]", is("activity")))
@@ -1251,16 +940,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("software");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -1272,7 +951,6 @@ public class ToolControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         tool.setProperties(properties);
@@ -1280,12 +958,12 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("properties[1].concept")))
+                .andExpect(jsonPath("errors[0].field", is("properties[0].concept")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
@@ -1299,7 +977,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        String jsonResponse = mvc.perform(post("/api/tools")
+        String jsonResponse = mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -1308,7 +986,7 @@ public class ToolControllerITCase {
 
         Long toolId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ToolDto.class).getId();
 
-        mvc.perform(delete("/api/tools/{id}", toolId)
+        mvc.perform(delete("/api/tools-services/{id}", toolId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
@@ -1318,7 +996,7 @@ public class ToolControllerITCase {
     public void shouldNotDeleteToolWhenNotExist() throws Exception {
         Integer toolId = 100;
 
-        mvc.perform(delete("/api/tools/{id}", toolId)
+        mvc.perform(delete("/api/tools-services/{id}", toolId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
@@ -1340,12 +1018,12 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools")
+        mvc.perform(post("/api/tools-services")
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("tool")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("accessibleAt", hasSize(3)))
@@ -1354,8 +1032,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("accessibleAt[2]", is("http://fake.tapor.org")))
                 .andExpect(jsonPath("informationContributors", hasSize(1)))
                 .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Tool")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source", nullValue()));
     }
 }

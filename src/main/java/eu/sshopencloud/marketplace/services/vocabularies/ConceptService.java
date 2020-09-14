@@ -33,6 +33,7 @@ public class ConceptService {
     private final ConceptRelatedConceptService conceptRelatedConceptService;
 
 
+    @Deprecated
     public List<ConceptDto> getObjectTypeConcepts(ItemCategory category) {
         Concept concept = getDefaultObjectTypeConcept(category);
         List<Concept> concepts = new ArrayList<>();
@@ -42,11 +43,13 @@ public class ConceptService {
         return concepts.stream().map(ConceptMapper.INSTANCE::toDto).collect(Collectors.toList());
     }
 
+    @Deprecated
     public Map<ItemCategory, Concept> getAllDefaultObjectTypeConcepts() {
         return Arrays.stream(ItemCategory.indexedCategories())
                 .collect(Collectors.toMap(category -> category, this::getDefaultObjectTypeConcept));
     }
 
+    @Deprecated
     public Concept getDefaultObjectTypeConcept(ItemCategory category) {
         return getConcept(category.getValue(), ItemCategory.OBJECT_TYPE_VOCABULARY_CODE);
     }

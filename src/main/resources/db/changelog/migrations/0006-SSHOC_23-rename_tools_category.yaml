@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0006-SSHOC_23-1
+      author: swolarz
+      description: Rename tool category to tool-or-service
+      changes:
+        - update:
+            tableName: items
+            where: category='TOOL'
+            columns:
+              - column:
+                  name: category
+                  value: TOOL_OR_SERVICE

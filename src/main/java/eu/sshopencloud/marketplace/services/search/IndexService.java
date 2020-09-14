@@ -14,8 +14,10 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepositor
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
+import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,4 +112,12 @@ public class IndexService {
         }
     }
 
+    @EventListener
+    public void handleChangedVocabularies(VocabulariesChangedEvent event) {
+        List<Vocabulary> toReindex = event.getChangedVocabularies();
+        toReindex.forEach(vocabulary -> {
+            removeConcepts(vocabulary);
+            indexConcepts(vocabulary);
+        });
+    }
 }
