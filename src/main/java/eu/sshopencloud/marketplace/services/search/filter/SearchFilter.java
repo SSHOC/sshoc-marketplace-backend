@@ -37,6 +37,6 @@ public enum SearchFilter {
         return null;
     }
 
-    public static final String ITEMS_INDEX_TYPE_FILTERS = "activity, keyword";
+    public static final String ITEMS_INDEX_TYPE_FILTERS = "activity, source, keyword";
 
 }

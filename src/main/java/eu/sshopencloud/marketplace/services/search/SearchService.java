@@ -7,7 +7,6 @@ import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyMapper;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
-import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,8 +42,6 @@ import java.util.stream.Collectors;
 public class SearchService {
 
     private final SearchItemRepository searchItemRepository;
-
-    private final ConceptService conceptService;
 
     private final ItemContributorService itemContributorService;
 
@@ -73,7 +69,7 @@ public class SearchService {
 
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(q, filterCriteria, order, pageable);
 
-        Map<ItemCategory, CheckedCount> categoryFacets = gatherCategoryFacets(facetPage, categories);
+        Map<ItemCategory, LabeledCheckedCount> categoryFacets = gatherCategoryFacets(facetPage, categories);
         Map<String, Map<String, CheckedCount>> facets = gatherSearchFacets(facetPage, filterParams);
 
         PaginatedSearchItems result = PaginatedSearchItems.builder().q(q).order(order).items(facetPage.get().map(SearchConverter::convertIndexItem).collect(Collectors.toList()))
@@ -93,8 +89,8 @@ public class SearchService {
         return result;
     }
 
-    private Map<ItemCategory, CheckedCount> gatherCategoryFacets(FacetPage<IndexItem> facetPage, List<ItemCategory> categories) {
-        Map<ItemCategory, CheckedCount> countedCategories = facetPage.getFacetFields().stream()
+    private Map<ItemCategory, LabeledCheckedCount> gatherCategoryFacets(FacetPage<IndexItem> facetPage, List<ItemCategory> categories) {
+        Map<ItemCategory, LabeledCheckedCount> countedCategories = facetPage.getFacetFields().stream()
                 .filter(field -> field.getName().equals(IndexItem.CATEGORY_FIELD))
                 .map(facetPage::getFacetResultPage)
                 .flatMap(facetFieldEntries -> facetFieldEntries.getContent().stream())
@@ -105,7 +101,7 @@ public class SearchService {
                         )
                 );
 
-        Map<ItemCategory, CheckedCount> categoryFacets = new LinkedHashMap<>();
+        Map<ItemCategory, LabeledCheckedCount> categoryFacets = new LinkedHashMap<>();
         Arrays.stream(ItemCategory.indexedCategories())
                 .forEachOrdered(category ->
                         categoryFacets.put(
@@ -117,7 +113,7 @@ public class SearchService {
         return categoryFacets;
     }
 
-    private CheckedCount resolveCategoryCount(ItemCategory category, List<ItemCategory> categories, Map<ItemCategory, CheckedCount> counted) {
+    private LabeledCheckedCount resolveCategoryCount(ItemCategory category, List<ItemCategory> categories, Map<ItemCategory, LabeledCheckedCount> counted) {
         if (counted.containsKey(category))
             return counted.get(category);
 

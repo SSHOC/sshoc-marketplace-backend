@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
-import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import lombok.experimental.UtilityClass;
@@ -25,19 +24,20 @@ public class SearchConverter {
                 .build();
     }
 
-    public CheckedCount convertCategoryFacet(FacetFieldEntry entry, List<ItemCategory> categories) {
+    public LabeledCheckedCount convertCategoryFacet(FacetFieldEntry entry, List<ItemCategory> categories) {
         String code = entry.getValue();
         ItemCategory category = ItemCategoryConverter.convertCategory(code);
 
         return convertCategoryFacet(category, entry.getValueCount(), categories);
     }
 
-    public CheckedCount convertCategoryFacet(ItemCategory category, long count, List<ItemCategory> categories) {
+    public LabeledCheckedCount convertCategoryFacet(ItemCategory category, long count, List<ItemCategory> categories) {
         List<ItemCategory> checkedCategories = (categories != null) ? categories : Collections.emptyList();
 
-        return CheckedCount.builder()
+        return LabeledCheckedCount.builder()
                 .count(count)
                 .checked(checkedCategories.contains(category))
+                .label(category.getLabel())
                 .build();
     }
 
