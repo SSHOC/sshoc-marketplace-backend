@@ -22,7 +22,7 @@ public class PaginatedSearchItems extends PaginatedResult {
 
     private List<SearchItem> items;
 
-    private Map<ItemCategory, CountedConcept> categories;
+    private Map<ItemCategory, LabeledCheckedCount> categories;
 
     private Map<String, Map<String, CheckedCount>> facets;
 

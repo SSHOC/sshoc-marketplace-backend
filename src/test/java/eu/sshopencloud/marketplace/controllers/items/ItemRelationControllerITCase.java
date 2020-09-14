@@ -80,9 +80,9 @@ public class ItemRelationControllerITCase {
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.id", is(subjectId)))
-                .andExpect(jsonPath("subject.category", is("tool")))
+                .andExpect(jsonPath("subject.category", is("tool-or-service")))
                 .andExpect(jsonPath("object.id", is(objectId)))
-                .andExpect(jsonPath("object.category", is("tool")))
+                .andExpect(jsonPath("object.category", is("tool-or-service")))
                 .andExpect(jsonPath("relation.code", is("mentions")))
                 .andExpect(jsonPath("relation.label", is("Mentions")));
     }

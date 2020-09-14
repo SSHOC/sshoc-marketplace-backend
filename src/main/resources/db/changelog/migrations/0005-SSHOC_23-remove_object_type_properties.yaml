@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0005-SSHOC_23-1
+      author: swolarz
+      description: Cleanup object-type properties and vocabulary
+      changes:
+        - sql:
+            sql: delete from property_types_vocabularies where property_type_code = 'object-type'
+        - sql:
+            sql: delete from properties where type_code = 'object-type'
+        - sql:
+            sql: update property_types set ord = ord - 1 where ord > (select ord from property_types where code = 'object-type')
+        - sql:
+            sql: delete from property_types where code = 'object-type'
+        - sql:
+            sql: delete from concepts_related_concepts where subject_vocabulary_code = 'object-type' or object_vocabulary_code = 'object-type'
+        - sql:
+            sql: delete from concepts where vocabulary_code = 'object-type'
+        - sql:
+            sql: delete from vocabularies where code = 'object-type'

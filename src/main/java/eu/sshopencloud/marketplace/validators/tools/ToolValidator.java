@@ -29,7 +29,7 @@ public class ToolValidator {
         Tool tool = getOrCreateTool(toolId);
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(toolCore, "Tool");
 
-        itemValidator.validate(toolCore, ItemCategory.TOOL, tool, errors);
+        itemValidator.validate(toolCore, ItemCategory.TOOL_OR_SERVICE, tool, errors);
 
         if (toolCore.getPrevVersionId() != null) {
             if (toolId != null && tool.getId().equals(toolCore.getPrevVersionId())) {

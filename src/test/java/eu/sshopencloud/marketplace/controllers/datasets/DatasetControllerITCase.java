@@ -136,8 +136,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("contributors[0].role.code", is("author")))
                 .andExpect(jsonPath("contributors[1].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[1].role.code", is("provider")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")));
+                .andExpect(jsonPath("properties", hasSize(0)));
     }
 
     @Test
@@ -161,8 +160,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with source")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source.id", is(2)))
                 .andExpect(jsonPath("source.label", is("Programming Historian")))
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
@@ -215,8 +213,7 @@ public class DatasetControllerITCase {
                         + "  | Code fence    | `.codefence`    | \\`\\`\\` ... \\`\\`\\` |\n"
                         + "  | Explicit link | `.link`         | `[]()`            |\n"
                         + "\n")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")));
+                .andExpect(jsonPath("properties", hasSize(0)));
     }
 
     @Test
@@ -268,8 +265,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with source")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source.id", is(2)))
                 .andExpect(jsonPath("source.label", is("Programming Historian")))
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
@@ -306,8 +302,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with source")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")))
+                .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source.id", is(2)))
                 .andExpect(jsonPath("source.label", is("Programming Historian")))
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
@@ -411,8 +406,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("informationContributors[1].username", is("Administrator")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(1)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Dataset")));
+                .andExpect(jsonPath("properties", hasSize(0)));
     }
 
     @Test
@@ -437,16 +431,6 @@ public class DatasetControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         dataset.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("data-catalogue");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -463,7 +447,6 @@ public class DatasetControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         dataset.setProperties(properties);
@@ -492,10 +475,9 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("contributors", hasSize(1)))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
-                .andExpect(jsonPath("properties", hasSize(3)))
-                .andExpect(jsonPath("properties[0].concept.label", is("Data Catalogue")))
-                .andExpect(jsonPath("properties[1].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[2].value", is("paper")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
@@ -596,16 +578,6 @@ public class DatasetControllerITCase {
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor);
         dataset.setContributors(contributors);
-        PropertyCore property0 = new PropertyCore();
-        PropertyTypeId propertyType0 = new PropertyTypeId();
-        propertyType0.setCode("object-type");
-        property0.setType(propertyType0);
-        ConceptId concept0 = new ConceptId();
-        concept0.setCode("data-catalogue");
-        VocabularyId vocabulary0 = new VocabularyId();
-        vocabulary0.setCode("object-type");
-        concept0.setVocabulary(vocabulary0);
-        property0.setConcept(concept0);
         PropertyCore property1 = new PropertyCore();
         PropertyTypeId propertyType1 = new PropertyTypeId();
         propertyType1.setCode("language");
@@ -619,7 +591,6 @@ public class DatasetControllerITCase {
         property2.setType(propertyType2);
         property2.setValue("paper");
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property0);
         properties.add(property1);
         properties.add(property2);
         dataset.setProperties(properties);
