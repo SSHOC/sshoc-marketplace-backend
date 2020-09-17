@@ -26,4 +26,13 @@ public class ItemCategoryService {
         );
     }
 
+    public Map<String, String> getItemCategories() {
+        return Arrays.stream(ItemCategory.indexedCategories()).collect(
+                Collectors.toMap(c -> c.getValue(), c -> c.getLabel(),
+                        (u, v) -> u,
+                        LinkedHashMap::new
+                )
+        );
+    }
+
 }
