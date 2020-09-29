@@ -50,7 +50,7 @@ public class ItemValidator {
 
         item.setVersion(itemCore.getVersion());
 
-        if (StringUtils.isBlank(itemCore.getDescription())) {
+        if (itemCore.getDescription() == null) {
             errors.rejectValue("description", "field.required", "Description is required.");
         } else {
             item.setDescription(MarkdownConverter.convertHtmlToMarkdown(itemCore.getDescription()));

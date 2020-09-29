@@ -111,6 +111,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/training-materials/**").hasAuthority(Authority.MODERATOR.name());
         http
                 .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/publications/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/publications/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/publications/**").hasAuthority(Authority.MODERATOR.name());
+        http
+                .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/workflows/**").hasAuthority(Authority.MODERATOR.name());
