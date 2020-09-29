@@ -183,7 +183,7 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
-        tool.setPrevVersionId(3l);
+//        tool.setPrevVersionId(3l);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         tool.setProperties(properties);
 
@@ -585,7 +585,7 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Gephi");
         tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
-        tool.setPrevVersionId(3l);
+//        tool.setPrevVersionId(3l);
         tool.setAccessibleAt(Arrays.asList("https://gephi.org/"));
         LicenseId license1 = new LicenseId();
         license1.setCode("cddl-1.0");
@@ -678,7 +678,7 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test service");
         tool.setDescription("Lorem ipsum");
-        tool.setPrevVersionId(3l);
+//        tool.setPrevVersionId(3l);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         tool.setProperties(properties);
 

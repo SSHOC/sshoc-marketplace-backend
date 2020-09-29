@@ -25,12 +25,10 @@ public class ToolFactory {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(toolCore, "Tool");
 
         Tool tool = itemFactory.initializeItem(toolCore, new Tool(), prevTool, ItemCategory.TOOL_OR_SERVICE, errors);
-        tool.setPrevVersion(prevTool);
 
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             throw new ValidationException(errors);
-        } else {
-            return tool;
-        }
+
+        return tool;
     }
 }

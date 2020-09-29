@@ -249,7 +249,7 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem Ipsum ...");
-        trainingMaterial.setPrevVersionId(7l);
+//        trainingMaterial.setPrevVersionId(7l);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         trainingMaterial.setProperties(properties);
 
@@ -282,7 +282,7 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem ipsum");
-        trainingMaterial.setPrevVersionId(6l);
+//        trainingMaterial.setPrevVersionId(6l);
 
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         trainingMaterial.setProperties(properties);
@@ -727,7 +727,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Introduction to GEPHI");
         trainingMaterial.setVersion("1.0");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        trainingMaterial.setPrevVersionId(7l);
+//        trainingMaterial.setPrevVersionId(7l);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         trainingMaterial.setProperties(properties);
 
@@ -758,7 +758,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Introduction to GEPHI");
         trainingMaterial.setVersion("3.0");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        trainingMaterial.setPrevVersionId(5l);
+//        trainingMaterial.setPrevVersionId(5l);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         trainingMaterial.setProperties(properties);
 
@@ -788,7 +788,7 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        trainingMaterial.setPrevVersionId(7l);
+//        trainingMaterial.setPrevVersionId(7l);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         trainingMaterial.setProperties(properties);
 
@@ -1083,7 +1083,7 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem Ipsum ...");
-        trainingMaterial.setPrevVersionId(8l);
+//        trainingMaterial.setPrevVersionId(8l);
         List<PropertyCore> properties = new ArrayList<PropertyCore>();
         trainingMaterial.setProperties(properties);
 
