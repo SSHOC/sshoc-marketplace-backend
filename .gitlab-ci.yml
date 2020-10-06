@@ -17,6 +17,7 @@ build:
   stage: build
   tags:
     - sshoc-backend
+    - sshoc-acdh-runner
   extends: .docker
   script: 
     - echo "Building the app (develop)"
@@ -30,6 +31,7 @@ build-prod:
   stage: build
   tags:
     - sshoc-backend
+    - sshoc-acdh-runner
   extends: .docker
   script:
     - echo "Building the app (prod)"
