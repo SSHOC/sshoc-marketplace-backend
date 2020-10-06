@@ -41,7 +41,6 @@ docker-compose up psql solr
 In IntelliJ / Eclipse run eu.sshopencloud.marketplace.MarketplaceApplication
 ```
 
-
 Run tests:
 
 ```
