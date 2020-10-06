@@ -21,28 +21,30 @@ public class WorkflowLoader {
     private  final IndexService indexService;
 
     public void createWorkflows(String profile, List<Workflow> newWorkflows) {
-        for (Workflow newWorkflow: newWorkflows) {
-            itemLoader.completeItemRelations(newWorkflow);
-            for (Step step: newWorkflow.getSteps()) {
-                step.setWorkflow(newWorkflow);
-                completeSteps(step);
-            }
-
-            Workflow workflow = workflowRepository.save(newWorkflow);
-            if (!profile.equals("prod")) {
-                indexService.indexItem(workflow);
-            }
-        }
+        throw new UnsupportedOperationException("No longer supported...");
+//        for (Workflow newWorkflow: newWorkflows) {
+//            itemLoader.completeItemRelations(newWorkflow);
+//            for (Step step: newWorkflow.getSteps()) {
+//                step.setWorkflow(newWorkflow);
+//                completeSteps(step);
+//            }
+//
+//            Workflow workflow = workflowRepository.save(newWorkflow);
+//            if (!profile.equals("prod")) {
+//                indexService.indexItem(workflow);
+//            }
+//        }
     }
 
     private void completeSteps(Step newStep) {
-        itemLoader.completeItemRelations(newStep);
-        if (newStep.getSubsteps() != null) {
-            for (Step substep : newStep.getSubsteps()) {
-                substep.setStep(newStep);
-                completeSteps(substep);
-            }
-        }
+        throw new UnsupportedOperationException("No longer supported...");
+//        itemLoader.completeItemRelations(newStep);
+//        if (newStep.getSubsteps() != null) {
+//            for (Step substep : newStep.getSubsteps()) {
+//                substep.setStep(newStep);
+//                completeSteps(substep);
+//            }
+//        }
     }
 
 }

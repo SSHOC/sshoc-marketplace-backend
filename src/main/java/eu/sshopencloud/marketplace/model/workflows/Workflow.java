@@ -1,58 +1,50 @@
 package eu.sshopencloud.marketplace.model.workflows;
 
 import eu.sshopencloud.marketplace.model.items.Item;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
 
 @Entity
 @Table(name = "workflows")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Workflow extends Item implements StepParent {
+public class Workflow extends Item {
 
-    @OneToMany(mappedBy = "workflow", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderColumn(name = "ord")
-    private List<Step> steps;
+    @OneToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Getter
+    private StepsTree steps;
+
+    @OneToMany(mappedBy = "workflow", fetch = FetchType.LAZY)
+    // For the data loading optimization purposes only
+    private List<StepsTree> allSteps;
 
 
     public Workflow() {
         super();
-        this.steps = new ArrayList<>();
+        this.steps = StepsTree.makeRoot();
     }
 
-    @Override
-    public void appendStep(@NonNull Step step) {
-        beforeStepAdd(step);
-        steps.add(step);
+    public Workflow(Workflow prevWorkflow) {
+        super(prevWorkflow);
+        this.steps = StepsTree.newVersion(prevWorkflow.getSteps());
     }
 
-    @Override
-    public void addStep(@NonNull Step step, int stepNo) {
-        if (stepNo <= 0 || stepNo > steps.size())
-            throw new IllegalArgumentException(String.format("Invalid step number: %d", stepNo));
-
-        beforeStepAdd(step);
-        steps.add(stepNo - 1, step);
+    private Workflow(StepsTree stepsTree) {
+        super();
+        this.steps = stepsTree;
     }
 
-    private void beforeStepAdd(Step step) {
-        steps.removeIf(s -> s.getId().equals(step.getId()));
-        step.setWorkflow(this);
+    public StepsTree gatherSteps() {
+        // Invoke size method to force steps fetch
+        int prefetchSize = allSteps.size();
+        return steps;
     }
 
-    @Override
-    public List<Step> getSteps() {
-        return Collections.unmodifiableList(steps);
-    }
-
-    @Override
-    public Workflow getRootWorkflow() {
-        return this;
+    public static Workflow fromWorkflowSteps(Workflow workflow) {
+        StepsTree stepsTree = StepsTree.newVersion(workflow.getSteps());
+        return new Workflow(stepsTree);
     }
 }

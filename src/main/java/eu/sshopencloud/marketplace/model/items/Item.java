@@ -29,20 +29,16 @@ public abstract class Item {
     @SequenceGenerator(name = "item_generator", sequenceName = "items_id_seq", allocationSize = 50)
     private Long id;
 
-    @Basic
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemCategory category;
 
-    @Basic
     @Column(nullable = false)
     private String label;
 
-    @Basic
     @Column(nullable = true)
     private String version;
 
-    @Basic
     @Column(nullable = false, length = 4096)
     private String description;
 
@@ -70,7 +66,6 @@ public abstract class Item {
     @JoinColumn(foreignKey = @ForeignKey(name="item_source_id_fk"))
     private Source source;
 
-    @Basic
     @Column(nullable = true)
     private String sourceItemId;
 
@@ -80,12 +75,10 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<User> informationContributors;
 
-    @Basic
     @Column(nullable = false)
     @CreationTimestamp
     private ZonedDateTime lastInfoUpdate;
 
-    @Basic
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "varchar(255) default 'INGESTED'")
     private ItemStatus status;
@@ -102,9 +95,35 @@ public abstract class Item {
 
 
     public Item() {
+        this.id = null;
         this.informationContributors = new ArrayList<>();
         this.accessibleAt = new ArrayList<>();
         this.properties = new ArrayList<>();
+        this.licenses = new ArrayList<>();
+        this.contributors = new ArrayList<>();
+    }
+
+    public Item(Item prevVersion) {
+        this.id = null;
+
+        this.category = prevVersion.getCategory();
+        this.label = prevVersion.getLabel();
+        this.version = prevVersion.getVersion();
+        this.description = prevVersion.getDescription();
+        this.licenses = new ArrayList<>(prevVersion.getLicenses());
+        this.contributors = new ArrayList<>(prevVersion.getContributors());
+        this.properties = new ArrayList<>(prevVersion.getProperties());
+        this.accessibleAt = new ArrayList<>(prevVersion.getAccessibleAt());
+        this.source = prevVersion.getSource();
+        this.sourceItemId = prevVersion.getSourceItemId();
+        this.informationContributors = new ArrayList<>();
+        this.comments = new ArrayList<>();
+
+        this.prevVersion = prevVersion;
+    }
+
+    // TODO some relations are one-to-many and should be changed to many-to-many
+    private void reassignReferencedEntities() {
     }
 
     public void addInformationContributor(User contributor) {

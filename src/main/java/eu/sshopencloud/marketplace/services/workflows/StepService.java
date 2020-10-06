@@ -4,9 +4,10 @@ import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
 import eu.sshopencloud.marketplace.model.workflows.Step;
-import eu.sshopencloud.marketplace.model.workflows.StepParent;
+import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import eu.sshopencloud.marketplace.repositories.workflows.StepRepository;
+import eu.sshopencloud.marketplace.repositories.workflows.StepsTreeRepository;
 import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
 import eu.sshopencloud.marketplace.services.items.ItemService;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
@@ -25,6 +26,7 @@ import javax.persistence.EntityNotFoundException;
 public class StepService {
 
     private final StepRepository stepRepository;
+    private final StepsTreeRepository stepsTreeRepository;
     private final WorkflowRepository workflowRepository;
     private final StepFactory stepFactory;
     private final ItemService itemService;
@@ -42,43 +44,45 @@ public class StepService {
     }
 
     public StepDto createStep(long workflowId, StepCore stepCore) {
-        Workflow workflow = workflowRepository.findById(workflowId).orElseThrow(
-                () -> new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId)
-        );
+        Workflow workflow = loadWorkflow(workflowId);
+        Workflow newWorkflow = Workflow.fromWorkflowSteps(workflow);
+        newWorkflow = workflowRepository.save(newWorkflow);
 
-        return createNewStep(workflow, stepCore);
+        return createNewStep(newWorkflow.getSteps(), stepCore);
     }
 
     public StepDto createSubstep(long workflowId, long stepId, StepCore substepCore) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
-        StepParent parentStep = stepRepository.getOne(stepId);
 
-        return createNewStep(parentStep, substepCore);
+        Workflow workflow = loadWorkflow(workflowId);
+        Workflow newWorkflow = Workflow.fromWorkflowSteps(workflow);
+        newWorkflow = workflowRepository.save(newWorkflow);
+
+        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), stepId).get();
+
+        return createNewStep(stepTree, substepCore);
     }
 
-    private StepDto createNewStep(StepParent stepParent, StepCore stepCore) {
-        Step step = stepFactory.create(stepCore, null, stepParent);
+    private StepDto createNewStep(StepsTree stepsTree, StepCore stepCore) {
+        Step step = stepFactory.create(stepCore, null, stepsTree);
         step = stepRepository.save(step);
-
-        if (stepCore.getStepNo() == null)
-            stepParent.appendStep(step);
-        else
-            stepParent.addStep(step, stepCore.getStepNo() - 1);
 
         return completeStep(StepMapper.INSTANCE.toDto(step));
     }
 
     public StepDto updateStep(long workflowId, long stepId, StepCore updatedStep) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
+
+        Workflow workflow = loadWorkflow(workflowId);
+        Workflow newWorkflow = Workflow.fromWorkflowSteps(workflow);
+        newWorkflow = workflowRepository.save(newWorkflow);
+
+        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), stepId).get();
+        StepsTree parentStepTree = stepTree.getParent();
+
         Step prevStep = stepRepository.getOne(stepId);
-        StepParent parentStep = prevStep.getStepParent();
-
-        Step step = stepFactory.create(updatedStep, prevStep, prevStep.getStepParent());
+        Step step = stepFactory.create(updatedStep, prevStep, parentStepTree);
         step = stepRepository.save(step);
-
-        if (updatedStep.getStepNo() != null) {
-            parentStep.addStep(step, updatedStep.getStepNo());
-        }
 
         return completeStep(StepMapper.INSTANCE.toDto(step));
     }
@@ -95,14 +99,17 @@ public class StepService {
         if (!workflowRepository.existsById(workflowId))
             throw new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId);
 
-        Step step = stepRepository.findById(stepId).orElseThrow(
-                () -> new EntityNotFoundException("Unable to find " + Step.class.getName() + " with id " + stepId)
-        );
+        stepsTreeRepository.findByWorkflowIdAndStepId(workflowId, stepId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                String.format("Unable to find %s with id %d in workflow %d", Step.class.getName(), stepId, workflowId)
+                        )
+                );
+    }
 
-        if (step.getRootWorkflow().getId() != workflowId) {
-            throw new EntityNotFoundException(
-                    "Unable to find " + Step.class.getName() + " with id " + stepId + " in workflow " + workflowId
-            );
-        }
+    private Workflow loadWorkflow(long workflowId) {
+        return workflowRepository.findById(workflowId).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId)
+        );
     }
 }

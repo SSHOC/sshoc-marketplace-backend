@@ -115,6 +115,13 @@ public class ItemFactory {
         return item;
     }
 
+    public <T extends Item> T initializeNewVersion(T newVersion, T prevItem) {
+        setInfoDates(newVersion);
+        setInformationContributors(newVersion, prevItem);
+
+        return newVersion;
+    }
+
     private List<URI> parseAccessibleAtLinks(ItemCore itemCore, Errors errors) {
         if (itemCore.getAccessibleAt() == null)
             return Collections.emptyList();
@@ -125,7 +132,8 @@ public class ItemFactory {
                     try {
                         if (StringUtils.isNotBlank(url))
                             return new URL(url).toURI();
-                    } catch (MalformedURLException | URISyntaxException e) {
+                    }
+                    catch (MalformedURLException | URISyntaxException e) {
                         errors.rejectValue("accessibleAt", "field.invalid", "Accessible at is malformed URL.");
                     }
 

@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.validators.workflows;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
-import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.items.ItemFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,21 +18,25 @@ import org.springframework.validation.BeanPropertyBindingResult;
 @Slf4j
 public class WorkflowFactory {
 
-    private final WorkflowRepository workflowRepository;
     private final ItemFactory itemFactory;
 
 
     public Workflow create(WorkflowCore workflowCore, Workflow prevWorkflow) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(workflowCore, "Workflow");
 
+        Workflow baseWorkflow = (prevWorkflow == null) ? new Workflow() : Workflow.fromWorkflowSteps(prevWorkflow);
         Workflow workflow = itemFactory.initializeItem(
-                workflowCore, new Workflow(), prevWorkflow, ItemCategory.WORKFLOW, errors
+                workflowCore, baseWorkflow, prevWorkflow, ItemCategory.WORKFLOW, errors
         );
 
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             throw new ValidationException(errors);
-        } else {
-            return workflow;
-        }
+
+        return workflow;
+    }
+
+    public Workflow makeNewVersion(Workflow baseWorkflow) {
+        Workflow newWorkflow = new Workflow(baseWorkflow);
+        return itemFactory.initializeNewVersion(newWorkflow, baseWorkflow);
     }
 }
