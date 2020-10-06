@@ -16,7 +16,6 @@ stages:
 build:
   stage: build
   tags:
-    - sshoc-backend
     - sshoc-acdh-runner
   extends: .docker
   script: 
@@ -30,7 +29,6 @@ build:
 build-prod:
   stage: build
   tags:
-    - sshoc-backend
     - sshoc-acdh-runner
   extends: .docker
   script:
