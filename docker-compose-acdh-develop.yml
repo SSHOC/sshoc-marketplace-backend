@@ -63,6 +63,13 @@ services:
       - backend
       - web
 
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine-bleeding
+    container_name: sshoc-mp-backend-runner
+    volumes:
+      - gitlab-runner:/etc/gitlab-runner
+      - docker:/var/run
+
 networks:
   backend:
     driver: bridge
@@ -81,4 +88,16 @@ volumes:
     driver_opts:
       type: "none"
       device: "/home/sshocmp/shares/solr-data"
+      o: "bind"
+  gitlab-runner:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmp/shares/gitlab-runner"
+      o: "bind"
+  docker:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/var/run"
       o: "bind"
