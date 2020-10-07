@@ -9,7 +9,7 @@ stages:
   variables:
         DOCKER_TLS_CERTDIR: ""    
         DOCKER_DRIVER: overlay2
-        DOCKER_TLS_CERTDIR: ""
+#        DOCKER_TLS_CERTDIR: ""
 
   before_script:
      - apk add --no-cache py-pip
