@@ -9,7 +9,7 @@ stages:
   variables:
         DOCKER_TLS_CERTDIR: ""    
   before_script:
-
+     - export CI_BUILD_NETWORK_ID="$HOSTNAME-job-$CI_JOB_ID-network"
      - apk add --no-cache py-pip
      - pip install docker-compose==1.23.0
      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
