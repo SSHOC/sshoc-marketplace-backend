@@ -16,6 +16,7 @@ stages:
      - pip install docker-compose==1.23.0
      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
+
 build:
   stage: build
   tags:
