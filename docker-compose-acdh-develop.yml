@@ -69,6 +69,9 @@ services:
     volumes:
       - gitlab-runner:/etc/gitlab-runner
       - docker:/var/run
+    networks:
+      - backend
+
 
 networks:
   backend:
