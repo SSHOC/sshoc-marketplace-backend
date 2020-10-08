@@ -1,8 +1,6 @@
 FROM maven:3-jdk-11 as build
 ARG APPLICATION_PROFILE
 
-RUN echo $APPLICATION_PROFILE
-
 WORKDIR /usr/src/app
 
 COPY pom.xml ./
