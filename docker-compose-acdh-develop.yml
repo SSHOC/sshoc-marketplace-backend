@@ -18,9 +18,9 @@ services:
       SOLR_PORT: 8983
       egi_id: 712ff5c7-3d90-40f2-af30-e28b14315ed9
       egi_secret: ALapbpTckFSED8HHry2jdO7_OOYY4VONDMekkJ6GDY2oo1hQWNYirex6fNpEl2c81v6--v2jUzixVGKTbEdxyTE
-      token_secret: 68EDA75ACC6C6B891AD32F1D9DB8D41C
-      recaptcha_site_key: 6Lc16v8UAAAAAIS8kzqqkqfr5YAOLYBB-YyLcy55
-      recaptcha_secret_key: 6Lc16v8UAAAAAH6-bEWVjNMJ2H2oOIPnAHjGHNHg
+      token_secret: ${token_secret}
+      recaptcha_site_key: ${recaptcha_site_key}
+      recaptcha_secret_key: ${recaptcha_secret_key}
     labels:
       - traefik.backend=marketplace-api
       - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh-dev.oeaw.ac.at
