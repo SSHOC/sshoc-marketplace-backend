@@ -8,7 +8,7 @@ server:
 spring:
     datasource:
         driver-class-name: "org.postgresql.Driver"
-        url: "jdbc:postgresql://localhost:5432/marketplace_db"
+        url: "jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
         username: marketplace
         password: marketplace
 
@@ -34,7 +34,7 @@ spring:
             fail-on-empty-beans: false
     data:
         solr:
-            host: "http://localhost:8983/solr"
+            host: "http://solr:8983/solr"
 
     mvc:
         throw-exception-if-no-handler-found: true
