@@ -24,12 +24,15 @@ public class StepsTree {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "workflow_id", nullable = false)
     private Workflow workflow;
 
     @ManyToOne
+    @JoinColumn(name = "step_id")
     private Step step;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
     private StepsTree parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
