@@ -10,11 +10,11 @@ COPY src ./src
 RUN mvn package
 
 FROM openjdk:11-jre-slim
+ARG APPLICATION_PROFILE
 
 WORKDIR /usr/app
 COPY --from=build /usr/src/app/target/marketplace-*.jar ./app.jar
 
-ARG APPLICATION_PROFILE
 #ENV APPLICATION_PROFILE=''
 
 EXPOSE 8080
