@@ -104,6 +104,16 @@ public class StepsTree {
         return Collections.unmodifiableList(subtrees);
     }
 
+    public void visit(StepsTreeVisitor visitor) {
+        if (!isRoot())
+            visitor.onNextStep(step);
+
+        for (StepsTree subtree : subtrees) {
+            subtree.visit(visitor);
+            visitor.onBackToParent();
+        }
+    }
+
 
     public static StepsTree newVersion(StepsTree tree) {
         return new StepsTree(tree, null);

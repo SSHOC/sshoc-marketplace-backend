@@ -2,9 +2,13 @@ package eu.sshopencloud.marketplace.services.workflows;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
+import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
+import eu.sshopencloud.marketplace.model.workflows.Step;
+import eu.sshopencloud.marketplace.model.workflows.StepsTree;
+import eu.sshopencloud.marketplace.model.workflows.StepsTreeVisitor;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
 import eu.sshopencloud.marketplace.services.items.ItemService;
@@ -19,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,12 +38,13 @@ public class WorkflowService {
     private final WorkflowFactory workflowFactory;
     private final ItemService itemService;
     private final IndexService indexService;
+    private final StepService stepService;
 
 
     public PaginatedWorkflows getWorkflows(PageCoords pageCoords) {
         Page<Workflow> workflowsPage = workflowRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
-        List<WorkflowDto> workflows = workflowsPage.stream().map(WorkflowMapper.INSTANCE::toDto)
-                .map(this::completeWorkflow)
+        List<WorkflowDto> workflows = workflowsPage.stream()
+                .map(this::convertWorkflow)
                 .collect(Collectors.toList());
 
         return PaginatedWorkflows.builder().workflows(workflows)
@@ -51,13 +58,41 @@ public class WorkflowService {
     public WorkflowDto getWorkflow(Long workflowId) {
         Workflow workflow = workflowRepository.findById(workflowId).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId));
-        return completeWorkflow(WorkflowMapper.INSTANCE.toDto(workflow));
+
+        return convertWorkflow(workflow);
     }
 
+    private WorkflowDto convertWorkflow(Workflow workflow) {
+        WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(workflow);
 
-    private WorkflowDto completeWorkflow(WorkflowDto workflow) {
-        itemService.completeItem(workflow);
-        return workflow;
+        collectSteps(dto, workflow);
+        itemService.completeItem(dto);
+
+        return dto;
+    }
+
+    private void collectSteps(WorkflowDto dto, Workflow workflow) {
+        StepsTree tree = workflow.getStepsTree();
+        Stack<StepDto> nestedSteps = new Stack<>();
+        List<StepDto> rootSteps = new ArrayList<>();
+
+        tree.visit(new StepsTreeVisitor() {
+            @Override
+            public void onNextStep(Step step) {
+                StepDto stepDto = stepService.convertStep(step);
+                List<StepDto> childCollection = (nestedSteps.empty()) ? rootSteps : nestedSteps.peek().getComposedOf();
+
+                childCollection.add(stepDto);
+                nestedSteps.push(stepDto);
+            }
+
+            @Override
+            public void onBackToParent() {
+                nestedSteps.pop();
+            }
+        });
+
+        dto.setComposedOf(rootSteps);
     }
 
     public WorkflowDto createWorkflow(WorkflowCore workflowCore) {

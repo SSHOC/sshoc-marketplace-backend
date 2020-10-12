@@ -35,12 +35,14 @@ public class StepService {
     public StepDto getStep(long workflowId, long stepId) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
         Step step = stepRepository.getOne(stepId);
-        return completeStep(StepMapper.INSTANCE.toDto(step));
+        return convertStep(step);
     }
 
-    private StepDto completeStep(StepDto step) {
-        itemService.completeItem(step);
-        return step;
+    StepDto convertStep(Step step) {
+        StepDto dto = StepMapper.INSTANCE.toDto(step);
+        itemService.completeItem(dto);
+
+        return dto;
     }
 
     public StepDto createStep(long workflowId, StepCore stepCore) {
@@ -67,7 +69,7 @@ public class StepService {
         Step step = stepFactory.create(stepCore, null, stepsTree);
         step = stepRepository.save(step);
 
-        return completeStep(StepMapper.INSTANCE.toDto(step));
+        return convertStep(step);
     }
 
     public StepDto updateStep(long workflowId, long stepId, StepCore updatedStep) {
@@ -84,7 +86,7 @@ public class StepService {
         Step step = stepFactory.create(updatedStep, prevStep, parentStepTree);
         step = stepRepository.save(step);
 
-        return completeStep(StepMapper.INSTANCE.toDto(step));
+        return convertStep(step);
     }
 
     public void deleteStep(long workflowId, long stepId) {
