@@ -14,8 +14,8 @@ import java.util.List;
 public class Workflow extends Item {
 
     @OneToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @Getter
-    private StepsTree steps;
+    @JoinColumn(name = "steps_tree_id", nullable = false)
+    private StepsTree stepsTree;
 
     @OneToMany(mappedBy = "workflow", fetch = FetchType.LAZY)
     // For the data loading optimization purposes only
@@ -24,27 +24,27 @@ public class Workflow extends Item {
 
     public Workflow() {
         super();
-        this.steps = StepsTree.makeRoot();
+        this.stepsTree = StepsTree.makeRoot();
     }
 
     public Workflow(Workflow prevWorkflow) {
         super(prevWorkflow);
-        this.steps = StepsTree.newVersion(prevWorkflow.getSteps());
+        this.stepsTree = StepsTree.newVersion(prevWorkflow.gatherSteps());
     }
 
     private Workflow(StepsTree stepsTree) {
         super();
-        this.steps = stepsTree;
+        this.stepsTree = stepsTree;
     }
 
     public StepsTree gatherSteps() {
         // Invoke size method to force steps fetch
         int prefetchSize = allSteps.size();
-        return steps;
+        return stepsTree;
     }
 
     public static Workflow fromWorkflowSteps(Workflow workflow) {
-        StepsTree stepsTree = StepsTree.newVersion(workflow.getSteps());
+        StepsTree stepsTree = StepsTree.newVersion(workflow.gatherSteps());
         return new Workflow(stepsTree);
     }
 }

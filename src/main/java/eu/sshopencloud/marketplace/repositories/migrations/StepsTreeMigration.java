@@ -56,7 +56,7 @@ public class StepsTreeMigration implements CustomTaskChange {
         JdbcConnection connection = (JdbcConnection) database.getConnection();
 
         String stepsInsert =
-                "insert into steps_tree (id, workflow_id, step_id, parent_id, ord, is_root) " +
+                "insert into steps_trees (id, workflow_id, step_id, parent_id, ord, is_root) " +
                         "values (?, ?, ?, ?, ?, ?)";
 
         try (
@@ -101,7 +101,7 @@ public class StepsTreeMigration implements CustomTaskChange {
                 }
             }
 
-            insertBatch.executeUpdate();
+            insertBatch.executeBatch();
         }
         catch (DatabaseException | SQLException e) {
             throw new CustomChangeException(e);
@@ -128,7 +128,6 @@ public class StepsTreeMigration implements CustomTaskChange {
         batch.setBoolean(6, stepsTree.isRoot());
 
         batch.addBatch();
-        // todo make batch limit
     }
 
     @Override

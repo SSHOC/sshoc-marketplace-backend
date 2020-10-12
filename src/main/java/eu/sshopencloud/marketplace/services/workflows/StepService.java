@@ -48,7 +48,7 @@ public class StepService {
         Workflow newWorkflow = Workflow.fromWorkflowSteps(workflow);
         newWorkflow = workflowRepository.save(newWorkflow);
 
-        return createNewStep(newWorkflow.getSteps(), stepCore);
+        return createNewStep(newWorkflow.getStepsTree(), stepCore);
     }
 
     public StepDto createSubstep(long workflowId, long stepId, StepCore substepCore) {
