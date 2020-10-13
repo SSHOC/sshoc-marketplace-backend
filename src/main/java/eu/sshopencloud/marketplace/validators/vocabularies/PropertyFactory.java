@@ -4,7 +4,6 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -18,69 +17,39 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class PropertyValidator {
+public class PropertyFactory {
 
-    private final PropertyTypeValidator propertyTypeValidator;
-
-    private final ConceptValidator conceptValidator;
-
+    private final ConceptFactory conceptFactory;
+    private final PropertyTypeFactory propertyTypeFactory;
     private final PropertyTypeService propertyTypeService;
 
-    private final ConceptService conceptService;
 
+    public List<Property> create(ItemCategory category, List<PropertyCore> propertyCores, Item item, Errors errors, String nestedPath) {
+        List<Property> properties = new ArrayList<>();
 
-    public List<Property> validate(ItemCategory category, List<PropertyCore> propertyCores, Item item, Errors errors, String nestedPath) {
-        List<Property> properties = new ArrayList<Property>();
-        boolean missingObjectType = true;
         if (propertyCores != null) {
             for (int i = 0; i < propertyCores.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
                 PropertyCore propertyCore = propertyCores.get(i);
-                Property property = validate(category, propertyCore, item, errors);
+                Property property = create(category, propertyCore, item, errors);
                 if (property != null) {
                     properties.add(property);
-
-                    /* Deprecated - object type property is no more
-                    if (property.getType().getCode().equals(ItemCategory.OBJECT_TYPE_PROPERTY_TYPE_CODE)) {
-                        if (!missingObjectType) {
-                            String field = (propertyCore.getConcept().getUri() == null) ? "concept.code" : "concept.uri";
-                            errors.rejectValue(field, "field.tooManyObjectTypes", new String[]{category.getValue(), property.getConcept().getCode()},
-                                    "More than one object type for category '" + category.getValue() + "'. The '" + property.getConcept().getCode() + "' is superfluous.");
-                        }
-                        missingObjectType = false;
-                    }
-                     */
                 }
                 errors.popNestedPath();
             }
         }
 
-        /*
-        if (missingObjectType) {
-            properties.add(getDefaultObjectTypeProperty(category, item));
-        }
-         */
-
         return properties;
     }
 
-    @Deprecated
-    private Property getDefaultObjectTypeProperty(ItemCategory category, Item item) {
-        Property property = new Property();
-        property.setItem(item);
-        property.setType(propertyTypeService.loadPropertyType(ItemCategory.OBJECT_TYPE_PROPERTY_TYPE_CODE));
-        property.setConcept(conceptService.getDefaultObjectTypeConcept(category));
-        return property;
-    }
-
-    public Property validate(ItemCategory category, PropertyCore propertyCore, Item item, Errors errors) {
+    public Property create(ItemCategory category, PropertyCore propertyCore, Item item, Errors errors) {
         if (propertyCore.getType() == null) {
             errors.rejectValue("type", "field.required", "Property type is required.");
             return null;
         }
         Property property = new Property();
         errors.pushNestedPath("type");
-        PropertyType propertyType = propertyTypeValidator.validate(propertyCore.getType(), errors);
+        PropertyType propertyType = propertyTypeFactory.create(propertyCore.getType(), errors);
         if (propertyType != null) {
             property.setType(propertyType);
         }
@@ -103,19 +72,16 @@ public class PropertyValidator {
                 errors.rejectValue("concept", "field.required", "Property concept is required.");
             } else {
                 errors.pushNestedPath("concept");
-                Concept concept = conceptValidator.validate(category, propertyCore.getConcept(), propertyType, allowedVocabularies, errors);
+                Concept concept = conceptFactory.create(category, propertyCore.getConcept(), propertyType, allowedVocabularies, errors);
                 if (concept != null) {
                     property.setConcept(concept);
                 }
                 errors.popNestedPath();
             }
         }
-        if (property.getValue() != null || property.getConcept() != null) {
-            property.setItem(item);
+        if (property.getValue() != null || property.getConcept() != null)
             return property;
-        } else {
-            return null;
-        }
-    }
 
+        return null;
+    }
 }

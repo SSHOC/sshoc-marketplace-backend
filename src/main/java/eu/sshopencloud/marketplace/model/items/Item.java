@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -36,15 +37,22 @@ public abstract class Item {
     @Column(nullable = false)
     private String label;
 
-    @Column(nullable = true)
+    @Column
     private String version;
 
     @Column(nullable = false, length = 4096)
     private String description;
 
-    @ManyToMany(cascade = { CascadeType.REFRESH })
-    @JoinTable(name = "items_licenses", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_license_item_id_fk")),
-            inverseJoinColumns = @JoinColumn(name = "license_code", referencedColumnName = "code", foreignKey = @ForeignKey(name="item_license_license_code_fk")))
+    @ManyToMany(cascade = CascadeType.REFRESH)
+    @JoinTable(
+            name = "items_licenses",
+            joinColumns = @JoinColumn(
+                    name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_license_item_id_fk")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "license_code", referencedColumnName = "code", foreignKey = @ForeignKey(name="item_license_license_code_fk")
+            )
+    )
     @OrderColumn(name = "ord")
     private List<License> licenses;
 
@@ -52,7 +60,16 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<ItemContributor> contributors;
 
-    @OneToMany(mappedBy =  "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(
+            name = "items_properties",
+            joinColumns = @JoinColumn(
+                    name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "items_properties_item_fk")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "property_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "item_properties_property_fk")
+            )
+    )
     @OrderBy("ord")
     private List<Property> properties;
 
@@ -62,35 +79,50 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<String> accessibleAt;
 
-    @ManyToOne(optional = true, cascade = { CascadeType.REFRESH })
+    @ManyToOne(cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="item_source_id_fk"))
     private Source source;
 
-    @Column(nullable = true)
+    @Column
     private String sourceItemId;
 
     @ManyToMany(cascade = { CascadeType.REFRESH })
-    @JoinTable(name = "items_information_contributors", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_item_id_fk")),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_user_id_fk")))
+    @JoinTable(
+            name = "items_information_contributors",
+            joinColumns = @JoinColumn(
+                    name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_item_id_fk")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_user_id_fk")
+            )
+    )
     @OrderColumn(name = "ord")
     private List<User> informationContributors;
 
-    @Column(nullable = false)
     @CreationTimestamp
+    @Column(nullable = false)
     private ZonedDateTime lastInfoUpdate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "varchar(255) default 'INGESTED'")
     private ItemStatus status;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "items_items_comments", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_id_fk")),
-            inverseJoinColumns = @JoinColumn(name = "item_comment_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_comment_id_fk")))
-    @OrderColumn(name = "ord")
+    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(
+            name = "items_items_comments",
+            joinColumns = @JoinColumn(
+                    name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_id_fk")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "item_comment_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_comment_id_fk")
+            )
+    )
+    @OrderBy("dateCreated")
     private List<ItemComment> comments;
 
-    @OneToOne(optional = true, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))
+    // TODO should be "zaorane" when dealing with items' history task
     private Item prevVersion;
 
 
@@ -111,7 +143,11 @@ public abstract class Item {
         this.version = prevVersion.getVersion();
         this.description = prevVersion.getDescription();
         this.licenses = new ArrayList<>(prevVersion.getLicenses());
-        this.contributors = new ArrayList<>(prevVersion.getContributors());
+
+        this.contributors = prevVersion.getContributors().stream()
+                .map(baseContributor -> new ItemContributor(this, baseContributor))
+                .collect(Collectors.toList());
+
         this.properties = new ArrayList<>(prevVersion.getProperties());
         this.accessibleAt = new ArrayList<>(prevVersion.getAccessibleAt());
         this.source = prevVersion.getSource();
@@ -120,10 +156,6 @@ public abstract class Item {
         this.comments = new ArrayList<>();
 
         this.prevVersion = prevVersion;
-    }
-
-    // TODO some relations are one-to-many and should be changed to many-to-many
-    private void reassignReferencedEntities() {
     }
 
     public void addInformationContributor(User contributor) {

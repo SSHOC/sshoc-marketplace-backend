@@ -6,8 +6,8 @@ import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.repositories.items.ItemContributorCriteriaRepository;
-import eu.sshopencloud.marketplace.validators.actors.ActorRoleValidator;
-import eu.sshopencloud.marketplace.validators.actors.ActorValidator;
+import eu.sshopencloud.marketplace.validators.actors.ActorRoleFactory;
+import eu.sshopencloud.marketplace.validators.actors.ActorFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,40 +19,36 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ItemContributorValidator {
+public class ItemContributorFactory {
 
-    private final ActorValidator actorValidator;
-
-    private final ActorRoleValidator actorRoleValidator;
-
+    private final ActorFactory actorFactory;
+    private final ActorRoleFactory actorRoleFactory;
     private final ItemContributorCriteriaRepository itemContributorRepository;
 
 
-    public List<ItemContributor> validate(List<ItemContributorId> itemContributorIds, Item item, Errors errors, String nestedPath) {
+    public List<ItemContributor> create(List<ItemContributorId> itemContributorIds, Item item, Errors errors, String nestedPath) {
         List<ItemContributor> itemContributors = new ArrayList<>();
         if (itemContributorIds != null) {
             for (int i = 0; i < itemContributorIds.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
-                ItemContributor itemContributor = validate(itemContributorIds.get(i), item, itemContributors, errors);
+                ItemContributor itemContributor = create(itemContributorIds.get(i), item, itemContributors, errors);
                 if (itemContributor != null) {
                     itemContributors.add(itemContributor);
                 }
                 errors.popNestedPath();
             }
         }
-        if (item.getContributors() != null) {
-            item.getContributors().clear();
-        }
+
         return itemContributors;
     }
 
-    public ItemContributor validate(ItemContributorId itemContributorId, Item item, List<ItemContributor> processedContributors, Errors errors) {
+    private ItemContributor create(ItemContributorId itemContributorId, Item item, List<ItemContributor> processedContributors, Errors errors) {
         Actor actor = null;
         if (itemContributorId.getActor() == null) {
             errors.rejectValue("actor", "field.required", "Actor is required.");
         } else {
             errors.pushNestedPath("actor");
-            actor = actorValidator.validate(itemContributorId.getActor(), errors);
+            actor = actorFactory.create(itemContributorId.getActor(), errors);
             if (actor != null) {
                 for (ItemContributor processedContributor: processedContributors) {
                     if (actor.getId().equals(processedContributor.getActor().getId())) {
@@ -69,7 +65,7 @@ public class ItemContributorValidator {
             errors.rejectValue("role", "field.required", "Actor role is required.");
         } else {
             errors.pushNestedPath("role");
-            role = actorRoleValidator.validate(itemContributorId.getRole(), errors);
+            role = actorRoleFactory.create(itemContributorId.getRole(), errors);
             errors.popNestedPath();
         }
         if (actor != null && role != null) {
@@ -84,9 +80,8 @@ public class ItemContributorValidator {
             }
             itemContributor.setRole(role);
             return itemContributor;
-        } else {
-            return null;
         }
-    }
 
+        return null;
+    }
 }

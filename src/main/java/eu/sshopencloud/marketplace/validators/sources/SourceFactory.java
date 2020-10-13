@@ -23,12 +23,12 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class SourceValidator {
+public class SourceFactory {
 
     private final SourceRepository sourceRepository;
 
 
-    public Source validate(SourceCore sourceCore, Long sourceId) throws ValidationException {
+    public Source create(SourceCore sourceCore, Long sourceId) throws ValidationException {
         Source source = getOrCreateSource(sourceId);
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(sourceCore, "Source");
 
@@ -66,7 +66,7 @@ public class SourceValidator {
     }
 
 
-    public Source validate(SourceId sourceId, URI accessibleAtUri, Errors errors) {
+    public Source create(SourceId sourceId, URI accessibleAtUri, Errors errors) {
         // explicit source has priority
         if (sourceId != null) {
             if (sourceId.getId() == null) {

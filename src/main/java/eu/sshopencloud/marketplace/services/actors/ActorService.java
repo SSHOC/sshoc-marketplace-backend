@@ -7,7 +7,7 @@ import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
-import eu.sshopencloud.marketplace.validators.actors.ActorValidator;
+import eu.sshopencloud.marketplace.validators.actors.ActorFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class ActorService {
 
     private final ActorRepository actorRepository;
 
-    private final ActorValidator actorValidator;
+    private final ActorFactory actorFactory;
 
 
     public PaginatedActors getActors(String q, PageCoords pageCoords) {
@@ -58,7 +58,7 @@ public class ActorService {
 
 
     public ActorDto createActor(ActorCore actorCore) {
-        Actor actor = actorValidator.validate(actorCore, null);
+        Actor actor = actorFactory.create(actorCore, null);
         actorRepository.save(actor);
         return ActorMapper.INSTANCE.toDto(actor);
     }
@@ -68,7 +68,7 @@ public class ActorService {
         if (!actorRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id);
         }
-        Actor actor = actorValidator.validate(actorCore, id);
+        Actor actor = actorFactory.create(actorCore, id);
         actorRepository.save(actor);
         return ActorMapper.INSTANCE.toDto(actor);
     }

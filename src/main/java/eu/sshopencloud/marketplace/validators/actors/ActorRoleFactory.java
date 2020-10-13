@@ -14,22 +14,22 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ActorRoleValidator {
+public class ActorRoleFactory {
 
     private final ActorRoleRepository actorRoleRepository;
 
-    public ActorRole validate(ActorRoleId roleId, Errors errors) {
+    public ActorRole create(ActorRoleId roleId, Errors errors) {
         if (StringUtils.isBlank(roleId.getCode())) {
             errors.rejectValue("code", "field.required", "Actor role code is required.");
             return null;
         }
         Optional<ActorRole> roleHolder = actorRoleRepository.findById(roleId.getCode());
-        if (!roleHolder.isPresent()) {
+        if (roleHolder.isEmpty()) {
             errors.rejectValue("code", "field.notExist", "Actor role does not exist.");
             return null;
-        } else {
-            return roleHolder.get();
         }
+
+        return roleHolder.get();
     }
 
 }

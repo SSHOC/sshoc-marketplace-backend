@@ -14,23 +14,23 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class VocabularyValidator {
+public class VocabularyFactory {
 
     private final VocabularyRepository vocabularyRepository;
 
 
-    public Vocabulary validate(VocabularyId vocabularyId, Errors errors) {
+    public Vocabulary create(VocabularyId vocabularyId, Errors errors) {
         if (StringUtils.isBlank(vocabularyId.getCode())) {
             errors.rejectValue("code", "field.required", "Vocabulary code is required.");
             return null;
         }
         Optional<Vocabulary> vocabularyHolder = vocabularyRepository.findById(vocabularyId.getCode());
-        if (!vocabularyHolder.isPresent()) {
+        if (vocabularyHolder.isEmpty()) {
             errors.rejectValue("code", "field.notExist", "Vocabulary does not exist.");
             return null;
-        } else {
-            return vocabularyHolder.get();
         }
+
+        return vocabularyHolder.get();
     }
 
 }

@@ -17,7 +17,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class LicenceFactory {
+public class LicenseFactory {
 
     private final LicenseRepository licenseRepository;
 

@@ -33,4 +33,10 @@ public class ItemContributor implements Serializable {
     @JoinColumn(foreignKey = @ForeignKey(name="item_contributor_actor_role_code_fk"))
     private ActorRole role;
 
+    public ItemContributor(Item item, ItemContributor base) {
+        this.item = item;
+        this.actor = base.getActor();
+        this.ord = base.getOrd();
+        this.role = base.getRole();
+    }
 }

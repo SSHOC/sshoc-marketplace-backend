@@ -7,10 +7,10 @@ import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.validators.licenses.LicenceFactory;
+import eu.sshopencloud.marketplace.validators.licenses.LicenseFactory;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
-import eu.sshopencloud.marketplace.validators.sources.SourceValidator;
-import eu.sshopencloud.marketplace.validators.vocabularies.PropertyValidator;
+import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
+import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,10 +35,10 @@ import java.time.ZonedDateTime;
 @Slf4j
 public class ItemFactory {
 
-    private final LicenceFactory licenceFactory;
-    private final ItemContributorValidator itemContributorValidator;
-    private final PropertyValidator propertyValidator;
-    private final SourceValidator sourceValidator;
+    private final LicenseFactory licenseFactory;
+    private final ItemContributorFactory itemContributorFactory;
+    private final PropertyFactory propertyFactory;
+    private final SourceFactory sourceFactory;
     private final UserRepository userRepository;
 
 
@@ -59,19 +59,9 @@ public class ItemFactory {
             item.setDescription(MarkdownConverter.convertHtmlToMarkdown(itemCore.getDescription()));
         }
 
-        if (item.getLicenses() != null) {
-            item.getLicenses().addAll(licenceFactory.create(itemCore.getLicenses(), item, errors, "licenses"));
-        } else {
-            item.setLicenses(licenceFactory.create(itemCore.getLicenses(), item, errors, "licenses"));
-        }
-
-        if (item.getContributors() != null) {
-            item.getContributors().addAll(itemContributorValidator.validate(itemCore.getContributors(), item, errors, "contributors"));
-        } else {
-            item.setContributors(itemContributorValidator.validate(itemCore.getContributors(), item, errors, "contributors"));
-        }
-
-        item.setProperties(propertyValidator.validate(category, itemCore.getProperties(), item, errors, "properties"));
+        item.getLicenses().addAll(licenseFactory.create(itemCore.getLicenses(), item, errors, "licenses"));
+        item.setContributors(itemContributorFactory.create(itemCore.getContributors(), item, errors, "contributors"));
+        item.setProperties(propertyFactory.create(category, itemCore.getProperties(), item, errors, "properties"));
 
         List<URI> urls = parseAccessibleAtLinks(itemCore, errors);
         item.clearAccessibleAtLinks();
@@ -84,7 +74,7 @@ public class ItemFactory {
         URI accessibleAtUri = (!urls.isEmpty()) ? urls.get(0) : null;
 
         errors.pushNestedPath("source");
-        item.setSource(sourceValidator.validate(itemCore.getSource(), accessibleAtUri, errors));
+        item.setSource(sourceFactory.create(itemCore.getSource(), accessibleAtUri, errors));
         errors.popNestedPath();
 
         item.setSourceItemId(itemCore.getSourceItemId());

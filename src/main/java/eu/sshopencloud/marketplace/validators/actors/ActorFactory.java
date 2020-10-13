@@ -13,7 +13,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,14 +23,14 @@ import java.util.regex.Pattern;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ActorValidator {
+public class ActorFactory {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
 
     private final ActorRepository actorRepository;
 
 
-    public Actor validate(ActorCore actorCore, Long actorId) throws ValidationException {
+    public Actor create(ActorCore actorCore, Long actorId) throws ValidationException {
         Actor actor = getOrCreateActor(actorId);
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(actorCore, "Actor");
 
@@ -58,9 +57,9 @@ public class ActorValidator {
         }
 
         if (actor.getAffiliations() != null) {
-            actor.getAffiliations().addAll(validate(actorCore.getAffiliations(), actor, errors, "affiliations"));
+            actor.getAffiliations().addAll(create(actorCore.getAffiliations(), actor, errors, "affiliations"));
         } else {
-            actor.setAffiliations(validate(actorCore.getAffiliations(), actor, errors, "affiliations"));
+            actor.setAffiliations(create(actorCore.getAffiliations(), actor, errors, "affiliations"));
         }
 
         if (errors.hasErrors()) {
@@ -70,13 +69,12 @@ public class ActorValidator {
         }
     }
 
-
-    private List<Actor> validate(List<ActorId> actorIds, Actor affiliatedActor, Errors errors, String nestedPath) {
+    private List<Actor> create(List<ActorId> actorIds, Actor affiliatedActor, Errors errors, String nestedPath) {
         List<Actor> actors = new ArrayList<Actor>();
         if (actorIds != null) {
             for (int i = 0; i < actorIds.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
-                Actor actor = validate(actorIds.get(i), errors);
+                Actor actor = create(actorIds.get(i), errors);
                 if (actor != null) {
                     actors.add(actor);
                 }
@@ -89,8 +87,7 @@ public class ActorValidator {
         return actors;
     }
 
-
-    public Actor validate(ActorId actorId, Errors errors) {
+    public Actor create(ActorId actorId, Errors errors) {
         if (actorId.getId() == null) {
             errors.rejectValue("id", "field.required", "Actor identifier is required.");
             return null;
@@ -99,9 +96,9 @@ public class ActorValidator {
         if (actorHolder.isEmpty()) {
             errors.rejectValue("id", "field.notExist", "Actor does not exist.");
             return null;
-        } else {
-            return actorHolder.get();
         }
+
+        return actorHolder.get();
     }
 
 

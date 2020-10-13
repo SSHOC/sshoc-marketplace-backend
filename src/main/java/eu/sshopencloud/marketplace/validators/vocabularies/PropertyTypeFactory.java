@@ -14,23 +14,22 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class PropertyTypeValidator {
+public class PropertyTypeFactory {
 
     private final PropertyTypeRepository propertyTypeRepository;
 
 
-    public PropertyType validate(PropertyTypeId propertyTypeId, Errors errors) {
+    public PropertyType create(PropertyTypeId propertyTypeId, Errors errors) {
         if (StringUtils.isBlank(propertyTypeId.getCode())) {
             errors.rejectValue("code", "field.required", "Property type code is required.");
             return null;
         }
         Optional<PropertyType> propertyTypeHolder = propertyTypeRepository.findById(propertyTypeId.getCode());
-        if (!propertyTypeHolder.isPresent()) {
+        if (propertyTypeHolder.isEmpty()) {
             errors.rejectValue("code", "field.notExist", "Property type does not exist.");
             return null;
-        } else {
-            return propertyTypeHolder.get();
         }
-    }
 
+        return propertyTypeHolder.get();
+    }
 }
