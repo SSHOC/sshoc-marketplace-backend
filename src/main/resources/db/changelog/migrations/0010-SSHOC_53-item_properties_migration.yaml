@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0010-SSHOC_53-items_properties-1
+      author: swolarz
+      description: Create many-to-many table for items properties
+      changes:
+        - createTable:
+            tableName: items_properties
+            columns:
+              - column:
+                  name: item_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: items_properties_item_fk
+                    references: items(id)
+              - column:
+                  name: property_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: item_properties_property_fk
+                    references: properties(id)
+              - column:
+                  name: ord
+                  type: integer
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 0010-SSHOC_53-items_properties-2
+      author: swolarz
+      description: Migrate item-property relations to many-to-many table
+      changes:
+        - sql:
+            sql: insert into items_properties select item_id, id, ord from properties
+
+  - changeSet:
+      id: 0010-SSHOC_53-items_properties-3
+      author: swolarz
+      description: Drop useless properties columns
+      changes:
+        - dropColumn:
+            tableName: properties
+            columns:
+              - column:
+                  name: item_id
+              - column:
+                  name: ord

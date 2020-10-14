@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -70,8 +71,14 @@ public abstract class Item {
                     name = "property_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "item_properties_property_fk")
             )
     )
-    @OrderBy("ord")
+    @OrderColumn(name = "ord", nullable = false)
     private List<Property> properties;
+
+    // Hibernate does not handle sparse order properly
+    // When using OrderColumn annotation and there is some order index missing from 0..size-1,
+    // then a null is inserted
+    @Transient
+    private boolean sparseProperties = true;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "item_links")
@@ -178,18 +185,16 @@ public abstract class Item {
     }
 
     public List<Property> getProperties() {
+        if (sparseProperties) {
+            this.properties.removeIf(Objects::isNull);
+            sparseProperties = false;
+        }
+
         return Collections.unmodifiableList(properties);
     }
 
     public void setProperties(List<Property> properties) {
         this.properties.clear();
         this.properties.addAll(properties);
-        renumberProperties();
-    }
-
-    private void renumberProperties() {
-        int idx = 0;
-        for (Property property : properties)
-            property.setOrd(idx++);
     }
 }

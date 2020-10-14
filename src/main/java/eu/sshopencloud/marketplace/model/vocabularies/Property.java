@@ -20,8 +20,6 @@ public class Property {
     @SequenceGenerator(name = "property_generator", sequenceName = "properties_id_seq", allocationSize = 50)
     private Long id;
 
-    private Integer ord;
-
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="property_type_code_fk"))
     private PropertyType type;
@@ -35,9 +33,4 @@ public class Property {
             @JoinColumn(name = "vocabulary_code", insertable = true, updatable = true)
     }, foreignKey = @ForeignKey(name="property_concept_fk"))
     private Concept concept;
-
-//    @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
-//    @JoinColumn(foreignKey = @ForeignKey(name="property_item_id_fk"))
-//    private Item item;
-
 }
