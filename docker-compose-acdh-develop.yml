@@ -4,8 +4,6 @@ services:
     build: .
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
     container_name: sshoc-marketplace-backend-api
-    ports:
-      - 8080:8080
     depends_on:
       - psql
       - solr
@@ -25,7 +23,7 @@ services:
       recaptcha_secret_key: ${recaptcha_secret_key}
     labels:
       - traefik.backend=marketplace-api
-      - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh-dev.oeaw.ac.at,marketplace-api.sshopencloud.eu,marketplace-api.sshoc.eu
+      - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh-dev.oeaw.ac.at
       - traefik.docker.network=web
       - traefik.port=8080
       - ID=15824
@@ -35,8 +33,6 @@ services:
   psql:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres
-    ports:
-      - 5432:5432
     volumes:
       - psql-data:/var/lib/postgresql/data
     environment:
@@ -50,8 +46,6 @@ services:
     build: etc/solr
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr
     container_name: sshoc-marketplace-backend-solr
-    ports:
-      - 8983:8983
     volumes:
       - solr-data:/var/solr
     labels:
@@ -62,6 +56,18 @@ services:
     networks:
       - backend
       - web
+      
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: sshoc-mp-backend-runner
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    volumes:
+      - gitlab-runner:/etc/gitlab-runner
+      - docker:/var/run
+    networks:
+      - backend   
+      
 networks:
   backend:
     driver: bridge
@@ -80,4 +86,16 @@ volumes:
     driver_opts:
       type: "none"
       device: "/home/sshocmp/shares/solr-data"
+      o: "bind"
+  gitlab-runner:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmp/shares/gitlab-runner"
+      o: "bind"
+  docker:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/var/run"
       o: "bind"

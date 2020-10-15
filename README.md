@@ -24,7 +24,6 @@ http://localhost:8080/v3/api-docs
 http://localhost:8080/swagger-ui/index.html?url=http://localhost:8080/v3/api-docs
 ```
 
-
 ## Running application to development
 Requirements in addition to docker:
 
@@ -41,6 +40,7 @@ docker-compose build
 docker-compose up psql solr
 In IntelliJ / Eclipse run eu.sshopencloud.marketplace.MarketplaceApplication
 ```
+
 
 Run tests:
 

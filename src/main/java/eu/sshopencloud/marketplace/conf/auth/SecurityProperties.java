@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.conf.auth;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "marketplace.security")
@@ -13,7 +14,7 @@ public class SecurityProperties {
         private long jwtTokenExpirationMsec;
 
         public String getJwtTokenSecret() {
-            return jwtTokenSecret;
+            return StringUtils.isNotBlank(jwtTokenSecret) ? jwtTokenSecret : "default-token-secret";
         }
 
         public void setJwtTokenSecret(String jwtTokenSecret) {

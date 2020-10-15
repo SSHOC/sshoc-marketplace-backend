@@ -43,8 +43,8 @@ spring:
             client:
                 registration:
                     eosc:
-                        client-id: ${egi_id}
-                        client-secret: ${egi_secret}
+                        client-id: ${egi_client_id:deafult-egi-id}
+                        client-secret: ${egi_secret:default-egi-secret}
                         authorization-grant-type: authorization_code
                         scope:
                             - openid
@@ -63,7 +63,7 @@ spring:
                         user-name-attribute: sub
 
     profiles:
-        active: ${APPLICATION_PROFILE:""}
+        active: ${APPLICATION_PROFILE:}
 
 springdoc:
     version: '@api.version@'
@@ -79,7 +79,7 @@ marketplace:
         maximal-perpage: 100
     security:
         auth:
-            jwt-token-secret: ${token_secret}
+            jwt-token-secret: ${token_secret:default-token-secret}
             jwt-token-expiration-msec: 86400000
         oauth:
             implicit-grant-token-expiration-msec: 30000
