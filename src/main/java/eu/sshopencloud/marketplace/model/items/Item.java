@@ -96,12 +96,8 @@ public abstract class Item {
     @ManyToMany(cascade = { CascadeType.REFRESH })
     @JoinTable(
             name = "items_information_contributors",
-            joinColumns = @JoinColumn(
-                    name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_item_id_fk")
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_user_id_fk")
-            )
+            joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
     )
     @OrderColumn(name = "ord")
     private List<User> informationContributors;
@@ -117,15 +113,15 @@ public abstract class Item {
     @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinTable(
             name = "items_items_comments",
-            joinColumns = @JoinColumn(
-                    name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_id_fk")
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "item_comment_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_comment_id_fk")
-            )
+            joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "item_comment_id", referencedColumnName = "id")
     )
     @OrderBy("dateCreated")
     private List<ItemComment> comments;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinColumn(name = "versioned_item_id", nullable = false)
+    private VersionedItem versionedItem;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))

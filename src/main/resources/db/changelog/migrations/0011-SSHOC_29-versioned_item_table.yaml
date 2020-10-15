@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-1
+      author: swolarz
+      description: Create table for versioned items
+      changes:
+        - createTable:
+            tableName: versioned_items
+            columns:
+              - column:
+                  name: id
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-2
+      author: swolarz
+      description: Add foreign key column to versioned item in items table
+      changes:
+        - addColumn:
+            tableName: items
+            columns:
+              - column:
+                  name: versioned_item_id
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: item_versioned_item_fk
+                    references: versioned_items(id)
+
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-3
+      author: swolarz
+      description: Populate versioned items table and assign to items
+      changes:
+        - customChange:
+            class: eu.sshopencloud.marketplace.repositories.migrations.PopulateVersionedItemsMigration
