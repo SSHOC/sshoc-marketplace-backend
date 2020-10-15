@@ -14,6 +14,8 @@ services:
       egi_id: ${egi_id}
       egi_secret: ${egi_secret}
       token_secret: ${token_secret}
+      recaptcha_site_key: ${recaptcha_site_key}
+      recaptcha_secret_key: ${recaptcha_secret_key}
 
   psql:
     image: postgres:9.6
