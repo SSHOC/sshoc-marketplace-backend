@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.repositories.trainings;
+package eu.sshopencloud.marketplace.repositories.items;
 
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import org.springframework.data.jpa.repository.JpaRepository;

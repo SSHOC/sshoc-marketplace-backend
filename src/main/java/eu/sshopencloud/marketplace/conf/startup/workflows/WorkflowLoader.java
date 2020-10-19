@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.conf.startup.workflows;
 import eu.sshopencloud.marketplace.conf.startup.items.ItemLoader;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
-import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
+import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

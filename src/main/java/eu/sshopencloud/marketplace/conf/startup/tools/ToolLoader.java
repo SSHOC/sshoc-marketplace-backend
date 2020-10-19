@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.conf.startup.tools;
 
 import eu.sshopencloud.marketplace.conf.startup.items.ItemLoader;
 import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
+import eu.sshopencloud.marketplace.repositories.items.ToolRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

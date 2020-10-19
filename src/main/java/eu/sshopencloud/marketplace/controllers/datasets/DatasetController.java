@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.controllers.datasets;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.services.datasets.DatasetService;
+import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +28,8 @@ public class DatasetController {
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") long id) {
-        return ResponseEntity.ok(datasetService.getDataset(id));
+    public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") String id) {
+        return ResponseEntity.ok(datasetService.getLatestDataset(id));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,12 +38,12 @@ public class DatasetController {
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("id") long id, @RequestBody DatasetCore updatedDataset) {
+    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("id") String id, @RequestBody DatasetCore updatedDataset) {
         return ResponseEntity.ok(datasetService.updateDataset(id, updatedDataset));
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteDataset(@PathVariable("id") long id) {
+    public void deleteDataset(@PathVariable("id") String id) {
         datasetService.deleteDataset(id);
     }
 

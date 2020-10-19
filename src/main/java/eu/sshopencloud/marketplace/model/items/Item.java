@@ -120,7 +120,7 @@ public abstract class Item {
     private List<ItemComment> comments;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    @JoinColumn(name = "versioned_item_id", nullable = false)
+    @JoinColumn(name = "persistent_id", nullable = false)
     private VersionedItem versionedItem;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
@@ -158,6 +158,7 @@ public abstract class Item {
         this.informationContributors = new ArrayList<>();
         this.comments = new ArrayList<>();
 
+        this.versionedItem = prevVersion.getVersionedItem();
         this.prevVersion = prevVersion;
     }
 

@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.services.workflows;
+package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
@@ -10,8 +10,7 @@ import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.StepsTreeVisitor;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
-import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
-import eu.sshopencloud.marketplace.services.items.ItemService;
+import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class WorkflowService {
 
     private final WorkflowRepository workflowRepository;
     private final WorkflowFactory workflowFactory;
-    private final ItemService itemService;
+    private final ItemCrudService itemService;
     private final IndexService indexService;
     private final StepService stepService;
 

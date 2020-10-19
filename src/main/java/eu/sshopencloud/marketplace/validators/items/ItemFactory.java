@@ -4,7 +4,6 @@ import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.validators.licenses.LicenseFactory;
@@ -91,12 +90,6 @@ public class ItemFactory {
 
         if (item.getSource() == null && StringUtils.isNotBlank(itemCore.getSourceItemId())) {
             errors.rejectValue("source", "field.requiredInCase", "Source is required if Source item id is provided.");
-        }
-
-        if (itemCore.getStatus() == null) {
-            item.setStatus(ItemStatus.INGESTED);
-        } else {
-            item.setStatus(itemCore.getStatus());
         }
 
         setInfoDates(item);

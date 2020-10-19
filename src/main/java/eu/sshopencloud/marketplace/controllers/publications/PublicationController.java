@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
-import eu.sshopencloud.marketplace.services.publications.PublicationService;
+import eu.sshopencloud.marketplace.services.items.PublicationService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

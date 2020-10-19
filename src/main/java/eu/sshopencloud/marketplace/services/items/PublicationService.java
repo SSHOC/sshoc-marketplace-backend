@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.services.publications;
+package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
@@ -6,9 +6,7 @@ import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.model.publications.Publication;
-import eu.sshopencloud.marketplace.repositories.publications.PublicationRepository;
-import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
-import eu.sshopencloud.marketplace.services.items.ItemService;
+import eu.sshopencloud.marketplace.repositories.items.PublicationRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.publications.PublicationFactory;
@@ -33,7 +31,7 @@ public class PublicationService {
 
     private final PublicationRepository publicationRepository;
     private final PublicationFactory publicationFactory;
-    private final ItemService itemService;
+    private final ItemCrudService itemService;
     private final ItemRelatedItemService itemRelatedItemService;
     private final IndexService indexService;
 

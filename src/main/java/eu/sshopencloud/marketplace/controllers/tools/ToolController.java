@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
-import eu.sshopencloud.marketplace.services.tools.ToolService;
+import eu.sshopencloud.marketplace.services.items.ToolService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

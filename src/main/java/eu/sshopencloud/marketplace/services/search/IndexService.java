@@ -11,7 +11,7 @@ import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
-import eu.sshopencloud.marketplace.services.items.ItemService;
+import eu.sshopencloud.marketplace.services.items.ItemCrudService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
@@ -35,7 +35,7 @@ public class IndexService {
 
     private final SearchItemRepository searchItemRepository;
 
-    private final ItemService itemService;
+    private final ItemCrudService itemService;
 
     private final ItemRepository itemRepository;
 

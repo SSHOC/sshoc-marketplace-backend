@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.mappers.items.ItemRelatedItemMapper;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelatedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
 import eu.sshopencloud.marketplace.validators.items.ItemRelationValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

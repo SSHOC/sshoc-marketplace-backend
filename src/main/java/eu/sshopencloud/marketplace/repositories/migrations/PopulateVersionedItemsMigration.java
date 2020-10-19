@@ -25,7 +25,7 @@ public class PopulateVersionedItemsMigration implements CustomTaskChange {
         JdbcConnection connection = (JdbcConnection) database.getConnection();
 
         String versionedItemInsert = "insert into versioned_items (id) values (?)";
-        String itemUpdate = "update items set versioned_item_id = ? where id = ?";
+        String itemUpdate = "update items set persistent_id = ? where id = ?";
 
         try (
                 Statement itemsSelect = connection.createStatement();

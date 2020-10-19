@@ -23,7 +23,7 @@ databaseChangeLog:
             tableName: items
             columns:
               - column:
-                  name: versioned_item_id
+                  name: persistent_id
                   type: varchar(128)
                   constraints:
                     nullable: false
@@ -37,3 +37,26 @@ databaseChangeLog:
       changes:
         - customChange:
             class: eu.sshopencloud.marketplace.repositories.migrations.PopulateVersionedItemsMigration
+
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-4
+      author: swolarz
+      description: Create indexes for items fast lookup and pagination
+      changes:
+        - createIndex:
+            indexName: items_status_id_idx
+            tableName: items
+            unique: true
+            columns:
+              - column:
+                  name: status
+              - column:
+                  name: id
+        - createIndex:
+            indexName: items_persistent_id_id_idx
+            tableName: items
+            columns:
+              - column:
+                  name: persistent_id
+              - column:
+                  name: id

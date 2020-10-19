@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.validators.trainings;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
+import eu.sshopencloud.marketplace.repositories.items.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.items.ItemFactory;
 import lombok.RequiredArgsConstructor;

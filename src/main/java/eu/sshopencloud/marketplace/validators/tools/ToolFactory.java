@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.validators.tools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
+import eu.sshopencloud.marketplace.repositories.items.ToolRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.items.ItemFactory;
 import lombok.RequiredArgsConstructor;

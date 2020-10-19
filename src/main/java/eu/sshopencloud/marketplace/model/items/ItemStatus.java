@@ -3,12 +3,11 @@ package eu.sshopencloud.marketplace.model.items;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ItemStatus {
-
+    DRAFT,
     INGESTED,
-
     REVIEWED,
-
-    DEPRECATED;
+    DEPRECATED,
+    DELETED;
 
     @JsonValue
     public String getValue() {

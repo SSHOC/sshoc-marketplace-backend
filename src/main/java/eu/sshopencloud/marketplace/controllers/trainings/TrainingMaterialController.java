@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
-import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
+import eu.sshopencloud.marketplace.services.items.TrainingMaterialService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

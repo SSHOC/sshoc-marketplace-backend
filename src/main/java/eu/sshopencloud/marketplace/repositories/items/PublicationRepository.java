@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.repositories.publications;
+package eu.sshopencloud.marketplace.repositories.items;
 
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import org.springframework.data.jpa.repository.JpaRepository;

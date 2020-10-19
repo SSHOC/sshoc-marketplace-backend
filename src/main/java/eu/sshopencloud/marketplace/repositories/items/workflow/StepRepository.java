@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.repositories.workflows;
+package eu.sshopencloud.marketplace.repositories.items.workflow;
 
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import org.springframework.data.jpa.repository.JpaRepository;

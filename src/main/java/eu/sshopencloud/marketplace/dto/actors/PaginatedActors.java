@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.dto.actors;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,8 +13,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
-public class PaginatedActors extends PaginatedResult {
+public class PaginatedActors extends PaginatedResult<ActorDto> {
 
     private List<ActorDto> actors;
 
+    @Override
+    @JsonGetter("actors")
+    public List<ActorDto> getResults() {
+        return actors;
+    }
 }

@@ -29,7 +29,5 @@ public class ItemCore {
 
     private SourceId source;
 
-    private ItemStatus status;
-
     private String sourceItemId;
 }

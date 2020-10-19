@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.services.tools;
+package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
@@ -6,8 +6,7 @@ import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.repositories.tools.ToolRepository;
-import eu.sshopencloud.marketplace.services.items.ItemService;
+import eu.sshopencloud.marketplace.repositories.items.ToolRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.validators.tools.ToolFactory;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 public class ToolService {
     private final ToolRepository toolRepository;
     private final ToolFactory toolFactory;
-    private final ItemService itemService;
+    private final ItemCrudService itemService;
     private final IndexService indexService;
 
 

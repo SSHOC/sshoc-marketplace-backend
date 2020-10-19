@@ -5,7 +5,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemRelationDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemRelationService;
-import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

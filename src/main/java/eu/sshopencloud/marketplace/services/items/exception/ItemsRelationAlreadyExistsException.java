@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.services.items;
+package eu.sshopencloud.marketplace.services.items.exception;
 
 import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
 

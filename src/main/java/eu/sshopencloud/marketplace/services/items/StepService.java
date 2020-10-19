@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.services.workflows;
+package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
@@ -6,10 +6,9 @@ import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
-import eu.sshopencloud.marketplace.repositories.workflows.StepRepository;
-import eu.sshopencloud.marketplace.repositories.workflows.StepsTreeRepository;
-import eu.sshopencloud.marketplace.repositories.workflows.WorkflowRepository;
-import eu.sshopencloud.marketplace.services.items.ItemService;
+import eu.sshopencloud.marketplace.repositories.items.workflow.StepRepository;
+import eu.sshopencloud.marketplace.repositories.items.workflow.StepsTreeRepository;
+import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepository;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ public class StepService {
     private final StepsTreeRepository stepsTreeRepository;
     private final WorkflowRepository workflowRepository;
     private final StepFactory stepFactory;
-    private final ItemService itemService;
+    private final ItemCrudService itemService;
 
 
     public StepDto getStep(long workflowId, long stepId) {

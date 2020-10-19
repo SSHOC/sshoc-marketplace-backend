@@ -94,7 +94,7 @@ public class ConceptService {
     }
 
     public List<Concept> getRelatedConceptsOfConcept(Concept concept, ConceptRelation relation) {
-        List<Concept> result = new ArrayList();
+        List<Concept> result = new ArrayList<>();
         List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectAndRelation(concept, relation);
         for (ConceptRelatedConcept subjectRelatedConcept: subjectRelatedConcepts) {
             conceptRelatedConceptDetachingRepository.detach(subjectRelatedConcept);
