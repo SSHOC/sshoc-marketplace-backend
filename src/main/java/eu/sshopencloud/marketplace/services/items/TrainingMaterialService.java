@@ -6,89 +6,97 @@ import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.repositories.items.TrainingMaterialRepository;
+import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.search.IndexService;
-import eu.sshopencloud.marketplace.validators.ValidationException;
+import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.trainings.TrainingMaterialFactory;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 @Slf4j
-public class TrainingMaterialService {
+public class TrainingMaterialService
+        extends ItemCrudService<TrainingMaterial, TrainingMaterialDto, PaginatedTrainingMaterials, TrainingMaterialCore> {
 
     private final TrainingMaterialRepository trainingMaterialRepository;
     private final TrainingMaterialFactory trainingMaterialFactory;
-    private final ItemCrudService itemService;
-    private final IndexService indexService;
+
+
+    public TrainingMaterialService(TrainingMaterialRepository trainingMaterialRepository,
+                                   TrainingMaterialFactory trainingMaterialFactory,
+                                   ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                                   ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
+                                   IndexService indexService) {
+
+        super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
+
+        this.trainingMaterialRepository = trainingMaterialRepository;
+        this.trainingMaterialFactory = trainingMaterialFactory;
+    }
 
 
     public PaginatedTrainingMaterials getTrainingMaterials(PageCoords pageCoords) {
-        Page<TrainingMaterial> trainingMaterialsPage = trainingMaterialRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
-        List<TrainingMaterialDto> trainingMaterials = trainingMaterialsPage.stream()
-                .map(TrainingMaterialMapper.INSTANCE::toDto)
-                .map(itemService::completeItem)
-                .collect(Collectors.toList());
+        return super.getItemsPage(pageCoords);
+    }
 
-        return PaginatedTrainingMaterials.builder().trainingMaterials(trainingMaterials)
-                .count(trainingMaterialsPage.getContent().size()).hits(trainingMaterialsPage.getTotalElements())
-                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+    public TrainingMaterialDto getLatestTrainingMaterial(String persistentId) {
+        return super.getLatestItem(persistentId);
+    }
+
+    public TrainingMaterialDto getTrainingMaterialVersion(String persistentId, long versionId) {
+        return super.getItemVersion(persistentId, versionId);
+    }
+
+    public TrainingMaterialDto createTrainingMaterial(TrainingMaterialCore trainingMaterialCore) {
+        return super.createItem(trainingMaterialCore);
+    }
+
+    public TrainingMaterialDto updateTrainingMaterial(String persistentId, TrainingMaterialCore trainingMaterialCore) {
+        return super.updateItem(persistentId, trainingMaterialCore);
+    }
+
+    public void deleteTrainingMaterial(String persistentId) {
+        super.deleteItem(persistentId);
+    }
+
+
+    @Override
+    protected ItemVersionRepository<TrainingMaterial> getItemRepository() {
+        return trainingMaterialRepository;
+    }
+
+    @Override
+    protected TrainingMaterial makeItem(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial) {
+        return trainingMaterialFactory.create(trainingMaterialCore, prevTrainingMaterial);
+    }
+
+    @Override
+    protected PaginatedTrainingMaterials wrapPage(Page<TrainingMaterial> trainingMaterialsPage,
+                                                  List<TrainingMaterialDto> trainingMaterials) {
+
+        return PaginatedTrainingMaterials.builder()
+                .trainingMaterials(trainingMaterials)
+                .count(trainingMaterialsPage.getContent().size())
+                .hits(trainingMaterialsPage.getTotalElements())
+                .page(trainingMaterialsPage.getNumber())
+                .perpage(trainingMaterialsPage.getSize())
                 .pages(trainingMaterialsPage.getTotalPages())
                 .build();
     }
 
-    public TrainingMaterialDto getTrainingMaterial(Long id) {
-        TrainingMaterial trainingMaterial = trainingMaterialRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id));
-        return itemService.completeItem(TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial));
+    @Override
+    protected TrainingMaterialDto convertItemToDto(TrainingMaterial trainingMaterial) {
+        return TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial);
     }
 
-    public TrainingMaterialDto createTrainingMaterial(TrainingMaterialCore trainingMaterialCore) throws ValidationException {
-        return createNewTrainingMaterialVersion(trainingMaterialCore, null);
-    }
-
-    public TrainingMaterialDto updateTrainingMaterial(Long id, TrainingMaterialCore trainingMaterialCore)
-            throws ValidationException {
-
-        if (!trainingMaterialRepository.existsById(id))
-            throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
-
-        return createNewTrainingMaterialVersion(trainingMaterialCore, id);
-    }
-
-    private TrainingMaterialDto createNewTrainingMaterialVersion(TrainingMaterialCore trainingMaterialCore,
-                                                                 Long prevTrainingMaterialId) throws ValidationException {
-
-        TrainingMaterial prevTrainingMaterial =
-                (prevTrainingMaterialId != null) ? trainingMaterialRepository.getOne(prevTrainingMaterialId) : null;
-
-        TrainingMaterial trainingMaterial = trainingMaterialFactory.create(trainingMaterialCore, prevTrainingMaterial);
-
-        trainingMaterial = trainingMaterialRepository.save(trainingMaterial);
-        indexService.indexItem(trainingMaterial);
-
-        return itemService.completeItem(TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial));
-    }
-
-    public void deleteTrainingMaterial(Long id) {
-        if (!trainingMaterialRepository.existsById(id))
-            throw new EntityNotFoundException("Unable to find " + TrainingMaterial.class.getName() + " with id " + id);
-
-        TrainingMaterial trainingMaterial = trainingMaterialRepository.getOne(id);
-
-        itemService.cleanupItem(trainingMaterial);
-        trainingMaterialRepository.delete(trainingMaterial);
-        indexService.removeItem(trainingMaterial);
+    @Override
+    protected String getItemTypeName() {
+        return TrainingMaterial.class.getName();
     }
 }

@@ -97,7 +97,7 @@ public abstract class ItemCrudService<I extends Item, D extends ItemDto, P exten
         return createNewItemVersion(itemCore, item);
     }
 
-    protected D createNewItemVersion(C itemCore, I prevVersion) {
+    private D createNewItemVersion(C itemCore, I prevVersion) {
         I newItem = makeItem(itemCore, prevVersion);
         newItem = getItemRepository().save(newItem);
 

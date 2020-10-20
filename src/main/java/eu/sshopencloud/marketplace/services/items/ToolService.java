@@ -6,83 +6,95 @@ import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.ToolRepository;
+import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.tools.ToolFactory;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 @Slf4j
-public class ToolService {
+public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, ToolCore> {
+
     private final ToolRepository toolRepository;
     private final ToolFactory toolFactory;
-    private final ItemCrudService itemService;
-    private final IndexService indexService;
+
+
+    public ToolService(ToolRepository toolRepository, ToolFactory toolFactory,
+                       ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                       ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
+                       IndexService indexService) {
+
+        super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
+
+        this.toolRepository = toolRepository;
+        this.toolFactory = toolFactory;
+    }
 
 
     public PaginatedTools getTools(PageCoords pageCoords) {
-        Page<Tool> toolsPage = toolRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
-        List<ToolDto> tools = toolsPage.stream().map(ToolMapper.INSTANCE::toDto)
-                .map(tool -> {
-                    itemService.completeItem(tool);
-                    return tool;
-                })
-                .collect(Collectors.toList());
+        return super.getItemsPage(pageCoords);
+    }
 
+    public ToolDto getToolVersion(String persistentId, long versionId) {
+        return super.getItemVersion(persistentId, versionId);
+    }
+
+    public ToolDto getLatestTool(String persistentId) {
+        return super.getLatestItem(persistentId);
+    }
+
+    public ToolDto createTool(ToolCore toolCore) {
+        return super.createItem(toolCore);
+    }
+
+    public ToolDto updateTool(String persistentId, ToolCore toolCore) {
+        return super.updateItem(persistentId, toolCore);
+    }
+
+    public void deleteTool(String persistentId) {
+        super.deleteItem(persistentId);
+    }
+
+
+    @Override
+    protected ItemVersionRepository<Tool> getItemRepository() {
+        return toolRepository;
+    }
+
+    @Override
+    protected Tool makeItem(ToolCore toolCore, Tool prevTool) {
+        return toolFactory.create(toolCore, prevTool);
+    }
+
+    @Override
+    protected PaginatedTools wrapPage(Page<Tool> toolsPage, List<ToolDto> tools) {
         return PaginatedTools.builder().tools(tools)
-                .count(toolsPage.getContent().size()).hits(toolsPage.getTotalElements())
-                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .count(toolsPage.getContent().size())
+                .hits(toolsPage.getTotalElements())
+                .page(toolsPage.getNumber())
+                .perpage(toolsPage.getSize())
                 .pages(toolsPage.getTotalPages())
                 .build();
     }
 
-    public ToolDto getTool(Long id) {
-        Tool tool = toolRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id));
-        return itemService.completeItem(ToolMapper.INSTANCE.toDto(tool));
+    @Override
+    protected ToolDto convertItemToDto(Tool tool) {
+        return ToolMapper.INSTANCE.toDto(tool);
     }
 
-    public ToolDto createTool(ToolCore toolCore) {
-        return createNewToolVersion(toolCore, null);
-    }
-
-    public ToolDto updateTool(Long id, ToolCore toolCore) {
-        if (!toolRepository.existsById(id))
-            throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
-
-        return createNewToolVersion(toolCore, id);
-    }
-
-    private ToolDto createNewToolVersion(ToolCore toolCore, Long prevToolId) {
-        Tool prevTool = (prevToolId != null) ? toolRepository.getOne(prevToolId) : null;
-        Tool tool = toolFactory.create(toolCore, prevTool);
-
-        tool = toolRepository.save(tool);
-        indexService.indexItem(tool);
-
-        return itemService.completeItem(ToolMapper.INSTANCE.toDto(tool));
-    }
-
-    public void deleteTool(Long id) {
-        if (!toolRepository.existsById(id))
-            throw new EntityNotFoundException("Unable to find " + Tool.class.getName() + " with id " + id);
-
-        Tool tool = toolRepository.getOne(id);
-
-        itemService.cleanupItem(tool);
-        toolRepository.delete(tool);
-        indexService.removeItem(tool);
+    @Override
+    protected String getItemTypeName() {
+        return Tool.class.getName();
     }
 }

@@ -28,8 +28,8 @@ public class PublicationController {
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> getPublication(@PathVariable("id") long id) {
-        return ResponseEntity.ok(publicationService.getPublication(id));
+    public ResponseEntity<PublicationDto> getPublication(@PathVariable("id") String id) {
+        return ResponseEntity.ok(publicationService.getLatestPublication(id));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,13 +38,12 @@ public class PublicationController {
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> updatePublication(@PathVariable("id") long id, @RequestBody PublicationCore updatedPublication) {
+    public ResponseEntity<PublicationDto> updatePublication(@PathVariable("id") String id, @RequestBody PublicationCore updatedPublication) {
         return ResponseEntity.ok(publicationService.updatePublication(id, updatedPublication));
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deletePublication(@PathVariable("id") long id) {
+    public void deletePublication(@PathVariable("id") String id) {
         publicationService.deletePublication(id);
     }
-
 }

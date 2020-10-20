@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/api/tools-services")
 @RequiredArgsConstructor
@@ -28,8 +29,8 @@ public class ToolController {
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> getTool(@PathVariable("id") long id) {
-        return ResponseEntity.ok(toolService.getTool(id));
+    public ResponseEntity<ToolDto> getTool(@PathVariable("id") String id) {
+        return ResponseEntity.ok(toolService.getLatestTool(id));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,13 +39,12 @@ public class ToolController {
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> updateTool(@PathVariable("id") long id, @RequestBody ToolCore updatedTool) {
+    public ResponseEntity<ToolDto> updateTool(@PathVariable("id") String id, @RequestBody ToolCore updatedTool) {
         return ResponseEntity.ok(toolService.updateTool(id, updatedTool));
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteTool(@PathVariable("id") long id) {
+    public void deleteTool(@PathVariable("id") String id) {
         toolService.deleteTool(id);
     }
-
 }

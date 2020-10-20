@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/api/training-materials")
 @RequiredArgsConstructor
@@ -28,8 +29,8 @@ public class TrainingMaterialController {
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") long id) {
-        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterial(id));
+    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") String id) {
+        return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(id));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,13 +39,14 @@ public class TrainingMaterialController {
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterialCore updatedTrainingMaterial) {
+    public ResponseEntity<TrainingMaterialDto> updateTrainingMaterial(@PathVariable("id") String id,
+                                                                      @RequestBody TrainingMaterialCore updatedTrainingMaterial) {
+
         return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(id, updatedTrainingMaterial));
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteTrainingMaterial(@PathVariable("id") long id) {
+    public void deleteTrainingMaterial(@PathVariable("id") String id) {
         trainingMaterialService.deleteTrainingMaterial(id);
     }
-
 }

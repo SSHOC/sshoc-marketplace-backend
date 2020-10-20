@@ -33,6 +33,7 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
                           ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                           ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
                           IndexService indexService) {
+
         super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
 
         this.datasetRepository = datasetRepository;
@@ -59,7 +60,6 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore) {
         return super.updateItem(persistentId, datasetCore);
     }
-
 
     public void deleteDataset(String persistentId) {
         super.deleteItem(persistentId);
