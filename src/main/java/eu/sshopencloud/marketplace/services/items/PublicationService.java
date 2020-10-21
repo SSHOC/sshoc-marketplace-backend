@@ -75,6 +75,12 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     @Override
+    protected Publication makeVersionCopy(Publication item) {
+        // TODO implement
+        throw new UnsupportedOperationException("Publication version lift is not supported yet");
+    }
+
+    @Override
     protected PaginatedPublications wrapPage(Page<Publication> publicationsPage, List<PublicationDto> publications) {
         return PaginatedPublications.builder()
                 .publications(publications)

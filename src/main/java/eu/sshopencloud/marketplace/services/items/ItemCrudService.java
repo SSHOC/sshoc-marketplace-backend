@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
-public abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends PaginatedResult<D>, C extends ItemCore> {
+abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends PaginatedResult<D>, C> {
 
     private final ItemRepository itemRepository;
     private final VersionedItemRepository versionedItemRepository;
@@ -76,7 +75,10 @@ public abstract class ItemCrudService<I extends Item, D extends ItemDto, P exten
         return completeItem(dto);
     }
 
-    private I loadLatestItem(String persistentId) {
+    /**
+     * Loads the most recent item for presentation purposes i.e. an approved item
+     */
+    protected I loadLatestItem(String persistentId) {
         return getItemRepository().findByVersionedItemPersistentIdAndStatus(persistentId, ItemStatus.REVIEWED)
                 .orElseThrow(
                         () -> new EntityNotFoundException(
@@ -87,6 +89,12 @@ public abstract class ItemCrudService<I extends Item, D extends ItemDto, P exten
                         )
                 );
     }
+
+//    /**
+//     * Loads the most recent item for update. Does not necessarily need to be approved
+//     */
+//    protected I loadRecentItem(String persistentId) {
+//    }
 
     protected D createItem(C itemCore) {
         return createNewItemVersion(itemCore, null);
@@ -128,12 +136,21 @@ public abstract class ItemCrudService<I extends Item, D extends ItemDto, P exten
         while (versionedItemRepository.existsById(id)) {
             trials++;
             if (trials >= 10)
-                throw new RuntimeException("Could not assign an id for the versioned item");
+                throw new RuntimeException("Could not assign an id for the new versioned item");
 
             id = PersistentId.generated();
         }
 
         return id;
+    }
+
+    protected I liftItemVersion(String persistentId) {
+        I item = loadLatestItem(persistentId);
+        I newItem = makeVersionCopy(item);
+
+        newItem = getItemRepository().save(newItem);
+
+        return newItem;
     }
 
     protected void deleteItem(String persistentId) {
@@ -174,12 +191,6 @@ public abstract class ItemCrudService<I extends Item, D extends ItemDto, P exten
         return versions;
     }
 
-    @Transactional
-    public boolean isNewestVersion(Item item) {
-        Item nextVersion = itemRepository.findByPrevVersion(item);
-        return (nextVersion == null);
-    }
-
     private <T extends ItemDto> T completeItem(T item) {
         item.setRelatedItems(itemRelatedItemService.getItemRelatedItems(item.getId()));
         item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
@@ -208,8 +219,9 @@ public abstract class ItemCrudService<I extends Item, D extends ItemDto, P exten
     protected abstract ItemVersionRepository<I> getItemRepository();
 
     protected abstract I makeItem(C itemCore, I prevItem);
-    protected abstract P wrapPage(Page<I> resultsPage, List<D> convertedDtos);
+    protected abstract I makeVersionCopy(I item);
 
+    protected abstract P wrapPage(Page<I> resultsPage, List<D> convertedDtos);
     protected abstract D convertItemToDto(I item);
 
     protected abstract String getItemTypeName();

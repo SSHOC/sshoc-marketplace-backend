@@ -37,7 +37,7 @@ public class StepsTree {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderColumn(name = "ord")
-    private List<StepsTree> subtrees;
+    private List<StepsTree> subTrees;
 
     @Column(name = "ord", nullable = false)
     private int ord;
@@ -57,7 +57,7 @@ public class StepsTree {
 
     // Use static factory methods below
     protected StepsTree() {
-        this.subtrees = new ArrayList<>();
+        this.subTrees = new ArrayList<>();
         this.ord = 0;
     }
 
@@ -70,9 +70,9 @@ public class StepsTree {
         this.workflow = stepsTree.getWorkflow();
         this.step = stepsTree.getStep();
         this.parent = parent;
-        this.subtrees = stepsTree.getSubtrees()
+        this.subTrees = stepsTree.getSubTrees()
                 .stream()
-                .map(subtree -> new StepsTree(subtree, this))
+                .map(subTree -> new StepsTree(subTree, this))
                 .collect(Collectors.toList());
 
         this.ord = stepsTree.getOrd();
@@ -82,33 +82,47 @@ public class StepsTree {
     public void appendStep(Step step) {
         beforeStepAdd(step);
 
-        StepsTree subtree = new StepsTree(step, this, subtrees.size());
-        subtrees.add(subtree);
+        StepsTree subtree = new StepsTree(step, this, subTrees.size());
+        subTrees.add(subtree);
     }
 
     public void addStep(Step step, int stepNo) {
         beforeStepAdd(step);
 
-        if (stepNo <= 0 || stepNo > subtrees.size())
+        if (stepNo <= 0 || stepNo > subTrees.size())
             throw new IndexOutOfBoundsException(String.format("Invalid step number: %d", stepNo));
 
         StepsTree subtree = new StepsTree(step, this, stepNo);
-        subtrees.add(stepNo - 1, subtree);
+        subTrees.add(stepNo - 1, subtree);
+
+        renumberSubTrees();
     }
 
     private void beforeStepAdd(Step step) {
-        subtrees.removeIf(st -> st.getStep().getId().equals(step.getId()));
+        removeStep(step);
     }
 
-    public List<StepsTree> getSubtrees() {
-        return Collections.unmodifiableList(subtrees);
+    public void removeStep(Step step) {
+        subTrees.removeIf(st -> st.getStep().getId().equals(step.getId()));
+        renumberSubTrees();
+    }
+
+    private void renumberSubTrees() {
+        int i = 0;
+
+        for (StepsTree subTree : subTrees)
+            subTree.setOrd(i++);
+    }
+
+    public List<StepsTree> getSubTrees() {
+        return Collections.unmodifiableList(subTrees);
     }
 
     public void visit(StepsTreeVisitor visitor) {
         if (!isRoot())
             visitor.onNextStep(step);
 
-        for (StepsTree subtree : subtrees) {
+        for (StepsTree subtree : subTrees) {
             subtree.visit(visitor);
             visitor.onBackToParent();
         }

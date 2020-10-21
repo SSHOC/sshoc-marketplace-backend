@@ -162,6 +162,11 @@ public abstract class Item {
         this.prevVersion = prevVersion;
     }
 
+    public boolean isNewestVersion() {
+        // TODO resolve if newest version by checking VersionedItem entity
+        return true;
+    }
+
     public void addInformationContributor(User contributor) {
         if (informationContributors.contains(contributor))
             return;

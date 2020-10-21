@@ -77,6 +77,12 @@ public class TrainingMaterialService
     }
 
     @Override
+    protected TrainingMaterial makeVersionCopy(TrainingMaterial item) {
+        // TODO implement
+        throw new UnsupportedOperationException("Training Material version lift is not supported yet");
+    }
+
+    @Override
     protected PaginatedTrainingMaterials wrapPage(Page<TrainingMaterial> trainingMaterialsPage,
                                                   List<TrainingMaterialDto> trainingMaterials) {
 

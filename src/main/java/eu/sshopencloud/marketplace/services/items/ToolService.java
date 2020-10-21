@@ -78,6 +78,12 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     @Override
+    protected Tool makeVersionCopy(Tool item) {
+        // TODO implement
+        throw new UnsupportedOperationException("Tool or Service version lift is not supported yet");
+    }
+
+    @Override
     protected PaginatedTools wrapPage(Page<Tool> toolsPage, List<ToolDto> tools) {
         return PaginatedTools.builder().tools(tools)
                 .count(toolsPage.getContent().size())

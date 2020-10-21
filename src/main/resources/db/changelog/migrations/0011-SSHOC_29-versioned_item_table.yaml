@@ -26,7 +26,6 @@ databaseChangeLog:
                   name: persistent_id
                   type: varchar(128)
                   constraints:
-                    nullable: false
                     foreignKeyName: item_versioned_item_fk
                     references: versioned_items(id)
 
@@ -39,7 +38,16 @@ databaseChangeLog:
             class: eu.sshopencloud.marketplace.repositories.migrations.PopulateVersionedItemsMigration
 
   - changeSet:
-      id: 0011-SSHOC_29-versioned_item-4
+      id: 0012-SSHOC_29-versioned_item-4
+      author: swolarz
+      description: Add not null constraint for versioned items foreign key
+      changes:
+        - addNotNullConstraint:
+            tableName: items
+            columnName: persistent_id
+
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-5
       author: swolarz
       description: Create indexes for items fast lookup and pagination
       changes:

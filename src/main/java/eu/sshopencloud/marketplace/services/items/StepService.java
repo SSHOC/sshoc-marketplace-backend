@@ -1,116 +1,159 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
+import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
+import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepsTreeRepository;
-import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepository;
+import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 @Slf4j
-public class StepService {
+public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<StepDto>, WorkflowStepCore> {
 
     private final StepRepository stepRepository;
     private final StepsTreeRepository stepsTreeRepository;
-    private final WorkflowRepository workflowRepository;
     private final StepFactory stepFactory;
-    private final ItemCrudService itemService;
+    private final WorkflowService workflowService;
 
 
-    public StepDto getStep(long workflowId, long stepId) {
+    public StepService(StepRepository stepRepository, StepsTreeRepository stepsTreeRepository,
+                       StepFactory stepFactory, WorkflowService workflowService,
+                       ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                       ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
+                       IndexService indexService) {
+
+        super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
+
+        this.stepRepository = stepRepository;
+        this.stepsTreeRepository = stepsTreeRepository;
+        this.stepFactory = stepFactory;
+        this.workflowService = workflowService;
+    }
+
+
+    public StepDto getLatestStep(String workflowId, String stepId) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
-        Step step = stepRepository.getOne(stepId);
-        return convertStep(step);
+        return getLatestItem(stepId);
     }
 
-    StepDto convertStep(Step step) {
-        StepDto dto = StepMapper.INSTANCE.toDto(step);
-        itemService.completeItem(dto);
+    public StepDto createStep(String workflowId, StepCore stepCore) {
+        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
+        WorkflowStepCore workflowStepCore = new WorkflowStepCore(stepCore, newWorkflow.getStepsTree());
 
-        return dto;
+        return super.createItem(workflowStepCore);
     }
 
-    public StepDto createStep(long workflowId, StepCore stepCore) {
-        Workflow workflow = loadWorkflow(workflowId);
-        Workflow newWorkflow = Workflow.fromWorkflowSteps(workflow);
-        newWorkflow = workflowRepository.save(newWorkflow);
 
-        return createNewStep(newWorkflow.getStepsTree(), stepCore);
-    }
-
-    public StepDto createSubstep(long workflowId, long stepId, StepCore substepCore) {
-        validateWorkflowAndStepConsistency(workflowId, stepId);
-
-        Workflow workflow = loadWorkflow(workflowId);
-        Workflow newWorkflow = Workflow.fromWorkflowSteps(workflow);
-        newWorkflow = workflowRepository.save(newWorkflow);
-
-        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), stepId).get();
-
-        return createNewStep(stepTree, substepCore);
-    }
-
-    private StepDto createNewStep(StepsTree stepsTree, StepCore stepCore) {
-        Step step = stepFactory.create(stepCore, null, stepsTree);
-        step = stepRepository.save(step);
-
-        return convertStep(step);
-    }
-
-    public StepDto updateStep(long workflowId, long stepId, StepCore updatedStep) {
+    public StepDto createSubstep(String workflowId, String stepId, StepCore substepCore) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
 
-        Workflow workflow = loadWorkflow(workflowId);
-        Workflow newWorkflow = Workflow.fromWorkflowSteps(workflow);
-        newWorkflow = workflowRepository.save(newWorkflow);
+        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
+        Step step = super.loadLatestItem(stepId);
+        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
-        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), stepId).get();
+        WorkflowStepCore workflowStepCore = new WorkflowStepCore(substepCore, stepTree);
+
+        return super.createItem(workflowStepCore);
+    }
+
+    public StepDto updateStep(String workflowId, String stepId, StepCore updatedStep) {
+        validateWorkflowAndStepConsistency(workflowId, stepId);
+
+        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
+        Step step = super.loadLatestItem(stepId);
+        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
 
-        Step prevStep = stepRepository.getOne(stepId);
-        Step step = stepFactory.create(updatedStep, prevStep, parentStepTree);
-        step = stepRepository.save(step);
+        WorkflowStepCore workflowStepCore = new WorkflowStepCore(updatedStep, parentStepTree);
 
-        return convertStep(step);
+        return super.updateItem(stepId, workflowStepCore);
     }
 
-    public void deleteStep(long workflowId, long stepId) {
+    public void deleteStep(String workflowId, String stepId) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
-        Step step = stepRepository.getOne(stepId);
 
-        itemService.cleanupItem(step);
-        stepRepository.delete(step);
+        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
+        Step step = super.loadLatestItem(stepId);
+        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
+        StepsTree parentStepTree = stepTree.getParent();
+
+        parentStepTree.removeStep(step);
+
+        super.deleteItem(stepId);
     }
 
-    private void validateWorkflowAndStepConsistency(long workflowId, long stepId) {
-        if (!workflowRepository.existsById(workflowId))
-            throw new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId);
+    void deleteStepOnly(Step step) {
+        super.deleteItem(step.getVersionedItem().getPersistentId());
+    }
 
-        stepsTreeRepository.findByWorkflowIdAndStepId(workflowId, stepId)
+    private void validateWorkflowAndStepConsistency(String workflowId, String stepId) {
+        // Throws EntityNotFoundException in case workflow is not found
+        Workflow workflow = workflowService.loadLatestItem(workflowId);
+        Step step = super.loadLatestItem(stepId);
+
+        stepsTreeRepository.findByWorkflowIdAndStepId(workflow.getId(), step.getId())
                 .orElseThrow(
                         () -> new EntityNotFoundException(
-                                String.format("Unable to find %s with id %d in workflow %d", Step.class.getName(), stepId, workflowId)
+                                String.format(
+                                        "Unable to find %s with id %s in workflow %s",
+                                        Step.class.getName(), stepId, workflowId
+                                )
                         )
                 );
     }
 
-    private Workflow loadWorkflow(long workflowId) {
-        return workflowRepository.findById(workflowId).orElseThrow(
-                () -> new EntityNotFoundException("Unable to find " + Workflow.class.getName() + " with id " + workflowId)
-        );
+
+    @Override
+    protected ItemVersionRepository<Step> getItemRepository() {
+        return stepRepository;
+    }
+
+    @Override
+    protected Step makeItem(WorkflowStepCore workflowStepCore, Step prevStep) {
+        StepCore stepCore = workflowStepCore.getStepCore();
+        StepsTree parentTree = workflowStepCore.getParentTree();
+
+        // Todo lift up the workflow's version
+        return stepFactory.create(stepCore, prevStep, parentTree);
+    }
+
+    @Override
+    protected Step makeVersionCopy(Step step) {
+        // TODO implement
+        throw new UnsupportedOperationException("Step version lift is not supported yet");
+    }
+
+    @Override
+    protected PaginatedResult<StepDto> wrapPage(Page<Step> stepsPage, List<StepDto> steps) {
+        throw new UnsupportedOperationException("Steps pagination is not supported");
+    }
+
+    @Override
+    protected StepDto convertItemToDto(Step step) {
+        return StepMapper.INSTANCE.toDto(step);
+    }
+
+    @Override
+    protected String getItemTypeName() {
+        return Workflow.class.getName();
     }
 }

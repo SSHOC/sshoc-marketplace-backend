@@ -77,6 +77,12 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     @Override
+    protected Dataset makeVersionCopy(Dataset item) {
+        // TODO implement
+        throw new UnsupportedOperationException("Dataset version lift is not supported yet");
+    }
+
+    @Override
     public PaginatedDatasets wrapPage(Page<Dataset> datasetsPage, List<DatasetDto> datasets) {
         return PaginatedDatasets.builder().datasets(datasets)
                 .count(datasetsPage.getContent().size())

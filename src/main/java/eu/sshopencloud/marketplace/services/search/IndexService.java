@@ -11,7 +11,6 @@ import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
-import eu.sshopencloud.marketplace.services.items.ItemCrudService;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
@@ -32,24 +31,16 @@ import java.util.stream.Collectors;
 public class IndexService {
 
     private final IndexItemRepository indexItemRepository;
-
     private final SearchItemRepository searchItemRepository;
-
-    private final ItemCrudService itemService;
-
     private final ItemRepository itemRepository;
-
     private final IndexConceptRepository indexConceptRepository;
-
     private final PropertyTypeService propertyTypeService;
-
     private final ConceptService conceptService;
-
     private final VocabularyRepository vocabularyRepository;
 
 
     public IndexItem indexItem(Item item) {
-        if (!item.getCategory().equals(ItemCategory.STEP) && itemService.isNewestVersion(item)) {
+        if (!item.getCategory().equals(ItemCategory.STEP) && item.isNewestVersion()) {
             if (item.getPrevVersion() != null) {
                 removeItem(item.getPrevVersion());
             }
