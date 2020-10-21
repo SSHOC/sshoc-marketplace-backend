@@ -172,8 +172,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration apiConfiguration = new CorsConfiguration();
         apiConfiguration.setAllowedOrigins(Arrays.asList("*"));
-        apiConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        apiConfiguration.setAllowedHeaders(Arrays.asList("Authorization"));
+        apiConfiguration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE"));
+        apiConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         apiConfiguration.setExposedHeaders(Arrays.asList("Authorization"));
         apiConfiguration.setMaxAge(corsMaxAgeInSec);
         apiConfiguration.setAllowCredentials(true);
@@ -196,6 +196,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public UsernamePasswordBodyAuthenticationFilter usernamePasswordAuthenticationFilter() throws Exception {
         UsernamePasswordBodyAuthenticationFilter authenticationFilter
                 = new UsernamePasswordBodyAuthenticationFilter();
+        authenticationFilter.setPostOnly(true);
         authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/api/auth/sign-in", "POST"));
         authenticationFilter.setAuthenticationManager(authenticationManagerBean());
         authenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
