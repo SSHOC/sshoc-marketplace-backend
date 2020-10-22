@@ -36,4 +36,9 @@ public class PublicationFactory {
 
         return publication;
     }
+
+    public Publication makeNewVersion(Publication publication) {
+        Publication newPublication = new Publication(publication);
+        return itemFactory.initializeNewVersion(newPublication, publication);
+    }
 }

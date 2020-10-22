@@ -15,7 +15,6 @@ import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -62,7 +61,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     private void collectSteps(WorkflowDto dto, Workflow workflow) {
-        StepsTree tree = workflow.getStepsTree();
+        StepsTree tree = workflow.gatherSteps();
         Stack<StepDto> nestedSteps = new Stack<>();
         List<StepDto> rootSteps = new ArrayList<>();
 
@@ -86,11 +85,18 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public WorkflowDto createWorkflow(WorkflowCore workflowCore) {
-        return super.createItem(workflowCore);
+        Workflow workflow = createItem(workflowCore);
+        return prepareItemDto(workflow);
     }
 
     public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore) {
-        return super.updateItem(persistentId, workflowCore);
+        Workflow workflow = updateItem(persistentId, workflowCore);
+        return prepareItemDto(workflow);
+    }
+
+    public WorkflowDto revertWorkflow(String persistentId, long versionId) {
+        Workflow revWorkflow = revertItemVersion(persistentId, versionId);
+        return prepareItemDto(revWorkflow);
     }
 
     public void deleteWorkflow(String persistentId) {
@@ -124,7 +130,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected Workflow makeVersionCopy(Workflow workflow) {
-        return Workflow.fromWorkflowSteps(workflow);
+        return workflowFactory.makeNewVersion(workflow);
     }
 
     @Override

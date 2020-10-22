@@ -32,6 +32,11 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.getLatestPublication(id));
     }
 
+    @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> getPublication(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(publicationService.getPublicationVersion(id, versionId));
+    }
+
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> createPublication(@RequestBody PublicationCore newPublication) {
         return ResponseEntity.ok(publicationService.createPublication(newPublication));
@@ -40,6 +45,11 @@ public class PublicationController {
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> updatePublication(@PathVariable("id") String id, @RequestBody PublicationCore updatedPublication) {
         return ResponseEntity.ok(publicationService.updatePublication(id, updatedPublication));
+    }
+
+    @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> revertPublication(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(publicationService.revertPublication(id, versionId));
     }
 
     @DeleteMapping(path = "/{id}")

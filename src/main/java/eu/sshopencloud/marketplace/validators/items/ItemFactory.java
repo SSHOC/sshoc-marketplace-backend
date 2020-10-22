@@ -50,7 +50,6 @@ public class ItemFactory {
         }
 
         item.setVersion(itemCore.getVersion());
-        item.setPrevVersion(prevItem);
 
         if (StringUtils.isBlank(itemCore.getDescription())) {
             errors.rejectValue("description", "field.required", "Description is required.");
@@ -92,14 +91,14 @@ public class ItemFactory {
             errors.rejectValue("source", "field.requiredInCase", "Source is required if Source item id is provided.");
         }
 
-        setInfoDates(item);
+        setInfoDates(item, true);
         setInformationContributors(item, prevItem);
 
         return item;
     }
 
     public <T extends Item> T initializeNewVersion(T newVersion, T prevItem) {
-        setInfoDates(newVersion);
+        setInfoDates(newVersion, false);
         setInformationContributors(newVersion, prevItem);
 
         return newVersion;
@@ -125,10 +124,10 @@ public class ItemFactory {
                 .collect(Collectors.toList());
     }
 
-    private void setInfoDates(Item item) {
+    private void setInfoDates(Item item, boolean harvest) {
         ZonedDateTime now = ZonedDateTime.now();
         item.setLastInfoUpdate(now);
-        if (item.getSource() != null) {
+        if (harvest && item.getSource() != null) {
             item.getSource().setLastHarvestedDate(now);
         }
     }

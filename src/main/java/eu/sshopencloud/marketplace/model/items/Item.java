@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
     })
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-@ToString(exclude = {"prevVersion"})
-@EqualsAndHashCode(exclude = {"prevVersion"})
+@ToString(exclude = { "prevVersion", "versionedItem" })
+@EqualsAndHashCode(exclude = { "prevVersion", "versionedItem" })
 public abstract class Item {
 
     @Id
@@ -138,28 +138,25 @@ public abstract class Item {
         this.contributors = new ArrayList<>();
     }
 
-    public Item(Item prevVersion) {
+    public Item(Item baseItem) {
         this.id = null;
 
-        this.category = prevVersion.getCategory();
-        this.label = prevVersion.getLabel();
-        this.version = prevVersion.getVersion();
-        this.description = prevVersion.getDescription();
-        this.licenses = new ArrayList<>(prevVersion.getLicenses());
+        this.category = baseItem.getCategory();
+        this.label = baseItem.getLabel();
+        this.version = baseItem.getVersion();
+        this.description = baseItem.getDescription();
+        this.licenses = new ArrayList<>(baseItem.getLicenses());
 
-        this.contributors = prevVersion.getContributors().stream()
+        this.contributors = baseItem.getContributors().stream()
                 .map(baseContributor -> new ItemContributor(this, baseContributor))
                 .collect(Collectors.toList());
 
-        this.properties = new ArrayList<>(prevVersion.getProperties());
-        this.accessibleAt = new ArrayList<>(prevVersion.getAccessibleAt());
-        this.source = prevVersion.getSource();
-        this.sourceItemId = prevVersion.getSourceItemId();
+        this.properties = new ArrayList<>(baseItem.getProperties());
+        this.accessibleAt = new ArrayList<>(baseItem.getAccessibleAt());
+        this.source = baseItem.getSource();
+        this.sourceItemId = baseItem.getSourceItemId();
         this.informationContributors = new ArrayList<>();
         this.comments = new ArrayList<>();
-
-        this.versionedItem = prevVersion.getVersionedItem();
-        this.prevVersion = prevVersion;
     }
 
     public boolean isNewestVersion() {

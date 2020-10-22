@@ -31,4 +31,9 @@ public class ToolFactory {
 
         return tool;
     }
+
+    public Tool makeNewVersion(Tool tool) {
+        Tool newTool = new Tool(tool);
+        return itemFactory.initializeNewVersion(newTool, tool);
+    }
 }

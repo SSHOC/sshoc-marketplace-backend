@@ -89,8 +89,8 @@ public class StepsTree {
     public void addStep(Step step, int stepNo) {
         beforeStepAdd(step);
 
-        if (stepNo <= 0 || stepNo > subTrees.size())
-            throw new IndexOutOfBoundsException(String.format("Invalid step number: %d", stepNo));
+        if (canAddAtPosition(stepNo))
+            throw new IndexOutOfBoundsException(String.format("Invalid step number: %d/%d", stepNo, subTrees.size()));
 
         StepsTree subtree = new StepsTree(step, this, stepNo);
         subTrees.add(stepNo - 1, subtree);
@@ -98,12 +98,26 @@ public class StepsTree {
         renumberSubTrees();
     }
 
+    public boolean canAddAtPosition(int stepNo) {
+        return (stepNo <= 0 || stepNo > subTrees.size());
+    }
+
+    public void replaceChildStep(Step step) {
+        String persistentId = step.getVersionedItem().getPersistentId();
+
+        subTrees.stream()
+                .filter(st -> getStep().getVersionedItem().getPersistentId().equals(persistentId))
+                .forEach(st -> st.setStep(step));
+    }
+
     private void beforeStepAdd(Step step) {
         removeStep(step);
     }
 
     public void removeStep(Step step) {
-        subTrees.removeIf(st -> st.getStep().getId().equals(step.getId()));
+        String persistentId = step.getVersionedItem().getPersistentId();
+
+        subTrees.removeIf(st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId));
         renumberSubTrees();
     }
 
@@ -127,6 +141,7 @@ public class StepsTree {
             visitor.onBackToParent();
         }
     }
+
 
 
     public static StepsTree newVersion(StepsTree tree) {

@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
-import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
@@ -46,33 +45,20 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         Page<I> itemsPage = getItemRepository().findAllByStatus(ItemStatus.REVIEWED, pageRequest);
         List<D> dtos = itemsPage.stream()
-                .map(this::convertItemToDto)
-                .map(this::completeItem)
+                .map(this::prepareItemDto)
                 .collect(Collectors.toList());
 
         return wrapPage(itemsPage, dtos);
     }
 
     protected D getItemVersion(String persistentId, Long versionId) {
-        I item = getItemRepository().findByVersionedItemPersistentIdAndId(persistentId, versionId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                String.format(
-                                        "Unable to find %s with persistent id %s and version id %d",
-                                        getItemTypeName(), persistentId, versionId
-                                )
-                        )
-                );
-
-        D dto = convertItemToDto(item);
-        return completeItem(dto);
+        I item = loadItemVersion(persistentId, versionId);
+        return prepareItemDto(item);
     }
 
     protected D getLatestItem(String persistentId) {
         I item = loadLatestItem(persistentId);
-        D dto = convertItemToDto(item);
-
-        return completeItem(dto);
+        return prepareItemDto(item);
     }
 
     /**
@@ -90,36 +76,53 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 );
     }
 
+    protected I loadItemVersion(String persistentId, long versionId) {
+        return getItemRepository().findByVersionedItemPersistentIdAndId(persistentId, versionId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                String.format(
+                                        "Unable to find %s with persistent id %s and version id %d",
+                                        getItemTypeName(), persistentId, versionId
+                                )
+                        )
+                );
+    }
+
 //    /**
 //     * Loads the most recent item for update. Does not necessarily need to be approved
 //     */
 //    protected I loadRecentItem(String persistentId) {
 //    }
 
-    protected D createItem(C itemCore) {
+    protected D prepareItemDto(I item) {
+        D dto = convertItemToDto(item);
+        return completeItem(dto);
+    }
+
+    protected I createItem(C itemCore) {
         return createNewItemVersion(itemCore, null);
     }
 
-    protected D updateItem(String persistentId, C itemCore) {
+    protected I updateItem(String persistentId, C itemCore) {
         I item = loadLatestItem(persistentId);
         return createNewItemVersion(itemCore, item);
     }
 
-    private D createNewItemVersion(C itemCore, I prevVersion) {
+    private I createNewItemVersion(C itemCore, I prevVersion) {
         I newItem = makeItem(itemCore, prevVersion);
-        newItem = getItemRepository().save(newItem);
 
         VersionedItem versionedItem = (prevVersion == null) ? createNewVersionedItem() : prevVersion.getVersionedItem();
         newItem.setVersionedItem(versionedItem);
         newItem.setStatus(ItemStatus.REVIEWED);
 
+        newItem.setPrevVersion(prevVersion);
         if (prevVersion != null)
             prevVersion.setStatus(ItemStatus.DEPRECATED);
 
+        newItem = getItemRepository().save(newItem);
         indexService.indexItem(newItem);
 
-        D dto = convertItemToDto(newItem);
-        return completeItem(dto);
+        return newItem;
     }
 
     private VersionedItem createNewVersionedItem() {
@@ -144,29 +147,48 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return id;
     }
 
+    protected I revertItemVersion(String persistentId, long versionId) {
+        I item = loadItemVersion(persistentId, versionId);
+        I latestItem = loadLatestItem(persistentId);
+        I targetVersion = makeVersionCopy(item);
+
+        targetVersion.setPrevVersion(latestItem);
+        targetVersion.setVersionedItem(latestItem.getVersionedItem());
+
+        return getItemRepository().save(targetVersion);
+    }
+
     protected I liftItemVersion(String persistentId) {
         I item = loadLatestItem(persistentId);
         I newItem = makeVersionCopy(item);
 
-        newItem = getItemRepository().save(newItem);
+        newItem.setPrevVersion(item);
+        newItem.setVersionedItem(item.getVersionedItem());
 
-        return newItem;
+        return getItemRepository().save(newItem);
     }
 
     protected void deleteItem(String persistentId) {
         I item = loadLatestItem(persistentId);
 
-        cleanupItem(item);
-
         if (ItemStatus.DRAFT.equals(item.getStatus())) {
-            getItemRepository().delete(item);
+            cleanupDraft(item);
         }
         else {
             item.setStatus(ItemStatus.DELETED);
         }
-        // todo removing versioned item as well
+
+        // TODO removing versioned item as well (setting appropriate status)
 
         indexService.removeItem(item);
+    }
+
+    private void cleanupDraft(I draft) {
+        if (!ItemStatus.DRAFT.equals(draft.getStatus()))
+            return;
+
+        itemRelatedItemService.deleteRelationsForItem(draft);
+        getItemRepository().delete(draft);
     }
 
     private List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
@@ -191,7 +213,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
-    private <T extends ItemDto> T completeItem(T item) {
+    private D completeItem(D item) {
         item.setRelatedItems(itemRelatedItemService.getItemRelatedItems(item.getId()));
         item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
         item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
@@ -201,19 +223,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         return item;
-    }
-
-    private void cleanupItem(Item item) {
-        itemRelatedItemService.deleteRelationsForItem(item);
-        skipItemInUpdateHistory(item);
-    }
-
-    private void skipItemInUpdateHistory(Item item) {
-        Item nextVersion = itemRepository.findByPrevVersion(item);
-        if (nextVersion == null)
-            return;
-
-        nextVersion.setPrevVersion(item.getPrevVersion());
     }
 
     protected abstract ItemVersionRepository<I> getItemRepository();

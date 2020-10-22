@@ -19,7 +19,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 @Slf4j
 public class TrainingMaterialFactory {
 
-    private final TrainingMaterialRepository trainingMaterialRepository;
     private final ItemFactory itemFactory;
 
 
@@ -35,10 +34,14 @@ public class TrainingMaterialFactory {
         trainingMaterial.setDateCreated(trainingMaterialCore.getDateCreated());
         trainingMaterial.setDateLastUpdated(trainingMaterialCore.getDateLastUpdated());
 
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             throw new ValidationException(errors);
-        } else {
-            return trainingMaterial;
-        }
+
+        return trainingMaterial;
+    }
+
+    public TrainingMaterial makeNewVersion(TrainingMaterial trainingMaterial) {
+        TrainingMaterial newTrainingMaterial = new TrainingMaterial(trainingMaterial);
+        return itemFactory.initializeNewVersion(newTrainingMaterial, trainingMaterial);
     }
 }

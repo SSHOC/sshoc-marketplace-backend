@@ -44,4 +44,9 @@ public class StepFactory {
 
         return step;
     }
+
+    public Step makeNewVersion(Step step) {
+        Step newStep = new Step(step);
+        return itemFactory.initializeNewVersion(newStep, step);
+    }
 }

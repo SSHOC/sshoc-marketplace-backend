@@ -42,27 +42,34 @@ public class TrainingMaterialService
 
 
     public PaginatedTrainingMaterials getTrainingMaterials(PageCoords pageCoords) {
-        return super.getItemsPage(pageCoords);
+        return getItemsPage(pageCoords);
     }
 
     public TrainingMaterialDto getLatestTrainingMaterial(String persistentId) {
-        return super.getLatestItem(persistentId);
+        return getLatestItem(persistentId);
     }
 
     public TrainingMaterialDto getTrainingMaterialVersion(String persistentId, long versionId) {
-        return super.getItemVersion(persistentId, versionId);
+        return getItemVersion(persistentId, versionId);
     }
 
     public TrainingMaterialDto createTrainingMaterial(TrainingMaterialCore trainingMaterialCore) {
-        return super.createItem(trainingMaterialCore);
+        TrainingMaterial trainingMaterial = createItem(trainingMaterialCore);
+        return prepareItemDto(trainingMaterial);
     }
 
     public TrainingMaterialDto updateTrainingMaterial(String persistentId, TrainingMaterialCore trainingMaterialCore) {
-        return super.updateItem(persistentId, trainingMaterialCore);
+        TrainingMaterial trainingMaterial = updateItem(persistentId, trainingMaterialCore);
+        return prepareItemDto(trainingMaterial);
+    }
+
+    public TrainingMaterialDto revertTrainingMaterial(String persistentId, long versionId) {
+        TrainingMaterial trainingMaterial = revertItemVersion(persistentId, versionId);
+        return prepareItemDto(trainingMaterial);
     }
 
     public void deleteTrainingMaterial(String persistentId) {
-        super.deleteItem(persistentId);
+        deleteItem(persistentId);
     }
 
 
@@ -77,9 +84,8 @@ public class TrainingMaterialService
     }
 
     @Override
-    protected TrainingMaterial makeVersionCopy(TrainingMaterial item) {
-        // TODO implement
-        throw new UnsupportedOperationException("Training Material version lift is not supported yet");
+    protected TrainingMaterial makeVersionCopy(TrainingMaterial trainingMaterial) {
+        return trainingMaterialFactory.makeNewVersion(trainingMaterial);
     }
 
     @Override

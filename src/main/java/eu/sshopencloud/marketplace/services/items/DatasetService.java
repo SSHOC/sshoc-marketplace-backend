@@ -54,11 +54,18 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     public DatasetDto createDataset(DatasetCore datasetCore) {
-        return super.createItem(datasetCore);
+        Dataset dataset = createItem(datasetCore);
+        return prepareItemDto(dataset);
     }
 
     public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore) {
-        return super.updateItem(persistentId, datasetCore);
+        Dataset dataset = updateItem(persistentId, datasetCore);
+        return prepareItemDto(dataset);
+    }
+
+    public DatasetDto revertDataset(String persistentId, long versionId) {
+        Dataset dataset = revertItemVersion(persistentId, versionId);
+        return prepareItemDto(dataset);
     }
 
     public void deleteDataset(String persistentId) {
@@ -77,9 +84,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     @Override
-    protected Dataset makeVersionCopy(Dataset item) {
-        // TODO implement
-        throw new UnsupportedOperationException("Dataset version lift is not supported yet");
+    protected Dataset makeVersionCopy(Dataset dataset) {
+        return datasetFactory.makeNewVersion(dataset);
     }
 
     @Override

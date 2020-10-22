@@ -47,23 +47,30 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     public ToolDto getToolVersion(String persistentId, long versionId) {
-        return super.getItemVersion(persistentId, versionId);
+        return getItemVersion(persistentId, versionId);
     }
 
     public ToolDto getLatestTool(String persistentId) {
-        return super.getLatestItem(persistentId);
+        return getLatestItem(persistentId);
     }
 
     public ToolDto createTool(ToolCore toolCore) {
-        return super.createItem(toolCore);
+        Tool tool = createItem(toolCore);
+        return prepareItemDto(tool);
     }
 
     public ToolDto updateTool(String persistentId, ToolCore toolCore) {
-        return super.updateItem(persistentId, toolCore);
+        Tool tool = updateItem(persistentId, toolCore);
+        return prepareItemDto(tool);
+    }
+
+    public ToolDto revertTool(String persistentId, long versionId) {
+        Tool tool = revertItemVersion(persistentId, versionId);
+        return prepareItemDto(tool);
     }
 
     public void deleteTool(String persistentId) {
-        super.deleteItem(persistentId);
+        deleteItem(persistentId);
     }
 
 
@@ -78,9 +85,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     @Override
-    protected Tool makeVersionCopy(Tool item) {
-        // TODO implement
-        throw new UnsupportedOperationException("Tool or Service version lift is not supported yet");
+    protected Tool makeVersionCopy(Tool tool) {
+        return toolFactory.makeNewVersion(tool);
     }
 
     @Override

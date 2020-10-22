@@ -10,7 +10,7 @@ public enum ItemCategory {
     WORKFLOW("Workflows"),
     STEP("Steps");
 
-    private String label;
+    private final String label;
 
     ItemCategory(String label) {
         this.label = label;

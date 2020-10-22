@@ -33,6 +33,13 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(id));
     }
 
+    @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") String id,
+                                                                   @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersion(id, versionId));
+    }
+
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial) {
         return ResponseEntity.ok(trainingMaterialService.createTrainingMaterial(newTrainingMaterial));
@@ -43,6 +50,13 @@ public class TrainingMaterialController {
                                                                       @RequestBody TrainingMaterialCore updatedTrainingMaterial) {
 
         return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(id, updatedTrainingMaterial));
+    }
+
+    @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> revertTrainingMaterial(@PathVariable("id") String id,
+                                                                      @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(trainingMaterialService.revertTrainingMaterial(id, versionId));
     }
 
     @DeleteMapping(path = "/{id}")

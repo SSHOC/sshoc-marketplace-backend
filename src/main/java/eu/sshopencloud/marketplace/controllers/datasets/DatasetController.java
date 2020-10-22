@@ -33,6 +33,11 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.getLatestDataset(id));
     }
 
+    @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(datasetService.getDatasetVersion(id, versionId));
+    }
+
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> createDataset(@RequestBody DatasetCore newDataset) {
         return ResponseEntity.ok(datasetService.createDataset(newDataset));
@@ -43,9 +48,13 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.updateDataset(id, updatedDataset));
     }
 
+    @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> revertDataset(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(datasetService.revertDataset(id, versionId));
+    }
+
     @DeleteMapping(path = "/{id}")
     public void deleteDataset(@PathVariable("id") String id) {
         datasetService.deleteDataset(id);
     }
-
 }

@@ -33,6 +33,11 @@ public class ToolController {
         return ResponseEntity.ok(toolService.getLatestTool(id));
     }
 
+    @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> getTool(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(toolService.getToolVersion(id, versionId));
+    }
+
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool) {
         return ResponseEntity.ok(toolService.createTool(newTool));
@@ -41,6 +46,11 @@ public class ToolController {
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> updateTool(@PathVariable("id") String id, @RequestBody ToolCore updatedTool) {
         return ResponseEntity.ok(toolService.updateTool(id, updatedTool));
+    }
+
+    @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> revertTool(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(toolService.revertTool(id, versionId));
     }
 
     @DeleteMapping(path = "/{id}")

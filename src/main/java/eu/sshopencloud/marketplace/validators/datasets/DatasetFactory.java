@@ -36,4 +36,9 @@ public class DatasetFactory {
             return dataset;
         }
     }
+
+    public Dataset makeNewVersion(Dataset baseDataset) {
+        Dataset newDataset = new Dataset(baseDataset);
+        return itemFactory.initializeNewVersion(newDataset, baseDataset);
+    }
 }

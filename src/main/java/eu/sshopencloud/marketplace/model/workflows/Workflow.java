@@ -27,9 +27,9 @@ public class Workflow extends Item {
         this.stepsTree = StepsTree.makeRoot();
     }
 
-    public Workflow(Workflow prevWorkflow) {
-        super(prevWorkflow);
-        this.stepsTree = StepsTree.newVersion(prevWorkflow.gatherSteps());
+    public Workflow(Workflow baseWorkflow) {
+        super(baseWorkflow);
+        this.stepsTree = StepsTree.newVersion(baseWorkflow.gatherSteps());
     }
 
     private Workflow(StepsTree stepsTree) {

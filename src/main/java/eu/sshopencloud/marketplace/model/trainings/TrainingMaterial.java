@@ -7,11 +7,15 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+
 @Entity
 @Table(name = "training_materials")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class TrainingMaterial extends DigitalObject {
-    
+
+    public TrainingMaterial(TrainingMaterial trainingMaterial) {
+        super(trainingMaterial);
+    }
 }

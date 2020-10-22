@@ -37,6 +37,13 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowId));
     }
 
+    @GetMapping(path = "/{workflowId}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> getWorkflow(@PathVariable("workflowId") String workflowId,
+                                                   @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(workflowService.getWorkflowVersion(workflowId, versionId));
+    }
+
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> createWorkflow(@RequestBody WorkflowCore newWorkflow) {
         return ResponseEntity.ok(workflowService.createWorkflow(newWorkflow));
@@ -49,6 +56,11 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.updateWorkflow(workflowId, updatedWorkflow));
     }
 
+    @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> revertWorkflow(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(workflowService.revertWorkflow(id, versionId));
+    }
+
     @DeleteMapping(path = "/{workflowId}")
     public void deleteWorkflow(@PathVariable("workflowId") String workflowId) {
         workflowService.deleteWorkflow(workflowId);
@@ -57,6 +69,14 @@ public class WorkflowController {
     @GetMapping(path = "/{workflowId}/steps/{stepId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StepDto> getStep(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId) {
         return ResponseEntity.ok(stepService.getLatestStep(workflowId, stepId));
+    }
+
+    @GetMapping(path = "/{workflowId}/steps/{stepId}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StepDto> getStep(@PathVariable("workflowId") String workflowId,
+                                           @PathVariable("stepId") String stepId,
+                                           @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(stepService.getStepVersion(workflowId, stepId, versionId));
     }
 
     @PostMapping(
@@ -90,6 +110,18 @@ public class WorkflowController {
                                               @RequestBody StepCore updatedStep) {
 
         return ResponseEntity.ok(stepService.updateStep(workflowId, stepId, updatedStep));
+    }
+
+    @PutMapping(
+            path = "/{workflowId}/steps/{stepId}/{versionId}/revert",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<StepDto> revertStep(@PathVariable("workflowId") String workflowId,
+                                              @PathVariable("stepId") String stepId,
+                                              @PathVariable long versionId) {
+
+        return ResponseEntity.ok(stepService.revertStep(workflowId, stepId, versionId));
     }
 
     @DeleteMapping(path = "/{workflowId}/steps/{stepId}")

@@ -40,27 +40,34 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
 
     public PaginatedPublications getPublications(PageCoords pageCoords) {
-        return super.getItemsPage(pageCoords);
+        return getItemsPage(pageCoords);
     }
 
     public PublicationDto getLatestPublication(String persistentId) {
-        return super.getLatestItem(persistentId);
+        return getLatestItem(persistentId);
     }
 
     public PublicationDto getPublicationVersion(String persistentId, long versionId) {
-        return super.getItemVersion(persistentId, versionId);
+        return getItemVersion(persistentId, versionId);
     }
 
     public PublicationDto createPublication(PublicationCore publicationCore) {
-        return super.createItem(publicationCore);
+        Publication publication = createItem(publicationCore);
+        return prepareItemDto(publication);
     }
 
     public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore) {
-        return super.updateItem(persistentId, publicationCore);
+        Publication publication = updateItem(persistentId, publicationCore);
+        return prepareItemDto(publication);
+    }
+
+    public PublicationDto revertPublication(String persistentId, long versionId) {
+        Publication publication = revertItemVersion(persistentId, versionId);
+        return prepareItemDto(publication);
     }
 
     public void deletePublication(String persistentId) {
-        super.deleteItem(persistentId);
+        deleteItem(persistentId);
     }
 
 
@@ -75,9 +82,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     @Override
-    protected Publication makeVersionCopy(Publication item) {
-        // TODO implement
-        throw new UnsupportedOperationException("Publication version lift is not supported yet");
+    protected Publication makeVersionCopy(Publication publication) {
+        return publicationFactory.makeNewVersion(publication);
     }
 
     @Override

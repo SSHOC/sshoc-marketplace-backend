@@ -55,11 +55,17 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return getLatestItem(stepId);
     }
 
+    public StepDto getStepVersion(String workflowId, String stepId, long stepVersionId) {
+        validateWorkflowAndStepConsistency(workflowId, stepId, stepVersionId);
+        return getItemVersion(stepId, stepVersionId);
+    }
+
     public StepDto createStep(String workflowId, StepCore stepCore) {
         Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(stepCore, newWorkflow.getStepsTree());
 
-        return super.createItem(workflowStepCore);
+        Step step = super.createItem(workflowStepCore);
+        return prepareItemDto(step);
     }
 
 
@@ -72,10 +78,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(substepCore, stepTree);
 
-        return super.createItem(workflowStepCore);
+        Step subStep = super.createItem(workflowStepCore);
+        return prepareItemDto(subStep);
     }
 
-    public StepDto updateStep(String workflowId, String stepId, StepCore updatedStep) {
+    public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
 
         Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
@@ -83,9 +90,23 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
 
-        WorkflowStepCore workflowStepCore = new WorkflowStepCore(updatedStep, parentStepTree);
+        WorkflowStepCore workflowStepCore = new WorkflowStepCore(updatedStepCore, parentStepTree);
 
-        return super.updateItem(stepId, workflowStepCore);
+        Step updatedStep = super.updateItem(stepId, workflowStepCore);
+        return prepareItemDto(updatedStep);
+    }
+
+    public StepDto revertStep(String workflowId, String stepId, long versionId) {
+        validateWorkflowAndStepConsistency(workflowId, stepId, versionId);
+
+        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
+        Step step = super.loadItemVersion(stepId, versionId);
+        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
+
+        Step revStep = super.revertItemVersion(stepId, versionId);
+        stepTree.setStep(revStep);
+
+        return super.prepareItemDto(revStep);
     }
 
     public void deleteStep(String workflowId, String stepId) {
@@ -106,7 +127,6 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     private void validateWorkflowAndStepConsistency(String workflowId, String stepId) {
-        // Throws EntityNotFoundException in case workflow is not found
         Workflow workflow = workflowService.loadLatestItem(workflowId);
         Step step = super.loadLatestItem(stepId);
 
@@ -115,7 +135,21 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
                         () -> new EntityNotFoundException(
                                 String.format(
                                         "Unable to find %s with id %s in workflow %s",
-                                        Step.class.getName(), stepId, workflowId
+                                        getItemTypeName(), stepId, workflowId
+                                )
+                        )
+                );
+    }
+
+    private void validateWorkflowAndStepConsistency(String workflowId, String stepId, long stepVersionId) {
+        Workflow workflow = workflowService.loadLatestItem(workflowId);
+
+        stepsTreeRepository.findByWorkflowIdAndStepId(workflow.getId(), stepVersionId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                String.format(
+                                        "Unable to find %s with id %s (version %d) in workflow %s",
+                                        getItemTypeName(), stepId, stepVersionId, workflowId
                                 )
                         )
                 );
@@ -132,14 +166,12 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         StepCore stepCore = workflowStepCore.getStepCore();
         StepsTree parentTree = workflowStepCore.getParentTree();
 
-        // Todo lift up the workflow's version
         return stepFactory.create(stepCore, prevStep, parentTree);
     }
 
     @Override
     protected Step makeVersionCopy(Step step) {
-        // TODO implement
-        throw new UnsupportedOperationException("Step version lift is not supported yet");
+        return stepFactory.makeNewVersion(step);
     }
 
     @Override
