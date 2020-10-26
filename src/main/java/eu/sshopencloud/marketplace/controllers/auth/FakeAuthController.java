@@ -7,12 +7,12 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("")
 @RequiredArgsConstructor
 public class FakeAuthController {
 
     @Operation(summary = "Sign into the system")
-    @PostMapping(value = "/auth/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/api/auth/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
     void signIn(@RequestBody LoginData loginData){}
 
     @Operation(summary = "Sign into the system using oauth2")
