@@ -17,7 +17,22 @@ abstract class ItemVersionService<I extends Item> {
                 .orElseThrow(
                         () -> new EntityNotFoundException(
                                 String.format(
-                                        "Unable to find latest %s with persistent id %s",
+                                        "Unable to find latest approved %s with id %s",
+                                        getItemTypeName(), persistentId
+                                )
+                        )
+                );
+    }
+
+    /**
+     * Loads the most recent item for update. Does not necessarily need to be approved
+     */
+    protected I loadCurrentItem(String persistentId) {
+        return getItemRepository().findCurrentVersion(persistentId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                String.format(
+                                        "Unable to find current %s with id %s",
                                         getItemTypeName(), persistentId
                                 )
                         )
@@ -29,18 +44,12 @@ abstract class ItemVersionService<I extends Item> {
                 .orElseThrow(
                         () -> new EntityNotFoundException(
                                 String.format(
-                                        "Unable to find %s with persistent id %s and version id %d",
+                                        "Unable to find %s with id %s and version id %d",
                                         getItemTypeName(), persistentId, versionId
                                 )
                         )
                 );
     }
-
-//    /**
-//     * Loads the most recent item for update. Does not necessarily need to be approved
-//     */
-//    protected I loadRecentItem(String persistentId) {
-//    }
 
 
     protected abstract ItemVersionRepository<I> getItemRepository();

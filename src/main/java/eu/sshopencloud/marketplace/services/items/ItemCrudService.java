@@ -5,11 +5,8 @@ import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
-import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
-import eu.sshopencloud.marketplace.model.items.ItemStatus;
-import eu.sshopencloud.marketplace.model.items.PersistentId;
-import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
@@ -77,7 +74,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private I createNewItemVersion(C itemCore, I prevVersion) {
         I newItem = makeItem(itemCore, prevVersion);
 
-        VersionedItem versionedItem = (prevVersion == null) ? createNewVersionedItem() : prevVersion.getVersionedItem();
+        VersionedItem versionedItem =
+                (prevVersion == null) ? createNewVersionedItem(false) : prevVersion.getVersionedItem();
+
+        versionedItem.setCurrentVersion(newItem);
+
         newItem.setVersionedItem(versionedItem);
         newItem.setStatus(ItemStatus.REVIEWED);
 
@@ -91,11 +92,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return newItem;
     }
 
-    private VersionedItem createNewVersionedItem() {
+    private VersionedItem createNewVersionedItem(boolean draft) {
         String id = resolveNewVersionedItemId();
-        VersionedItem versionedItem = new VersionedItem(id);
+        VersionedItemStatus status = draft ? VersionedItemStatus.DRAFT : VersionedItemStatus.REVIEWED;
 
-        return versionedItemRepository.saveAndFlush(versionedItem);
+        return new VersionedItem(id, status);
     }
 
     private String resolveNewVersionedItemId() {

@@ -13,7 +13,7 @@ public interface DatasetMapper {
 
     DatasetMapper INSTANCE = Mappers.getMapper(DatasetMapper.class);
 
-    @Mapping(source = "dataset.versionedItem.persistentId", target = "persistentId")
+    @Mapping(source = "versionedItem.persistentId", target = "persistentId")
     DatasetDto toDto(Dataset dataset);
 
     List<DatasetDto> toDto(List<Dataset> datasets);

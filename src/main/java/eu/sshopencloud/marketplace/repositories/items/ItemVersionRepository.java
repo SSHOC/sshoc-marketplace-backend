@@ -5,7 +5,9 @@ import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -14,6 +16,9 @@ import java.util.Optional;
 public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, Long> {
 
     Page<T> findAllByStatus(ItemStatus itemStatus, Pageable pageable);
+
+    @Query("select v from #{#entityName} v join VersionedItem vi on vi.currentVersion = v where vi.persistentId = :persistentId")
+    Optional<T> findCurrentVersion(@Param("persistentId") String persistentId);
 
     Optional<T> findByVersionedItemPersistentIdAndId(String persistentId, long id);
     Optional<T> findByVersionedItemPersistentIdAndStatus(String persistentId, ItemStatus status);
