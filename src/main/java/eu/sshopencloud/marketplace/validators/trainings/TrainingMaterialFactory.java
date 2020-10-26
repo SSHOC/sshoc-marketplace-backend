@@ -27,8 +27,11 @@ public class TrainingMaterialFactory {
 
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(trainingMaterialCore, "TrainingMaterial");
 
-        TrainingMaterial trainingMaterial = itemFactory.initializeItem(
-                trainingMaterialCore, new TrainingMaterial(), prevTrainingMaterial, ItemCategory.TRAINING_MATERIAL, errors
+        TrainingMaterial trainingMaterial =
+                (prevTrainingMaterial != null) ? new TrainingMaterial(prevTrainingMaterial) : new TrainingMaterial();
+
+        trainingMaterial = itemFactory.initializeItem(
+                trainingMaterialCore, trainingMaterial, ItemCategory.TRAINING_MATERIAL, errors
         );
 
         trainingMaterial.setDateCreated(trainingMaterialCore.getDateCreated());
@@ -42,6 +45,6 @@ public class TrainingMaterialFactory {
 
     public TrainingMaterial makeNewVersion(TrainingMaterial trainingMaterial) {
         TrainingMaterial newTrainingMaterial = new TrainingMaterial(trainingMaterial);
-        return itemFactory.initializeNewVersion(newTrainingMaterial, trainingMaterial);
+        return itemFactory.initializeNewVersion(newTrainingMaterial);
     }
 }

@@ -24,7 +24,8 @@ public class ToolFactory {
     public Tool create(ToolCore toolCore, Tool prevTool) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(toolCore, "Tool");
 
-        Tool tool = itemFactory.initializeItem(toolCore, new Tool(), prevTool, ItemCategory.TOOL_OR_SERVICE, errors);
+        Tool tool = (prevTool != null) ? new Tool(prevTool) : new Tool();
+        tool = itemFactory.initializeItem(toolCore, tool, ItemCategory.TOOL_OR_SERVICE, errors);
 
         if (errors.hasErrors())
             throw new ValidationException(errors);
@@ -34,6 +35,6 @@ public class ToolFactory {
 
     public Tool makeNewVersion(Tool tool) {
         Tool newTool = new Tool(tool);
-        return itemFactory.initializeNewVersion(newTool, tool);
+        return itemFactory.initializeNewVersion(newTool);
     }
 }

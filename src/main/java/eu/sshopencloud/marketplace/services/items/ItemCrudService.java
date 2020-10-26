@@ -11,7 +11,6 @@ import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.items.PersistentId;
 import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +27,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
-abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends PaginatedResult<D>, C> {
+abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends PaginatedResult<D>, C> extends ItemVersionService<I> {
 
     private final ItemRepository itemRepository;
     private final VersionedItemRepository versionedItemRepository;
@@ -61,38 +59,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
-    /**
-     * Loads the most recent item for presentation purposes i.e. an approved item
-     */
-    protected I loadLatestItem(String persistentId) {
-        return getItemRepository().findByVersionedItemPersistentIdAndStatus(persistentId, ItemStatus.REVIEWED)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                String.format(
-                                        "Unable to find latest %s with persistent id %s",
-                                        getItemTypeName(), persistentId
-                                )
-                        )
-                );
-    }
-
-    protected I loadItemVersion(String persistentId, long versionId) {
-        return getItemRepository().findByVersionedItemPersistentIdAndId(persistentId, versionId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                String.format(
-                                        "Unable to find %s with persistent id %s and version id %d",
-                                        getItemTypeName(), persistentId, versionId
-                                )
-                        )
-                );
-    }
-
-//    /**
-//     * Loads the most recent item for update. Does not necessarily need to be approved
-//     */
-//    protected I loadRecentItem(String persistentId) {
-//    }
 
     protected D prepareItemDto(I item) {
         D dto = convertItemToDto(item);
@@ -225,13 +191,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return item;
     }
 
-    protected abstract ItemVersionRepository<I> getItemRepository();
 
     protected abstract I makeItem(C itemCore, I prevItem);
     protected abstract I makeVersionCopy(I item);
 
     protected abstract P wrapPage(Page<I> resultsPage, List<D> convertedDtos);
     protected abstract D convertItemToDto(I item);
-
-    protected abstract String getItemTypeName();
 }

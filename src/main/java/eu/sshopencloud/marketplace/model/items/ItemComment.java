@@ -19,7 +19,7 @@ public class ItemComment {
     @SequenceGenerator(name = "item_comment_generator", sequenceName = "item_comments_id_seq", allocationSize = 50)
     private Long id;
 
-    @Basic
+    @Basic(fetch = FetchType.LAZY)
     @Column(nullable = false, length = 4096)
     private String body;
 

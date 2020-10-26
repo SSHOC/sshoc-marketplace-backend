@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
 
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -24,7 +25,8 @@ public class StepFactory {
     public Step create(StepCore stepCore, Step prevStep, StepsTree stepsTree) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(stepCore, "Step");
 
-        Step step = itemFactory.initializeItem(stepCore, new Step(), prevStep, ItemCategory.STEP, errors);
+        Step step = (prevStep != null) ? new Step(prevStep) : new Step();
+        step = itemFactory.initializeItem(stepCore, step, ItemCategory.STEP, errors);
 
         try {
             if (stepCore.getStepNo() == null)
@@ -47,6 +49,6 @@ public class StepFactory {
 
     public Step makeNewVersion(Step step) {
         Step newStep = new Step(step);
-        return itemFactory.initializeNewVersion(newStep, step);
+        return itemFactory.initializeNewVersion(newStep);
     }
 }

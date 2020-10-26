@@ -24,9 +24,8 @@ public class PublicationFactory {
     public Publication create(PublicationCore publicationCore, Publication prevPublication) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(publicationCore, "Publication");
 
-        Publication publication = itemFactory.initializeItem(
-                publicationCore, new Publication(), prevPublication, ItemCategory.PUBLICATION, errors
-        );
+        Publication publication = (prevPublication != null) ? new Publication(prevPublication) : new Publication();
+        publication = itemFactory.initializeItem(publicationCore, publication, ItemCategory.PUBLICATION, errors);
 
         publication.setDateCreated(publicationCore.getDateCreated());
         publication.setDateLastUpdated(publicationCore.getDateLastUpdated());
@@ -39,6 +38,6 @@ public class PublicationFactory {
 
     public Publication makeNewVersion(Publication publication) {
         Publication newPublication = new Publication(publication);
-        return itemFactory.initializeNewVersion(newPublication, publication);
+        return itemFactory.initializeNewVersion(newPublication);
     }
 }

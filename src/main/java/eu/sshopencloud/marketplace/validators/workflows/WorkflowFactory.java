@@ -24,10 +24,8 @@ public class WorkflowFactory {
     public Workflow create(WorkflowCore workflowCore, Workflow prevWorkflow) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(workflowCore, "Workflow");
 
-        Workflow baseWorkflow = (prevWorkflow == null) ? new Workflow() : Workflow.fromWorkflowSteps(prevWorkflow);
-        Workflow workflow = itemFactory.initializeItem(
-                workflowCore, baseWorkflow, prevWorkflow, ItemCategory.WORKFLOW, errors
-        );
+        Workflow workflow = (prevWorkflow != null) ? new Workflow(prevWorkflow) : new Workflow();
+        workflow = itemFactory.initializeItem(workflowCore, workflow, ItemCategory.WORKFLOW, errors);
 
         if (errors.hasErrors())
             throw new ValidationException(errors);
@@ -35,8 +33,8 @@ public class WorkflowFactory {
         return workflow;
     }
 
-    public Workflow makeNewVersion(Workflow baseWorkflow) {
-        Workflow newWorkflow = new Workflow(baseWorkflow);
-        return itemFactory.initializeNewVersion(newWorkflow, baseWorkflow);
+    public Workflow makeNewVersion(Workflow workflow) {
+        Workflow newWorkflow = new Workflow(workflow);
+        return itemFactory.initializeNewVersion(newWorkflow);
     }
 }

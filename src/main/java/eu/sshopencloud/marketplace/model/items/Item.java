@@ -9,10 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -116,7 +113,7 @@ public abstract class Item {
             joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "item_comment_id", referencedColumnName = "id")
     )
-    @OrderBy("dateCreated")
+    @OrderBy("dateCreated DESC")
     private List<ItemComment> comments;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
@@ -136,6 +133,7 @@ public abstract class Item {
         this.properties = new ArrayList<>();
         this.licenses = new ArrayList<>();
         this.contributors = new ArrayList<>();
+        this.comments = new ArrayList<>();
     }
 
     public Item(Item baseItem) {
@@ -155,8 +153,8 @@ public abstract class Item {
         this.accessibleAt = new ArrayList<>(baseItem.getAccessibleAt());
         this.source = baseItem.getSource();
         this.sourceItemId = baseItem.getSourceItemId();
-        this.informationContributors = new ArrayList<>();
-        this.comments = new ArrayList<>();
+        this.informationContributors = new ArrayList<>(baseItem.getInformationContributors());
+        this.comments = new ArrayList<>(baseItem.getComments());
     }
 
     public boolean isNewestVersion() {
@@ -171,18 +169,6 @@ public abstract class Item {
         informationContributors.add(contributor);
     }
 
-    public List<String> getAccessibleAt() {
-        return Collections.unmodifiableList(accessibleAt);
-    }
-
-    public void addAccessibleAtLink(String linkUrl) {
-        accessibleAt.add(linkUrl);
-    }
-
-    public void clearAccessibleAtLinks() {
-        accessibleAt.clear();
-    }
-
     public List<Property> getProperties() {
         if (sparseProperties) {
             this.properties.removeIf(Objects::isNull);
@@ -192,8 +178,23 @@ public abstract class Item {
         return Collections.unmodifiableList(properties);
     }
 
-    public void setProperties(List<Property> properties) {
-        this.properties.clear();
-        this.properties.addAll(properties);
+    public ItemComment getLatestComment() {
+        return comments.get(0);
+    }
+
+    public Optional<ItemComment> findComment(long commentId) {
+        return comments.stream()
+                .filter(comment -> comment.getId().equals(commentId))
+                .findFirst();
+    }
+
+    public boolean removeComment(long commentId) {
+        Optional<ItemComment> comment = findComment(commentId);
+
+        if (comment.isEmpty())
+            return false;
+
+        comments.remove(comment.get());
+        return true;
     }
 }

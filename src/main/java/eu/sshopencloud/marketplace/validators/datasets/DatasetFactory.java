@@ -18,27 +18,27 @@ import org.springframework.validation.BeanPropertyBindingResult;
 @Slf4j
 public class DatasetFactory {
 
-    private final DatasetRepository datasetRepository;
     private final ItemFactory itemFactory;
 
 
     public Dataset create(DatasetCore datasetCore, Dataset prevDataset) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(datasetCore, "Dataset");
 
-        Dataset dataset = itemFactory.initializeItem(datasetCore, new Dataset(), prevDataset, ItemCategory.DATASET, errors);
+        Dataset dataset = (prevDataset != null) ? new Dataset(prevDataset) : new Dataset();
+        dataset = itemFactory.initializeItem(datasetCore, dataset, ItemCategory.DATASET, errors);
 
         dataset.setDateCreated(datasetCore.getDateCreated());
         dataset.setDateLastUpdated(datasetCore.getDateLastUpdated());
 
         if (errors.hasErrors()) {
             throw new ValidationException(errors);
-        } else {
-            return dataset;
         }
+
+        return dataset;
     }
 
-    public Dataset makeNewVersion(Dataset baseDataset) {
-        Dataset newDataset = new Dataset(baseDataset);
-        return itemFactory.initializeNewVersion(newDataset, baseDataset);
+    public Dataset makeNewVersion(Dataset dataset) {
+        Dataset newDataset = new Dataset(dataset);
+        return itemFactory.initializeNewVersion(newDataset);
     }
 }

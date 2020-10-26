@@ -41,7 +41,7 @@ public class ItemFactory {
     private final UserRepository userRepository;
 
 
-    public <T extends Item> T initializeItem(ItemCore itemCore, T item, T prevItem, ItemCategory category, Errors errors) {
+    public <T extends Item> T initializeItem(ItemCore itemCore, T item, ItemCategory category, Errors errors) {
         item.setCategory(category);
         if (StringUtils.isBlank(itemCore.getLabel())) {
             errors.rejectValue("label", "field.required", "Label is required.");
@@ -57,17 +57,17 @@ public class ItemFactory {
             item.setDescription(MarkdownConverter.convertHtmlToMarkdown(itemCore.getDescription()));
         }
 
-        item.getLicenses().addAll(licenseFactory.create(itemCore.getLicenses(), item, errors, "licenses"));
+        item.setLicenses(licenseFactory.create(itemCore.getLicenses(), item, errors, "licenses"));
         item.setContributors(itemContributorFactory.create(itemCore.getContributors(), item, errors, "contributors"));
         item.setProperties(propertyFactory.create(category, itemCore.getProperties(), item, errors, "properties"));
 
         List<URI> urls = parseAccessibleAtLinks(itemCore, errors);
-        item.clearAccessibleAtLinks();
-
-        urls.stream()
+        List<String> accessibleAtLinks = urls.stream()
                 .filter(Objects::nonNull)
                 .map(URI::toString)
-                .forEachOrdered(item::addAccessibleAtLink);
+                .collect(Collectors.toList());
+
+        item.setAccessibleAt(accessibleAtLinks);
 
         URI accessibleAtUri = (!urls.isEmpty()) ? urls.get(0) : null;
 
@@ -80,26 +80,41 @@ public class ItemFactory {
         if (StringUtils.isBlank(itemCore.getSourceItemId())) {
             if (item.getSource() != null) {
                 if (itemCore.getSource() != null) {
-                    errors.rejectValue("sourceItemId", "field.requiredInCase", "Source item id is required if Source is provided.");
-                } else {
-                    errors.rejectValue("sourceItemId", "field.requiredInCase", "Source item id is required because source was matched with '" + item.getSource().getLabel() + "' by Accessible at Url.");
+                    errors.rejectValue(
+                            "sourceItemId",
+                            "field.requiredInCase",
+                            "Source item id is required if Source is provided."
+                    );
+                }
+                else {
+                    errors.rejectValue(
+                            "sourceItemId",
+                            "field.requiredInCase",
+                            String.format(
+                                    "Source item id is required because source was matched with '%s' by Accessible at Url.",
+                                    item.getSource().getLabel()
+                            )
+                    );
                 }
             }
         }
 
         if (item.getSource() == null && StringUtils.isNotBlank(itemCore.getSourceItemId())) {
-            errors.rejectValue("source", "field.requiredInCase", "Source is required if Source item id is provided.");
+            errors.rejectValue(
+                    "source", "field.requiredInCase",
+                    "Source is required if Source item id is provided."
+            );
         }
 
         setInfoDates(item, true);
-        setInformationContributors(item, prevItem);
+        updateInformationContributors(item);
 
         return item;
     }
 
-    public <T extends Item> T initializeNewVersion(T newVersion, T prevItem) {
+    public <T extends Item> T initializeNewVersion(T newVersion) {
         setInfoDates(newVersion, false);
-        setInformationContributors(newVersion, prevItem);
+        updateInformationContributors(newVersion);
 
         return newVersion;
     }
@@ -132,11 +147,7 @@ public class ItemFactory {
         }
     }
 
-    private void setInformationContributors(Item item, Item prevItem) {
-        if (prevItem != null) {
-            prevItem.getInformationContributors().forEach(item::addInformationContributor);
-        }
-
+    private void updateInformationContributors(Item item) {
         if (LoggedInUserHolder.getLoggedInUser() == null)
             return;
 
