@@ -211,8 +211,7 @@ public class DatasetControllerITCase {
                         + "  |---------------|-----------------|-------------------|\n"
                         + "  | Abbreviation  | `.abbreviation` | `*[]:`            |\n"
                         + "  | Code fence    | `.codefence`    | \\`\\`\\` ... \\`\\`\\` |\n"
-                        + "  | Explicit link | `.link`         | `[]()`            |\n"
-                        + "\n")))
+                        + "  | Explicit link | `.link`         | `[]()`            |\n")))
                 .andExpect(jsonPath("properties", hasSize(0)));
     }
 

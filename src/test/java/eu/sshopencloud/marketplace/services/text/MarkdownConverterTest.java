@@ -19,7 +19,7 @@ public class MarkdownConverterTest {
 
         String markdown = MarkdownConverter.convertHtmlToMarkdown(html);
 
-        assertThat(markdown, is("Description"));
+        assertThat(markdown, is("Description\n"));
     }
 
     @Test
@@ -55,12 +55,64 @@ public class MarkdownConverterTest {
                 + "|---------------|-----------------|-------------------|\n"
                 + "| Abbreviation  | `.abbreviation` | `*[]:`            |\n"
                 + "| Code fence    | `.codefence`    | \\`\\`\\` ... \\`\\`\\` |\n"
-                + "| Explicit link | `.link`         | `[]()`            |\n"
-                + "\n"));
+                + "| Explicit link | `.link`         | `[]()`            |\n"));
     }
 
     @Test
-    public void shouldRemainMarkdownIntact() throws Exception {
+    public void shouldRemainMarkdownWithUrlIntact() throws Exception {
+        String source = "Click http://example.com/ *here*";
+
+        String markdown = MarkdownConverter.convertHtmlToMarkdown(source);
+
+        assertThat(markdown, is("Click http://example.com/ *here*"));
+    }
+
+    @Test
+    public void shouldRemainMarkdownWithJsIntact() throws Exception {
+        String source = "# Heading\n"
+                + "\n"
+                + "Some **bold** text.\n"
+                + "\n"
+                + "```js\n"
+                + "function hello() {}\n"
+                + "```\n";
+
+        String markdown = MarkdownConverter.convertHtmlToMarkdown(source);
+
+        assertThat(markdown, is("# Heading\n"
+                + "\n"
+                + "Some **bold** text.\n"
+                + "\n"
+                + "```js\n"
+                + "function hello() {}\n"
+                + "```\n"));
+    }
+
+
+    @Test
+    public void shouldConvertHtmlAndRemainMarkdownIntact() throws Exception {
+        String source = "# Heading\n"
+                + "\n"
+                + "Some <strong>bold</strong> text.\n"
+                + "\n"
+                + "```js\n"
+                + "function hello() {}\n"
+                + "```\n";
+
+        String markdown = MarkdownConverter.convertHtmlToMarkdown(source);
+
+        assertThat(markdown, is("# Heading\n"
+                + "\n"
+                + "Some **bold** text.\n"
+                + "\n"
+                + "```js\n"
+                + "function hello() {}\n"
+                + "```\n"));
+    }
+
+
+    @Test
+    public void shouldRemainComplexMarkdownIntact() throws Exception {
         String source = "Description\n"
                 + "\n"
                 + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"
@@ -93,16 +145,7 @@ public class MarkdownConverterTest {
     }
 
     @Test
-    public void shouldRemainMarkdownWithUrlIntact() throws Exception {
-        String source = "Click http://example.com/ *here*";
-
-        String markdown = MarkdownConverter.convertHtmlToMarkdown(source);
-
-        assertThat(markdown, is("Click http://example.com/ *here*"));
-    }
-
-    @Test
-    public void shouldRemainMarkdownWithAngleBracketsIntact() throws Exception {
+    public void shouldRemainComplexMarkdownWithAngleBracketsIntact() throws Exception {
         String source = "Description <http://example.com>\n"
                 + "\n"
                 + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"
