@@ -117,11 +117,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private I enrollItemVersion(C itemCore, I prevVersion, boolean draft) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
-            DraftItem draftItem = draftItemRepository.getByItemId(prevVersion.getId()).get();
             I version = modifyItem(itemCore, prevVersion);
 
             if (!draft)
-                commitItemDraft(version, draftItem);
+                commitItemDraft(version);
 
             return version;
         }
@@ -169,7 +168,18 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return version;
     }
 
-    private void commitItemDraft(I version, DraftItem draft) {
+    protected I commitItemDraft(I version) {
+        DraftItem draft = draftItemRepository.getByItemId(version.getId())
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                String.format(
+                                        "%s with id %s and version id %s cannot be committed as it is not a draft",
+                                        getItemTypeName(), version.getVersionedItem().getPersistentId(), version.getId()
+                                )
+
+                        )
+                );
+
         version.setStatus(ItemStatus.REVIEWED);
 
         VersionedItem versionedItem = version.getVersionedItem();
@@ -179,6 +189,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             versionedItem.setStatus(VersionedItemStatus.REVIEWED);
 
         draftItemRepository.delete(draft);
+
+        return version;
     }
 
     private VersionedItem createNewVersionedItem(boolean draft) {

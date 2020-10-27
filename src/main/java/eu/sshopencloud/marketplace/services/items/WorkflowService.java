@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.StepsTreeVisitor;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
 
 
@@ -72,7 +74,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
         tree.visit(new StepsTreeVisitor() {
             @Override
-            public void onNextStep(Step step) {
+            public void onNextStep(StepsTree stepTree) {
+                Step step = stepTree.getStep();
                 StepDto stepDto = stepService.convertItemToDto(step);
                 List<StepDto> childCollection = (nestedSteps.empty()) ? rootSteps : nestedSteps.peek().getComposedOf();
 
@@ -91,12 +94,38 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public WorkflowDto createWorkflow(WorkflowCore workflowCore, boolean draft) {
         Workflow workflow = createItem(workflowCore, draft);
+
+        if (!draft)
+            commitSteps(workflow.getStepsTree());
+
         return prepareItemDto(workflow);
     }
 
     public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft) {
         Workflow workflow = updateItem(persistentId, workflowCore, draft);
+
+        if (!draft)
+            commitSteps(workflow.getStepsTree());
+
         return prepareItemDto(workflow);
+    }
+
+    private void commitSteps(StepsTree stepsTree) {
+        stepsTree.visit(new StepsTreeVisitor() {
+            @Override
+            public void onNextStep(StepsTree stepTree) {
+                Step step = stepTree.getStep();
+
+                if (step.getStatus().equals(ItemStatus.DRAFT)) {
+                    step = stepService.commitDraftStep(step);
+                    stepTree.setStep(step);
+                }
+            }
+
+            @Override
+            public void onBackToParent() {
+            }
+        });
     }
 
     public WorkflowDto revertWorkflow(String persistentId, long versionId) {
@@ -108,7 +137,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         Workflow workflow = super.loadLatestItem(persistentId);
         workflow.getStepsTree().visit(new StepsTreeVisitor() {
             @Override
-            public void onNextStep(Step step) {
+            public void onNextStep(StepsTree stepTree) {
+                Step step = stepTree.getStep();
                 stepService.deleteStepOnly(step);
             }
 
@@ -120,6 +150,26 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     Workflow resolveWorkflowForNewStep(String persistentId, boolean draft) {
+        Optional<Workflow> workflowDraft = loadItemDraftForCurrentUser(persistentId);
+
+        if (!draft && workflowDraft.isPresent()) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "%s with id %s is in draft state for current user, so a non-draft step cannot be added",
+                            getItemTypeName(), persistentId
+                    )
+            );
+        }
+
+        if (draft && workflowDraft.isEmpty()) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "No draft %s with id %s is found for current user, so a draft step cannot be added",
+                            getItemTypeName(), persistentId
+                    )
+            );
+        }
+
         return super.liftItemVersion(persistentId, draft);
     }
 

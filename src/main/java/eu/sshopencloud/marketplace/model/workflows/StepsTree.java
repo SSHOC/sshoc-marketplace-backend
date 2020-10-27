@@ -27,7 +27,7 @@ public class StepsTree {
     @JoinColumn(name = "workflow_id", nullable = false)
     private Workflow workflow;
 
-    @ManyToOne
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "step_id")
     private Step step;
 
@@ -134,7 +134,7 @@ public class StepsTree {
 
     public void visit(StepsTreeVisitor visitor) {
         if (!isRoot())
-            visitor.onNextStep(step);
+            visitor.onNextStep(this);
 
         for (StepsTree subtree : subTrees) {
             subtree.visit(visitor);

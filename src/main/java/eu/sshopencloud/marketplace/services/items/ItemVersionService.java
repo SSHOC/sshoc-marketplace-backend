@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
-import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
@@ -59,7 +58,6 @@ abstract class ItemVersionService<I extends Item> {
         }
 
         return getItemRepository().findDraftVersion(persistentId, draftOwner);
-
     }
 
     protected Optional<I> loadItemDraftForCurrentUser(String persistentId) {

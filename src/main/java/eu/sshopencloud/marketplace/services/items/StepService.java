@@ -69,7 +69,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(stepCore, newWorkflow.getStepsTree());
 
-        Step step = super.createItem(workflowStepCore, draft);
+        Step step = createItem(workflowStepCore, draft);
         return prepareItemDto(step);
     }
 
@@ -78,12 +78,12 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         validateWorkflowAndStepConsistency(workflowId, stepId);
 
         Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
-        Step step = super.loadLatestItem(stepId);
+        Step step = loadLatestItem(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(substepCore, stepTree);
 
-        Step subStep = super.createItem(workflowStepCore, draft);
+        Step subStep = createItem(workflowStepCore, draft);
         return prepareItemDto(subStep);
     }
 
@@ -105,20 +105,20 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         validateWorkflowAndStepConsistency(workflowId, stepId, versionId);
 
         Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, false);
-        Step step = super.loadItemVersion(stepId, versionId);
+        Step step = loadItemVersion(stepId, versionId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
-        Step revStep = super.revertItemVersion(stepId, versionId);
+        Step revStep = revertItemVersion(stepId, versionId);
         stepTree.setStep(revStep);
 
-        return super.prepareItemDto(revStep);
+        return prepareItemDto(revStep);
     }
 
     public void deleteStep(String workflowId, String stepId, boolean draft) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
 
         Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
-        Step step = super.loadLatestItem(stepId);
+        Step step = loadLatestItem(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
 
@@ -127,13 +127,17 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         super.deleteItem(stepId);
     }
 
+    Step commitDraftStep(Step step) {
+        return commitItemDraft(step);
+    }
+
     void deleteStepOnly(Step step) {
-        super.deleteItem(step.getVersionedItem().getPersistentId());
+        deleteItem(step.getVersionedItem().getPersistentId());
     }
 
     private void validateWorkflowAndStepConsistency(String workflowId, String stepId) {
         Workflow workflow = workflowService.loadLatestItem(workflowId);
-        Step step = super.loadLatestItem(stepId);
+        Step step = loadLatestItem(stepId);
 
         stepsTreeRepository.findByWorkflowIdAndStepId(workflow.getId(), step.getId())
                 .orElseThrow(
