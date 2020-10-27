@@ -25,4 +25,10 @@ public class DraftItem {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name = "draft_item_item_id_fk"))
     private Item item;
+
+
+    public DraftItem(Item item, User owner) {
+        this.item = item;
+        this.owner = owner;
+    }
 }

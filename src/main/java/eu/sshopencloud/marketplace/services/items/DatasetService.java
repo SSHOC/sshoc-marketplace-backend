@@ -7,8 +7,10 @@ import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.repositories.items.DatasetRepository;
+import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.datasets.DatasetFactory;
@@ -31,10 +33,13 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
     public DatasetService(DatasetRepository datasetRepository, DatasetFactory datasetFactory,
                           ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                          ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
-                          IndexService indexService) {
+                          DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                          PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
-        super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
+        super(
+                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRelatedItemService, propertyTypeService, indexService, userService
+        );
 
         this.datasetRepository = datasetRepository;
         this.datasetFactory = datasetFactory;
@@ -49,17 +54,17 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return super.getItemVersion(persistentId, versionId);
     }
 
-    public DatasetDto getLatestDataset(String persistentId) {
-        return super.getLatestItem(persistentId);
+    public DatasetDto getLatestDataset(String persistentId, boolean draft) {
+        return getLatestItem(persistentId, draft);
     }
 
-    public DatasetDto createDataset(DatasetCore datasetCore) {
-        Dataset dataset = createItem(datasetCore);
+    public DatasetDto createDataset(DatasetCore datasetCore, boolean draft) {
+        Dataset dataset = createItem(datasetCore, draft);
         return prepareItemDto(dataset);
     }
 
-    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore) {
-        Dataset dataset = updateItem(persistentId, datasetCore);
+    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft) {
+        Dataset dataset = updateItem(persistentId, datasetCore, draft);
         return prepareItemDto(dataset);
     }
 
@@ -81,6 +86,11 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     @Override
     public Dataset makeItem(DatasetCore datasetCore, Dataset prevDataset) {
         return datasetFactory.create(datasetCore, prevDataset);
+    }
+
+    @Override
+    protected Dataset modifyItem(DatasetCore datasetCore, Dataset dataset) {
+        return datasetFactory.modify(datasetCore, dataset);
     }
 
     @Override

@@ -6,10 +6,8 @@ import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
-import eu.sshopencloud.marketplace.repositories.items.ToolRepository;
-import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.tools.ToolFactory;
@@ -32,10 +30,13 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
     public ToolService(ToolRepository toolRepository, ToolFactory toolFactory,
                        ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                       ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
-                       IndexService indexService) {
+                       DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                       PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
-        super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
+        super(
+                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRelatedItemService, propertyTypeService, indexService, userService
+        );
 
         this.toolRepository = toolRepository;
         this.toolFactory = toolFactory;
@@ -50,17 +51,17 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return getItemVersion(persistentId, versionId);
     }
 
-    public ToolDto getLatestTool(String persistentId) {
-        return getLatestItem(persistentId);
+    public ToolDto getLatestTool(String persistentId, boolean draft) {
+        return getLatestItem(persistentId, draft);
     }
 
-    public ToolDto createTool(ToolCore toolCore) {
-        Tool tool = createItem(toolCore);
+    public ToolDto createTool(ToolCore toolCore, boolean draft) {
+        Tool tool = createItem(toolCore, draft);
         return prepareItemDto(tool);
     }
 
-    public ToolDto updateTool(String persistentId, ToolCore toolCore) {
-        Tool tool = updateItem(persistentId, toolCore);
+    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft) {
+        Tool tool = updateItem(persistentId, toolCore, draft);
         return prepareItemDto(tool);
     }
 
@@ -82,6 +83,11 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     @Override
     protected Tool makeItem(ToolCore toolCore, Tool prevTool) {
         return toolFactory.create(toolCore, prevTool);
+    }
+
+    @Override
+    protected Tool modifyItem(ToolCore toolCore, Tool tool) {
+        return toolFactory.modify(toolCore, tool);
     }
 
     @Override

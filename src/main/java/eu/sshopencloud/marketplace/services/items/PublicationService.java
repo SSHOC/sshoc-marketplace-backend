@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.publications.PublicationFactory;
@@ -29,10 +30,13 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     public PublicationService(PublicationRepository publicationRepository, PublicationFactory publicationFactory,
                               ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                              ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
-                              IndexService indexService) {
+                              DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                              PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
-        super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
+        super(
+                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRelatedItemService, propertyTypeService, indexService, userService
+        );
 
         this.publicationRepository = publicationRepository;
         this.publicationFactory = publicationFactory;
@@ -43,21 +47,21 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return getItemsPage(pageCoords);
     }
 
-    public PublicationDto getLatestPublication(String persistentId) {
-        return getLatestItem(persistentId);
+    public PublicationDto getLatestPublication(String persistentId, boolean draft) {
+        return getLatestItem(persistentId, draft);
     }
 
     public PublicationDto getPublicationVersion(String persistentId, long versionId) {
         return getItemVersion(persistentId, versionId);
     }
 
-    public PublicationDto createPublication(PublicationCore publicationCore) {
-        Publication publication = createItem(publicationCore);
+    public PublicationDto createPublication(PublicationCore publicationCore, boolean draft) {
+        Publication publication = createItem(publicationCore, draft);
         return prepareItemDto(publication);
     }
 
-    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore) {
-        Publication publication = updateItem(persistentId, publicationCore);
+    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore, boolean draft) {
+        Publication publication = updateItem(persistentId, publicationCore, draft);
         return prepareItemDto(publication);
     }
 
@@ -79,6 +83,11 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     @Override
     protected Publication makeItem(PublicationCore publicationCore, Publication prevPublication) {
         return publicationFactory.create(publicationCore, prevPublication);
+    }
+
+    @Override
+    protected Publication modifyItem(PublicationCore publicationCore, Publication publication) {
+        return publicationFactory.modify(publicationCore, publication);
     }
 
     @Override

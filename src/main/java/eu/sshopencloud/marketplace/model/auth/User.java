@@ -63,5 +63,9 @@ public class User {
     @Basic(fetch = FetchType.EAGER, optional = false)
     private String preferences;
 
+
+    public boolean isModerator() {
+        return role.hasModeratorPrivileges();
+    }
 }
 

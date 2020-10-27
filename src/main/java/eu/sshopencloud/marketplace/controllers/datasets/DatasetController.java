@@ -29,8 +29,10 @@ public class DatasetController {
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") String id) {
-        return ResponseEntity.ok(datasetService.getLatestDataset(id));
+    public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") String id,
+                                                 @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(datasetService.getLatestDataset(id, draft));
     }
 
     @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,13 +41,17 @@ public class DatasetController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> createDataset(@RequestBody DatasetCore newDataset) {
-        return ResponseEntity.ok(datasetService.createDataset(newDataset));
+    public ResponseEntity<DatasetDto> createDataset(@RequestBody DatasetCore newDataset,
+                                                    @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(datasetService.createDataset(newDataset, draft));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("id") String id, @RequestBody DatasetCore updatedDataset) {
-        return ResponseEntity.ok(datasetService.updateDataset(id, updatedDataset));
+    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("id") String id, @RequestBody DatasetCore updatedDataset,
+                                                    @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(datasetService.updateDataset(id, updatedDataset, draft));
     }
 
     @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)

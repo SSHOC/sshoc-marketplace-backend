@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.validators.datasets;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.repositories.items.DatasetRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.items.ItemFactory;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +21,17 @@ public class DatasetFactory {
 
 
     public Dataset create(DatasetCore datasetCore, Dataset prevDataset) throws ValidationException {
+        Dataset dataset = (prevDataset != null) ? new Dataset(prevDataset) : new Dataset();
+        return setDatasetValues(datasetCore, dataset);
+    }
+
+    public Dataset modify(DatasetCore datasetCore, Dataset dataset) throws ValidationException {
+        return setDatasetValues(datasetCore, dataset);
+    }
+
+    private Dataset setDatasetValues(DatasetCore datasetCore, Dataset dataset) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(datasetCore, "Dataset");
 
-        Dataset dataset = (prevDataset != null) ? new Dataset(prevDataset) : new Dataset();
         dataset = itemFactory.initializeItem(datasetCore, dataset, ItemCategory.DATASET, errors);
 
         dataset.setDateCreated(datasetCore.getDateCreated());

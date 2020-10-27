@@ -25,10 +25,23 @@ public class TrainingMaterialFactory {
     public TrainingMaterial create(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial)
             throws ValidationException {
 
-        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(trainingMaterialCore, "TrainingMaterial");
-
         TrainingMaterial trainingMaterial =
                 (prevTrainingMaterial != null) ? new TrainingMaterial(prevTrainingMaterial) : new TrainingMaterial();
+
+        return setTrainingMaterialValues(trainingMaterialCore, trainingMaterial);
+    }
+
+    public TrainingMaterial modify(TrainingMaterialCore trainingMaterialCore, TrainingMaterial trainingMaterial)
+            throws ValidationException {
+
+        return setTrainingMaterialValues(trainingMaterialCore, trainingMaterial);
+    }
+
+    private TrainingMaterial setTrainingMaterialValues(TrainingMaterialCore trainingMaterialCore,
+                                                       TrainingMaterial trainingMaterial) throws ValidationException {
+
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(trainingMaterialCore, "TrainingMaterial");
+
 
         trainingMaterial = itemFactory.initializeItem(
                 trainingMaterialCore, trainingMaterial, ItemCategory.TRAINING_MATERIAL, errors

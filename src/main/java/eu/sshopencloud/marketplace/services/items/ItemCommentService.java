@@ -7,10 +7,10 @@ import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
-import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemCommentRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.validators.items.ItemCommentFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +31,9 @@ public class ItemCommentService {
 
     private final ItemsService itemsService;
     private final ItemRepository itemRepository;
-
     private final ItemCommentRepository itemCommentRepository;
     private final ItemCommentFactory itemCommentFactory;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
 
     public List<ItemCommentDto> getLastComments(String itemId) {
@@ -54,7 +53,7 @@ public class ItemCommentService {
     }
 
     public ItemCommentDto createItemComment(String itemId, ItemCommentCore itemCommentCore) {
-        User creator = userRepository.findByUsername(LoggedInUserHolder.getLoggedInUser().getUsername());
+        User creator = userService.loadLoggedInUser();
 
         ItemComment itemComment = itemCommentFactory.create(itemCommentCore, creator);
         Item item = itemsService.loadLatestItem(itemId);
@@ -101,7 +100,7 @@ public class ItemCommentService {
     private void validateCommentPrivileges(ItemComment comment) {
         User loggedInUser = LoggedInUserHolder.getLoggedInUser();
 
-        boolean isModerator = loggedInUser.getRole().getAuthorities().contains(Authority.MODERATOR);
+        boolean isModerator = loggedInUser.isModerator();
         boolean isCreator = comment.getCreator().getUsername().equals(loggedInUser.getUsername());
 
         if (!isModerator && !isCreator)

@@ -56,4 +56,8 @@ public class UserService {
                 () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + userId)));
     }
 
+    public User loadLoggedInUser() {
+        User loggedUser = LoggedInUserHolder.getLoggedInUser();
+        return userRepository.findByUsername(loggedUser.getUsername());
+    }
 }

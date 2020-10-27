@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
+import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +16,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class ItemsService extends ItemVersionService<Item> {
 
     private final ItemRepository itemRepository;
+
+    public ItemsService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository) {
+        super(versionedItemRepository);
+        this.itemRepository = itemRepository;
+    }
 
 
     public List<ItemBasicDto> getItems(Long sourceId, String sourceItemId) {

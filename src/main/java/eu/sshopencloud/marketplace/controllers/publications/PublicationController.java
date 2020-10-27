@@ -25,12 +25,15 @@ public class PublicationController {
     public ResponseEntity<PaginatedPublications> getPublications(@RequestParam(value = "page", required = false) Integer page,
                                                                  @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
+
         return ResponseEntity.ok(publicationService.getPublications(pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> getPublication(@PathVariable("id") String id) {
-        return ResponseEntity.ok(publicationService.getLatestPublication(id));
+    public ResponseEntity<PublicationDto> getPublication(@PathVariable("id") String id,
+                                                         @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(publicationService.getLatestPublication(id, draft));
     }
 
     @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,13 +42,17 @@ public class PublicationController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> createPublication(@RequestBody PublicationCore newPublication) {
-        return ResponseEntity.ok(publicationService.createPublication(newPublication));
+    public ResponseEntity<PublicationDto> createPublication(@RequestBody PublicationCore newPublication,
+                                                            @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(publicationService.createPublication(newPublication, draft));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> updatePublication(@PathVariable("id") String id, @RequestBody PublicationCore updatedPublication) {
-        return ResponseEntity.ok(publicationService.updatePublication(id, updatedPublication));
+    public ResponseEntity<PublicationDto> updatePublication(@PathVariable("id") String id, @RequestBody PublicationCore updatedPublication,
+                                                            @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(publicationService.updatePublication(id, updatedPublication, draft));
     }
 
     @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)

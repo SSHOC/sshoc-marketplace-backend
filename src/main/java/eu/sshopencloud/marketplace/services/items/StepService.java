@@ -7,11 +7,13 @@ import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
+import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepsTreeRepository;
+import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
@@ -38,10 +40,13 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public StepService(StepRepository stepRepository, StepsTreeRepository stepsTreeRepository,
                        StepFactory stepFactory, WorkflowService workflowService,
                        ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                       ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
-                       IndexService indexService) {
+                       DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                       PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
-        super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
+        super(
+                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRelatedItemService, propertyTypeService, indexService, userService
+        );
 
         this.stepRepository = stepRepository;
         this.stepsTreeRepository = stepsTreeRepository;
@@ -50,9 +55,9 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
 
-    public StepDto getLatestStep(String workflowId, String stepId) {
+    public StepDto getLatestStep(String workflowId, String stepId, boolean draft) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
-        return getLatestItem(stepId);
+        return getLatestItem(stepId, draft);
     }
 
     public StepDto getStepVersion(String workflowId, String stepId, long stepVersionId) {
@@ -60,46 +65,46 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return getItemVersion(stepId, stepVersionId);
     }
 
-    public StepDto createStep(String workflowId, StepCore stepCore) {
-        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
+    public StepDto createStep(String workflowId, StepCore stepCore, boolean draft) {
+        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(stepCore, newWorkflow.getStepsTree());
 
-        Step step = super.createItem(workflowStepCore);
+        Step step = super.createItem(workflowStepCore, draft);
         return prepareItemDto(step);
     }
 
 
-    public StepDto createSubstep(String workflowId, String stepId, StepCore substepCore) {
+    public StepDto createSubstep(String workflowId, String stepId, StepCore substepCore, boolean draft) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
 
-        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
+        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
         Step step = super.loadLatestItem(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(substepCore, stepTree);
 
-        Step subStep = super.createItem(workflowStepCore);
+        Step subStep = super.createItem(workflowStepCore, draft);
         return prepareItemDto(subStep);
     }
 
-    public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore) {
+    public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
 
-        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
-        Step step = super.loadLatestItem(stepId);
+        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
+        Step step = loadLatestItem(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(updatedStepCore, parentStepTree);
 
-        Step updatedStep = super.updateItem(stepId, workflowStepCore);
+        Step updatedStep = updateItem(stepId, workflowStepCore, draft);
         return prepareItemDto(updatedStep);
     }
 
     public StepDto revertStep(String workflowId, String stepId, long versionId) {
         validateWorkflowAndStepConsistency(workflowId, stepId, versionId);
 
-        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
+        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, false);
         Step step = super.loadItemVersion(stepId, versionId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
@@ -109,10 +114,10 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return super.prepareItemDto(revStep);
     }
 
-    public void deleteStep(String workflowId, String stepId) {
+    public void deleteStep(String workflowId, String stepId, boolean draft) {
         validateWorkflowAndStepConsistency(workflowId, stepId);
 
-        Workflow newWorkflow = workflowService.liftWorkflowVersion(workflowId);
+        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
         Step step = super.loadLatestItem(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
@@ -167,6 +172,14 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         StepsTree parentTree = workflowStepCore.getParentTree();
 
         return stepFactory.create(stepCore, prevStep, parentTree);
+    }
+
+    @Override
+    protected Step modifyItem(WorkflowStepCore workflowStepCore, Step step) {
+        StepCore stepCore = workflowStepCore.getStepCore();
+        StepsTree parentTree = workflowStepCore.getParentTree();
+
+        return stepFactory.modify(stepCore, step, parentTree);
     }
 
     @Override

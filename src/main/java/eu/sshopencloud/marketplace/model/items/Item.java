@@ -116,13 +116,12 @@ public abstract class Item {
     @OrderBy("dateCreated DESC")
     private List<ItemComment> comments;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "persistent_id", nullable = false)
     private VersionedItem versionedItem;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))
-    // TODO should be "zaorane" when dealing with items' history task
     private Item prevVersion;
 
 

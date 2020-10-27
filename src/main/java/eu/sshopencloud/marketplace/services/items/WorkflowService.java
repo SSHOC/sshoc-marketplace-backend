@@ -7,10 +7,12 @@ import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.StepsTreeVisitor;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
+import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepository;
+import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
@@ -37,10 +39,13 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public WorkflowService(WorkflowRepository workflowRepository, WorkflowFactory workflowFactory, @Lazy StepService stepService,
                            ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                           ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
-                           IndexService indexService) {
+                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
-        super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
+        super(
+                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRelatedItemService, propertyTypeService, indexService, userService
+        );
 
         this.workflowRepository = workflowRepository;
         this.workflowFactory = workflowFactory;
@@ -52,8 +57,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return super.getItemsPage(pageCoords);
     }
 
-    public WorkflowDto getLatestWorkflow(String persistentId) {
-        return super.getLatestItem(persistentId);
+    public WorkflowDto getLatestWorkflow(String persistentId, boolean draft) {
+        return super.getLatestItem(persistentId, draft);
     }
 
     public WorkflowDto getWorkflowVersion(String persistentId, long versionId) {
@@ -84,13 +89,13 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         dto.setComposedOf(rootSteps);
     }
 
-    public WorkflowDto createWorkflow(WorkflowCore workflowCore) {
-        Workflow workflow = createItem(workflowCore);
+    public WorkflowDto createWorkflow(WorkflowCore workflowCore, boolean draft) {
+        Workflow workflow = createItem(workflowCore, draft);
         return prepareItemDto(workflow);
     }
 
-    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore) {
-        Workflow workflow = updateItem(persistentId, workflowCore);
+    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft) {
+        Workflow workflow = updateItem(persistentId, workflowCore, draft);
         return prepareItemDto(workflow);
     }
 
@@ -114,9 +119,10 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         super.deleteItem(persistentId);
     }
 
-    public Workflow liftWorkflowVersion(String persistentId) {
-        return super.liftItemVersion(persistentId);
+    Workflow resolveWorkflowForNewStep(String persistentId, boolean draft) {
+        return super.liftItemVersion(persistentId, draft);
     }
+
 
     @Override
     protected ItemVersionRepository<Workflow> getItemRepository() {
@@ -126,6 +132,11 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     @Override
     protected Workflow makeItem(WorkflowCore workflowCore, Workflow prevWorkflow) {
         return workflowFactory.create(workflowCore, prevWorkflow);
+    }
+
+    @Override
+    protected Workflow modifyItem(WorkflowCore workflowCore, Workflow workflow) {
+        return workflowFactory.modify(workflowCore, workflow);
     }
 
     @Override

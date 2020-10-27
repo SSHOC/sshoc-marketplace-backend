@@ -29,8 +29,10 @@ public class TrainingMaterialController {
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") String id) {
-        return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(id));
+    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") String id,
+                                                                   @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(id, draft));
     }
 
     @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -41,15 +43,18 @@ public class TrainingMaterialController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial) {
-        return ResponseEntity.ok(trainingMaterialService.createTrainingMaterial(newTrainingMaterial));
+    public ResponseEntity<TrainingMaterialDto> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial,
+                                                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(trainingMaterialService.createTrainingMaterial(newTrainingMaterial, draft));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> updateTrainingMaterial(@PathVariable("id") String id,
-                                                                      @RequestBody TrainingMaterialCore updatedTrainingMaterial) {
+                                                                      @RequestBody TrainingMaterialCore updatedTrainingMaterial,
+                                                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(id, updatedTrainingMaterial));
+        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(id, updatedTrainingMaterial, draft));
     }
 
     @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)

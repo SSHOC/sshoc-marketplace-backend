@@ -23,9 +23,17 @@ public class StepFactory {
 
 
     public Step create(StepCore stepCore, Step prevStep, StepsTree stepsTree) throws ValidationException {
+        Step step = (prevStep != null) ? new Step(prevStep) : new Step();
+        return setupStep(stepCore, step, stepsTree);
+    }
+
+    public Step modify(StepCore stepCore, Step step, StepsTree stepsTree) throws ValidationException {
+        return setupStep(stepCore, step, stepsTree);
+    }
+
+    private Step setupStep(StepCore stepCore, Step step, StepsTree stepsTree) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(stepCore, "Step");
 
-        Step step = (prevStep != null) ? new Step(prevStep) : new Step();
         step = itemFactory.initializeItem(stepCore, step, ItemCategory.STEP, errors);
 
         try {

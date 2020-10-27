@@ -33,8 +33,10 @@ public class WorkflowController {
     }
 
     @GetMapping(path = "/{workflowId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> getWorkflow(@PathVariable("workflowId") String workflowId) {
-        return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowId));
+    public ResponseEntity<WorkflowDto> getWorkflow(@PathVariable("workflowId") String workflowId,
+                                                   @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowId, draft));
     }
 
     @GetMapping(path = "/{workflowId}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,15 +47,17 @@ public class WorkflowController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> createWorkflow(@RequestBody WorkflowCore newWorkflow) {
-        return ResponseEntity.ok(workflowService.createWorkflow(newWorkflow));
+    public ResponseEntity<WorkflowDto> createWorkflow(@RequestBody WorkflowCore newWorkflow,
+                                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+        return ResponseEntity.ok(workflowService.createWorkflow(newWorkflow, draft));
     }
 
     @PutMapping(path = "/{workflowId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> updateWorkflow(@PathVariable("workflowId") String workflowId,
-                                                      @RequestBody WorkflowCore updatedWorkflow) {
+                                                      @RequestBody WorkflowCore updatedWorkflow,
+                                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(workflowService.updateWorkflow(workflowId, updatedWorkflow));
+        return ResponseEntity.ok(workflowService.updateWorkflow(workflowId, updatedWorkflow, draft));
     }
 
     @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,8 +71,10 @@ public class WorkflowController {
     }
 
     @GetMapping(path = "/{workflowId}/steps/{stepId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StepDto> getStep(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId) {
-        return ResponseEntity.ok(stepService.getLatestStep(workflowId, stepId));
+    public ResponseEntity<StepDto> getStep(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId,
+                                           @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(stepService.getLatestStep(workflowId, stepId, draft));
     }
 
     @GetMapping(path = "/{workflowId}/steps/{stepId}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -84,8 +90,10 @@ public class WorkflowController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<StepDto> createStep(@PathVariable("workflowId") String workflowId, @RequestBody StepCore newStep) {
-        return ResponseEntity.ok(stepService.createStep(workflowId, newStep));
+    public ResponseEntity<StepDto> createStep(@PathVariable("workflowId") String workflowId, @RequestBody StepCore newStep,
+                                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(stepService.createStep(workflowId, newStep, draft));
     }
 
     @PostMapping(
@@ -95,9 +103,10 @@ public class WorkflowController {
     )
     public ResponseEntity<StepDto> createSubstep(@PathVariable("workflowId") String workflowId,
                                                  @PathVariable("stepId") String stepId,
-                                                 @RequestBody StepCore newStep) {
+                                                 @RequestBody StepCore newStep,
+                                                 @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(stepService.createSubstep(workflowId, stepId, newStep));
+        return ResponseEntity.ok(stepService.createSubstep(workflowId, stepId, newStep, draft));
     }
 
     @PutMapping(
@@ -107,9 +116,10 @@ public class WorkflowController {
     )
     public ResponseEntity<StepDto> updateStep(@PathVariable("workflowId") String workflowId,
                                               @PathVariable("stepId") String stepId,
-                                              @RequestBody StepCore updatedStep) {
+                                              @RequestBody StepCore updatedStep,
+                                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(stepService.updateStep(workflowId, stepId, updatedStep));
+        return ResponseEntity.ok(stepService.updateStep(workflowId, stepId, updatedStep, draft));
     }
 
     @PutMapping(
@@ -125,7 +135,9 @@ public class WorkflowController {
     }
 
     @DeleteMapping(path = "/{workflowId}/steps/{stepId}")
-    public void deleteStep(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId) {
-        stepService.deleteStep(workflowId, stepId);
+    public void deleteStep(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId,
+                           @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        stepService.deleteStep(workflowId, stepId, draft);
     }
 }

@@ -22,9 +22,17 @@ public class PublicationFactory {
 
 
     public Publication create(PublicationCore publicationCore, Publication prevPublication) throws ValidationException {
+        Publication publication = (prevPublication != null) ? new Publication(prevPublication) : new Publication();
+        return setPublicationValues(publicationCore, publication);
+    }
+
+    public Publication modify(PublicationCore publicationCore, Publication publication) throws ValidationException {
+        return setPublicationValues(publicationCore, publication);
+    }
+
+    private Publication setPublicationValues(PublicationCore publicationCore, Publication publication) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(publicationCore, "Publication");
 
-        Publication publication = (prevPublication != null) ? new Publication(prevPublication) : new Publication();
         publication = itemFactory.initializeItem(publicationCore, publication, ItemCategory.PUBLICATION, errors);
 
         publication.setDateCreated(publicationCore.getDateCreated());

@@ -17,14 +17,20 @@ import org.springframework.validation.BeanPropertyBindingResult;
 @Slf4j
 public class ToolFactory {
 
-    private final ToolRepository toolRepository;
     private final ItemFactory itemFactory;
 
 
     public Tool create(ToolCore toolCore, Tool prevTool) throws ValidationException {
-        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(toolCore, "Tool");
-
         Tool tool = (prevTool != null) ? new Tool(prevTool) : new Tool();
+        return setToolValues(toolCore, tool);
+    }
+
+    public Tool modify(ToolCore toolCore, Tool tool) throws ValidationException {
+        return setToolValues(toolCore, tool);
+    }
+
+    private Tool setToolValues(ToolCore toolCore, Tool tool) {
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(toolCore, "Tool");
         tool = itemFactory.initializeItem(toolCore, tool, ItemCategory.TOOL_OR_SERVICE, errors);
 
         if (errors.hasErrors())

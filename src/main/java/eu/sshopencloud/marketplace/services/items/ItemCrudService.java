@@ -5,32 +5,53 @@ import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
+import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-@RequiredArgsConstructor
 @Slf4j
 abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends PaginatedResult<D>, C> extends ItemVersionService<I> {
 
     private final ItemRepository itemRepository;
     private final VersionedItemRepository versionedItemRepository;
+    private final DraftItemRepository draftItemRepository;
     private final ItemRelatedItemService itemRelatedItemService;
     private final PropertyTypeService propertyTypeService;
     private final IndexService indexService;
+    private final UserService userService;
+
+
+    public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
+
+        super(versionedItemRepository);
+
+        this.itemRepository = itemRepository;
+        this.versionedItemRepository = versionedItemRepository;
+        this.draftItemRepository = draftItemRepository;
+        this.itemRelatedItemService = itemRelatedItemService;
+        this.propertyTypeService = propertyTypeService;
+        this.indexService = indexService;
+        this.userService = userService;
+    }
 
 
     protected P getItemsPage(PageCoords pageCoords) {
@@ -38,7 +59,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
         );
 
-        Page<I> itemsPage = getItemRepository().findAllByStatus(ItemStatus.REVIEWED, pageRequest);
+        Page<I> itemsPage = getItemRepository().findAllCurrentItems(pageRequest);
         List<D> dtos = itemsPage.stream()
                 .map(this::prepareItemDto)
                 .collect(Collectors.toList());
@@ -51,45 +72,113 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
-    protected D getLatestItem(String persistentId) {
+    protected D getLatestItem(String persistentId, boolean draft) {
+        if (draft) {
+            I itemDraft = loadItemDraftForCurrentUser(persistentId)
+                    .orElseThrow(
+                            () -> new EntityNotFoundException(
+                                    String.format(
+                                            "Unable to find draft %s with id %s for the authorized user",
+                                            getItemTypeName(), persistentId
+                                    )
+                            )
+                    );
+
+            return prepareItemDto(itemDraft);
+        }
+
         I item = loadLatestItem(persistentId);
         return prepareItemDto(item);
     }
-
 
     protected D prepareItemDto(I item) {
         D dto = convertItemToDto(item);
         return completeItem(dto);
     }
 
-    protected I createItem(C itemCore) {
-        return createNewItemVersion(itemCore, null);
+    protected I createItem(C itemCore, boolean draft) {
+        return createOrUpdateItemVersion(itemCore, null, draft);
     }
 
-    protected I updateItem(String persistentId, C itemCore) {
-        I item = loadLatestItem(persistentId);
-        return createNewItemVersion(itemCore, item);
+    protected I updateItem(String persistentId, C itemCore, boolean draft) {
+        I item = loadItemDraftForCurrentUser(persistentId)
+                .orElseGet(() -> loadCurrentItem(persistentId));
+
+        return createOrUpdateItemVersion(itemCore, item, draft);
     }
 
-    private I createNewItemVersion(C itemCore, I prevVersion) {
-        I newItem = makeItem(itemCore, prevVersion);
-
-        VersionedItem versionedItem =
-                (prevVersion == null) ? createNewVersionedItem(false) : prevVersion.getVersionedItem();
-
-        versionedItem.setCurrentVersion(newItem);
-
-        newItem.setVersionedItem(versionedItem);
-        newItem.setStatus(ItemStatus.REVIEWED);
-
-        newItem.setPrevVersion(prevVersion);
-        if (prevVersion != null)
-            prevVersion.setStatus(ItemStatus.DEPRECATED);
-
-        newItem = getItemRepository().save(newItem);
+    private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft) {
+        I newItem = enrollItemVersion(itemCore, prevVersion, draft);
         indexService.indexItem(newItem);
 
         return newItem;
+    }
+
+    private I enrollItemVersion(C itemCore, I prevVersion, boolean draft) {
+        // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
+        if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
+            DraftItem draftItem = draftItemRepository.getByItemId(prevVersion.getId()).get();
+            I version = modifyItem(itemCore, prevVersion);
+
+            if (!draft)
+                commitItemDraft(version, draftItem);
+
+            return version;
+        }
+
+        I version = makeItem(itemCore, prevVersion);
+        version = saveVersionInHistory(version, prevVersion, draft);
+
+        return version;
+    }
+
+    private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
+        VersionedItem versionedItem =
+                (prevVersion == null) ? createNewVersionedItem(draft) : prevVersion.getVersionedItem();
+
+        version.setVersionedItem(versionedItem);
+
+        // If not a draft
+        if (!draft) {
+            versionedItem.setCurrentVersion(version);
+            versionedItem.setStatus(VersionedItemStatus.REVIEWED);
+            version.setPrevVersion(prevVersion);
+            version.setStatus(ItemStatus.REVIEWED);
+
+            if (prevVersion != null)
+                prevVersion.setStatus(ItemStatus.DEPRECATED);
+        }
+        // If it is a draft
+        else {
+            version.setStatus(ItemStatus.DRAFT);
+
+            // If it's a first (and draft) version of the item make persistent a draft
+            if (prevVersion == null)
+                versionedItem.setStatus(VersionedItemStatus.DRAFT);
+        }
+
+        version = getItemRepository().save(version);
+
+        if (draft) {
+            User draftOwner = userService.loadLoggedInUser();
+            DraftItem draftItem = new DraftItem(version, draftOwner);
+
+            draftItemRepository.save(draftItem);
+        }
+
+        return version;
+    }
+
+    private void commitItemDraft(I version, DraftItem draft) {
+        version.setStatus(ItemStatus.REVIEWED);
+
+        VersionedItem versionedItem = version.getVersionedItem();
+        versionedItem.setCurrentVersion(version);
+
+        if (versionedItem.getStatus().equals(VersionedItemStatus.DRAFT))
+            versionedItem.setStatus(VersionedItemStatus.REVIEWED);
+
+        draftItemRepository.delete(draft);
     }
 
     private VersionedItem createNewVersionedItem(boolean draft) {
@@ -116,7 +205,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected I revertItemVersion(String persistentId, long versionId) {
         I item = loadItemVersion(persistentId, versionId);
-        I latestItem = loadLatestItem(persistentId);
+        I latestItem = loadCurrentItem(persistentId);
         I targetVersion = makeVersionCopy(item);
 
         targetVersion.setPrevVersion(latestItem);
@@ -125,18 +214,21 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return getItemRepository().save(targetVersion);
     }
 
-    protected I liftItemVersion(String persistentId) {
-        I item = loadLatestItem(persistentId);
+    protected I liftItemVersion(String persistentId, boolean draft) {
+        if (draft) {
+            Optional<I> itemDraft = loadItemDraftForCurrentUser(persistentId);
+            if (itemDraft.isPresent())
+                return itemDraft.get();
+        }
+
+        I item = loadCurrentItem(persistentId);
         I newItem = makeVersionCopy(item);
 
-        newItem.setPrevVersion(item);
-        newItem.setVersionedItem(item.getVersionedItem());
-
-        return getItemRepository().save(newItem);
+        return saveVersionInHistory(newItem, item, draft);
     }
 
     protected void deleteItem(String persistentId) {
-        I item = loadLatestItem(persistentId);
+        I item = loadCurrentItem(persistentId);
 
         if (ItemStatus.DRAFT.equals(item.getStatus())) {
             cleanupDraft(item);
@@ -155,7 +247,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             return;
 
         itemRelatedItemService.deleteRelationsForItem(draft);
+
         getItemRepository().delete(draft);
+        versionedItemRepository.delete(draft.getVersionedItem());
     }
 
     private List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
@@ -194,6 +288,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected abstract I makeItem(C itemCore, I prevItem);
+    protected abstract I modifyItem(C itemCore, I item);
     protected abstract I makeVersionCopy(I item);
 
     protected abstract P wrapPage(Page<I> resultsPage, List<D> convertedDtos);

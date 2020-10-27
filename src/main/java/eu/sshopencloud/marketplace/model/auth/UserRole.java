@@ -33,4 +33,7 @@ public enum UserRole {
         return authorities;
     }
 
+    public boolean hasModeratorPrivileges() {
+        return authorities.contains(Authority.MODERATOR);
+    }
 }

@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.trainings.TrainingMaterialFactory;
@@ -31,10 +32,13 @@ public class TrainingMaterialService
     public TrainingMaterialService(TrainingMaterialRepository trainingMaterialRepository,
                                    TrainingMaterialFactory trainingMaterialFactory,
                                    ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                                   ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
-                                   IndexService indexService) {
+                                   DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                                   PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
-        super(itemRepository, versionedItemRepository, itemRelatedItemService, propertyTypeService, indexService);
+        super(
+                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRelatedItemService, propertyTypeService, indexService, userService
+        );
 
         this.trainingMaterialRepository = trainingMaterialRepository;
         this.trainingMaterialFactory = trainingMaterialFactory;
@@ -45,21 +49,24 @@ public class TrainingMaterialService
         return getItemsPage(pageCoords);
     }
 
-    public TrainingMaterialDto getLatestTrainingMaterial(String persistentId) {
-        return getLatestItem(persistentId);
+    public TrainingMaterialDto getLatestTrainingMaterial(String persistentId, boolean draft) {
+        return getLatestItem(persistentId, draft);
     }
 
     public TrainingMaterialDto getTrainingMaterialVersion(String persistentId, long versionId) {
         return getItemVersion(persistentId, versionId);
     }
 
-    public TrainingMaterialDto createTrainingMaterial(TrainingMaterialCore trainingMaterialCore) {
-        TrainingMaterial trainingMaterial = createItem(trainingMaterialCore);
+    public TrainingMaterialDto createTrainingMaterial(TrainingMaterialCore trainingMaterialCore, boolean draft) {
+        TrainingMaterial trainingMaterial = createItem(trainingMaterialCore, draft);
         return prepareItemDto(trainingMaterial);
     }
 
-    public TrainingMaterialDto updateTrainingMaterial(String persistentId, TrainingMaterialCore trainingMaterialCore) {
-        TrainingMaterial trainingMaterial = updateItem(persistentId, trainingMaterialCore);
+    public TrainingMaterialDto updateTrainingMaterial(String persistentId,
+                                                      TrainingMaterialCore trainingMaterialCore,
+                                                      boolean draft) {
+
+        TrainingMaterial trainingMaterial = updateItem(persistentId, trainingMaterialCore, draft);
         return prepareItemDto(trainingMaterial);
     }
 
@@ -81,6 +88,11 @@ public class TrainingMaterialService
     @Override
     protected TrainingMaterial makeItem(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial) {
         return trainingMaterialFactory.create(trainingMaterialCore, prevTrainingMaterial);
+    }
+
+    @Override
+    protected TrainingMaterial modifyItem(TrainingMaterialCore trainingMaterialCore, TrainingMaterial trainingMaterial) {
+        return trainingMaterialFactory.modify(trainingMaterialCore, trainingMaterial);
     }
 
     @Override

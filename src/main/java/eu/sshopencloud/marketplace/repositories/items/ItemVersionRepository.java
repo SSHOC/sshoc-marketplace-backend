@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import org.springframework.data.domain.Page;
@@ -15,10 +16,19 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, Long> {
 
-    Page<T> findAllByStatus(ItemStatus itemStatus, Pageable pageable);
+    @Query("select v from #{#entityName} v join VersionedItem i on i.currentVersion = v")
+    Page<T> findAllCurrentItems(Pageable pageable);
 
-    @Query("select v from #{#entityName} v join VersionedItem vi on vi.currentVersion = v where vi.persistentId = :persistentId")
+    @Query("select v from #{#entityName} v join VersionedItem i on i.currentVersion = v where i.persistentId = :persistentId")
     Optional<T> findCurrentVersion(@Param("persistentId") String persistentId);
+
+    @Query(
+            "select v from #{#entityName} v " +
+                    "join DraftItem d on d.item = v " +
+                    "where v.versionedItem.persistentId = :persistentId " +
+                    "and d.owner = :draftOwner"
+    )
+    Optional<T> findDraftVersion(@Param("persistentId") String persistentId, @Param("draftOwner") User draftOwner);
 
     Optional<T> findByVersionedItemPersistentIdAndId(String persistentId, long id);
     Optional<T> findByVersionedItemPersistentIdAndStatus(String persistentId, ItemStatus status);

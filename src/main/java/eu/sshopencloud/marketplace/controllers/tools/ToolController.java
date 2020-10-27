@@ -29,8 +29,10 @@ public class ToolController {
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> getTool(@PathVariable("id") String id) {
-        return ResponseEntity.ok(toolService.getLatestTool(id));
+    public ResponseEntity<ToolDto> getTool(@PathVariable("id") String id,
+                                           @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(toolService.getLatestTool(id, draft));
     }
 
     @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,13 +41,17 @@ public class ToolController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool) {
-        return ResponseEntity.ok(toolService.createTool(newTool));
+    public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool,
+                                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(toolService.createTool(newTool, draft));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> updateTool(@PathVariable("id") String id, @RequestBody ToolCore updatedTool) {
-        return ResponseEntity.ok(toolService.updateTool(id, updatedTool));
+    public ResponseEntity<ToolDto> updateTool(@PathVariable("id") String id, @RequestBody ToolCore updatedTool,
+                                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(toolService.updateTool(id, updatedTool, draft));
     }
 
     @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
