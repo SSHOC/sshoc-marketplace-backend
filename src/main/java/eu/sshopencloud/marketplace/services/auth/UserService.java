@@ -50,6 +50,11 @@ public class UserService {
                 () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id)));
     }
 
+    public UserDto getLoggedInUser() {
+        return UserMapper.INSTANCE.toDto(userRepository.findById(LoggedInUserHolder.getLoggedInUser().getId()).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " for logged in user id")));
+    }
+
     public OAuthRegistrationDto getOAuthRegistration(String token) throws InvalidTokenException {
         Long userId = implicitGrantTokenProvider.getUserIdFromToken(token);
         return UserMapper.INSTANCE.toOAuthRegistrationDto(userRepository.findById(userId).orElseThrow(

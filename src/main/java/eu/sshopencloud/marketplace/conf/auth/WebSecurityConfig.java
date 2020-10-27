@@ -66,6 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(new Http403ForbiddenEntryPoint());
         http
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/oauth/sign-up").authenticated();
         http
