@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import eu.sshopencloud.marketplace.model.auth.User;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,16 +25,17 @@ public class ItemComment {
     private String body;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumn(foreignKey = @ForeignKey(name="item_comment_creator_id_fk"))
+    @JoinColumn(foreignKey = @ForeignKey(name = "item_comment_creator_id_fk"))
     private User creator;
 
-    @Basic
     @Column(nullable = false)
     @CreationTimestamp
     private ZonedDateTime dateCreated;
 
-    @Basic
     @Column(nullable = true)
     private ZonedDateTime dateLastUpdated;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "item_comment_persistent_id_fk"))
+    private VersionedItem item;
 }

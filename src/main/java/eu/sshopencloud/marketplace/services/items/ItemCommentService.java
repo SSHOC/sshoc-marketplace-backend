@@ -3,12 +3,11 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemCommentMapper;
-import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.model.auth.User;
-import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
+import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.items.ItemCommentRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.validators.items.ItemCommentFactory;
@@ -29,24 +28,22 @@ import java.util.List;
 @Slf4j
 public class ItemCommentService {
 
-    private final ItemsService itemsService;
-    private final ItemRepository itemRepository;
+    private final VersionedItemRepository versionedItemRepository;
     private final ItemCommentRepository itemCommentRepository;
     private final ItemCommentFactory itemCommentFactory;
     private final UserService userService;
 
 
     public List<ItemCommentDto> getLastComments(String itemId) {
-        Item item = itemsService.loadLatestItem(itemId);
         PageRequest pageRequest = PageRequest.of(0, 2);
-
-        List<ItemComment> lastComments = itemCommentRepository.findLastComments(item.getId(), pageRequest);
+        List<ItemComment> lastComments =
+                itemCommentRepository.findAllByItemPersistentIdOrderByDateCreatedDesc(itemId, pageRequest);
 
         return ItemCommentMapper.INSTANCE.toDto(lastComments);
     }
 
     public List<ItemCommentDto> getComments(String itemId) {
-        Item item = itemsService.loadLatestItem(itemId);
+        VersionedItem item = loadCommentedItem(itemId);
         List<ItemComment> comments = item.getComments();
 
         return ItemCommentMapper.INSTANCE.toDto(comments);
@@ -56,10 +53,10 @@ public class ItemCommentService {
         User creator = userService.loadLoggedInUser();
 
         ItemComment itemComment = itemCommentFactory.create(itemCommentCore, creator);
-        Item item = itemsService.loadLatestItem(itemId);
+        VersionedItem item = loadCommentedItem(itemId);
 
-        item.getComments().add(itemComment);
-        item = itemRepository.save(item);
+        item.addComment(itemComment);
+        item = versionedItemRepository.save(item);
 
         itemComment = item.getLatestComment();
 
@@ -67,7 +64,7 @@ public class ItemCommentService {
     }
 
     public ItemCommentDto updateItemComment(String itemId, Long commentId, ItemCommentCore itemCommentCore) {
-        Item item = itemsService.loadLatestItem(itemId);
+        VersionedItem item = loadCommentedItem(itemId);
         ItemComment comment = loadItemComment(item, commentId);
 
         validateCommentPrivileges(comment);
@@ -77,7 +74,7 @@ public class ItemCommentService {
     }
 
     public void deleteItemComment(String itemId, long commentId) {
-        Item item = itemsService.loadLatestItem(itemId);
+        VersionedItem item = loadCommentedItem(itemId);
         ItemComment comment = loadItemComment(item, commentId);
 
         validateCommentPrivileges(comment);
@@ -85,16 +82,28 @@ public class ItemCommentService {
     }
 
 
-    private ItemComment loadItemComment(Item item, long commentId) {
+    private ItemComment loadItemComment(VersionedItem item, long commentId) {
         return item.findComment(commentId)
                 .orElseThrow(
                         () -> new EntityNotFoundException(
                                 String.format(
                                         "Unable to find %s with id %d for item %s",
-                                        ItemComment.class.getName(), commentId, item.getVersionedItem().getPersistentId()
+                                        ItemComment.class.getName(), commentId, item.getPersistentId()
                                 )
                         )
                 );
+    }
+
+    private VersionedItem loadCommentedItem(String persistentId) {
+        VersionedItem item = versionedItemRepository.findById(persistentId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Unable to find item with id %s", persistentId)
+                ));
+
+        if (!item.areCommentsAllowed())
+            throw new IllegalArgumentException(String.format("Item with id %s cannot be commented anymore", persistentId));
+
+        return item;
     }
 
     private void validateCommentPrivileges(ItemComment comment) {

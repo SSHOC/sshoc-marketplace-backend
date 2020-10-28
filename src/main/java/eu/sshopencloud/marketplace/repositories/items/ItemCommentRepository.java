@@ -13,6 +13,5 @@ import java.util.List;
 @Repository
 public interface ItemCommentRepository extends JpaRepository<ItemComment, Long> {
 
-    @Query("select c from ItemComment c join Item i where i.id = :itemVersionId")
-    List<ItemComment> findLastComments(@Param("itemVersionId") long itemVersionId, Pageable pageable);
+    List<ItemComment> findAllByItemPersistentIdOrderByDateCreatedDesc(String persistentId, Pageable pageable);
 }

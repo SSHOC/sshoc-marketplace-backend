@@ -107,15 +107,6 @@ public abstract class Item {
     @Column(nullable = false, columnDefinition = "varchar(255) default 'INGESTED'")
     private ItemStatus status;
 
-    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    @JoinTable(
-            name = "items_items_comments",
-            joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "item_comment_id", referencedColumnName = "id")
-    )
-    @OrderBy("dateCreated DESC")
-    private List<ItemComment> comments;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "persistent_id", nullable = false)
     private VersionedItem versionedItem;
@@ -132,7 +123,6 @@ public abstract class Item {
         this.properties = new ArrayList<>();
         this.licenses = new ArrayList<>();
         this.contributors = new ArrayList<>();
-        this.comments = new ArrayList<>();
     }
 
     public Item(Item baseItem) {
@@ -153,12 +143,10 @@ public abstract class Item {
         this.source = baseItem.getSource();
         this.sourceItemId = baseItem.getSourceItemId();
         this.informationContributors = new ArrayList<>(baseItem.getInformationContributors());
-        this.comments = new ArrayList<>(baseItem.getComments());
     }
 
     public boolean isNewestVersion() {
-        // TODO resolve if newest version by checking VersionedItem entity
-        return true;
+        return (status == ItemStatus.APPROVED && versionedItem.isActive());
     }
 
     public void addInformationContributor(User contributor) {
@@ -175,25 +163,5 @@ public abstract class Item {
         }
 
         return Collections.unmodifiableList(properties);
-    }
-
-    public ItemComment getLatestComment() {
-        return comments.get(0);
-    }
-
-    public Optional<ItemComment> findComment(long commentId) {
-        return comments.stream()
-                .filter(comment -> comment.getId().equals(commentId))
-                .findFirst();
-    }
-
-    public boolean removeComment(long commentId) {
-        Optional<ItemComment> comment = findComment(commentId);
-
-        if (comment.isEmpty())
-            return false;
-
-        comments.remove(comment.get());
-        return true;
     }
 }
