@@ -66,7 +66,7 @@ public class MarketplaceExceptionHandler {
     }
 
     @ExceptionHandler(value = RuntimeException.class)
-    public ResponseEntity handleServerError(Exception ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleServerError(Exception ex, WebRequest request) {
         log.error("Runtime exception", ex);
         if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getCause() != null && ex.getCause().getCause().getCause() instanceof ParseException) {
             ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getCause().getCause().getMessage()).build();

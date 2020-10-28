@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface DraftItemRepository extends JpaRepository<DraftItem, Long> {
 
     Optional<DraftItem> getByItemId(long itemId);
+
+    void deleteByItemId(long itemId);
 }

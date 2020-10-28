@@ -60,7 +60,9 @@ public class DatasetController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteDataset(@PathVariable("id") String id) {
-        datasetService.deleteDataset(id);
+    public void deleteDataset(@PathVariable("id") String id,
+                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        datasetService.deleteDataset(id, draft);
     }
 }

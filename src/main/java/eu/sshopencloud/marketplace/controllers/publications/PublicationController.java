@@ -61,7 +61,9 @@ public class PublicationController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deletePublication(@PathVariable("id") String id) {
-        publicationService.deletePublication(id);
+    public void deletePublication(@PathVariable("id") String id,
+                                  @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        publicationService.deletePublication(id, draft);
     }
 }

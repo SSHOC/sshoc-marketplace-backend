@@ -75,8 +75,8 @@ public class TrainingMaterialService
         return prepareItemDto(trainingMaterial);
     }
 
-    public void deleteTrainingMaterial(String persistentId) {
-        deleteItem(persistentId);
+    public void deleteTrainingMaterial(String persistentId, boolean draft) {
+        deleteItem(persistentId, draft);
     }
 
 

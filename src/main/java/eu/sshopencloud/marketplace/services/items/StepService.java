@@ -56,7 +56,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public StepDto getLatestStep(String workflowId, String stepId, boolean draft) {
-        validateWorkflowAndStepConsistency(workflowId, stepId);
+        validateWorkflowAndStepConsistency(workflowId, stepId, true);
         return getLatestItem(stepId, draft);
     }
 
@@ -75,10 +75,10 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public StepDto createSubstep(String workflowId, String stepId, StepCore substepCore, boolean draft) {
-        validateWorkflowAndStepConsistency(workflowId, stepId);
+        validateWorkflowAndStepConsistency(workflowId, stepId, false);
 
         Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
-        Step step = loadLatestItem(stepId);
+        Step step = loadItemForCurrentUser(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(substepCore, stepTree);
@@ -88,10 +88,10 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft) {
-        validateWorkflowAndStepConsistency(workflowId, stepId);
+        validateWorkflowAndStepConsistency(workflowId, stepId, false);
 
         Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
-        Step step = loadLatestItem(stepId);
+        Step step = loadItemForCurrentUser(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
 
@@ -115,29 +115,31 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     public void deleteStep(String workflowId, String stepId, boolean draft) {
-        validateWorkflowAndStepConsistency(workflowId, stepId);
+        validateWorkflowAndStepConsistency(workflowId, stepId, false);
 
         Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
-        Step step = loadLatestItem(stepId);
+        Step step = draft ? loadItemDraftForCurrentUser(stepId) : loadCurrentItem(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
 
         parentStepTree.removeStep(step);
 
-        super.deleteItem(stepId);
+        super.deleteItem(stepId, draft);
     }
 
     Step commitDraftStep(Step step) {
         return commitItemDraft(step);
     }
 
-    void deleteStepOnly(Step step) {
-        deleteItem(step.getVersionedItem().getPersistentId());
+    void deleteStepOnly(Step step, boolean draft) {
+        deleteItem(step.getVersionedItem().getPersistentId(), draft);
     }
 
-    private void validateWorkflowAndStepConsistency(String workflowId, String stepId) {
-        Workflow workflow = workflowService.loadLatestItem(workflowId);
-        Step step = loadLatestItem(stepId);
+    private void validateWorkflowAndStepConsistency(String workflowId, String stepId, boolean lastApproved) {
+        Workflow workflow =
+                lastApproved ? workflowService.loadLatestItem(workflowId) : workflowService.loadItemForCurrentUser(workflowId);
+
+        Step step = lastApproved ? loadLatestItem(stepId) : loadItemForCurrentUser(stepId);
 
         stepsTreeRepository.findByWorkflowIdAndStepId(workflow.getId(), step.getId())
                 .orElseThrow(

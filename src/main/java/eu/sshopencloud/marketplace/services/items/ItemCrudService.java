@@ -11,13 +11,13 @@ import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -55,11 +55,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected P getItemsPage(PageCoords pageCoords) {
-        PageRequest pageRequest = PageRequest.of(
-                pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
-        );
-
-        Page<I> itemsPage = getItemRepository().findAllCurrentItems(pageRequest);
+        Page<I> itemsPage = loadLatestItems(pageCoords);
         List<D> dtos = itemsPage.stream()
                 .map(this::prepareItemDto)
                 .collect(Collectors.toList());
@@ -74,16 +70,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected D getLatestItem(String persistentId, boolean draft) {
         if (draft) {
-            I itemDraft = loadItemDraftForCurrentUser(persistentId)
-                    .orElseThrow(
-                            () -> new EntityNotFoundException(
-                                    String.format(
-                                            "Unable to find draft %s with id %s for the authorized user",
-                                            getItemTypeName(), persistentId
-                                    )
-                            )
-                    );
-
+            I itemDraft = loadItemDraftForCurrentUser(persistentId);
             return prepareItemDto(itemDraft);
         }
 
@@ -101,20 +88,23 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected I updateItem(String persistentId, C itemCore, boolean draft) {
-        I item = loadItemDraftForCurrentUser(persistentId)
-                .orElseGet(() -> loadCurrentItem(persistentId));
-
+        I item = loadItemForCurrentUser(persistentId);
         return createOrUpdateItemVersion(itemCore, item, draft);
     }
 
+    protected I loadItemForCurrentUser(String persistentId) {
+        return resolveItemDraftForCurrentUser(persistentId)
+                .orElseGet(() -> loadCurrentItem(persistentId));
+    }
+
     private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft) {
-        I newItem = enrollItemVersion(itemCore, prevVersion, draft);
+        I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft);
         indexService.indexItem(newItem);
 
         return newItem;
     }
 
-    private I enrollItemVersion(C itemCore, I prevVersion, boolean draft) {
+    private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
             I version = modifyItem(itemCore, prevVersion);
@@ -133,16 +123,25 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
         VersionedItem versionedItem =
-                (prevVersion == null) ? createNewVersionedItem(draft) : prevVersion.getVersionedItem();
+                (prevVersion == null) ? createNewVersionedItem() : prevVersion.getVersionedItem();
+
+        if (!versionedItem.isActive()) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Item with id %s has been deleted or merged, so adding a new version is prohibited",
+                            versionedItem.getPersistentId()
+                    )
+            );
+        }
 
         version.setVersionedItem(versionedItem);
 
         // If not a draft
         if (!draft) {
             versionedItem.setCurrentVersion(version);
-            versionedItem.setStatus(VersionedItemStatus.REVIEWED);
             version.setPrevVersion(prevVersion);
-            version.setStatus(ItemStatus.REVIEWED);
+
+            assignItemVersionStatus(version);
 
             if (prevVersion != null)
                 prevVersion.setStatus(ItemStatus.DEPRECATED);
@@ -152,7 +151,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             version.setStatus(ItemStatus.DRAFT);
 
             // If it's a first (and draft) version of the item make persistent a draft
-            if (prevVersion == null)
+            if (versionedItem.hasAnyVersions())
                 versionedItem.setStatus(VersionedItemStatus.DRAFT);
         }
 
@@ -180,24 +179,56 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                         )
                 );
 
-        version.setStatus(ItemStatus.REVIEWED);
-
         VersionedItem versionedItem = version.getVersionedItem();
+        if (versionedItem.getStatus() == VersionedItemStatus.DELETED) {
+            throw new IllegalArgumentException(
+                    String.format("Cannot commit draft for the deleted/merged item with id %s", versionedItem.getPersistentId())
+            );
+        }
+
+        assignItemVersionStatus(version);
+
         versionedItem.setCurrentVersion(version);
-
-        if (versionedItem.getStatus().equals(VersionedItemStatus.DRAFT))
-            versionedItem.setStatus(VersionedItemStatus.REVIEWED);
-
         draftItemRepository.delete(draft);
 
         return version;
     }
 
-    private VersionedItem createNewVersionedItem(boolean draft) {
-        String id = resolveNewVersionedItemId();
-        VersionedItemStatus status = draft ? VersionedItemStatus.DRAFT : VersionedItemStatus.REVIEWED;
+    private void assignItemVersionStatus(I version) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!currentUser.isContributor())
+            throw new AccessDeniedException("Not authorized to create new item version");
 
-        return new VersionedItem(id, status);
+        VersionedItem versionedItem = version.getVersionedItem();
+
+        if (!versionedItem.isActive()) {
+            throw new IllegalArgumentException(
+                    String.format("Deleted/merged item with id %s cannot be modified anymore", versionedItem.getPersistentId())
+            );
+        }
+
+        // The order of these role checks does matter as, for example, a moderator is a contributor as well
+        if (currentUser.isModerator()) {
+            version.setStatus(ItemStatus.APPROVED);
+            versionedItem.setStatus(VersionedItemStatus.REVIEWED);
+        }
+        else if (currentUser.isSystemContributor()) {
+            version.setStatus(ItemStatus.INGESTED);
+
+            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
+                versionedItem.setStatus(VersionedItemStatus.INGESTED);
+        }
+        else if (currentUser.isContributor()) {
+            version.setStatus(ItemStatus.SUGGESTED);
+
+            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
+                versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
+        }
+    }
+
+    private VersionedItem createNewVersionedItem() {
+        String id = resolveNewVersionedItemId();
+        return new VersionedItem(id);
     }
 
     private String resolveNewVersionedItemId() {
@@ -228,7 +259,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected I liftItemVersion(String persistentId, boolean draft) {
         if (draft) {
-            Optional<I> itemDraft = loadItemDraftForCurrentUser(persistentId);
+            Optional<I> itemDraft = resolveItemDraftForCurrentUser(persistentId);
             if (itemDraft.isPresent())
                 return itemDraft.get();
         }
@@ -239,29 +270,51 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return saveVersionInHistory(newItem, item, draft);
     }
 
-    protected void deleteItem(String persistentId) {
-        I item = loadCurrentItem(persistentId);
+    protected void deleteItem(String persistentId, boolean draft) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!draft && !currentUser.isModerator())
+            throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
 
-        if (ItemStatus.DRAFT.equals(item.getStatus())) {
-            cleanupDraft(item);
+        if (draft) {
+            I draftItem  = loadItemDraftForCurrentUser(persistentId);
+            cleanupDraft(draftItem);
+
+            return;
+        }
+
+        I item = loadCurrentItem(persistentId);
+        VersionedItem versionedItem = item.getVersionedItem();
+
+        if (versionedItem.getStatus() == VersionedItemStatus.INGESTED
+                || versionedItem.getStatus() == VersionedItemStatus.SUGGESTED) {
+
+            versionedItem.setStatus(VersionedItemStatus.REFUSED);
+            item.setStatus(ItemStatus.DISAPPROVED);
         }
         else {
-            item.setStatus(ItemStatus.DELETED);
+            versionedItem.setStatus(VersionedItemStatus.DELETED);
+            versionedItem.setActive(false);
         }
-
-        // TODO removing versioned item as well (setting appropriate status)
 
         indexService.removeItem(item);
     }
 
     private void cleanupDraft(I draft) {
-        if (!ItemStatus.DRAFT.equals(draft.getStatus()))
-            return;
+        VersionedItem versionedItem = draft.getVersionedItem();
+        if (!draft.getStatus().equals(ItemStatus.DRAFT)) {
+            throw new IllegalStateException(
+                    String.format(
+                            "Unexpected attempt of removing a non-draft item with id %s as a draft item",
+                            versionedItem.getPersistentId()
+                    )
+            );
+        }
 
-        itemRelatedItemService.deleteRelationsForItem(draft);
-
+        draftItemRepository.deleteByItemId(draft.getId());
         getItemRepository().delete(draft);
-        versionedItemRepository.delete(draft.getVersionedItem());
+
+        if (versionedItem.getStatus().equals(VersionedItemStatus.DRAFT))
+            versionedItemRepository.delete(draft.getVersionedItem());
     }
 
     private List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {

@@ -133,24 +133,24 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return prepareItemDto(revWorkflow);
     }
 
-    public void deleteWorkflow(String persistentId) {
+    public void deleteWorkflow(String persistentId, boolean draft) {
         Workflow workflow = super.loadLatestItem(persistentId);
         workflow.getStepsTree().visit(new StepsTreeVisitor() {
             @Override
             public void onNextStep(StepsTree stepTree) {
                 Step step = stepTree.getStep();
-                stepService.deleteStepOnly(step);
+                stepService.deleteStepOnly(step, draft);
             }
 
             @Override
             public void onBackToParent() {}
         });
 
-        super.deleteItem(persistentId);
+        deleteItem(persistentId, draft);
     }
 
     Workflow resolveWorkflowForNewStep(String persistentId, boolean draft) {
-        Optional<Workflow> workflowDraft = loadItemDraftForCurrentUser(persistentId);
+        Optional<Workflow> workflowDraft = resolveItemDraftForCurrentUser(persistentId);
 
         if (!draft && workflowDraft.isPresent()) {
             throw new IllegalArgumentException(

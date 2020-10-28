@@ -66,8 +66,10 @@ public class WorkflowController {
     }
 
     @DeleteMapping(path = "/{workflowId}")
-    public void deleteWorkflow(@PathVariable("workflowId") String workflowId) {
-        workflowService.deleteWorkflow(workflowId);
+    public void deleteWorkflow(@PathVariable("workflowId") String workflowId,
+                               @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        workflowService.deleteWorkflow(workflowId, draft);
     }
 
     @GetMapping(path = "/{workflowId}/steps/{stepId}", produces = MediaType.APPLICATION_JSON_VALUE)

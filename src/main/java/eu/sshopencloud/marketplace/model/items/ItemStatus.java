@@ -5,9 +5,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum ItemStatus {
     DRAFT,
     INGESTED,
-    REVIEWED,
-    DEPRECATED,
-    DELETED;
+    SUGGESTED,
+    APPROVED,
+    DISAPPROVED,
+    DEPRECATED;
 
     @JsonValue
     public String getValue() {

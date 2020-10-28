@@ -60,7 +60,9 @@ public class ToolController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteTool(@PathVariable("id") String id) {
-        toolService.deleteTool(id);
+    public void deleteTool(@PathVariable("id") String id,
+                           @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        toolService.deleteTool(id, draft);
     }
 }

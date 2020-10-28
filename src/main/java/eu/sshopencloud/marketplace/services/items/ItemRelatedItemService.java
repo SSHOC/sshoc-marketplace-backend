@@ -32,7 +32,7 @@ public class ItemRelatedItemService {
 
 
     public List<RelatedItemDto> getItemRelatedItems(Long itemId) {
-        List<RelatedItemDto> relatedItems = new ArrayList();
+        List<RelatedItemDto> relatedItems = new ArrayList<>();
 
         List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findBySubjectId(itemId);
         for (ItemRelatedItem subjectRelatedItem : subjectRelatedItems) {
@@ -78,6 +78,7 @@ public class ItemRelatedItemService {
         return ItemRelatedItemMapper.INSTANCE.toDto(itemRelatedItem);
     }
 
+    @Deprecated
     public void deleteRelationsForItem(Item item) {
         List<ItemRelatedItem> subjectRelatedItems = itemRelatedItemRepository.findBySubjectId(item.getId());
         itemRelatedItemRepository.deleteAll(subjectRelatedItems);

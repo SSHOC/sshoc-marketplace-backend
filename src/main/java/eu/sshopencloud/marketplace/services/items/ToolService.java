@@ -70,8 +70,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareItemDto(tool);
     }
 
-    public void deleteTool(String persistentId) {
-        deleteItem(persistentId);
+    public void deleteTool(String persistentId, boolean draft) {
+        deleteItem(persistentId, draft);
     }
 
 

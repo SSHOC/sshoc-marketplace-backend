@@ -70,8 +70,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareItemDto(publication);
     }
 
-    public void deletePublication(String persistentId) {
-        deleteItem(persistentId);
+    public void deletePublication(String persistentId, boolean draft) {
+        deleteItem(persistentId, draft);
     }
 
 

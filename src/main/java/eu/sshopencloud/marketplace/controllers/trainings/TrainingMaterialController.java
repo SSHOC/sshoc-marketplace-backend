@@ -65,7 +65,9 @@ public class TrainingMaterialController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteTrainingMaterial(@PathVariable("id") String id) {
-        trainingMaterialService.deleteTrainingMaterial(id);
+    public void deleteTrainingMaterial(@PathVariable("id") String id,
+                                       @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        trainingMaterialService.deleteTrainingMaterial(id, draft);
     }
 }
