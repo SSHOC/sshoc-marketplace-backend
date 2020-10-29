@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,7 @@ public class ItemDto extends ItemBasicDto {
 
     private List<UserDto> informationContributors;
 
+    @Schema(type="string", pattern = ApiDateTimeFormatter.dateTimePattern, example = ApiDateTimeFormatter.dateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.dateTimePattern)
     private ZonedDateTime lastInfoUpdate;
 
