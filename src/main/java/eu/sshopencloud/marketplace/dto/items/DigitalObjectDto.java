@@ -14,12 +14,12 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 public class DigitalObjectDto extends ItemDto {
 
-    @Schema(type="string", pattern = ApiDateTimeFormatter.dateTimePattern, example = ApiDateTimeFormatter.dateTimeExample)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.dateTimePattern)
+    @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
     private ZonedDateTime dateCreated;
 
-    @Schema(type="string", pattern = ApiDateTimeFormatter.dateTimePattern, example = ApiDateTimeFormatter.dateTimeExample)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.dateTimePattern)
+    @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
     private ZonedDateTime dateLastUpdated;
 
 }
