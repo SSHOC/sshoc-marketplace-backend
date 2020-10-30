@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
@@ -35,7 +36,7 @@ abstract class ItemVersionService<I extends Item> {
      * Loads the most recent item for presentation purposes i.e. an approved item
      */
     protected I loadLatestItem(String persistentId) {
-        return getItemRepository().findLatestItem(persistentId)
+        return tryLoadLatestItem(persistentId)
                 .orElseThrow(
                         () -> new EntityNotFoundException(
                                 String.format(
@@ -44,6 +45,10 @@ abstract class ItemVersionService<I extends Item> {
                                 )
                         )
                 );
+    }
+
+    protected Optional<I> tryLoadLatestItem(String persistentId) {
+        return getItemRepository().findLatestItem(persistentId);
     }
 
     /**
@@ -92,6 +97,11 @@ abstract class ItemVersionService<I extends Item> {
             throw new AccessDeniedException("Cannot access draft item for an unauthorized user");
 
         return loadItemDraft(persistentId, currentUser);
+    }
+
+    protected I loadItemForCurrentUser(String persistentId) {
+        return resolveItemDraftForCurrentUser(persistentId)
+                .orElseGet(() -> loadCurrentItem(persistentId));
     }
 
     protected I loadItemVersion(String persistentId, long versionId) {

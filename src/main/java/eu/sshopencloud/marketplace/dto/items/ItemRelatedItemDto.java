@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 public class ItemRelatedItemDto {
 
     private ItemBasicDto subject;
-
     private ItemBasicDto object;
-
     private ItemRelationDto relation;
-
 }

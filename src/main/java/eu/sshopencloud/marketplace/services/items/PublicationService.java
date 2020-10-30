@@ -91,7 +91,7 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     @Override
-    protected Publication makeVersionCopy(Publication publication) {
+    protected Publication makeItemCopy(Publication publication) {
         return publicationFactory.makeNewVersion(publication);
     }
 

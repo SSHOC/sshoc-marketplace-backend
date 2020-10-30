@@ -19,8 +19,8 @@ import java.util.List;
 public class ItemRelationController {
 
     private final ItemRelationService itemRelationService;
-
     private final ItemRelatedItemService itemRelatedItemService;
+
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemRelationDto>> getAllItemRelations() {
@@ -28,16 +28,19 @@ public class ItemRelationController {
     }
 
     @PostMapping(path = "/{subjectId}/{objectId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemRelatedItemDto> createItemRelatedItem(@PathVariable("subjectId") long subjectId,
-                                                                    @PathVariable("objectId") long objectId,
-                                                                    @RequestBody ItemRelationId itemRelation)
+    public ResponseEntity<ItemRelatedItemDto> createItemRelatedItem(@PathVariable("subjectId") String subjectId,
+                                                                    @PathVariable("objectId") String objectId,
+                                                                    @RequestBody ItemRelationId itemRelation,
+                                                                    @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft)
             throws ItemsRelationAlreadyExistsException {
-        return ResponseEntity.ok(itemRelatedItemService.createItemRelatedItem(subjectId, objectId, itemRelation));
+
+        return ResponseEntity.ok(itemRelatedItemService.createItemRelatedItem(subjectId, objectId, itemRelation, draft));
     }
 
     @DeleteMapping("/{subjectId}/{objectId}")
-    public void deleteItemRelatedItem(@PathVariable("subjectId") long subjectId, @PathVariable("objectId") long objectId) {
-        itemRelatedItemService.deleteItemRelatedItem(subjectId, objectId);
-    }
+    public void deleteItemRelatedItem(@PathVariable("subjectId") String subjectId, @PathVariable("objectId") String objectId,
+                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
+        itemRelatedItemService.deleteItemRelatedItem(subjectId, objectId, draft);
+    }
 }

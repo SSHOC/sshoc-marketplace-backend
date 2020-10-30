@@ -149,7 +149,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         deleteItem(persistentId, draft);
     }
 
-    Workflow resolveWorkflowForNewStep(String persistentId, boolean draft) {
+    Workflow liftWorkflowForNewStep(String persistentId, boolean draft) {
         Optional<Workflow> workflowDraft = resolveItemDraftForCurrentUser(persistentId);
 
         if (!draft && workflowDraft.isPresent()) {
@@ -190,7 +190,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     @Override
-    protected Workflow makeVersionCopy(Workflow workflow) {
+    protected Workflow makeItemCopy(Workflow workflow) {
         return workflowFactory.makeNewVersion(workflow);
     }
 

@@ -11,6 +11,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.OptimisticLockException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -50,6 +51,17 @@ public class MarketplaceExceptionHandler {
     public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
         log.error("No entity", ex);
         return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(OptimisticLockException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLockingException(OptimisticLockException e) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error(e.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
     @ExceptionHandler(value = NoHandlerFoundException.class)

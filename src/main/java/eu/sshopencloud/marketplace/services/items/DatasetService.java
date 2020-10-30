@@ -94,7 +94,7 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     @Override
-    protected Dataset makeVersionCopy(Dataset dataset) {
+    protected Dataset makeItemCopy(Dataset dataset) {
         return datasetFactory.makeNewVersion(dataset);
     }
 

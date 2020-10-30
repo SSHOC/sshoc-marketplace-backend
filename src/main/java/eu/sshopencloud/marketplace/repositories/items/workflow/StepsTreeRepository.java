@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface StepsTreeRepository extends JpaRepository<StepsTree, Long> {
 
+    StepsTree findByStepId(long stepId);
     Optional<StepsTree> findByWorkflowIdAndStepId(long workflowId, long stepId);
 }

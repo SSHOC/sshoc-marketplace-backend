@@ -106,7 +106,7 @@ public class StepsTree {
         String persistentId = step.getVersionedItem().getPersistentId();
 
         subTrees.stream()
-                .filter(st -> getStep().getVersionedItem().getPersistentId().equals(persistentId))
+                .filter(st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId))
                 .forEach(st -> st.setStep(step));
     }
 

@@ -96,7 +96,7 @@ public class TrainingMaterialService
     }
 
     @Override
-    protected TrainingMaterial makeVersionCopy(TrainingMaterial trainingMaterial) {
+    protected TrainingMaterial makeItemCopy(TrainingMaterial trainingMaterial) {
         return trainingMaterialFactory.makeNewVersion(trainingMaterial);
     }
 

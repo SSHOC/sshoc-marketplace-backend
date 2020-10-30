@@ -66,7 +66,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     public StepDto createStep(String workflowId, StepCore stepCore, boolean draft) {
-        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
+        Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(stepCore, newWorkflow.getStepsTree());
 
         Step step = createItem(workflowStepCore, draft);
@@ -77,7 +77,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public StepDto createSubstep(String workflowId, String stepId, StepCore substepCore, boolean draft) {
         validateWorkflowAndStepConsistency(workflowId, stepId, false);
 
-        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
+        Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
         Step step = loadItemForCurrentUser(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
@@ -90,7 +90,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft) {
         validateWorkflowAndStepConsistency(workflowId, stepId, false);
 
-        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
+        Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
         Step step = loadItemForCurrentUser(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
@@ -104,7 +104,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public StepDto revertStep(String workflowId, String stepId, long versionId) {
         validateWorkflowAndStepConsistency(workflowId, stepId, versionId);
 
-        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, false);
+        Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, false);
         Step step = loadItemVersion(stepId, versionId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
@@ -117,7 +117,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public void deleteStep(String workflowId, String stepId, boolean draft) {
         validateWorkflowAndStepConsistency(workflowId, stepId, false);
 
-        Workflow newWorkflow = workflowService.resolveWorkflowForNewStep(workflowId, draft);
+        Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
         Step step = draft ? loadItemDraftForCurrentUser(stepId) : loadCurrentItem(stepId);
         StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
@@ -126,6 +126,22 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
         super.deleteItem(stepId, draft);
     }
+
+    @Override
+    protected Step liftItemVersion(String persistentId, boolean draft) {
+        Step step = draft ? loadItemForCurrentUser(persistentId) : loadCurrentItem(persistentId);
+        StepsTree stepTree = stepsTreeRepository.findByStepId(step.getId());
+        Workflow workflow = stepTree.getWorkflow();
+
+        Workflow newWorkflow = workflowService.liftItemVersion(workflow.getVersionedItem().getPersistentId(), draft);
+        Step newStep = super.liftItemVersion(persistentId, draft);
+        StepsTree newStepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
+
+        newStepTree.setStep(newStep);
+
+        return newStep;
+    }
+
 
     Step commitDraftStep(Step step) {
         return commitItemDraft(step);
@@ -189,7 +205,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     @Override
-    protected Step makeVersionCopy(Step step) {
+    protected Step makeItemCopy(Step step) {
         return stepFactory.makeNewVersion(step);
     }
 

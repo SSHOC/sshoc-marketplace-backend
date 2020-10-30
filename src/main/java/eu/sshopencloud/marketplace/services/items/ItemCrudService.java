@@ -92,11 +92,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return createOrUpdateItemVersion(itemCore, item, draft);
     }
 
-    protected I loadItemForCurrentUser(String persistentId) {
-        return resolveItemDraftForCurrentUser(persistentId)
-                .orElseGet(() -> loadCurrentItem(persistentId));
-    }
-
     private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft) {
         I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft);
         indexService.indexItem(newItem);
@@ -115,7 +110,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             return version;
         }
 
-        I version = makeItem(itemCore, prevVersion);
+        I version = makeItemVersion(itemCore, prevVersion);
         version = saveVersionInHistory(version, prevVersion, draft);
 
         return version;
@@ -143,8 +138,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
             assignItemVersionStatus(version);
 
-            if (prevVersion != null)
-                prevVersion.setStatus(ItemStatus.DEPRECATED);
+            if (version.getStatus() == ItemStatus.APPROVED) {
+                tryLoadLatestItem(versionedItem.getPersistentId())
+                        .ifPresent(item -> item.setStatus(ItemStatus.DEPRECATED));
+            }
         }
         // If it is a draft
         else {
@@ -168,7 +165,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected I commitItemDraft(I version) {
-        DraftItem draft = draftItemRepository.getByItemId(version.getId())
+        DraftItem draft = draftItemRepository.findByItemId(version.getId())
                 .orElseThrow(
                         () -> new EntityNotFoundException(
                                 String.format(
@@ -187,6 +184,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         assignItemVersionStatus(version);
+        commitDraftRelations(draft);
 
         versionedItem.setCurrentVersion(version);
         draftItemRepository.delete(draft);
@@ -248,13 +246,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected I revertItemVersion(String persistentId, long versionId) {
         I item = loadItemVersion(persistentId, versionId);
-        I latestItem = loadCurrentItem(persistentId);
-        I targetVersion = makeVersionCopy(item);
+        I currentVersion = loadCurrentItem(persistentId);
+        I targetVersion = makeItemVersionCopy(item);
 
-        targetVersion.setPrevVersion(latestItem);
-        targetVersion.setVersionedItem(latestItem.getVersionedItem());
-
-        return getItemRepository().save(targetVersion);
+        return saveVersionInHistory(targetVersion, currentVersion, false);
     }
 
     protected I liftItemVersion(String persistentId, boolean draft) {
@@ -265,7 +260,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         I item = loadCurrentItem(persistentId);
-        I newItem = makeVersionCopy(item);
+        I newItem = makeItemVersionCopy(item);
 
         return saveVersionInHistory(newItem, item, draft);
     }
@@ -299,9 +294,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         indexService.removeItem(item);
     }
 
-    private void cleanupDraft(I draft) {
-        VersionedItem versionedItem = draft.getVersionedItem();
-        if (!draft.getStatus().equals(ItemStatus.DRAFT)) {
+    private void cleanupDraft(I draftItem) {
+        VersionedItem versionedItem = draftItem.getVersionedItem();
+        if (!draftItem.getStatus().equals(ItemStatus.DRAFT)) {
             throw new IllegalStateException(
                     String.format(
                             "Unexpected attempt of removing a non-draft item with id %s as a draft item",
@@ -310,11 +305,16 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        draftItemRepository.deleteByItemId(draft.getId());
-        getItemRepository().delete(draft);
+        draftItemRepository.deleteByItemId(draftItem.getId());
+        getItemRepository().delete(draftItem);
 
         if (versionedItem.getStatus().equals(VersionedItemStatus.DRAFT))
-            versionedItemRepository.delete(draft.getVersionedItem());
+            versionedItemRepository.delete(draftItem.getVersionedItem());
+    }
+
+    private void commitDraftRelations(DraftItem draftItem) {
+        // TODO implement
+        throw new UnsupportedOperationException("Committing drafts is not supported");
     }
 
     private List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
@@ -351,10 +351,20 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return item;
     }
 
+    private I makeItemVersion(C itemCore, I prevItem) {
+        // TODO make item with copied relations
+        return makeItem(itemCore, prevItem);
+    }
+
+    private I makeItemVersionCopy(I item) {
+        // TODO make item version copy with copied relations
+        return makeItemCopy(item);
+    }
+
 
     protected abstract I makeItem(C itemCore, I prevItem);
     protected abstract I modifyItem(C itemCore, I item);
-    protected abstract I makeVersionCopy(I item);
+    protected abstract I makeItemCopy(I item);
 
     protected abstract P wrapPage(Page<I> resultsPage, List<D> convertedDtos);
     protected abstract D convertItemToDto(I item);

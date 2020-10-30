@@ -91,7 +91,7 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     @Override
-    protected Tool makeVersionCopy(Tool tool) {
+    protected Tool makeItemCopy(Tool tool) {
         return toolFactory.makeNewVersion(tool);
     }
 

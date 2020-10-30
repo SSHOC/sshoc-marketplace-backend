@@ -15,31 +15,31 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ItemRelationValidator {
+public class ItemRelationFactory {
 
     private final ItemRelationRepository itemRelationRepository;
 
 
-    public ItemRelation validate(ItemRelationId itemRelationId) throws ValidationException {
+    public ItemRelation create(ItemRelationId itemRelationId) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(itemRelationId, "ItemRelation");
 
         ItemRelation itemRelation = null;
         if (StringUtils.isBlank(itemRelationId.getCode())) {
             errors.rejectValue("code", "field.required", "Item relation code is required.");
-        } else {
+        }
+        else {
             Optional<ItemRelation> itemRelationHolder = itemRelationRepository.findById(itemRelationId.getCode());
-            if (!itemRelationHolder.isPresent()) {
+            if (itemRelationHolder.isEmpty()) {
                 errors.rejectValue("code", "field.notExist", "Item relation does not exist.");
-            } else {
+            }
+            else {
                 itemRelation = itemRelationHolder.get();
             }
         }
 
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             throw new ValidationException(errors);
-        } else {
-            return itemRelation;
-        }
-    }
 
+        return itemRelation;
+    }
 }
