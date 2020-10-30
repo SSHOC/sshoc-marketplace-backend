@@ -1,14 +1,18 @@
 package eu.sshopencloud.marketplace.controllers.publications;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
+import eu.sshopencloud.marketplace.conf.datetime.ZonedDateTimeDeserializer;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
-import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
-import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
@@ -27,7 +31,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,5 +128,205 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
+
+
+    @Test
+    public void shouldCreatePublicationWithDateInZZone() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test publication with Z zone");
+        publication.setDescription("Lorem ipsum");
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2020, Month.APRIL, 15), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        publication.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2020, Month.APRIL, 15), LocalTime.of(12, 1, 2, 345000000), ZoneId.of("UTC"));
+        publication.setDateLastUpdated(dateLastUpdated);
+
+        String payload = new ZoneOffsetXXTestJsonMapper().serializingObjectMapper().writeValueAsString(publication);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/publications")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is("Test publication with Z zone")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
+                .andExpect(jsonPath("olderVersions", hasSize(0)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+
+    private class ZoneOffsetXXTestJsonMapper {
+
+        public ObjectMapper serializingObjectMapper() {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JavaTimeModule javaTimeModule = new JavaTimeModule();
+            javaTimeModule.addSerializer(ZonedDateTime.class, new ZoneOffsetXXDateTimeSerializer());
+            javaTimeModule.addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer());
+            objectMapper.registerModule(javaTimeModule);
+            return objectMapper;
+        }
+
+    }
+
+    private class ZoneOffsetXXDateTimeSerializer extends JsonSerializer<ZonedDateTime> {
+
+        @Override
+        public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(value.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXX")));
+        }
+
+    }
+
+    @Test
+    public void shouldCreatePublicationWithDateInZZoneAndMilliseconds() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test publication with Z zone");
+        publication.setDescription("Lorem ipsum");
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2020, Month.APRIL, 15), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        publication.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2020, Month.APRIL, 15), LocalTime.of(12, 1, 2, 345000000), ZoneId.of("UTC"));
+        publication.setDateLastUpdated(dateLastUpdated);
+
+        String payload = new ZoneOffsetXXWithMillisecondsTestJsonMapper().serializingObjectMapper().writeValueAsString(publication);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/publications")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is("Test publication with Z zone")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
+                .andExpect(jsonPath("olderVersions", hasSize(0)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+    private class ZoneOffsetXXWithMillisecondsTestJsonMapper {
+
+        public ObjectMapper serializingObjectMapper() {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JavaTimeModule javaTimeModule = new JavaTimeModule();
+            javaTimeModule.addSerializer(ZonedDateTime.class, new ZoneOffsetXXDateTimeSerializerWithMilliseconds());
+            javaTimeModule.addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer());
+            objectMapper.registerModule(javaTimeModule);
+            return objectMapper;
+        }
+
+    }
+
+    private class ZoneOffsetXXDateTimeSerializerWithMilliseconds extends JsonSerializer<ZonedDateTime> {
+
+        @Override
+        public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(value.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXX")));
+        }
+
+    }
+
+
+    @Test
+    public void shouldCreatePublicationWithDateInOffsetZone() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test publication with offset zone");
+        publication.setDescription("Lorem ipsum");
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2020, Month.APRIL, 15), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        publication.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2020, Month.APRIL, 15), LocalTime.of(12, 1, 2, 345000000), ZoneId.of("UTC"));
+        publication.setDateLastUpdated(dateLastUpdated);
+
+        String payload = new ZoneOffsetZZTestJsonMapper().serializingObjectMapper().writeValueAsString(publication);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/publications")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is("Test publication with offset zone")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
+                .andExpect(jsonPath("olderVersions", hasSize(0)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+    private class ZoneOffsetZZTestJsonMapper {
+
+        public ObjectMapper serializingObjectMapper() {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JavaTimeModule javaTimeModule = new JavaTimeModule();
+            javaTimeModule.addSerializer(ZonedDateTime.class, new ZoneOffsetZZDateTimeSerializer());
+            javaTimeModule.addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer());
+            objectMapper.registerModule(javaTimeModule);
+            return objectMapper;
+        }
+
+    }
+
+    private class ZoneOffsetZZDateTimeSerializer extends JsonSerializer<ZonedDateTime> {
+
+        @Override
+        public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(value.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZZ")));
+        }
+
+    }
+
+    @Test
+    public void shouldCreatePublicationWithDateInOffsetZoneAndMilliseconds() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test publication with offset zone");
+        publication.setDescription("Lorem ipsum");
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2020, Month.APRIL, 15), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        publication.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2020, Month.APRIL, 15), LocalTime.of(12, 1, 2, 345000000), ZoneId.of("UTC"));
+        publication.setDateLastUpdated(dateLastUpdated);
+
+        String payload = new ZoneOffsetZZWithMillisecondsTestJsonMapper().serializingObjectMapper().writeValueAsString(publication);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/publications")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is("Test publication with offset zone")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
+                .andExpect(jsonPath("olderVersions", hasSize(0)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+    private class ZoneOffsetZZWithMillisecondsTestJsonMapper {
+
+        public ObjectMapper serializingObjectMapper() {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JavaTimeModule javaTimeModule = new JavaTimeModule();
+            javaTimeModule.addSerializer(ZonedDateTime.class, new ZoneOffsetZZDateTimeSerializerWithMilliseconds());
+            javaTimeModule.addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer());
+            objectMapper.registerModule(javaTimeModule);
+            return objectMapper;
+        }
+
+    }
+
+    private class ZoneOffsetZZDateTimeSerializerWithMilliseconds extends JsonSerializer<ZonedDateTime> {
+
+        @Override
+        public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(value.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ")));
+        }
+
+    }
+
 
 }
