@@ -22,16 +22,19 @@ databaseChangeLog:
                   type: bigint
                   constraints:
                     nullable: false
+                    foreignKeyName: draft_related_items_subject_fk
                     references: draft_items(id)
               - column:
                   name: object_id
-                  type: bigint
+                  type: varchar(255)
                   constraints:
                     nullable: false
-                    references: items(id)
+                    foreignKeyName: draft_related_items_item_fk
+                    references: versioned_items(id)
               - column:
                   name: relation_code
                   type: varchar(255)
                   constraints:
                     nullable: false
+                    foreignKeyName: draft_related_items_relation_fk
                     references: item_relations(code)

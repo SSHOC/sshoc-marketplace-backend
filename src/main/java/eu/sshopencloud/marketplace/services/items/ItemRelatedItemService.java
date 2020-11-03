@@ -57,7 +57,9 @@ public class ItemRelatedItemService {
         ItemRelation itemRelation = itemRelationFactory.create(itemRelationId);
 
         if (draft) {
-            ItemRelatedItem relatedItem = createDraftItemRelation(subjectId, objectId, itemRelation);
+            DraftRelatedItem relatedDraft = createDraftItemRelation(subjectId, objectId, itemRelation);
+            ItemRelatedItem relatedItem = new ItemRelatedItem(relatedDraft);
+
             return ItemRelatedItemMapper.INSTANCE.toDto(relatedItem);
         }
 
@@ -81,7 +83,7 @@ public class ItemRelatedItemService {
         return ItemRelatedItemMapper.INSTANCE.toDto(newItemRelatedItem);
     }
 
-    private ItemRelatedItem createDraftItemRelation(String subjectId, String objectId, ItemRelation relation)
+    private DraftRelatedItem createDraftItemRelation(String subjectId, String objectId, ItemRelation relation)
             throws ItemsRelationAlreadyExistsException {
 
         Item subject = itemsService.loadItemDraftForCurrentUser(subjectId);
@@ -95,9 +97,32 @@ public class ItemRelatedItemService {
         }
 
         DraftItem draftSubject = draftItemRepository.findByItemId(subject.getId()).get();
-        DraftRelatedItem draftRelation = draftSubject.addRelation(object, relation);
+        return draftSubject.addRelation(object, relation);
+    }
 
-        return new ItemRelatedItem(draftRelation);
+    void copyItemRelations(Item target, Item source) {
+        List<ItemRelatedItem> subjectRelations = itemRelatedItemRepository.findAllBySubjectId(source.getId());
+        List<ItemRelatedItem> objectRelations = itemRelatedItemRepository.findAllByObjectId(source.getId());
+
+        for (ItemRelatedItem subjectRelation : subjectRelations) {
+            ItemRelatedItem relationCopy = new ItemRelatedItem(target, subjectRelation.getObject(), subjectRelation.getRelation());
+            itemRelatedItemRepository.save(relationCopy);
+        }
+
+        for (ItemRelatedItem objectRelation : objectRelations) {
+            ItemRelatedItem relationCopy = new ItemRelatedItem(objectRelation.getSubject(), target, objectRelation.getRelation());
+            itemRelatedItemRepository.save(relationCopy);
+        }
+    }
+
+    void commitDraftRelations(DraftItem draftItem) {
+        for (DraftRelatedItem draftRelation : draftItem.getRelations()) {
+            Item subject = draftItem.getItem();
+            Item object = itemsService.liftItemVersion(draftRelation.getObject().getPersistentId(), false);
+
+            ItemRelatedItem itemRelation = new ItemRelatedItem(subject, object, draftRelation.getRelation());
+            itemRelatedItemRepository.save(itemRelation);
+        }
     }
 
     @Deprecated

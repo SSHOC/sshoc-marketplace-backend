@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
@@ -57,7 +56,7 @@ abstract class ItemVersionService<I extends Item> {
     protected I loadCurrentItem(String persistentId) {
         // Here - why not to load VersionedItem, and then do getCurrentVersion() ?
         // Because getCurrentVersion() returns Item, and we want the generic item type I
-        // Hence, there is a dedicated method in the repository
+        // Hence, there is a dedicated method in the repository - do not remove
         return getItemRepository().findCurrentVersion(persistentId)
                 .orElseThrow(
                         () -> new EntityNotFoundException(

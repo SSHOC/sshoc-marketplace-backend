@@ -116,6 +116,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return version;
     }
 
+    // Warning: important method! Do not change unless you know what you are doing!
     private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
         VersionedItem versionedItem =
                 (prevVersion == null) ? createNewVersionedItem() : prevVersion.getVersionedItem();
@@ -154,7 +155,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         version = getItemRepository().save(version);
 
-        if (draft) {
+        if (!draft) {
+            copyVersionRelations(version, prevVersion);
+        }
+        else {
             User draftOwner = userService.loadLoggedInUser();
             DraftItem draftItem = new DraftItem(version, draftOwner);
 
@@ -162,6 +166,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         return version;
+    }
+
+    private void copyVersionRelations(I version, I prevVersion) {
+        if (prevVersion == null)
+            return;
+
+        itemRelatedItemService.copyItemRelations(version, prevVersion);
     }
 
     protected I commitItemDraft(I version) {
@@ -313,8 +324,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     private void commitDraftRelations(DraftItem draftItem) {
-        // TODO implement
-        throw new UnsupportedOperationException("Committing drafts is not supported");
+        itemRelatedItemService.commitDraftRelations(draftItem);
     }
 
     private List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
@@ -352,12 +362,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     private I makeItemVersion(C itemCore, I prevItem) {
-        // TODO make item with copied relations
         return makeItem(itemCore, prevItem);
     }
 
     private I makeItemVersionCopy(I item) {
-        // TODO make item version copy with copied relations
         return makeItemCopy(item);
     }
 
