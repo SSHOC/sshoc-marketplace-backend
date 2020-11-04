@@ -39,7 +39,7 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowId, draft));
     }
 
-    @GetMapping(path = "/{workflowId}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{workflowId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> getWorkflow(@PathVariable("workflowId") String workflowId,
                                                    @PathVariable("versionId") long versionId) {
 
@@ -60,7 +60,7 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.updateWorkflow(workflowId, updatedWorkflow, draft));
     }
 
-    @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> revertWorkflow(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(workflowService.revertWorkflow(id, versionId));
     }
@@ -79,7 +79,7 @@ public class WorkflowController {
         return ResponseEntity.ok(stepService.getLatestStep(workflowId, stepId, draft));
     }
 
-    @GetMapping(path = "/{workflowId}/steps/{stepId}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{workflowId}/steps/{stepId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StepDto> getStep(@PathVariable("workflowId") String workflowId,
                                            @PathVariable("stepId") String stepId,
                                            @PathVariable("versionId") long versionId) {
@@ -125,7 +125,7 @@ public class WorkflowController {
     }
 
     @PutMapping(
-            path = "/{workflowId}/steps/{stepId}/{versionId}/revert",
+            path = "/{workflowId}/steps/{stepId}/versions/{versionId}/revert",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )

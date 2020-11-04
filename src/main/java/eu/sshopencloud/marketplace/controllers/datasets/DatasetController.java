@@ -35,7 +35,7 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.getLatestDataset(id, draft));
     }
 
-    @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(datasetService.getDatasetVersion(id, versionId));
     }
@@ -54,7 +54,7 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.updateDataset(id, updatedDataset, draft));
     }
 
-    @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> revertDataset(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(datasetService.revertDataset(id, versionId));
     }

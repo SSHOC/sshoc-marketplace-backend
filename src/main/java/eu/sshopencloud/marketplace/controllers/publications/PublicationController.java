@@ -36,7 +36,7 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.getLatestPublication(id, draft));
     }
 
-    @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> getPublication(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(publicationService.getPublicationVersion(id, versionId));
     }
@@ -55,7 +55,7 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.updatePublication(id, updatedPublication, draft));
     }
 
-    @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> revertPublication(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(publicationService.revertPublication(id, versionId));
     }

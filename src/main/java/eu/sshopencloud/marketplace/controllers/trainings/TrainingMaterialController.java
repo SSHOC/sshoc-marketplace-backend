@@ -35,7 +35,7 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(id, draft));
     }
 
-    @GetMapping(path = "/{id}/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") String id,
                                                                    @PathVariable("versionId") long versionId) {
 
@@ -57,7 +57,7 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(id, updatedTrainingMaterial, draft));
     }
 
-    @PutMapping(path = "/{id}/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> revertTrainingMaterial(@PathVariable("id") String id,
                                                                       @PathVariable("versionId") long versionId) {
 
