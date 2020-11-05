@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.model.workflows;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "steps_trees")
 @Data
+@ToString(exclude = { "workflow", "step", "parent", "subTrees" })
+@EqualsAndHashCode(exclude = { "workflow", "step", "parent", "subTrees" })
 public class StepsTree {
 
     @Id

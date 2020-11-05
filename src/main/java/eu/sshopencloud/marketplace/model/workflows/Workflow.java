@@ -10,7 +10,8 @@ import java.util.List;
 @Entity
 @Table(name = "workflows")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true, exclude = { "stepsTree", "allSteps" })
+@EqualsAndHashCode(callSuper = true, exclude = { "stepsTree", "allSteps" })
 public class Workflow extends Item {
 
     @OneToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

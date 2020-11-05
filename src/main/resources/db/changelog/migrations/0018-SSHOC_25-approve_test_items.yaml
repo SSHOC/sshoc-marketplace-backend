@@ -1,8 +1,9 @@
 databaseChangeLog:
   - changeSet:
-      id: 0017-SSHOC_25-persistent_ids-1
+      id: 0018-SSHOC_25-approved_items-1
       author: swolarz
-      description: Drop invalid non null constraint on current item in versioned items
+      description: Approve test/dev item versions
+      context: dev, test
       changes:
         - update:
             tableName: items
