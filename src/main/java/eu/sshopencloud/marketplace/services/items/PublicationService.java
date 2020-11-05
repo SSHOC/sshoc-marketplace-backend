@@ -101,7 +101,7 @@ public class PublicationService extends ItemCrudService<Publication, Publication
                 .publications(publications)
                 .count(publicationsPage.getContent().size())
                 .hits(publicationsPage.getTotalElements())
-                .page(publicationsPage.getNumber())
+                .page(publicationsPage.getNumber() + 1)
                 .perpage(publicationsPage.getSize())
                 .pages(publicationsPage.getTotalPages())
                 .build();

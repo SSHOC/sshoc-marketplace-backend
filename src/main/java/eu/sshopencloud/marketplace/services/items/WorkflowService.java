@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
@@ -200,7 +201,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                 .workflows(workflows)
                 .count(workflowsPage.getContent().size())
                 .hits(workflowsPage.getTotalElements())
-                .page(workflowsPage.getNumber())
+                .page(workflowsPage.getNumber() + 1)
                 .perpage(workflowsPage.getSize())
                 .pages(workflowsPage.getTotalPages())
                 .build();

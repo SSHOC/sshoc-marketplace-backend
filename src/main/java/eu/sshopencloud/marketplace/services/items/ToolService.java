@@ -100,7 +100,7 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return PaginatedTools.builder().tools(tools)
                 .count(toolsPage.getContent().size())
                 .hits(toolsPage.getTotalElements())
-                .page(toolsPage.getNumber())
+                .page(toolsPage.getNumber() + 1)
                 .perpage(toolsPage.getSize())
                 .pages(toolsPage.getTotalPages())
                 .build();

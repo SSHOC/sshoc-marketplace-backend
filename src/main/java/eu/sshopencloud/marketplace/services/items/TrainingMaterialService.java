@@ -108,7 +108,7 @@ public class TrainingMaterialService
                 .trainingMaterials(trainingMaterials)
                 .count(trainingMaterialsPage.getContent().size())
                 .hits(trainingMaterialsPage.getTotalElements())
-                .page(trainingMaterialsPage.getNumber())
+                .page(trainingMaterialsPage.getNumber() + 1)
                 .perpage(trainingMaterialsPage.getSize())
                 .pages(trainingMaterialsPage.getTotalPages())
                 .build();
