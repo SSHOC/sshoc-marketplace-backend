@@ -21,17 +21,19 @@ public class ItemConverter {
     public RelatedItemDto convertRelatedItemFromSubject(ItemRelatedItem subjectRelatedItem) {
         RelatedItemDto relatedItem = new RelatedItemDto();
         relatedItem.setId(subjectRelatedItem.getObject().getId());
+        relatedItem.setPersistentId(subjectRelatedItem.getObject().getPersistentId());
         relatedItem.setRelation(ItemRelationMapper.INSTANCE.toDto(subjectRelatedItem.getRelation()));
-        completeRelatedItem(relatedItem, subjectRelatedItem.getObject());
-        return relatedItem;
+
+        return completeRelatedItem(relatedItem, subjectRelatedItem.getObject());
     }
 
     public RelatedItemDto convertRelatedItemFromObject(ItemRelatedItem objectRelatedItem) {
         RelatedItemDto relatedItem = new RelatedItemDto();
         relatedItem.setId(objectRelatedItem.getSubject().getId());
+        relatedItem.setPersistentId(objectRelatedItem.getSubject().getPersistentId());
         relatedItem.setRelation(ItemRelationMapper.INSTANCE.toDto(objectRelatedItem.getRelation().getInverseOf()));
-        completeRelatedItem(relatedItem, objectRelatedItem.getSubject());
-        return relatedItem;
+
+        return completeRelatedItem(relatedItem, objectRelatedItem.getSubject());
     }
 
     private RelatedItemDto completeRelatedItem(RelatedItemDto relatedItem, Item item) {

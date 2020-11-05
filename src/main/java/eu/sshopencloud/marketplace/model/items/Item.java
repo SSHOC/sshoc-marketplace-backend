@@ -145,6 +145,10 @@ public abstract class Item {
         this.informationContributors = new ArrayList<>(baseItem.getInformationContributors());
     }
 
+    public String getPersistentId() {
+        return versionedItem.getPersistentId();
+    }
+
     public boolean isNewestVersion() {
         return (status == ItemStatus.APPROVED && versionedItem.isActive());
     }
