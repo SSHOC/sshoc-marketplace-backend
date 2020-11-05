@@ -69,11 +69,14 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldReturnTool() throws Exception {
+        String toolPersistentId = "n21Kfc";
         Integer toolId = 1;
 
-        mvc.perform(get("/api/tools-services/{id}", toolId)
+        mvc.perform(get("/api/tools-services/{id}", toolPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
@@ -85,9 +88,9 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldNotReturnToolWhenNotExist() throws Exception {
-        Integer toolId = 51;
+        String toolPersistentId = "xxxxxx7";
 
-        mvc.perform(get("/api/tools-services/{id}", toolId)
+        mvc.perform(get("/api/tools-services/{id}", toolPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -107,6 +110,7 @@ public class ToolControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("suggested")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -166,6 +170,7 @@ public class ToolControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("suggested")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -178,31 +183,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
-    @Test
-    public void shouldCreateToolWithPrevVersion() throws Exception {
-        ToolCore tool = new ToolCore();
-        tool.setLabel("Test complex software");
-        tool.setDescription("Lorem ipsum");
-//        tool.setPrevVersionId(3l);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        tool.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/tools-services")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("tool-or-service")))
-                .andExpect(jsonPath("label", is("Test complex software")))
-                .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(3)))
-                .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
-    }
 
     @Test
     public void shouldNotCreateToolWhenLabelIsNull() throws Exception {
@@ -259,7 +239,7 @@ public class ToolControllerITCase {
         tool.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(99l);
+        actor.setId(-99l);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
@@ -464,8 +444,36 @@ public class ToolControllerITCase {
     }
 
     @Test
+    public void shouldUpdateToolAsDraft() throws Exception {
+        String toolPersistentId = "DstBL5";
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Draft Stata");
+        tool.setDescription("Draft Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.");
+        List<PropertyCore> properties = new ArrayList<>();
+        tool.setProperties(properties);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/tools-services/{id}?draft=true", toolPersistentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("status", is("draft")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Draft Stata")))
+                .andExpect(jsonPath("description", is("Draft Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.")))
+                .andExpect(jsonPath("olderVersions", hasSize(0)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+    @Test
     public void shouldUpdateToolWithoutSource() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
+        Integer toolCurrentId = 3;
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
@@ -475,12 +483,13 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(toolId)))
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -489,12 +498,17 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("source", nullValue()));
+                .andExpect(jsonPath("source", nullValue()))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(toolCurrentId)))
+                .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
     @Test
     public void shouldUpdateToolWithRelations() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
+        Integer toolCurrentId = 3;
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
@@ -537,12 +551,13 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(toolId)))
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("status", is("suggested")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -554,13 +569,15 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("properties", hasSize(2)))
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("properties[1].value", is("paper")))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(toolCurrentId)))
+                .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
     @Test
     public void shouldNotUpdateToolWhenNotExist() throws Exception {
-        Integer toolId = 99;
+        String toolPersistentId = "xxxxxx7";
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
@@ -571,7 +588,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -579,13 +596,13 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithPrevVersion() throws Exception {
-        Integer toolId = 1;
+    public void shouldUpdateTool() throws Exception {
+        String toolPersistentId = "n21Kfc";
+        Integer toolCurrentId = 1;
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Gephi");
         tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
-//        tool.setPrevVersionId(3l);
         tool.setAccessibleAt(Arrays.asList("https://gephi.org/"));
         LicenseId license1 = new LicenseId();
         license1.setCode("cddl-1.0");
@@ -651,18 +668,19 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(toolId)))
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
                 .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
                 .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(3)))
-                .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
+                .andExpect(jsonPath("olderVersions[0].id", is(toolCurrentId)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Gephi")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
@@ -672,32 +690,8 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWithPrevVersionEqualToTool() throws Exception {
-        Integer toolId = 3;
-
-        ToolCore tool = new ToolCore();
-        tool.setLabel("Test service");
-        tool.setDescription("Lorem ipsum");
-//        tool.setPrevVersionId(3l);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        tool.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(put("/api/tools-services/{id}", toolId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("prevVersionId")))
-                .andExpect(jsonPath("errors[0].code", is("field.cycle")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-    @Test
     public void shouldNotUpdateToolWhenLabelIsNull() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
         tool.setDescription("Lorem ipsum");
@@ -707,7 +701,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -719,7 +713,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldNotUpdateToolWhenLicenseIsUnknown() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
@@ -735,7 +729,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -747,7 +741,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldNotUpdateToolWhenContributorIsUnknown() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
@@ -768,7 +762,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -780,7 +774,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldNotUpdateToolWhenContributorRoleIsIncorrect() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
@@ -801,7 +795,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -813,7 +807,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldNotUpdateToolWhenPropertyTypeIsUnknown() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
@@ -841,7 +835,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -853,7 +847,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldNotUpdateToolWhenConceptIsIncorrect() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
@@ -881,7 +875,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -893,7 +887,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldNotUpdateToolWhenVocabularyIsDisallowed() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
@@ -921,7 +915,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -935,7 +929,7 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldNotUpdateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
-        Integer toolId = 3;
+        String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
@@ -958,7 +952,7 @@ public class ToolControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/tools-services/{id}", toolId)
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -984,12 +978,16 @@ public class ToolControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Long toolId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ToolDto.class).getId();
+        String toolPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ToolDto.class).getPersistentId();
 
-        mvc.perform(delete("/api/tools-services/{id}", toolId)
+        mvc.perform(delete("/api/tools-services/{id}", toolPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
+
+        mvc.perform(get("/api/tools-services/{id}", toolPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -1023,6 +1021,7 @@ public class ToolControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("suggested")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test simple software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))

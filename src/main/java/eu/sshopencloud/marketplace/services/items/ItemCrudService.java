@@ -130,18 +130,21 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        version.setVersionedItem(versionedItem);
 
         // If not a draft
         if (!draft) {
             versionedItem.setCurrentVersion(version);
             version.setPrevVersion(prevVersion);
 
-            assignItemVersionStatus(version);
+            assignItemVersionStatus(version, versionedItem);
 
             if (version.getStatus() == ItemStatus.APPROVED) {
-                tryLoadLatestItem(versionedItem.getPersistentId())
-                        .ifPresent(item -> item.setStatus(ItemStatus.DEPRECATED));
+                // is it tha same or there are some cases when tryLoadLatestItem returns something else than prevVersion ?
+                if (prevVersion != null) {
+                    prevVersion.setStatus(ItemStatus.DEPRECATED);
+                }
+                //tryLoadLatestItem(versionedItem.getPersistentId())
+                //        .ifPresent(item -> item.setStatus(ItemStatus.DEPRECATED));
             }
         }
         // If it is a draft
@@ -153,6 +156,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 versionedItem.setStatus(VersionedItemStatus.DRAFT);
         }
 
+        version.setVersionedItem(versionedItem);
         version = getItemRepository().save(version);
 
         if (!draft) {
@@ -194,7 +198,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        assignItemVersionStatus(version);
+        assignItemVersionStatus(version, versionedItem);
         commitDraftRelations(draft);
 
         versionedItem.setCurrentVersion(version);
@@ -203,12 +207,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return version;
     }
 
-    private void assignItemVersionStatus(I version) {
+    private void assignItemVersionStatus(I version, VersionedItem versionedItem) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         if (!currentUser.isContributor())
             throw new AccessDeniedException("Not authorized to create new item version");
-
-        VersionedItem versionedItem = version.getVersionedItem();
 
         if (!versionedItem.isActive()) {
             throw new IllegalArgumentException(
