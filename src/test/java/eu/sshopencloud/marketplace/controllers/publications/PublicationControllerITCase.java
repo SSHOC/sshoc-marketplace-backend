@@ -6,9 +6,7 @@ import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
-import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
-import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
@@ -111,6 +109,7 @@ public class PublicationControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("publication")))
                 .andExpect(jsonPath("label", is("Test simple publication")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
