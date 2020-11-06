@@ -139,12 +139,17 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             assignItemVersionStatus(version, versionedItem);
 
             if (version.getStatus() == ItemStatus.APPROVED) {
-                // is it tha same or there are some cases when tryLoadLatestItem returns something else than prevVersion ?
-                if (prevVersion != null) {
-                    prevVersion.setStatus(ItemStatus.DEPRECATED);
-                }
+                // selecting by query causes the flush to the database that cannot yet be done
                 //tryLoadLatestItem(versionedItem.getPersistentId())
                 //        .ifPresent(item -> item.setStatus(ItemStatus.DEPRECATED));
+                Item itVersion = prevVersion;
+                while (itVersion != null) {
+                    if (itVersion.getStatus() == ItemStatus.APPROVED) {
+                        itVersion.setStatus(ItemStatus.DEPRECATED);
+                        break;
+                    }
+                    itVersion = itVersion.getPrevVersion();
+                }
             }
         }
         // If it is a draft
@@ -152,7 +157,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             version.setStatus(ItemStatus.DRAFT);
 
             // If it's a first (and draft) version of the item make persistent a draft
-            if (versionedItem.hasAnyVersions())
+            if (versionedItem.getStatus() == null)
                 versionedItem.setStatus(VersionedItemStatus.DRAFT);
         }
 
