@@ -33,8 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -73,11 +72,14 @@ public class WorkflowControllerITCase {
 
     @Test
     public void shouldReturnWorkflow() throws Exception {
+        String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
-        mvc.perform(get("/api/workflows/{id}", workflowId)
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("id", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Creation of a dictionary")))
@@ -171,7 +173,7 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        long workflowId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, WorkflowDto.class).getId();
+        String workflowPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, WorkflowDto.class).getPersistentId();
 
         StepCore step1 = new StepCore();
         step1.setLabel("Test simple step 1");
@@ -180,7 +182,7 @@ public class WorkflowControllerITCase {
         payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step1);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -198,7 +200,7 @@ public class WorkflowControllerITCase {
         payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step2);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -209,11 +211,11 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
-        mvc.perform(get("/api/workflows/{workflowId}", workflowId)
+        mvc.perform(get("/api/workflows/{workflowId}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is((int)workflowId)))
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test simple workflow with steps")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -242,7 +244,7 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        long workflowId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, WorkflowDto.class).getId();
+        String workflowPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, WorkflowDto.class).getPersistentId();
 
         StepCore step2 = new StepCore();
         step2.setLabel("Test simple step 2");
@@ -252,7 +254,7 @@ public class WorkflowControllerITCase {
         payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step2);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -271,7 +273,7 @@ public class WorkflowControllerITCase {
         payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step1);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -282,11 +284,11 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
-        mvc.perform(get("/api/workflows/{workflowId}", workflowId)
+        mvc.perform(get("/api/workflows/{workflowId}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is((int)workflowId)))
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test simple workflow with steps")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -347,7 +349,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("contributors[2].role.code", is("founder")))
                 .andReturn().getResponse().getContentAsString();
 
-        long workflowId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, WorkflowDto.class).getId();
+        String workflowPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, WorkflowDto.class).getPersistentId();
 
         StepCore step1 = new StepCore();
         step1.setLabel("Test complex step 1");
@@ -356,14 +358,14 @@ public class WorkflowControllerITCase {
         payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step1);
         log.debug("JSON: " + payload);
 
-        jsonResponse = mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+        jsonResponse = mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        long stepId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, StepDto.class).getId();
+        String stepPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, StepDto.class).getPersistentId();
 
         StepCore step2 = new StepCore();
         step2.setLabel("Test simple step 2");
@@ -373,7 +375,7 @@ public class WorkflowControllerITCase {
         payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step2);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -391,7 +393,7 @@ public class WorkflowControllerITCase {
         payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step11);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowId, stepId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowPersistentId, stepPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -409,7 +411,7 @@ public class WorkflowControllerITCase {
         payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step13);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowId, stepId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowPersistentId, stepPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -428,7 +430,7 @@ public class WorkflowControllerITCase {
         payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step12);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowId, stepId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowPersistentId, stepPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -439,10 +441,10 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
 
-        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", workflowId, stepId)
+        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", workflowPersistentId, stepPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is((int)stepId)))
+                .andExpect(jsonPath("persistentId", is(stepPersistentId)))
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("Test complex step 1")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -456,10 +458,10 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
 
 
-        mvc.perform(get("/api/workflows/{workflowId}", workflowId)
+        mvc.perform(get("/api/workflows/{workflowId}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is((int)workflowId)))
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Test complex workflow with nested steps")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -479,12 +481,15 @@ public class WorkflowControllerITCase {
 
     @Test
     public void shouldAddStepToWorkflow() throws Exception {
+        String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
-        mvc.perform(get("/api/workflows/{id}", workflowId)
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("id", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
@@ -532,7 +537,7 @@ public class WorkflowControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -547,13 +552,17 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("contributors[2].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[2].role.code", is("author")))
                 .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("composedOf", hasSize(0)));
+                .andExpect(jsonPath("composedOf", hasSize(0)))
+                // TODO check history - older versions
+                ;
 
-        mvc.perform(get("/api/workflows/{id}", workflowId)
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(workflowId))))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
                 .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
@@ -566,17 +575,22 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
                 .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
                 .andExpect(jsonPath("composedOf[3].label", is("The last step in a workflow")))
-                .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)));
+                .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)))
+                // TODO check history - older versions
+                ;
 
     }
 
     @Test
     public void shouldAddSubstepToWorkflow() throws Exception {
+        String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
-        mvc.perform(get("/api/workflows/{id}", workflowId)
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("id", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
@@ -590,6 +604,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
                 .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
 
+        String stepPersistentId = "BNw43H";
         Integer stepId = 22;
 
         StepCore step = new StepCore();
@@ -625,11 +640,13 @@ public class WorkflowControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowId, stepId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps/{stepId}/steps", workflowPersistentId, stepPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(stepPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("label", is("The substep of a step in a workflow")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -640,12 +657,16 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("contributors[2].actor.id", is(1)))
                 .andExpect(jsonPath("contributors[2].role.code", is("contributor")))
                 .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("composedOf", hasSize(0)));
+                .andExpect(jsonPath("composedOf", hasSize(0)))
+                // TODO check history - older versions
+                ;
 
         mvc.perform(get("/api/workflows/{id}", workflowId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(workflowId))))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
                 .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
@@ -665,16 +686,21 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[1].label", is("Run an inflectional analyzer")))
                 .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
                 .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
-                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                // TODO check history - older versions
+                ;
     }
 
     @Test
     public void shouldNotAddStepToWorkflowWhenActorHasManyRoles() throws Exception {
+        String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
-        mvc.perform(get("/api/workflows/{id}", workflowId)
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("id", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")));
 
@@ -711,7 +737,7 @@ public class WorkflowControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -727,11 +753,14 @@ public class WorkflowControllerITCase {
 
     @Test
     public void shouldNotAddStepToWorkflowWhenStepNoIsIncorrect() throws Exception {
+        String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
-        mvc.perform(get("/api/workflows/{id}", workflowId)
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("id", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")));
 
@@ -743,7 +772,7 @@ public class WorkflowControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowId)
+        mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -756,12 +785,16 @@ public class WorkflowControllerITCase {
 
     @Test
     public void shouldUpdateStep() throws Exception {
+        String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
+        String stepPersistentId = "2CwYCU";
         Integer stepId = 14;
 
-        mvc.perform(get("/api/workflows/{id}", workflowId)
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("id", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Creation of a dictionary")))
@@ -771,6 +804,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf", hasSize(4)))
                 .andExpect(jsonPath("composedOf[0].label", is("Build the model of the dictionary")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].persistentId", is(stepPersistentId)))
                 .andExpect(jsonPath("composedOf[1].id", is(stepId)))
                 .andExpect(jsonPath("composedOf[1].label", is("Creation of a corpora")))
                 .andExpect(jsonPath("composedOf[1].composedOf", hasSize(4)))
@@ -818,7 +852,7 @@ public class WorkflowControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/workflows/{workflowId}/steps/{stepId}", workflowId, stepId)
+        mvc.perform(put("/api/workflows/{workflowId}/steps/{stepId}", workflowPersistentId, stepPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -840,17 +874,19 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[3].label", is("Publishing")))
                 .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)));
 
-        mvc.perform(get("/api/workflows/{id}", workflowId)
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", not(is(workflowId))))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("label", is("Creation of a dictionary")))
                 .andExpect(jsonPath("description", is("Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset.")))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("composedOf", hasSize(4)))
-                .andExpect(jsonPath("composedOf[0].id", is(stepId)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is(stepPersistentId)))
+                .andExpect(jsonPath("composedOf[0].id", not(is(stepId))))
                 .andExpect(jsonPath("composedOf[0].label", is("Creation of a corpora")))
                 .andExpect(jsonPath("composedOf[0].composedOf", hasSize(4)))
                 .andExpect(jsonPath("composedOf[0].composedOf[0].label", is("Corpus composition")))
@@ -871,9 +907,10 @@ public class WorkflowControllerITCase {
 
     @Test
     public void shouldDeleteWorkflow() throws Exception {
+        String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
-        mvc.perform(delete("/api/workflows/{id}", workflowId)
+        mvc.perform(delete("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
