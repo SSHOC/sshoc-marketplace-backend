@@ -12,7 +12,6 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
 import eu.sshopencloud.marketplace.validators.items.ItemRelationFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,16 +36,17 @@ public class ItemRelatedItemService {
     public List<RelatedItemDto> getItemRelatedItems(long itemId) {
         List<RelatedItemDto> relatedItems = new ArrayList<>();
 
-        List<ItemRelatedItem> subjectRelations = itemRelatedItemRepository.findBySubjectIdAndObjectStatus(itemId, ItemStatus.APPROVED);
+        List<ItemRelatedItem> subjectRelations = itemRelatedItemRepository.findBySubjectIdAndObjectStatusOrderByObjectId(itemId, ItemStatus.APPROVED);
         for (ItemRelatedItem subjectRelatedItem : subjectRelations) {
             relatedItems.add(ItemConverter.convertRelatedItemFromSubject(subjectRelatedItem));
         }
 
-        List<ItemRelatedItem> objectRelations = itemRelatedItemRepository.findByObjectIdAndSubjectStatus(itemId, ItemStatus.APPROVED);
+        List<ItemRelatedItem> objectRelations = itemRelatedItemRepository.findByObjectIdAndSubjectStatusOrderBySubjectId(itemId, ItemStatus.APPROVED);
         for (ItemRelatedItem objectRelatedItem : objectRelations) {
             relatedItems.add(ItemConverter.convertRelatedItemFromObject(objectRelatedItem));
         }
 
+        relatedItems.sort(new RelatedItemDtoComparator());
         return relatedItems;
     }
 
@@ -156,20 +156,10 @@ public class ItemRelatedItemService {
 
     private void removeItemRelation(Item subject, Item object) {
         ItemRelatedItemId relationId = new ItemRelatedItemId(subject.getId(), object.getId());
-
-        try {
+        // we have to check if relation exists, because we try to delete this relation in two directions, but the relation is saved in only one of them
+        if (itemRelatedItemRepository.existsById(relationId)) {
             itemRelatedItemRepository.deleteById(relationId);
         }
-        catch (EmptyResultDataAccessException e) {
-            String subjectId = subject.getVersionedItem().getPersistentId();
-            String objectId = object.getVersionedItem().getPersistentId();
-            // The exception is used to force rollback of transaction - no delete, no need to upgrade item versions
-            throw new EntityNotFoundException(
-                    String.format(
-                            "Relation between item versions with ids %s (ver. %d) and %s (ver. %d) does not exist",
-                            subjectId, subject.getId(), objectId, object.getId()
-                    )
-            );
-        }
     }
+
 }
