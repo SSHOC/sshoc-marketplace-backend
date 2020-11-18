@@ -19,6 +19,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -33,21 +34,38 @@ public class ItemRelatedItemService {
     private final VersionedItemRepository versionedItemRepository;
 
 
-    public List<RelatedItemDto> getItemRelatedItems(long itemId) {
+    public List<RelatedItemDto> getItemRelatedItems(Item item) {
+        long itemId = item.getId();
+
+        List<RelatedItemDto> relatedItems = item.isDraft() ? getDraftRelatedItems(itemId) : getRelatedItems(itemId);
+        relatedItems.sort(new RelatedItemDtoComparator());
+
+        return relatedItems;
+    }
+
+    private List<RelatedItemDto> getRelatedItems(long itemId) {
         List<RelatedItemDto> relatedItems = new ArrayList<>();
 
-        List<ItemRelatedItem> subjectRelations = itemRelatedItemRepository.findBySubjectIdAndObjectStatusOrderByObjectId(itemId, ItemStatus.APPROVED);
+        List<ItemRelatedItem> subjectRelations = itemRelatedItemRepository.findBySubjectIdAndObjectStatus(itemId, ItemStatus.APPROVED);
         for (ItemRelatedItem subjectRelatedItem : subjectRelations) {
             relatedItems.add(ItemConverter.convertRelatedItemFromSubject(subjectRelatedItem));
         }
 
-        List<ItemRelatedItem> objectRelations = itemRelatedItemRepository.findByObjectIdAndSubjectStatusOrderBySubjectId(itemId, ItemStatus.APPROVED);
+        List<ItemRelatedItem> objectRelations = itemRelatedItemRepository.findByObjectIdAndSubjectStatus(itemId, ItemStatus.APPROVED);
         for (ItemRelatedItem objectRelatedItem : objectRelations) {
             relatedItems.add(ItemConverter.convertRelatedItemFromObject(objectRelatedItem));
         }
 
-        relatedItems.sort(new RelatedItemDtoComparator());
         return relatedItems;
+    }
+
+    private List<RelatedItemDto> getDraftRelatedItems(long itemId) {
+        DraftItem draftItem = draftItemRepository.findByItemId(itemId).get();
+
+        return draftItem.getRelations().stream()
+                .map(ItemRelatedItem::new)
+                .map(ItemConverter::convertRelatedItemFromSubject)
+                .collect(Collectors.toList());
     }
 
     public ItemRelatedItemDto createItemRelatedItem(String subjectId, String objectId,

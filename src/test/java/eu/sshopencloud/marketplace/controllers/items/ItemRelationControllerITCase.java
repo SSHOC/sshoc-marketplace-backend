@@ -184,8 +184,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Gephi")))
                 .andExpect(jsonPath("relatedItems", hasSize(1)))
-                .andExpect(jsonPath("relatedItems[1].persistentId", is(objectPersistentId)))
-                .andExpect(jsonPath("relatedItems[1].relation.code", is("mentions")))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
 
@@ -317,7 +317,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk());
 
         mvc.perform(get("/api/tools-services/{id}", subjectPersistentId)
@@ -330,8 +330,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Stata")))
                 .andExpect(jsonPath("relatedItems", hasSize(0)))
                 .andExpect(jsonPath("olderVersions", hasSize(2)))
-                .andExpect(jsonPath("olderVersions[0].id", is(2)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Stata")))
+                .andExpect(jsonPath("olderVersions[1].id", is(2)))
+                .andExpect(jsonPath("olderVersions[1].label", is("Stata")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
 
         mvc.perform(get("/api/datasets/{id}", objectPersistentId)
@@ -344,8 +344,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Test dataset with markdown description")))
                 .andExpect(jsonPath("relatedItems", hasSize(0)))
                 .andExpect(jsonPath("olderVersions", hasSize(2)))
-                .andExpect(jsonPath("olderVersions[0].id", is(11)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Test dataset with markdown description")))
+                .andExpect(jsonPath("olderVersions[1].id", is(11)))
+                .andExpect(jsonPath("olderVersions[1].label", is("Test dataset with markdown description")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 

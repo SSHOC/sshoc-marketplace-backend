@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
+import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -80,6 +81,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected D prepareItemDto(I item) {
         D dto = convertItemToDto(item);
+
+        List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
+        dto.setRelatedItems(relatedItems);
+
         return completeItem(dto);
     }
 
@@ -129,7 +134,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     )
             );
         }
-
 
         // If not a draft
         if (!draft) {
@@ -357,7 +361,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     private D completeItem(D item) {
-        item.setRelatedItems(itemRelatedItemService.getItemRelatedItems(item.getId()));
         item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
         item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
 

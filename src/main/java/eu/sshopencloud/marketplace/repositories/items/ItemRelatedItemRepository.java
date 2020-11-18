@@ -12,9 +12,9 @@ import java.util.List;
 public interface ItemRelatedItemRepository extends JpaRepository<ItemRelatedItem, ItemRelatedItemId> {
 
     List<ItemRelatedItem> findAllBySubjectId(long subjectId);
-    List<ItemRelatedItem> findBySubjectIdAndObjectStatusOrderByObjectId(long subjectId, ItemStatus status);
+    List<ItemRelatedItem> findBySubjectIdAndObjectStatus(long subjectId, ItemStatus status);
 
     List<ItemRelatedItem> findAllByObjectId(long objectId);
-    List<ItemRelatedItem> findByObjectIdAndSubjectStatusOrderBySubjectId(long objectId, ItemStatus status);
+    List<ItemRelatedItem> findByObjectIdAndSubjectStatus(long objectId, ItemStatus status);
 
 }

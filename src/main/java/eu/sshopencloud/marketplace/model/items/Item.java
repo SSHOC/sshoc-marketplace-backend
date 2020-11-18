@@ -153,6 +153,10 @@ public abstract class Item {
         return (status == ItemStatus.APPROVED && versionedItem.isActive());
     }
 
+    public boolean isDraft() {
+        return (status == ItemStatus.DRAFT);
+    }
+
     public void addInformationContributor(User contributor) {
         if (informationContributors.contains(contributor))
             return;
