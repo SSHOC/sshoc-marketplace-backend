@@ -62,10 +62,17 @@ public class ItemRelatedItemService {
     private List<RelatedItemDto> getDraftRelatedItems(long itemId) {
         DraftItem draftItem = draftItemRepository.findByItemId(itemId).get();
 
-        return draftItem.getRelations().stream()
+        List<RelatedItemDto> relatedItems = draftItem.getRelations().stream()
                 .map(ItemRelatedItem::new)
                 .map(ItemConverter::convertRelatedItemFromSubject)
                 .collect(Collectors.toList());
+
+        if (draftItem.getBaseItem() != null) {
+            List<RelatedItemDto> baseRelatedItems = getRelatedItems(draftItem.getBaseItem().getId());
+            relatedItems.addAll(baseRelatedItems);
+        }
+
+        return relatedItems;
     }
 
     public ItemRelatedItemDto createItemRelatedItem(String subjectId, String objectId,

@@ -30,12 +30,17 @@ public class DraftItem {
     @JoinColumn(foreignKey = @ForeignKey(name = "draft_item_item_id_fk"))
     private Item item;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(foreignKey = @ForeignKey(name = "draft_item_base_item_fk"))
+    private Item baseItem;
+
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DraftRelatedItem> relations;
 
 
-    public DraftItem(Item item, User owner) {
+    public DraftItem(Item item, Item baseItem, User owner) {
         this.item = item;
+        this.baseItem = baseItem;
         this.owner = owner;
         this.relations = new HashSet<>();
     }

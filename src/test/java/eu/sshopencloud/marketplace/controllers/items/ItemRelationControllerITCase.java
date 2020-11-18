@@ -151,7 +151,7 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Gephi")))
                 .andExpect(jsonPath("description", is("Draft Gephi ...")))
-                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
 
@@ -183,7 +183,7 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("status", is("draft")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Gephi")))
-                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems", hasSize(3)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))

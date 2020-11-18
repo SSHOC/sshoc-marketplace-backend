@@ -173,7 +173,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
         else {
             User draftOwner = userService.loadLoggedInUser();
-            DraftItem draftItem = new DraftItem(version, draftOwner);
+            DraftItem draftItem = new DraftItem(version, prevVersion, draftOwner);
 
             draftItemRepository.save(draftItem);
         }
