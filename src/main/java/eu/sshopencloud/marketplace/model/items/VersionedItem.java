@@ -1,20 +1,17 @@
 package eu.sshopencloud.marketplace.model.items;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Entity
 @Table(name = "versioned_items")
 @Data
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
+@ToString(exclude = "comments")
+@EqualsAndHashCode(exclude = "comments")
 public class VersionedItem {
 
     @Id
@@ -56,7 +53,7 @@ public class VersionedItem {
     }
 
     public void addComment(ItemComment comment) {
-        comments.add(comment);
+        comments.add(0, comment);
         comment.setItem(this);
     }
 

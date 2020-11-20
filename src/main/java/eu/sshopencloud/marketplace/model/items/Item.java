@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
     })
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-@ToString(exclude = { "prevVersion", "versionedItem" })
-@EqualsAndHashCode(exclude = { "prevVersion", "versionedItem" })
+@ToString(of = { "id", "category", "label", "version", "description", "source", "sourceItemId", "status" })
+@EqualsAndHashCode(of = { "id", "category", "label", "version", "description", "source", "sourceItemId", "status" })
 public abstract class Item {
 
     @Id

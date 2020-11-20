@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import eu.sshopencloud.marketplace.model.auth.User;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;

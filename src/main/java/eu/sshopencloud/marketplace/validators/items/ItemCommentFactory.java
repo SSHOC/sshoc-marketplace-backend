@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.validators.items;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
-import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +18,6 @@ import java.time.ZonedDateTime;
 @Transactional
 @RequiredArgsConstructor
 public class ItemCommentFactory {
-
-    private final UserRepository userRepository;
-
 
     public ItemComment create(ItemCommentCore itemCommentCore, User creator) throws ValidationException {
         ItemComment itemComment = new ItemComment();

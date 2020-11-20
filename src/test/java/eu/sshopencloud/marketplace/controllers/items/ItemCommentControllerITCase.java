@@ -18,10 +18,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -74,12 +73,26 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+
         mvc.perform(post("/api/items/{itemId}/comments", itemPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("body", is("I **love** it!\n")));
+
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)));
     }
 
     @Test
@@ -220,19 +233,40 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+
         String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)));
 
         Long commentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ItemComment.class).getId();
 
         mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk());
+
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test

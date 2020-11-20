@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "items_contributors")
 @Data
+@ToString(exclude = "item")
 @EqualsAndHashCode(exclude = "item")
 @NoArgsConstructor
 public class ItemContributor implements Serializable {
