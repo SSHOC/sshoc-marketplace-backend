@@ -157,6 +157,11 @@ public abstract class Item {
         return (status == ItemStatus.DRAFT);
     }
 
+    public void setContributors(List<ItemContributor> contributors) {
+        this.contributors.clear();
+        this.contributors.addAll(contributors);
+    }
+
     public void addInformationContributor(User contributor) {
         if (informationContributors.contains(contributor))
             return;

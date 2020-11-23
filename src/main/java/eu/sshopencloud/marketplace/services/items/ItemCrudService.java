@@ -137,24 +137,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         // If not a draft
         if (!draft) {
-            versionedItem.setCurrentVersion(version);
-            version.setPrevVersion(prevVersion);
-
             assignItemVersionStatus(version, versionedItem);
 
-            if (version.getStatus() == ItemStatus.APPROVED) {
-                // selecting by query causes the flush to the database that cannot yet be done
-                //tryLoadLatestItem(versionedItem.getPersistentId())
-                //        .ifPresent(item -> item.setStatus(ItemStatus.DEPRECATED));
-                Item itVersion = prevVersion;
-                while (itVersion != null) {
-                    if (itVersion.getStatus() == ItemStatus.APPROVED) {
-                        itVersion.setStatus(ItemStatus.DEPRECATED);
-                        break;
-                    }
-                    itVersion = itVersion.getPrevVersion();
-                }
-            }
+            if (version.getStatus() == ItemStatus.APPROVED)
+                deprecatePrevApprovedVersion(versionedItem);
+
+            versionedItem.setCurrentVersion(version);
         }
         // If it is a draft
         else {
@@ -165,6 +153,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 versionedItem.setStatus(VersionedItemStatus.DRAFT);
         }
 
+        version.setPrevVersion(prevVersion);
         version.setVersionedItem(versionedItem);
         version = getItemRepository().save(version);
 
@@ -179,6 +168,20 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         return version;
+    }
+
+    private void deprecatePrevApprovedVersion(VersionedItem versionedItem) {
+        Item version = versionedItem.getCurrentVersion();
+
+        while (version != null) {
+            if (version.getStatus() == ItemStatus.APPROVED)
+                break;
+
+            version = version.getPrevVersion();
+        }
+
+        if (version != null)
+            version.setStatus(ItemStatus.DEPRECATED);
     }
 
     private void copyVersionRelations(I version, I prevVersion) {
@@ -208,6 +211,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         assignItemVersionStatus(version, versionedItem);
+
+        if (version.getStatus() == ItemStatus.APPROVED)
+            deprecatePrevApprovedVersion(versionedItem);
+
         commitDraftRelations(draft);
 
         versionedItem.setCurrentVersion(version);
