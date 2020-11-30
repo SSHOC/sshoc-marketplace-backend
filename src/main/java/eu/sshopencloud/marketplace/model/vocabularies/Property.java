@@ -20,17 +20,17 @@ public class Property {
     @SequenceGenerator(name = "property_generator", sequenceName = "properties_id_seq", allocationSize = 50)
     private Long id;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(foreignKey = @ForeignKey(name="property_type_code_fk"))
     private PropertyType type;
 
     @Column(nullable = true, length = 2048)
     private String value;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumns(value = {
-            @JoinColumn(name = "code", insertable = true, updatable = true),
-            @JoinColumn(name = "vocabulary_code", insertable = true, updatable = true)
-    }, foreignKey = @ForeignKey(name="property_concept_fk"))
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @JoinColumns(
+            value = { @JoinColumn(name = "code"), @JoinColumn(name = "vocabulary_code") },
+            foreignKey = @ForeignKey(name="property_concept_fk")
+    )
     private Concept concept;
 }

@@ -24,7 +24,7 @@ public class ItemRelation {
     @Column(nullable = false)
     private String label;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE, CascadeType.REFRESH }, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE }, orphanRemoval = true)
     @JoinColumn(foreignKey = @ForeignKey(name="item_relation_inverse_of_code_fk"))
     private ItemRelation inverseOf;
 

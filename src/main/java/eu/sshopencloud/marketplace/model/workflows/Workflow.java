@@ -18,34 +18,27 @@ public class Workflow extends Item {
     @JoinColumn(name = "steps_tree_id", nullable = false)
     private StepsTree stepsTree;
 
-    @OneToMany(mappedBy = "workflow", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "workflow", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     // For the data loading optimization purposes only
     private List<StepsTree> allSteps;
 
 
     public Workflow() {
         super();
-        this.stepsTree = StepsTree.makeRoot();
+        this.stepsTree = StepsTree.makeRoot(this);
     }
 
     public Workflow(Workflow baseWorkflow) {
         super(baseWorkflow);
-        this.stepsTree = StepsTree.newVersion(baseWorkflow.gatherSteps());
-    }
-
-    private Workflow(StepsTree stepsTree) {
-        super();
-        this.stepsTree = stepsTree;
+        this.stepsTree = StepsTree.newVersion(this, baseWorkflow.gatherSteps());
     }
 
     public StepsTree gatherSteps() {
         // Invoke size method to force steps fetch
-        int prefetchSize = allSteps.size();
-        return stepsTree;
-    }
+        if (allSteps != null) {
+            int prefetchSize = allSteps.size();
+        }
 
-    public static Workflow fromWorkflowSteps(Workflow workflow) {
-        StepsTree stepsTree = StepsTree.newVersion(workflow.gatherSteps());
-        return new Workflow(stepsTree);
+        return stepsTree;
     }
 }

@@ -19,7 +19,7 @@ public class License {
     @Column(nullable = false)
     private String label;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "licenses_license_types", joinColumns = @JoinColumn(name = "license_code", referencedColumnName = "code", foreignKey = @ForeignKey(name="licenses_license_types_license_code_fk")),
             inverseJoinColumns = @JoinColumn(name = "type_code", referencedColumnName = "code", foreignKey = @ForeignKey(name="licenses_license_types_type_code_fk")))
     @OrderColumn(name = "ord")

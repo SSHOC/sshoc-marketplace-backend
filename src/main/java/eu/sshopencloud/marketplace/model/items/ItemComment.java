@@ -23,7 +23,7 @@ public class ItemComment {
     @Column(nullable = false, length = 4096)
     private String body;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(foreignKey = @ForeignKey(name = "item_comment_creator_id_fk"))
     private User creator;
 

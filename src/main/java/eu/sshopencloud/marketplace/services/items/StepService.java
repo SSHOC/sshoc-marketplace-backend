@@ -70,6 +70,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(stepCore, newWorkflow.getStepsTree());
 
         Step step = createItem(workflowStepCore, draft);
+        addStepToTree(step, stepCore.getStepNo(), newWorkflow.getStepsTree());
+
         return prepareItemDto(step);
     }
 
@@ -84,6 +86,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(substepCore, stepTree);
 
         Step subStep = createItem(workflowStepCore, draft);
+        addStepToTree(subStep, substepCore.getStepNo(), stepTree);
+
         return prepareItemDto(subStep);
     }
 
@@ -98,7 +102,18 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(updatedStepCore, parentStepTree);
 
         Step updatedStep = updateItem(stepId, workflowStepCore, draft);
+        addStepToTree(updatedStep, updatedStepCore.getStepNo(), parentStepTree);
+
         return prepareItemDto(updatedStep);
+    }
+
+    private void addStepToTree(Step step, Integer stepNo, StepsTree parentStepsTree) {
+        if (stepNo == null) {
+            parentStepsTree.appendStep(step);
+        }
+        else {
+            parentStepsTree.addStep(step, stepNo);
+        }
     }
 
     public StepDto revertStep(String workflowId, String stepId, long versionId) {

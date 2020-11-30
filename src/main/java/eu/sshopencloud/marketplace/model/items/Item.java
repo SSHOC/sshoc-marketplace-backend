@@ -41,7 +41,7 @@ public abstract class Item {
     @Column(nullable = false, length = 4096)
     private String description;
 
-    @ManyToMany(cascade = CascadeType.REFRESH)
+    @ManyToMany
     @JoinTable(
             name = "items_licenses",
             joinColumns = @JoinColumn(
@@ -54,7 +54,7 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<License> licenses;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "item", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true)
     @OrderColumn(name = "ord")
     private List<ItemContributor> contributors;
 
@@ -83,14 +83,14 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<String> accessibleAt;
 
-    @ManyToOne(cascade = { CascadeType.REFRESH })
+    @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name="item_source_id_fk"))
     private Source source;
 
     @Column
     private String sourceItemId;
 
-    @ManyToMany(cascade = { CascadeType.REFRESH })
+    @ManyToMany
     @JoinTable(
             name = "items_information_contributors",
             joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
@@ -104,14 +104,14 @@ public abstract class Item {
     private ZonedDateTime lastInfoUpdate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "varchar(255) default 'INGESTED'")
+    @Column(nullable = false)
     private ItemStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "persistent_id", nullable = false)
     private VersionedItem versionedItem;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))
     private Item prevVersion;
 

@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -28,7 +29,7 @@ public class StepsTree {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workflow_id", nullable = false)
+    @JoinColumn(name = "workflow_id")
     private Workflow workflow;
 
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
@@ -51,12 +52,16 @@ public class StepsTree {
 
 
     public StepsTree(Step step, StepsTree parent, int pos) {
-        this(false);
+        this(parent.getWorkflow(), false);
 
-        this.workflow = parent.getWorkflow();
         this.step = step;
         this.parent = parent;
         this.ord = pos;
+
+        parent.locateSubStep(step)
+                .ifPresent(prevStepTree -> {
+                    this.subTrees = new ArrayList<>(prevStepTree.getSubTrees());
+                });
     }
 
     // Use static factory methods below
@@ -65,71 +70,92 @@ public class StepsTree {
         this.ord = 0;
     }
 
-    private StepsTree(boolean root) {
+    private StepsTree(Workflow workflow, boolean root) {
         this();
+
+        this.workflow = workflow;
         this.root = root;
     }
 
-    private StepsTree(StepsTree stepsTree, StepsTree parent) {
-        this.workflow = stepsTree.getWorkflow();
-        this.step = stepsTree.getStep();
+    private StepsTree(Workflow workflow, StepsTree baseStepsTree, StepsTree parent) {
+        this.workflow = workflow;
+        this.step = baseStepsTree.getStep();
         this.parent = parent;
-        this.subTrees = stepsTree.getSubTrees()
+        this.subTrees = baseStepsTree.getSubTrees()
                 .stream()
-                .map(subTree -> new StepsTree(subTree, this))
+                .map(subTree -> new StepsTree(workflow, subTree, this))
                 .collect(Collectors.toList());
 
-        this.ord = stepsTree.getOrd();
-        this.root = stepsTree.isRoot();
+        this.ord = baseStepsTree.getOrd();
+        this.root = baseStepsTree.isRoot();
     }
 
     public void appendStep(Step step) {
-        beforeStepAdd(step);
-
         StepsTree subtree = new StepsTree(step, this, subTrees.size());
         subTrees.add(subtree);
+
+        removePreviousStep(step, false);
     }
 
     public void addStep(Step step, int stepNo) {
-        beforeStepAdd(step);
+        if (!canAddAtPosition(stepNo))
+            throw new IndexOutOfBoundsException(String.format("Invalid step number: %d/%d", stepNo, subTrees.size() + 1));
 
-        if (canAddAtPosition(stepNo))
-            throw new IndexOutOfBoundsException(String.format("Invalid step number: %d/%d", stepNo, subTrees.size()));
+        int stepOrd = resolveOrd(stepNo);
+        StepsTree subtree = new StepsTree(step, this, stepOrd);
+        subTrees.add(stepOrd, subtree);
 
-        StepsTree subtree = new StepsTree(step, this, stepNo);
-        subTrees.add(stepNo - 1, subtree);
-
+        removePreviousStep(step, false);
         renumberSubTrees();
     }
 
+    private int resolveOrd(int stepNo) {
+        return stepNo - 1;
+    }
+
     public boolean canAddAtPosition(int stepNo) {
-        return (stepNo <= 0 || stepNo > subTrees.size());
+        return !(stepNo <= 0 || stepNo > subTrees.size() + 1);
     }
 
     public void replaceChildStep(Step step) {
-        String persistentId = step.getVersionedItem().getPersistentId();
-
-        subTrees.stream()
-                .filter(st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId))
-                .forEach(st -> st.setStep(step));
+       locateSubStep(step).ifPresent(st -> st.setStep(step));
     }
 
-    private void beforeStepAdd(Step step) {
-        removeStep(step);
+    private Optional<StepsTree> locateSubStep(Step step) {
+        String persistentId = step.getVersionedItem().getPersistentId();
+
+        return subTrees.stream()
+                .filter(st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId))
+                .findFirst();
+    }
+
+    private void removePreviousStep(Step step, boolean renumber) {
+        String persistentId = step.getVersionedItem().getPersistentId();
+        subTrees.removeIf(
+                st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId)
+                        && !st.getStep().getId().equals(step.getId())
+        );
+
+        if (renumber)
+            renumberSubTrees();
     }
 
     public void removeStep(Step step) {
         String persistentId = step.getVersionedItem().getPersistentId();
-
         subTrees.removeIf(st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId));
+
         renumberSubTrees();
     }
 
     private void renumberSubTrees() {
         int i = 0;
 
-        for (StepsTree subTree : subTrees)
-            subTree.setOrd(i++);
+        for (StepsTree subTree : subTrees) {
+            if (subTree.getOrd() != i)
+                subTree.setOrd(i);
+
+            i++;
+        }
     }
 
     public List<StepsTree> getSubTrees() {
@@ -147,12 +173,11 @@ public class StepsTree {
     }
 
 
-
-    public static StepsTree newVersion(StepsTree tree) {
-        return new StepsTree(tree, null);
+    public static StepsTree newVersion(Workflow newWorkflow, StepsTree tree) {
+        return new StepsTree(newWorkflow, tree, null);
     }
 
-    public static StepsTree makeRoot() {
-        return new StepsTree(true);
+    public static StepsTree makeRoot(Workflow workflow) {
+        return new StepsTree(workflow, true);
     }
 }

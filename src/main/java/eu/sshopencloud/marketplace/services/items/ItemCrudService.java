@@ -155,7 +155,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         version.setPrevVersion(prevVersion);
         version.setVersionedItem(versionedItem);
-        version = getItemRepository().save(version);
+        version = saveItemVersion(version);
 
         if (!draft) {
             copyVersionRelations(version, prevVersion);
@@ -384,6 +384,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private I makeItemVersionCopy(I item) {
         return makeItemCopy(item);
+    }
+
+    protected I saveItemVersion(I item) {
+        return getItemRepository().save(item);
     }
 
 

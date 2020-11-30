@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
@@ -174,6 +173,15 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return super.liftItemVersion(persistentId, draft);
     }
 
+
+    @Override
+    protected Workflow saveItemVersion(Workflow workflow) {
+        workflow = super.saveItemVersion(workflow);
+        workflowRepository.flush();
+        workflowRepository.refresh(workflow);
+
+        return workflowRepository.getOne(workflow.getId());
+    }
 
     @Override
     protected ItemVersionRepository<Workflow> getItemRepository() {

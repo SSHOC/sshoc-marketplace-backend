@@ -19,19 +19,19 @@ import java.io.Serializable;
 public class ItemContributor implements Serializable {
 
     @Id
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(foreignKey = @ForeignKey(name="item_contributor_item_id_fk"))
     private Item item;
 
     @Id
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(foreignKey = @ForeignKey(name="item_contributor_actor_id_fk"))
     private Actor actor;
 
     @Basic
     private Integer ord;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(foreignKey = @ForeignKey(name="item_contributor_actor_role_code_fk"))
     private ActorRole role;
 
