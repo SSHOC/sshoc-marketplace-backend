@@ -142,7 +142,7 @@ public abstract class Item {
         this.accessibleAt = new ArrayList<>(baseItem.getAccessibleAt());
         this.source = baseItem.getSource();
         this.sourceItemId = baseItem.getSourceItemId();
-        this.informationContributors = new ArrayList<>(baseItem.getInformationContributors());
+        this.informationContributors = new ArrayList<>();
     }
 
     public String getPersistentId() {
