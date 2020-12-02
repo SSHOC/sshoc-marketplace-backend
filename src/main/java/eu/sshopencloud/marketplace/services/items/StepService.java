@@ -56,7 +56,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public StepDto getLatestStep(String workflowId, String stepId, boolean draft) {
-        validateWorkflowAndStepConsistency(workflowId, stepId, true);
+        validateWorkflowAndStepConsistency(workflowId, stepId, true, draft);
         return getLatestItem(stepId, draft);
     }
 
@@ -75,13 +75,13 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return prepareItemDto(step);
     }
 
-
-    public StepDto createSubstep(String workflowId, String stepId, StepCore substepCore, boolean draft) {
-        validateWorkflowAndStepConsistency(workflowId, stepId, false);
+    public StepDto createSubStep(String workflowId, String stepId, StepCore substepCore, boolean draft) {
+        validateWorkflowAndStepConsistency(workflowId, stepId, false, draft);
 
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
-        Step step = loadItemForCurrentUser(stepId);
-        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
+        StepsTree stepTree = loadStepTreeInWorkflow(newWorkflow, stepId);
+//        Step step = loadItemForCurrentUser(stepId);
+//        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(substepCore, stepTree);
 
@@ -92,11 +92,12 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft) {
-        validateWorkflowAndStepConsistency(workflowId, stepId, false);
+        validateWorkflowAndStepConsistency(workflowId, stepId, false, draft);
 
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
-        Step step = loadItemForCurrentUser(stepId);
-        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
+        StepsTree stepTree = loadStepTreeInWorkflow(newWorkflow, stepId);
+//        Step step = loadItemForCurrentUser(stepId);
+//        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(updatedStepCore, parentStepTree);
@@ -117,6 +118,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     public StepDto revertStep(String workflowId, String stepId, long versionId) {
+        validateWorkflowAndStepConsistency(workflowId, stepId, false, false);
         validateWorkflowAndStepConsistency(workflowId, stepId, versionId);
 
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, false);
@@ -130,16 +132,17 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     public void deleteStep(String workflowId, String stepId, boolean draft) {
-        validateWorkflowAndStepConsistency(workflowId, stepId, false);
+        validateWorkflowAndStepConsistency(workflowId, stepId, false, draft);
 
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
-        Step step = draft ? loadItemDraftForCurrentUser(stepId) : loadCurrentItem(stepId);
-        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
+        StepsTree stepTree = loadStepTreeInWorkflow(newWorkflow, stepId);
+        Step step = stepTree.getStep();
+//        Step step = draft ? loadItemDraftForCurrentUser(stepId) : loadCurrentItem(stepId);
+//        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
         StepsTree parentStepTree = stepTree.getParent();
 
         parentStepTree.removeStep(step);
-
-        super.deleteItem(stepId, draft);
+        deleteItem(stepId, draft);
     }
 
     @Override
@@ -157,7 +160,6 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return newStep;
     }
 
-
     Step commitDraftStep(Step step) {
         return commitItemDraft(step);
     }
@@ -166,7 +168,39 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         deleteItem(step.getVersionedItem().getPersistentId(), draft);
     }
 
-    private void validateWorkflowAndStepConsistency(String workflowId, String stepId, boolean lastApproved) {
+
+    private StepsTree loadStepTreeInWorkflow(Workflow workflow, String stepId) {
+        return stepsTreeRepository.findByWorkflowIdAndStepPersistentId(workflow.getId(), stepId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                String.format(
+                                        "Unable to find %s with id %s in workflow with id %s (version %d)",
+                                        getItemTypeName(), stepId, workflow.getPersistentId(), workflow.getId()
+                                )
+                        )
+                );
+    }
+
+    private void validateDraftWorkflowAndStepConsistency(String workflowId, String stepId) {
+        Workflow draftWorkflow = workflowService.loadItemDraftForCurrentUser(workflowId);
+
+        stepsTreeRepository.findByWorkflowIdAndStepPersistentId(draftWorkflow.getId(), stepId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                String.format(
+                                        "Unable to find draft %s with id %s in draft workflow %s",
+                                        getItemTypeName(), stepId, workflowId
+                                )
+                        )
+                );
+    }
+
+    private void validateWorkflowAndStepConsistency(String workflowId, String stepId, boolean lastApproved, boolean draft) {
+        if (draft) {
+            validateDraftWorkflowAndStepConsistency(workflowId, stepId);
+            return;
+        }
+
         Workflow workflow =
                 lastApproved ? workflowService.loadLatestItem(workflowId) : workflowService.loadItemForCurrentUser(workflowId);
 

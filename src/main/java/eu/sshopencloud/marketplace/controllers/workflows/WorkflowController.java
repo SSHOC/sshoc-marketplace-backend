@@ -108,7 +108,7 @@ public class WorkflowController {
                                                  @RequestBody StepCore newStep,
                                                  @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(stepService.createSubstep(workflowId, stepId, newStep, draft));
+        return ResponseEntity.ok(stepService.createSubStep(workflowId, stepId, newStep, draft));
     }
 
     @PutMapping(
@@ -136,10 +136,16 @@ public class WorkflowController {
         return ResponseEntity.ok(stepService.revertStep(workflowId, stepId, versionId));
     }
 
-    @DeleteMapping(path = "/{workflowId}/steps/{stepId}")
+    @DeleteMapping("/{workflowId}/steps/{stepId}")
     public void deleteStep(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId,
                            @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
         stepService.deleteStep(workflowId, stepId, draft);
+    }
+
+    @PostMapping(path = "/{workflowId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> publishWorkflow(@PathVariable("workflowId") String workflowId) {
+        WorkflowDto workflow = workflowService.commitDraftWorkflow(workflowId);
+        return ResponseEntity.ok(workflow);
     }
 }

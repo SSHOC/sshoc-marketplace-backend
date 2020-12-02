@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0023-SSHOC_25-steps_tree_nullable_ord-1
+      author: swolarz
+      description: Drop disturbing non null constraint on steps tree ord
+      changes:
+        - dropNotNullConstraint:
+            tableName: steps_trees
+            columnName: ord

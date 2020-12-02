@@ -18,7 +18,7 @@ public class Workflow extends Item {
     @JoinColumn(name = "steps_tree_id", nullable = false)
     private StepsTree stepsTree;
 
-    @OneToMany(mappedBy = "workflow", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "workflow", fetch = FetchType.LAZY)
     // For the data loading optimization purposes only
     private List<StepsTree> allSteps;
 

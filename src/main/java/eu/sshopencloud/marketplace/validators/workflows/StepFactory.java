@@ -36,7 +36,7 @@ public class StepFactory {
 
         step = itemFactory.initializeItem(stepCore, step, ItemCategory.STEP, errors);
 
-        if (stepCore.getStepNo() != null && !stepsTree.canAddAtPosition(stepCore.getStepNo())) {
+        if (stepCore.getStepNo() != null && stepsTree.isInvalidStepNo(stepCore.getStepNo())) {
             errors.rejectValue(
                     "stepNo", "field.incorrect",
                     String.format("Incorrect step number: %d", stepCore.getStepNo())

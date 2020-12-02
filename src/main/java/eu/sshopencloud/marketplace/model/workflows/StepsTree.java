@@ -44,30 +44,31 @@ public class StepsTree {
     @OrderColumn(name = "ord")
     private List<StepsTree> subTrees;
 
-    @Column(name = "ord", nullable = false)
-    private int ord;
+//    @Column(name = "ord", nullable = false)
+//    private int ord;
 
     @Column(name = "is_root", nullable = false)
     private boolean root;
 
 
-    public StepsTree(Step step, StepsTree parent, int pos) {
+    public StepsTree(Step step, StepsTree parent) {
         this(parent.getWorkflow(), false);
 
         this.step = step;
         this.parent = parent;
-        this.ord = pos;
+//        this.ord = pos;
 
-        parent.locateSubStep(step)
-                .ifPresent(prevStepTree -> {
-                    this.subTrees = new ArrayList<>(prevStepTree.getSubTrees());
-                });
+//        parent.locateSubStep(step)
+//                .ifPresent(prevStepTree -> {
+//                    this.subTrees = new ArrayList<>(prevStepTree.getSubTrees());
+//                    this.subTrees.forEach(subTree -> subTree.setParent(this));
+//                });
     }
 
     // Use static factory methods below
     protected StepsTree() {
         this.subTrees = new ArrayList<>();
-        this.ord = 0;
+//        this.ord = 0;
     }
 
     private StepsTree(Workflow workflow, boolean root) {
@@ -86,35 +87,45 @@ public class StepsTree {
                 .map(subTree -> new StepsTree(workflow, subTree, this))
                 .collect(Collectors.toList());
 
-        this.ord = baseStepsTree.getOrd();
+//        this.ord = baseStepsTree.getOrd();
         this.root = baseStepsTree.isRoot();
     }
 
     public void appendStep(Step step) {
-        StepsTree subtree = new StepsTree(step, this, subTrees.size());
+        StepsTree subtree = newAddedTree(step);
         subTrees.add(subtree);
 
-        removePreviousStep(step, false);
+        removePreviousStep(step);
     }
 
     public void addStep(Step step, int stepNo) {
-        if (!canAddAtPosition(stepNo))
+        if (isInvalidStepNo(stepNo))
             throw new IndexOutOfBoundsException(String.format("Invalid step number: %d/%d", stepNo, subTrees.size() + 1));
 
         int stepOrd = resolveOrd(stepNo);
-        StepsTree subtree = new StepsTree(step, this, stepOrd);
+        StepsTree subtree = newAddedTree(step);
         subTrees.add(stepOrd, subtree);
 
-        removePreviousStep(step, false);
-        renumberSubTrees();
+        removePreviousStep(step);
+    }
+
+    private StepsTree newAddedTree(Step step) {
+        return locateSubStep(step)
+                .map(stepTree -> {
+                    StepsTree tree = new StepsTree(workflow, stepTree, this);
+                    tree.setStep(step);
+
+                    return tree;
+                })
+                .orElseGet(() -> new StepsTree(step, this));
     }
 
     private int resolveOrd(int stepNo) {
         return stepNo - 1;
     }
 
-    public boolean canAddAtPosition(int stepNo) {
-        return !(stepNo <= 0 || stepNo > subTrees.size() + 1);
+    public boolean isInvalidStepNo(int stepNo) {
+        return stepNo <= 0 || stepNo > subTrees.size() + 1;
     }
 
     public void replaceChildStep(Step step) {
@@ -129,34 +140,33 @@ public class StepsTree {
                 .findFirst();
     }
 
-    private void removePreviousStep(Step step, boolean renumber) {
+    private void removePreviousStep(Step step) {
         String persistentId = step.getVersionedItem().getPersistentId();
         subTrees.removeIf(
                 st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId)
                         && !st.getStep().getId().equals(step.getId())
         );
 
-        if (renumber)
-            renumberSubTrees();
+//        renumberSubTrees();
     }
 
     public void removeStep(Step step) {
         String persistentId = step.getVersionedItem().getPersistentId();
         subTrees.removeIf(st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId));
 
-        renumberSubTrees();
+//        renumberSubTrees();
     }
 
-    private void renumberSubTrees() {
-        int i = 0;
-
-        for (StepsTree subTree : subTrees) {
-            if (subTree.getOrd() != i)
-                subTree.setOrd(i);
-
-            i++;
-        }
-    }
+//    private void renumberSubTrees() {
+//        int i = 0;
+//
+//        for (StepsTree subTree : subTrees) {
+//            if (subTree.getOrd() != i)
+//                subTree.setOrd(i);
+//
+//            i++;
+//        }
+//    }
 
     public List<StepsTree> getSubTrees() {
         return Collections.unmodifiableList(subTrees);

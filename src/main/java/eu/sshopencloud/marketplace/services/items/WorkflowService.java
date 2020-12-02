@@ -94,10 +94,6 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public WorkflowDto createWorkflow(WorkflowCore workflowCore, boolean draft) {
         Workflow workflow = createItem(workflowCore, draft);
-
-        if (!draft)
-            commitSteps(workflow.getStepsTree());
-
         return prepareItemDto(workflow);
     }
 
@@ -171,6 +167,13 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         }
 
         return super.liftItemVersion(persistentId, draft);
+    }
+
+    public WorkflowDto commitDraftWorkflow(String workflowId) {
+        Workflow committedWorkflow = publishDraftItem(workflowId);
+        commitSteps(committedWorkflow.gatherSteps());
+
+        return prepareItemDto(committedWorkflow);
     }
 
 

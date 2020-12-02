@@ -191,6 +191,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         itemRelatedItemService.copyItemRelations(version, prevVersion);
     }
 
+    protected I publishDraftItem(String persistentId) {
+        I draftItem = loadItemDraftForCurrentUser(persistentId);
+        return commitItemDraft(draftItem);
+    }
+
     protected I commitItemDraft(I version) {
         DraftItem draft = draftItemRepository.findByItemId(version.getId())
                 .orElseThrow(
