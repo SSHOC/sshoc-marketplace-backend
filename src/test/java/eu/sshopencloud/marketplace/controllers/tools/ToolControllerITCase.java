@@ -466,7 +466,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Stata")))
                 .andExpect(jsonPath("description", is("Draft Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.")))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 

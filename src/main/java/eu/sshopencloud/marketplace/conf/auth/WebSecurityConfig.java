@@ -98,22 +98,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name())
-                .antMatchers(HttpMethod.DELETE, "/api/datasets/**").hasAuthority(Authority.MODERATOR.name());
+                .antMatchers(HttpMethod.DELETE, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name());
         http
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/tools/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/tools/**").hasAuthority(Authority.CONTRIBUTOR.name())
-                .antMatchers(HttpMethod.DELETE, "/api/tools/**").hasAuthority(Authority.MODERATOR.name());
+                .antMatchers(HttpMethod.DELETE, "/api/tools/**").hasAuthority(Authority.CONTRIBUTOR.name());
         http
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name())
-                .antMatchers(HttpMethod.DELETE, "/api/training-materials/**").hasAuthority(Authority.MODERATOR.name());
+                .antMatchers(HttpMethod.DELETE, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name());
         http
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
-                .antMatchers(HttpMethod.DELETE, "/api/workflows/**").hasAuthority(Authority.MODERATOR.name());
+                .antMatchers(HttpMethod.DELETE, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name());
         http
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/items-relations/**").hasAuthority(Authority.CONTRIBUTOR.name())

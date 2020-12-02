@@ -1112,7 +1112,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)));
 
         mvc.perform(
-                post("/api/workflows/{workflowId}/commit", workflowId)
+                post("/api/workflows/{workflowId}/commit", workflowPersistentId)
                         .header("Authorization", CONTRIBUTOR_JWT)
         )
                 .andExpect(status().isOk())

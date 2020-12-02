@@ -142,7 +142,12 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         StepsTree parentStepTree = stepTree.getParent();
 
         parentStepTree.removeStep(step);
-        deleteItem(stepId, draft);
+
+        // A draft workflow can contain non draft steps if they were derived from base non-draft version
+        // In a draft workflow we remove the part of the tree associated with the step only (if the step is not a draft)
+        // If the step is a draft it should be physically deleted
+        if (!draft || step.isDraft())
+            deleteItem(stepId, draft);
     }
 
     @Override
