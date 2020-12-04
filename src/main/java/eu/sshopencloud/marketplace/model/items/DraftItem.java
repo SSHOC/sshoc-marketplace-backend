@@ -61,6 +61,10 @@ public class DraftItem {
         relations.removeIf(rel -> rel.getObject().getPersistentId().equals(targetObjectId));
     }
 
+    public void clearRelations() {
+        relations.clear();
+    }
+
     private void ensureRelationDoesNotExist(VersionedItem object) throws ItemsRelationAlreadyExistsException {
         String persistentId = object.getPersistentId();
         Optional<DraftRelatedItem> relation = relations.stream()

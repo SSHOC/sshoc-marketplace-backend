@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationsCore;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
@@ -28,7 +29,8 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends PaginatedResult<D>, C> extends ItemVersionService<I> {
+abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends PaginatedResult<D>, C extends ItemRelationsCore>
+        extends ItemVersionService<I> {
 
     private final ItemRepository itemRepository;
     private final VersionedItemRepository versionedItemRepository;
@@ -108,6 +110,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
             I version = modifyItem(itemCore, prevVersion);
+            itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), prevVersion, null, true);
 
             if (!draft)
                 commitItemDraft(version);
@@ -117,6 +120,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         I version = makeItemVersion(itemCore, prevVersion);
         version = saveVersionInHistory(version, prevVersion, draft);
+
+        itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), version, prevVersion, draft);
 
         return version;
     }
@@ -157,10 +162,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         version.setVersionedItem(versionedItem);
         version = saveItemVersion(version);
 
-        if (!draft) {
-            copyVersionRelations(version, prevVersion);
-        }
-        else {
+        if (draft) {
             User draftOwner = userService.loadLoggedInUser();
             DraftItem draftItem = new DraftItem(version, prevVersion, draftOwner);
 
@@ -283,7 +285,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I currentVersion = loadCurrentItem(persistentId);
         I targetVersion = makeItemVersionCopy(item);
 
-        return saveVersionInHistory(targetVersion, currentVersion, false);
+        targetVersion =  saveVersionInHistory(targetVersion, currentVersion, false);
+        copyVersionRelations(targetVersion, item);
+
+        return targetVersion;
     }
 
     protected I liftItemVersion(String persistentId, boolean draft) {
@@ -296,7 +301,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I item = loadCurrentItem(persistentId);
         I newItem = makeItemVersionCopy(item);
 
-        return saveVersionInHistory(newItem, item, draft);
+        newItem = saveVersionInHistory(newItem, item, draft);
+        copyVersionRelations(newItem, item);
+
+        return newItem;
     }
 
     protected void deleteItem(String persistentId, boolean draft) {

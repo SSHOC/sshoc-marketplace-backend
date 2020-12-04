@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @Table(name = "draft_related_items")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class DraftRelatedItem {
 
     @Id

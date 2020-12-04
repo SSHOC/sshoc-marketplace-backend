@@ -1,14 +1,17 @@
 package eu.sshopencloud.marketplace.dto.items;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemRelationId {
+public class RelatedItemCore {
 
-    private String code;
+    private String objectId;
+    private ItemRelationId relation;
 }

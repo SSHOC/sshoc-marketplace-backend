@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.items.ItemRelatedItemDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.mappers.items.ItemRelatedItemMapper;
@@ -16,9 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -62,17 +61,110 @@ public class ItemRelatedItemService {
     private List<RelatedItemDto> getDraftRelatedItems(long itemId) {
         DraftItem draftItem = draftItemRepository.findByItemId(itemId).get();
 
-        List<RelatedItemDto> relatedItems = draftItem.getRelations().stream()
+        return draftItem.getRelations().stream()
                 .map(ItemRelatedItem::new)
                 .map(ItemConverter::convertRelatedItemFromSubject)
                 .collect(Collectors.toList());
 
-        if (draftItem.getBaseItem() != null) {
-            List<RelatedItemDto> baseRelatedItems = getRelatedItems(draftItem.getBaseItem().getId());
-            relatedItems.addAll(baseRelatedItems);
-        }
+        // Drafts have now overwritten relations
+        // if (draftItem.getBaseItem() != null) {
+            // List<RelatedItemDto> baseRelatedItems = getRelatedItems(draftItem.getBaseItem().getId());
+            // relatedItems.addAll(baseRelatedItems);
+        // }
 
-        return relatedItems;
+        // return relatedItems;
+    }
+
+    public void updateRelatedItems(List<RelatedItemCore> relatedItems, Item newVersion, Item prevItem, boolean draft) {
+        if (draft) {
+            updateDraftRelatedItems(relatedItems, newVersion);
+        }
+        else {
+            updateRelatedItems(relatedItems, newVersion, prevItem);
+        }
+    }
+
+    private void updateRelatedItems(List<RelatedItemCore> relatedItems, Item newVersion, Item prevItem) {
+        Map<String, Item> relatedVersions = new HashMap<>();
+        Map<ItemRelatedItemId, ItemRelation> newRelations = new HashMap<>();
+
+        if (relatedItems == null)
+            relatedItems = new ArrayList<>();
+
+        relatedItems.forEach(relatedItem -> {
+            String objectId = relatedItem.getObjectId();
+
+            if (!relatedVersions.containsKey(objectId)) {
+                Item objectVersion = itemsService.liftItemVersion(objectId, false);
+                relatedVersions.put(objectId, objectVersion);
+            }
+
+            Item objectVersion = relatedVersions.get(objectId);
+            ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
+            ItemRelatedItem itemsRelation = saveItemsRelationChecked(newVersion, objectVersion, relationType);
+
+            newRelations.put(itemsRelation.getId(), relationType);
+        });
+
+        if (prevItem == null)
+            return;
+
+        List<RelatedItemDto> prevRelations = getRelatedItems(prevItem.getId());
+        prevRelations.forEach(prevRelation -> {
+            ItemRelatedItemId relationId = new ItemRelatedItemId(newVersion.getId(), prevRelation.getId());
+            String prevRelationTypeCode = prevRelation.getRelation().getCode();
+
+            if (newRelations.containsKey(relationId) && newRelations.get(relationId).getCode().equals(prevRelationTypeCode))
+                return;
+
+            Item prevRelatedItem = itemsService.loadCurrentItem(prevRelation.getPersistentId());
+
+            // previous item had a relation to the current target item and hasn't got anymore
+            if (prevRelatedItem.getId().equals(prevRelation.getId())) {
+                String objectId = prevRelation.getPersistentId();
+
+                if (!relatedVersions.containsKey(objectId)) {
+                    Item newObjectVersion = itemsService.liftItemVersion(objectId, false);
+                    relatedVersions.put(objectId, newObjectVersion);
+
+                    removeItemRelation(prevItem, newObjectVersion);
+                }
+            }
+        });
+    }
+
+    private ItemRelatedItem saveItemsRelationChecked(Item subject, Item object, ItemRelation itemRelation) {
+        try {
+            return saveItemsRelation(subject, object, itemRelation);
+        }
+        catch (ItemsRelationAlreadyExistsException e) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "A relation between objects with ids %s and %s already exists",
+                            subject.getPersistentId(), object.getPersistentId()
+                    )
+            );
+        }
+    }
+
+    private void updateDraftRelatedItems(List<RelatedItemCore> relatedItems, Item subject) {
+        DraftItem draftSubject = draftItemRepository.findByItemId(subject.getId()).get();
+        draftSubject.clearRelations();
+
+        if (relatedItems == null)
+            return;
+
+        relatedItems.forEach(relatedItem -> {
+            ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
+            try {
+                createDraftItemRelation(subject.getPersistentId(), relatedItem.getObjectId(), relationType);
+            }
+            catch (ItemsRelationAlreadyExistsException e) {
+                throw new IllegalArgumentException(
+                        String.format("Repeated relation to object with id %s", relatedItem.getObjectId())
+                );
+            }
+        });
     }
 
     public ItemRelatedItemDto createItemRelatedItem(String subjectId, String objectId,
@@ -91,6 +183,13 @@ public class ItemRelatedItemService {
         Item subject = itemsService.liftItemVersion(subjectId, false);
         Item object = itemsService.liftItemVersion(objectId, false);
 
+        ItemRelatedItem newItemRelatedItem = saveItemsRelation(subject, object, itemRelation);
+        return ItemRelatedItemMapper.INSTANCE.toDto(newItemRelatedItem);
+    }
+
+    private ItemRelatedItem saveItemsRelation(Item subject, Item object, ItemRelation itemRelation)
+            throws ItemsRelationAlreadyExistsException {
+
         ItemRelatedItemId dirId = new ItemRelatedItemId(subject.getId(), object.getId());
         Optional<ItemRelatedItem> dirItemRelatedItem = itemRelatedItemRepository.findById(dirId);
         if (dirItemRelatedItem.isPresent()) {
@@ -105,7 +204,7 @@ public class ItemRelatedItemService {
         ItemRelatedItem newItemRelatedItem = new ItemRelatedItem(subject, object, itemRelation);
         newItemRelatedItem = itemRelatedItemRepository.save(newItemRelatedItem);
 
-        return ItemRelatedItemMapper.INSTANCE.toDto(newItemRelatedItem);
+        return newItemRelatedItem;
     }
 
     private DraftRelatedItem createDraftItemRelation(String subjectId, String objectId, ItemRelation relation)
@@ -141,16 +240,19 @@ public class ItemRelatedItemService {
     }
 
     void commitDraftRelations(DraftItem draftItem) {
-        for (DraftRelatedItem draftRelation : draftItem.getRelations()) {
-            Item subject = draftItem.getItem();
-            Item object = itemsService.liftItemVersion(draftRelation.getObject().getPersistentId(), false);
+        List<RelatedItemCore> relatedItems = draftItem.getRelations().stream()
+                .map(rel ->
+                        RelatedItemCore.builder()
+                                .objectId(rel.getObject().getPersistentId())
+                                .relation(rel.getRelation().getId())
+                                .build()
+                )
+                .collect(Collectors.toList());
 
-            ItemRelatedItem itemRelation = new ItemRelatedItem(subject, object, draftRelation.getRelation());
-            itemRelatedItemRepository.save(itemRelation);
-        }
+        updateRelatedItems(relatedItems, draftItem.getItem(), draftItem.getBaseItem());
     }
 
-    @Deprecated
+    @Deprecated(since = "This method does not upgrade versions of related items, which should be done since we modify relations between items")
     public void deleteRelationsForItem(Item item) {
         List<ItemRelatedItem> subjectRelations = itemRelatedItemRepository.findAllBySubjectId(item.getId());
         itemRelatedItemRepository.deleteAll(subjectRelations);

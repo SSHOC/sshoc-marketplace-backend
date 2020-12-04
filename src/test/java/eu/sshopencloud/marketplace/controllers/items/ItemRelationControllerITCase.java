@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.items;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -17,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -133,6 +136,12 @@ public class ItemRelationControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Draft Gephi");
         tool.setDescription("Draft Gephi ...");
+        tool.setRelatedItems(
+                List.of(
+                        RelatedItemCore.builder().objectId("Xgufde").relation(new ItemRelationId("relates-to")).build(),
+                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("documents")).build()
+                )
+        );
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);

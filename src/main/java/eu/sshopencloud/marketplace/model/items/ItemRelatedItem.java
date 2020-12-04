@@ -35,4 +35,8 @@ public class ItemRelatedItem implements Serializable {
         this.object = draftRelation.getObject().getCurrentVersion();
         this.relation = draftRelation.getRelation();
     }
+
+    public ItemRelatedItemId getId() {
+        return new ItemRelatedItemId(subject.getId(), object.getId());
+    }
 }

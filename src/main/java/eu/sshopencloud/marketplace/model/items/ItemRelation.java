@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.model.items;
 
+import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -28,4 +29,8 @@ public class ItemRelation {
     @JoinColumn(foreignKey = @ForeignKey(name="item_relation_inverse_of_code_fk"))
     private ItemRelation inverseOf;
 
+
+    public ItemRelationId getId() {
+        return new ItemRelationId(code);
+    }
 }
