@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0012-SSHOC_29-draft_items-1
+      author: swolarz
+      description: Create id sequence for draft items
+      changes:
+        - createSequence:
+            sequenceName: draft_items_id_seq
+            startValue: 1
+            incrementBy: 1
+
+  - changeSet:
+      id: 0012-SSHOC_29-draft_items-2
+      author: swolarz
+      description: Create table for draft items
+      changes:
+        - createTable:
+            tableName: draft_items
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: owner_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: draft_item_owner_id_fk
+                    references: users(id)
+              - column:
+                  name: item_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: draft_item_item_id_fk
+                    references: items(id)
+
+  - changeSet:
+      id: 0012-SSHOC_29-draft_items-3
+      author: swolarz
+      description: Extend columns for versioned (persistent) items
+      changes:
+        - addColumn:
+            tableName: versioned_items
+            columns:
+              - column:
+                  name: status
+                  type: varchar(64)
+                  value: REVIEWED
+              - column:
+                  name: curr_ver_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: versioned_item_curr_version_fk
+                    references: items(id)
+
+  - changeSet:
+      id: 0012-SSHOC_29-draft_items-4
+      author: swolarz
+      description: Assign current versions to persistent items
+      changes:
+        - sql:
+            sql: update versioned_items v set curr_ver_id = (select i.id from items i where i.persistent_id = v.id)
+
+  - changeSet:
+      id: 0012-SSHOC_29-draft_items-5
+      author: swolarz
+      description: Make current version column for persistent items not nullable
+      changes:
+        - addNotNullConstraint:
+            tableName: versioned_items
+            columnName: curr_ver_id
+        - addNotNullConstraint:
+            tableName: versioned_items
+            columnName: status

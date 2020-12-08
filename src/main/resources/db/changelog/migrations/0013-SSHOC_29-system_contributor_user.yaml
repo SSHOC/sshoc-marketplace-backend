@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0013-SSHOC_29-system_contributor-1
+      author: swolarz
+      description: Set appropriate role for system contributor (System importer)
+      changes:
+        - update:
+            tableName: users
+            where: username = 'System importer'
+            columns:
+              - column:
+                  name: role
+                  value: SYSTEM_CONTRIBUTOR

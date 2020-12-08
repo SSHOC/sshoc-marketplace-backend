@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
 import eu.sshopencloud.marketplace.controllers.ErrorResponse;
-import eu.sshopencloud.marketplace.services.items.ItemsRelationAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

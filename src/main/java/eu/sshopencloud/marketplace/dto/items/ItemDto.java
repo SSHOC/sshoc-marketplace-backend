@@ -46,8 +46,6 @@ public class ItemDto extends ItemBasicDto {
 
     private ItemStatus status;
 
-    private List<ItemCommentDto> comments;
-
     private List<ItemBasicDto> olderVersions;
 
     private List<ItemBasicDto> newerVersions;

@@ -9,9 +9,9 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 @Entity
 @Table(name = "items", uniqueConstraints = {
@@ -19,8 +19,8 @@ import java.util.List;
     })
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-@ToString(exclude = {"prevVersion", "newPrevVersion"})
-@EqualsAndHashCode(exclude = {"prevVersion", "newPrevVersion"})
+@ToString(of = { "id", "category", "label", "version", "description", "source", "sourceItemId", "status" })
+@EqualsAndHashCode(of = { "id", "category", "label", "version", "description", "source", "sourceItemId", "status" })
 public abstract class Item {
 
     @Id
@@ -28,36 +28,54 @@ public abstract class Item {
     @SequenceGenerator(name = "item_generator", sequenceName = "items_id_seq", allocationSize = 50)
     private Long id;
 
-    @Basic
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemCategory category;
 
-    @Basic
     @Column(nullable = false)
     private String label;
 
-    @Basic
-    @Column(nullable = true)
+    @Column
     private String version;
 
-    @Basic
     @Column(nullable = false, length = 4096)
     private String description;
 
-    @ManyToMany(cascade = { CascadeType.REFRESH })
-    @JoinTable(name = "items_licenses", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_license_item_id_fk")),
-            inverseJoinColumns = @JoinColumn(name = "license_code", referencedColumnName = "code", foreignKey = @ForeignKey(name="item_license_license_code_fk")))
+    @ManyToMany
+    @JoinTable(
+            name = "items_licenses",
+            joinColumns = @JoinColumn(
+                    name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_license_item_id_fk")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "license_code", referencedColumnName = "code", foreignKey = @ForeignKey(name="item_license_license_code_fk")
+            )
+    )
     @OrderColumn(name = "ord")
     private List<License> licenses;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "item", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true)
     @OrderColumn(name = "ord")
     private List<ItemContributor> contributors;
 
-    @OneToMany(mappedBy =  "item", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("ord")
+    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(
+            name = "items_properties",
+            joinColumns = @JoinColumn(
+                    name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "items_properties_item_fk")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "property_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "item_properties_property_fk")
+            )
+    )
+    @OrderColumn(name = "ord", nullable = false)
     private List<Property> properties;
+
+    // Hibernate does not handle sparse order properly
+    // When using OrderColumn annotation and there is some order index missing from 0..size-1,
+    // then a null is inserted
+    @Transient
+    private boolean sparseProperties = true;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "item_links")
@@ -65,75 +83,98 @@ public abstract class Item {
     @OrderColumn(name = "ord")
     private List<String> accessibleAt;
 
-    @ManyToOne(optional = true, cascade = { CascadeType.REFRESH })
+    @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name="item_source_id_fk"))
     private Source source;
 
-    @Basic
-    @Column(nullable = true)
+    @Column
     private String sourceItemId;
 
-    @ManyToMany(cascade = { CascadeType.REFRESH })
-    @JoinTable(name = "items_information_contributors", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_item_id_fk")),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_information_contributor_user_id_fk")))
+    @ManyToMany
+    @JoinTable(
+            name = "items_information_contributors",
+            joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
+    )
     @OrderColumn(name = "ord")
     private List<User> informationContributors;
 
-    @Basic
-    @Column(nullable = false)
     @CreationTimestamp
+    @Column(nullable = false)
     private ZonedDateTime lastInfoUpdate;
 
-    @Basic
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "varchar(255) default 'INGESTED'")
+    @Column(nullable = false)
     private ItemStatus status;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "items_items_comments", joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_id_fk")),
-            inverseJoinColumns = @JoinColumn(name = "item_comment_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="items_items_comments_item_comment_id_fk")))
-    @OrderColumn(name = "ord")
-    private List<ItemComment> comments;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinColumn(name = "persistent_id", nullable = false)
+    private VersionedItem versionedItem;
 
-    @OneToOne(optional = true, fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))
     private Item prevVersion;
 
-    /** Needed for switching versions during creating/updating of an item */
-    @Transient
-    private Item newPrevVersion;
-
 
     public Item() {
+        this.id = null;
+        this.informationContributors = new ArrayList<>();
         this.accessibleAt = new ArrayList<>();
         this.properties = new ArrayList<>();
+        this.licenses = new ArrayList<>();
+        this.contributors = new ArrayList<>();
     }
 
-    public List<String> getAccessibleAt() {
-        return Collections.unmodifiableList(accessibleAt);
+    public Item(Item baseItem) {
+        this.id = null;
+
+        this.category = baseItem.getCategory();
+        this.label = baseItem.getLabel();
+        this.version = baseItem.getVersion();
+        this.description = baseItem.getDescription();
+        this.licenses = new ArrayList<>(baseItem.getLicenses());
+
+        this.contributors = baseItem.getContributors().stream()
+                .map(baseContributor -> new ItemContributor(this, baseContributor))
+                .collect(Collectors.toList());
+
+        this.properties = new ArrayList<>(baseItem.getProperties());
+        this.accessibleAt = new ArrayList<>(baseItem.getAccessibleAt());
+        this.source = baseItem.getSource();
+        this.sourceItemId = baseItem.getSourceItemId();
+        this.informationContributors = new ArrayList<>();
     }
 
-    public void addAccessibleAtLink(String linkUrl) {
-        accessibleAt.add(linkUrl);
+    public String getPersistentId() {
+        return versionedItem.getPersistentId();
     }
 
-    public void clearAccessibleAtLinks() {
-        accessibleAt.clear();
+    public boolean isNewestVersion() {
+        return (status == ItemStatus.APPROVED && versionedItem.isActive());
+    }
+
+    public boolean isDraft() {
+        return (status == ItemStatus.DRAFT);
+    }
+
+    public void setContributors(List<ItemContributor> contributors) {
+        this.contributors.clear();
+        this.contributors.addAll(contributors);
+    }
+
+    public void addInformationContributor(User contributor) {
+        if (informationContributors.contains(contributor))
+            return;
+
+        informationContributors.add(contributor);
     }
 
     public List<Property> getProperties() {
+        if (sparseProperties) {
+            this.properties.removeIf(Objects::isNull);
+            sparseProperties = false;
+        }
+
         return Collections.unmodifiableList(properties);
-    }
-
-    public void setProperties(List<Property> properties) {
-        this.properties.clear();
-        this.properties.addAll(properties);
-        renumberProperties();
-    }
-
-    private void renumberProperties() {
-        int idx = 0;
-        for (Property property : properties)
-            property.setOrd(idx++);
     }
 }

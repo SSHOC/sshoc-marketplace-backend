@@ -1,0 +1,77 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0017-SSHOC_25-persistent_ids-1
+      author: swolarz
+      description: Drop invalid non null constraint on current item in versioned items
+      changes:
+        - dropNotNullConstraint:
+            tableName: versioned_items
+            columnName: curr_ver_id
+
+  - changeSet:
+      id: 0017-SSHOC_25-persistent_ids-2
+      author: swolarz
+      description: Set persistent ids for dev/test so that they are common for everyone
+      context: dev, test
+      changes:
+        - sql:
+            sql: alter table items disable trigger all
+        - sql:
+            sql: alter table versioned_items disable trigger all
+
+        - sql:
+            sql: update items set persistent_id = 'n21Kfc' where id = 1
+        - sql:
+            sql: update items set persistent_id = 'DstBL5' where id = 2
+        - sql:
+            sql:  update items set persistent_id = 'Xgufde' where id = 3
+        - sql:
+            sql: update items set persistent_id = 'heBAGQ' where id = 4
+        - sql:
+            sql: update items set persistent_id = 'WfcKvG' where id = 5
+        - sql:
+            sql: update items set persistent_id = 'WfcKvG' where id = 6
+        - sql:
+            sql: update items set persistent_id = 'WfcKvG' where id = 7
+        - sql:
+            sql: update items set persistent_id = 'JmBgWa' where id = 8
+        - sql:
+            sql: update items set persistent_id = 'dmbq4v' where id = 9
+        - sql:
+            sql: update items set persistent_id = 'OdKfPc' where id = 10
+        - sql:
+            sql: update items set persistent_id = 'dU0BZc' where id = 11
+        - sql:
+            sql: update items set persistent_id = 'tqmbGY' where id = 12
+        - sql:
+            sql: update items set persistent_id = 'prblMo' where id = 13
+        - sql:
+            sql: update items set persistent_id = '2CwYCU' where id = 14
+        - sql:
+            sql: update items set persistent_id = 'dVZeir' where id = 15
+        - sql:
+            sql: update items set persistent_id = 'EPax9f' where id = 16
+        - sql:
+            sql: update items set persistent_id = 'HLYtzq' where id = 17
+        - sql:
+            sql: update items set persistent_id = 'xYpCdU' where id = 18
+        - sql:
+            sql: update items set persistent_id = 'k68NbF' where id = 19
+        - sql:
+            sql: update items set persistent_id = 'U8vUos' where id = 20
+        - sql:
+            sql: update items set persistent_id = 'vHQEhe' where id = 21
+        - sql:
+            sql: update items set persistent_id = 'BNw43H' where id = 22
+        - sql:
+            sql: update items set persistent_id = 'sQY6US' where id = 23
+        - sql:
+            sql: update items set persistent_id = 'gQu2wl' where id = 24
+
+        - sql:
+            sql: update versioned_items v set id = (select persistent_id from items i where i.id = v.curr_ver_id)
+
+        - sql:
+            sql: alter table items enable trigger all
+        - sql:
+            sql: alter table versioned_items enable trigger all

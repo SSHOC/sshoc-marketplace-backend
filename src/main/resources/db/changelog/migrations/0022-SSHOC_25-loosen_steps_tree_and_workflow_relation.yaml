@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0022-SSHOC_25-steps_tree_and_workflows-1
+      author: swolarz
+      description: Drop disturbing non null constraint between steps trees and workflows
+      changes:
+        - dropNotNullConstraint:
+            tableName: steps_trees
+            columnName: workflow_id

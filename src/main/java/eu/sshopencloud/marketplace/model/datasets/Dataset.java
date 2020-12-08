@@ -11,8 +11,11 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "datasets")
 @Data
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Dataset extends DigitalObject {
 
+    public Dataset(Dataset baseDataset) {
+        super(baseDataset);
+    }
 }

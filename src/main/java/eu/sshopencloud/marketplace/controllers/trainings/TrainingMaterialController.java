@@ -4,12 +4,13 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
-import eu.sshopencloud.marketplace.services.trainings.TrainingMaterialService;
+import eu.sshopencloud.marketplace.services.items.TrainingMaterialService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/training-materials")
@@ -28,23 +29,51 @@ public class TrainingMaterialController {
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") long id) {
-        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterial(id));
+    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") String id,
+                                                                   @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(id, draft));
+    }
+
+    @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") String id,
+                                                                   @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersion(id, versionId));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial) {
-        return ResponseEntity.ok(trainingMaterialService.createTrainingMaterial(newTrainingMaterial));
+    public ResponseEntity<TrainingMaterialDto> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial,
+                                                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(trainingMaterialService.createTrainingMaterial(newTrainingMaterial, draft));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> updateTrainingMaterial(@PathVariable("id") long id, @RequestBody TrainingMaterialCore updatedTrainingMaterial) {
-        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(id, updatedTrainingMaterial));
+    public ResponseEntity<TrainingMaterialDto> updateTrainingMaterial(@PathVariable("id") String id,
+                                                                      @RequestBody TrainingMaterialCore updatedTrainingMaterial,
+                                                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(id, updatedTrainingMaterial, draft));
+    }
+
+    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> revertTrainingMaterial(@PathVariable("id") String id,
+                                                                      @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(trainingMaterialService.revertTrainingMaterial(id, versionId));
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteTrainingMaterial(@PathVariable("id") long id) {
-        trainingMaterialService.deleteTrainingMaterial(id);
+    public void deleteTrainingMaterial(@PathVariable("id") String id,
+                                       @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        trainingMaterialService.deleteTrainingMaterial(id, draft);
     }
 
+    @PostMapping(path = "/{trainingMaterialId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> publishTrainingMaterial(@PathVariable("trainingMaterialId") String trainingMaterialId) {
+        TrainingMaterialDto trainingMaterial = trainingMaterialService.commitDraftTrainingMaterial(trainingMaterialId);
+        return ResponseEntity.ok(trainingMaterial);
+    }
 }

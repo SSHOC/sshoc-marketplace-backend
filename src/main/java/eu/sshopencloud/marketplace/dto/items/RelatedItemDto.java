@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 public class RelatedItemDto {
 
     private Long id;
+    private String persistentId;
 
     private ItemCategory category;
 

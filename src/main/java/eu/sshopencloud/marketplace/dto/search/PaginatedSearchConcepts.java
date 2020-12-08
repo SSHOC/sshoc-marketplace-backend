@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.dto.search;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
-public class PaginatedSearchConcepts extends PaginatedResult {
+public class PaginatedSearchConcepts extends PaginatedResult<SearchConcept> {
 
     private String q;
 
@@ -22,4 +23,9 @@ public class PaginatedSearchConcepts extends PaginatedResult {
 
     private Map<String, CountedPropertyType> types;
 
+    @Override
+    @JsonGetter("concepts")
+    public List<SearchConcept> getResults() {
+        return concepts;
+    }
 }

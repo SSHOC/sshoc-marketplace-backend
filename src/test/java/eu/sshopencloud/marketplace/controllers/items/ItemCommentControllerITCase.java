@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.controllers.items;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
-import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -19,10 +18,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -49,7 +47,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldCreateItemComment() throws Exception {
-        Integer itemId = 1;
+        String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("I love it!");
@@ -57,7 +55,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/items/{itemId}/comments", itemId)
+        mvc.perform(post("/api/items/{itemId}/comments", itemPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -67,7 +65,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldCreateItemCommentWithHtml() throws Exception {
-        Integer itemId = 1;
+        String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("<p>I <b>love</b> it<span>!</span></p>");
@@ -75,17 +73,31 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/items/{itemId}/comments", itemId)
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+
+        mvc.perform(post("/api/items/{itemId}/comments", itemPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("body", is("I **love** it!\n")));
+
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)));
     }
 
     @Test
     public void shouldNotCreateItemCommentWhenCommentIsEmpty() throws Exception {
-        Integer itemId = 1;
+        String itemPersistentId = "Xgufde";
 
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("");
@@ -93,7 +105,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/items/{itemId}/comments", itemId)
+        mvc.perform(post("/api/items/{itemId}/comments", itemPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -102,7 +114,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldNotCreateItemCommentWhenItemNotExist() throws Exception {
-        Integer itemId = 300;
+        String itemPersistentId = "xxxxxx7";
 
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("I love it!");
@@ -110,7 +122,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/items/{itemId}/comments", itemId)
+        mvc.perform(post("/api/items/{itemId}/comments", itemPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -119,7 +131,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldUpdateItemCommentForCreator() throws Exception {
-        Integer itemId = 1;
+        String itemPersistentId = "n21Kfc";
         Integer commentId = 1;
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -128,7 +140,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -138,7 +150,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldUpdateItemCommentForModerator() throws Exception {
-        Integer itemId = 1;
+        String itemPersistentId = "n21Kfc";
         Integer commentId = 2;
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -147,7 +159,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -158,7 +170,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldNotUpdateItemCommentForNonCreatorAndNonModerator() throws Exception {
-        Integer itemId = 1;
+        String itemPersistentId = "n21Kfc";
         Integer commentId = 2;
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -167,7 +179,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -177,7 +189,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldNotUpdateItemCommentWhenNotBelongToItem() throws Exception {
-        Integer itemId = 2;
+        String itemPersistentId = "DstBL5";
         Integer commentId = 1;
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -186,7 +198,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -195,8 +207,8 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldNotUpdateItemCommentWhenNotExist() throws Exception {
-        Integer itemId = 1;
-        Integer commentId = 50;
+        String itemPersistentId = "n21Kfc";
+        Integer commentId = -50;
 
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("I love it!");
@@ -204,7 +216,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(put("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -213,7 +225,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldDeleteItemCommentForCreator() throws Exception {
-        Integer itemId = 1;
+        String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("Comment to delete.");
@@ -221,24 +233,45 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemId)
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+
+        String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)));
+
         Long commentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ItemComment.class).getId();
 
-        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk());
+
+        mvc.perform(
+                get("/api/items/{itemId}/comments", itemPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
     public void shouldDeleteItemCommentForModerator() throws Exception {
-        Integer itemId = 1;
+        String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("Comment to delete.");
@@ -246,7 +279,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemId)
+        String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -255,7 +288,7 @@ public class ItemCommentControllerITCase {
 
         Long commentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ItemComment.class).getId();
 
-        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
@@ -263,7 +296,7 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldNotDeleteItemCommentForNonCreatorAndNonModerator() throws Exception {
-        Integer itemId = 1;
+        String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
         itemComment.setBody("Comment to delete.");
@@ -271,7 +304,7 @@ public class ItemCommentControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemComment);
         log.debug("JSON: " + payload);
 
-        String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemId)
+        String jsonResponse = mvc.perform(post("/api/items/{itemId}/comments", itemPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -280,7 +313,7 @@ public class ItemCommentControllerITCase {
 
         Long commentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ItemComment.class).getId();
 
-        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isForbidden());
@@ -289,10 +322,10 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldNotDeleteItemCommentWhenNotBelongToItem() throws Exception {
-        Integer itemId = 2;
+        String itemPersistentId = "DstBL5";
         Integer commentId = 2;
 
-        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
@@ -300,10 +333,10 @@ public class ItemCommentControllerITCase {
 
     @Test
     public void shouldNotDeleteItemCommentWhenNotExist() throws Exception {
-        Integer itemId = 1;
-        Integer commentId = 50;
+        String itemPersistentId = "n21Kfc";
+        Integer commentId = -50;
 
-        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemId, commentId)
+        mvc.perform(delete("/api/items/{itemId}/comments/{id}", itemPersistentId, commentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isNotFound());

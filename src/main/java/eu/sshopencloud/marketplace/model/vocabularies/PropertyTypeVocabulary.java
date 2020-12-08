@@ -20,12 +20,12 @@ import java.io.Serializable;
 public class PropertyTypeVocabulary implements Serializable {
 
     @Id
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="property_type_code", referencedColumnName = "code", insertable = false, updatable = false, foreignKey = @ForeignKey(name="property_types_vocabularies_property_type_code_fk"))
     private PropertyType propertyType;
 
     @Id
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="vocabulary_code", referencedColumnName = "code", insertable = false, updatable = false, foreignKey = @ForeignKey(name="property_types_vocabularies_vocabulary_code_fk"))
     private Vocabulary vocabulary;
 

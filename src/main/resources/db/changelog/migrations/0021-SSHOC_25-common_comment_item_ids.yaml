@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0021-SSHOC_25-common_comment_item_ids-1
+      author: swolarz
+      description: Migrate item ids for comments to match common dev/test ids
+      context: dev, test
+      changes:
+        - sql:
+            sql: >
+              update item_comments c set item_id = (
+                select persistent_id from items i
+                  join items_items_comments ic on ic.item_id = i.id
+                  where c.id = ic.item_comment_id
+              )

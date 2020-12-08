@@ -15,4 +15,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 public class Publication extends DigitalObject {
 
+    public Publication(Publication basePublication) {
+        super(basePublication);
+    }
 }

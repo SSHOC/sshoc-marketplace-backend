@@ -18,7 +18,7 @@ public class ItemCategoryController {
 
     private final ItemCategoryService itemCategoryService;
 
-    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, String>> getItemCategories() {
         return ResponseEntity.ok(itemCategoryService.getItemCategories());
     }

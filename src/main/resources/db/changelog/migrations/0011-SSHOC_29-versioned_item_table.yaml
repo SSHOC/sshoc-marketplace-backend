@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-1
+      author: swolarz
+      description: Create table for versioned items
+      changes:
+        - createTable:
+            tableName: versioned_items
+            columns:
+              - column:
+                  name: id
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-2
+      author: swolarz
+      description: Add foreign key column to versioned item in items table
+      changes:
+        - addColumn:
+            tableName: items
+            columns:
+              - column:
+                  name: persistent_id
+                  type: varchar(128)
+                  constraints:
+                    foreignKeyName: item_versioned_item_fk
+                    references: versioned_items(id)
+
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-3
+      author: swolarz
+      description: Populate versioned items table and assign to items
+      changes:
+        - customChange:
+            class: eu.sshopencloud.marketplace.repositories.migrations.PopulateVersionedItemsMigration
+
+  - changeSet:
+      id: 0012-SSHOC_29-versioned_item-4
+      author: swolarz
+      description: Add not null constraint for versioned items foreign key
+      changes:
+        - addNotNullConstraint:
+            tableName: items
+            columnName: persistent_id
+
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-5
+      author: swolarz
+      description: Create indexes for items fast lookup and pagination
+      changes:
+        - createIndex:
+            indexName: items_status_id_idx
+            tableName: items
+            unique: true
+            columns:
+              - column:
+                  name: status
+              - column:
+                  name: id
+        - createIndex:
+            indexName: items_persistent_id_id_idx
+            tableName: items
+            columns:
+              - column:
+                  name: persistent_id
+              - column:
+                  name: id

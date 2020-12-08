@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0014-SSHOC_29-versioned_item-1
+      author: swolarz
+      context: dev, test
+      description: Fix dev/test versioned items
+      changes:
+        - update:
+            tableName: items
+            where: id in (5, 6)
+            columns:
+              - column:
+                  name: persistent_id
+                  valueComputed: (select persistent_id from items where id = 7)
+        - delete:
+            tableName: versioned_items
+            where: curr_ver_id in (5, 6)
+
+  - changeSet:
+      id: 0014-SSHOC_29-versioned_item-2
+      author: swolarz
+      description: Add 'version' and 'inactive' columns to versioned items table
+      changes:
+        - addColumn:
+            tableName: versioned_items
+            columns:
+              - column:
+                  name: optlock
+                  type: bigint
+                  value: 1
+              - column:
+                  name: active
+                  type: boolean
+                  valueBoolean: true
+
+  - changeSet:
+      id: 0014-SSHOC_29-versioned_item-3
+      author: swolarz
+      description: Add index for fast items page lookup
+      changes:
+        - createIndex:
+            indexName: items_status_label_idx
+            tableName: items
+            columns:
+              - column:
+                  name: status
+              - column:
+                  name: label
