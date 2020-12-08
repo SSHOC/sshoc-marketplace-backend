@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -85,14 +86,32 @@ public class ItemRelatedItemService {
     }
 
     private void updateRelatedItems(List<RelatedItemCore> relatedItems, Item newVersion, Item prevItem) {
+        validateNewRelatedItems(relatedItems);
+
         Map<String, Item> relatedVersions = new HashMap<>();
-        Map<ItemRelatedItemId, ItemRelation> newRelations = new HashMap<>();
+        Map<Long, ItemRelation> savedRelations = new HashMap<>();
 
         if (relatedItems == null)
             relatedItems = new ArrayList<>();
 
+        List<RelatedItemDto> prevRelations = (prevItem != null) ? getRelatedItems(prevItem.getId()) : new ArrayList<>();
+        Map<String, RelatedItemDto> relatedObjects = prevRelations.stream()
+                .collect(Collectors.toUnmodifiableMap(RelatedItemDto::getPersistentId, Function.identity()));
+
+        Map<String, RelatedItemCore> toKeep = new HashMap<>();
+
+        // Adding new relations to the item
         relatedItems.forEach(relatedItem -> {
+            ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
+
             String objectId = relatedItem.getObjectId();
+            String relationCode = relatedItem.getRelation().getCode();
+            RelatedItemDto existentRelation = relatedObjects.get(objectId);
+
+            if (existentRelation != null && relationCode.equals(existentRelation.getRelation().getCode())) {
+                toKeep.put(objectId, relatedItem);
+                return;
+            }
 
             if (!relatedVersions.containsKey(objectId)) {
                 Item objectVersion = itemsService.liftItemVersion(objectId, false);
@@ -100,22 +119,23 @@ public class ItemRelatedItemService {
             }
 
             Item objectVersion = relatedVersions.get(objectId);
-            ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
             ItemRelatedItem itemsRelation = saveItemsRelationChecked(newVersion, objectVersion, relationType);
 
-            newRelations.put(itemsRelation.getId(), relationType);
+            savedRelations.put(itemsRelation.getObject().getId(), relationType);
         });
 
         if (prevItem == null)
             return;
 
-        List<RelatedItemDto> prevRelations = getRelatedItems(prevItem.getId());
+        // Removing old relations that are not present in the form
         prevRelations.forEach(prevRelation -> {
-            ItemRelatedItemId relationId = new ItemRelatedItemId(newVersion.getId(), prevRelation.getId());
-            String prevRelationTypeCode = prevRelation.getRelation().getCode();
+            Long relObjectId = prevRelation.getId();
+            String prevRelationCode = prevRelation.getRelation().getCode();
 
-            if (newRelations.containsKey(relationId) && newRelations.get(relationId).getCode().equals(prevRelationTypeCode))
+            if (savedRelations.containsKey(relObjectId) && savedRelations.get(relObjectId).getCode().equals(prevRelationCode)
+                    || toKeep.containsKey(prevRelation.getPersistentId())) {
                 return;
+            }
 
             Item prevRelatedItem = itemsService.loadCurrentItem(prevRelation.getPersistentId());
 
@@ -130,6 +150,30 @@ public class ItemRelatedItemService {
                     removeItemRelation(prevItem, newObjectVersion);
                 }
             }
+        });
+
+        // Keep relations from previous version
+        toKeep.values().forEach(relatedItem -> {
+            String objectId = relatedItem.getObjectId();
+            Item objectVersion = relatedVersions.containsKey(objectId) ?
+                    relatedVersions.get(objectId) : itemsService.loadCurrentItem(objectId);
+
+            ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
+            saveItemsRelationChecked(newVersion, objectVersion, relationType);
+        });
+    }
+
+    private void validateNewRelatedItems(List<RelatedItemCore> relatedItems) {
+        if (relatedItems == null)
+            return;
+
+        Set<String> relatedObjectIds = new HashSet<>();
+
+        relatedItems.forEach(rel -> {
+            if (relatedObjectIds.contains(rel.getObjectId()))
+                throw new IllegalArgumentException(String.format("Duplicate relation to object with id %s", rel.getObjectId()));
+
+            relatedObjectIds.add(rel.getObjectId());
         });
     }
 

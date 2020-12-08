@@ -1,7 +1,10 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
@@ -20,12 +23,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,6 +41,9 @@ public class ItemRelationControllerITCase {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     private String CONTRIBUTOR_JWT;
     private String MODERATOR_JWT;
@@ -143,7 +150,7 @@ public class ItemRelationControllerITCase {
                 )
         );
 
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        String payload = mapper.writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/tools-services/{id}?draft=true", subjectPersistentId)
@@ -165,7 +172,7 @@ public class ItemRelationControllerITCase {
         ItemRelationId itemRelation = new ItemRelationId();
         itemRelation.setCode("mentions");
 
-        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelation);
+        payload = mapper.writeValueAsString(itemRelation);
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}?draft=true", subjectPersistentId, objectPersistentId)
@@ -437,4 +444,411 @@ public class ItemRelationControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void shouldCreateNewItemWithRelations() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Problems Dataset");
+        dataset.setDescription("A dataset of algorithmic problems ...");
+        dataset.setRelatedItems(
+                List.of(
+                        RelatedItemCore.builder().objectId("prblMo").relation(new ItemRelationId("is-mentioned-in")).build(),
+                        RelatedItemCore.builder().objectId("OdKfPc").relation(new ItemRelationId("relates-to")).build()
+                )
+        );
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        String datasetJson = mvc.perform(
+                post("/api/datasets")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andReturn().getResponse().getContentAsString();
+
+        DatasetDto newDataset = mapper.readValue(datasetJson, DatasetDto.class);
+
+        newDataset.getRelatedItems().forEach(rel -> {
+            assertThat(List.of("prblMo", "OdKfPc"), hasItem(rel.getPersistentId()));
+            Map<String, Long> versionIds = Map.of("prblMo", 13L, "OdKfPc", 10L);
+            Map<String, String> itemLabels = Map.of(
+                    "prblMo", "Build the model of the dictionary",
+                    "OdKfPc", "Consortium of European Social Science Data Archives"
+            );
+
+            assertNotEquals(rel.getId(), versionIds.get(rel.getPersistentId()));
+            assertEquals(rel.getLabel(), itemLabels.get(rel.getPersistentId()));
+        });
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}/steps/{stepId}", "tqmbGY", "prblMo")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("prblMo")))
+                .andExpect(jsonPath("id", not(is(13))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(newDataset.getPersistentId())))
+                .andExpect(jsonPath("relatedItems[0].id", is(newDataset.getId().intValue())))
+                .andExpect(jsonPath("relatedItems[0].label", is(newDataset.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", "tqmbGY")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("id", not(is(12))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")));
+
+        mvc.perform(
+                get("/api/datasets/{datasetId}", "OdKfPc")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("id", not(is(10))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("relatedItems[0].id", is(9)))
+                .andExpect(jsonPath("relatedItems[0].label", is("Austin Crime Data")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is(newDataset.getPersistentId())))
+                .andExpect(jsonPath("relatedItems[1].id", is(newDataset.getId().intValue())))
+                .andExpect(jsonPath("relatedItems[1].label", is(newDataset.getLabel())))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-related-to")));
+
+        mvc.perform(
+                get("/api/datasets/{datasetId}", "dmbq4v")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("id", is(9)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(10))))
+                .andExpect(jsonPath("relatedItems[0].label", is("Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")));
+
+        mvc.perform(
+                get("/api/datasets/{datasetId}", newDataset.getPersistentId())
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(newDataset.getPersistentId())))
+                .andExpect(jsonPath("id", is(newDataset.getId().intValue())))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("prblMo")))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(13))))
+                .andExpect(jsonPath("relatedItems[0].label", is("Build the model of the dictionary")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("relatedItems[1].id", not(is(10))))
+                .andExpect(jsonPath("relatedItems[1].label", is("Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("relates-to")));
+    }
+
+    @Test
+    public void shouldUpdateItemRelations() throws Exception {
+        String toolId = "n21Kfc";
+
+        mvc.perform(
+                get("/api/tools-services/{toolId}", toolId)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("id", is(1)))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[0].id", is(3)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Gephi v2");
+        tool.setDescription("Gephi v2...");
+        tool.setRelatedItems(
+                List.of(
+                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
+                        RelatedItemCore.builder().objectId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
+                )
+        );
+
+        String payload = mapper.writeValueAsString(tool);
+
+        mvc.perform(
+                put("/api/tools-services/{toolId}", toolId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("id", not(is(1))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(4))))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("relatedItems[1].id", not(is(12))))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        mvc.perform(
+                get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("id", not(is(4))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(1))))
+                .andExpect(jsonPath("relatedItems[0].label", is(tool.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", "tqmbGY")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("id", not(is(12))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(1))))
+                .andExpect(jsonPath("relatedItems[0].label", is(tool.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")));
+
+        mvc.perform(
+                get("/api/tools-services/{toolId}", "Xgufde")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("Xgufde")))
+                .andExpect(jsonPath("id", not(is(3))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+    }
+
+    @Test
+    public void shouldUpdateItemRelationsUnmodified() throws Exception {
+        String toolId = "n21Kfc";
+
+        mvc.perform(
+                get("/api/tools-services/{toolId}", toolId)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("id", is(1)))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[0].id", is(3)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Gephi v2");
+        tool.setDescription("Gephi v2...");
+        tool.setRelatedItems(
+                List.of(
+                        RelatedItemCore.builder().objectId("Xgufde").relation(new ItemRelationId("is-related-to")).build(),
+                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
+                )
+        );
+
+        String payload = mapper.writeValueAsString(tool);
+
+        mvc.perform(
+                put("/api/tools-services/{toolId}", toolId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("id", not(is(1))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[0].id", is(3)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        mvc.perform(
+                get("/api/tools-services/{toolId}", "Xgufde")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("Xgufde")))
+                .andExpect(jsonPath("id", is(3)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(1))))
+                .andExpect(jsonPath("relatedItems[0].label", is(tool.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")));
+
+        mvc.perform(
+                get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("id", is(4)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(1))))
+                .andExpect(jsonPath("relatedItems[0].label", is(tool.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")));
+    }
+
+    @Test
+    public void shouldCommitUpdatedDraftItemRelations() throws Exception {
+        String toolId = "n21Kfc";
+
+        mvc.perform(
+                get("/api/tools-services/{toolId}", toolId)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("id", is(1)))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[0].id", is(3)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Gephi v2");
+        tool.setDescription("Gephi v2...");
+        tool.setRelatedItems(
+                List.of(
+                        RelatedItemCore.builder().objectId("Xgufde").relation(new ItemRelationId("is-related-to")).build(),
+                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
+                )
+        );
+
+        String payload = mapper.writeValueAsString(tool);
+
+        mvc.perform(
+                put("/api/tools-services/{toolId}?draft=1", toolId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("id", not(is(1))))
+                .andExpect(jsonPath("status", is("draft")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[0].id", is(3)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        mvc.perform(
+                post("/api/tools-services/{toolId}/commit", toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", not(is(1))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[0].id", is(3)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        mvc.perform(
+                get("/api/tools-services/{toolId}", "Xgufde")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("Xgufde")))
+                .andExpect(jsonPath("id", is(3)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(1))))
+                .andExpect(jsonPath("relatedItems[0].label", is(tool.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")));
+
+        mvc.perform(
+                get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("id", is(4)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(1))))
+                .andExpect(jsonPath("relatedItems[0].label", is(tool.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")));
+    }
+
+    @Test
+    public void shouldNotUpdateWhenDuplicateRelation() throws Exception {
+        String toolId = "n21Kfc";
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Gephi v2");
+        tool.setDescription("Gephi v2...");
+        tool.setRelatedItems(
+                List.of(
+                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-related-to")).build(),
+                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
+                )
+        );
+
+        String payload = mapper.writeValueAsString(tool);
+
+        mvc.perform(
+                put("/api/tools-services/{toolId}", toolId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
+    }
 }
