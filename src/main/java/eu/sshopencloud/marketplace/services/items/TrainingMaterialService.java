@@ -75,6 +75,11 @@ public class TrainingMaterialService
         return prepareItemDto(trainingMaterial);
     }
 
+    public TrainingMaterialDto commitDraftTrainingMaterial(String persistentId) {
+        TrainingMaterial trainingMaterial = publishDraftItem(persistentId);
+        return prepareItemDto(trainingMaterial);
+    }
+
     public void deleteTrainingMaterial(String persistentId, boolean draft) {
         deleteItem(persistentId, draft);
     }

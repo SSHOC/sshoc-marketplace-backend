@@ -70,6 +70,11 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareItemDto(publication);
     }
 
+    public PublicationDto commitDraftPublication(String persistentId) {
+        Publication publication = publishDraftItem(persistentId);
+        return prepareItemDto(publication);
+    }
+
     public void deletePublication(String persistentId, boolean draft) {
         deleteItem(persistentId, draft);
     }

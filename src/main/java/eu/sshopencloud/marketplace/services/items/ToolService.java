@@ -70,6 +70,11 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareItemDto(tool);
     }
 
+    public ToolDto commitDraftTool(String persistentId) {
+        Tool tool = publishDraftItem(persistentId);
+        return prepareItemDto(tool);
+    }
+
     public void deleteTool(String persistentId, boolean draft) {
         deleteItem(persistentId, draft);
     }

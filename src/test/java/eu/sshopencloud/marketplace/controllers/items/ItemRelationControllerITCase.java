@@ -752,8 +752,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Gephi v2...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("Xgufde").relation(new ItemRelationId("is-related-to")).build(),
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
+                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
+                        RelatedItemCore.builder().objectId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
                 )
         );
 
@@ -769,16 +769,51 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("id", not(is(1))))
                 .andExpect(jsonPath("status", is("draft")))
-                .andExpect(jsonPath("category", is("tool-or-service")))
-                .andExpect(jsonPath("label", is(tool.getLabel())))
-                .andExpect(jsonPath("description", is(tool.getDescription())))
                 .andExpect(jsonPath("relatedItems", hasSize(2)))
-                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
-                .andExpect(jsonPath("relatedItems[0].id", is(3)))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
-                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
-                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[0].id", is(4)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("relatedItems[1].id", is(12)))
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        mvc.perform(
+                get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("id", is(4)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
+                .andExpect(jsonPath("relatedItems[0].id", is(1)))
+                .andExpect(jsonPath("relatedItems[0].label", is("Gephi")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")));
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", "tqmbGY")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("id", is(12)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+
+        mvc.perform(
+                get("/api/tools-services/{toolId}", "Xgufde")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("Xgufde")))
+                .andExpect(jsonPath("id", is(3)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
+                .andExpect(jsonPath("relatedItems[0].id", is(1)))
+                .andExpect(jsonPath("relatedItems[0].label", is("Gephi")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")));
 
         mvc.perform(
                 post("/api/tools-services/{toolId}/commit", toolId)
@@ -791,40 +826,51 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is(tool.getLabel())))
                 .andExpect(jsonPath("description", is(tool.getDescription())))
                 .andExpect(jsonPath("relatedItems", hasSize(2)))
-                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
-                .andExpect(jsonPath("relatedItems[0].id", is(3)))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
-                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
-                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(4))))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("relatedItems[1].id", not(is(3))))
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
-
-        mvc.perform(
-                get("/api/tools-services/{toolId}", "Xgufde")
-        )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is("Xgufde")))
-                .andExpect(jsonPath("id", is(3)))
-                .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("category", is("tool-or-service")))
-                .andExpect(jsonPath("relatedItems", hasSize(1)))
-                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
-                .andExpect(jsonPath("relatedItems[0].id", not(is(1))))
-                .andExpect(jsonPath("relatedItems[0].label", is(tool.getLabel())))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")));
+                ;
 
         mvc.perform(
                 get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("heBAGQ")))
-                .andExpect(jsonPath("id", is(4)))
+                .andExpect(jsonPath("id", not(is(4))))
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("relatedItems", hasSize(1)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
                 .andExpect(jsonPath("relatedItems[0].id", not(is(1))))
                 .andExpect(jsonPath("relatedItems[0].label", is(tool.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", "tqmbGY")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("id", not(is(12))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(toolId)))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(1))))
+                .andExpect(jsonPath("relatedItems[0].label", is(tool.getLabel())))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")));
+
+        mvc.perform(
+                get("/api/tools-services/{toolId}", "Xgufde")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("Xgufde")))
+                .andExpect(jsonPath("id", not(is(3))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
     }
 
     @Test

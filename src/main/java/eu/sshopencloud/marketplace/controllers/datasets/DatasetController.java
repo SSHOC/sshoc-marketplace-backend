@@ -65,4 +65,10 @@ public class DatasetController {
 
         datasetService.deleteDataset(id, draft);
     }
+
+    @PostMapping(path = "/{datasetId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> publishDataset(@PathVariable("datasetId") String datasetId) {
+        DatasetDto dataset = datasetService.commitDraftDataset(datasetId);
+        return ResponseEntity.ok(dataset);
+    }
 }

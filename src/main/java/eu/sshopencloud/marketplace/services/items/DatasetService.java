@@ -73,6 +73,11 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return prepareItemDto(dataset);
     }
 
+    public DatasetDto commitDraftDataset(String persistentId) {
+        Dataset dataset = publishDraftItem(persistentId);
+        return prepareItemDto(dataset);
+    }
+
     public void deleteDataset(String persistentId, boolean draft) {
         super.deleteItem(persistentId, draft);
     }

@@ -70,4 +70,10 @@ public class TrainingMaterialController {
 
         trainingMaterialService.deleteTrainingMaterial(id, draft);
     }
+
+    @PostMapping(path = "/{trainingMaterialId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> publishTrainingMaterial(@PathVariable("trainingMaterialId") String trainingMaterialId) {
+        TrainingMaterialDto trainingMaterial = trainingMaterialService.commitDraftTrainingMaterial(trainingMaterialId);
+        return ResponseEntity.ok(trainingMaterial);
+    }
 }

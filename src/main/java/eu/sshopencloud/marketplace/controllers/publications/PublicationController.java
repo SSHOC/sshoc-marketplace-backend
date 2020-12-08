@@ -66,4 +66,10 @@ public class PublicationController {
 
         publicationService.deletePublication(id, draft);
     }
+
+    @PostMapping(path = "/{publicationId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> publishPublication(@PathVariable("publicationId") String publicationId) {
+        PublicationDto publication = publicationService.commitDraftPublication(publicationId);
+        return ResponseEntity.ok(publication);
+    }
 }

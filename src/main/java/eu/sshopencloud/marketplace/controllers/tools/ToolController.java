@@ -65,4 +65,10 @@ public class ToolController {
 
         toolService.deleteTool(id, draft);
     }
+
+    @PostMapping(path = "/{toolId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> publishTool(@PathVariable("toolId") String toolId) {
+        ToolDto tool = toolService.commitDraftTool(toolId);
+        return ResponseEntity.ok(tool);
+    }
 }
