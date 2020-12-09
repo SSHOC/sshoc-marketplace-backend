@@ -47,4 +47,3 @@ Run tests:
 ```
 APPLICATION_PROFILE=test mvn verify
 ```
-
