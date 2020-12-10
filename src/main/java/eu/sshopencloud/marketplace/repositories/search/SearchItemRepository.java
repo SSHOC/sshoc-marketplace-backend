@@ -32,7 +32,13 @@ public class SearchItemRepository {
 
     public FacetPage<IndexItem> findByQueryAndFilters(String q, List<SearchFilterCriteria> filterCriteria, List<SearchOrder> order, Pageable pageable) {
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q))
-                .addProjectionOnFields(IndexItem.ID_FIELD, IndexItem.LABEL_FIELD, IndexItem.DESCRIPTION_FIELD, IndexItem.CATEGORY_FIELD)
+                .addProjectionOnFields(
+                        IndexItem.ID_FIELD,
+                        IndexItem.PERSISTENT_ID_FIELD,
+                        IndexItem.LABEL_FIELD,
+                        IndexItem.DESCRIPTION_FIELD,
+                        IndexItem.CATEGORY_FIELD
+                )
                 .addSort(Sort.by(createQueryOrder(order)))
                 .setPageRequest(pageable);
 

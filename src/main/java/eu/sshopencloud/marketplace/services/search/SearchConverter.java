@@ -19,7 +19,10 @@ public class SearchConverter {
 
     public SearchItem convertIndexItem(IndexItem indexItem) {
         return SearchItem.builder()
-                .id(indexItem.getId()).label(indexItem.getLabel()).description(indexItem.getDescription())
+                .id(indexItem.getId())
+                .persistentId(indexItem.getPersistentId())
+                .label(indexItem.getLabel())
+                .description(indexItem.getDescription())
                 .category(ItemCategoryConverter.convertCategory(indexItem.getCategory()))
                 .build();
     }
