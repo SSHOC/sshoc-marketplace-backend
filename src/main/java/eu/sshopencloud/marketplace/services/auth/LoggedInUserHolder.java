@@ -39,6 +39,9 @@ public class LoggedInUserHolder {
         if (authorities.contains(Authority.MODERATOR)) {
             return UserRole.MODERATOR;
         }
+        if (authorities.contains(Authority.SYSTEM_CONTRIBUTOR)) {
+            return UserRole.SYSTEM_CONTRIBUTOR;
+        }
         if (authorities.contains(Authority.CONTRIBUTOR)) {
             return UserRole.CONTRIBUTOR;
         }
