@@ -195,7 +195,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected I publishDraftItem(String persistentId) {
         I draftItem = loadItemDraftForCurrentUser(persistentId);
-        return commitItemDraft(draftItem);
+        I item = commitItemDraft(draftItem);
+
+        indexService.indexItem(item);
+
+        return item;
     }
 
     protected I commitItemDraft(I version) {
@@ -288,6 +292,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         targetVersion =  saveVersionInHistory(targetVersion, currentVersion, false);
         copyVersionRelations(targetVersion, item);
 
+        indexService.indexItem(targetVersion);
+
         return targetVersion;
     }
 
@@ -303,6 +309,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         newItem = saveVersionInHistory(newItem, item, draft);
         copyVersionRelations(newItem, item);
+
+        indexService.indexItem(newItem);
 
         return newItem;
     }

@@ -12,6 +12,7 @@ public class ItemConverter {
     public ItemBasicDto convertItem(Item item) {
         ItemBasicDto basicItem = new ItemBasicDto();
         basicItem.setId(item.getId());
+        basicItem.setPersistentId(item.getPersistentId());
         basicItem.setCategory(item.getCategory());
         basicItem.setLabel(item.getLabel());
         basicItem.setVersion(item.getVersion());

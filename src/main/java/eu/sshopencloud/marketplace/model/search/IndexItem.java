@@ -18,6 +18,7 @@ public class IndexItem {
     public static final String COLLECTION_NAME = "marketplace-items";
 
     public static final String ID_FIELD = "id";
+    public static final String PERSISTENT_ID_FIELD = "persistent_id";
 
     public static final String LABEL_FIELD = "label";
     public static final String LABEL_TEXT_FIELD = "label_text";
@@ -42,6 +43,9 @@ public class IndexItem {
     @Id
     @Indexed(name = ID_FIELD, type = "string")
     private Long id;
+
+    @Indexed(name = PERSISTENT_ID_FIELD, type = "string")
+    private String persistentId;
 
     @Indexed(name = LABEL_FIELD, type = "string")
     private String label;
@@ -81,5 +85,4 @@ public class IndexItem {
     @Indexed(name = KEYWORD_TEXT_FIELD, type = "text_general_rev")
     @Singular
     private  List<String> keywordsTexts;
-
 }
