@@ -36,7 +36,7 @@ public class ToolController {
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> getTool(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+    public ResponseEntity<ToolDto> getToolVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(toolService.getToolVersion(id, versionId));
     }
 

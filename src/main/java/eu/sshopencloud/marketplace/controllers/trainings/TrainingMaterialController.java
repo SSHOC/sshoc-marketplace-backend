@@ -36,8 +36,8 @@ public class TrainingMaterialController {
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") String id,
-                                                                   @PathVariable("versionId") long versionId) {
+    public ResponseEntity<TrainingMaterialDto> getTrainingMaterialVersion(@PathVariable("id") String id,
+                                                                          @PathVariable("versionId") long versionId) {
 
         return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersion(id, versionId));
     }

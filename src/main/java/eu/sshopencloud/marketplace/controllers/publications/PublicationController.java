@@ -37,7 +37,7 @@ public class PublicationController {
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> getPublication(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+    public ResponseEntity<PublicationDto> getPublicationVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(publicationService.getPublicationVersion(id, versionId));
     }
 

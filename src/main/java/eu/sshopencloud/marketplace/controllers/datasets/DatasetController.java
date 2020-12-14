@@ -36,7 +36,7 @@ public class DatasetController {
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+    public ResponseEntity<DatasetDto> getDatasetVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(datasetService.getDatasetVersion(id, versionId));
     }
 
