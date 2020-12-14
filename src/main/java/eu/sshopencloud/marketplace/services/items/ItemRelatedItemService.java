@@ -293,7 +293,10 @@ public class ItemRelatedItemService {
                 )
                 .collect(Collectors.toList());
 
-        updateRelatedItems(relatedItems, draftItem.getItem(), draftItem.getBaseItem());
+        Item item = draftItem.getItem();
+        Item prevPublicItem = item.getVersionedItem().getCurrentVersion();
+
+        updateRelatedItems(relatedItems, item, prevPublicItem);
     }
 
     @Deprecated(since = "This method does not upgrade versions of related items, which should be done since we modify relations between items")
