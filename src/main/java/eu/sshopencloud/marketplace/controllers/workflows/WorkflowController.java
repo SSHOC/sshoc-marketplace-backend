@@ -40,8 +40,8 @@ public class WorkflowController {
     }
 
     @GetMapping(path = "/{workflowId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> getWorkflow(@PathVariable("workflowId") String workflowId,
-                                                   @PathVariable("versionId") long versionId) {
+    public ResponseEntity<WorkflowDto> getWorkflowVersion(@PathVariable("workflowId") String workflowId,
+                                                          @PathVariable("versionId") long versionId) {
 
         return ResponseEntity.ok(workflowService.getWorkflowVersion(workflowId, versionId));
     }
@@ -80,7 +80,7 @@ public class WorkflowController {
     }
 
     @GetMapping(path = "/{workflowId}/steps/{stepId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StepDto> getStep(@PathVariable("workflowId") String workflowId,
+    public ResponseEntity<StepDto> getStepVersion(@PathVariable("workflowId") String workflowId,
                                            @PathVariable("stepId") String stepId,
                                            @PathVariable("versionId") long versionId) {
 
