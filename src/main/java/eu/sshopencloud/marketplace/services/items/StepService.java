@@ -151,13 +151,13 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     @Override
-    protected Step liftItemVersion(String persistentId, boolean draft) {
+    protected Step liftItemVersion(String persistentId, boolean draft, boolean modifyStatus) {
         Step step = draft ? loadItemForCurrentUser(persistentId) : loadCurrentItem(persistentId);
         StepsTree stepTree = stepsTreeRepository.findByStepId(step.getId());
         Workflow workflow = stepTree.getWorkflow();
 
-        Workflow newWorkflow = workflowService.liftItemVersion(workflow.getVersionedItem().getPersistentId(), draft);
-        Step newStep = super.liftItemVersion(persistentId, draft);
+        Workflow newWorkflow = workflowService.liftItemVersion(workflow.getVersionedItem().getPersistentId(), draft, modifyStatus);
+        Step newStep = super.liftItemVersion(persistentId, draft, modifyStatus);
         StepsTree newStepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 
         newStepTree.setStep(newStep);

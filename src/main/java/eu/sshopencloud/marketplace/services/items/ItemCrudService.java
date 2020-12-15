@@ -126,8 +126,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return version;
     }
 
-    // Warning: important method! Do not change unless you know what you are doing!
     private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
+        return saveVersionInHistory(version ,prevVersion, draft, true);
+    }
+
+    // Warning: important method! Do not change unless you know what you are doing!
+    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean changeStatus) {
         VersionedItem versionedItem =
                 (prevVersion == null) ? createNewVersionedItem() : prevVersion.getVersionedItem();
 
@@ -142,7 +146,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         // If not a draft
         if (!draft) {
-            assignItemVersionStatus(version, versionedItem);
+            assignItemVersionStatus(version, versionedItem, changeStatus);
 
             if (version.getStatus() == ItemStatus.APPROVED)
                 deprecatePrevApprovedVersion(versionedItem);
@@ -221,7 +225,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        assignItemVersionStatus(version, versionedItem);
+        assignItemVersionStatus(version, versionedItem, true);
 
         if (version.getStatus() == ItemStatus.APPROVED)
             deprecatePrevApprovedVersion(versionedItem);
@@ -234,7 +238,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return version;
     }
 
-    private void assignItemVersionStatus(I version, VersionedItem versionedItem) {
+    private void assignItemVersionStatus(I version, VersionedItem versionedItem, boolean changeStatus) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         if (!currentUser.isContributor())
             throw new AccessDeniedException("Not authorized to create new item version");
@@ -243,6 +247,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             throw new IllegalArgumentException(
                     String.format("Deleted/merged item with id %s cannot be modified anymore", versionedItem.getPersistentId())
             );
+        }
+
+        if (!changeStatus && version.getPrevVersion() != null) {
+            version.setStatus(version.getPrevVersion().getStatus());
+            return;
         }
 
         // The order of these role checks does matter as, for example, a moderator is a contributor as well
@@ -298,6 +307,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected I liftItemVersion(String persistentId, boolean draft) {
+        return liftItemVersion(persistentId, draft, true);
+    }
+
+    protected I liftItemVersion(String persistentId, boolean draft, boolean modifyStatus) {
         if (draft) {
             Optional<I> itemDraft = resolveItemDraftForCurrentUser(persistentId);
             if (itemDraft.isPresent())
@@ -307,7 +320,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I item = loadCurrentItem(persistentId);
         I newItem = makeItemVersionCopy(item);
 
-        newItem = saveVersionInHistory(newItem, item, draft);
+        newItem = saveVersionInHistory(newItem, item, draft, modifyStatus);
         copyVersionRelations(newItem, item);
 
         indexService.indexItem(newItem);

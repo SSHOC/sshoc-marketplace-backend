@@ -50,27 +50,27 @@ public class ItemsService extends ItemVersionService<Item> {
         return items.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
     }
 
-    public Item liftItemVersion(String persistentId, boolean draft) {
+    public Item liftItemVersion(String persistentId, boolean draft, boolean changeStatus) {
         Item currentItem = loadCurrentItem(persistentId);
 
         switch (currentItem.getCategory()) {
             case TOOL_OR_SERVICE:
-                return toolService.liftItemVersion(persistentId, draft);
+                return toolService.liftItemVersion(persistentId, draft, changeStatus);
 
             case TRAINING_MATERIAL:
-                return trainingMaterialService.liftItemVersion(persistentId, draft);
+                return trainingMaterialService.liftItemVersion(persistentId, draft, changeStatus);
 
             case PUBLICATION:
-                return publicationService.liftItemVersion(persistentId, draft);
+                return publicationService.liftItemVersion(persistentId, draft, changeStatus);
 
             case DATASET:
-                return datasetService.liftItemVersion(persistentId, draft);
+                return datasetService.liftItemVersion(persistentId, draft, changeStatus);
 
             case WORKFLOW:
-                return workflowService.liftItemVersion(persistentId, draft);
+                return workflowService.liftItemVersion(persistentId, draft, changeStatus);
 
             case STEP:
-                return stepService.liftItemVersion(persistentId, draft);
+                return stepService.liftItemVersion(persistentId, draft, changeStatus);
 
             default:
                 throw new IllegalStateException(String.format("Unexpected item type: %s", currentItem.getCategory()));
