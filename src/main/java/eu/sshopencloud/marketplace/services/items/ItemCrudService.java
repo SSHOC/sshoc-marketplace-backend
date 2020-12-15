@@ -144,6 +144,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
+        version.setPrevVersion(prevVersion);
+
         // If not a draft
         if (!draft) {
             assignItemVersionStatus(version, versionedItem, changeStatus);
@@ -162,7 +164,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 versionedItem.setStatus(VersionedItemStatus.DRAFT);
         }
 
-        version.setPrevVersion(prevVersion);
         version.setVersionedItem(versionedItem);
         version = saveItemVersion(version);
 

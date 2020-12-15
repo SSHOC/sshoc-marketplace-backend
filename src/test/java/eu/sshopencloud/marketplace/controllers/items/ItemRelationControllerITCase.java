@@ -7,7 +7,11 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
+import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
+import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -896,5 +900,123 @@ public class ItemRelationControllerITCase {
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotModifyReferencedItemStatus() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Another new proposed publication");
+        publication.setDescription("One of the many of proposed publications");
+
+        String publicationPayload = mapper.writeValueAsString(publication);
+
+        String publicationJson = mvc.perform(
+                post("/api/publications")
+                        .content(publicationPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is(publication.getLabel())))
+                .andExpect(jsonPath("description", is(publication.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto publicationDto = mapper.readValue(publicationJson, PublicationDto.class);
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Brand-new tutorial");
+        trainingMaterial.setDescription("In this tutorial you have access to the latest research");
+
+        String trainingMaterialPayload = mapper.writeValueAsString(trainingMaterial);
+
+        String trainingMaterialJson = mvc.perform(
+                post("/api/training-materials")
+                        .content(trainingMaterialPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterialDto = mapper.readValue(trainingMaterialJson, TrainingMaterialDto.class);
+
+        TrainingMaterialCore acceptedTrainingMaterial = new TrainingMaterialCore();
+        acceptedTrainingMaterial.setLabel("Accepted brand-new tutorial");
+        acceptedTrainingMaterial.setDescription("In this approved tutorial you have access to the latest research");
+
+        acceptedTrainingMaterial.setRelatedItems(
+                List.of(new RelatedItemCore(publicationDto.getPersistentId(), new ItemRelationId("documents")))
+        );
+
+        String acceptedTrainingMaterialPayload = mapper.writeValueAsString(acceptedTrainingMaterial);
+
+//        trainingMaterialJson = mvc.perform(
+        mvc.perform(
+                put("/api/training-materials/{trainingMaterialId}", trainingMaterialDto.getPersistentId())
+                        .content(acceptedTrainingMaterialPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(trainingMaterialDto.getId()))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is(acceptedTrainingMaterial.getLabel())))
+                .andExpect(jsonPath("description", is(acceptedTrainingMaterial.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+//                suggested items are not included in the related items
+//                .andExpect(jsonPath("relatedItems[0].persistentId", is(publicationDto.getPersistentId())))
+//                .andExpect(jsonPath("relatedItems[0].id", not(is(publicationDto.getId()))))
+//                .andExpect(jsonPath("relatedItems[0].label", is(publication.getLabel())))
+//                .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")))
+//                .andReturn().getResponse().getContentAsString();
+
+        // TODO: uncomment as soon as retrieving suggested items will be possible
+        //       the test scenario below requires loading a suggested item
+
+        /*
+        trainingMaterialDto = mapper.readValue(trainingMaterialJson, TrainingMaterialDto.class);
+
+        String latestPublicationJson = mvc.perform(
+                get("/api/publications/{publicationId}", publicationDto.getPersistentId())
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("newerVersions", hasSize(1)))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto latestPublication = mapper.readValue(latestPublicationJson, PublicationDto.class);
+        long publicationVersionId = latestPublication.getNewerVersions().get(0).getId();
+
+        mvc.perform(
+                get(
+                        "/api/publications/{publicationId}/versions/{versionId}",
+                        publicationDto.getPersistentId(), publicationVersionId
+                )
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(publicationDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(publicationDto.getId()))))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is(publication.getLabel())))
+                .andExpect(jsonPath("description", is(publication.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(trainingMaterialDto.getPersistentId())))
+                .andExpect(jsonPath("relatedItems[0].id", is(trainingMaterialDto.getId())))
+                .andExpect(jsonPath("relatedItems[0].label", is(acceptedTrainingMaterial.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-documented-by")));
+         */
     }
 }
