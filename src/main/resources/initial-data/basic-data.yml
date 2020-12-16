@@ -11,15 +11,24 @@ ActorRole:
     label:                       Author
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
-    code:                        founder
-    ord:                         3
-    label:                       Founder
-
-  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        provider
-    ord:                         4
+    ord:                         3
     label:                       Provider
 
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        contact
+    ord:                         4
+    label:                       Contact
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        funder
+    ord:                         5
+    label:                       Funder
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        helpdesk
+    ord:                         6
+    label:                       Helpdesk
 
 ItemRelation:
 
