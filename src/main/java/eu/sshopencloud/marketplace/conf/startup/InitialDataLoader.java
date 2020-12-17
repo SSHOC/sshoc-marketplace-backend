@@ -67,21 +67,41 @@ public class InitialDataLoader {
         log.debug("Loading basic data");
         Map<String, List<Object>> data = YamlLoader.loadYamlData("initial-data/basic-data.yml");
 
-        List<ActorRole> actorRoles = YamlLoader.getObjects(data, "ActorRole");
-        actorRoleRepository.saveAll(actorRoles);
-        log.debug("Loaded " + actorRoles.size() + " ActorRole objects");
+        long actorRolesCount = actorRoleRepository.count();
+        if (actorRolesCount == 0) {
+            List<ActorRole> actorRoles = YamlLoader.getObjects(data, "ActorRole");
+            actorRoleRepository.saveAll(actorRoles);
+            log.debug("Loaded " + actorRoles.size() + " ActorRole objects");
+        }
+        else
+            log.debug("Skipping loading actor roles. {} already present.", actorRolesCount);
 
-        List<ItemRelation> itemRelations = YamlLoader.getObjects(data, "ItemRelation");
-        itemRelationRepository.saveAll(itemRelations);
-        log.debug("Loaded " + itemRelations.size() / 2 + " ItemRelation objects");
+        long itemRelationsCount = itemRelationRepository.count();
+        if (itemRelationsCount == 0) {
+            List<ItemRelation> itemRelations = YamlLoader.getObjects(data, "ItemRelation");
+            itemRelationRepository.saveAll(itemRelations);
+            log.debug("Loaded " + itemRelations.size() / 2 + " ItemRelation objects");
+        }
+        else
+            log.debug("Skipping loading item relations. {} already present.", itemRelationsCount);
 
-        List<ConceptRelation> conceptRelations = YamlLoader.getObjects(data, "ConceptRelation");
-        conceptRelationRepository.saveAll(conceptRelations);
-        log.debug("Loaded " + conceptRelations.size() / 2 + " ConceptRelation objects");
+        long conceptRelationsCount = conceptRelationRepository.count();
+        if (conceptRelationsCount == 0) {
+            List<ConceptRelation> conceptRelations = YamlLoader.getObjects(data, "ConceptRelation");
+            conceptRelationRepository.saveAll(conceptRelations);
+            log.debug("Loaded " + conceptRelations.size() / 2 + " ConceptRelation objects");
+        }
+        else
+            log.debug("Skipping loading concept relations. {} already present.", conceptRelationsCount);
 
-        List<Source> sources = YamlLoader.getObjects(data, "Source");
-        sourceRepository.saveAll(sources);
-        log.debug("Loaded " + sources.size() + " Source objects");
+        long sourcesCount = sourceRepository.count();
+        if (sourcesCount == 0) {
+            List<Source> sources = YamlLoader.getObjects(data, "Source");
+            sourceRepository.saveAll(sources);
+            log.debug("Loaded " + sources.size() + " Source objects");
+        }
+        else
+            log.debug("Skipping loading sources. {} already present.", sourcesCount);
     }
 
 

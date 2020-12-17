@@ -17,3 +17,15 @@ databaseChangeLog:
         - delete:
             tableName: actor_roles
             where: code = 'founder'
+
+  - changeSet:
+      id: 0024-SSHOC_41-basic_data-3
+      author: swolarz
+      description: Fix dev/test actor roles
+      changes:
+        - sql:
+            sql: >
+              update actor_roles set ord = 3 where code = 'provider';
+              insert into actor_roles (code, label, ord) values ('contact', 'Contact', 4);
+              insert into actor_roles (code, label, ord) values ('funder', 'Funder', 5);
+              insert into actor_roles (code, label, ord) values ('helpdesk', 'Helpdesk', 6);
