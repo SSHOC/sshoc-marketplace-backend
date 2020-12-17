@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0024-SSHOC_41-basic_data-1
+      author: swolarz
+      description: Remove item contributions with Founder actor role
+      context: dev, test
+      changes:
+        - delete:
+            tableName: items_contributors
+            where: role_code = 'founder'
+
+  - changeSet:
+      id: 0024-SSHOC_41-basic_data-2
+      author: swolarz
+      description: Remove Founder actor role
+      changes:
+        - delete:
+            tableName: actor_roles
+            where: code = 'founder'
