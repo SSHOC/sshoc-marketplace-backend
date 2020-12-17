@@ -624,7 +624,7 @@ public class ToolControllerITCase {
         actor2.setId(4l);
         contributor2.setActor(actor2);
         ActorRoleId role2 = new ActorRoleId();
-        role2.setCode("founder");
+        role2.setCode("funder");
         contributor2.setRole(role2);
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor1);
