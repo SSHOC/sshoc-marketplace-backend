@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.conf.startup.tools.ToolLoader;
 import eu.sshopencloud.marketplace.conf.startup.trainings.TrainingMaterialLoader;
 import eu.sshopencloud.marketplace.conf.startup.workflows.WorkflowLoader;
 import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
@@ -14,6 +15,7 @@ import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
+import eu.sshopencloud.marketplace.repositories.actors.ActorSourceRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
@@ -37,29 +39,19 @@ import java.util.Map;
 public class InitialDataLoader {
 
     private final ActorRoleRepository actorRoleRepository;
-
     private final ItemRelationRepository itemRelationRepository;
-
     private final ConceptRelationRepository conceptRelationRepository;
+    private final SourceRepository sourceRepository;
+    private final ActorSourceRepository actorSourceRepository;
 
     private final UserRepository userRepository;
-
     private final ActorRepository actorRepository;
-
-    private final SourceRepository sourceRepository;
-
     private final SearchItemRepository searchItemRepository;
-
     private final IndexService indexService;
-
     private final ToolLoader toolLoader;
-
     private final TrainingMaterialLoader trainingMaterialLoader;
-
     private final DatasetLoader datasetLoader;
-
     private final WorkflowLoader workflowLoader;
-
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
 
@@ -102,6 +94,15 @@ public class InitialDataLoader {
         }
         else
             log.debug("Skipping loading sources. {} already present.", sourcesCount);
+
+        long actorSourcesCount = actorSourceRepository.count();
+        if (actorSourcesCount == 0) {
+            List<ActorSource> actorSources = YamlLoader.getObjects(data, "ActorSource");
+            actorSourceRepository.saveAll(actorSources);
+            log.debug("Loaded {} ActorSource objects", actorSources.size());
+        }
+        else
+            log.debug("Skipping loading actor sources. {} already present.", actorSourcesCount);
     }
 
 

@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0025-SSHOC_34-actor_external_id-1
+      author: swolarz
+      description: Create table for actor external sources
+      changes:
+        - createTable:
+            tableName: actor_external_sources
+            columns:
+              - column:
+                  name: code
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: label
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ord
+                  type: integer
+                  constraints:
+                    nullable: false

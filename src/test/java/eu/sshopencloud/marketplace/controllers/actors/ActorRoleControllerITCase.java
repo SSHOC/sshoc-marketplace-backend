@@ -91,6 +91,25 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
+    public void shouldNotCreateActorRoleAtWrongPosition() throws Exception {
+        ActorRoleCore actorRole = ActorRoleCore.builder()
+                .code("test")
+                .label("Test...")
+                .ord(0)
+                .build();
+
+        String payload = mapper.writeValueAsString(actorRole);
+
+        mvc.perform(
+                post("/api/actor-roles")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void shouldRetrieveActorRole() throws Exception {
         mvc.perform(get("/api/actor-roles/contact"))
                 .andExpect(status().isOk())

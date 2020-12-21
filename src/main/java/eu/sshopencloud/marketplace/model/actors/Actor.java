@@ -24,6 +24,9 @@ public class Actor {
     @Column(nullable = false)
     private String name;
 
+//    @Embedded
+//    private ActorExternalId externalId;
+
     @Basic
     @Column(nullable = true)
     private String website;

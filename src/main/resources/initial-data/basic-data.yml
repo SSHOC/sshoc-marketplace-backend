@@ -207,3 +207,21 @@ Source:
     url:                         "https://programminghistorian.org"
     urlTemplate:                 "https://programminghistorian.org/en/lessons/{source-item-id}"
     domain:                      "programminghistorian.org"
+
+
+ActorSource:
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorSource
+    code:                        ORCID
+    label:                       ORCID
+    ord:                         1
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorSource
+    code:                        DBLP
+    label:                       DBLP
+    ord:                         2
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorSource
+    code:                        Wikidata
+    label:                       Wikidata
+    ord:                         3
