@@ -321,19 +321,11 @@ public class WorkflowControllerITCase {
         actor2.setId(2l);
         contributor2.setActor(actor2);
         ActorRoleId role2 = new ActorRoleId();
-        role2.setCode("author");
+        role2.setCode("contributor");
         contributor2.setRole(role2);
-        ItemContributorId contributor3 = new ItemContributorId();
-        ActorId actor3 = new ActorId();
-        actor3.setId(3l);
-        contributor3.setActor(actor3);
-        ActorRoleId role3 = new ActorRoleId();
-        role3.setCode("founder");
-        contributor3.setRole(role3);
         List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
         contributors.add(contributor1);
         contributors.add(contributor2);
-        contributors.add(contributor3);
         workflow.setContributors(contributors);
 
 
@@ -348,9 +340,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("contributors[0].actor.id", is(1)))
                 .andExpect(jsonPath("contributors[0].role.code", is("author")))
                 .andExpect(jsonPath("contributors[1].actor.id", is(2)))
-                .andExpect(jsonPath("contributors[1].role.code", is("author")))
-                .andExpect(jsonPath("contributors[2].actor.id", is(3)))
-                .andExpect(jsonPath("contributors[2].role.code", is("founder")))
+                .andExpect(jsonPath("contributors[1].role.code", is("contributor")))
                 .andReturn().getResponse().getContentAsString();
 
         String workflowPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, WorkflowDto.class).getPersistentId();
@@ -489,19 +479,11 @@ public class WorkflowControllerITCase {
         actor2.setId(2l);
         contributor2.setActor(actor2);
         ActorRoleId role2 = new ActorRoleId();
-        role2.setCode("author");
+        role2.setCode("contributor");
         contributor2.setRole(role2);
-        ItemContributorId contributor3 = new ItemContributorId();
-        ActorId actor3 = new ActorId();
-        actor3.setId(3l);
-        contributor3.setActor(actor3);
-        ActorRoleId role3 = new ActorRoleId();
-        role3.setCode("founder");
-        contributor3.setRole(role3);
         List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor1);
         contributors.add(contributor2);
-        contributors.add(contributor3);
         workflow.setContributors(contributors);
 
         String payload = mapper.writeValueAsString(workflow);
@@ -518,9 +500,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("contributors[0].actor.id", is(1)))
                 .andExpect(jsonPath("contributors[0].role.code", is("author")))
                 .andExpect(jsonPath("contributors[1].actor.id", is(2)))
-                .andExpect(jsonPath("contributors[1].role.code", is("author")))
-                .andExpect(jsonPath("contributors[2].actor.id", is(3)))
-                .andExpect(jsonPath("contributors[2].role.code", is("founder")))
+                .andExpect(jsonPath("contributors[1].role.code", is("contributor")))
                 .andReturn().getResponse().getContentAsString();
 
         WorkflowDto createdWorkflow = mapper.readValue(jsonResponse, WorkflowDto.class);
