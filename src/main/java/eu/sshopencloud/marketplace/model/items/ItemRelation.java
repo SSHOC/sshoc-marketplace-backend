@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @Table(name = "item_relations")
 @Data
 @EqualsAndHashCode(exclude = "inverseOf")
+@ToString(exclude = "inverseOf")
 @NoArgsConstructor
 public class ItemRelation {
 

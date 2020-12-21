@@ -114,7 +114,7 @@ public class ItemRelatedItemService {
             }
 
             if (!relatedVersions.containsKey(objectId)) {
-                Item objectVersion = itemsService.liftItemVersion(objectId, false);
+                Item objectVersion = itemsService.liftItemVersion(objectId, false, false);
                 relatedVersions.put(objectId, objectVersion);
             }
 
@@ -144,7 +144,7 @@ public class ItemRelatedItemService {
                 String objectId = prevRelation.getPersistentId();
 
                 if (!relatedVersions.containsKey(objectId)) {
-                    Item newObjectVersion = itemsService.liftItemVersion(objectId, false);
+                    Item newObjectVersion = itemsService.liftItemVersion(objectId, false, false);
                     relatedVersions.put(objectId, newObjectVersion);
 
                     removeItemRelation(prevItem, newObjectVersion);
@@ -224,8 +224,8 @@ public class ItemRelatedItemService {
             return ItemRelatedItemMapper.INSTANCE.toDto(relatedItem);
         }
 
-        Item subject = itemsService.liftItemVersion(subjectId, false);
-        Item object = itemsService.liftItemVersion(objectId, false);
+        Item subject = itemsService.liftItemVersion(subjectId, false, false);
+        Item object = itemsService.liftItemVersion(objectId, false, false);
 
         ItemRelatedItem newItemRelatedItem = saveItemsRelation(subject, object, itemRelation);
         return ItemRelatedItemMapper.INSTANCE.toDto(newItemRelatedItem);
@@ -314,8 +314,8 @@ public class ItemRelatedItemService {
             return;
         }
 
-        Item subject = itemsService.liftItemVersion(subjectId, false);
-        Item object = itemsService.liftItemVersion(objectId, false);
+        Item subject = itemsService.liftItemVersion(subjectId, false, false);
+        Item object = itemsService.liftItemVersion(objectId, false, false);
 
         removeItemRelation(subject, object);
         removeItemRelation(object, subject);
