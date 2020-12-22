@@ -19,9 +19,7 @@ import org.springframework.validation.Errors;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
@@ -74,16 +72,35 @@ public class ActorFactory {
 
     private List<ActorExternalId> prepareExternalIds(List<ActorExternalIdCore> externalIds, Actor actor, Errors errors) {
         List<ActorExternalId> actorExternalIds = new ArrayList<>();
+        Set<ActorExternalId> processedExternalIds = new HashSet<>();
 
         if (externalIds == null)
             return actorExternalIds;
 
         for (int i = 0; i < externalIds.size(); ++i) {
-            errors.pushNestedPath(String.format("externalIds[%d]", i));
+            String nestedPath = String.format("externalIds[%d]", i);
+            errors.pushNestedPath(nestedPath);
 
             ActorExternalId actorExternalId = prepareExternalId(externalIds.get(i), actor, errors);
-            if (actorExternalId != null)
-                actorExternalIds.add(actorExternalId);
+            if (actorExternalId != null) {
+
+                if (!processedExternalIds.contains(actorExternalId)) {
+                    actorExternalIds.add(actorExternalId);
+                    processedExternalIds.add(actorExternalId);
+                }
+                else {
+                    errors.popNestedPath();
+                    errors.rejectValue(
+                            nestedPath, "field.duplicateEntry",
+                            String.format(
+                                    "Duplicate actor's external id: %s (from: %s)",
+                                    actorExternalId.getIdentifierService().getLabel(), actorExternalId.getIdentifier()
+                            )
+                    );
+
+                    continue;
+                }
+            }
 
             errors.popNestedPath();
         }

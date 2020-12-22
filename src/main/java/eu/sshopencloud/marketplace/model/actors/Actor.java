@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.model.actors;
 
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;

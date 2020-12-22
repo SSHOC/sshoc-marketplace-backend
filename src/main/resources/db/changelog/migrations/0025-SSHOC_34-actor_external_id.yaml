@@ -65,8 +65,6 @@ databaseChangeLog:
               - column:
                   name: ord
                   type: integer
-                  constraints:
-                    nullable: false
 
         - addUniqueConstraint:
             tableName: actor_external_ids
