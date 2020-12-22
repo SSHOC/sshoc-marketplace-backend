@@ -1,9 +1,13 @@
 package eu.sshopencloud.marketplace.validators.actors;
 
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
+import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
+import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
+import eu.sshopencloud.marketplace.repositories.actors.ActorSourceRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +32,7 @@ public class ActorFactory {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
 
     private final ActorRepository actorRepository;
+    private final ActorSourceRepository actorSourceRepository;
 
 
     public Actor create(ActorCore actorCore, Long actorId) throws ValidationException {
@@ -40,10 +45,13 @@ public class ActorFactory {
             actor.setName(actorCore.getName());
         }
 
+        actor.addExternalIds(prepareExternalIds(actorCore.getExternalIds(), actor, errors));
+
         if (StringUtils.isNotBlank(actorCore.getWebsite())) {
             try {
                 actor.setWebsite(new URL(actorCore.getWebsite()).toURI().toString());
-            } catch (MalformedURLException | URISyntaxException e) {
+            }
+            catch (MalformedURLException | URISyntaxException e) {
                 errors.rejectValue("website", "field.invalid", "Website is malformed URL.");
             }
         }
@@ -56,25 +64,54 @@ public class ActorFactory {
             }
         }
 
-        if (actor.getAffiliations() != null) {
-            actor.getAffiliations().addAll(create(actorCore.getAffiliations(), actor, errors, "affiliations"));
-        } else {
-            actor.setAffiliations(create(actorCore.getAffiliations(), actor, errors, "affiliations"));
-        }
+        actor.getAffiliations().addAll(prepareAffiliations(actorCore.getAffiliations(), actor, errors, "affiliations"));
 
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             throw new ValidationException(errors);
-        } else {
-            return actor;
-        }
+
+        return actor;
     }
 
-    private List<Actor> create(List<ActorId> actorIds, Actor affiliatedActor, Errors errors, String nestedPath) {
+    private List<ActorExternalId> prepareExternalIds(List<ActorExternalIdCore> externalIds, Actor actor, Errors errors) {
+        List<ActorExternalId> actorExternalIds = new ArrayList<>();
+
+        if (externalIds == null)
+            return actorExternalIds;
+
+        for (int i = 0; i < externalIds.size(); ++i) {
+            errors.pushNestedPath(String.format("externalIds[%d]", i));
+
+            ActorExternalId actorExternalId = prepareExternalId(externalIds.get(i), actor, errors);
+            if (actorExternalId != null)
+                actorExternalIds.add(actorExternalId);
+
+            errors.popNestedPath();
+        }
+
+        return actorExternalIds;
+    }
+
+    private ActorExternalId prepareExternalId(ActorExternalIdCore externalId, Actor actor, Errors errors) {
+        Optional<ActorSource> actorSource = actorSourceRepository.findById(externalId.getServiceIdentifier());
+
+        if (actorSource.isEmpty()) {
+            errors.rejectValue(
+                    "serviceIdentifier", "field.notExist",
+                    String.format("Unknown service identifier: %s", externalId.getServiceIdentifier())
+            );
+
+            return null;
+        }
+
+        return new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor);
+    }
+
+    private List<Actor> prepareAffiliations(List<ActorId> actorIds, Actor affiliatedActor, Errors errors, String nestedPath) {
         List<Actor> actors = new ArrayList<Actor>();
         if (actorIds != null) {
             for (int i = 0; i < actorIds.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
-                Actor actor = create(actorIds.get(i), errors);
+                Actor actor = prepareAffiliation(actorIds.get(i), errors);
                 if (actor != null) {
                     actors.add(actor);
                 }
@@ -87,7 +124,7 @@ public class ActorFactory {
         return actors;
     }
 
-    public Actor create(ActorId actorId, Errors errors) {
+    public Actor prepareAffiliation(ActorId actorId, Errors errors) {
         if (actorId.getId() == null) {
             errors.rejectValue("id", "field.required", "Actor identifier is required.");
             return null;
@@ -103,11 +140,9 @@ public class ActorFactory {
 
 
     private Actor getOrCreateActor(Long actorId) {
-        if (actorId != null) {
+        if (actorId != null)
             return actorRepository.getOne(actorId);
-        } else {
-            return new Actor();
-        }
-    }
 
+        return new Actor();
+    }
 }

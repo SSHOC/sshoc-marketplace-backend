@@ -8,9 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface ActorSourceRepository extends JpaRepository<ActorSource, String> {
 
-//    @Query(
-//            "select case when count(a) > 0 then true else false end from Actor a " +
-//                    "where a.externalId.identifierService.code = :serviceCode"
-//    )
-//    boolean isActorSourceInUse(@Param("serviceCode") String actorSourceCode);
+    @Query(
+            "select case when count(a) > 0 then true else false end from ActorExternalId a " +
+                    "where a.identifierService.code = :serviceCode"
+    )
+    boolean isActorSourceInUse(@Param("serviceCode") String actorSourceCode);
 }

@@ -48,7 +48,7 @@ public class ItemContributorFactory {
             errors.rejectValue("actor", "field.required", "Actor is required.");
         } else {
             errors.pushNestedPath("actor");
-            actor = actorFactory.create(itemContributorId.getActor(), errors);
+            actor = actorFactory.prepareAffiliation(itemContributorId.getActor(), errors);
             if (actor != null) {
                 for (ItemContributor processedContributor: processedContributors) {
                     if (actor.getId().equals(processedContributor.getActor().getId())) {

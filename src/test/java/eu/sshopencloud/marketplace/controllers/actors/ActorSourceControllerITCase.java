@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.controllers.actors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
-import eu.sshopencloud.marketplace.dto.actors.ActorRoleCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorSourceCore;
 import org.junit.Before;
 import org.junit.Ignore;

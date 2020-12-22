@@ -64,8 +64,8 @@ public class ActorSourceService {
     }
 
     public void deleteActorSource(String code) {
-//        if (actorSourceRepository.isActorSourceInUse(code))
-//            throw new IllegalArgumentException(String.format("Actor source %s is in use so it cannot be removed anymore", code));
+        if (actorSourceRepository.isActorSourceInUse(code))
+            throw new IllegalArgumentException(String.format("Actor source %s is in use so it cannot be removed anymore", code));
 
         try {
             actorSourceRepository.deleteById(code);
