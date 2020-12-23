@@ -29,6 +29,6 @@ databaseChangeLog:
               insert into actor_roles (code, label, ord) values ('contributor', 'Contributor', 1) on conflict do nothing;
               insert into actor_roles (code, label, ord) values ('author', 'Author', 2) on conflict do nothing;
               insert into actor_roles (code, label, ord) values ('provider', 'Provider', 3) on conflict do nothing;
-              insert into actor_roles (code, label, ord) values ('contact', 'Contact', 4);
-              insert into actor_roles (code, label, ord) values ('funder', 'Funder', 5);
-              insert into actor_roles (code, label, ord) values ('helpdesk', 'Helpdesk', 6);
+              insert into actor_roles (code, label, ord) values ('contact', 'Contact', 4) on conflict do nothing;
+              insert into actor_roles (code, label, ord) values ('funder', 'Funder', 5) on conflict do nothing;
+              insert into actor_roles (code, label, ord) values ('helpdesk', 'Helpdesk', 6) on conflict do nothing;
