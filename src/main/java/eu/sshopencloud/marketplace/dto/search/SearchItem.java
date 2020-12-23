@@ -23,6 +23,7 @@ import java.util.List;
 public class SearchItem {
 
     private Long id;
+    private String persistentId;
 
     private String label;
 

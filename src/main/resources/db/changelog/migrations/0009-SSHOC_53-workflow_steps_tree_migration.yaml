@@ -1,0 +1,114 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_53-workflow_steps_tree_migration-1
+      author: swolarz
+      description: Create id sequence for steps trees
+      changes:
+        - createSequence:
+            sequenceName: steps_tree_id_seq
+            startValue: 1
+            incrementBy: 1
+
+  - changeSet:
+      id: SSHOC_53-workflow_steps_tree_migration-2
+      author: swolarz
+      description: Create table for steps trees
+      changes:
+        - createTable:
+            tableName: steps_trees
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: workflow_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: steps_tree_workflow_fk
+                    references: workflows(id)
+              - column:
+                  name: step_id
+                  type: bigint
+                  constraints:
+                    nullable: true
+                    foreignKeyName: steps_tree_step_fk
+                    references: steps(id)
+              - column:
+                  name: parent_id
+                  type: bigint
+                  constraints:
+                    nullable: true
+                    foreignKeyName: steps_tree_parent_fk
+                    references: steps_trees(id)
+              - column:
+                  name: ord
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_root
+                  type: boolean
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: SSHOC_53-workflow_steps_tree_migration-3
+      author: swolarz
+      description: Migrate steps data to steps tree structure
+      changes:
+        - customChange:
+            class: eu.sshopencloud.marketplace.repositories.migrations.StepsTreeMigration
+        - sql:
+            sql: select setval('steps_tree_id_seq', (select max(id) from steps_trees))
+
+  - changeSet:
+      id: SSHOC_53-workflow_steps_tree_migration-4
+      author: swolarz
+      description: Drop columns in steps table after migration
+      changes:
+        - dropColumn:
+            tableName: steps
+            columns:
+              - column:
+                  name: step_id
+              - column:
+                  name: workflow_id
+              - column:
+                  name: ord
+
+  - changeSet:
+      id: SSHOC_53-workflow_steps_tree_migration-5
+      author: swolarz
+      description: Add column for workflow root steps tree node
+      changes:
+        - addColumn:
+            tableName: workflows
+            columns:
+              - column:
+                  name: steps_tree_id
+                  type: bigint
+                  constraints:
+                    nullable: true
+                    foreignKeyName: workflow_root_steps_tree_fk
+                    references: steps_trees(id)
+
+  - changeSet:
+      id: SSHOC_53-workflow_steps_tree_migration-6
+      author: swolarz
+      description: Assign root step trees to workflows
+      changes:
+        - sql:
+            sql: update workflows w set steps_tree_id = (select t.id from steps_trees t where t.workflow_id = w.id and t.is_root = 't')
+
+  - changeSet:
+      id: SSHOC_53-workflow_steps_tree_migration-7
+      author: swolarz
+      description: Make workflow root steps tree column not nullable
+      changes:
+        - addNotNullConstraint:
+            tableName: workflows
+            columnName: steps_tree_id

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class ItemCore {
+public class ItemCore implements ItemRelationsCore {
 
     private String label;
 
@@ -25,14 +25,11 @@ public class ItemCore {
 
     private List<PropertyCore> properties;
 
+    private List<RelatedItemCore> relatedItems;
+
     private List<String> accessibleAt;
 
     private SourceId source;
 
-    private ItemStatus status;
-
     private String sourceItemId;
-
-    private Long prevVersionId;
-
 }

@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0015-SSHOC_29-item_comments-1
+      author: swolarz
+      description: Add column for versioned item foreign key
+      changes:
+        - addColumn:
+            tableName: item_comments
+            columns:
+              - column:
+                  name: item_id
+                  type: varchar(128)
+                  constraints:
+                    foreignKeyName: item_comment_persistent_id_fk
+                    references: versioned_items(id)
+
+  - changeSet:
+      id: 0015-SSHOC_29-item_comments-2
+      author: swolarz
+      description: Cleanup dev/test comments in deprecated items
+      context: dev, test
+      changes:
+        - delete:
+            tableName: items_items_comments
+            where: item_id in (select id from items where status = 'DEPRECATED')
+        - delete:
+            tableName: item_comments
+            where: id not in (select item_comment_id from items_items_comments)
+
+  - changeSet:
+      id: 0015-SSHOC_29-item_comments-3
+      author: swolarz
+      description: Migrate comments item ids to the new column
+      changes:
+        - sql:
+            sql: >
+              update item_comments c set item_id = (
+                select persistent_id from items i
+                  join items_items_comments ic on ic.item_id = i.id
+                  where c.id = ic.item_comment_id
+              )
+
+  - changeSet:
+      id: 0015-SSHOC_29-item_comments-4
+      author: swolarz
+      description: Add not null constraint for comment item id
+      changes:
+        - addNotNullConstraint:
+            tableName: item_comments
+            columnName: item_id

@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0019-SSHOC_25-items_properties-2
+      author: mkozak
+      description: Add on delete cascade for item_properties_property_fk foreign key
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: items_properties
+            constraintName: item_properties_property_fk
+        - addForeignKeyConstraint:
+            baseColumnNames: property_id
+            baseTableName: items_properties
+            constraintName: item_properties_property_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: properties
+            validate: true

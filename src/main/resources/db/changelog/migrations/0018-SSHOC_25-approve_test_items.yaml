@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0018-SSHOC_25-approved_items-1
+      author: swolarz
+      description: Approve test/dev item versions
+      context: dev, test
+      changes:
+        - update:
+            tableName: items
+            where: status = 'INGESTED'
+            columns:
+              - column:
+                  name: status
+                  value: APPROVED

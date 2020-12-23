@@ -1,12 +1,15 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
+import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,10 +20,14 @@ import java.util.stream.Collectors;
 public class PropertyService {
 
     private final PropertyRepository propertyRepository;
+    private final ItemRepository itemRepository;
 
 
     public List<Property> getItemProperties(Long itemId) {
-        return propertyRepository.findByItemIdOrderByOrd(itemId);
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Item with given id = %d not found", itemId)));
+
+        return item.getProperties();
     }
 
     public void removePropertiesWithConcepts(List<Concept> concepts) {

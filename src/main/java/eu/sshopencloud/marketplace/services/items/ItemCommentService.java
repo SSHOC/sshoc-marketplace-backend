@@ -3,30 +3,24 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemCommentMapper;
-import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
-import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.model.auth.User;
-import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemComment;
-import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
+import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.items.ItemCommentRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.validators.items.ItemCommentValidator;
+import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.validators.items.ItemCommentFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 @Transactional
@@ -34,90 +28,91 @@ import java.util.Optional;
 @Slf4j
 public class ItemCommentService {
 
-    private final ItemRepository itemRepository;
-
+    private final VersionedItemRepository versionedItemRepository;
     private final ItemCommentRepository itemCommentRepository;
-
-    private final ItemCommentValidator itemCommentValidator;
-
-    private final UserRepository userRepository;
+    private final ItemCommentFactory itemCommentFactory;
+    private final UserService userService;
 
 
-    public ItemCommentDto createItemComment(Long itemId, ItemCommentCore itemCommentCore) {
-        ItemComment itemComment = itemCommentValidator.validate(itemCommentCore, null);
+    public List<ItemCommentDto> getLastComments(String itemId) {
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        List<ItemComment> lastComments =
+                itemCommentRepository.findAllByItemPersistentIdOrderByDateCreatedDesc(itemId, pageRequest);
 
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Item.class.getName() + " with id " + itemId));
-
-        ZonedDateTime now = ZonedDateTime.now();
-        itemComment.setDateCreated(now);
-        itemComment.setDateLastUpdated(now);
-
-        itemComment.setCreator(userRepository.findByUsername(LoggedInUserHolder.getLoggedInUser().getUsername()));
-
-        int size = 0;
-        List<ItemComment> comments = new ArrayList<>();
-        if (item.getComments() != null) {
-            size = item.getComments().size();
-            comments = item.getComments();
-        } else {
-            item.setComments(comments);
-        }
-        comments.add(itemComment);
-        Item modifiedItem = itemRepository.save(item);
-        return ItemCommentMapper.INSTANCE.toDto(modifiedItem.getComments().get(size));
+        return ItemCommentMapper.INSTANCE.toDto(lastComments);
     }
 
-    public ItemCommentDto updateItemComment(Long itemId, Long id, ItemCommentCore itemCommentCore) {
-        checkExistsItemComment(itemId, id);
-        ItemComment itemComment = itemCommentValidator.validate(itemCommentCore, id);
+    public List<ItemCommentDto> getComments(String itemId) {
+        VersionedItem item = loadCommentedItem(itemId);
+        List<ItemComment> comments = item.getComments();
 
-        ZonedDateTime now = ZonedDateTime.now();
-        itemComment.setDateLastUpdated(now);
-
-        Item item = itemRepository.findByCommentsId(id);
-        int pos = getItemCommentIndex(item, id);
-        item.getComments().set(pos, itemComment);
-        Item modifiedItem = itemRepository.save(item);
-        return ItemCommentMapper.INSTANCE.toDto(modifiedItem.getComments().get(pos));
+        return ItemCommentMapper.INSTANCE.toDto(comments);
     }
 
+    public ItemCommentDto createItemComment(String itemId, ItemCommentCore itemCommentCore) {
+        User creator = userService.loadLoggedInUser();
 
-    public void deleteItemComment(Long itemId, Long id) {
-        checkExistsItemComment(itemId, id);
+        ItemComment itemComment = itemCommentFactory.create(itemCommentCore, creator);
+        VersionedItem item = loadCommentedItem(itemId);
 
-        Item item = itemRepository.findByCommentsId(id);
-        int pos = getItemCommentIndex(item, id);
-        item.getComments().remove(pos);
-        itemRepository.save(item);
+        item.addComment(itemComment);
+        item = versionedItemRepository.save(item);
+
+        itemComment = item.getLatestComment();
+
+        return ItemCommentMapper.INSTANCE.toDto(itemComment);
+    }
+
+    public ItemCommentDto updateItemComment(String itemId, Long commentId, ItemCommentCore itemCommentCore) {
+        VersionedItem item = loadCommentedItem(itemId);
+        ItemComment comment = loadItemComment(item, commentId);
+
+        validateCommentPrivileges(comment);
+        comment = itemCommentFactory.update(itemCommentCore, comment);
+
+        return ItemCommentMapper.INSTANCE.toDto(comment);
+    }
+
+    public void deleteItemComment(String itemId, long commentId) {
+        VersionedItem item = loadCommentedItem(itemId);
+        ItemComment comment = loadItemComment(item, commentId);
+
+        validateCommentPrivileges(comment);
+        item.removeComment(comment.getId());
     }
 
 
-    private void checkExistsItemComment(Long itemId, Long id) throws EntityNotFoundException {
-        if (!itemCommentRepository.existsById(id)) {
-            throw new EntityNotFoundException("Unable to find " + ItemComment.class.getName() + " with id " + id + " for item " + itemId);
-        }
-        Item item = itemRepository.findByCommentsId(id);
-        if (!item.getId().equals(itemId)) {
-            throw new EntityNotFoundException("Unable to find " + ItemComment.class.getName() + " with id " + id + " for item " + itemId);
-        }
+    private ItemComment loadItemComment(VersionedItem item, long commentId) {
+        return item.findComment(commentId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                String.format(
+                                        "Unable to find %s with id %d for item %s",
+                                        ItemComment.class.getName(), commentId, item.getPersistentId()
+                                )
+                        )
+                );
     }
 
+    private VersionedItem loadCommentedItem(String persistentId) {
+        VersionedItem item = versionedItemRepository.findById(persistentId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Unable to find item with id %s", persistentId)
+                ));
 
-    private int getItemCommentIndex(Item item, Long id) {
+        if (!item.areCommentsAllowed())
+            throw new IllegalArgumentException(String.format("Item with id %s cannot be commented anymore", persistentId));
+
+        return item;
+    }
+
+    private void validateCommentPrivileges(ItemComment comment) {
         User loggedInUser = LoggedInUserHolder.getLoggedInUser();
-        for (int i = 0; i < item.getComments().size(); i++) {
-            if (item.getComments().get(i).getId().equals(id)) {
-                ItemComment comment = item.getComments().get(i);
-                boolean a = loggedInUser.getRole().getAuthorities().contains(Authority.MODERATOR);
-                boolean b = comment.getCreator().getUsername().equals(loggedInUser.getUsername());
-                if (!loggedInUser.getRole().getAuthorities().contains(Authority.MODERATOR) && !comment.getCreator().getUsername().equals(loggedInUser.getUsername())) {
-                    throw new AccessDeniedException("No write/delete access to the comment.");
-                }
-                return i;
-            }
-        }
-        return -1;
-    }
 
+        boolean isModerator = loggedInUser.isModerator();
+        boolean isCreator = comment.getCreator().getUsername().equals(loggedInUser.getUsername());
+
+        if (!isModerator && !isCreator)
+            throw new AccessDeniedException("No write/delete access to the comment.");
+    }
 }

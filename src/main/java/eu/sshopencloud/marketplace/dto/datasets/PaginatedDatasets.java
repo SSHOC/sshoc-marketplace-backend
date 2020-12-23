@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.dto.datasets;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,8 +13,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
-public class PaginatedDatasets extends PaginatedResult {
+public class PaginatedDatasets extends PaginatedResult<DatasetDto> {
 
     private List<DatasetDto> datasets;
 
+    @Override
+    @JsonGetter("datasets")
+    public List<DatasetDto> getResults() {
+        return datasets;
+    }
 }

@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MarketplaceStartupRunner implements CommandLineRunner {
 
+    private final InitialDataLoader initialDataLoader;
+    private final InitialVocabularyLoader initialVocabularyLoader;
     private final IndexService indexService;
 
     /*
     private final SequencerInitializer sequencerInitializer;
-    private final InitialDataLoader initialDataLoader;
     private final InitialLicenseLoader initialLicenseLoader;
-    private final InitialVocabularyLoader initialVocabularyLoader;
 
     @Value("${spring.profiles.active:dev}")
     private String activeProfile;
@@ -30,6 +30,9 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        initialDataLoader.loadBasicData();
+        initialVocabularyLoader.loadPropertyTypeData();
+
         indexService.reindexItems();
         indexService.reindexConcepts();
     }

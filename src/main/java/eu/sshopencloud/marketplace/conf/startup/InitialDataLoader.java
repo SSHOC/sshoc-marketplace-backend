@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.conf.startup.tools.ToolLoader;
 import eu.sshopencloud.marketplace.conf.startup.trainings.TrainingMaterialLoader;
 import eu.sshopencloud.marketplace.conf.startup.workflows.WorkflowLoader;
 import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
@@ -14,6 +15,7 @@ import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
+import eu.sshopencloud.marketplace.repositories.actors.ActorSourceRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
@@ -37,29 +39,19 @@ import java.util.Map;
 public class InitialDataLoader {
 
     private final ActorRoleRepository actorRoleRepository;
-
     private final ItemRelationRepository itemRelationRepository;
-
     private final ConceptRelationRepository conceptRelationRepository;
+    private final SourceRepository sourceRepository;
+    private final ActorSourceRepository actorSourceRepository;
 
     private final UserRepository userRepository;
-
     private final ActorRepository actorRepository;
-
-    private final SourceRepository sourceRepository;
-
     private final SearchItemRepository searchItemRepository;
-
     private final IndexService indexService;
-
     private final ToolLoader toolLoader;
-
     private final TrainingMaterialLoader trainingMaterialLoader;
-
     private final DatasetLoader datasetLoader;
-
     private final WorkflowLoader workflowLoader;
-
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
 
@@ -67,21 +59,50 @@ public class InitialDataLoader {
         log.debug("Loading basic data");
         Map<String, List<Object>> data = YamlLoader.loadYamlData("initial-data/basic-data.yml");
 
-        List<ActorRole> actorRoles = YamlLoader.getObjects(data, "ActorRole");
-        actorRoleRepository.saveAll(actorRoles);
-        log.debug("Loaded " + actorRoles.size() + " ActorRole objects");
+        long actorRolesCount = actorRoleRepository.count();
+        if (actorRolesCount == 0) {
+            List<ActorRole> actorRoles = YamlLoader.getObjects(data, "ActorRole");
+            actorRoleRepository.saveAll(actorRoles);
+            log.debug("Loaded " + actorRoles.size() + " ActorRole objects");
+        }
+        else
+            log.debug("Skipping loading actor roles. {} already present.", actorRolesCount);
 
-        List<ItemRelation> itemRelations = YamlLoader.getObjects(data, "ItemRelation");
-        itemRelationRepository.saveAll(itemRelations);
-        log.debug("Loaded " + itemRelations.size() / 2 + " ItemRelation objects");
+        long itemRelationsCount = itemRelationRepository.count();
+        if (itemRelationsCount == 0) {
+            List<ItemRelation> itemRelations = YamlLoader.getObjects(data, "ItemRelation");
+            itemRelationRepository.saveAll(itemRelations);
+            log.debug("Loaded " + itemRelations.size() / 2 + " ItemRelation objects");
+        }
+        else
+            log.debug("Skipping loading item relations. {} already present.", itemRelationsCount);
 
-        List<ConceptRelation> conceptRelations = YamlLoader.getObjects(data, "ConceptRelation");
-        conceptRelationRepository.saveAll(conceptRelations);
-        log.debug("Loaded " + conceptRelations.size() / 2 + " ConceptRelation objects");
+        long conceptRelationsCount = conceptRelationRepository.count();
+        if (conceptRelationsCount == 0) {
+            List<ConceptRelation> conceptRelations = YamlLoader.getObjects(data, "ConceptRelation");
+            conceptRelationRepository.saveAll(conceptRelations);
+            log.debug("Loaded " + conceptRelations.size() / 2 + " ConceptRelation objects");
+        }
+        else
+            log.debug("Skipping loading concept relations. {} already present.", conceptRelationsCount);
 
-        List<Source> sources = YamlLoader.getObjects(data, "Source");
-        sourceRepository.saveAll(sources);
-        log.debug("Loaded " + sources.size() + " Source objects");
+        long sourcesCount = sourceRepository.count();
+        if (sourcesCount == 0) {
+            List<Source> sources = YamlLoader.getObjects(data, "Source");
+            sourceRepository.saveAll(sources);
+            log.debug("Loaded " + sources.size() + " Source objects");
+        }
+        else
+            log.debug("Skipping loading sources. {} already present.", sourcesCount);
+
+        long actorSourcesCount = actorSourceRepository.count();
+        if (actorSourcesCount == 0) {
+            List<ActorSource> actorSources = YamlLoader.getObjects(data, "ActorSource");
+            actorSourceRepository.saveAll(actorSources);
+            log.debug("Loaded {} ActorSource objects", actorSources.size());
+        }
+        else
+            log.debug("Skipping loading actor sources. {} already present.", actorSourcesCount);
     }
 
 

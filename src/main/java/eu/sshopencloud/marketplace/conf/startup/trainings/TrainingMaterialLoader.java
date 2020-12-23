@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.conf.startup.trainings;
 
 import eu.sshopencloud.marketplace.conf.startup.items.ItemLoader;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.repositories.trainings.TrainingMaterialRepository;
+import eu.sshopencloud.marketplace.repositories.items.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

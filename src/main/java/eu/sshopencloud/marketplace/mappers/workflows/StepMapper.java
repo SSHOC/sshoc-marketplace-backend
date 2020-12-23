@@ -14,7 +14,7 @@ public interface StepMapper {
 
     StepMapper INSTANCE = Mappers.getMapper(StepMapper.class);
 
-    @Mapping(source = "substeps", target = "composedOf", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+    @Mapping(source = "versionedItem.persistentId", target = "persistentId")
     StepDto toDto(Step step);
 
     List<StepDto> toDto(List<Step> steps);

@@ -73,11 +73,13 @@ public class DatasetControllerITCase {
 
     @Test
     public void shouldReturnDataset() throws Exception {
+        String datasetPersistentId = "dmbq4v";
         Integer datasetId = 9;
 
-        mvc.perform(get("/api/datasets/{id}", datasetId)
+        mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("id", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Austin Crime Data")))
@@ -89,9 +91,9 @@ public class DatasetControllerITCase {
 
     @Test
     public void shouldNotReturnDatasetWhenNotExist() throws Exception {
-        Integer datasetId = 1009;
+        String datasetPersistentId = "xxxxxx7";
 
-        mvc.perform(get("/api/datasets/{id}", datasetId)
+        mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isNotFound());
@@ -129,6 +131,7 @@ public class DatasetControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test simple dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -157,6 +160,7 @@ public class DatasetControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with source")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -198,6 +202,7 @@ public class DatasetControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with HTML in description")))
                 .andExpect(jsonPath("description", is("Description\n"
@@ -261,6 +266,7 @@ public class DatasetControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with source")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -298,6 +304,7 @@ public class DatasetControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with source")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
@@ -382,7 +389,8 @@ public class DatasetControllerITCase {
 
     @Test
     public void shouldUpdateDatasetWithoutRelation() throws Exception {
-        Integer datasetId = 9;
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetCurrentId = 9;
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
@@ -391,26 +399,31 @@ public class DatasetControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/datasets/{id}", datasetId)
+        mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(datasetId)))
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test simple dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("informationContributors", hasSize(2)))
-                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
-                .andExpect(jsonPath("informationContributors[1].username", is("Administrator")))
+                .andExpect(jsonPath("informationContributors", hasSize(1)))
+                .andExpect(jsonPath("informationContributors[0].username", is("Administrator")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(0)));
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(datasetCurrentId)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Austin Crime Data")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
     @Test
     public void shouldUpdateDatsetWithRelations() throws Exception {
-        Integer datasetId = 9;
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetCurrentId = 9;
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test complex dataset");
@@ -457,18 +470,18 @@ public class DatasetControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/datasets/{id}", datasetId)
+        mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(datasetId)))
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test complex dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("informationContributors", hasSize(2)))
-                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
-                .andExpect(jsonPath("informationContributors[1].username", is("Administrator")))
+                .andExpect(jsonPath("informationContributors", hasSize(1)))
+                .andExpect(jsonPath("informationContributors[0].username", is("Administrator")))
                 .andExpect(jsonPath("licenses", hasSize(1)))
                 .andExpect(jsonPath("licenses[0].label", is("MIT License")))
                 .andExpect(jsonPath("contributors", hasSize(1)))
@@ -479,13 +492,15 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(datasetCurrentId)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Austin Crime Data")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
     @Test
     public void shouldNotUpdateDatasetWithSourceButWithoutSourceItemId() throws Exception {
-        Integer datasetId = 9;
+        String datasetPersistentId = "dmbq4v";
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with source");
@@ -497,7 +512,7 @@ public class DatasetControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/datasets/{id}", datasetId)
+        mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -510,7 +525,7 @@ public class DatasetControllerITCase {
 
     @Test
     public void shouldNotUpdateDatasetWithSourceItemIdButWithoutSource() throws Exception {
-        Integer datasetId = 9;
+        String datasetPersistentId = "dmbq4v";
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with source");
@@ -520,7 +535,7 @@ public class DatasetControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/datasets/{id}", datasetId)
+        mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -534,7 +549,7 @@ public class DatasetControllerITCase {
 
     @Test
     public void shouldNotUpdateDatasetWhenSourceNotExist() throws Exception {
-        Integer datasetId = 9;
+        String datasetPersistentId = "dmbq4v";
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with source");
@@ -546,7 +561,7 @@ public class DatasetControllerITCase {
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
         log.debug("JSON: " + payload);
 
-        mvc.perform(put("/api/datasets/{id}", datasetId)
+        mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -608,9 +623,9 @@ public class DatasetControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Long datasetId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, DatasetDto.class).getId();
+        String datasetPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, DatasetDto.class).getPersistentId();
 
-        mvc.perform(delete("/api/datasets/{id}", datasetId)
+        mvc.perform(delete("/api/datasets/{id}", datasetPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());

@@ -1,15 +1,15 @@
 package eu.sshopencloud.marketplace.controllers.actors;
 
+import eu.sshopencloud.marketplace.dto.actors.ActorRoleCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleDto;
 import eu.sshopencloud.marketplace.services.actors.ActorRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/actor-roles")
@@ -18,9 +18,32 @@ public class ActorRoleController {
 
     private final ActorRoleService actorRoleService;
 
-    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ActorRoleDto>> getAllActorRoles() {
         return ResponseEntity.ok(actorRoleService.getAllActorRoles());
     }
 
+    @GetMapping(path = "/{roleCode}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ActorRoleDto> getActorRole(@PathVariable("roleCode") String code) {
+        return ResponseEntity.ok(actorRoleService.getActorRole(code));
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ActorRoleDto> createActorRole(@RequestBody ActorRoleCore actorRole) {
+        return ResponseEntity.ok(actorRoleService.createActorRole(actorRole));
+    }
+
+    @PutMapping(path = "/{roleCode}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ActorRoleDto> updateActorRole(@PathVariable("roleCode") String code,
+                                                        @RequestBody ActorRoleCore actorRole) {
+
+        return ResponseEntity.ok(actorRoleService.updateActorRole(code, actorRole));
+    }
+
+    @DeleteMapping("/{roleCode}")
+    public ResponseEntity<Void> deleteActorRole(@PathVariable("roleCode") String code) {
+        actorRoleService.deleteActorRole(code);
+        return ResponseEntity.ok().build();
+    }
 }

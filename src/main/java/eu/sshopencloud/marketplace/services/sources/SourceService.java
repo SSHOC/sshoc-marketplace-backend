@@ -5,10 +5,9 @@ import eu.sshopencloud.marketplace.dto.sources.PaginatedSources;
 import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.mappers.sources.SourceMapper;
-import eu.sshopencloud.marketplace.model.licenses.License;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
-import eu.sshopencloud.marketplace.validators.sources.SourceValidator;
+import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -27,7 +26,7 @@ public class SourceService {
 
     private final SourceRepository sourceRepository;
 
-    private final SourceValidator sourceValidator;
+    private final SourceFactory sourceFactory;
 
 
     public PaginatedSources getSources(String q, PageCoords pageCoords) {
@@ -57,7 +56,7 @@ public class SourceService {
     }
 
     public SourceDto createSource(SourceCore sourceCore) {
-        Source source = sourceValidator.validate(sourceCore, null);
+        Source source = sourceFactory.create(sourceCore, null);
         source = sourceRepository.save(source);
         return SourceMapper.INSTANCE.toDto(source);
     }
@@ -66,7 +65,7 @@ public class SourceService {
         if (!sourceRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + id);
         }
-        Source source = sourceValidator.validate(sourceCore, id);
+        Source source = sourceFactory.create(sourceCore, id);
         source = sourceRepository.save(source);
         return SourceMapper.INSTANCE.toDto(source);
     }

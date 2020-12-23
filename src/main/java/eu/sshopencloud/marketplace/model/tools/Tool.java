@@ -13,4 +13,8 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class Tool extends Item {
+
+    public Tool(Tool baseTool) {
+        super(baseTool);
+    }
 }

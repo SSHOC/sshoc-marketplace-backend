@@ -211,7 +211,7 @@ public class VocabularyControllerITCase {
                 .andExpect(status().isNotFound());
 
         mvc.perform(
-                get("/api/training-materials/{id}", 7)
+                get("/api/training-materials/{id}", "WfcKvG")
                         .accept(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())

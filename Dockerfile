@@ -1,5 +1,4 @@
 FROM maven:3-jdk-11 as build
-ARG APPLICATION_PROFILE
 
 WORKDIR /usr/src/app
 
@@ -10,12 +9,11 @@ COPY src ./src
 RUN mvn package
 
 FROM openjdk:11-jre-slim
-ARG APPLICATION_PROFILE
 
 WORKDIR /usr/app
 COPY --from=build /usr/src/app/target/marketplace-*.jar ./app.jar
 
-#ENV APPLICATION_PROFILE=''
+ENV APPLICATION_PROFILE=''
 
 EXPOSE 8080
 ENTRYPOINT [ "java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9990", "-jar", "app.jar" ]

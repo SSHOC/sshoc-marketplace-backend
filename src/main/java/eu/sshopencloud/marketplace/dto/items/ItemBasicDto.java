@@ -16,4 +16,5 @@ public class ItemBasicDto {
 
     private String version;
 
+    private String persistentId;
 }

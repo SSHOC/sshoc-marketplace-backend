@@ -26,6 +26,7 @@ public class IndexConverter {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
         builder.id(item.getId())
+                .persistentId(item.getPersistentId())
                 .label(item.getLabel()).labelText(item.getLabel()).labelTextEn(item.getLabel())
                 .description(item.getDescription()).descriptionText(descriptionText).descriptionTextEn(descriptionText)
                 .category(ItemCategoryConverter.convertCategory(item.getCategory()))

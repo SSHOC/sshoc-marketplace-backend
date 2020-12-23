@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0024-SSHOC_25-production_data-1
+      author: swolarz
+      description: Approval of the items on the production from before the items' versioning changeset
+      changes:
+        - sql:
+            sql: >
+              update items i set status = 'APPROVED'
+                where exists (select * from versioned_items vi where vi.curr_ver_id = i.id)
+                  and not exists (select * from items ia where ia.persistent_id = i.persistent_id and ia.status = 'APPROVED')
+
+  - changeSet:
+      id: 0024-SSHOC_25-production_data-2
+      author: swolarz
+      description: Fix items relation label typo
+      changes:
+        - update:
+            tableName: item_relations
+            where: code = 'extends'
+            columns:
+              - column:
+                  name: label
+                  value: Extends

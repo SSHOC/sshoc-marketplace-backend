@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0016-SSHOC_25-draft_relations-1
+      author: swolarz
+      description: Create table for draft item relations
+      changes:
+        - createSequence:
+            sequenceName: draft_relations_id_seq
+            startValue: 1
+            incrementBy: 1
+        - createTable:
+            tableName: draft_related_items
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: subject_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: draft_related_items_subject_fk
+                    references: draft_items(id)
+              - column:
+                  name: object_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: draft_related_items_item_fk
+                    references: versioned_items(id)
+              - column:
+                  name: relation_code
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: draft_related_items_relation_fk
+                    references: item_relations(code)

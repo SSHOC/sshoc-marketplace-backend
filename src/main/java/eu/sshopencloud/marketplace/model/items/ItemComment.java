@@ -19,21 +19,22 @@ public class ItemComment {
     @SequenceGenerator(name = "item_comment_generator", sequenceName = "item_comments_id_seq", allocationSize = 50)
     private Long id;
 
-    @Basic
+    @Basic(fetch = FetchType.LAZY)
     @Column(nullable = false, length = 4096)
     private String body;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JoinColumn(foreignKey = @ForeignKey(name="item_comment_creator_id_fk"))
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(foreignKey = @ForeignKey(name = "item_comment_creator_id_fk"))
     private User creator;
 
-    @Basic
     @Column(nullable = false)
     @CreationTimestamp
     private ZonedDateTime dateCreated;
 
-    @Basic
     @Column(nullable = true)
     private ZonedDateTime dateLastUpdated;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "item_comment_persistent_id_fk"))
+    private VersionedItem item;
 }

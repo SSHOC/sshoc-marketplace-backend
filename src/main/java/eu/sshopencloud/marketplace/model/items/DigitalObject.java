@@ -15,12 +15,17 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 public abstract class DigitalObject extends Item {
 
-    @Basic
     @Column(nullable = true)
     private ZonedDateTime dateCreated;
 
-    @Basic
     @Column(nullable = true)
     private ZonedDateTime dateLastUpdated;
 
+
+    public DigitalObject(DigitalObject baseDigitalObject) {
+        super(baseDigitalObject);
+
+        this.dateCreated = baseDigitalObject.getDateCreated();
+        this.dateLastUpdated = baseDigitalObject.getDateLastUpdated();
+    }
 }

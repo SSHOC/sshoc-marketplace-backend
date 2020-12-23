@@ -28,7 +28,6 @@ public class ItemLoader {
     private void completeProperties(Item newItem) {
         if (newItem.getProperties() != null) {
             for (Property property : newItem.getProperties()) {
-                property.setItem(newItem);
                 if (property.getConcept() != null) {
                     property.setConcept(conceptRepository.findById(ConceptId.builder().code(property.getConcept().getCode()).vocabulary(property.getConcept().getVocabulary().getCode()).build()).get());
                 }

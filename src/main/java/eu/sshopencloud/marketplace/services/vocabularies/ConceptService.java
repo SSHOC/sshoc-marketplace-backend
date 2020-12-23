@@ -27,32 +27,10 @@ import java.util.stream.Collectors;
 public class ConceptService {
 
     private final ConceptRepository conceptRepository;
-    private final ConceptRelationRepository conceptRelationRepository;
     private final ConceptRelatedConceptRepository conceptRelatedConceptRepository;
     private final ConceptRelatedConceptDetachingRepository conceptRelatedConceptDetachingRepository;
     private final ConceptRelatedConceptService conceptRelatedConceptService;
 
-
-    @Deprecated
-    public List<ConceptDto> getObjectTypeConcepts(ItemCategory category) {
-        Concept concept = getDefaultObjectTypeConcept(category);
-        List<Concept> concepts = new ArrayList<>();
-        concepts.add(concept);
-        concepts.addAll(getRelatedConceptsOfConcept(concept, conceptRelationRepository.getOne("narrower")));
-        concepts.sort(new ConceptComparator());
-        return concepts.stream().map(ConceptMapper.INSTANCE::toDto).collect(Collectors.toList());
-    }
-
-    @Deprecated
-    public Map<ItemCategory, Concept> getAllDefaultObjectTypeConcepts() {
-        return Arrays.stream(ItemCategory.indexedCategories())
-                .collect(Collectors.toMap(category -> category, this::getDefaultObjectTypeConcept));
-    }
-
-    @Deprecated
-    public Concept getDefaultObjectTypeConcept(ItemCategory category) {
-        return getConcept(category.getValue(), ItemCategory.OBJECT_TYPE_VOCABULARY_CODE);
-    }
 
     public PaginatedConcepts getConcepts(String vocabularyCode, PageCoords pageCoords) {
         PageRequest pageRequest = PageRequest.of(
@@ -94,7 +72,7 @@ public class ConceptService {
     }
 
     public List<Concept> getRelatedConceptsOfConcept(Concept concept, ConceptRelation relation) {
-        List<Concept> result = new ArrayList();
+        List<Concept> result = new ArrayList<>();
         List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectAndRelation(concept, relation);
         for (ConceptRelatedConcept subjectRelatedConcept: subjectRelatedConcepts) {
             conceptRelatedConceptDetachingRepository.detach(subjectRelatedConcept);

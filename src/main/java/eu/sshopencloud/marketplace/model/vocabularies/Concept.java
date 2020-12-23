@@ -19,7 +19,7 @@ public class Concept {
     private String code;
 
     @Id
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name="vocabulary_code", referencedColumnName = "code", insertable = false, updatable = false, foreignKey = @ForeignKey(name="concept_vocabulary_code_fk"))
     private Vocabulary vocabulary;
 

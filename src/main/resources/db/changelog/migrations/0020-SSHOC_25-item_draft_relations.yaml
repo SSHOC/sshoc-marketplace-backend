@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0020-SSHOC_25-draft_relations-1
+      author: swolarz
+      description: Add draft item reference to base item version
+      changes:
+        - addColumn:
+            tableName: draft_items
+            columns:
+              - column:
+                  name: base_item_id
+                  type: bigint
+                  constraints:
+                    nullable: true
+                    foreignKeyName: draft_item_base_item_fk
+                    references: items(id)

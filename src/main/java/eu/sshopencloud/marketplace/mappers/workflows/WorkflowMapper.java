@@ -16,12 +16,12 @@ public interface WorkflowMapper {
 
     WorkflowMapper INSTANCE = Mappers.getMapper(WorkflowMapper.class);
 
-    @Mapping(source = "steps", target = "composedOf", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+    @Mapping(source = "versionedItem.persistentId", target = "persistentId")
     WorkflowDto toDto(Workflow workflow);
 
     List<WorkflowDto> toDto(List<Workflow> workflows);
 
-    @Mapping(source = "substeps", target = "composedOf", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+    @Mapping(source = "versionedItem.persistentId", target = "persistentId")
     StepDto toStepDto(Step step);
 
     List<StepDto> toStepDto(List<Step> steps);

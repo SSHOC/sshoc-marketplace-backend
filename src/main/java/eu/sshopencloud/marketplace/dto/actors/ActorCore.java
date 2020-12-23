@@ -11,6 +11,8 @@ public class ActorCore {
 
     private String name;
 
+    private List<ActorExternalIdCore> externalIds;
+
     private String website;
 
     private String email;

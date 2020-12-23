@@ -1,11 +1,13 @@
 package eu.sshopencloud.marketplace.controllers.actors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
+import eu.sshopencloud.marketplace.dto.actors.ActorDto;
+import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.model.actors.Actor;
-import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @RunWith(SpringRunner.class)
 @SpringBootTest()
 @AutoConfigureMockMvc
@@ -40,13 +43,15 @@ public class ActorControllerITCase {
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     private String CONTRIBUTOR_JWT;
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
 
     @Before
-    public void init()
-            throws Exception {
+    public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
@@ -130,7 +135,7 @@ public class ActorControllerITCase {
         actor.setWebsite("http://www.example.org");
         actor.setEmail("test@example.org");
 
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        String payload = mapper.writeValueAsString(actor);
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/actors")
@@ -158,7 +163,7 @@ public class ActorControllerITCase {
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
 
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        String payload = mapper.writeValueAsString(actor);
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/actors")
@@ -174,6 +179,155 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("affiliations[0].email", blankOrNullString()))
                 .andExpect(jsonPath("affiliations[1].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[1].email", is("cessda@cessda.eu")));
+    }
+
+    @Test
+    public void shouldCreateActorWithExternalId() throws Exception {
+        ActorCore actor = new ActorCore();
+        actor.setName("Test actor");
+        actor.setEmail("test@example.org");
+        actor.setAffiliations(List.of(new ActorId(1L)));
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore("DBLP", "https://dblp.org/pers/g/Gray_0001:Jim.html")
+        ));
+
+        String payload = mapper.writeValueAsString(actor);
+
+        String actorJson = mvc.perform(
+                post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("name", is("Test actor")))
+                .andExpect(jsonPath("website", blankOrNullString()))
+                .andExpect(jsonPath("email", is("test@example.org")))
+                .andExpect(jsonPath("externalIds", hasSize(1)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("DBLP")))
+                .andExpect(jsonPath("externalIds[0].identifierService.label", is("DBLP")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("https://dblp.org/pers/g/Gray_0001:Jim.html")))
+                .andExpect(jsonPath("affiliations", hasSize(1)))
+                .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
+                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()))
+                .andReturn().getResponse().getContentAsString();
+
+        ActorDto actorDto = mapper.readValue(actorJson, ActorDto.class);
+
+        mvc.perform(get("/api/actors/{actorId}", actorDto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(actorDto.getId().intValue())))
+                .andExpect(jsonPath("name", is("Test actor")))
+                .andExpect(jsonPath("website", blankOrNullString()))
+                .andExpect(jsonPath("email", is("test@example.org")))
+                .andExpect(jsonPath("externalIds", hasSize(1)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("DBLP")))
+                .andExpect(jsonPath("externalIds[0].identifierService.label", is("DBLP")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("https://dblp.org/pers/g/Gray_0001:Jim.html")))
+                .andExpect(jsonPath("affiliations", hasSize(1)))
+                .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
+                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()));
+    }
+
+    @Test
+    public void shouldCreateActorWithExternalIds() throws Exception {
+        ActorCore actor = new ActorCore();
+        actor.setName("Test actor");
+        actor.setEmail("test@example.org");
+        actor.setAffiliations(List.of(new ActorId(4L)));
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore("ORCID", "0000-0000-0000-1234"),
+                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+        ));
+
+        String payload = mapper.writeValueAsString(actor);
+
+        String actorJson = mvc.perform(
+                post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("name", is("Test actor")))
+                .andExpect(jsonPath("website", blankOrNullString()))
+                .andExpect(jsonPath("email", is("test@example.org")))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifierService.label", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("0000-0000-0000-1234")))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")))
+                .andExpect(jsonPath("affiliations", hasSize(1)))
+                .andExpect(jsonPath("affiliations[0].name", is("CESSDA")))
+                .andExpect(jsonPath("affiliations[0].email", is("cessda@cessda.eu")))
+                .andReturn().getResponse().getContentAsString();
+
+        ActorDto actorDto = mapper.readValue(actorJson, ActorDto.class);
+
+        mvc.perform(get("/api/actors/{actorId}", actorDto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(actorDto.getId().intValue())))
+                .andExpect(jsonPath("name", is("Test actor")))
+                .andExpect(jsonPath("website", blankOrNullString()))
+                .andExpect(jsonPath("email", is("test@example.org")))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifierService.label", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("0000-0000-0000-1234")))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")))
+                .andExpect(jsonPath("affiliations", hasSize(1)))
+                .andExpect(jsonPath("affiliations[0].name", is("CESSDA")))
+                .andExpect(jsonPath("affiliations[0].email", is("cessda@cessda.eu")));
+    }
+
+    @Test
+    public void shouldNotCreateActorWithUnknownExternalId() throws Exception {
+        ActorCore actor = new ActorCore();
+        actor.setName("Test actor");
+        actor.setEmail("test@example.org");
+        actor.setAffiliations(List.of(new ActorId(2L)));
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42"),
+                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+        ));
+
+        String payload = mapper.writeValueAsString(actor);
+
+        mvc.perform(
+                post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].code", is("field.duplicateEntry")));
+    }
+
+    @Test
+    public void shouldNotCreateActorWithDuplicateExternalId() throws Exception {
+        ActorCore actor = new ActorCore();
+        actor.setName("Test actor");
+        actor.setEmail("test@example.org");
+        actor.setAffiliations(List.of(new ActorId(2L)));
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore("None", "Void")
+        ));
+
+        String payload = mapper.writeValueAsString(actor);
+
+        mvc.perform(
+                post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -248,6 +402,7 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("name", is("Test actor")))
                 .andExpect(jsonPath("website", is("http://www.example.org")))
                 .andExpect(jsonPath("email", is("test@example.org")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
                 .andExpect(jsonPath("affiliations", hasSize(0)));
     }
 
@@ -315,6 +470,98 @@ public class ActorControllerITCase {
     }
 
     @Test
+    public void shouldUpdateActorAndModifyExternalIds() throws Exception {
+        ActorCore actor = new ActorCore();
+        actor.setName("Test actor");
+        actor.setEmail("test@example.org");
+        actor.setAffiliations(List.of(new ActorId(2L)));
+
+        String payload = mapper.writeValueAsString(actor);
+
+        String actorJson = mvc.perform(
+                post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        ActorDto actorDto = mapper.readValue(actorJson, ActorDto.class);
+        int actorId = actorDto.getId().intValue();
+
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore("ORCID", "0000-0000-0000-1234"),
+                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+        ));
+
+        payload = mapper.writeValueAsString(actor);
+
+        mvc.perform(
+                put("/api/actors/{id}", actorId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(actorId)))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifierService.label", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("0000-0000-0000-1234")))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")));
+
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore("DBLP", "https://dblp.org/pers/g/Gray_0001:Jim.html"),
+                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+        ));
+
+        payload = mapper.writeValueAsString(actor);
+
+        mvc.perform(
+                put("/api/actors/{id}", actorId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(actorId)))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("DBLP")))
+                .andExpect(jsonPath("externalIds[0].identifierService.label", is("DBLP")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("https://dblp.org/pers/g/Gray_0001:Jim.html")))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")));
+    }
+
+    @Test
+    public void shouldNotUpdateActorWithUnknownExternalId() throws Exception {
+        ActorCore actor = new ActorCore();
+        actor.setName("Test actor");
+        actor.setEmail("test@example.org");
+        actor.setAffiliations(List.of(new ActorId(2L)));
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore("ORCID", "0000-0000-0000-1234"),
+                new ActorExternalIdCore("None", "Void")
+        ));
+
+        String payload = mapper.writeValueAsString(actor);
+
+        mvc.perform(
+                put("/api/actors/{actorId}", 2)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void shouldNotUpdateActorWhenNotExist() throws Exception {
         Integer actorId = 99;
 
@@ -346,6 +593,10 @@ public class ActorControllerITCase {
         affiliation2.setId(4l);
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore("ORCID", "0000-0000-0000-1234"),
+                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+        ));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
         log.debug("JSON: " + payload);
@@ -364,6 +615,5 @@ public class ActorControllerITCase {
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
     }
-
 }
 

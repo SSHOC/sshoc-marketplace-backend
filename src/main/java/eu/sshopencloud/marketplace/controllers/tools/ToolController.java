@@ -4,12 +4,13 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
-import eu.sshopencloud.marketplace.services.tools.ToolService;
+import eu.sshopencloud.marketplace.services.items.ToolService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/tools-services")
@@ -28,23 +29,46 @@ public class ToolController {
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> getTool(@PathVariable("id") long id) {
-        return ResponseEntity.ok(toolService.getTool(id));
+    public ResponseEntity<ToolDto> getTool(@PathVariable("id") String id,
+                                           @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(toolService.getLatestTool(id, draft));
+    }
+
+    @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> getToolVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(toolService.getToolVersion(id, versionId));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool) {
-        return ResponseEntity.ok(toolService.createTool(newTool));
+    public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool,
+                                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(toolService.createTool(newTool, draft));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> updateTool(@PathVariable("id") long id, @RequestBody ToolCore updatedTool) {
-        return ResponseEntity.ok(toolService.updateTool(id, updatedTool));
+    public ResponseEntity<ToolDto> updateTool(@PathVariable("id") String id, @RequestBody ToolCore updatedTool,
+                                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        return ResponseEntity.ok(toolService.updateTool(id, updatedTool, draft));
+    }
+
+    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> revertTool(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(toolService.revertTool(id, versionId));
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteTool(@PathVariable("id") long id) {
-        toolService.deleteTool(id);
+    public void deleteTool(@PathVariable("id") String id,
+                           @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+
+        toolService.deleteTool(id, draft);
     }
 
+    @PostMapping(path = "/{toolId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> publishTool(@PathVariable("toolId") String toolId) {
+        ToolDto tool = toolService.commitDraftTool(toolId);
+        return ResponseEntity.ok(tool);
+    }
 }
