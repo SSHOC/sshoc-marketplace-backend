@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0025-SSHOC_34-actor_external_id-1
+      author: swolarz
+      description: Create table for actor external sources
+      changes:
+        - createTable:
+            tableName: actor_external_sources
+            columns:
+              - column:
+                  name: code
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: label
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ord
+                  type: integer
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 0025-SSHOC_34_actor_external_id-2
+      author: swolarz
+      description: Create table for actor external ids
+      changes:
+        - createSequence:
+            sequenceName: actor_external_ids_id_seq
+            startValue: 1
+            incrementBy: 1
+
+        - createTable:
+            tableName: actor_external_ids
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: identifier_service_code
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: actor_external_id_source_fk
+                    references: actor_external_sources(code)
+              - column:
+                  name: identifier
+                  type: varchar(2048)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: actor_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: actor_external_id_actor_fk
+                    references: actors(id)
+              - column:
+                  name: ord
+                  type: integer
+
+        - addUniqueConstraint:
+            tableName: actor_external_ids
+            columnNames: identifier_service_code, identifier

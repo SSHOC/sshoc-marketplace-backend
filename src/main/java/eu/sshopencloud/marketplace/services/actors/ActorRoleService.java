@@ -40,6 +40,11 @@ public class ActorRoleService {
                 .ord(actorRoleCore.getOrd())
                 .build();
 
+        if (newActorRole.getCode() == null)
+            throw new IllegalArgumentException("Actor's role's code is required.");
+
+        validateActorRolePosition(newActorRole.getOrd());
+
         newActorRole = actorRoleRepository.save(newActorRole);
         reorderActorRoles(newActorRole.getCode(), newActorRole.getOrd());
 
@@ -90,5 +95,15 @@ public class ActorRoleService {
 
     private List<ActorRole> loadAllActorRoles() {
         return actorRoleRepository.findAll(Sort.by(Sort.Order.asc("ord")));
+    }
+
+    private void validateActorRolePosition(int ord) {
+        long rolesCount = actorRoleRepository.count();
+
+        if (ord < 1 || ord > rolesCount + 1) {
+            throw new IllegalArgumentException(
+                    String.format("Invalid position index: %d (maximum possible: %d)", ord, rolesCount + 1)
+            );
+        }
     }
 }

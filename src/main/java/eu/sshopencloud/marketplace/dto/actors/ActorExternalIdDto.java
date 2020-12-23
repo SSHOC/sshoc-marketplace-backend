@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActorId {
-
-    private Long id;
-
+public class ActorExternalIdDto {
+    private ActorSourceDto identifierService;
+    private String identifier;
 }

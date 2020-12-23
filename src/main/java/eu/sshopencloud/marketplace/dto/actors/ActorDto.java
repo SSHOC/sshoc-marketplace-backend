@@ -13,6 +13,8 @@ public class ActorDto {
 
     private String name;
 
+    private List<ActorExternalIdDto> externalIds;
+
     private String website;
 
     private String email;
