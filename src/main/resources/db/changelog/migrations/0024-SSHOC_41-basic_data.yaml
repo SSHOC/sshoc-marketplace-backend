@@ -26,6 +26,9 @@ databaseChangeLog:
         - sql:
             sql: >
               update actor_roles set ord = 3 where code = 'provider';
+              insert into actor_roles (code, label, ord) values ('contributor', 'Contributor', 1) on conflict do nothing;
+              insert into actor_roles (code, label, ord) values ('author', 'Author', 2) on conflict do nothing;
+              insert into actor_roles (code, label, ord) values ('provider', 'Provider', 3) on conflict do nothing;
               insert into actor_roles (code, label, ord) values ('contact', 'Contact', 4);
               insert into actor_roles (code, label, ord) values ('funder', 'Funder', 5);
               insert into actor_roles (code, label, ord) values ('helpdesk', 'Helpdesk', 6);

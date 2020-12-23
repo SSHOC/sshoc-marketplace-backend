@@ -47,23 +47,27 @@ public class InitialVocabularyLoader {
         }
     }
 
-    @Deprecated
     public void loadPropertyTypeData() {
-        if (jpaDdlAuto.equals("create") || jpaDdlAuto.equals("create-drop")) {
-            log.debug("Clearing concept index");
-            indexService.clearConceptIndex();
-        }
+//        if (jpaDdlAuto.equals("create") || jpaDdlAuto.equals("create-drop")) {
+//            log.debug("Clearing concept index");
+//            indexService.clearConceptIndex();
+//        }
 
         log.debug("Loading property type data");
         Map<String, List<Object>> data = YamlLoader.loadYamlData("initial-data/property-type-data.yml");
 
-        List<PropertyType> propertyTypes = YamlLoader.getObjects(data, "PropertyType");
-        propertyTypeRepository.saveAll(propertyTypes);
-        log.debug("Loaded " + propertyTypes.size()  + " PropertyType objects");
+        long propertyTypesCount = propertyTypeRepository.count();
+        if (propertyTypesCount == 0) {
+            List<PropertyType> propertyTypes = YamlLoader.getObjects(data, "PropertyType");
+            propertyTypeRepository.saveAll(propertyTypes);
+            log.debug("Loaded " + propertyTypes.size() + " PropertyType objects");
+        }
+        else
+            log.debug("Skipped loading property types. {} already present.", propertyTypesCount);
 
-        List<PropertyTypeVocabulary> propertyTypeVocabularies = YamlLoader.getObjects(data, "PropertyTypeVocabulary");
-        vocabularyLoader.createPropertyTypeVocabularies(activeProfile, propertyTypeVocabularies);
-        log.debug("Loaded " + propertyTypeVocabularies.size()  + " PropertyTypeVocabulary objects");
+//        List<PropertyTypeVocabulary> propertyTypeVocabularies = YamlLoader.getObjects(data, "PropertyTypeVocabulary");
+//        vocabularyLoader.createPropertyTypeVocabularies(activeProfile, propertyTypeVocabularies);
+//        log.debug("Loaded " + propertyTypeVocabularies.size()  + " PropertyTypeVocabulary objects");
     }
 
 }
