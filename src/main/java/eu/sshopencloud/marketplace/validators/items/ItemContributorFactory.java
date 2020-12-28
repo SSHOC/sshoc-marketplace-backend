@@ -13,8 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
@@ -27,36 +26,46 @@ public class ItemContributorFactory {
 
 
     public List<ItemContributor> create(List<ItemContributorId> itemContributorIds, Item item, Errors errors, String nestedPath) {
+        if (itemContributorIds == null)
+            return new ArrayList<>();
+
         List<ItemContributor> itemContributors = new ArrayList<>();
-        if (itemContributorIds != null) {
-            for (int i = 0; i < itemContributorIds.size(); i++) {
-                errors.pushNestedPath(nestedPath + "[" + i + "]");
-                ItemContributor itemContributor = create(itemContributorIds.get(i), item, itemContributors, errors);
-                if (itemContributor != null) {
+        Set<Map.Entry<Long, String>> actorRoles = new HashSet<>();
+
+        for (int i = 0; i < itemContributorIds.size(); i++) {
+            errors.pushNestedPath(nestedPath + "[" + i + "]");
+
+            ItemContributor itemContributor = create(itemContributorIds.get(i), item, errors);
+            if (itemContributor != null) {
+                Map.Entry<Long, String> actorRoleEntry = Map.entry(
+                        itemContributor.getActor().getId(), itemContributor.getRole().getCode()
+                );
+
+                if (!actorRoles.contains(actorRoleEntry)) {
                     itemContributors.add(itemContributor);
+                    actorRoles.add(actorRoleEntry);
                 }
-                errors.popNestedPath();
+                else {
+                    errors.rejectValue(
+                            "", "field.repeated",
+                            String.format("The actor with given role (%s) has already occurred.", itemContributor.getRole().getLabel())
+                    );
+                }
             }
+
+            errors.popNestedPath();
         }
 
         return itemContributors;
     }
 
-    private ItemContributor create(ItemContributorId itemContributorId, Item item, List<ItemContributor> processedContributors, Errors errors) {
+    private ItemContributor create(ItemContributorId itemContributorId, Item item, Errors errors) {
         Actor actor = null;
         if (itemContributorId.getActor() == null) {
             errors.rejectValue("actor", "field.required", "Actor is required.");
         } else {
             errors.pushNestedPath("actor");
             actor = actorFactory.prepareAffiliation(itemContributorId.getActor(), errors);
-            if (actor != null) {
-                for (ItemContributor processedContributor: processedContributors) {
-                    if (actor.getId().equals(processedContributor.getActor().getId())) {
-                        errors.rejectValue("id", "field.repeated", "The actor has already occurred.");
-                        break;
-                    }
-                }
-            }
             errors.popNestedPath();
         }
 
@@ -71,14 +80,17 @@ public class ItemContributorFactory {
         if (actor != null && role != null) {
             ItemContributor itemContributor = null;
             if (item.getId() != null) {
-                itemContributor = itemContributorRepository.findByItemIdAndActorId(item.getId(), actor.getId());
+                itemContributor = itemContributorRepository.findByItemIdAndActorIdAndActorRole(
+                        item.getId(), actor.getId(), role.getCode()
+                );
             }
             if (itemContributor == null) {
-                itemContributor = new ItemContributor();
+                itemContributor = new ItemContributor(item, actor, role);
                 itemContributor.setItem(item);
                 itemContributor.setActor(actor);
+                itemContributor.setRole(role);
             }
-            itemContributor.setRole(role);
+
             return itemContributor;
         }
 
