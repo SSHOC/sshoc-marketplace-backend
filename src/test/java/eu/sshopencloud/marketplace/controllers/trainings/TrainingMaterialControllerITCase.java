@@ -89,7 +89,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("version", is("3.0")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
+                .andExpect(jsonPath("informationContributor.id", is(1)))
                 .andExpect(jsonPath("olderVersions", hasSize(2)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
@@ -121,7 +121,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("version", is("1.0")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
+                .andExpect(jsonPath("informationContributor.id", is(1)))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(2)));
     }

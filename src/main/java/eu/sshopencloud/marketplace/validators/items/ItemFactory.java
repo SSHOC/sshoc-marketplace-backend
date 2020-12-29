@@ -107,14 +107,14 @@ public class ItemFactory {
         }
 
         setInfoDates(item, true);
-        updateInformationContributors(item);
+        updateInformationContributor(item);
 
         return item;
     }
 
     public <T extends Item> T initializeNewVersion(T newVersion) {
         setInfoDates(newVersion, false);
-        updateInformationContributors(newVersion);
+        updateInformationContributor(newVersion);
 
         return newVersion;
     }
@@ -147,12 +147,12 @@ public class ItemFactory {
         }
     }
 
-    private void updateInformationContributors(Item item) {
+    private void updateInformationContributor(Item item) {
         if (LoggedInUserHolder.getLoggedInUser() == null)
             return;
 
         User contributor = userRepository.findByUsername(LoggedInUserHolder.getLoggedInUser().getUsername());
         if (contributor != null)
-            item.addInformationContributor(contributor);
+            item.setInformationContributor(contributor);
     }
 }

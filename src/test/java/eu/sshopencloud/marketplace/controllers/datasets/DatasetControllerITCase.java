@@ -84,7 +84,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Austin Crime Data")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
+                .andExpect(jsonPath("informationContributor.id", is(3)))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
@@ -409,8 +409,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test simple dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
-                .andExpect(jsonPath("informationContributors[0].username", is("Administrator")))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(0)))
@@ -480,8 +479,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test complex dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
-                .andExpect(jsonPath("informationContributors[0].username", is("Administrator")))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
                 .andExpect(jsonPath("licenses", hasSize(1)))
                 .andExpect(jsonPath("licenses[0].label", is("MIT License")))
                 .andExpect(jsonPath("contributors", hasSize(1)))

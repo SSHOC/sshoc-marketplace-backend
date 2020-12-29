@@ -38,7 +38,7 @@ public class ItemDto extends ItemBasicDto {
 
     private List<RelatedItemDto> relatedItems;
 
-    private List<UserDto> informationContributors;
+    private UserDto informationContributor;
 
     @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
