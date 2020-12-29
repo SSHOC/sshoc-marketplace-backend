@@ -38,18 +38,17 @@ public class PropertyTypeController {
         return ResponseEntity.ok(propertyType);
     }
 
-    @PostMapping(value = "/{code}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PropertyTypeDto> createPropertyType(@PathVariable("code") String propertyTypeCode,
-                                                            @RequestBody PropertyTypeCore propertyTypeData)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PropertyTypeDto> createPropertyType(@RequestBody PropertyTypeCore propertyTypeData)
             throws PropertyTypeAlreadyExistsException {
 
-        PropertyTypeDto propertyType = propertyTypeService.createPropertyType(propertyTypeCode, propertyTypeData);
+        PropertyTypeDto propertyType = propertyTypeService.createPropertyType(propertyTypeData);
         return ResponseEntity.ok(propertyType);
     }
 
     @PutMapping(value = "/{code}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PropertyTypeDto> updatePropertyType(@PathVariable("code") String propertyTypeCode,
-                                                           @RequestBody PropertyTypeCore propertyTypeData) {
+                                                              @RequestBody PropertyTypeCore propertyTypeData) {
 
         PropertyTypeDto propertyType = propertyTypeService.updatePropertyType(propertyTypeCode, propertyTypeData);
         return ResponseEntity.ok(propertyType);

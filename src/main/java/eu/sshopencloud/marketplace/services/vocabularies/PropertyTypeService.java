@@ -103,7 +103,13 @@ public class PropertyTypeService {
         return (maxOrd != null) ? maxOrd : 1;
     }
 
-    public synchronized PropertyTypeDto createPropertyType(String code, PropertyTypeCore propertyTypeCore) throws PropertyTypeAlreadyExistsException {
+    public synchronized PropertyTypeDto createPropertyType(PropertyTypeCore propertyTypeCore)
+            throws PropertyTypeAlreadyExistsException {
+
+        String code = propertyTypeCore.getCode();
+        if (code == null)
+            throw new IllegalArgumentException("Property type code is not present");
+
         if (propertyTypeRepository.existsById(code))
             throw new PropertyTypeAlreadyExistsException(code);
 

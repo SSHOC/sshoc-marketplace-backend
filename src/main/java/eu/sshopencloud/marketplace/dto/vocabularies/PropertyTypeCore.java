@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 public class PropertyTypeCore {
 
+    private String code;
     private String label;
     private PropertyTypeClass type;
 

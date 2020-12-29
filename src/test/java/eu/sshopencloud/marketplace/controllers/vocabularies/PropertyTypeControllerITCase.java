@@ -93,13 +93,14 @@ public class PropertyTypeControllerITCase {
     @Test
     public void shouldCreatePropertyTypeWithConceptValueType() throws Exception {
         PropertyTypeCore propertyTypeData = PropertyTypeCore.builder()
+                .code("new-property-type")
                 .label("New property type")
                 .type(PropertyTypeClass.CONCEPT)
                 .allowedVocabularies(Arrays.asList("nemo-activity-type", "iana-mime-type"))
                 .build();
 
         mvc.perform(
-                post("/api/property-types/{code}", "new-property-type")
+                post("/api/property-types")
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", moderatorJwt)
                         .contentType(MediaType.APPLICATION_JSON)
