@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0026-SSHOC_39-actor_multi_roles-1
+      author: swolarz
+      description: Extend current item contributors primary key to cover item, author and role
+      changes:
+        - dropPrimaryKey:
+            tableName: items_contributors
+            constraintName: items_contributors_pkey
+            dropIndex: true
+
+        - addPrimaryKey:
+            tableName: items_contributors
+            constraintName: items_contributors_pkey
+            columnNames: item_id, actor_id, role_code

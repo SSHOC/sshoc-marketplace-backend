@@ -1322,7 +1322,95 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotAddStepToWorkflowWhenActorHasManyRoles() throws Exception {
+    public void shouldUpdateStepInWorkflowWhenActorHasManyRoles() throws Exception {
+        String workflowPersistentId = "tqmbGY";
+        Integer workflowId = 12;
+
+        String stepPersistentId = "2CwYCU";
+        Integer stepId = 14;
+
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("category", is("workflow")));
+
+        StepCore step = new StepCore();
+        step.setLabel("A step with a triple actor");
+        step.setDescription("Lorem ipsum");
+        step.setStepNo(2);
+
+        ItemContributorId contributor1 = new ItemContributorId(new ActorId(1L), new ActorRoleId("provider"));
+        ItemContributorId contributor2 = new ItemContributorId(new ActorId(1L), new ActorRoleId("author"));
+        ItemContributorId contributor3 = new ItemContributorId(new ActorId(1L), new ActorRoleId("contributor"));
+        step.setContributors(List.of(contributor1, contributor2, contributor3));
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(
+                put("/api/workflows/{workflowId}/steps/{stepId}", workflowPersistentId, stepPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(stepPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(stepId))))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("label", is("A step with a triple actor")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors", hasSize(3)))
+                .andExpect(jsonPath("contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[0].role.code", is("provider")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("contributors[2].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[2].role.code", is("contributor")));
+
+        mvc.perform(get("/api/workflows/{workflowId}", workflowPersistentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(workflowId))))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary")))
+                .andExpect(jsonPath("description", is("Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset.")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf[0].label", is("Build the model of the dictionary")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].persistentId", is(stepPersistentId)))
+                .andExpect(jsonPath("composedOf[1].id", not(is(stepId))))
+                .andExpect(jsonPath("composedOf[1].label", is("A step with a triple actor")))
+                .andExpect(jsonPath("composedOf[1].contributors", hasSize(3)))
+                .andExpect(jsonPath("composedOf[1].contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("composedOf[1].contributors[0].role.code", is("provider")))
+                .andExpect(jsonPath("composedOf[1].contributors[1].actor.id", is(1)))
+                .andExpect(jsonPath("composedOf[1].contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("composedOf[1].contributors[2].actor.id", is(1)))
+                .andExpect(jsonPath("composedOf[1].contributors[2].role.code", is("contributor")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf[1].composedOf[0].label", is("Corpus composition")))
+                .andExpect(jsonPath("composedOf[1].composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].composedOf[1].label", is("Linguistic annotation")))
+                .andExpect(jsonPath("composedOf[1].composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].composedOf[2].label", is("Selection of a license")))
+                .andExpect(jsonPath("composedOf[1].composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].composedOf[3].label", is("Publishing")))
+                .andExpect(jsonPath("composedOf[1].composedOf[3].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[2].label", is("Write a dictionary")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[3].label", is("Publishing")))
+                .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)));
+    }
+
+    @Test
+    public void shouldNotAddStepToWorkflowWhenActorHasRepeatedRoles() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
@@ -1337,32 +1425,11 @@ public class WorkflowControllerITCase {
         StepCore step = new StepCore();
         step.setLabel("A step with a triple actor");
         step.setDescription("Lorem ipsum");
-        ItemContributorId contributor1 = new ItemContributorId();
-        ActorId actor1 = new ActorId();
-        actor1.setId(1l);
-        contributor1.setActor(actor1);
-        ActorRoleId role1 = new ActorRoleId();
-        role1.setCode("provider");
-        contributor1.setRole(role1);
-        ItemContributorId contributor2 = new ItemContributorId();
-        ActorId actor2 = new ActorId();
-        actor2.setId(1l);
-        contributor2.setActor(actor2);
-        ActorRoleId role2 = new ActorRoleId();
-        role2.setCode("author");
-        contributor2.setRole(role2);
-        ItemContributorId contributor3 = new ItemContributorId();
-        ActorId actor3 = new ActorId();
-        actor3.setId(1l);
-        contributor3.setActor(actor3);
-        ActorRoleId role3 = new ActorRoleId();
-        role3.setCode("contributor");
-        contributor3.setRole(role3);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
-        contributors.add(contributor1);
-        contributors.add(contributor2);
-        contributors.add(contributor3);
-        step.setContributors(contributors);
+
+        ItemContributorId contributor1 = new ItemContributorId(new ActorId(1L), new ActorRoleId("provider"));
+        ItemContributorId contributor2 = new ItemContributorId(new ActorId(1L), new ActorRoleId("author"));
+        ItemContributorId contributor3 = new ItemContributorId(new ActorId(1L), new ActorRoleId("provider"));
+        step.setContributors(List.of(contributor1, contributor2, contributor3));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
         log.debug("JSON: " + payload);
@@ -1372,13 +1439,10 @@ public class WorkflowControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors", hasSize(2)))
-                .andExpect(jsonPath("errors[0].field", is("contributors[1].actor.id")))
+                .andExpect(jsonPath("errors", hasSize(1)))
+                .andExpect(jsonPath("errors[0].field", is("contributors[2]")))
                 .andExpect(jsonPath("errors[0].code", is("field.repeated")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()))
-                .andExpect(jsonPath("errors[1].field", is("contributors[2].actor.id")))
-                .andExpect(jsonPath("errors[1].code", is("field.repeated")))
-                .andExpect(jsonPath("errors[1].message", notNullValue()));
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
