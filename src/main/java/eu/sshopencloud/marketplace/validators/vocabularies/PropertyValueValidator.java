@@ -18,9 +18,7 @@ import java.time.format.DateTimeParseException;
 public class PropertyValueValidator {
 
     public boolean validate(String value, PropertyType propertyType, Errors errors) {
-        boolean valid = true;
-
-        if (StringUtils.isNotBlank(value)) {
+        if (StringUtils.isBlank(value)) {
             errors.rejectValue("value", "field.required", "Property value is required.");
             return false;
         }
