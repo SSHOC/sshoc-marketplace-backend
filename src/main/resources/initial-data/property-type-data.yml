@@ -156,6 +156,8 @@ PropertyType:
     label:                       DOI
     type:                        STRING
 
+
+# Ignored, since the vocabularies are not loaded during startup
 PropertyTypeVocabulary:
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
