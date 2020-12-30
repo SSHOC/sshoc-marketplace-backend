@@ -637,4 +637,27 @@ public class DatasetControllerITCase {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    public void shouldNotCreateDatasetWithInvalidUrlProperty() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test dataset with no url");
+        dataset.setDescription("Lorem ipsum dolor sit amet");
+
+        PropertyCore property1 = new PropertyCore(new PropertyTypeId("media"), "https://google.com");
+        PropertyCore property2 = new PropertyCore(new PropertyTypeId("media"), "this:/is-not-an-url");
+        dataset.setProperties(List.of(property1, property2));
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                post("/api/datasets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
+                .andExpect(jsonPath("errors[0].code", is("field.invalid")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
 }

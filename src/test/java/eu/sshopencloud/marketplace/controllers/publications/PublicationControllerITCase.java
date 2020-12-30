@@ -55,11 +55,13 @@ public class PublicationControllerITCase {
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     private String MODERATOR_JWT;
 
     @Before
-    public void init()
-            throws Exception {
+    public void init() throws Exception {
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
     }
 
@@ -380,5 +382,33 @@ public class PublicationControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldCreatePublicationWithValidDateProperty() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test publication with time");
+        publication.setDescription("Lorem ipsum");
+
+        PropertyCore property = new PropertyCore(new PropertyTypeId("timestamp"), "2020-12-24T20:02:00+0001");
+        publication.setProperties(List.of(property));
+
+        String payload = mapper.writeValueAsString(publication);
+
+        mvc.perform(
+                post("/api/publications")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is("Test publication with time")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].type.code", is("timestamp")))
+                .andExpect(jsonPath("properties[0].type.label", is("Timestamp")))
+                .andExpect(jsonPath("properties[0].type.type", is("date")))
+                .andExpect(jsonPath("properties[0].value", is("2020-12-24T20:02:00+0001")));
     }
 }
