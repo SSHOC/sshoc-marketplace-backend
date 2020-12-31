@@ -1602,4 +1602,27 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    public void shouldNotCreateWorkflowWithInvalidIntProperty() throws Exception {
+        WorkflowCore workflow = new WorkflowCore();
+        workflow.setLabel("Test workflow with invalid year");
+        workflow.setDescription("Lorem ipsum...");
+
+        PropertyCore property1 = new PropertyCore(new PropertyTypeId("year"), "2021");
+        PropertyCore property2 = new PropertyCore(new PropertyTypeId("year"), "one two");
+        workflow.setProperties(List.of(property1, property2));
+
+        String payload = mapper.writeValueAsString(workflow);
+
+        mvc.perform(
+                post("/api/workflows")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
+                .andExpect(jsonPath("errors[0].code", is("field.invalid")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
 }
