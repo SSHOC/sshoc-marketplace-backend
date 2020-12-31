@@ -159,13 +159,6 @@ public abstract class Item {
         this.contributors.addAll(contributors);
     }
 
-//    public void addInformationContributor(User contributor) {
-//        if (informationContributors.contains(contributor))
-//            return;
-//
-//        informationContributors.add(contributor);
-//    }
-
     public List<Property> getProperties() {
         if (sparseProperties) {
             this.properties.removeIf(Objects::isNull);

@@ -970,11 +970,16 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldUpdateToolWithPropertyValuesValidation() throws Exception {
-        PropertyTypeCore propertyType = new PropertyTypeCore("Rating", PropertyTypeClass.FLOAT, null);
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("rating")
+                .label("Rating")
+                .type(PropertyTypeClass.FLOAT)
+                .allowedVocabularies(null)
+                .build();
         String propertyTypePayload = mapper.writeValueAsString(propertyType);
 
         mvc.perform(
-                post("/api/property-types/{propertyCode}", "rating")
+                post("/api/property-types")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(propertyTypePayload)
                         .header("Authorization", ADMINISTRATOR_JWT)
@@ -1034,11 +1039,16 @@ public class ToolControllerITCase {
 
     @Test
     public void shouldNotCreateToolWithInvalidFloatProperty() throws Exception {
-        PropertyTypeCore propertyType = new PropertyTypeCore("Rating", PropertyTypeClass.FLOAT, null);
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("rating")
+                .label("Rating")
+                .type(PropertyTypeClass.FLOAT)
+                .allowedVocabularies(null)
+                .build();
         String propertyTypePayload = mapper.writeValueAsString(propertyType);
 
         mvc.perform(
-                post("/api/property-types/{propertyCode}", "rating")
+                post("/api/property-types")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(propertyTypePayload)
                         .header("Authorization", ADMINISTRATOR_JWT)
