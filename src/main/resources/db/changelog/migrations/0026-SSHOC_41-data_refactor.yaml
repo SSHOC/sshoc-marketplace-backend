@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0026-SSHOC_41-data_refactor.yaml
+      author: swolarz
+      description: Remove multiple item information contributors
+      changes:
+        - delete:
+            tableName: items_information_contributors
+            where: ord > 0
+
+        - dropColumn:
+            tableName: items_information_contributors
+            columnName: ord

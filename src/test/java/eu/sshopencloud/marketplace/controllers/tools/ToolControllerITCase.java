@@ -83,7 +83,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
                 .andExpect(jsonPath("licenses[0].label", is("Common Development and Distribution License 1.0")))
-                .andExpect(jsonPath("informationContributors", hasSize(2)))
+                .andExpect(jsonPath("informationContributor.id", is(2)))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
@@ -118,8 +118,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
-                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
+                .andExpect(jsonPath("informationContributor.username", is("Contributor")))
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source", nullValue()));
     }
@@ -964,8 +963,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
                 .andExpect(jsonPath("accessibleAt[1]", is("http://fake.tapor.com")))
                 .andExpect(jsonPath("accessibleAt[2]", is("http://fake.tapor.org")))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
-                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
+                .andExpect(jsonPath("informationContributor.username", is("Contributor")))
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source", nullValue()));
     }
