@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PropertyTypeCore {
 
+    private String code;
     private String label;
     private PropertyTypeClass type;
 
