@@ -62,6 +62,8 @@ services:
     container_name: sshoc-mp-backend-runner
     environment:
       DOCKER_TLS_CERTDIR: ""
+    labels:
+      - ID=18591
     volumes:
       - gitlab-runner:/etc/gitlab-runner
       - docker:/var/run
