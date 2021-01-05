@@ -55,8 +55,11 @@ public class PropertyTypeController {
     }
 
     @DeleteMapping("/{code}")
-    public ResponseEntity<PropertyTypeDto> deletePropertyType(@PathVariable("code") String propertyTypeCode) {
-        propertyTypeService.removePropertyType(propertyTypeCode);
+    public ResponseEntity<PropertyTypeDto> deletePropertyType(
+            @PathVariable("code") String propertyTypeCode,
+            @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) {
+
+        propertyTypeService.removePropertyType(propertyTypeCode, force);
         return ResponseEntity.ok().build();
     }
 
@@ -65,5 +68,4 @@ public class PropertyTypeController {
         propertyTypeService.reorderPropertyTypes(reordering);
         return ResponseEntity.ok().build();
     }
-
 }

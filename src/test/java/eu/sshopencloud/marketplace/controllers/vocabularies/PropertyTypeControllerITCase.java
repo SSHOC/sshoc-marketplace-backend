@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -130,6 +131,56 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
+    public void shouldCreatePropertyTypeAtPosition() throws Exception {
+        assertPropertyTypeOrder("language", 1);
+        assertPropertyTypeOrder("activity", 2);
+        assertPropertyTypeOrder("technique", 3);
+        assertPropertyTypeOrder("material", 4);
+        assertPropertyTypeOrder("object-format", 5);
+
+        PropertyTypeCore propertyTypeData = PropertyTypeCore.builder()
+                .code("github")
+                .label("GitHub")
+                .type(PropertyTypeClass.URL)
+                .ord(3)
+                .build();
+
+        mvc.perform(
+                post("/api/property-types")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(propertyTypeData))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("github")))
+                .andExpect(jsonPath("$.label", is("GitHub")))
+                .andExpect(jsonPath("$.type", is("url")))
+                .andExpect(jsonPath("$.ord", is(3)))
+                .andExpect(jsonPath("$.allowedVocabularies", hasSize(0)));
+
+        mvc.perform(
+                get("/api/property-types/{code}", "github")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("github")))
+                .andExpect(jsonPath("$.label", is("GitHub")))
+                .andExpect(jsonPath("$.type", is("url")))
+                .andExpect(jsonPath("$.ord", is(3)))
+                .andExpect(jsonPath("$.allowedVocabularies", hasSize(0)));
+
+        assertPropertyTypeOrder("language", 1);
+        assertPropertyTypeOrder("activity", 2);
+        assertPropertyTypeOrder("github", 3);
+        assertPropertyTypeOrder("technique", 4);
+        assertPropertyTypeOrder("material", 5);
+        assertPropertyTypeOrder("object-format", 6);
+    }
+
+    @Test
     public void shouldNotRetrieveNonExistentPropertyType() throws Exception {
         mvc.perform(
                 get("/api/property-types/{code}", "not-a-property-type")
@@ -174,6 +225,61 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.ord", is(1)))
                 .andExpect(jsonPath("$.allowedVocabularies", hasSize(2)))
                 .andExpect(jsonPath("$.allowedVocabularies[*].code", containsInAnyOrder("iso-639-3-v2", "software-license")));
+    }
+
+    @Test
+    public void shouldUpdatePropertyTypeWithReorder() throws Exception {
+        assertPropertyTypeOrder("language", 1);
+        assertPropertyTypeOrder("activity", 2);
+        assertPropertyTypeOrder("technique", 3);
+        assertPropertyTypeOrder("material", 4);
+        assertPropertyTypeOrder("object-format", 5);
+        assertPropertyTypeOrder("keyword", 6);
+        assertPropertyTypeOrder("tadirah-goals", 7);
+
+        PropertyTypeCore request = PropertyTypeCore.builder()
+                .label("Object-Format")
+                .type(PropertyTypeClass.CONCEPT)
+                .allowedVocabularies(List.of("iana-mime-type"))
+                .ord(2)
+                .build();
+
+        mvc.perform(
+                put("/api/property-types/{code}", "object-format")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
+                        .content(mapper.writeValueAsString(request))
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("object-format")))
+                .andExpect(jsonPath("$.label", is("Object-Format")))
+                .andExpect(jsonPath("$.type", is("concept")))
+                .andExpect(jsonPath("$.ord", is(2)))
+                .andExpect(jsonPath("$.allowedVocabularies", hasSize(1)))
+                .andExpect(jsonPath("$.allowedVocabularies[0].code", is("iana-mime-type")));
+
+        mvc.perform(
+                get("/api/property-types/{code}", "object-format")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("object-format")))
+                .andExpect(jsonPath("$.label", is("Object-Format")))
+                .andExpect(jsonPath("$.type", is("concept")))
+                .andExpect(jsonPath("$.ord", is(2)))
+                .andExpect(jsonPath("$.allowedVocabularies", hasSize(1)))
+                .andExpect(jsonPath("$.allowedVocabularies[0].code", is("iana-mime-type")));
+
+        assertPropertyTypeOrder("language", 1);
+        assertPropertyTypeOrder("object-format", 2);
+        assertPropertyTypeOrder("activity", 3);
+        assertPropertyTypeOrder("technique", 4);
+        assertPropertyTypeOrder("material", 5);
+        assertPropertyTypeOrder("keyword", 6);
+        assertPropertyTypeOrder("tadirah-goals", 7);
     }
 
     @Test

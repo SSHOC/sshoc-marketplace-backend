@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.model.vocabularies;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "property_types")
 @Data
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class PropertyType {
@@ -24,5 +26,5 @@ public class PropertyType {
     private String label;
 
     @Column(nullable = false)
-    private Integer ord;
+    private int ord;
 }
