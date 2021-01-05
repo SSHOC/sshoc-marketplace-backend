@@ -60,8 +60,11 @@ public class VocabularyController {
     }
 
     @DeleteMapping("/{code}")
-    public ResponseEntity<Void> deleteVocabulary(@PathVariable("code") String vocabularyCode) throws VocabularyDoesNotExistException {
-        vocabularyService.removeVocabulary(vocabularyCode);
+    public ResponseEntity<Void> deleteVocabulary(@PathVariable("code") String vocabularyCode,
+                                                 @RequestParam(value = "force", required = false, defaultValue = "false") boolean force)
+            throws VocabularyDoesNotExistException {
+
+        vocabularyService.removeVocabulary(vocabularyCode, force);
         return ResponseEntity.ok().build();
     }
 }

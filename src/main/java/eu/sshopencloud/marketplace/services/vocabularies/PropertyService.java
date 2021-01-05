@@ -40,6 +40,10 @@ public class PropertyService {
         propertyRepository.deletePropertiesOfType(type);
     }
 
+    public boolean existPropertiesFromVocabulary(String vocabularyCode) {
+        return propertyRepository.existsByConceptVocabularyCode(vocabularyCode);
+    }
+
     public void removePropertiesWithConcepts(List<Concept> concepts) {
         List<String> conceptCodes = concepts.stream().map(Concept::getCode).collect(Collectors.toList());
         propertyRepository.deletePropertiesWithConcepts(conceptCodes);

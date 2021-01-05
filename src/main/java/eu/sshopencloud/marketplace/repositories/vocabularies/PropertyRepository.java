@@ -21,5 +21,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     @Query("delete from Property p where p.type = :propertyType")
     void deletePropertiesOfType(@Param("propertyType") PropertyType propertyType);
 
+    boolean existsByConceptVocabularyCode(String vocabularyCode);
+
     boolean existsByType(PropertyType type);
 }

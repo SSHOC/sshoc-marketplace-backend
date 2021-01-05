@@ -134,7 +134,7 @@ public class VocabularyService {
         Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream);
 
         List<Concept> conceptsToRemove = missingConcepts(oldConcepts, updatedVocabulary.getConcepts());
-        removeConcepts(conceptsToRemove);
+        removeConceptsAndProperties(conceptsToRemove);
 
         return updatedVocabulary;
     }
@@ -146,17 +146,27 @@ public class VocabularyService {
                 .collect(Collectors.toList());
     }
 
-    public void removeVocabulary(String vocabularyCode) throws VocabularyDoesNotExistException {
+    public void removeVocabulary(String vocabularyCode, boolean forceRemove) throws VocabularyDoesNotExistException {
         Vocabulary vocabulary = vocabularyRepository.findById(vocabularyCode)
                 .orElseThrow(() -> new VocabularyDoesNotExistException(vocabularyCode));
 
-        removeConcepts(vocabulary.getConcepts());
+        if (!forceRemove && propertyService.existPropertiesFromVocabulary(vocabularyCode)) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Cannot remove vocabulary '%s' since there already exist properties which value belongs to this vocabulary. " +
+                                    "Use force=true parameter to remove the vocabulary and the associated properties and concepts as well.",
+                            vocabulary.getLabel()
+                    )
+            );
+        }
+
+        removeConceptsAndProperties(vocabulary.getConcepts());
 
         propertyTypeService.removePropertyTypesAssociations(vocabularyCode);
         vocabularyRepository.delete(vocabulary);
     }
 
-    private void removeConcepts(List<Concept> concepts) {
+    private void removeConceptsAndProperties(List<Concept> concepts) {
         propertyService.removePropertiesWithConcepts(concepts);
         conceptService.removeConcepts(concepts);
     }

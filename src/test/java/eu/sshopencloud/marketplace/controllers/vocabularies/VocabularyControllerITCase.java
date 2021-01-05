@@ -197,9 +197,10 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldRemoveVocabularyAndConceptsWithAssociatedProperties() throws Exception {
+    public void shouldRemoveVocabularyAndConceptsWithAssociatedPropertiesWithForce() throws Exception {
         mvc.perform(
                 delete("/api/vocabularies/{code}", "iana-mime-type")
+                        .param("force", "true")
                         .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isOk());
@@ -216,9 +217,30 @@ public class VocabularyControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(
-                        jsonPath("$.properties[?(@.concept.code == \"video/mp4\")]").doesNotExist()
-                );
+                .andExpect(jsonPath("$.properties[?(@.concept.code == \"video/mp4\")]").doesNotExist());
+    }
+
+    @Test
+    public void shouldNotRemoveVocabularyWithPropertiesInUse() throws Exception {
+        mvc.perform(
+                delete("/api/vocabularies/{code}", "iana-mime-type")
+                        .header("Authorization", moderatorJwt)
+        )
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(
+                get("/api/vocabularies/{code}", "iana-mime-type")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk());
+
+        mvc.perform(
+                get("/api/training-materials/{id}", "WfcKvG")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.properties[?(@.concept.code == \"video/mp4\")]").exists());
     }
 
     @Test
