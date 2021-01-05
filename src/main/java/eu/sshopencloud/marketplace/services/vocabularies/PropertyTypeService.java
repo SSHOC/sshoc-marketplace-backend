@@ -27,6 +27,8 @@ public class PropertyTypeService {
     private final PropertyTypeRepository propertyTypeRepository;
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
 
+    private final PropertyService propertyService;
+
     private final AllowedVocabulariesService allowedVocabulariesService;
 
 
@@ -175,6 +177,20 @@ public class PropertyTypeService {
 
     public void removePropertyType(String propertyTypeCode, boolean forceRemoval) {
         PropertyType propertyType = loadPropertyType(propertyTypeCode);
+
+        if (propertyService.existPropertiesOfType(propertyType)) {
+            if (!forceRemoval) {
+                throw new IllegalArgumentException(
+                        String.format(
+                                "Cannot remove property type '%s' since there already exist properties of this type. " +
+                                        "Use force=true parameter to remove the property type and the associated properties as well.",
+                                propertyTypeCode
+                        )
+                );
+            }
+
+            propertyService.removePropertiesOfType(propertyType);
+        }
 
         allowedVocabulariesService.updateForPropertyType(Collections.emptyList(), propertyType);
         propertyTypeRepository.delete(propertyType);

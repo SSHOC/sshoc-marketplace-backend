@@ -3,8 +3,10 @@ package eu.sshopencloud.marketplace.services.vocabularies;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,14 @@ public class PropertyService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Item with given id = %d not found", itemId)));
 
         return item.getProperties();
+    }
+
+    public boolean existPropertiesOfType(@NonNull PropertyType type) {
+        return propertyRepository.existsByType(type);
+    }
+
+    public void removePropertiesOfType(@NonNull PropertyType type) {
+        propertyRepository.deletePropertiesOfType(type);
     }
 
     public void removePropertiesWithConcepts(List<Concept> concepts) {
