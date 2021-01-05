@@ -48,4 +48,9 @@ public class PropertyService {
         List<String> conceptCodes = concepts.stream().map(Concept::getCode).collect(Collectors.toList());
         propertyRepository.deletePropertiesWithConcepts(conceptCodes);
     }
+
+    public boolean existPropertiesWithConcepts(List<Concept> concepts) {
+        List<String> conceptCodes = concepts.stream().map(Concept::getCode).collect(Collectors.toList());
+        return propertyRepository.existWithConcepts(conceptCodes);
+    }
 }

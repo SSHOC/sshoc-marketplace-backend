@@ -21,6 +21,9 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     @Query("delete from Property p where p.type = :propertyType")
     void deletePropertiesOfType(@Param("propertyType") PropertyType propertyType);
 
+    @Query("select case when count(p) > 0 then true else false end from Property p where p.concept.code in :conceptCodes")
+    boolean existWithConcepts(@Param("conceptCodes") List<String> conceptCodes);
+
     boolean existsByConceptVocabularyCode(String vocabularyCode);
 
     boolean existsByType(PropertyType type);

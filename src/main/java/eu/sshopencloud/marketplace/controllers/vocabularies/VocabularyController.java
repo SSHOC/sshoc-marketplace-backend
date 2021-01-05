@@ -51,11 +51,13 @@ public class VocabularyController {
     }
 
     @PutMapping("/{code}")
-    public ResponseEntity<VocabularyBasicDto> updateVocabulary(@PathVariable("code") String vocabularyCode,
-                                                            @RequestParam("ttl") MultipartFile vocabularyFile)
+    public ResponseEntity<VocabularyBasicDto> updateVocabulary(
+            @PathVariable("code") String vocabularyCode,
+            @RequestParam("ttl") MultipartFile vocabularyFile,
+            @RequestParam(value = "force", required = false, defaultValue = "false") boolean force)
             throws IOException, VocabularyDoesNotExistException {
 
-        VocabularyBasicDto vocabulary = vocabularyService.updateUploadedVocabulary(vocabularyCode, vocabularyFile);
+        VocabularyBasicDto vocabulary = vocabularyService.updateUploadedVocabulary(vocabularyCode, vocabularyFile, force);
         return ResponseEntity.ok(vocabulary);
     }
 
