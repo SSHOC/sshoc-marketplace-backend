@@ -47,8 +47,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return getItemsPage(pageCoords);
     }
 
-    public PublicationDto getLatestPublication(String persistentId, boolean draft) {
-        return getLatestItem(persistentId, draft);
+    public PublicationDto getLatestPublication(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public PublicationDto getPublicationVersion(String persistentId, long versionId) {

@@ -49,8 +49,8 @@ public class TrainingMaterialService
         return getItemsPage(pageCoords);
     }
 
-    public TrainingMaterialDto getLatestTrainingMaterial(String persistentId, boolean draft) {
-        return getLatestItem(persistentId, draft);
+    public TrainingMaterialDto getLatestTrainingMaterial(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public TrainingMaterialDto getTrainingMaterialVersion(String persistentId, long versionId) {

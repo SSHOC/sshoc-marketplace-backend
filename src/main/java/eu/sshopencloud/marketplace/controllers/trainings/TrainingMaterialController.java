@@ -30,9 +30,10 @@ public class TrainingMaterialController {
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("id") String id,
-                                                                   @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                                                   @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(id, draft));
+        return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(id, draft, approved));
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)

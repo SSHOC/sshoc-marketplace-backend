@@ -71,13 +71,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
-    protected D getLatestItem(String persistentId, boolean draft) {
+    protected D getLatestItem(String persistentId, boolean draft, boolean approved) {
         if (draft) {
             I itemDraft = loadItemDraftForCurrentUser(persistentId);
             return prepareItemDto(itemDraft);
         }
 
-        I item = loadLatestItem(persistentId);
+        I item = approved ? loadLatestItem(persistentId) : loadLatestItemForCurrentUser(persistentId, true);
         return prepareItemDto(item);
     }
 

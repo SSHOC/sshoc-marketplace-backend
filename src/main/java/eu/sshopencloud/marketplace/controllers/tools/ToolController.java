@@ -30,9 +30,10 @@ public class ToolController {
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> getTool(@PathVariable("id") String id,
-                                           @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                           @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(toolService.getLatestTool(id, draft));
+        return ResponseEntity.ok(toolService.getLatestTool(id, draft, approved));
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -42,14 +43,14 @@ public class ToolController {
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool,
-                                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(toolService.createTool(newTool, draft));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> updateTool(@PathVariable("id") String id, @RequestBody ToolCore updatedTool,
-                                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(toolService.updateTool(id, updatedTool, draft));
     }
@@ -60,8 +61,7 @@ public class ToolController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteTool(@PathVariable("id") String id,
-                           @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+    public void deleteTool(@PathVariable("id") String id, @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         toolService.deleteTool(id, draft);
     }

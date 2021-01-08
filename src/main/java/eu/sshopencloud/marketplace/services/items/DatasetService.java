@@ -54,8 +54,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return super.getItemVersion(persistentId, versionId);
     }
 
-    public DatasetDto getLatestDataset(String persistentId, boolean draft) {
-        return getLatestItem(persistentId, draft);
+    public DatasetDto getLatestDataset(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public DatasetDto createDataset(DatasetCore datasetCore, boolean draft) {

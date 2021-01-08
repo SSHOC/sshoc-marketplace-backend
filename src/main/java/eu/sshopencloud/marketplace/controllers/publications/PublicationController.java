@@ -31,9 +31,10 @@ public class PublicationController {
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> getPublication(@PathVariable("id") String id,
-                                                         @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                                         @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                         @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(publicationService.getLatestPublication(id, draft));
+        return ResponseEntity.ok(publicationService.getLatestPublication(id, draft, approved));
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)

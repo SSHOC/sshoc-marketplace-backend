@@ -44,15 +44,15 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
 
     public PaginatedTools getTools(PageCoords pageCoords) {
-        return super.getItemsPage(pageCoords);
+        return getItemsPage(pageCoords);
     }
 
     public ToolDto getToolVersion(String persistentId, long versionId) {
         return getItemVersion(persistentId, versionId);
     }
 
-    public ToolDto getLatestTool(String persistentId, boolean draft) {
-        return getLatestItem(persistentId, draft);
+    public ToolDto getLatestTool(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public ToolDto createTool(ToolCore toolCore, boolean draft) {

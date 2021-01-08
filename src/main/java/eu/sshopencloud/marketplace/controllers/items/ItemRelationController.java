@@ -31,7 +31,7 @@ public class ItemRelationController {
     public ResponseEntity<ItemRelatedItemDto> createItemRelatedItem(@PathVariable("subjectId") String subjectId,
                                                                     @PathVariable("objectId") String objectId,
                                                                     @RequestBody ItemRelationId itemRelation,
-                                                                    @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft)
+                                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft)
             throws ItemsRelationAlreadyExistsException {
 
         return ResponseEntity.ok(itemRelatedItemService.createItemRelatedItem(subjectId, objectId, itemRelation, draft));
@@ -39,7 +39,7 @@ public class ItemRelationController {
 
     @DeleteMapping("/{subjectId}/{objectId}")
     public void deleteItemRelatedItem(@PathVariable("subjectId") String subjectId, @PathVariable("objectId") String objectId,
-                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                      @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         itemRelatedItemService.deleteItemRelatedItem(subjectId, objectId, draft);
     }

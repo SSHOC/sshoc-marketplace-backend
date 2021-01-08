@@ -56,15 +56,15 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
 
     public PaginatedWorkflows getWorkflows(PageCoords pageCoords) {
-        return super.getItemsPage(pageCoords);
+        return getItemsPage(pageCoords);
     }
 
-    public WorkflowDto getLatestWorkflow(String persistentId, boolean draft) {
-        return super.getLatestItem(persistentId, draft);
+    public WorkflowDto getLatestWorkflow(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public WorkflowDto getWorkflowVersion(String persistentId, long versionId) {
-        return super.getItemVersion(persistentId, versionId);
+        return getItemVersion(persistentId, versionId);
     }
 
     private void collectSteps(WorkflowDto dto, Workflow workflow) {
@@ -130,7 +130,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public void deleteWorkflow(String persistentId, boolean draft) {
-        Workflow workflow = super.loadLatestItem(persistentId);
+        Workflow workflow = loadLatestItem(persistentId);
         workflow.getStepsTree().visit(new StepsTreeVisitor() {
             @Override
             public void onNextStep(StepsTree stepTree) {
