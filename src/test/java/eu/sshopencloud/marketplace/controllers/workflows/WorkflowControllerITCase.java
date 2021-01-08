@@ -56,12 +56,14 @@ public class WorkflowControllerITCase {
     private ObjectMapper mapper;
 
     private String CONTRIBUTOR_JWT;
+    private String IMPORTER_JWT;
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
 
     @Before
     public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
     }
@@ -1624,5 +1626,58 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldRetrieveSuggestedWorkflow() throws Exception {
+        String workflowId = "vHQEhe";
+        int workflowVersionId = 21;
+
+        WorkflowCore workflow = new WorkflowCore();
+        workflow.setLabel("Suggested workflow");
+        workflow.setDescription("This is a suggested workflow");
+
+        String payload = mapper.writeValueAsString(workflow);
+
+        mvc.perform(
+                put("/api/workflows/{id}", workflowId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowId)))
+                .andExpect(jsonPath("id", not(is(workflowVersionId))))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("suggested")));
+
+        mvc.perform(
+                get("/api/workflows/{id}", workflowId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowId)))
+                .andExpect(jsonPath("id", not(is(workflowVersionId))))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("suggested")));
+
+        mvc.perform(
+                get("/api/workflows/{id}", workflowId)
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowId)))
+                .andExpect(jsonPath("id", is(workflowVersionId)))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")));
+
+        mvc.perform(get("/api/workflows/{id}", workflowId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowId)))
+                .andExpect(jsonPath("id", is(workflowVersionId)))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")));
     }
 }

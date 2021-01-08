@@ -57,6 +57,7 @@ public class TrainingMaterialControllerITCase {
     private ObjectMapper testMapper;
 
     private String CONTRIBUTOR_JWT;
+    private String IMPORTER_JWT;
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
 
@@ -64,6 +65,7 @@ public class TrainingMaterialControllerITCase {
     public void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
 
@@ -1299,5 +1301,58 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldRetrieveSuggestedTrainingMaterial() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+        int trainingMaterialVersionId = 7;
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Suggested training material");
+        trainingMaterial.setDescription("This is a suggested training material");
+
+        String payload = mapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", not(is(trainingMaterialVersionId))))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/training-materials/{id}", trainingMaterialId)
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", not(is(trainingMaterialVersionId))))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/training-materials/{id}", trainingMaterialId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")));
+
+        mvc.perform(get("/api/training-materials/{id}", trainingMaterialId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")));
     }
 }
