@@ -68,7 +68,31 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected D getItemVersion(String persistentId, Long versionId) {
         I item = loadItemVersion(persistentId, versionId);
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!hasAccessToVersion(item, currentUser)) {
+            throw new AccessDeniedException(
+                    String.format(
+                            "User is not authorized to access the given item version with id %s (version id: %d)",
+                            persistentId, versionId
+                    )
+            );
+        }
+
         return prepareItemDto(item);
+    }
+
+    private boolean hasAccessToVersion(I version, User user) {
+        if (version.getStatus().equals(ItemStatus.APPROVED))
+            return true;
+
+        if (user == null)
+            return false;
+
+        if (user.isModerator())
+            return true;
+
+        return user.isContributor() && user.equals(version.getInformationContributor());
     }
 
     protected D getLatestItem(String persistentId, boolean draft, boolean approved) {
