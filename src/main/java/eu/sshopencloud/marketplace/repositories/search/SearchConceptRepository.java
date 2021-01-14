@@ -23,8 +23,11 @@ public class SearchConceptRepository {
 
     private final SolrTemplate solrTemplate;
 
-    public FacetPage<IndexConcept> findByQueryAndFilters(String q, List<SearchFilterCriteria> filterCriteria, Pageable pageable) {
-        SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q))
+    public FacetPage<IndexConcept> findByQueryAndFilters(String q, boolean advancedSearch,
+                                                         List<SearchFilterCriteria> filterCriteria,
+                                                         Pageable pageable) {
+
+        SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q, advancedSearch))
                 .addProjectionOnFields(IndexConcept.CODE_FIELD, IndexConcept.VOCABULARY_CODE_FIELD, IndexConcept.LABEL_FIELD, IndexConcept.NOTATION_FIELD, IndexConcept.DEFINITION_FIELD,
                         IndexConcept.URI_FIELD, IndexConcept.TYPES_FIELD)
                 .setPageRequest(pageable);
@@ -35,8 +38,8 @@ public class SearchConceptRepository {
         return solrTemplate.queryForFacetPage(IndexConcept.COLLECTION_NAME, facetQuery, IndexConcept.class, RequestMethod.GET);
     }
 
-    private Criteria createQueryCriteria(String q) {
-        List<QueryPart> queryParts = QueryParser.parseQuery(q);
+    private Criteria createQueryCriteria(String q, boolean advancedSearch) {
+        List<QueryPart> queryParts = QueryParser.parseQuery(q, advancedSearch);
         if (queryParts.isEmpty()) {
             return Criteria.where(IndexConcept.LABEL_FIELD).boost(4f).contains("");
         } else {
