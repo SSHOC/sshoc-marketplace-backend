@@ -13,8 +13,8 @@ services:
       - psql
       - solr
     environment:
-      GID:1032
-      UID:1032
+      GID: 1032
+      UID: 1032
       APPLICATION_PROFILE: prod
       POSTGRES_DB: marketplace_db
       POSTGRES_USER: marketplace
