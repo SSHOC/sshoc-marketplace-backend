@@ -25,7 +25,7 @@ services:
       recaptcha_secret_key: ${recaptcha_secret_key}
     labels:
       - traefik.backend=marketplace-api-prod
-      - traefik.frontend.rule=Host:marketplace-api-prod.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh.oeaw.ac.at
+      - traefik.frontend.rule=Host:marketplace-api-prod.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh.oeaw.ac.at,marketplace-api.sshoc.eu,marketplace-api.sshopencloud.eu
       - traefik.docker.network=web
       - traefik.port=8080
       - ID=17458
@@ -44,6 +44,8 @@ services:
       POSTGRES_USER: marketplace
       POSTGRES_PASSWORD: marketplace
       POSTGRES_HOST: psql-prod
+    labels:
+      - ID=18663
     networks:
       - backend
   solr-prod:
@@ -59,6 +61,7 @@ services:
       - traefik.frontend.rule=Host:marketplace-solr-prod.sisyphos.arz.oeaw.ac.at
       - traefik.docker.network=web
       - traefik.port=8983
+      - ID=18664
     networks:
       - backend
       - web

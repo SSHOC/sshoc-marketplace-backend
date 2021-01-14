@@ -49,6 +49,8 @@ services:
       POSTGRES_USER: marketplace
       POSTGRES_PASSWORD: marketplace
       POSTGRES_HOST: psql
+    labels:
+      - ID=18661
     networks:
       - backend
   solr:
@@ -62,6 +64,7 @@ services:
       - traefik.frontend.rule=Host:marketplace-solr.sisyphos.arz.oeaw.ac.at
       - traefik.docker.network=web
       - traefik.port=8983
+      - ID=18662
     networks:
       - backend
       - web
