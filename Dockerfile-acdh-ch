@@ -13,7 +13,9 @@ FROM openjdk:11-jre-slim
 ARG GID
 ARG UID
 
-RUN groupadd --gid 1045 user && useradd --gid $GID --uid $UID -d / user && echo "user:$6$04SIq7OY$7PT2WujGKsr6013IByauNo0tYLj/fperYRMC4nrsbODc9z.cnxqXDRkAmh8anwDwKctRUTiGhuoeali4JoeW8/:16231:0:99999:7:::" >> /etc/shadow 
+RUN groupadd --gid 1045 user 
+RUN useradd --gid $GID --uid $UID -d / user && echo "user:$6$04SIq7OY$7PT2WujGKsr6013IByauNo0tYLj/fperYRMC4nrsbODc9z.cnxqXDRkAmh8anwDwKctRUTiGhuoeali4JoeW8/:16231:0:99999:7:::" >> /etc/shadow 
+
 RUN mkdir /log && chown -R user:user /log
 
 WORKDIR /usr/app
