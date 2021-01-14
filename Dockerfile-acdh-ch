@@ -1,0 +1,31 @@
+FROM maven:3-jdk-11 as build
+
+WORKDIR /usr/src/app
+
+COPY pom.xml ./
+RUN mvn dependency:go-offline
+
+COPY src ./src
+RUN mvn package
+
+FROM openjdk:11-jre-slim
+
+ARG GID
+ARG UID
+
+RUN groupadd --gid 1045 user && useradd --gid $GID --uid $UID -d / user && echo "user:$6$04SIq7OY$7PT2WujGKsr6013IByauNo0tYLj/fperYRMC4nrsbODc9z.cnxqXDRkAmh8anwDwKctRUTiGhuoeali4JoeW8/:16231:0:99999:7:::" >> /etc/shadow 
+RUN mkdir /log && chown -R user:user /log
+
+WORKDIR /usr/app
+COPY --from=build /usr/src/app/target/marketplace-*.jar ./app.jar
+
+ENV APPLICATION_PROFILE=''
+
+RUN mkdir /log && chown -R user:user /log /usr/app
+
+USER user 
+
+VOLUME /log
+
+EXPOSE 8080
+ENTRYPOINT [ "java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9990", "-jar", "app.jar", "--logging.file=/log/sshoc-marketplace-backend-app.log" ]
