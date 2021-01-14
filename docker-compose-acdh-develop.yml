@@ -1,7 +1,7 @@
 version: "2"
 services:
   marketplace:
-    build: .
+    build: 
       context: .
       dockerfile: Dockerfile-acdh-ch
       args: 
