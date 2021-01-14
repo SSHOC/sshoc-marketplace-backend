@@ -98,7 +98,7 @@ public class VocabularyService {
         }
     }
 
-    public VocabularyBasicDto updateUploadedVocabulary(String vocabularyCode, MultipartFile vocabularyFile)
+    public VocabularyBasicDto updateUploadedVocabulary(String vocabularyCode, MultipartFile vocabularyFile, boolean forceUpdate)
             throws IOException, VocabularyDoesNotExistException {
 
         String fileVocabularyCode = FilenameUtils.getBaseName(vocabularyFile.getOriginalFilename());
@@ -107,7 +107,7 @@ public class VocabularyService {
             throw new IllegalArgumentException("Vocabulary code and file name does not match");
 
         try {
-            Vocabulary vocabulary = updateVocabulary(vocabularyCode, vocabularyFile.getInputStream());
+            Vocabulary vocabulary = updateVocabulary(vocabularyCode, vocabularyFile.getInputStream(), forceUpdate);
             return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
         }
         catch (RDFParseException | UnsupportedRDFormatException e) {
@@ -124,7 +124,7 @@ public class VocabularyService {
         return constructVocabularyAndSave(vocabularyCode, turtleInputStream);
     }
 
-    public Vocabulary updateVocabulary(String vocabularyCode, InputStream turtleInputStream)
+    public Vocabulary updateVocabulary(String vocabularyCode, InputStream turtleInputStream, boolean forceUpdate)
             throws VocabularyDoesNotExistException, IOException, RDFParseException, UnsupportedRDFormatException {
 
         Vocabulary oldVocabulary = vocabularyRepository.findById(vocabularyCode)
@@ -134,7 +134,20 @@ public class VocabularyService {
         Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream);
 
         List<Concept> conceptsToRemove = missingConcepts(oldConcepts, updatedVocabulary.getConcepts());
-        removeConcepts(conceptsToRemove);
+
+        if (!forceUpdate && !conceptsToRemove.isEmpty() && propertyService.existPropertiesWithConcepts(conceptsToRemove)) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Cannot update the vocabulary with code '%s' since the operation would " +
+                                    "remove concepts associated with existing properties. " +
+                                    "Use force=true parameter to update the vocabulary " +
+                                    "and remove properties associated with old concepts.",
+                            vocabularyCode
+                    )
+            );
+        }
+
+        removeConceptsAndProperties(conceptsToRemove);
 
         return updatedVocabulary;
     }
@@ -146,17 +159,27 @@ public class VocabularyService {
                 .collect(Collectors.toList());
     }
 
-    public void removeVocabulary(String vocabularyCode) throws VocabularyDoesNotExistException {
+    public void removeVocabulary(String vocabularyCode, boolean forceRemove) throws VocabularyDoesNotExistException {
         Vocabulary vocabulary = vocabularyRepository.findById(vocabularyCode)
                 .orElseThrow(() -> new VocabularyDoesNotExistException(vocabularyCode));
 
-        removeConcepts(vocabulary.getConcepts());
+        if (!forceRemove && propertyService.existPropertiesFromVocabulary(vocabularyCode)) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Cannot remove vocabulary '%s' since there already exist properties which value belongs to this vocabulary. " +
+                                    "Use force=true parameter to remove the vocabulary and the associated properties and concepts as well.",
+                            vocabulary.getLabel()
+                    )
+            );
+        }
+
+        removeConceptsAndProperties(vocabulary.getConcepts());
 
         propertyTypeService.removePropertyTypesAssociations(vocabularyCode);
         vocabularyRepository.delete(vocabulary);
     }
 
-    private void removeConcepts(List<Concept> concepts) {
+    private void removeConceptsAndProperties(List<Concept> concepts) {
         propertyService.removePropertiesWithConcepts(concepts);
         conceptService.removeConcepts(concepts);
     }

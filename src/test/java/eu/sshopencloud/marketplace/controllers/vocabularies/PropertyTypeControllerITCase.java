@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -36,13 +37,13 @@ public class PropertyTypeControllerITCase {
     @Autowired
     private ObjectMapper mapper;
 
-    private String contributorJwt;
-    private String moderatorJwt;
+    private String CONTRIBUTOR_JWT;
+    private String MODERATOR_JWT;
 
     @Before
     public void init() throws Exception {
-        contributorJwt = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
-        moderatorJwt = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
+        CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
     }
 
 
@@ -102,7 +103,7 @@ public class PropertyTypeControllerITCase {
         mvc.perform(
                 post("/api/property-types")
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
+                        .header("Authorization", MODERATOR_JWT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(propertyTypeData))
         )
@@ -130,6 +131,56 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
+    public void shouldCreatePropertyTypeAtPosition() throws Exception {
+        assertPropertyTypeOrder("language", 1);
+        assertPropertyTypeOrder("activity", 2);
+        assertPropertyTypeOrder("technique", 3);
+        assertPropertyTypeOrder("material", 4);
+        assertPropertyTypeOrder("object-format", 5);
+
+        PropertyTypeCore propertyTypeData = PropertyTypeCore.builder()
+                .code("github")
+                .label("GitHub")
+                .type(PropertyTypeClass.URL)
+                .ord(3)
+                .build();
+
+        mvc.perform(
+                post("/api/property-types")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(propertyTypeData))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("github")))
+                .andExpect(jsonPath("$.label", is("GitHub")))
+                .andExpect(jsonPath("$.type", is("url")))
+                .andExpect(jsonPath("$.ord", is(3)))
+                .andExpect(jsonPath("$.allowedVocabularies", hasSize(0)));
+
+        mvc.perform(
+                get("/api/property-types/{code}", "github")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("github")))
+                .andExpect(jsonPath("$.label", is("GitHub")))
+                .andExpect(jsonPath("$.type", is("url")))
+                .andExpect(jsonPath("$.ord", is(3)))
+                .andExpect(jsonPath("$.allowedVocabularies", hasSize(0)));
+
+        assertPropertyTypeOrder("language", 1);
+        assertPropertyTypeOrder("activity", 2);
+        assertPropertyTypeOrder("github", 3);
+        assertPropertyTypeOrder("technique", 4);
+        assertPropertyTypeOrder("material", 5);
+        assertPropertyTypeOrder("object-format", 6);
+    }
+
+    @Test
     public void shouldNotRetrieveNonExistentPropertyType() throws Exception {
         mvc.perform(
                 get("/api/property-types/{code}", "not-a-property-type")
@@ -149,7 +200,7 @@ public class PropertyTypeControllerITCase {
         mvc.perform(
                 put("/api/property-types/{code}", "language")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
+                        .header("Authorization", MODERATOR_JWT)
                         .content(mapper.writeValueAsString(request))
                         .accept(MediaType.APPLICATION_JSON)
         )
@@ -177,7 +228,62 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldDeletePropertyType() throws Exception {
+    public void shouldUpdatePropertyTypeWithReorder() throws Exception {
+        assertPropertyTypeOrder("language", 1);
+        assertPropertyTypeOrder("activity", 2);
+        assertPropertyTypeOrder("technique", 3);
+        assertPropertyTypeOrder("material", 4);
+        assertPropertyTypeOrder("object-format", 5);
+        assertPropertyTypeOrder("keyword", 6);
+        assertPropertyTypeOrder("tadirah-goals", 7);
+
+        PropertyTypeCore request = PropertyTypeCore.builder()
+                .label("Object-Format")
+                .type(PropertyTypeClass.CONCEPT)
+                .allowedVocabularies(List.of("iana-mime-type"))
+                .ord(2)
+                .build();
+
+        mvc.perform(
+                put("/api/property-types/{code}", "object-format")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+                        .content(mapper.writeValueAsString(request))
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("object-format")))
+                .andExpect(jsonPath("$.label", is("Object-Format")))
+                .andExpect(jsonPath("$.type", is("concept")))
+                .andExpect(jsonPath("$.ord", is(2)))
+                .andExpect(jsonPath("$.allowedVocabularies", hasSize(1)))
+                .andExpect(jsonPath("$.allowedVocabularies[0].code", is("iana-mime-type")));
+
+        mvc.perform(
+                get("/api/property-types/{code}", "object-format")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("object-format")))
+                .andExpect(jsonPath("$.label", is("Object-Format")))
+                .andExpect(jsonPath("$.type", is("concept")))
+                .andExpect(jsonPath("$.ord", is(2)))
+                .andExpect(jsonPath("$.allowedVocabularies", hasSize(1)))
+                .andExpect(jsonPath("$.allowedVocabularies[0].code", is("iana-mime-type")));
+
+        assertPropertyTypeOrder("language", 1);
+        assertPropertyTypeOrder("object-format", 2);
+        assertPropertyTypeOrder("activity", 3);
+        assertPropertyTypeOrder("technique", 4);
+        assertPropertyTypeOrder("material", 5);
+        assertPropertyTypeOrder("keyword", 6);
+        assertPropertyTypeOrder("tadirah-goals", 7);
+    }
+
+    @Test
+    public void shouldDeletePropertyTypeSafely() throws Exception {
         assertPropertyTypeOrder("activity", 2);
         assertPropertyTypeOrder("technique", 3);
         assertPropertyTypeOrder("web-usable", 11);
@@ -188,7 +294,7 @@ public class PropertyTypeControllerITCase {
         mvc.perform(
                 delete("/api/property-types/{code}", "technique")
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
+                        .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk());
 
@@ -204,6 +310,31 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tool-family", 11);
         assertPropertyTypeOrder("media", 15);
         assertPropertyTypeOrder("license-type", 9);
+    }
+
+    @Test
+    public void shouldNotDeletePropertyTypeInUse() throws Exception {
+        mvc.perform(
+                delete("/api/property-types/{code}", "activity")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(get("/api/property-types/{code}", "activity"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldDeletePropertyTypeWithForce() throws Exception {
+        mvc.perform(
+                delete("/api/property-types/{code}", "activity")
+                        .param("force", "true")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/property-types/{code}", "activity"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -227,7 +358,7 @@ public class PropertyTypeControllerITCase {
         mvc.perform(
                 post("/api/property-types/reorder")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
+                        .header("Authorization", MODERATOR_JWT)
                         .content(mapper.writeValueAsString(request))
         )
                 .andExpect(status().isOk());
@@ -261,7 +392,7 @@ public class PropertyTypeControllerITCase {
         mvc.perform(
                 post("/api/property-types/reorder")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
+                        .header("Authorization", MODERATOR_JWT)
                         .content(mapper.writeValueAsString(request))
         )
                 .andExpect(status().isBadRequest());
@@ -288,7 +419,7 @@ public class PropertyTypeControllerITCase {
         mvc.perform(
                 post("/api/property-types/reorder")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", contributorJwt)
+                        .header("Authorization", CONTRIBUTOR_JWT)
                         .content(mapper.writeValueAsString(request))
         )
                 .andExpect(status().isForbidden());
@@ -315,7 +446,7 @@ public class PropertyTypeControllerITCase {
         mvc.perform(
                 post("/api/property-types/reorder")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
+                        .header("Authorization", MODERATOR_JWT)
                         .content(mapper.writeValueAsString(request))
         )
                 .andExpect(status().isNotFound());
@@ -342,7 +473,7 @@ public class PropertyTypeControllerITCase {
         mvc.perform(
                 post("/api/property-types/reorder")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
+                        .header("Authorization", MODERATOR_JWT)
                         .content(mapper.writeValueAsString(request))
         )
                 .andExpect(status().isBadRequest());

@@ -5,6 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
@@ -25,11 +28,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestEntityManager
 @Transactional
 public class VocabularyControllerITCase {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     private String contributorJwt;
     private String moderatorJwt;
@@ -164,6 +171,61 @@ public class VocabularyControllerITCase {
     }
 
     @Test
+    public void shouldNotUpdateVocabularyWithRemovalOfPropertiesInUse() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/iso-639-3-test-missing-eng.ttl");
+
+        MockMultipartFile newVocabulary = new MockMultipartFile(
+                "ttl", "iso-639-3.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "iso-639-3")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
+        )
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(get("/api/vocabularies/{code}", "iso-639-3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("iso-639-3")));
+    }
+
+    @Test
+    public void shouldUpdateVocabularyWithRemovalOfPropertiesWithForce() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/iso-639-3-test-missing-eng.ttl");
+
+        MockMultipartFile newVocabulary = new MockMultipartFile(
+                "ttl", "iso-639-3.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(get("/api/training-materials/{id}", "heBAGQ"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.properties[?(@.concept.code == \"eng\")]").exists());
+
+        entityManager.clear();
+
+        mvc.perform(
+                vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "iso-639-3")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("force", "true")
+                        .header("Authorization", moderatorJwt)
+        )
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/vocabularies/{code}", "iso-639-3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("iso-639-3")));
+
+        mvc.perform(get("/api/training-materials/{id}", "heBAGQ"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.properties[?(@.concept.code == \"eng\")]").doesNotExist());
+    }
+
+    @Test
     public void shouldPreventVocabularyUpdateOnFilenameMismatch() throws Exception {
         InputStream newVocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
@@ -197,9 +259,10 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldRemoveVocabularyAndConceptsWithAssociatedProperties() throws Exception {
+    public void shouldRemoveVocabularyAndConceptsWithAssociatedPropertiesWithForce() throws Exception {
         mvc.perform(
                 delete("/api/vocabularies/{code}", "iana-mime-type")
+                        .param("force", "true")
                         .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isOk());
@@ -216,9 +279,30 @@ public class VocabularyControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(
-                        jsonPath("$.properties[?(@.concept.code == \"video/mp4\")]").doesNotExist()
-                );
+                .andExpect(jsonPath("$.properties[?(@.concept.code == \"video/mp4\")]").doesNotExist());
+    }
+
+    @Test
+    public void shouldNotRemoveVocabularyWithPropertiesInUse() throws Exception {
+        mvc.perform(
+                delete("/api/vocabularies/{code}", "iana-mime-type")
+                        .header("Authorization", moderatorJwt)
+        )
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(
+                get("/api/vocabularies/{code}", "iana-mime-type")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk());
+
+        mvc.perform(
+                get("/api/training-materials/{id}", "WfcKvG")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.properties[?(@.concept.code == \"video/mp4\")]").exists());
     }
 
     @Test

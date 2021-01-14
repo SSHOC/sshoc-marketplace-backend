@@ -38,7 +38,7 @@ public class VocabularyLoader {
             try (InputStream turtleInputStream = vocabularySources.get(vocabularyCode).getInputStream()) {
                 Vocabulary vocabulary;
                 if (vocabularyRepository.existsById(vocabularyCode)) {
-                    vocabulary = vocabularyService.updateVocabulary(vocabularyCode, turtleInputStream);
+                    vocabulary = vocabularyService.updateVocabulary(vocabularyCode, turtleInputStream, false);
                 } else {
                     vocabulary = vocabularyService.createVocabulary(vocabularyCode, turtleInputStream);
                 }
