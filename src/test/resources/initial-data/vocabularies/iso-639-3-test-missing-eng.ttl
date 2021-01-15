@@ -13,12 +13,6 @@
 
 # TODO prepare a complete vocabulary based on https://iso639-3.sil.org/code_tables/download_tables
 
-iso639-3-codes:eng a <http://www.w3.org/2004/02/skos/core#Concept>;
-  <http://www.w3.org/2004/02/skos/core#definition> "English (English)";
-  <http://www.w3.org/2004/02/skos/core#inScheme> <http://iso639-3.sil.org/scheme/>;
-  <http://www.w3.org/2004/02/skos/core#notation> "English"@en;
-  <http://www.w3.org/2004/02/skos/core#prefLabel> "eng"@en .
-
 iso639-3-codes:deu a <http://www.w3.org/2004/02/skos/core#Concept>;
   <http://www.w3.org/2004/02/skos/core#definition> "German (Deutsch)";
   <http://www.w3.org/2004/02/skos/core#inScheme> <http://iso639-3.sil.org/scheme/>;
