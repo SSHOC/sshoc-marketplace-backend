@@ -76,7 +76,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             @Override
             public void onNextStep(StepsTree stepTree) {
                 Step step = stepTree.getStep();
-                StepDto stepDto = stepService.convertItemToDto(step);
+                StepDto stepDto = stepService.prepareItemDto(step, false);
                 List<StepDto> childCollection = (nestedSteps.empty()) ? rootSteps : nestedSteps.peek().getComposedOf();
 
                 childCollection.add(stepDto);
