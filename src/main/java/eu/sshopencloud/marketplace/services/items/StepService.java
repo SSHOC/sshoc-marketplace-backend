@@ -38,13 +38,13 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public StepService(StepRepository stepRepository, StepsTreeRepository stepsTreeRepository,
-                       StepFactory stepFactory, WorkflowService workflowService,
+                       StepFactory stepFactory, WorkflowService workflowService, ItemUpgradeRegistry<Step> itemUpgradeRegistry,
                        ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                        PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRepository, versionedItemRepository, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 

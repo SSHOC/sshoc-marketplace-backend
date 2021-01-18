@@ -35,6 +35,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final ItemRepository itemRepository;
     private final VersionedItemRepository versionedItemRepository;
     private final DraftItemRepository draftItemRepository;
+    private final ItemUpgradeRegistry<I> itemUpgradeRegistry;
+
     private final ItemRelatedItemService itemRelatedItemService;
     private final PropertyTypeService propertyTypeService;
     private final IndexService indexService;
@@ -42,14 +44,17 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
+                           ItemUpgradeRegistry<I> itemUpgradeRegistry, DraftItemRepository draftItemRepository,
+                           ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
+                           IndexService indexService, UserService userService) {
 
         super(versionedItemRepository);
 
         this.itemRepository = itemRepository;
         this.versionedItemRepository = versionedItemRepository;
         this.draftItemRepository = draftItemRepository;
+        this.itemUpgradeRegistry = itemUpgradeRegistry;
+
         this.itemRelatedItemService = itemRelatedItemService;
         this.propertyTypeService = propertyTypeService;
         this.indexService = indexService;
@@ -327,12 +332,17 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 return itemDraft.get();
         }
 
+        Optional<I> upgradedVersion = itemUpgradeRegistry.resolveUpgradedVersion(persistentId);
+        if (upgradedVersion.isPresent())
+            return upgradedVersion.get();
+
         I item = loadCurrentItem(persistentId);
         I newItem = makeItemVersionCopy(item);
 
         newItem = saveVersionInHistory(newItem, item, draft, modifyStatus);
         copyVersionRelations(newItem, item);
 
+        itemUpgradeRegistry.registerUpgradedVersion(newItem);
         indexService.indexItem(newItem);
 
         return newItem;

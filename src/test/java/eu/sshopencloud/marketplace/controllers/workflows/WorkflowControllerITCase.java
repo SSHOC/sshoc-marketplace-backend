@@ -1664,8 +1664,6 @@ public class WorkflowControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         StepDto stepDto = mapper.readValue(stepJson, StepDto.class);
-        String stepId = stepDto.getPersistentId();
-        int stepVersionId = stepDto.getId().intValue();
 
         mvc.perform(
                 get("/api/workflows/{workflowId}", workflowId)
@@ -1698,7 +1696,6 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[3].relatedItems[0].relation.code", is("relates-to")));
     }
 
-    /*
     @Test
     public void shouldCorrectlyCreateRelationBetweenStepsFromTheSameWorkflow() throws Exception {
         String workflowId = "vHQEhe";
@@ -1773,5 +1770,4 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[3].relatedItems[0].category", is("step")))
                 .andExpect(jsonPath("composedOf[3].relatedItems[0].relation.code", is("relates-to")));
     }
-     */
 }
