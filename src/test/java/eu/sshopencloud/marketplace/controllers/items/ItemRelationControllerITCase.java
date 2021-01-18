@@ -143,6 +143,65 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
+    public void shouldAddRelationBetweenStepsFromTheSameWorkflow() throws Exception {
+        String subjectPersistentId = "sQY6US";
+        String objectPersistentId = "BNw43H";
+        String workflowPersistentId = "vHQEhe";
+
+        ItemRelationId itemRelation = new ItemRelationId();
+        itemRelation.setCode("mentions");
+
+        String payload = mapper.writeValueAsString(itemRelation);
+
+        mvc.perform(
+                post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("subject.category", is("step")))
+                .andExpect(jsonPath("object.persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("object.category", is("step")))
+                .andExpect(jsonPath("relation.code", is("mentions")))
+                .andExpect(jsonPath("relation.label", is("Mentions")));
+
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(21))))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[0].relatedItems", hasSize(1)))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].id", not(is(23))))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].category", is("step")))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].label", is("Run an inflectional analyzer")))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("composedOf[1].label", is("Run an inflectional analyzer")))
+                .andExpect(jsonPath("composedOf[1].status", is("approved")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].relatedItems", hasSize(1)))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].id", not(is(22))))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].category", is("step")))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].label", is("Selection of textual works relevant for the research question")))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].relation.code", is("mentions")))
+                .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
+                .andExpect(jsonPath("composedOf[2].status", is("approved")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)));
+    }
+
+    @Test
     public void shouldCreateItemsRelationsAsDraft() throws Exception {
         String subjectPersistentId = "n21Kfc";
 

@@ -28,13 +28,13 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     private final ToolFactory toolFactory;
 
 
-    public ToolService(ToolRepository toolRepository, ToolFactory toolFactory,
-                       ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+    public ToolService(ToolRepository toolRepository, ToolFactory toolFactory, ItemRepository itemRepository,
+                       VersionedItemRepository versionedItemRepository, ItemUpgradeRegistry<Tool> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                        PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRepository, versionedItemRepository, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
