@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
@@ -8,10 +9,8 @@ import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -47,6 +46,9 @@ public class ToolControllerITCase {
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     private String CONTRIBUTOR_JWT;
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
@@ -81,7 +83,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
                 .andExpect(jsonPath("licenses[0].label", is("Common Development and Distribution License 1.0")))
-                .andExpect(jsonPath("informationContributors", hasSize(2)))
+                .andExpect(jsonPath("informationContributor.id", is(2)))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
@@ -116,8 +118,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
-                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
+                .andExpect(jsonPath("informationContributor.username", is("Contributor")))
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source", nullValue()));
     }
@@ -598,72 +599,28 @@ public class ToolControllerITCase {
     @Test
     public void shouldUpdateTool() throws Exception {
         String toolPersistentId = "n21Kfc";
-        Integer toolCurrentId = 1;
+        int toolCurrentId = 1;
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Gephi");
         tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
         tool.setAccessibleAt(Arrays.asList("https://gephi.org/"));
-        LicenseId license1 = new LicenseId();
-        license1.setCode("cddl-1.0");
-        LicenseId license2 = new LicenseId();
-        license2.setCode("gpl-3.0");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license1);
-        licenses.add(license2);
-        tool.setLicenses(licenses);
-        ItemContributorId contributor1 = new ItemContributorId();
-        ActorId actor1 = new ActorId();
-        actor1.setId(5l);
-        contributor1.setActor(actor1);
-        ActorRoleId role1 = new ActorRoleId();
-        role1.setCode("author");
-        contributor1.setRole(role1);
-        ItemContributorId contributor2 = new ItemContributorId();
-        ActorId actor2 = new ActorId();
-        actor2.setId(4l);
-        contributor2.setActor(actor2);
-        ActorRoleId role2 = new ActorRoleId();
-        role2.setCode("funder");
-        contributor2.setRole(role2);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
-        contributors.add(contributor1);
-        contributors.add(contributor2);
-        tool.setContributors(contributors);
-        PropertyCore property1 = new PropertyCore();
-        PropertyTypeId propertyType1 = new PropertyTypeId();
-        propertyType1.setCode("activity");
-        property1.setType(propertyType1);
-        ConceptId concept1 = new ConceptId();
-        concept1.setCode("7");
-        VocabularyId vocabulary1 = new VocabularyId();
-        vocabulary1.setCode("tadirah-activity");
-        concept1.setVocabulary(vocabulary1);
-        property1.setConcept(concept1);
-        PropertyCore property2 = new PropertyCore();
-        PropertyTypeId propertyType2 = new PropertyTypeId();
-        propertyType2.setCode("keyword");
-        property2.setType(propertyType2);
-        property2.setValue("graph");
-        PropertyCore property3 = new PropertyCore();
-        PropertyTypeId propertyType3 = new PropertyTypeId();
-        propertyType3.setCode("keyword");
-        property3.setType(propertyType3);
-        property3.setValue("social network analysis");
 
-        PropertyCore property4 = new PropertyCore();
-        PropertyTypeId propertyType4 = new PropertyTypeId();
-        propertyType4.setCode("repository-url");
-        property4.setType(propertyType4);
-        property4.setValue("https://github.com/gephi/gephi");
+        LicenseId license1 = new LicenseId("cddl-1.0");
+        LicenseId license2 = new LicenseId("gpl-3.0");
+        tool.setLicenses(List.of(license1, license2));
 
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property1);
-        properties.add(property2);
-        properties.add(property3);
-        properties.add(property4);
+        ItemContributorId contributor1 = new ItemContributorId(new ActorId(5L), new ActorRoleId("author"));
+        ItemContributorId contributor2 = new ItemContributorId(new ActorId(4L), new ActorRoleId("funder"));
+        tool.setContributors(List.of(contributor1, contributor2));
 
-        tool.setProperties(properties);
+        PropertyCore property1 = new PropertyCore(
+                new PropertyTypeId("activity"), new ConceptId("7", new VocabularyId("tadirah-activity"), null)
+        );
+        PropertyCore property2 = new PropertyCore(new PropertyTypeId("keyword"), "graph");
+        PropertyCore property3 = new PropertyCore(new PropertyTypeId("keyword"), "social network analysis");
+        PropertyCore property4 = new PropertyCore(new PropertyTypeId("repository-url"), "https://github.com/gephi/gephi");
+        tool.setProperties(List.of(property1, property2, property3, property4));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
@@ -852,25 +809,12 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property1 = new PropertyCore();
-        PropertyTypeId propertyType1 = new PropertyTypeId();
-        propertyType1.setCode("language");
-        property1.setType(propertyType1);
-        ConceptId concept1 = new ConceptId();
-        concept1.setCode("zzz");
-        VocabularyId vocabulary1 = new VocabularyId();
-        vocabulary1.setCode("iso-639-3");
-        concept1.setVocabulary(vocabulary1);
-        property1.setConcept(concept1);
-        PropertyCore property2 = new PropertyCore();
-        PropertyTypeId propertyType2 = new PropertyTypeId();
-        propertyType2.setCode("material");
-        property2.setType(propertyType2);
-        property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property1);
-        properties.add(property2);
-        tool.setProperties(properties);
+
+        PropertyCore property1 = new PropertyCore(
+                new PropertyTypeId("language"), new ConceptId("zzz", new VocabularyId("iso-639-3"), null)
+        );
+        PropertyCore property2 = new PropertyCore(new PropertyTypeId("material"), "paper");
+        tool.setProperties(List.of(property1, property2));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
@@ -934,20 +878,10 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
-        PropertyCore property1 = new PropertyCore();
-        PropertyTypeId propertyType1 = new PropertyTypeId();
-        propertyType1.setCode("language");
-        property1.setType(propertyType1);
-        property1.setValue("Polish");
-        PropertyCore property2 = new PropertyCore();
-        PropertyTypeId propertyType2 = new PropertyTypeId();
-        propertyType2.setCode("material");
-        property2.setType(propertyType2);
-        property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        properties.add(property1);
-        properties.add(property2);
-        tool.setProperties(properties);
+
+        PropertyCore property1 = new PropertyCore(new PropertyTypeId("language"), "Polish");
+        PropertyCore property2 = new PropertyCore(new PropertyTypeId("material"), "paper");
+        tool.setProperties(List.of(property1, property2));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
@@ -1029,9 +963,117 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
                 .andExpect(jsonPath("accessibleAt[1]", is("http://fake.tapor.com")))
                 .andExpect(jsonPath("accessibleAt[2]", is("http://fake.tapor.org")))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
-                .andExpect(jsonPath("informationContributors[0].username", is("Contributor")))
+                .andExpect(jsonPath("informationContributor.username", is("Contributor")))
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source", nullValue()));
+    }
+
+    @Test
+    public void shouldUpdateToolWithPropertyValuesValidation() throws Exception {
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("rating")
+                .label("Rating")
+                .type(PropertyTypeClass.FLOAT)
+                .allowedVocabularies(null)
+                .build();
+        String propertyTypePayload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                post("/api/property-types")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(propertyTypePayload)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk());
+
+        String toolPersistentId = "n21Kfc";
+        int toolCurrentId = 1;
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Gephi");
+        tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
+        tool.setAccessibleAt(List.of("https://gephi.org/"));
+
+        LicenseId license1 = new LicenseId("cddl-1.0");
+        LicenseId license2 = new LicenseId("gpl-3.0");
+        tool.setLicenses(List.of(license1, license2));
+
+        ItemContributorId contributor1 = new ItemContributorId(new ActorId(5L), new ActorRoleId("author"));
+        ItemContributorId contributor2 = new ItemContributorId(new ActorId(4L), new ActorRoleId("funder"));
+        tool.setContributors(List.of(contributor1, contributor2));
+
+        PropertyCore property1 = new PropertyCore(
+                new PropertyTypeId("activity"), new ConceptId("7", new VocabularyId("tadirah-activity"), null)
+        );
+        PropertyCore property2 = new PropertyCore(new PropertyTypeId("keyword"), "graph");
+        PropertyCore property3 = new PropertyCore(new PropertyTypeId("year"), "2020");
+        PropertyCore property4 = new PropertyCore(new PropertyTypeId("timestamp"), "2020-12-31");
+        PropertyCore property5 = new PropertyCore(new PropertyTypeId("repository-url"), "https://github.com/gephi/gephi");
+        PropertyCore property6 = new PropertyCore(new PropertyTypeId("rating"), "4.5");
+        tool.setProperties(List.of(property1, property2, property3, property4, property5, property6));
+
+        String payload = mapper.writeValueAsString(tool);
+
+        mvc.perform(
+                put("/api/tools-services/{id}", toolPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Gephi")))
+                .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(toolCurrentId)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Gephi")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
+                .andExpect(jsonPath("licenses", hasSize(2)))
+                .andExpect(jsonPath("contributors", hasSize(2)))
+                .andExpect(jsonPath("properties", hasSize(6)));
+    }
+
+    @Test
+    public void shouldNotCreateToolWithInvalidFloatProperty() throws Exception {
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("rating")
+                .label("Rating")
+                .type(PropertyTypeClass.FLOAT)
+                .allowedVocabularies(null)
+                .build();
+        String propertyTypePayload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                post("/api/property-types")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(propertyTypePayload)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk());
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Test simple software v2");
+        tool.setDescription("Lorem ipsum v2");
+
+        PropertyCore property1 = new PropertyCore(new PropertyTypeId("rating"), "5.125");
+        PropertyCore property2 = new PropertyCore(new PropertyTypeId("rating"), "2/10");
+        tool.setProperties(List.of(property1, property2));
+
+        String payload = mapper.writeValueAsString(tool);
+
+        mvc.perform(
+                post("/api/tools-services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
+                .andExpect(jsonPath("errors[0].code", is("field.invalid")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 }

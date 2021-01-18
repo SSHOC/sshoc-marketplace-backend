@@ -1,13 +1,20 @@
 version: "2"
 services:
   marketplace:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile-acdh-ch
+      args: 
+        - GID=1032
+        - UID=1032
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
     container_name: sshoc-marketplace-backend-api
     depends_on:
       - psql
       - solr
     environment:
+      GID: 1032
+      UID: 1032
       APPLICATION_PROFILE: prod
       POSTGRES_DB: marketplace_db
       POSTGRES_USER: marketplace
@@ -30,6 +37,8 @@ services:
     networks:
       - backend
       - web
+    volumes:
+      - app-log:/log
   psql:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres
@@ -40,6 +49,8 @@ services:
       POSTGRES_USER: marketplace
       POSTGRES_PASSWORD: marketplace
       POSTGRES_HOST: psql
+    labels:
+      - ID=18661
     networks:
       - backend
   solr:
@@ -53,6 +64,7 @@ services:
       - traefik.frontend.rule=Host:marketplace-solr.sisyphos.arz.oeaw.ac.at
       - traefik.docker.network=web
       - traefik.port=8983
+      - ID=18662
     networks:
       - backend
       - web
@@ -62,6 +74,8 @@ services:
     container_name: sshoc-mp-backend-runner
     environment:
       DOCKER_TLS_CERTDIR: ""
+    labels:
+      - ID=18591
     volumes:
       - gitlab-runner:/etc/gitlab-runner
       - docker:/var/run
@@ -98,4 +112,10 @@ volumes:
     driver_opts:
       type: "none"
       device: "/var/run"
+      o: "bind"
+  app-log:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmp/shares/app-log"
       o: "bind"

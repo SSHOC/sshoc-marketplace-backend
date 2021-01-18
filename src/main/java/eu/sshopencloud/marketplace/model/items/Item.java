@@ -90,14 +90,13 @@ public abstract class Item {
     @Column
     private String sourceItemId;
 
-    @ManyToMany
+    @ManyToOne
     @JoinTable(
             name = "items_information_contributors",
             joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
     )
-    @OrderColumn(name = "ord")
-    private List<User> informationContributors;
+    private User informationContributor;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -118,7 +117,6 @@ public abstract class Item {
 
     public Item() {
         this.id = null;
-        this.informationContributors = new ArrayList<>();
         this.accessibleAt = new ArrayList<>();
         this.properties = new ArrayList<>();
         this.licenses = new ArrayList<>();
@@ -142,7 +140,6 @@ public abstract class Item {
         this.accessibleAt = new ArrayList<>(baseItem.getAccessibleAt());
         this.source = baseItem.getSource();
         this.sourceItemId = baseItem.getSourceItemId();
-        this.informationContributors = new ArrayList<>();
     }
 
     public String getPersistentId() {
@@ -160,13 +157,6 @@ public abstract class Item {
     public void setContributors(List<ItemContributor> contributors) {
         this.contributors.clear();
         this.contributors.addAll(contributors);
-    }
-
-    public void addInformationContributor(User contributor) {
-        if (informationContributors.contains(contributor))
-            return;
-
-        informationContributors.add(contributor);
     }
 
     public List<Property> getProperties() {

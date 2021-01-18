@@ -9,11 +9,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PropertyTypeRepository extends JpaRepository<PropertyType, String> {
-
-    @Query("select max(ord) from PropertyType")
-    Integer findMaxPropertyTypeOrd();
-
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("update PropertyType pt set pt.ord = pt.ord + :shift where pt.ord > :ord")
-    void shiftSucceedingPropertyTypesOrder(@Param("ord") int ord, @Param("shift") int shift);
 }

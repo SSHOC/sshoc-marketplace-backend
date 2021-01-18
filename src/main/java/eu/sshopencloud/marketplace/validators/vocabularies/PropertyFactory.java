@@ -23,6 +23,8 @@ public class PropertyFactory {
     private final PropertyTypeFactory propertyTypeFactory;
     private final PropertyTypeService propertyTypeService;
 
+    private final PropertyValueValidator propertyValueValidator;
+
 
     public List<Property> create(ItemCategory category, List<PropertyCore> propertyCores, Item item, Errors errors, String nestedPath) {
         List<Property> properties = new ArrayList<>();
@@ -60,13 +62,13 @@ public class PropertyFactory {
 
         List<Vocabulary> allowedVocabularies = propertyTypeService.getAllowedVocabulariesForPropertyType(propertyType);
         if (allowedVocabularies.isEmpty()) {
+            String propertyValue = propertyCore.getValue();
+
             // value is mandatory
-            if (StringUtils.isBlank(propertyCore.getValue())) {
-                errors.rejectValue("value", "field.required", "Property value is required.");
-            } else {
+            if (propertyValueValidator.validate(propertyValue, propertyType, errors))
                 property.setValue(propertyCore.getValue());
-            }
-        } else {
+        }
+        else {
             // concept is mandatory
             if (propertyCore.getConcept() == null) {
                 errors.rejectValue("concept", "field.required", "Property concept is required.");

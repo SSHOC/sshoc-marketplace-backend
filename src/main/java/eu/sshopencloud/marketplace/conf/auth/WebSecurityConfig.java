@@ -102,9 +102,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name());
         http
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/tools/**").hasAuthority(Authority.CONTRIBUTOR.name())
-                .antMatchers(HttpMethod.PUT, "/api/tools/**").hasAuthority(Authority.CONTRIBUTOR.name())
-                .antMatchers(HttpMethod.DELETE, "/api/tools/**").hasAuthority(Authority.CONTRIBUTOR.name());
+                .antMatchers(HttpMethod.POST, "/api/tools-services/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/tools-services/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/tools-services/**").hasAuthority(Authority.CONTRIBUTOR.name());
         http
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name())

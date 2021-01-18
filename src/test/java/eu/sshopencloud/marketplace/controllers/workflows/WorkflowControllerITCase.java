@@ -6,6 +6,8 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
@@ -1322,7 +1324,95 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotAddStepToWorkflowWhenActorHasManyRoles() throws Exception {
+    public void shouldUpdateStepInWorkflowWhenActorHasManyRoles() throws Exception {
+        String workflowPersistentId = "tqmbGY";
+        Integer workflowId = 12;
+
+        String stepPersistentId = "2CwYCU";
+        Integer stepId = 14;
+
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("category", is("workflow")));
+
+        StepCore step = new StepCore();
+        step.setLabel("A step with a triple actor");
+        step.setDescription("Lorem ipsum");
+        step.setStepNo(2);
+
+        ItemContributorId contributor1 = new ItemContributorId(new ActorId(1L), new ActorRoleId("provider"));
+        ItemContributorId contributor2 = new ItemContributorId(new ActorId(1L), new ActorRoleId("author"));
+        ItemContributorId contributor3 = new ItemContributorId(new ActorId(1L), new ActorRoleId("contributor"));
+        step.setContributors(List.of(contributor1, contributor2, contributor3));
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(
+                put("/api/workflows/{workflowId}/steps/{stepId}", workflowPersistentId, stepPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(stepPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(stepId))))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("label", is("A step with a triple actor")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors", hasSize(3)))
+                .andExpect(jsonPath("contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[0].role.code", is("provider")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("contributors[2].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[2].role.code", is("contributor")));
+
+        mvc.perform(get("/api/workflows/{workflowId}", workflowPersistentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(workflowId))))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary")))
+                .andExpect(jsonPath("description", is("Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset.")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf[0].label", is("Build the model of the dictionary")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].persistentId", is(stepPersistentId)))
+                .andExpect(jsonPath("composedOf[1].id", not(is(stepId))))
+                .andExpect(jsonPath("composedOf[1].label", is("A step with a triple actor")))
+                .andExpect(jsonPath("composedOf[1].contributors", hasSize(3)))
+                .andExpect(jsonPath("composedOf[1].contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("composedOf[1].contributors[0].role.code", is("provider")))
+                .andExpect(jsonPath("composedOf[1].contributors[1].actor.id", is(1)))
+                .andExpect(jsonPath("composedOf[1].contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("composedOf[1].contributors[2].actor.id", is(1)))
+                .andExpect(jsonPath("composedOf[1].contributors[2].role.code", is("contributor")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf[1].composedOf[0].label", is("Corpus composition")))
+                .andExpect(jsonPath("composedOf[1].composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].composedOf[1].label", is("Linguistic annotation")))
+                .andExpect(jsonPath("composedOf[1].composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].composedOf[2].label", is("Selection of a license")))
+                .andExpect(jsonPath("composedOf[1].composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].composedOf[3].label", is("Publishing")))
+                .andExpect(jsonPath("composedOf[1].composedOf[3].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[2].label", is("Write a dictionary")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[3].label", is("Publishing")))
+                .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)));
+    }
+
+    @Test
+    public void shouldNotAddStepToWorkflowWhenActorHasRepeatedRoles() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
@@ -1337,32 +1427,11 @@ public class WorkflowControllerITCase {
         StepCore step = new StepCore();
         step.setLabel("A step with a triple actor");
         step.setDescription("Lorem ipsum");
-        ItemContributorId contributor1 = new ItemContributorId();
-        ActorId actor1 = new ActorId();
-        actor1.setId(1l);
-        contributor1.setActor(actor1);
-        ActorRoleId role1 = new ActorRoleId();
-        role1.setCode("provider");
-        contributor1.setRole(role1);
-        ItemContributorId contributor2 = new ItemContributorId();
-        ActorId actor2 = new ActorId();
-        actor2.setId(1l);
-        contributor2.setActor(actor2);
-        ActorRoleId role2 = new ActorRoleId();
-        role2.setCode("author");
-        contributor2.setRole(role2);
-        ItemContributorId contributor3 = new ItemContributorId();
-        ActorId actor3 = new ActorId();
-        actor3.setId(1l);
-        contributor3.setActor(actor3);
-        ActorRoleId role3 = new ActorRoleId();
-        role3.setCode("contributor");
-        contributor3.setRole(role3);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
-        contributors.add(contributor1);
-        contributors.add(contributor2);
-        contributors.add(contributor3);
-        step.setContributors(contributors);
+
+        ItemContributorId contributor1 = new ItemContributorId(new ActorId(1L), new ActorRoleId("provider"));
+        ItemContributorId contributor2 = new ItemContributorId(new ActorId(1L), new ActorRoleId("author"));
+        ItemContributorId contributor3 = new ItemContributorId(new ActorId(1L), new ActorRoleId("provider"));
+        step.setContributors(List.of(contributor1, contributor2, contributor3));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(step);
         log.debug("JSON: " + payload);
@@ -1372,13 +1441,10 @@ public class WorkflowControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors", hasSize(2)))
-                .andExpect(jsonPath("errors[0].field", is("contributors[1].actor.id")))
+                .andExpect(jsonPath("errors", hasSize(1)))
+                .andExpect(jsonPath("errors[0].field", is("contributors[2]")))
                 .andExpect(jsonPath("errors[0].code", is("field.repeated")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()))
-                .andExpect(jsonPath("errors[1].field", is("contributors[2].actor.id")))
-                .andExpect(jsonPath("errors[1].code", is("field.repeated")))
-                .andExpect(jsonPath("errors[1].message", notNullValue()));
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
@@ -1538,4 +1604,174 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    public void shouldNotCreateWorkflowWithInvalidIntProperty() throws Exception {
+        WorkflowCore workflow = new WorkflowCore();
+        workflow.setLabel("Test workflow with invalid year");
+        workflow.setDescription("Lorem ipsum...");
+
+        PropertyCore property1 = new PropertyCore(new PropertyTypeId("year"), "2021");
+        PropertyCore property2 = new PropertyCore(new PropertyTypeId("year"), "one two");
+        workflow.setProperties(List.of(property1, property2));
+
+        String payload = mapper.writeValueAsString(workflow);
+
+        mvc.perform(
+                post("/api/workflows")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
+                .andExpect(jsonPath("errors[0].code", is("field.invalid")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldRetrieveWorkflowStepsRelations() throws Exception {
+        String workflowId = "vHQEhe";
+
+        StepCore step = new StepCore();
+        step.setLabel("Draw conclusions");
+        step.setDescription("This step's purpose is to inspire the user to think a little bit and draw conclusions.");
+        step.setRelatedItems(
+                List.of(
+                        RelatedItemCore.builder().objectId("OdKfPc").relation(new ItemRelationId("relates-to")).build()
+                )
+        );
+
+        String payload = mapper.writeValueAsString(step);
+
+        String stepJson = mvc.perform(
+                post("/api/workflows/{workflowId}/steps", workflowId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("label", is(step.getLabel())))
+                .andExpect(jsonPath("description", is(step.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("relatedItems[0].label", is("Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("relatedItems[0].category", is("dataset")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")))
+                .andReturn().getResponse().getContentAsString();
+
+        StepDto stepDto = mapper.readValue(stepJson, StepDto.class);
+        String stepId = stepDto.getPersistentId();
+        int stepVersionId = stepDto.getId().intValue();
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", workflowId)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(workflowId))))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
+                .andExpect(jsonPath("composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].label", is("Run an inflectional analyzer")))
+                .andExpect(jsonPath("composedOf[1].status", is("approved")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
+                .andExpect(jsonPath("composedOf[2].status", is("approved")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[3].label", is(step.getLabel())))
+                .andExpect(jsonPath("composedOf[3].description", is(step.getDescription())))
+                .andExpect(jsonPath("composedOf[3].status", is("approved")))
+                .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[3].relatedItems", hasSize(1)))
+                .andExpect(jsonPath("composedOf[3].relatedItems[0].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("composedOf[3].relatedItems[0].label", is("Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("composedOf[3].relatedItems[0].category", is("dataset")))
+                .andExpect(jsonPath("composedOf[3].relatedItems[0].relation.code", is("relates-to")));
+    }
+
+    /*
+    @Test
+    public void shouldCorrectlyCreateRelationBetweenStepsFromTheSameWorkflow() throws Exception {
+        String workflowId = "vHQEhe";
+
+        StepCore step = new StepCore();
+        step.setLabel("Draw conclusions");
+        step.setDescription("This step's purpose is to inspire the user to think a little bit and draw conclusions.");
+        step.setRelatedItems(
+                List.of(
+                        RelatedItemCore.builder().objectId("gQu2wl").relation(new ItemRelationId("relates-to")).build()
+                )
+        );
+
+        String payload = mapper.writeValueAsString(step);
+
+        String stepJson = mvc.perform(
+                post("/api/workflows/{workflowId}/steps", workflowId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("label", is(step.getLabel())))
+                .andExpect(jsonPath("description", is(step.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("gQu2wl")))
+                .andExpect(jsonPath("relatedItems[0].label", is("Interpret results")))
+                .andExpect(jsonPath("relatedItems[0].category", is("step")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")))
+                .andReturn().getResponse().getContentAsString();
+
+        StepDto stepDto = mapper.readValue(stepJson, StepDto.class);
+        String stepId = stepDto.getPersistentId();
+        int stepVersionId = stepDto.getId().intValue();
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", workflowId)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(workflowId))))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
+                .andExpect(jsonPath("composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].label", is("Run an inflectional analyzer")))
+                .andExpect(jsonPath("composedOf[1].status", is("approved")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
+                .andExpect(jsonPath("composedOf[2].status", is("approved")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[2].relatedItems", hasSize(1)))
+                .andExpect(jsonPath("composedOf[2].relatedItems[0].persistentId", is(stepId)))
+                .andExpect(jsonPath("composedOf[2].relatedItems[0].id", is(stepVersionId)))
+                .andExpect(jsonPath("composedOf[2].relatedItems[0].category", is("step")))
+                .andExpect(jsonPath("composedOf[2].relatedItems[0].relation.code", is("is-related-to")))
+                .andExpect(jsonPath("composedOf[3].label", is(step.getLabel())))
+                .andExpect(jsonPath("composedOf[3].description", is(step.getDescription())))
+                .andExpect(jsonPath("composedOf[3].status", is("approved")))
+                .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[3].relatedItems", hasSize(1)))
+                .andExpect(jsonPath("composedOf[3].relatedItems[0].persistentId", is("gQu2wl")))
+                .andExpect(jsonPath("composedOf[3].relatedItems[0].label", is("Interpret results")))
+                .andExpect(jsonPath("composedOf[3].relatedItems[0].category", is("step")))
+                .andExpect(jsonPath("composedOf[3].relatedItems[0].relation.code", is("relates-to")));
+    }
+     */
 }

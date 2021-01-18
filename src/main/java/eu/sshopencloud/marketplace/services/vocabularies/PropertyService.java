@@ -3,8 +3,10 @@ package eu.sshopencloud.marketplace.services.vocabularies;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +32,25 @@ public class PropertyService {
         return item.getProperties();
     }
 
+    public boolean existPropertiesOfType(@NonNull PropertyType type) {
+        return propertyRepository.existsByType(type);
+    }
+
+    public void removePropertiesOfType(@NonNull PropertyType type) {
+        propertyRepository.deletePropertiesOfType(type);
+    }
+
+    public boolean existPropertiesFromVocabulary(String vocabularyCode) {
+        return propertyRepository.existsByConceptVocabularyCode(vocabularyCode);
+    }
+
     public void removePropertiesWithConcepts(List<Concept> concepts) {
         List<String> conceptCodes = concepts.stream().map(Concept::getCode).collect(Collectors.toList());
         propertyRepository.deletePropertiesWithConcepts(conceptCodes);
+    }
+
+    public boolean existPropertiesWithConcepts(List<Concept> concepts) {
+        List<String> conceptCodes = concepts.stream().map(Concept::getCode).collect(Collectors.toList());
+        return propertyRepository.existWithConcepts(conceptCodes);
     }
 }

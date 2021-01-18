@@ -51,6 +51,9 @@ public class TrainingMaterialControllerITCase {
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     private ObjectMapper testMapper;
 
     private String CONTRIBUTOR_JWT;
@@ -89,7 +92,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("version", is("3.0")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
+                .andExpect(jsonPath("informationContributor.id", is(1)))
                 .andExpect(jsonPath("olderVersions", hasSize(2)))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
@@ -121,7 +124,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("version", is("1.0")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("informationContributors", hasSize(1)))
+                .andExpect(jsonPath("informationContributor.id", is(1)))
                 .andExpect(jsonPath("olderVersions", hasSize(0)))
                 .andExpect(jsonPath("newerVersions", hasSize(2)));
     }
@@ -918,39 +921,6 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
-    /*
-    @Test
-    public void shouldUpdateTrainingMaterialWithPrevVersionForEndOfChain() throws Exception {
-        Integer trainingMaterialId = 5;
-
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Introduction to GEPHI");
-        trainingMaterial.setVersion("1.0");
-        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-//        trainingMaterial.setPrevVersionId(7l);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(trainingMaterialId)))
-                .andExpect(jsonPath("category", is("training-material")))
-                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
-                .andExpect(jsonPath("olderVersions", hasSize(2)))
-                .andExpect(jsonPath("olderVersions[0].id", is(7)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[0].version", is("3.0")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
-    }
-     */
-
     @Test
     @Deprecated
     public void shouldUpdateTrainingMaterialWithPrevVersionForMiddleOfChain() throws Exception {
@@ -987,32 +957,6 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("olderVersions[2].version", is("1.0")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
-
-    /*
-    @Test
-    public void shouldNotUpdateTrainingMaterialWithPrevVersionEqualToTrainingMaterial() throws Exception {
-        String trainingMaterialId = "WfcKvG";
-
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        trainingMaterial.setPrevVersionId(7l);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("prevVersionId")))
-                .andExpect(jsonPath("errors[0].code", is("field.cycle")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-     */
 
     @Test
     public void shouldNotUpdateTrainingMaterialWhenLabelIsNull() throws Exception {
@@ -1317,30 +1261,6 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
-    /*
-    @Test
-    public void shouldDeleteTrainingMaterialAndSwitchVersions() throws Exception {
-        Integer trainingMaterialId = 6;
-
-        mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
-                .andExpect(status().isOk());
-
-        trainingMaterialId = 7;
-
-        mvc.perform(get("/api/training-materials/{id}", trainingMaterialId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(trainingMaterialId)))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(5)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[0].version", is("1.0")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
-    }
-     */
-
     @Test
     public void shouldNotDeleteTrainingMaterialWhenNotExist() throws Exception {
         String trainingMaterialId = "noting";
@@ -1351,4 +1271,33 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void shouldNotCreateTrainingMaterialWithInvalidDateProperty() throws Exception {
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Test training material");
+        trainingMaterial.setDescription(
+                "Lorem Ipsum is simply dummy text of the printing and typesetting industry. " +
+                        "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, " +
+                        "when an unknown printer took a galley of type and scrambled it to make a type specimen book. " +
+                        "It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. " +
+                        "It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages."
+        );
+
+        PropertyCore property1 = new PropertyCore(new PropertyTypeId("timestamp"), "2000-01-01");
+        PropertyCore property2 = new PropertyCore(new PropertyTypeId("timestamp"), "14732891437");
+        trainingMaterial.setProperties(List.of(property1, property2));
+
+        String payload = mapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                post("/api/training-materials")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
+                .andExpect(jsonPath("errors[0].code", is("field.invalid")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
 }

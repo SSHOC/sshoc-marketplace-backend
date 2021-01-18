@@ -82,12 +82,21 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected D prepareItemDto(I item) {
+        return prepareItemDto(item, true);
+    }
+
+    protected D prepareItemDto(I item, boolean withHistory) {
         D dto = convertItemToDto(item);
 
         List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
         dto.setRelatedItems(relatedItems);
 
-        return completeItem(dto);
+        completeItem(dto);
+
+        if (withHistory)
+            completeHistory(dto);
+
+        return dto;
     }
 
     protected I createItem(C itemCore, boolean draft) {
@@ -402,15 +411,14 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
-    private D completeItem(D item) {
+    private void completeItem(D item) {
+        for (PropertyDto property : item.getProperties())
+            propertyTypeService.completePropertyType(property.getType());
+    }
+
+    private void completeHistory(D item) {
         item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
         item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
-
-        for (PropertyDto property : item.getProperties()) {
-            propertyTypeService.completePropertyType(property.getType());
-        }
-
-        return item;
     }
 
     private I makeItemVersion(C itemCore, I prevItem) {
