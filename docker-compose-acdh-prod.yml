@@ -2,6 +2,10 @@ version: "2"
 services:
   marketplace-prod:
     build: .
+    dockerfile: Dockerfile-acdh-ch
+      args: 
+        - GID=1031
+        - UID=1031
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-prod:latest
     container_name: sshoc-marketplace-backend-api-prod
     ports:
@@ -33,6 +37,9 @@ services:
     networks:
       - backend
       - web
+    volumes:
+      - app-log:/log
+
   psql-prod:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres-prod
@@ -84,4 +91,10 @@ volumes:
     driver_opts:
       type: "none"
       device: "/home/sshocmarketplacecuration/shares/solr-data"
+      o: "bind"
+  app-log:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmp/shares/app-log"
       o: "bind"
