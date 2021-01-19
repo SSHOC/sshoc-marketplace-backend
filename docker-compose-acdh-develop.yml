@@ -28,6 +28,7 @@ services:
       token_secret: ${token_secret}
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
+      marketplace_log_dir: /log/
     labels:
       - traefik.backend=marketplace-api
       - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh-dev.oeaw.ac.at

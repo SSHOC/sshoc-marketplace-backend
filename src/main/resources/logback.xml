@@ -1,14 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+	<property name="pattern" value="%d{dd-MM-yyyy HH:mm:ss.SSS} %magenta([%thread]) %highlight(%-5level) %logger{36}.%M - %msg%n" />
+	<springProperty scope="context" name="LOG_DIRECTORY_WITH_TRAILING_SLASH" source="marketplace.logging.path" />
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} %magenta([%thread]) %highlight(%-5level) %logger{36}.%M - %msg%n</pattern>
+			<pattern>${pattern}</pattern>
 		</encoder>
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIRECTORY_WITH_TRAILING_SLASH}sshoc-marketplace-backend-app.log</file>
+		<append>true</append>
+		<encoder>
+			<pattern>${pattern}</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_DIRECTORY_WITH_TRAILING_SLASH}%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
+			<maxHistory>90</maxHistory>
+			<totalSizeCap>10GB</totalSizeCap>
+		</rollingPolicy>
 	</appender>
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
 	</root>
 
 	<logger name="eu.sshopencloud.marketplace" level="DEBUG" />
