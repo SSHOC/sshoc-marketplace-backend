@@ -29,11 +29,12 @@ public class ItemsService extends ItemVersionService<Item> {
 
 
     public ItemsService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                        ItemVisibilityService itemVisibilityService,
                         @Lazy ToolService toolService, @Lazy TrainingMaterialService trainingMaterialService,
                         @Lazy PublicationService publicationService, @Lazy DatasetService datasetService,
                         @Lazy WorkflowService workflowService, @Lazy StepService stepService) {
 
-        super(versionedItemRepository);
+        super(versionedItemRepository, itemVisibilityService);
 
         this.itemRepository = itemRepository;
         this.toolService = toolService;

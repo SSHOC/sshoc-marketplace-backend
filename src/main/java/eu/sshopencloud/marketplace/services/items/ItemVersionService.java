@@ -22,6 +22,7 @@ import java.util.Optional;
 abstract class ItemVersionService<I extends Item> {
 
     private final VersionedItemRepository versionedItemRepository;
+    private final ItemVisibilityService itemVisibilityService;
 
 
     protected Page<I> loadLatestItems(PageCoords pageCoords) {
@@ -81,23 +82,11 @@ abstract class ItemVersionService<I extends Item> {
         }
 
         I item = loadCurrentItem(persistentId);
-
-        if (currentUser.isModerator())
-            return item;
-
         while (item != null) {
-            ItemStatus itemStatus = item.getStatus();
-
-            if (itemStatus.equals(ItemStatus.APPROVED))
+            if (itemVisibilityService.hasAccessToVersion(item, currentUser))
                 return item;
 
-            if ((itemStatus.equals(ItemStatus.SUGGESTED) || itemStatus.equals(ItemStatus.INGESTED))
-                    && currentUser.equals(item.getInformationContributor())) {
-
-                return item;
-            }
-
-            if (itemStatus.equals(ItemStatus.DEPRECATED))
+            if (item.getStatus().equals(ItemStatus.DEPRECATED))
                 break;
 
             item = (I) item.getPrevVersion();

@@ -30,11 +30,12 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     public PublicationService(PublicationRepository publicationRepository, PublicationFactory publicationFactory,
                               ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                              ItemVisibilityService itemVisibilityService,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                               PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 

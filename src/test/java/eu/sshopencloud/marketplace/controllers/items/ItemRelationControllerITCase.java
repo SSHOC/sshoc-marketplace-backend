@@ -960,8 +960,7 @@ public class ItemRelationControllerITCase {
 
         String acceptedTrainingMaterialPayload = mapper.writeValueAsString(acceptedTrainingMaterial);
 
-//        trainingMaterialJson = mvc.perform(
-        mvc.perform(
+        trainingMaterialJson = mvc.perform(
                 put("/api/training-materials/{trainingMaterialId}", trainingMaterialDto.getPersistentId())
                         .content(acceptedTrainingMaterialPayload)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -974,22 +973,19 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is(acceptedTrainingMaterial.getLabel())))
                 .andExpect(jsonPath("description", is(acceptedTrainingMaterial.getDescription())))
-                .andExpect(jsonPath("relatedItems", hasSize(0)));
-//                suggested items are not included in the related items
-//                .andExpect(jsonPath("relatedItems[0].persistentId", is(publicationDto.getPersistentId())))
-//                .andExpect(jsonPath("relatedItems[0].id", not(is(publicationDto.getId()))))
-//                .andExpect(jsonPath("relatedItems[0].label", is(publication.getLabel())))
-//                .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")))
-//                .andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(publicationDto.getPersistentId())))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(publicationDto.getId()))))
+                .andExpect(jsonPath("relatedItems[0].label", is(publication.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")))
+                .andReturn().getResponse().getContentAsString();
 
-        // TODO: uncomment as soon as retrieving suggested items will be possible
-        //       the test scenario below requires loading a suggested item
-
-        /*
         trainingMaterialDto = mapper.readValue(trainingMaterialJson, TrainingMaterialDto.class);
 
         String latestPublicationJson = mvc.perform(
                 get("/api/publications/{publicationId}", publicationDto.getPersistentId())
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("newerVersions", hasSize(1)))
@@ -1003,7 +999,7 @@ public class ItemRelationControllerITCase {
                         "/api/publications/{publicationId}/versions/{versionId}",
                         publicationDto.getPersistentId(), publicationVersionId
                 )
-                        .header("Authorization", CONTRIBUTOR_JWT)
+                        .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(publicationDto.getPersistentId())))
@@ -1014,9 +1010,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("description", is(publication.getDescription())))
                 .andExpect(jsonPath("relatedItems", hasSize(1)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(trainingMaterialDto.getPersistentId())))
-                .andExpect(jsonPath("relatedItems[0].id", is(trainingMaterialDto.getId())))
+                .andExpect(jsonPath("relatedItems[0].id", is(trainingMaterialDto.getId().intValue())))
                 .andExpect(jsonPath("relatedItems[0].label", is(acceptedTrainingMaterial.getLabel())))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("is-documented-by")));
-         */
     }
 }

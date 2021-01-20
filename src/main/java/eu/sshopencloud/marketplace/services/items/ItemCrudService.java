@@ -34,6 +34,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private final ItemRepository itemRepository;
     private final VersionedItemRepository versionedItemRepository;
+    private final ItemVisibilityService itemVisibilityService;
     private final DraftItemRepository draftItemRepository;
     private final ItemRelatedItemService itemRelatedItemService;
     private final PropertyTypeService propertyTypeService;
@@ -42,13 +43,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                           ItemVisibilityService itemVisibilityService,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
-        super(versionedItemRepository);
+        super(versionedItemRepository, itemVisibilityService);
 
         this.itemRepository = itemRepository;
         this.versionedItemRepository = versionedItemRepository;
+        this.itemVisibilityService = itemVisibilityService;
         this.draftItemRepository = draftItemRepository;
         this.itemRelatedItemService = itemRelatedItemService;
         this.propertyTypeService = propertyTypeService;
@@ -70,7 +73,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I item = loadItemVersion(persistentId, versionId);
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        if (!hasAccessToVersion(item, currentUser)) {
+        if (!itemVisibilityService.hasAccessToVersion(item, currentUser)) {
             throw new AccessDeniedException(
                     String.format(
                             "User is not authorized to access the given item version with id %s (version id: %d)",
@@ -80,19 +83,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         return prepareItemDto(item);
-    }
-
-    private boolean hasAccessToVersion(I version, User user) {
-        if (version.getStatus().equals(ItemStatus.APPROVED))
-            return true;
-
-        if (user == null)
-            return false;
-
-        if (user.isModerator())
-            return true;
-
-        return user.isContributor() && user.equals(version.getInformationContributor());
     }
 
     protected D getLatestItem(String persistentId, boolean draft, boolean approved) {

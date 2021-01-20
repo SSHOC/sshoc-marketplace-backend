@@ -30,6 +30,7 @@ public class ItemRelatedItemService {
     private final ItemRelatedItemRepository itemRelatedItemRepository;
     private final ItemRelationFactory itemRelationFactory;
     private final ItemsService itemsService;
+    private final ItemVisibilityService itemVisibilityService;
     private final DraftItemRepository draftItemRepository;
     private final VersionedItemRepository versionedItemRepository;
 
@@ -46,15 +47,18 @@ public class ItemRelatedItemService {
     private List<RelatedItemDto> getRelatedItems(long itemId) {
         List<RelatedItemDto> relatedItems = new ArrayList<>();
 
-        List<ItemRelatedItem> subjectRelations = itemRelatedItemRepository.findBySubjectIdAndObjectStatus(itemId, ItemStatus.APPROVED);
-        for (ItemRelatedItem subjectRelatedItem : subjectRelations) {
-            relatedItems.add(ItemConverter.convertRelatedItemFromSubject(subjectRelatedItem));
-        }
+        List<RelatedItemDto> subjectRelations = itemRelatedItemRepository.findAllBySubjectId(itemId).stream()
+                .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getObject()))
+                .map(ItemConverter::convertRelatedItemFromSubject)
+                .collect(Collectors.toList());
 
-        List<ItemRelatedItem> objectRelations = itemRelatedItemRepository.findByObjectIdAndSubjectStatus(itemId, ItemStatus.APPROVED);
-        for (ItemRelatedItem objectRelatedItem : objectRelations) {
-            relatedItems.add(ItemConverter.convertRelatedItemFromObject(objectRelatedItem));
-        }
+        List<RelatedItemDto> objectRelations = itemRelatedItemRepository.findAllByObjectId(itemId).stream()
+                .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getSubject()))
+                .map(ItemConverter::convertRelatedItemFromObject)
+                .collect(Collectors.toList());
+
+        relatedItems.addAll(subjectRelations);
+        relatedItems.addAll(objectRelations);
 
         return relatedItems;
     }
@@ -66,14 +70,6 @@ public class ItemRelatedItemService {
                 .map(ItemRelatedItem::new)
                 .map(ItemConverter::convertRelatedItemFromSubject)
                 .collect(Collectors.toList());
-
-        // Drafts have now overwritten relations
-        // if (draftItem.getBaseItem() != null) {
-            // List<RelatedItemDto> baseRelatedItems = getRelatedItems(draftItem.getBaseItem().getId());
-            // relatedItems.addAll(baseRelatedItems);
-        // }
-
-        // return relatedItems;
     }
 
     public void updateRelatedItems(List<RelatedItemCore> relatedItems, Item newVersion, Item prevItem, boolean draft) {

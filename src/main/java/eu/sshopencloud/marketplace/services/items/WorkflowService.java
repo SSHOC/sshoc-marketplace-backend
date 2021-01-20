@@ -41,11 +41,12 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public WorkflowService(WorkflowRepository workflowRepository, WorkflowFactory workflowFactory, @Lazy StepService stepService,
                            ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                           ItemVisibilityService itemVisibilityService,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
