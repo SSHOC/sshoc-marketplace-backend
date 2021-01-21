@@ -24,6 +24,7 @@ build:
     - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr:latest
   only:
   - develop
+  - kubernetes-test
 
 build-prod:
   stage: build
