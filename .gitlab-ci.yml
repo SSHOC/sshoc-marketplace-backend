@@ -3,9 +3,10 @@ stages:
 
 .docker:
   image:
-    name: docker:19.03-dind
+    name: docker:19.03
   services:
-    - docker:dind
+    - name: docker:19.03-dind
+      command: ["--mtu=1450"]
   variables:
         DOCKER_TLS_CERTDIR: ""    
   before_script:
@@ -15,8 +16,6 @@ stages:
 
 build:
   stage: build
-  tags:
-    - sshoc-acdh-runner
   extends: .docker
   script: 
     - echo "Building the app (develop)"
@@ -28,8 +27,6 @@ build:
 
 build-prod:
   stage: build
-  tags:
-    - sshoc-acdh-runner
   extends: .docker
   script:
     - echo "Building the app (prod)"
