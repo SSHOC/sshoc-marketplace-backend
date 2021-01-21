@@ -17,6 +17,9 @@ stages:
 build:
   stage: build
   extends: .docker
+  tags:
+    - kubernetes
+    - cluster
   script: 
     - echo "Building the app (develop)"
     - docker-compose -f docker-compose-acdh-develop.yml build 
@@ -29,6 +32,9 @@ build:
 build-prod:
   stage: build
   extends: .docker
+  tags:
+    - kubernetes
+    - cluster
   script:
     - echo "Building the app (prod)"
     - docker-compose -f docker-compose-acdh-prod.yml build
