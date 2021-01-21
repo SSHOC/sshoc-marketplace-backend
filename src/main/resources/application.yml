@@ -90,4 +90,5 @@ marketplace:
         oauth:
             implicit-grant-token-expiration-msec: 30000
     logging:
-        path: ${marketplace_log_dir}
+        path: ${marketplace_log_dir:/tmp}
+

@@ -1,11 +1,11 @@
 spring:
-  datasource:
-    url: "jdbc:postgresql://localhost:5433/marketplace_db"
-  jpa:
-    show-sql: true
-  data:
-    solr:
-      host: "http://localhost:8984/solr"
+    datasource:
+        url: "jdbc:postgresql://localhost:5433/marketplace_db"
+    jpa:
+        show-sql: true
+    data:
+        solr:
+            host: "http://localhost:8984/solr"
 
-  liquibase:
-    contexts: test
+    liquibase:
+        contexts: test

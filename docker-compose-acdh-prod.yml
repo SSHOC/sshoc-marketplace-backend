@@ -1,9 +1,10 @@
 version: "2"
 services:
   marketplace-prod:
-    build: .
-    dockerfile: Dockerfile-acdh-ch
-      args: 
+    build:
+      context: .
+      dockerfile: Dockerfile-acdh-ch
+      args:
         - GID=1031
         - UID=1031
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-prod:latest
@@ -27,7 +28,7 @@ services:
       token_secret: ${token_secret}
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
-      marketplace_log_dir: /log/
+      marketplace_log_dir: /log
     labels:
       - traefik.backend=marketplace-api-prod
       - traefik.frontend.rule=Host:marketplace-api-prod.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh.oeaw.ac.at,marketplace-api.sshoc.eu,marketplace-api.sshopencloud.eu
