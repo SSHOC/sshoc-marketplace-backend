@@ -1,7 +1,12 @@
 version: "2"
 services:
   marketplace-prod:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile-acdh-ch
+      args:
+        - GID=1031
+        - UID=1031
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-prod:latest
     container_name: sshoc-marketplace-backend-api-prod
     ports:
@@ -23,6 +28,7 @@ services:
       token_secret: ${token_secret}
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
+      marketplace_log_dir: /log
     labels:
       - traefik.backend=marketplace-api-prod
       - traefik.frontend.rule=Host:marketplace-api-prod.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh.oeaw.ac.at,marketplace-api.sshoc.eu,marketplace-api.sshopencloud.eu
@@ -32,6 +38,9 @@ services:
     networks:
       - backend
       - web
+    volumes:
+      - app-log:/log
+
   psql-prod:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres-prod
@@ -83,4 +92,10 @@ volumes:
     driver_opts:
       type: "none"
       device: "/home/sshocmarketplacecuration/shares/solr-data"
+      o: "bind"
+  app-log:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmp/shares/app-log"
       o: "bind"
