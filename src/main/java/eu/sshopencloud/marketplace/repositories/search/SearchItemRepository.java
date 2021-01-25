@@ -1,8 +1,11 @@
 package eu.sshopencloud.marketplace.repositories.search;
 
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.repositories.search.solr.ForceFacetSortSolrTemplate;
+import eu.sshopencloud.marketplace.services.items.ItemsService;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
@@ -23,31 +26,53 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 public class SearchItemRepository {
 
     private final ForceFacetSortSolrTemplate solrTemplate;
+    private final ItemsService itemsService;
 
-    public FacetPage<IndexItem> findByQueryAndFilters(String q, List<SearchFilterCriteria> filterCriteria, List<SearchOrder> order, Pageable pageable) {
+
+    public FacetPage<IndexItem> findByQueryAndFilters(String q, List<SearchFilterCriteria> filterCriteria,
+                                                      User currentUser,
+                                                      List<SearchOrder> order, Pageable pageable) {
+
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q))
                 .addProjectionOnFields(
                         IndexItem.ID_FIELD,
                         IndexItem.PERSISTENT_ID_FIELD,
                         IndexItem.LABEL_FIELD,
                         IndexItem.DESCRIPTION_FIELD,
-                        IndexItem.CATEGORY_FIELD
+                        IndexItem.CATEGORY_FIELD,
+                        IndexItem.STATUS_FIELD,
+                        IndexItem.OWNER_FIELD
                 )
                 .addSort(Sort.by(createQueryOrder(order)))
                 .setPageRequest(pageable);
 
-        filterCriteria.stream().forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
+        if (currentUser == null || !currentUser.isModerator())
+            facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
+
+        filterCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
         facetQuery.setFacetOptions(createFacetOptions());
 
         return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
     }
 
+    private FilterQuery createVisibilityFilter(User user) {
+        Criteria approvedVisibility = new Criteria(IndexItem.STATUS_FIELD).is(ItemStatus.APPROVED.getValue());
+
+        if (user == null || !user.isContributor())
+            return new SimpleFilterQuery(approvedVisibility);
+
+        Criteria userVisibility = new Criteria(IndexItem.OWNER_FIELD).is(user.getUsername());
+        Criteria visibilityCriteria = approvedVisibility.or(userVisibility);
+
+        return new SimpleFilterQuery(visibilityCriteria);
+    }
 
     private Criteria createQueryCriteria(String q) {
         List<QueryPart> queryParts = QueryParser.parseQuery(q);

@@ -1,5 +1,10 @@
 package eu.sshopencloud.marketplace.controllers.search;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.model.search.IndexItem;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,6 +12,7 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -14,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -27,6 +33,20 @@ public class SearchControllerITCase {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ObjectMapper mapper;
+
+    @Autowired
+    private SolrTemplate solrTemplate;
+
+    private String CONTRIBUTOR_JWT;
+
+
+    @Before
+    public void init() throws Exception {
+        CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+    }
 
     @Test
     public void shouldReturnAllItems() throws Exception {
@@ -64,6 +84,62 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("facets.keyword.graph.checked", is(false)))
                 .andExpect(jsonPath("facets.keyword.['social network analysis'].count", is(1)))
                 .andExpect(jsonPath("facets.keyword.['social network analysis'].checked", is(false)));
+    }
+
+    @Test
+    public void shouldSearchForProposedItem() throws Exception {
+        String datasetId = "dU0BZc";
+        int datasetVersionId = 11;
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test datset");
+        dataset.setDescription("Lorem ipsum dolor sit test...");
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                put("/api/datasets/{datasetId}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("id", not(is(datasetVersionId))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())));
+
+        solrTemplate.commit(IndexItem.COLLECTION_NAME);
+
+        mvc.perform(
+                get("/api/item-search?q=test")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(2)))
+                .andExpect(jsonPath("items[0].id", not(is(datasetVersionId))))
+                .andExpect(jsonPath("items[0].persistentId", is(datasetId)))
+                .andExpect(jsonPath("items[0].category", is("dataset")))
+                .andExpect(jsonPath("items[0].status", is("suggested")))
+                .andExpect(jsonPath("items[0].owner", is("Contributor")))
+                .andExpect(jsonPath("items[0].label", is(dataset.getLabel())))
+                .andExpect(jsonPath("items[0].description", is(dataset.getDescription())))
+                .andExpect(jsonPath("items[1].id", is(datasetVersionId)))
+                .andExpect(jsonPath("items[1].persistentId", is(datasetId)))
+                .andExpect(jsonPath("items[1].category", is("dataset")))
+                .andExpect(jsonPath("items[1].status", is("approved")))
+                .andExpect(jsonPath("items[1].owner", is("Contributor")))
+                .andExpect(jsonPath("items[1].label", is("Test dataset with markdown description")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(0)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(0)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(2)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)));
     }
 
     @Test

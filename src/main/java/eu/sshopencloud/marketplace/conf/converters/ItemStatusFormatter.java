@@ -1,11 +1,11 @@
 package eu.sshopencloud.marketplace.conf.converters;
 
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import org.springframework.format.Formatter;
 
 import java.text.ParseException;
 import java.util.Locale;
+
 
 public class ItemStatusFormatter implements Formatter<ItemStatus> {
 

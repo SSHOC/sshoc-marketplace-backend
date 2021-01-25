@@ -369,7 +369,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             versionedItem.setActive(false);
         }
 
-        indexService.removeItem(item);
+        indexService.removeItemVersions(item);
     }
 
     private void cleanupDraft(I draftItem) {

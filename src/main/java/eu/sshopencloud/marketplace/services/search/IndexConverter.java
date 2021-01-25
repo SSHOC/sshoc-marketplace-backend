@@ -22,16 +22,24 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexConverter {
 
-    public IndexItem covertItem(Item item) {
+    public IndexItem convertItem(Item item) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
-        builder.id(item.getId())
+        builder.versionId(item.getId())
                 .persistentId(item.getPersistentId())
-                .label(item.getLabel()).labelText(item.getLabel()).labelTextEn(item.getLabel())
-                .description(item.getDescription()).descriptionText(descriptionText).descriptionTextEn(descriptionText)
+                .label(item.getLabel())
+                .labelText(item.getLabel())
+                .labelTextEn(item.getLabel())
+                .description(item.getDescription())
+                .descriptionText(descriptionText)
+                .descriptionTextEn(descriptionText)
                 .category(ItemCategoryConverter.convertCategory(item.getCategory()))
+                .status(item.getStatus().getValue())
+                .owner(item.getInformationContributor().getUsername())
                 .source(SourceConverter.convertSource(item.getSource()));
+
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
+
         for (Property property : item.getProperties()) {
             switch (property.getType().getCode()) {
                 case "activity":

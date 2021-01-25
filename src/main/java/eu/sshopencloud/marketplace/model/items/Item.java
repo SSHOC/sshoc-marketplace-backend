@@ -150,6 +150,10 @@ public abstract class Item {
         return (status == ItemStatus.APPROVED && versionedItem.isActive());
     }
 
+    public boolean isProposedVersion() {
+        return ((status == ItemStatus.SUGGESTED || status == ItemStatus.INGESTED) && versionedItem.isActive());
+    }
+
     public boolean isDraft() {
         return (status == ItemStatus.DRAFT);
     }
@@ -166,5 +170,12 @@ public abstract class Item {
         }
 
         return Collections.unmodifiableList(properties);
+    }
+
+    public boolean isOwner(User user) {
+        if (user == null)
+            return false;
+
+        return user.equals(informationContributor);
     }
 }
