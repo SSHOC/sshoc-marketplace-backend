@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace;
 
 import eu.sshopencloud.marketplace.conf.auth.SecurityProperties;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,10 +30,6 @@ public class MarketplaceApplication {
     }
 
     public static void main(String[] args) {
-        String egiId = System.getenv("egi_id");
-        if (StringUtils.isNotBlank(egiId)) {
-            System.setProperty("egi_client_id", egiId);
-        }
         SpringApplication.run(MarketplaceApplication.class, args);
     }
 }
