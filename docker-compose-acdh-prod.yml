@@ -23,6 +23,7 @@ services:
       POSTGRES_PORT: 5432
       SOLR_HOST: solr-prod
       SOLR_PORT: 8983
+      aai_base_uri: https://aai.eosc-portal.eu/oidc
       egi_id: ${egi_id}
       egi_secret: ${egi_secret}
       token_secret: ${token_secret}
