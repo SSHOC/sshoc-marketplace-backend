@@ -49,7 +49,7 @@ spring:
             client:
                 registration:
                     eosc:
-                        client-id: ${egi_client_id:deafult-egi-id}
+                        client-id: ${egi_client_id:default-egi-id}
                         client-secret: ${egi_secret:default-egi-secret}
                         authorization-grant-type: authorization_code
                         scope:
@@ -62,10 +62,10 @@ spring:
                         client-name: EOSC
                 provider:
                     eosc:
-                        token-uri: https://aai-dev.egi.eu/oidc/token
-                        authorization-uri: https://aai-dev.egi.eu/oidc/authorize
-                        user-info-uri: https://aai-dev.egi.eu/oidc/userinfo
-                        jwk-set-uri: https://aai-dev.egi.eu/oidc/jwk
+                        token-uri: ${aai_base_uri:https://aai-dev.egi.eu/oidc}/token
+                        authorization-uri: ${aai_base_uri:https://aai-dev.egi.eu/oidc}/authorize
+                        user-info-uri: ${aai_base_uri:https://aai-dev.egi.eu/oidc}/userinfo
+                        jwk-set-uri: ${aai_base_uri:https://aai-dev.egi.eu/oidc}/jwk
                         user-name-attribute: sub
 
     profiles:
@@ -89,3 +89,6 @@ marketplace:
             jwt-token-expiration-msec: 86400000
         oauth:
             implicit-grant-token-expiration-msec: 30000
+    logging:
+        path: ${marketplace_log_dir:/tmp}
+

@@ -32,11 +32,12 @@ public class TrainingMaterialService
     public TrainingMaterialService(TrainingMaterialRepository trainingMaterialRepository,
                                    TrainingMaterialFactory trainingMaterialFactory,
                                    ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                                   ItemUpgradeRegistry<TrainingMaterial> itemUpgradeRegistry,
                                    DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                                    PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRepository, versionedItemRepository, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 

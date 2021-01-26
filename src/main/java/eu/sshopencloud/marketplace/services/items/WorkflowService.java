@@ -39,13 +39,14 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     private final StepService stepService;
 
 
-    public WorkflowService(WorkflowRepository workflowRepository, WorkflowFactory workflowFactory, @Lazy StepService stepService,
-                           ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+    public WorkflowService(WorkflowRepository workflowRepository, WorkflowFactory workflowFactory,
+                           @Lazy StepService stepService, ItemRepository itemRepository,
+                           VersionedItemRepository versionedItemRepository, ItemUpgradeRegistry<Workflow> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, draftItemRepository,
+                itemRepository, versionedItemRepository, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
