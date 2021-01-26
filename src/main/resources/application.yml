@@ -49,7 +49,7 @@ spring:
             client:
                 registration:
                     eosc:
-                        client-id: ${egi_client_id:default-egi-id}
+                        client-id: ${egi_id:default-egi-id}
                         client-secret: ${egi_secret:default-egi-secret}
                         authorization-grant-type: authorization_code
                         scope:
