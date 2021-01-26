@@ -27,9 +27,10 @@ public class WorkflowController {
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedWorkflows> getWorkflows(@RequestParam(value = "page", required = false) Integer page,
-                                                           @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                           @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
-        return ResponseEntity.ok(workflowService.getWorkflows(pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(workflowService.getWorkflows(pageCoordsValidator.validate(page, perpage), approved));
     }
 
     @GetMapping(path = "/{workflowId}", produces = MediaType.APPLICATION_JSON_VALUE)

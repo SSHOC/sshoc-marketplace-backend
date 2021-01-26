@@ -23,10 +23,11 @@ public class PublicationController {
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedPublications> getPublications(@RequestParam(value = "page", required = false) Integer page,
-                                                                 @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                                 @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
 
-        return ResponseEntity.ok(publicationService.getPublications(pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(publicationService.getPublications(pageCoordsValidator.validate(page, perpage), approved));
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

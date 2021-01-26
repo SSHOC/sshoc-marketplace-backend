@@ -72,7 +72,7 @@ public abstract class Item {
     private List<Property> properties;
 
     // Hibernate does not handle sparse order properly
-    // When using OrderColumn annotation and there is some order index missing from 0..size-1,
+    // When using OrderColumn annotation and there is some order index missing in 0..size-1 range,
     // then a null is inserted
     @Transient
     private boolean sparseProperties = true;
@@ -105,6 +105,9 @@ public abstract class Item {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemStatus status;
+
+    @Column(nullable = false)
+    private boolean proposedVersion;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "persistent_id", nullable = false)
@@ -151,7 +154,7 @@ public abstract class Item {
     }
 
     public boolean isProposedVersion() {
-        return ((status == ItemStatus.SUGGESTED || status == ItemStatus.INGESTED) && versionedItem.isActive());
+        return (proposedVersion && versionedItem.isActive());
     }
 
     public boolean isDraft() {

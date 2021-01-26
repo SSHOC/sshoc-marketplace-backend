@@ -25,12 +25,20 @@ abstract class ItemVersionService<I extends Item> {
     private final ItemVisibilityService itemVisibilityService;
 
 
-    protected Page<I> loadLatestItems(PageCoords pageCoords) {
+    protected Page<I> loadLatestItems(PageCoords pageCoords, User user, boolean approved) {
         PageRequest pageRequest = PageRequest.of(
                 pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
         );
 
-        return getItemRepository().findAllLatestItems(pageRequest);
+        ItemVersionRepository<I> itemRepository = getItemRepository();
+
+        if (!approved || user == null || !user.isContributor())
+            return itemRepository.findAllLatestApprovedItems(pageRequest);
+
+        if (user.isModerator())
+            itemRepository.findAllLatestItems(pageRequest);
+
+        return getItemRepository().findUserLatestItems(user, pageRequest);
     }
 
     /**

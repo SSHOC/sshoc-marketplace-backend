@@ -56,8 +56,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
 
-    public PaginatedWorkflows getWorkflows(PageCoords pageCoords) {
-        return getItemsPage(pageCoords);
+    public PaginatedWorkflows getWorkflows(PageCoords pageCoords, boolean approved) {
+        return getItemsPage(pageCoords, approved);
     }
 
     public WorkflowDto getLatestWorkflow(String persistentId, boolean draft, boolean approved) {

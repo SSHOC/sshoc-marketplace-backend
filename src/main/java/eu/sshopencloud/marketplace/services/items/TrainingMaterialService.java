@@ -46,8 +46,8 @@ public class TrainingMaterialService
     }
 
 
-    public PaginatedTrainingMaterials getTrainingMaterials(PageCoords pageCoords) {
-        return getItemsPage(pageCoords);
+    public PaginatedTrainingMaterials getTrainingMaterials(PageCoords pageCoords, boolean approved) {
+        return getItemsPage(pageCoords, approved);
     }
 
     public TrainingMaterialDto getLatestTrainingMaterial(String persistentId, boolean draft, boolean approved) {

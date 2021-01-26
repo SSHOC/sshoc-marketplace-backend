@@ -60,8 +60,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    protected P getItemsPage(PageCoords pageCoords) {
-        Page<I> itemsPage = loadLatestItems(pageCoords);
+    protected P getItemsPage(PageCoords pageCoords, boolean approved) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+
+        Page<I> itemsPage = loadLatestItems(pageCoords, currentUser, approved);
         List<D> dtos = itemsPage.stream()
                 .map(this::prepareItemDto)
                 .collect(Collectors.toList());
@@ -162,7 +164,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         // If not a draft
         if (!draft) {
-            assignItemVersionStatus(version, versionedItem, changeStatus);
+            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus);
 
             if (version.getStatus() == ItemStatus.APPROVED)
                 deprecatePrevApprovedVersion(versionedItem);
@@ -197,6 +199,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         while (version != null) {
             if (version.getStatus() == ItemStatus.APPROVED)
                 break;
+
+            if (version.isProposedVersion())
+                version.setProposedVersion(false);
 
             version = version.getPrevVersion();
         }
@@ -240,7 +245,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        assignItemVersionStatus(version, versionedItem, true);
+        itemVisibilityService.setupItemVersionVisibility(version, versionedItem, true);
 
         if (version.getStatus() == ItemStatus.APPROVED)
             deprecatePrevApprovedVersion(versionedItem);
@@ -251,41 +256,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         draftItemRepository.delete(draft);
 
         return version;
-    }
-
-    private void assignItemVersionStatus(I version, VersionedItem versionedItem, boolean changeStatus) {
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
-        if (!currentUser.isContributor())
-            throw new AccessDeniedException("Not authorized to create new item version");
-
-        if (!versionedItem.isActive()) {
-            throw new IllegalArgumentException(
-                    String.format("Deleted/merged item with id %s cannot be modified anymore", versionedItem.getPersistentId())
-            );
-        }
-
-        if (!changeStatus && version.getPrevVersion() != null) {
-            version.setStatus(version.getPrevVersion().getStatus());
-            return;
-        }
-
-        // The order of these role checks does matter as, for example, a moderator is a contributor as well
-        if (currentUser.isModerator()) {
-            version.setStatus(ItemStatus.APPROVED);
-            versionedItem.setStatus(VersionedItemStatus.REVIEWED);
-        }
-        else if (currentUser.isSystemContributor()) {
-            version.setStatus(ItemStatus.INGESTED);
-
-            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
-                versionedItem.setStatus(VersionedItemStatus.INGESTED);
-        }
-        else if (currentUser.isContributor()) {
-            version.setStatus(ItemStatus.SUGGESTED);
-
-            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
-                versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
-        }
     }
 
     private VersionedItem createNewVersionedItem() {

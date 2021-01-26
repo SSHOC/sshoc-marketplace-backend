@@ -23,9 +23,10 @@ public class DatasetController {
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedDatasets> getDatasets(@RequestParam(value = "page", required = false) Integer page,
-                                                         @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                         @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                         @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
-        return ResponseEntity.ok(datasetService.getDatasets(pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(datasetService.getDatasets(pageCoordsValidator.validate(page, perpage), approved));
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

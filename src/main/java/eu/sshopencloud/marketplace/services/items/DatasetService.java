@@ -47,12 +47,12 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
 
-    public PaginatedDatasets getDatasets(PageCoords pageCoords) {
-        return super.getItemsPage(pageCoords);
+    public PaginatedDatasets getDatasets(PageCoords pageCoords, boolean approved) {
+        return getItemsPage(pageCoords, approved);
     }
 
     public DatasetDto getDatasetVersion(String persistentId, Long versionId) {
-        return super.getItemVersion(persistentId, versionId);
+        return getItemVersion(persistentId, versionId);
     }
 
     public DatasetDto getLatestDataset(String persistentId, boolean draft, boolean approved) {

@@ -23,9 +23,10 @@ public class ToolController {
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
-                                                   @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                   @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
-        return ResponseEntity.ok(toolService.getTools(pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(toolService.getTools(pageCoordsValidator.validate(page, perpage), approved));
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

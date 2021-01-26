@@ -23,9 +23,10 @@ public class TrainingMaterialController {
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTrainingMaterials> getTrainingMaterials(@RequestParam(value = "page", required = false) Integer page,
-                                                                           @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                                           @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
-        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterials(pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterials(pageCoordsValidator.validate(page, perpage), approved));
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

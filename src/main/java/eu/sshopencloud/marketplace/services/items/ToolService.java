@@ -44,8 +44,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
 
-    public PaginatedTools getTools(PageCoords pageCoords) {
-        return getItemsPage(pageCoords);
+    public PaginatedTools getTools(PageCoords pageCoords, boolean approved) {
+        return getItemsPage(pageCoords, approved);
     }
 
     public ToolDto getToolVersion(String persistentId, long versionId) {
