@@ -11,6 +11,7 @@ services:
       - solr
     environment:
       APPLICATION_PROFILE: dev
+      aai_base_uri: https://aai-dev.egi.eu/oidc
       egi_id: ${egi_id}
       egi_secret: ${egi_secret}
       token_secret: ${token_secret}
