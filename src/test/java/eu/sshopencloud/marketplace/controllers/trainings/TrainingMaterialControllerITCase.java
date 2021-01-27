@@ -40,6 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -78,6 +79,111 @@ public class TrainingMaterialControllerITCase {
         mvc.perform(get("/api/training-materials")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldReturnApprovedAndProposedTrainingMaterials() throws Exception {
+        String trainingMaterialId = "JmBgWa";
+
+        TrainingMaterialCore trainingMaterial1 = new TrainingMaterialCore();
+        trainingMaterial1.setLabel("Abc: Test proposed training material");
+        trainingMaterial1.setDescription("Lorem ipsum dolor");
+
+        String payload1 = mapper.writeValueAsString(trainingMaterial1);
+
+        String trainingMaterialJson1 = mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload1)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(trainingMaterial1.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial1.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterialDto1 = mapper.readValue(trainingMaterialJson1, TrainingMaterialDto.class);
+        int trainingMaterialVersionId1 = trainingMaterialDto1.getId().intValue();
+
+        TrainingMaterialCore trainingMaterial2 = new TrainingMaterialCore();
+        trainingMaterial2.setLabel("Abc: Test ingested training material");
+        trainingMaterial2.setDescription("Lorem ipsum dolor sit");
+
+        String payload2 = mapper.writeValueAsString(trainingMaterial2);
+
+        String trainingMaterialJson2 = mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload2)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is(trainingMaterial2.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial2.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterialDto2 = mapper.readValue(trainingMaterialJson2, TrainingMaterialDto.class);
+        int trainingMaterialVersionId2 = trainingMaterialDto2.getId().intValue();
+
+        mvc.perform(
+                get("/api/training-materials/{id}", trainingMaterialId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId1)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(trainingMaterial1.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial1.getDescription())));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(4)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(4)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(trainingMaterialVersionId1)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("suggested")));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(4)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(4)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(trainingMaterialVersionId2)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("ingested")));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(5)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(5)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(trainingMaterialVersionId2)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("ingested")))
+                .andExpect(jsonPath("trainingMaterials[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[1].id", is(trainingMaterialVersionId1)))
+                .andExpect(jsonPath("trainingMaterials[1].status", is("suggested")));
     }
 
     @Test

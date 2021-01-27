@@ -91,11 +91,7 @@ public abstract class Item {
     private String sourceItemId;
 
     @ManyToOne
-    @JoinTable(
-            name = "items_information_contributors",
-            joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
-    )
+    @JoinColumn(name = "info_contributor_id", nullable = false)
     private User informationContributor;
 
     @CreationTimestamp

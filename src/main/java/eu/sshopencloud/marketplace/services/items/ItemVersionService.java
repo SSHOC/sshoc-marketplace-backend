@@ -32,11 +32,11 @@ abstract class ItemVersionService<I extends Item> {
 
         ItemVersionRepository<I> itemRepository = getItemRepository();
 
-        if (!approved || user == null || !user.isContributor())
+        if (approved || user == null || !user.isContributor())
             return itemRepository.findAllLatestApprovedItems(pageRequest);
 
         if (user.isModerator())
-            itemRepository.findAllLatestItems(pageRequest);
+            return itemRepository.findAllLatestItems(pageRequest);
 
         return getItemRepository().findUserLatestItems(user, pageRequest);
     }
