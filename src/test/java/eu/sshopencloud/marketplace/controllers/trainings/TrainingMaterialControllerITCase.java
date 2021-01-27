@@ -184,6 +184,63 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("trainingMaterials[1].persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("trainingMaterials[1].id", is(trainingMaterialVersionId1)))
                 .andExpect(jsonPath("trainingMaterials[1].status", is("suggested")));
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Abc: Final version of training material");
+        trainingMaterial.setDescription("Lorem ipsum dolor sit finito");
+
+        String payload = mapper.writeValueAsString(trainingMaterial);
+
+        String trainingMaterialJson = mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("status", is("approved")))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterialDto = mapper.readValue(trainingMaterialJson, TrainingMaterialDto.class);
+        int versionId = trainingMaterialDto.getId().intValue();
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(3)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(3)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(versionId)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("approved")));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(3)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(3)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(versionId)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("approved")));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(3)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(3)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(versionId)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("approved")));
     }
 
     @Test
