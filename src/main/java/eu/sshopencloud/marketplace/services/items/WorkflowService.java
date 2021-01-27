@@ -41,12 +41,12 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public WorkflowService(WorkflowRepository workflowRepository, WorkflowFactory workflowFactory, @Lazy StepService stepService,
                            ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                           ItemVisibilityService itemVisibilityService,
+                           ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Workflow> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, itemVisibilityService, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
@@ -77,7 +77,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             @Override
             public void onNextStep(StepsTree stepTree) {
                 Step step = stepTree.getStep();
-                StepDto stepDto = stepService.convertItemToDto(step);
+                StepDto stepDto = stepService.prepareItemDto(step, false);
                 List<StepDto> childCollection = (nestedSteps.empty()) ? rootSteps : nestedSteps.peek().getComposedOf();
 
                 childCollection.add(stepDto);

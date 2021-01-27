@@ -40,12 +40,12 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public StepService(StepRepository stepRepository, StepsTreeRepository stepsTreeRepository,
                        StepFactory stepFactory, WorkflowService workflowService,
                        ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                       ItemVisibilityService itemVisibilityService,
+                       ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Step> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                        PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, itemVisibilityService, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
@@ -154,10 +154,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     @Override
     protected Step liftItemVersion(String persistentId, boolean draft, boolean modifyStatus) {
         Step step = draft ? loadItemForCurrentUser(persistentId) : loadCurrentItem(persistentId);
-        StepsTree stepTree = stepsTreeRepository.findByStepId(step.getId());
-        Workflow workflow = stepTree.getWorkflow();
+        String workflowId = stepsTreeRepository.findWorkflowPersistentIdByStep(step);
 
-        Workflow newWorkflow = workflowService.liftItemVersion(workflow.getVersionedItem().getPersistentId(), draft, modifyStatus);
+        validateLatestWorkflowAndStepConsistency(workflowId, persistentId, draft, false);
+
+        Workflow newWorkflow = workflowService.liftItemVersion(workflowId, draft, modifyStatus);
         Step newStep = super.liftItemVersion(persistentId, draft, modifyStatus);
         StepsTree newStepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
 

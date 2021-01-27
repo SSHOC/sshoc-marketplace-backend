@@ -36,11 +36,11 @@ public class SearchItemRepository {
     private final ItemsService itemsService;
 
 
-    public FacetPage<IndexItem> findByQueryAndFilters(String q, List<SearchFilterCriteria> filterCriteria,
-                                                      User currentUser,
+    public FacetPage<IndexItem> findByQueryAndFilters(String q, boolean advancedSearch, User currentUser,
+                                                      List<SearchFilterCriteria> filterCriteria,
                                                       List<SearchOrder> order, Pageable pageable) {
 
-        SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q))
+        SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q, advancedSearch))
                 .addProjectionOnFields(
                         IndexItem.ID_FIELD,
                         IndexItem.PERSISTENT_ID_FIELD,
@@ -74,8 +74,8 @@ public class SearchItemRepository {
         return new SimpleFilterQuery(visibilityCriteria);
     }
 
-    private Criteria createQueryCriteria(String q) {
-        List<QueryPart> queryParts = QueryParser.parseQuery(q);
+    private Criteria createQueryCriteria(String q, boolean advancedSearch) {
+        List<QueryPart> queryParts = QueryParser.parseQuery(q, advancedSearch);
         if (queryParts.isEmpty()) {
             return Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains("");
         } else {

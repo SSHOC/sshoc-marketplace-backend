@@ -33,12 +33,12 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
     public DatasetService(DatasetRepository datasetRepository, DatasetFactory datasetFactory,
                           ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                          ItemVisibilityService itemVisibilityService,
+                          ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, itemVisibilityService, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 

@@ -12,6 +12,7 @@ import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
+import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -138,6 +140,65 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("olderVersions[0].id", is(2)))
                 .andExpect(jsonPath("olderVersions[0].label", is("Stata")))
                 .andExpect(jsonPath("newerVersions", hasSize(0)));
+    }
+
+    @Test
+    public void shouldAddRelationBetweenStepsFromTheSameWorkflow() throws Exception {
+        String subjectPersistentId = "sQY6US";
+        String objectPersistentId = "BNw43H";
+        String workflowPersistentId = "vHQEhe";
+
+        ItemRelationId itemRelation = new ItemRelationId();
+        itemRelation.setCode("mentions");
+
+        String payload = mapper.writeValueAsString(itemRelation);
+
+        mvc.perform(
+                post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("subject.category", is("step")))
+                .andExpect(jsonPath("object.persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("object.category", is("step")))
+                .andExpect(jsonPath("relation.code", is("mentions")))
+                .andExpect(jsonPath("relation.label", is("Mentions")));
+
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("id", not(is(21))))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[0].relatedItems", hasSize(1)))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].id", not(is(23))))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].category", is("step")))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].label", is("Run an inflectional analyzer")))
+                .andExpect(jsonPath("composedOf[0].relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("composedOf[1].label", is("Run an inflectional analyzer")))
+                .andExpect(jsonPath("composedOf[1].status", is("approved")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].relatedItems", hasSize(1)))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].id", not(is(22))))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].category", is("step")))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].label", is("Selection of textual works relevant for the research question")))
+                .andExpect(jsonPath("composedOf[1].relatedItems[0].relation.code", is("mentions")))
+                .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
+                .andExpect(jsonPath("composedOf[2].status", is("approved")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)));
     }
 
     @Test
@@ -836,7 +897,6 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[1].persistentId", is("tqmbGY")))
                 .andExpect(jsonPath("relatedItems[1].id", not(is(3))))
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
-                ;
 
         mvc.perform(
                 get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
@@ -900,6 +960,69 @@ public class ItemRelationControllerITCase {
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldAddRelationToWorkflowStepVersion() throws Exception {
+        String workflowId = "tqmbGY";
+
+        WorkflowCore workflow = new WorkflowCore();
+        workflow.setLabel("Creation of a dictionary v2");
+        workflow.setDescription("Best practices for creating a born-digital dictionary, i.e. lorem ipsum.");
+
+        String workflowPayload = mapper.writeValueAsString(workflow);
+
+        mvc.perform(
+                put("/api/workflows/{id}", workflowId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(workflowPayload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowId)))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(workflow.getLabel())))
+                .andExpect(jsonPath("description", is(workflow.getDescription())))
+                .andExpect(jsonPath("composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf[0].label", is("Build the model of the dictionary")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].label", is("Creation of a corpora")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(4)))
+                .andExpect(jsonPath("composedOf[1].composedOf[0].label", is("Corpus composition")))
+                .andExpect(jsonPath("composedOf[1].composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].composedOf[1].label", is("Linguistic annotation")))
+                .andExpect(jsonPath("composedOf[1].composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].composedOf[2].label", is("Selection of a license")))
+                .andExpect(jsonPath("composedOf[1].composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].composedOf[3].label", is("Publishing")))
+                .andExpect(jsonPath("composedOf[1].composedOf[3].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[2].label", is("Write a dictionary")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[3].label", is("Publishing")))
+                .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)));
+
+        String subjectPersistentId = "prblMo";
+        String objectPersistentId = "n21Kfc";
+
+        ItemRelationId itemRelation = new ItemRelationId();
+        itemRelation.setCode("mentions");
+
+        String relationPayload = mapper.writeValueAsString(itemRelation);
+
+        mvc.perform(
+                post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(relationPayload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("subject.category", is("step")))
+                .andExpect(jsonPath("object.persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("object.category", is("tool-or-service")))
+                .andExpect(jsonPath("relation.code", is("mentions")))
+                .andExpect(jsonPath("relation.label", is("Mentions")));
     }
 
     @Test

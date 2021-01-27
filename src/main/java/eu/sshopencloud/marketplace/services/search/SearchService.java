@@ -19,7 +19,6 @@ import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterValuesSelection;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
@@ -50,8 +49,10 @@ public class SearchService {
     private final PropertyTypeService propertyTypeService;
 
 
-    public PaginatedSearchItems searchItems(String q, List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams, List<SearchOrder> order, PageCoords pageCoords)
-            throws IllegalFilterException {
+    public PaginatedSearchItems searchItems(String q, boolean advanced, List<ItemCategory> categories,
+                                            @NotNull Map<String, List<String>> filterParams,
+                                            List<SearchOrder> order, PageCoords pageCoords) throws IllegalFilterException {
+
         log.debug("filterParams " + filterParams.toString());
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         if (StringUtils.isBlank(q)) {
@@ -67,8 +68,7 @@ public class SearchService {
         }
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-
-        FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(q, filterCriteria, currentUser, order, pageable);
+        FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(q, advanced, currentUser, filterCriteria, order, pageable);
 
         Map<ItemCategory, LabeledCheckedCount> categoryFacets = gatherCategoryFacets(facetPage, categories);
         Map<String, Map<String, CheckedCount>> facets = gatherSearchFacets(facetPage, filterParams);
@@ -165,7 +165,7 @@ public class SearchService {
         }
     }
 
-    public PaginatedSearchConcepts searchConcepts(String q, List<String> types, PageCoords pageCoords) {
+    public PaginatedSearchConcepts searchConcepts(String q, boolean advanced, List<String> types, PageCoords pageCoords) {
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         if (StringUtils.isBlank(q)) {
             q = "";
@@ -173,7 +173,7 @@ public class SearchService {
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         filterCriteria.add(makePropertyTypeCriteria(types));
 
-        FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters(q, filterCriteria, pageable);
+        FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters(q, advanced, filterCriteria, pageable);
 
         Map<String, PropertyType> propertyTypes = propertyTypeService.getAllPropertyTypes();
         List<CountedPropertyType> countedPropertyTypes = facetPage.getFacetFields().stream()
@@ -192,6 +192,7 @@ public class SearchService {
                                 (u, v) -> u,
                                 LinkedHashMap::new)))
                 .build();
+
         return result;
     }
 

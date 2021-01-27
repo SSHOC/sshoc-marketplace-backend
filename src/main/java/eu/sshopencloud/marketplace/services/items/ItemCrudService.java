@@ -36,6 +36,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final VersionedItemRepository versionedItemRepository;
     private final ItemVisibilityService itemVisibilityService;
     private final DraftItemRepository draftItemRepository;
+    private final ItemUpgradeRegistry<I> itemUpgradeRegistry;
+
     private final ItemRelatedItemService itemRelatedItemService;
     private final PropertyTypeService propertyTypeService;
     private final IndexService indexService;
@@ -43,7 +45,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                           ItemVisibilityService itemVisibilityService,
+                           ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
@@ -53,6 +55,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         this.versionedItemRepository = versionedItemRepository;
         this.itemVisibilityService = itemVisibilityService;
         this.draftItemRepository = draftItemRepository;
+        this.itemUpgradeRegistry = itemUpgradeRegistry;
+
         this.itemRelatedItemService = itemRelatedItemService;
         this.propertyTypeService = propertyTypeService;
         this.indexService = indexService;
@@ -98,12 +102,21 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected D prepareItemDto(I item) {
+        return prepareItemDto(item, true);
+    }
+
+    protected D prepareItemDto(I item, boolean withHistory) {
         D dto = convertItemToDto(item);
 
         List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
         dto.setRelatedItems(relatedItems);
 
-        return completeItem(dto);
+        completeItem(dto);
+
+        if (withHistory)
+            completeHistory(dto);
+
+        return dto;
     }
 
     protected I createItem(C itemCore, boolean draft) {
@@ -302,12 +315,17 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 return itemDraft.get();
         }
 
+        Optional<I> upgradedVersion = itemUpgradeRegistry.resolveUpgradedVersion(persistentId);
+        if (upgradedVersion.isPresent())
+            return upgradedVersion.get();
+
         I item = loadCurrentItem(persistentId);
         I newItem = makeItemVersionCopy(item);
 
         newItem = saveVersionInHistory(newItem, item, draft, modifyStatus);
         copyVersionRelations(newItem, item);
 
+        itemUpgradeRegistry.registerUpgradedVersion(newItem);
         indexService.indexItem(newItem);
 
         return newItem;
@@ -386,15 +404,14 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
-    private D completeItem(D item) {
+    private void completeItem(D item) {
+        for (PropertyDto property : item.getProperties())
+            propertyTypeService.completePropertyType(property.getType());
+    }
+
+    private void completeHistory(D item) {
         item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
         item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
-
-        for (PropertyDto property : item.getProperties()) {
-            propertyTypeService.completePropertyType(property.getType());
-        }
-
-        return item;
     }
 
     private I makeItemVersion(C itemCore, I prevItem) {

@@ -37,29 +37,32 @@ class SearchController {
 
     @GetMapping("/item-search")
     @Operation(description = "Search among items.")
-    public ResponseEntity<PaginatedSearchItems> searchItems(@RequestParam(value = "q", required = false) String q,
-                                                     @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
-                                                     @RequestParam(value = "order", required = false) List<SearchOrder> order,
-                                                     @RequestParam(value = "page", required = false) Integer page,
-                                                     @RequestParam(value = "perpage", required = false) Integer perpage,
-                                                     @Parameter(description = "Facets parameters should be provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: "
-                                                             + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
-                                                     @RequestParam(required = false) MultiValueMap<String, String> f)
-            throws PageTooLargeException, IllegalFilterException {
+    public ResponseEntity<PaginatedSearchItems> searchItems(
+            @RequestParam(value = "q", required = false) String q,
+            @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
+            @RequestParam(value = "order", required = false) List<SearchOrder> order,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "perpage", required = false) Integer perpage,
+            @RequestParam(value = "advanced", defaultValue = "false") boolean advanced,
+            @Parameter(
+                    description = "Facets parameters should be provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: "
+                            + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
+            @RequestParam(required = false) MultiValueMap<String, String> f) throws PageTooLargeException, IllegalFilterException {
 
         Map<String, List<String>> filterParams = FilterParamsExtractor.extractFilterParams(f);
-        return ResponseEntity.ok(searchService.searchItems(q, categories, filterParams, order, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(searchService.searchItems(q, advanced, categories, filterParams, order, pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping("/concept-search")
     @Operation(description = "Search among concepts.")
     public ResponseEntity<PaginatedSearchConcepts> searchConcepts(@RequestParam(value = "q", required = false) String q,
-                                                        @RequestParam(value = "types", required = false) List<String> types,
-                                                        @RequestParam(value = "page", required = false) Integer page,
-                                                        @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                                  @RequestParam(value = "types", required = false) List<String> types,
+                                                                  @RequestParam(value = "page", required = false) Integer page,
+                                                                  @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                                  @RequestParam(value = "advanced", defaultValue = "false") boolean advanced)
             throws PageTooLargeException {
 
-        return ResponseEntity.ok(searchService.searchConcepts(q, types, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(searchService.searchConcepts(q, advanced, types, pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping("/item-search/autocomplete")

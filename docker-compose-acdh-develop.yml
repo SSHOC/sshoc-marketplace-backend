@@ -1,13 +1,20 @@
 version: "2"
 services:
   marketplace:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile-acdh-ch
+      args: 
+        - GID=1032
+        - UID=1032
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
     container_name: sshoc-marketplace-backend-api
     depends_on:
       - psql
       - solr
     environment:
+      GID: 1032
+      UID: 1032
       APPLICATION_PROFILE: prod
       POSTGRES_DB: marketplace_db
       POSTGRES_USER: marketplace
@@ -16,11 +23,13 @@ services:
       POSTGRES_PORT: 5432
       SOLR_HOST: solr
       SOLR_PORT: 8983
+      aai_base_uri: https://aai-dev.egi.eu/oidc
       egi_id: ${egi_id}
       egi_secret: ${egi_secret}
       token_secret: ${token_secret}
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
+      marketplace_log_dir: /log
     labels:
       - traefik.backend=marketplace-api
       - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh-dev.oeaw.ac.at
@@ -30,6 +39,8 @@ services:
     networks:
       - backend
       - web
+    volumes:
+      - app-log:/log
   psql:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres
@@ -40,6 +51,8 @@ services:
       POSTGRES_USER: marketplace
       POSTGRES_PASSWORD: marketplace
       POSTGRES_HOST: psql
+    labels:
+      - ID=18661
     networks:
       - backend
   solr:
@@ -53,6 +66,7 @@ services:
       - traefik.frontend.rule=Host:marketplace-solr.sisyphos.arz.oeaw.ac.at
       - traefik.docker.network=web
       - traefik.port=8983
+      - ID=18662
     networks:
       - backend
       - web
@@ -100,4 +114,10 @@ volumes:
     driver_opts:
       type: "none"
       device: "/var/run"
+      o: "bind"
+  app-log:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmp/shares/app-log"
       o: "bind"

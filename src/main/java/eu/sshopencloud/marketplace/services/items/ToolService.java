@@ -30,12 +30,12 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
     public ToolService(ToolRepository toolRepository, ToolFactory toolFactory,
                        ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                       ItemVisibilityService itemVisibilityService,
+                       ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Tool> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                        PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, itemVisibilityService, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
