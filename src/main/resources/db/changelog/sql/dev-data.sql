@@ -6,12 +6,8 @@
 -- Dumped by pg_dump version 9.6.17
 
 
--- Disable all necessary constraints
-ALTER TABLE concept_relations DISABLE TRIGGER ALL;
-ALTER TABLE item_relations DISABLE TRIGGER ALL;
-ALTER TABLE items DISABLE TRIGGER ALL;
-ALTER TABLE steps DISABLE TRIGGER ALL;
-
+-- Disabling all necessary constraints is not an option if this is run without superuser priviledges
+-- Running as ordinary user should be the default (and is in a gitlab/helm charts based setup)
 
 --
 -- Data for Name: actor_roles; Type: TABLE DATA; Schema: public; Owner: marketplace
@@ -52,10 +48,12 @@ SELECT pg_catalog.setval('public.actors_id_seq', 51, true);
 -- Data for Name: concept_relations; Type: TABLE DATA; Schema: public; Owner: marketplace
 --
 
+BEGIN TRANSACTION;
 INSERT INTO public.concept_relations (code, label, ord, inverse_of_code) VALUES ('related', 'Related', 1, 'related');
 INSERT INTO public.concept_relations (code, label, ord, inverse_of_code) VALUES ('sameAs', 'Same as', 2, 'sameAs');
 INSERT INTO public.concept_relations (code, label, ord, inverse_of_code) VALUES ('broader', 'Broader', 3, 'narrower');
 INSERT INTO public.concept_relations (code, label, ord, inverse_of_code) VALUES ('narrower', 'Narrower', 4, 'broader');
+COMMIT TRANSACTION;
 
 
 --
@@ -1216,6 +1214,7 @@ SELECT pg_catalog.setval('public.item_comments_id_seq', 51, true);
 -- Data for Name: item_relations; Type: TABLE DATA; Schema: public; Owner: marketplace
 --
 
+BEGIN TRANSACTION;
 INSERT INTO public.item_relations (code, label, ord, inverse_of_code) VALUES ('relates-to', 'Relates to', 1, 'is-related-to');
 INSERT INTO public.item_relations (code, label, ord, inverse_of_code) VALUES ('is-related-to', 'Is related to', 2, 'relates-to');
 INSERT INTO public.item_relations (code, label, ord, inverse_of_code) VALUES ('documents', 'Documents', 3, 'is-documented-by');
@@ -1224,6 +1223,7 @@ INSERT INTO public.item_relations (code, label, ord, inverse_of_code) VALUES ('m
 INSERT INTO public.item_relations (code, label, ord, inverse_of_code) VALUES ('is-mentioned-in', 'Is mentioned in', 6, 'mentions');
 INSERT INTO public.item_relations (code, label, ord, inverse_of_code) VALUES ('extends', 'Enxtends', 7, 'is-extended-by');
 INSERT INTO public.item_relations (code, label, ord, inverse_of_code) VALUES ('is-extended-by', 'Is extended by', 8, 'extends');
+COMMIT TRANSACTION;
 
 
 --
@@ -1594,14 +1594,7 @@ INSERT INTO public.training_materials (id) VALUES (8);
 
 SELECT pg_catalog.setval('public.users_id_seq', 500, false);
 
-
--- Enable back all necessary constraints
-ALTER TABLE concept_relations ENABLE TRIGGER ALL;
-ALTER TABLE item_relations ENABLE TRIGGER ALL;
-ALTER TABLE items ENABLE TRIGGER ALL;
-ALTER TABLE steps ENABLE TRIGGER ALL;
-
 --
--- PostgreSQL database dump complete
+-- PostgreSQL database dump, edited due to ENABLE/DISABLE TRIGGERS restrictions.
 --
 

@@ -1190,7 +1190,7 @@ databaseChangeLog:
         baseTableName: item_relations
         constraintName: item_relation_inverse_of_code_fk
         deferrable: false
-        initiallyDeferred: false
+        initiallyDeferred: true
         onDelete: NO ACTION
         onUpdate: NO ACTION
         referencedColumnNames: code
@@ -1415,7 +1415,7 @@ databaseChangeLog:
         baseTableName: concept_relations
         constraintName: concept_relation_inverse_of_code_fk
         deferrable: false
-        initiallyDeferred: false
+        initiallyDeferred: true
         onDelete: NO ACTION
         onUpdate: NO ACTION
         referencedColumnNames: code
