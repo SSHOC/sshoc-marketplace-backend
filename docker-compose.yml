@@ -19,9 +19,11 @@ services:
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
       SPRING_DATA_SOLR_HOST: http://solr:8983/solr
-      SPRING_DATASOURCE_URL: jdbc:postgresql://psql:5432/marketplace_db
-      SPRING_DATASOURCE_USERNAME: marketplace
-      SPRING_DATASOURCE_PASSWORD: marketplace
+      DATABASE_URL: postgres://marketplace:marketplace@psql:5432/marketplace_db
+      CI: "true"
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://psql:5432/marketplace_db
+#      SPRING_DATASOURCE_USERNAME: marketplace
+#      SPRING_DATASOURCE_PASSWORD: marketplace
 
   psql:
     image: postgres:9.6
