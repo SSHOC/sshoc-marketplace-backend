@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: "jdbc:postgresql://localhost:5433/marketplace_db"
+    url: ${SPRING_DATASOURCE_URL:"jdbc:postgresql://localhost:5433/marketplace_db}
   jpa:
     show-sql: true
   data:
     solr:
-      host: "http://localhost:8984/solr"
+      host: ${SPRING_DATA_SOLR_HOST:http://localhost:8984/solr}
 
   liquibase:
     contexts: test

@@ -2,9 +2,11 @@ version: "3"
 
 services:
   marketplace:
-    build: .
+    build:
+      context: .
+      dockerfile: container/Dockerfile
     ports:
-      - 8080:8080
+      - 5000:5000
       - 9990:9990
     depends_on:
       - psql
@@ -16,6 +18,10 @@ services:
       token_secret: ${token_secret}
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
+      SPRING_DATA_SOLR_HOST: http://solr:8983/solr
+      SPRING_DATASOURCE_URL: jdbc:postgresql://psql:5432/marketplace_db
+      SPRING_DATASOURCE_USERNAME: marketplace
+      SPRING_DATASOURCE_PASSWORD: marketplace
 
   psql:
     image: postgres:9.6
@@ -30,6 +36,7 @@ services:
 
   solr:
     build: etc/solr
+    image: sshoc-marketplace/solr:latest
     ports:
       - 8983:8983
     volumes:

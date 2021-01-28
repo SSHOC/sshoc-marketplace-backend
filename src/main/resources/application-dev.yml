@@ -1,10 +1,4 @@
 spring:
-    datasource:
-        url: "jdbc:postgresql://psql:5432/marketplace_db"
-    data:
-        solr:
-            host: "http://solr:8983/solr"
-
     jpa:
         show-sql: true
         properties:
