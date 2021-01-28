@@ -62,7 +62,7 @@ public class IndexConverter {
                 .vocabularyCode(vocabulary.getCode())
                 .label(concept.getLabel())
                 .notation(concept.getNotation())
-                .definition(concept.getDefinition()).definitionText(concept.getDefinition()).definitionTextEn(concept.getDefinition())
+                .definition(concept.getDefinition())
                 .uri(concept.getUri())
                 .types(proopertyTypes.stream().map(PropertyType::getCode).collect(Collectors.toList()));
         return builder.build();

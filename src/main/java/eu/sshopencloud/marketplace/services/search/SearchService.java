@@ -17,7 +17,6 @@ import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterValuesSelection;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
