@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: container/Dockerfile
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/kubernetes-test
     ports:
       - 5000:5000
       - 9990:9990
