@@ -10,9 +10,19 @@ databaseChangeLog:
               - column:
                   name: item_id
                   type: varchar(128)
-                  constraints:
-                    foreignKeyName: item_comment_persistent_id_fk
-                    references: versioned_items(id)
+  - changeSet:
+      id: 0015-SSHOC_29-item_comments-1a
+      author: swolarz
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: item_id
+          baseTableName: item_comments
+          constraintName: item_versioned_item_fk
+          deferrable: false
+          initiallyDeferred: true
+          referencedColumnNames: id
+          referencedTableName: versioned_items
+          validate: true
 
   - changeSet:
       id: 0015-SSHOC_29-item_comments-2

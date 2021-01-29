@@ -25,10 +25,20 @@ databaseChangeLog:
               - column:
                   name: persistent_id
                   type: varchar(128)
-                  constraints:
-                    foreignKeyName: item_versioned_item_fk
-                    references: versioned_items(id)
-
+  - changeSet:
+      id: 0011-SSHOC_29-versioned_item-2a
+      author: swolarz
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: persistent_id
+          baseTableName: items
+          constraintName: item_versioned_item_fk
+          deferrable: false
+          initiallyDeferred: true
+          referencedColumnNames: id
+          referencedTableName: versioned_items
+          validate: true
+        
   - changeSet:
       id: 0011-SSHOC_29-versioned_item-3
       author: swolarz

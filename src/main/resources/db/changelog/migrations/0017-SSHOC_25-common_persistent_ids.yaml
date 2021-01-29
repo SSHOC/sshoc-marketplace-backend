@@ -15,10 +15,7 @@ databaseChangeLog:
       context: dev, test
       changes:
         - sql:
-            sql: alter table items disable trigger all
-        - sql:
-            sql: alter table versioned_items disable trigger all
-
+            sql: begin transaction
         - sql:
             sql: update items set persistent_id = 'n21Kfc' where id = 1
         - sql:
@@ -70,8 +67,12 @@ databaseChangeLog:
 
         - sql:
             sql: update versioned_items v set id = (select persistent_id from items i where i.id = v.curr_ver_id)
-
         - sql:
-            sql: alter table items enable trigger all
+            sql: >
+              update item_comments c set item_id = (
+                select persistent_id from items i
+                  join items_items_comments ic on ic.item_id = i.id
+                  where c.id = ic.item_comment_id
+              )
         - sql:
-            sql: alter table versioned_items enable trigger all
+            sql: commit transaction
