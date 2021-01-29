@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="marketplace" type="Application" factoryName="Application">
+    <envs>
+      <env name="APPLICATION_PROFILE" value="dev" />
+      <env name="SPRING_DATA_SOLR_HOST" value="http://localhost:8983/solr" />
+      <env name="SPRING_DATASOURCE_URL" value="jdbc:postgresql://localhost:5432/marketplace_db" />
+      <env name="SPRING_DATASOURCE_USERNAME" value="user" />
+      <env name="SPRING_DATASOURCE_PASSWORD" value="testing-password" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="eu.sshopencloud.marketplace.MarketplaceApplication" />
+    <module name="marketplace" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
