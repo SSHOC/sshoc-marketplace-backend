@@ -27,15 +27,15 @@ services:
 #      SPRING_DATASOURCE_PASSWORD: marketplace
 
   psql:
-    image: postgres:9.6
+    image: bitnami/postgresql:9.6.16
     ports:
       - 5432:5432
     volumes:
-      - psql-data:/var/lib/postgresql/data
+      - psql-data:/bitnami/postgresql
     environment:
-      POSTGRES_DB: marketplace_db
-      POSTGRES_USER: marketplace
-      POSTGRES_PASSWORD: marketplace
+      POSTGRESQL_DATABASE: marketplace_db
+      POSTGRESQL_USERNAME: marketplace
+      POSTGRESQL_PASSWORD: marketplace
 
   solr:
     build: etc/solr
