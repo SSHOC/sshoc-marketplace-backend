@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.model.search;
 
-
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.Indexed;
@@ -8,13 +7,13 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import java.util.List;
 
+
 @SolrDocument(collection = IndexItem.COLLECTION_NAME)
 @Data
-@Builder
-@AllArgsConstructor
+@Builder(toBuilder = true)
 @NoArgsConstructor
+@AllArgsConstructor
 public class IndexItem {
-
     public static final String COLLECTION_NAME = "marketplace-items";
 
     public static final String ID_FIELD = "id";
@@ -29,6 +28,9 @@ public class IndexItem {
     public static final String DESCRIPTION_TEXT_EN_FIELD = "description_text_en";
 
     public static final String CATEGORY_FIELD = "category";
+    public static final String STATUS_FIELD = "status";
+
+    public static final String OWNER_FIELD = "owner";
 
     public static final String LAST_INFO_UPDATE_FIELD = "modified_on";
 
@@ -42,7 +44,7 @@ public class IndexItem {
 
     @Id
     @Indexed(name = ID_FIELD, type = "string")
-    private Long id;
+    private Long versionId;
 
     @Indexed(name = PERSISTENT_ID_FIELD, type = "string")
     private String persistentId;
@@ -67,6 +69,12 @@ public class IndexItem {
 
     @Indexed(name = CATEGORY_FIELD, type = "string")
     private String category;
+
+    @Indexed(name = STATUS_FIELD, type = "string")
+    private String status;
+
+    @Indexed(name = OWNER_FIELD, type = "string")
+    private String owner;
 
     @Indexed(name = LAST_INFO_UPDATE_FIELD, type = "pdate")
     private String lastInfoUpdate;

@@ -33,12 +33,12 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
     public DatasetService(DatasetRepository datasetRepository, DatasetFactory datasetFactory,
                           ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                          ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
+                          ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, itemUpgradeRegistry, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
@@ -47,16 +47,16 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
 
-    public PaginatedDatasets getDatasets(PageCoords pageCoords) {
-        return super.getItemsPage(pageCoords);
+    public PaginatedDatasets getDatasets(PageCoords pageCoords, boolean approved) {
+        return getItemsPage(pageCoords, approved);
     }
 
     public DatasetDto getDatasetVersion(String persistentId, Long versionId) {
-        return super.getItemVersion(persistentId, versionId);
+        return getItemVersion(persistentId, versionId);
     }
 
-    public DatasetDto getLatestDataset(String persistentId, boolean draft) {
-        return getLatestItem(persistentId, draft);
+    public DatasetDto getLatestDataset(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public DatasetDto createDataset(DatasetCore datasetCore, boolean draft) {

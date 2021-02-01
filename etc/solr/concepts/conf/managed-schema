@@ -114,6 +114,8 @@
     <field name="code" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="vocabulary_code" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="label" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="label_text" type="text_general_rev" indexed="true" stored="false" required="true" multiValued="false" />
+    <field name="label_text_en" type="text_en" indexed="true" stored="false" required="true" multiValued="false" />
     <field name="notation" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="definition" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="definition_text" type="text_general_rev" indexed="true" stored="false" required="true" multiValued="false" />
@@ -131,6 +133,11 @@
     <field name="_nest_path_" type="_nest_path_" /><fieldType name="_nest_path_" class="solr.NestPathField" />
 
     <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
+
+    <copyField source="label" dest="label_text" />
+    <copyField source="label" dest="label_text_en" />
+    <copyField source="definition" dest="definition_text" />
+    <copyField source="definition" dest="definition_text_en" />
 
     <!-- This can be enabled, in case the client does not know what fields may be searched. It isn't enabled by default
          because it's very expensive to index everything twice. -->

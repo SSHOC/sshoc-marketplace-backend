@@ -23,16 +23,18 @@ public class DatasetController {
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedDatasets> getDatasets(@RequestParam(value = "page", required = false) Integer page,
-                                                         @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                         @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                         @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
-        return ResponseEntity.ok(datasetService.getDatasets(pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(datasetService.getDatasets(pageCoordsValidator.validate(page, perpage), approved));
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") String id,
-                                                 @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                                 @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(datasetService.getLatestDataset(id, draft));
+        return ResponseEntity.ok(datasetService.getLatestDataset(id, draft, approved));
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -42,14 +44,14 @@ public class DatasetController {
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> createDataset(@RequestBody DatasetCore newDataset,
-                                                    @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(datasetService.createDataset(newDataset, draft));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> updateDataset(@PathVariable("id") String id, @RequestBody DatasetCore updatedDataset,
-                                                    @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(datasetService.updateDataset(id, updatedDataset, draft));
     }
@@ -61,7 +63,7 @@ public class DatasetController {
 
     @DeleteMapping(path = "/{id}")
     public void deleteDataset(@PathVariable("id") String id,
-                              @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                              @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         datasetService.deleteDataset(id, draft);
     }

@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.search.*;
 import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyMapper;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
@@ -12,12 +13,12 @@ import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.repositories.search.dto.SuggestedSearchPhrases;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterValuesSelection;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
@@ -42,14 +43,11 @@ import java.util.stream.Collectors;
 public class SearchService {
 
     private final SearchItemRepository searchItemRepository;
-
     private final ItemContributorService itemContributorService;
-
     private final PropertyService propertyService;
-
     private final SearchConceptRepository searchConceptRepository;
-
     private final PropertyTypeService propertyTypeService;
+
 
     public PaginatedSearchItems searchItems(String q, boolean advanced, List<ItemCategory> categories,
                                             @NotNull Map<String, List<String>> filterParams,
@@ -69,12 +67,20 @@ public class SearchService {
             order = Collections.singletonList(SearchOrder.SCORE);
         }
 
-        FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(q, advanced, filterCriteria, order, pageable);
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(q, advanced, currentUser, filterCriteria, order, pageable);
 
         Map<ItemCategory, LabeledCheckedCount> categoryFacets = gatherCategoryFacets(facetPage, categories);
         Map<String, Map<String, CheckedCount>> facets = gatherSearchFacets(facetPage, filterParams);
 
-        PaginatedSearchItems result = PaginatedSearchItems.builder().q(q).order(order).items(facetPage.get().map(SearchConverter::convertIndexItem).collect(Collectors.toList()))
+        PaginatedSearchItems result = PaginatedSearchItems.builder()
+                .q(q)
+                .order(order)
+                .items(
+                        facetPage.get()
+                                .map(SearchConverter::convertIndexItem)
+                                .collect(Collectors.toList())
+                )
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())

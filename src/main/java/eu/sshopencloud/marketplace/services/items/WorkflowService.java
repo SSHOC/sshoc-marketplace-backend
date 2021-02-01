@@ -39,14 +39,14 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     private final StepService stepService;
 
 
-    public WorkflowService(WorkflowRepository workflowRepository, WorkflowFactory workflowFactory,
-                           @Lazy StepService stepService, ItemRepository itemRepository,
-                           VersionedItemRepository versionedItemRepository, ItemUpgradeRegistry<Workflow> itemUpgradeRegistry,
+    public WorkflowService(WorkflowRepository workflowRepository, WorkflowFactory workflowFactory, @Lazy StepService stepService,
+                           ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                           ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Workflow> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, itemUpgradeRegistry, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
@@ -56,16 +56,16 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
 
-    public PaginatedWorkflows getWorkflows(PageCoords pageCoords) {
-        return super.getItemsPage(pageCoords);
+    public PaginatedWorkflows getWorkflows(PageCoords pageCoords, boolean approved) {
+        return getItemsPage(pageCoords, approved);
     }
 
-    public WorkflowDto getLatestWorkflow(String persistentId, boolean draft) {
-        return super.getLatestItem(persistentId, draft);
+    public WorkflowDto getLatestWorkflow(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public WorkflowDto getWorkflowVersion(String persistentId, long versionId) {
-        return super.getItemVersion(persistentId, versionId);
+        return getItemVersion(persistentId, versionId);
     }
 
     private void collectSteps(WorkflowDto dto, Workflow workflow) {
@@ -131,7 +131,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public void deleteWorkflow(String persistentId, boolean draft) {
-        Workflow workflow = super.loadLatestItem(persistentId);
+        Workflow workflow = loadLatestItem(persistentId);
         workflow.getStepsTree().visit(new StepsTreeVisitor() {
             @Override
             public void onNextStep(StepsTree stepTree) {

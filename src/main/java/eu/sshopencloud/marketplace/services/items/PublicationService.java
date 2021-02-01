@@ -30,12 +30,12 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     public PublicationService(PublicationRepository publicationRepository, PublicationFactory publicationFactory,
                               ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                              ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
+                              ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                               PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, itemUpgradeRegistry, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
@@ -44,12 +44,12 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
 
-    public PaginatedPublications getPublications(PageCoords pageCoords) {
-        return getItemsPage(pageCoords);
+    public PaginatedPublications getPublications(PageCoords pageCoords, boolean approved) {
+        return getItemsPage(pageCoords, approved);
     }
 
-    public PublicationDto getLatestPublication(String persistentId, boolean draft) {
-        return getLatestItem(persistentId, draft);
+    public PublicationDto getLatestPublication(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public PublicationDto getPublicationVersion(String persistentId, long versionId) {

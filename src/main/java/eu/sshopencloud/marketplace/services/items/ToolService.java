@@ -28,13 +28,14 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     private final ToolFactory toolFactory;
 
 
-    public ToolService(ToolRepository toolRepository, ToolFactory toolFactory, ItemRepository itemRepository,
-                       VersionedItemRepository versionedItemRepository, ItemUpgradeRegistry<Tool> itemUpgradeRegistry,
+    public ToolService(ToolRepository toolRepository, ToolFactory toolFactory,
+                       ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                       ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Tool> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                        PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, itemUpgradeRegistry, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
@@ -43,16 +44,16 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
 
-    public PaginatedTools getTools(PageCoords pageCoords) {
-        return super.getItemsPage(pageCoords);
+    public PaginatedTools getTools(PageCoords pageCoords, boolean approved) {
+        return getItemsPage(pageCoords, approved);
     }
 
     public ToolDto getToolVersion(String persistentId, long versionId) {
         return getItemVersion(persistentId, versionId);
     }
 
-    public ToolDto getLatestTool(String persistentId, boolean draft) {
-        return getLatestItem(persistentId, draft);
+    public ToolDto getLatestTool(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public ToolDto createTool(ToolCore toolCore, boolean draft) {
