@@ -10,7 +10,10 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
+import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
+import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
+import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
@@ -34,8 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -56,6 +58,7 @@ public class DatasetControllerITCase {
     private ObjectMapper mapper;
 
     private String CONTRIBUTOR_JWT;
+    private String IMPORTER_JWT;
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
 
@@ -63,6 +66,7 @@ public class DatasetControllerITCase {
     public void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
     }
@@ -656,5 +660,125 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldRetrieveSuggestedDataset() throws Exception {
+        String datasetId = "OdKfPc";
+        int datasetVersionId = 10;
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Suggested dataset");
+        dataset.setDescription("This is a suggested dataset");
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                put("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("id", not(is(datasetVersionId))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("id", not(is(datasetVersionId))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("id", is(datasetVersionId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")));
+
+        mvc.perform(get("/api/datasets/{id}", datasetId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("id", is(datasetVersionId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")));
+    }
+
+    @Test
+    public void shouldUpdateAndValidateAccessToSuggestedItemVersion() throws Exception {
+        String datasetId = "OdKfPc";
+        int datasetVersionId = 10;
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Suggested dataset version");
+        dataset.setDescription("This is a suggested dataset version");
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        String datasetResponse = mvc.perform(
+                put("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("id", not(is(datasetVersionId))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andReturn().getResponse().getContentAsString();
+
+        DatasetDto datasetDto = mapper.readValue(datasetResponse, DatasetDto.class);
+        int newDatasetVersionId = datasetDto.getId().intValue();
+
+        mvc.perform(
+                get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("id", not(is(datasetVersionId))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("id", not(is(datasetVersionId))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("id", not(is(datasetVersionId))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isForbidden());
+
+        mvc.perform(get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId))
+                .andExpect(status().isForbidden());
     }
 }

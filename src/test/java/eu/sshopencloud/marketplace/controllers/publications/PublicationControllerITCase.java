@@ -38,11 +38,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -58,10 +59,14 @@ public class PublicationControllerITCase {
     @Autowired
     private ObjectMapper mapper;
 
+    private String CONTRIBUTOR_JWT;
+    private String IMPORTER_JWT;
     private String MODERATOR_JWT;
 
     @Before
     public void init() throws Exception {
+        CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
     }
 
@@ -71,6 +76,110 @@ public class PublicationControllerITCase {
         mvc.perform(get("/api/publications")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldReturnPublicationsAndTheProposedOnes() throws Exception {
+        PublicationCore publication1 = new PublicationCore();
+        publication1.setLabel("Test proposed publication");
+        publication1.setDescription("Lorem ipsum dolor");
+
+        String payload1 = mapper.writeValueAsString(publication1);
+
+        String publicationJson1 = mvc.perform(
+                post("/api/publications")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload1)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(publication1.getLabel())))
+                .andExpect(jsonPath("description", is(publication1.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto publicationDto1 = mapper.readValue(publicationJson1, PublicationDto.class);
+        String publicationId = publicationDto1.getPersistentId();
+        int publicationVersionId1 = publicationDto1.getId().intValue();
+
+        PublicationCore publication2 = new PublicationCore();
+        publication2.setLabel("Test ingested publication");
+        publication2.setDescription("Lorem ipsum dolor sit");
+
+        String payload2 = mapper.writeValueAsString(publication2);
+
+        String publicationJson2 = mvc.perform(
+                put("/api/publications/{id}", publicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload2)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is(publication2.getLabel())))
+                .andExpect(jsonPath("description", is(publication2.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto publicationDto2 = mapper.readValue(publicationJson2, PublicationDto.class);
+        int publicationVersionId2 = publicationDto2.getId().intValue();
+
+        mvc.perform(
+                get("/api/publications/{id}", publicationId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(publicationId)))
+                .andExpect(jsonPath("id", is(publicationVersionId1)))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(publication1.getLabel())))
+                .andExpect(jsonPath("description", is(publication1.getDescription())));
+
+        mvc.perform(
+                get("/api/publications")
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("publications", hasSize(1)))
+                .andExpect(jsonPath("publications[0].persistentId", is(publicationId)))
+                .andExpect(jsonPath("publications[0].id", is(publicationVersionId1)))
+                .andExpect(jsonPath("publications[0].status", is("suggested")));
+
+        mvc.perform(
+                get("/api/publications")
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("publications", hasSize(1)))
+                .andExpect(jsonPath("publications[0].persistentId", is(publicationId)))
+                .andExpect(jsonPath("publications[0].id", is(publicationVersionId2)))
+                .andExpect(jsonPath("publications[0].status", is("ingested")));
+
+        mvc.perform(
+                get("/api/publications")
+                        .param("approved", "false")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(2)))
+                .andExpect(jsonPath("publications", hasSize(2)))
+                .andExpect(jsonPath("publications[0].persistentId", is(publicationId)))
+                .andExpect(jsonPath("publications[0].id", is(publicationVersionId2)))
+                .andExpect(jsonPath("publications[0].status", is("ingested")))
+                .andExpect(jsonPath("publications[1].persistentId", is(publicationId)))
+                .andExpect(jsonPath("publications[1].id", is(publicationVersionId1)))
+                .andExpect(jsonPath("publications[1].status", is("suggested")));
     }
 
 
@@ -410,5 +519,63 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("properties[0].type.label", is("Timestamp")))
                 .andExpect(jsonPath("properties[0].type.type", is("date")))
                 .andExpect(jsonPath("properties[0].value", is("2020-12-24T20:02:00+0001")));
+    }
+
+    @Test
+    public void shouldRetrieveSuggestedPublication() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Suggested publication");
+        publication.setDescription("This is a suggested publication");
+
+        String payload = mapper.writeValueAsString(publication);
+
+        String publicationJson = mvc.perform(
+                post("/api/publications")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto publicationDto = mapper.readValue(publicationJson, PublicationDto.class);
+        String publicationId = publicationDto.getPersistentId();
+        int publicationVersionId = publicationDto.getId().intValue();
+
+        mvc.perform(
+                get("/api/publications/{id}", publicationId)
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(publicationId)))
+                .andExpect(jsonPath("id", is(publicationVersionId)))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/publications/{id}", publicationId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/tools-services/{id}", publicationId))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(
+                get("/api/publications/{id}", publicationId)
+                        .param("approved", "false")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(publicationId)))
+                .andExpect(jsonPath("id", is(publicationVersionId)))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("ingested")));
     }
 }

@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0027-SSHOC_47-versions_visibility-1
+      author: swolarz
+      description: Add columns for proposed flag and information contributor in items table
+      changes:
+        - addColumn:
+            tableName: items
+            columns:
+              - column:
+                  name: proposed_version
+                  type: boolean
+                  valueBoolean: false
+              - column:
+                  name: info_contributor_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: item_info_contributor_fk
+                    references: users(id)
+
+  - changeSet:
+      id: 0027-SSHOC_47-versions_visibility-2
+      author: swolarz
+      description: Migrate item's information contributor relation to items table
+      changes:
+        - sql:
+            sql: >
+              update items i set info_contributor_id = (
+                select c.user_id from items_information_contributors c
+                  where i.id = c.item_id
+              )
+        - addNotNullConstraint:
+            tableName: items
+            columnName: info_contributor_id
+
+  - changeSet:
+      id: 0027-SSHOC_47-versions_visibility-3
+      author: swolarz
+      description: Create indexes for fast proposed versions lookup
+      changes:
+        - createIndex:
+            indexName: items_proposed_version_info_contributor_idx
+            tableName: items
+            columns:
+              - column:
+                  name: proposed_version
+              - column:
+                  name: info_contributor_id
+              - column:
+                  name: label
+
+        - createIndex:
+            indexName: items_proposed_versions_idx
+            tableName: items
+            columns:
+              - column:
+                  name: proposed_version
+              - column:
+                  name: label

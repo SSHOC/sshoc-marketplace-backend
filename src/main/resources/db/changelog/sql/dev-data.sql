@@ -1286,6 +1286,7 @@ INSERT INTO public.items_information_contributors (item_id, user_id, ord) VALUES
 INSERT INTO public.items_information_contributors (item_id, user_id, ord) VALUES (8, 1, 1);
 INSERT INTO public.items_information_contributors (item_id, user_id, ord) VALUES (9, 3, 0);
 INSERT INTO public.items_information_contributors (item_id, user_id, ord) VALUES (10, 1, 0);
+INSERT INTO public.items_information_contributors (item_id, user_id, ord) VALUES (11, 3, 0);
 INSERT INTO public.items_information_contributors (item_id, user_id, ord) VALUES (12, 3, 0);
 INSERT INTO public.items_information_contributors (item_id, user_id, ord) VALUES (13, 3, 0);
 INSERT INTO public.items_information_contributors (item_id, user_id, ord) VALUES (14, 3, 0);

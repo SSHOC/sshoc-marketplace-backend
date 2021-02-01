@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.auth;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -11,6 +12,7 @@ import java.time.ZonedDateTime;
 @Entity
 @Table(name = "users")
 @Data
+@EqualsAndHashCode(of = { "id", "username", "role" })
 @NoArgsConstructor
 public class User {
 
@@ -25,45 +27,31 @@ public class User {
     )
     private Long id;
 
-    @Basic
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Basic
     @Column(nullable = false)
     private String displayName;
 
-    @Basic
-    @Column(nullable = true)
     private String password;
 
-    @Basic()
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean enabled;
 
-    @Basic()
-    @Column(nullable = true)
     private ZonedDateTime registrationDate;
 
-    @Basic
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
     private UserRole role;
 
-    @Basic
-    @Column(nullable = true)
     private String provider;
 
-    @Basic
     @Column(nullable = true)
     private String tokenKey;
 
-    @Basic
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    @Basic(fetch = FetchType.EAGER, optional = false)
     private String preferences;
 
 

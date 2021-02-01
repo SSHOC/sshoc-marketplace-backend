@@ -40,6 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -57,6 +58,7 @@ public class TrainingMaterialControllerITCase {
     private ObjectMapper testMapper;
 
     private String CONTRIBUTOR_JWT;
+    private String IMPORTER_JWT;
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
 
@@ -64,6 +66,7 @@ public class TrainingMaterialControllerITCase {
     public void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
 
@@ -76,6 +79,168 @@ public class TrainingMaterialControllerITCase {
         mvc.perform(get("/api/training-materials")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldReturnApprovedAndProposedTrainingMaterials() throws Exception {
+        String trainingMaterialId = "JmBgWa";
+
+        TrainingMaterialCore trainingMaterial1 = new TrainingMaterialCore();
+        trainingMaterial1.setLabel("Abc: Test proposed training material");
+        trainingMaterial1.setDescription("Lorem ipsum dolor");
+
+        String payload1 = mapper.writeValueAsString(trainingMaterial1);
+
+        String trainingMaterialJson1 = mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload1)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(trainingMaterial1.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial1.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterialDto1 = mapper.readValue(trainingMaterialJson1, TrainingMaterialDto.class);
+        int trainingMaterialVersionId1 = trainingMaterialDto1.getId().intValue();
+
+        TrainingMaterialCore trainingMaterial2 = new TrainingMaterialCore();
+        trainingMaterial2.setLabel("Abc: Test ingested training material");
+        trainingMaterial2.setDescription("Lorem ipsum dolor sit");
+
+        String payload2 = mapper.writeValueAsString(trainingMaterial2);
+
+        String trainingMaterialJson2 = mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload2)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is(trainingMaterial2.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial2.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterialDto2 = mapper.readValue(trainingMaterialJson2, TrainingMaterialDto.class);
+        int trainingMaterialVersionId2 = trainingMaterialDto2.getId().intValue();
+
+        mvc.perform(
+                get("/api/training-materials/{id}", trainingMaterialId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId1)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(trainingMaterial1.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial1.getDescription())));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(4)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(4)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(trainingMaterialVersionId1)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("suggested")));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(4)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(4)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(trainingMaterialVersionId2)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("ingested")));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(5)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(5)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(trainingMaterialVersionId2)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("ingested")))
+                .andExpect(jsonPath("trainingMaterials[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[1].id", is(trainingMaterialVersionId1)))
+                .andExpect(jsonPath("trainingMaterials[1].status", is("suggested")));
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Abc: Final version of training material");
+        trainingMaterial.setDescription("Lorem ipsum dolor sit finito");
+
+        String payload = mapper.writeValueAsString(trainingMaterial);
+
+        String trainingMaterialJson = mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("status", is("approved")))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterialDto = mapper.readValue(trainingMaterialJson, TrainingMaterialDto.class);
+        int versionId = trainingMaterialDto.getId().intValue();
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(3)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(3)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(versionId)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("approved")));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(3)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(3)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(versionId)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("approved")));
+
+        mvc.perform(
+                get("/api/training-materials")
+                        .param("approved", "false")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(3)))
+                .andExpect(jsonPath("trainingMaterials", hasSize(3)))
+                .andExpect(jsonPath("trainingMaterials[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("trainingMaterials[0].id", is(versionId)))
+                .andExpect(jsonPath("trainingMaterials[0].status", is("approved")));
     }
 
     @Test
@@ -116,6 +281,7 @@ public class TrainingMaterialControllerITCase {
         mvc.perform(
                 get("/api/training-materials/{id}/versions/{vId}", trainingMaterialId, versionId)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
@@ -1299,5 +1465,132 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldRetrieveSuggestedTrainingMaterial() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+        int trainingMaterialVersionId = 7;
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Suggested training material");
+        trainingMaterial.setDescription("This is a suggested training material");
+
+        String payload = mapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", not(is(trainingMaterialVersionId))))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/training-materials/{id}", trainingMaterialId)
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", not(is(trainingMaterialVersionId))))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/training-materials/{id}", trainingMaterialId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")));
+
+        mvc.perform(get("/api/training-materials/{id}", trainingMaterialId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")));
+    }
+
+    @Test
+    public void shouldNotAccessNotOwnedVersion() throws Exception {
+        mvc.perform(
+                get("/api/training-materials/{id}/versions/{verId}", "WfcKvG", 5)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void shouldCreateAndValidateAccessToSuggestedItemVersion() throws Exception {
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Suggested training material version");
+        trainingMaterial.setDescription("This is a suggested training material version");
+
+        String payload = mapper.writeValueAsString(trainingMaterial);
+
+        String trainingMaterialResponse = mvc.perform(
+                post("/api/training-materials")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterialDto = mapper.readValue(trainingMaterialResponse, TrainingMaterialDto.class);
+        String trainingMaterialId = trainingMaterialDto.getPersistentId();
+        int trainingMaterialVersionId = trainingMaterialDto.getId().intValue();
+
+        mvc.perform(
+                get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")));
+
+        mvc.perform(
+                get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isForbidden());
+
+        mvc.perform(get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId))
+                .andExpect(status().isForbidden());
     }
 }

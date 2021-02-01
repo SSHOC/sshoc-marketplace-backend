@@ -32,12 +32,12 @@ public class TrainingMaterialService
     public TrainingMaterialService(TrainingMaterialRepository trainingMaterialRepository,
                                    TrainingMaterialFactory trainingMaterialFactory,
                                    ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                                   ItemUpgradeRegistry<TrainingMaterial> itemUpgradeRegistry,
+                                   ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<TrainingMaterial> itemUpgradeRegistry,
                                    DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                                    PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
         super(
-                itemRepository, versionedItemRepository, itemUpgradeRegistry, draftItemRepository,
+                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService
         );
 
@@ -46,12 +46,12 @@ public class TrainingMaterialService
     }
 
 
-    public PaginatedTrainingMaterials getTrainingMaterials(PageCoords pageCoords) {
-        return getItemsPage(pageCoords);
+    public PaginatedTrainingMaterials getTrainingMaterials(PageCoords pageCoords, boolean approved) {
+        return getItemsPage(pageCoords, approved);
     }
 
-    public TrainingMaterialDto getLatestTrainingMaterial(String persistentId, boolean draft) {
-        return getLatestItem(persistentId, draft);
+    public TrainingMaterialDto getLatestTrainingMaterial(String persistentId, boolean draft, boolean approved) {
+        return getLatestItem(persistentId, draft, approved);
     }
 
     public TrainingMaterialDto getTrainingMaterialVersion(String persistentId, long versionId) {

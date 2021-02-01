@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
@@ -21,14 +22,23 @@ import java.util.Optional;
 abstract class ItemVersionService<I extends Item> {
 
     private final VersionedItemRepository versionedItemRepository;
+    private final ItemVisibilityService itemVisibilityService;
 
 
-    protected Page<I> loadLatestItems(PageCoords pageCoords) {
+    protected Page<I> loadLatestItems(PageCoords pageCoords, User user, boolean approved) {
         PageRequest pageRequest = PageRequest.of(
                 pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
         );
 
-        return getItemRepository().findAllLatestItems(pageRequest);
+        ItemVersionRepository<I> itemRepository = getItemRepository();
+
+        if (approved || user == null || !user.isContributor())
+            return itemRepository.findAllLatestApprovedItems(pageRequest);
+
+        if (user.isModerator())
+            return itemRepository.findAllLatestItems(pageRequest);
+
+        return getItemRepository().findUserLatestItems(user, pageRequest);
     }
 
     /**
@@ -52,6 +62,7 @@ abstract class ItemVersionService<I extends Item> {
 
     /**
      * Loads the most recent item for update. Does not necessarily need to be approved
+     * For the internal use only, as this method does not validate user access privileges
      */
     protected I loadCurrentItem(String persistentId) {
         // Here - why not to load VersionedItem, and then do getCurrentVersion() ?
@@ -66,6 +77,32 @@ abstract class ItemVersionService<I extends Item> {
                                 )
                         )
                 );
+    }
+
+    protected I loadLatestItemForCurrentUser(String persistentId, boolean authorize) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+
+        if (currentUser == null) {
+            if (authorize)
+                throw new AccessDeniedException("Cannot access unapproved item for an unauthorized user");
+
+            return loadLatestItem(persistentId);
+        }
+
+        I item = loadCurrentItem(persistentId);
+        while (item != null) {
+            if (itemVisibilityService.hasAccessToVersion(item, currentUser))
+                return item;
+
+            if (item.getStatus().equals(ItemStatus.DEPRECATED))
+                break;
+
+            item = (I) item.getPrevVersion();
+        }
+
+        throw new EntityNotFoundException(
+                String.format("Unable to find latest %s with id %s", getItemTypeName(), persistentId)
+        );
     }
 
     protected Optional<I> loadItemDraft(String persistentId, @NonNull User draftOwner) {
@@ -101,6 +138,11 @@ abstract class ItemVersionService<I extends Item> {
     protected I loadItemForCurrentUser(String persistentId) {
         return resolveItemDraftForCurrentUser(persistentId)
                 .orElseGet(() -> loadCurrentItem(persistentId));
+    }
+
+    protected I loadDraftOrLatestItemForCurrentUser(String persistentId) {
+        return resolveItemDraftForCurrentUser(persistentId)
+                .orElseGet(() -> loadLatestItemForCurrentUser(persistentId, false));
     }
 
     protected I loadItemVersion(String persistentId, long versionId) {

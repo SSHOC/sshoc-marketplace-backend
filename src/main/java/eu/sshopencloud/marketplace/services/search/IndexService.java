@@ -31,27 +31,29 @@ import java.util.stream.Collectors;
 public class IndexService {
 
     private final IndexItemRepository indexItemRepository;
-    private final SearchItemRepository searchItemRepository;
     private final ItemRepository itemRepository;
     private final IndexConceptRepository indexConceptRepository;
+
+    private final SearchItemRepository searchItemRepository;
+
     private final PropertyTypeService propertyTypeService;
     private final ConceptService conceptService;
     private final VocabularyRepository vocabularyRepository;
 
 
     public IndexItem indexItem(Item item) {
-        if (!item.getCategory().equals(ItemCategory.STEP) && item.isNewestVersion()) {
-            if (item.getPrevVersion() != null) {
-                removeItem(item.getPrevVersion());
-            }
-            IndexItem indexItem = IndexConverter.covertItem(item);
-            return indexItemRepository.save(indexItem);
-        }
-        return null;
+        if (item.getCategory().equals(ItemCategory.STEP) || !(item.isNewestVersion() || item.isProposedVersion()))
+            return null;
+
+        if (item.isNewestVersion())
+            removeItemVersions(item);
+
+        IndexItem indexedItem = IndexConverter.convertItem(item);
+        return indexItemRepository.save(indexedItem);
     }
 
-    public void removeItem(Item item) {
-        indexItemRepository.deleteById(item.getId());
+    public void removeItemVersions(Item item) {
+        indexItemRepository.deleteByPersistentId(item.getPersistentId());
     }
 
     public void clearItemIndex() {

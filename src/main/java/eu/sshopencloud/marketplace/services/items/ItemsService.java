@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
@@ -29,11 +30,12 @@ public class ItemsService extends ItemVersionService<Item> {
 
 
     public ItemsService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                        ItemVisibilityService itemVisibilityService,
                         @Lazy ToolService toolService, @Lazy TrainingMaterialService trainingMaterialService,
                         @Lazy PublicationService publicationService, @Lazy DatasetService datasetService,
                         @Lazy WorkflowService workflowService, @Lazy StepService stepService) {
 
-        super(versionedItemRepository);
+        super(versionedItemRepository, itemVisibilityService);
 
         this.itemRepository = itemRepository;
         this.toolService = toolService;
@@ -52,28 +54,31 @@ public class ItemsService extends ItemVersionService<Item> {
 
     public Item liftItemVersion(String persistentId, boolean draft, boolean changeStatus) {
         Item currentItem = loadCurrentItem(persistentId);
+        return resolveItemsService(currentItem.getCategory()).liftItemVersion(persistentId, draft, changeStatus);
+    }
 
-        switch (currentItem.getCategory()) {
+    private ItemCrudService<? extends Item, ?, ?, ?> resolveItemsService(ItemCategory category) {
+        switch (category) {
             case TOOL_OR_SERVICE:
-                return toolService.liftItemVersion(persistentId, draft, changeStatus);
+                return toolService;
 
             case TRAINING_MATERIAL:
-                return trainingMaterialService.liftItemVersion(persistentId, draft, changeStatus);
+                return trainingMaterialService;
 
             case PUBLICATION:
-                return publicationService.liftItemVersion(persistentId, draft, changeStatus);
+                return publicationService;
 
             case DATASET:
-                return datasetService.liftItemVersion(persistentId, draft, changeStatus);
+                return datasetService;
 
             case WORKFLOW:
-                return workflowService.liftItemVersion(persistentId, draft, changeStatus);
+                return workflowService;
 
             case STEP:
-                return stepService.liftItemVersion(persistentId, draft, changeStatus);
+                return stepService;
 
             default:
-                throw new IllegalStateException(String.format("Unexpected item type: %s", currentItem.getCategory()));
+                throw new IllegalStateException(String.format("Unexpected item type: %s", category));
         }
     }
 
