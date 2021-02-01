@@ -68,6 +68,7 @@ public class QueryParser {
         // If phrase then remove the quotes (the first and last quotes should not be escaped) and restore at the end
         expression = expression.substring(1, expression.length() - 1);
         expression = expression.replaceAll("\"", "\\\"");
+        expression = expression.replaceAll(" ", "\\ ");
         expression = "\"" + expression + "\"";
 
         return expression;
