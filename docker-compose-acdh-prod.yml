@@ -98,5 +98,5 @@ volumes:
     driver: local
     driver_opts:
       type: "none"
-      device: "/home/sshocmp/shares/app-log"
+      device: "/home/sshocmarketplacecuration/shares/app-log"
       o: "bind"
