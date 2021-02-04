@@ -1,11 +1,15 @@
 package eu.sshopencloud.marketplace.validators.items;
 
 import eu.sshopencloud.marketplace.dto.items.ItemCore;
+import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemExternalId;
+import eu.sshopencloud.marketplace.model.items.ItemSource;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.items.ItemSourceService;
 import eu.sshopencloud.marketplace.validators.licenses.LicenseFactory;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
@@ -24,6 +28,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.time.ZonedDateTime;
 
@@ -39,6 +44,7 @@ public class ItemFactory {
     private final PropertyFactory propertyFactory;
     private final SourceFactory sourceFactory;
     private final UserRepository userRepository;
+    private final ItemSourceService itemSourceService;
 
 
     public <T extends Item> T initializeItem(ItemCore itemCore, T item, ItemCategory category, Errors errors) {
@@ -117,6 +123,21 @@ public class ItemFactory {
         updateInformationContributor(newVersion);
 
         return newVersion;
+    }
+
+    private ItemExternalId prepareExternalId(ItemExternalIdCore externalId, Item item, Errors errors) {
+        Optional<ItemSource> itemSource = itemSourceService.loadItemSource(externalId.getServiceIdentifier());
+
+        if (itemSource.isEmpty()) {
+            errors.rejectValue(
+                    "serviceIdentifier", "field.notExist",
+                    String.format("Unknown service identifier: %s", externalId.getServiceIdentifier())
+            );
+
+            return null;
+        }
+
+        return new ItemExternalId(itemSource.get(), externalId.getIdentifier(), item);
     }
 
     private List<URI> parseAccessibleAtLinks(ItemCore itemCore, Errors errors) {

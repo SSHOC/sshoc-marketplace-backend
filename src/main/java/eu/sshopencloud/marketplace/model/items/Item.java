@@ -90,6 +90,10 @@ public abstract class Item {
     @Column
     private String sourceItemId;
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "ord", nullable = false)
+    private List<ItemExternalId> externalIds;
+
     @ManyToOne
     @JoinColumn(name = "info_contributor_id", nullable = false)
     private User informationContributor;
@@ -120,6 +124,7 @@ public abstract class Item {
         this.properties = new ArrayList<>();
         this.licenses = new ArrayList<>();
         this.contributors = new ArrayList<>();
+        this.externalIds = new ArrayList<>();
     }
 
     public Item(Item baseItem) {
