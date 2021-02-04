@@ -2,7 +2,9 @@ package eu.sshopencloud.marketplace.controllers.items;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
 import eu.sshopencloud.marketplace.dto.items.ItemSourceCore;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -14,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -157,11 +161,42 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    @Ignore
-    // TODO when items have the external ids assigned
     public void shouldNotRemoveItemSourceInUse() throws Exception {
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Imported training material");
+        trainingMaterial.setDescription("Test Training Material imported from Wikidata and GitHub");
+        trainingMaterial.setExternalIds(
+                List.of(
+                        new ItemExternalIdCore("Wikidata", "cdefgahc"),
+                        new ItemExternalIdCore("GitHub", "code-like-chopin")
+                )
+        );
+
+        String payload = mapper.writeValueAsString(trainingMaterial);
+
         mvc.perform(
-                delete("/api/item-sources/{sourceId}", "TODO")
+                post("/api/training-materials")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("cdefgahc")))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("GitHub")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("code-like-chopin")));
+
+        mvc.perform(
+                delete("/api/item-sources/{sourceId}", "Wikidata")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(
+                delete("/api/item-sources/{sourceId}", "GitHub")
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isBadRequest());

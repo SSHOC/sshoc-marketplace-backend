@@ -2,6 +2,8 @@ package eu.sshopencloud.marketplace.controllers.actors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.dto.actors.ActorCore;
+import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorSourceCore;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -16,11 +18,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
 
-import static org.hamcrest.Matchers.is;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @RunWith(SpringRunner.class)
@@ -161,11 +163,28 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    @Ignore
-    // TODO when actors have the external ids assigned
     public void shouldNotRemoveActorSourceInUse() throws Exception {
+        ActorCore actor = new ActorCore();
+        actor.setName("Test actor");
+        actor.setEmail("test@example.org");
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+        ));
+
+        String payload = mapper.writeValueAsString(actor);
+
         mvc.perform(
-                delete("/api/actor-sources/{sourceId}", "TODO")
+                post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("externalIds", hasSize(1)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("Wikidata")));
+
+        mvc.perform(
+                delete("/api/actor-sources/{sourceId}", "Wikidata")
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isBadRequest());
