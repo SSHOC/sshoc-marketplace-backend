@@ -1,8 +1,8 @@
-package eu.sshopencloud.marketplace.controllers.actors;
+package eu.sshopencloud.marketplace.controllers.items;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
-import eu.sshopencloud.marketplace.dto.actors.ActorSourceCore;
+import eu.sshopencloud.marketplace.dto.items.ItemSourceCore;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -13,21 +13,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
-
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class ActorSourceControllerITCase {
+public class ItemSourceControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -49,28 +46,27 @@ public class ActorSourceControllerITCase {
 
 
     @Test
-    public void shouldReturnAllActorSources() throws Exception {
-
-        mvc.perform(get("/api/actor-sources")
+    public void shouldReturnAllItemSources() throws Exception {
+        mvc.perform(get("/api/item-sources")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].code", is("ORCID")))
-                .andExpect(jsonPath("$[1].code", is("DBLP")))
-                .andExpect(jsonPath("$[2].code", is("Wikidata")));
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].code", is("Wikidata")))
+                .andExpect(jsonPath("$[1].code", is("GitHub")));
     }
 
     @Test
-    public void shouldCreateActorSource() throws Exception {
-        ActorSourceCore actorSource = ActorSourceCore.builder()
+    public void shouldCreateItemSource() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test source service")
-                .ord(3)
+                .ord(2)
                 .build();
 
-        String payload = mapper.writeValueAsString(actorSource);
+        String payload = mapper.writeValueAsString(itemSource);
 
         mvc.perform(
-                post("/api/actor-sources")
+                post("/api/item-sources")
                         .content(payload)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT)
@@ -79,28 +75,28 @@ public class ActorSourceControllerITCase {
                 .andExpect(jsonPath("code", is("test")))
                 .andExpect(jsonPath("label", is("Test source service")));
 
-        mvc.perform(get("/api/actor-sources")
+        mvc.perform(get("/api/item-sources")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].code", is("ORCID")))
-                .andExpect(jsonPath("$[1].code", is("DBLP")))
-                .andExpect(jsonPath("$[2].code", is("test")))
-                .andExpect(jsonPath("$[2].label", is("Test source service")))
-                .andExpect(jsonPath("$[3].code", is("Wikidata")));
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].code", is("Wikidata")))
+                .andExpect(jsonPath("$[1].code", is("test")))
+                .andExpect(jsonPath("$[1].label", is("Test source service")))
+                .andExpect(jsonPath("$[2].code", is("GitHub")));
     }
 
     @Test
-    public void shouldNotCreateActorSourceAtWrongPosition() throws Exception {
-        ActorSourceCore actorSource = ActorSourceCore.builder()
+    public void shouldNotCreateItemSourceAtWrongPosition() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test...")
                 .ord(50)
                 .build();
 
-        String payload = mapper.writeValueAsString(actorSource);
+        String payload = mapper.writeValueAsString(itemSource);
 
         mvc.perform(
-                post("/api/actor-sources")
+                post("/api/item-sources")
                         .content(payload)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT)
@@ -109,25 +105,25 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveActorSource() throws Exception {
-        mvc.perform(get("/api/actor-sources/Wikidata"))
+    public void shouldRetrieveItemSource() throws Exception {
+        mvc.perform(get("/api/item-sources/GitHub"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("code", is("Wikidata")))
-                .andExpect(jsonPath("label", is("Wikidata")));
+                .andExpect(jsonPath("code", is("GitHub")))
+                .andExpect(jsonPath("label", is("GitHub")));
     }
 
     @Test
-    public void shouldUpdateActorSource() throws Exception {
-        ActorSourceCore actorSource = ActorSourceCore.builder()
+    public void shouldUpdateItemSource() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("Wikidata")
                 .label("Wikidata v2")
-                .ord(1)
+                .ord(2)
                 .build();
 
-        String payload = mapper.writeValueAsString(actorSource);
+        String payload = mapper.writeValueAsString(itemSource);
 
         mvc.perform(
-                put("/api/actor-sources/{sourceId}", "Wikidata")
+                put("/api/item-sources/{sourceId}", "Wikidata")
                         .content(payload)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT)
@@ -136,53 +132,53 @@ public class ActorSourceControllerITCase {
                 .andExpect(jsonPath("code", is("Wikidata")))
                 .andExpect(jsonPath("label", is("Wikidata v2")));
 
-        mvc.perform(get("/api/actor-sources")
+        mvc.perform(get("/api/item-sources")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].code", is("Wikidata")))
-                .andExpect(jsonPath("$[0].label", is("Wikidata v2")))
-                .andExpect(jsonPath("$[1].code", is("ORCID")))
-                .andExpect(jsonPath("$[2].code", is("DBLP")));
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].code", is("GitHub")))
+                .andExpect(jsonPath("$[1].code", is("Wikidata")))
+                .andExpect(jsonPath("$[1].label", is("Wikidata v2")));
     }
 
     @Test
-    public void shouldRemoveActorSource() throws Exception {
+    public void shouldRemoveItemSource() throws Exception {
         mvc.perform(
-                delete("/api/actor-sources/{sourceId}", "DBLP")
+                delete("/api/item-sources/{sourceId}", "Wikidata")
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/api/actor-sources")
+        mvc.perform(get("/api/item-sources")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].code", is("ORCID")))
-                .andExpect(jsonPath("$[1].code", is("Wikidata")));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].code", is("GitHub")));
     }
 
     @Test
     @Ignore
-    // TODO when actors have the external ids assigned
-    public void shouldNotRemoveActorSourceInUse() throws Exception {
+    // TODO when items have the external ids assigned
+    public void shouldNotRemoveItemSourceInUse() throws Exception {
         mvc.perform(
-                delete("/api/actor-sources/{sourceId}", "TODO")
+                delete("/api/item-sources/{sourceId}", "TODO")
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void shouldNotCreateActorSourceUnauthorized() throws Exception {
-        ActorSourceCore actorSource = ActorSourceCore.builder()
+    public void shouldNotCreateItemSourceUnauthorized() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test...")
                 .ord(1)
                 .build();
 
-        String payload = mapper.writeValueAsString(actorSource);
+        String payload = mapper.writeValueAsString(itemSource);
 
         mvc.perform(
-                post("/api/actor-sources")
+                post("/api/item-sources")
                         .content(payload)
                         .contentType(MediaType.APPLICATION_JSON)
         )
@@ -190,17 +186,17 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateActorSourceUnauthorized() throws Exception {
-        ActorSourceCore actorSource = ActorSourceCore.builder()
-                .code("OCRID")
-                .label("OCRID v2")
-                .ord(2)
+    public void shouldNotUpdateItemSourceUnauthorized() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
+                .code("GitHub")
+                .label("GitHub v2")
+                .ord(1)
                 .build();
 
-        String payload = mapper.writeValueAsString(actorSource);
+        String payload = mapper.writeValueAsString(itemSource);
 
         mvc.perform(
-                put("/api/actor-sources/{sourceId}", "OCRID")
+                put("/api/item-sources/{sourceId}", "GitHub")
                         .content(payload)
                         .contentType(MediaType.APPLICATION_JSON)
         )
@@ -208,23 +204,23 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteActorSourceUnauthorized() throws Exception {
-        mvc.perform(delete("/api/actor-sources/{sourceId}", "Wikidata"))
+    public void shouldNotDeleteItemSourceUnauthorized() throws Exception {
+        mvc.perform(delete("/api/item-sources/{sourceId}", "Wikidata"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    public void shouldCreateActorSourceAsAdministrator() throws Exception {
-        ActorSourceCore actorSource = ActorSourceCore.builder()
+    public void shouldCreateItemSourceAsAdministrator() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test v2")
-                .ord(4)
+                .ord(3)
                 .build();
 
-        String payload = mapper.writeValueAsString(actorSource);
+        String payload = mapper.writeValueAsString(itemSource);
 
         mvc.perform(
-                post("/api/actor-sources")
+                post("/api/item-sources")
                         .content(payload)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", ADMINISTRATOR_JWT)
