@@ -1,12 +1,9 @@
 package eu.sshopencloud.marketplace.validators.items;
 
 import eu.sshopencloud.marketplace.dto.items.ItemCore;
-import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.items.ItemExternalId;
-import eu.sshopencloud.marketplace.model.items.ItemSource;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemSourceService;
@@ -17,8 +14,7 @@ import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
 import java.net.MalformedURLException;
@@ -28,23 +24,21 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.time.ZonedDateTime;
 
 
-@Service
-@Transactional
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class ItemFactory {
 
     private final LicenseFactory licenseFactory;
     private final ItemContributorFactory itemContributorFactory;
+    private final ItemExternalIdFactory itemExternalIdFactory;
     private final PropertyFactory propertyFactory;
     private final SourceFactory sourceFactory;
     private final UserRepository userRepository;
-    private final ItemSourceService itemSourceService;
 
 
     public <T extends Item> T initializeItem(ItemCore itemCore, T item, ItemCategory category, Errors errors) {
@@ -112,6 +106,8 @@ public class ItemFactory {
             );
         }
 
+        item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
+
         setInfoDates(item, true);
         updateInformationContributor(item);
 
@@ -123,21 +119,6 @@ public class ItemFactory {
         updateInformationContributor(newVersion);
 
         return newVersion;
-    }
-
-    private ItemExternalId prepareExternalId(ItemExternalIdCore externalId, Item item, Errors errors) {
-        Optional<ItemSource> itemSource = itemSourceService.loadItemSource(externalId.getServiceIdentifier());
-
-        if (itemSource.isEmpty()) {
-            errors.rejectValue(
-                    "serviceIdentifier", "field.notExist",
-                    String.format("Unknown service identifier: %s", externalId.getServiceIdentifier())
-            );
-
-            return null;
-        }
-
-        return new ItemExternalId(itemSource.get(), externalId.getIdentifier(), item);
     }
 
     private List<URI> parseAccessibleAtLinks(ItemCore itemCore, Errors errors) {

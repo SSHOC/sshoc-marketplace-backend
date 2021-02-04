@@ -1,18 +1,13 @@
 package eu.sshopencloud.marketplace.validators.actors;
 
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
-import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.model.actors.Actor;
-import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
-import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
-import eu.sshopencloud.marketplace.repositories.actors.ActorSourceRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
@@ -22,15 +17,15 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Pattern;
 
-@Service
-@Transactional
+
+@Component
 @RequiredArgsConstructor
 public class ActorFactory {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
 
     private final ActorRepository actorRepository;
-    private final ActorSourceRepository actorSourceRepository;
+    private final ActorExternalIdFactory actorExternalIdFactory;
 
 
     public Actor create(ActorCore actorCore, Long actorId) throws ValidationException {
@@ -43,7 +38,7 @@ public class ActorFactory {
             actor.setName(actorCore.getName());
         }
 
-        actor.addExternalIds(prepareExternalIds(actorCore.getExternalIds(), actor, errors));
+        actor.addExternalIds(actorExternalIdFactory.create(actorCore.getExternalIds(), actor, errors));
 
         if (StringUtils.isNotBlank(actorCore.getWebsite())) {
             try {
@@ -68,59 +63,6 @@ public class ActorFactory {
             throw new ValidationException(errors);
 
         return actor;
-    }
-
-    private List<ActorExternalId> prepareExternalIds(List<ActorExternalIdCore> externalIds, Actor actor, Errors errors) {
-        List<ActorExternalId> actorExternalIds = new ArrayList<>();
-        Set<ActorExternalId> processedExternalIds = new HashSet<>();
-
-        if (externalIds == null)
-            return actorExternalIds;
-
-        for (int i = 0; i < externalIds.size(); ++i) {
-            String nestedPath = String.format("externalIds[%d]", i);
-            errors.pushNestedPath(nestedPath);
-
-            ActorExternalId actorExternalId = prepareExternalId(externalIds.get(i), actor, errors);
-            if (actorExternalId != null) {
-
-                if (!processedExternalIds.contains(actorExternalId)) {
-                    actorExternalIds.add(actorExternalId);
-                    processedExternalIds.add(actorExternalId);
-                }
-                else {
-                    errors.popNestedPath();
-                    errors.rejectValue(
-                            nestedPath, "field.duplicateEntry",
-                            String.format(
-                                    "Duplicate actor's external id: %s (from: %s)",
-                                    actorExternalId.getIdentifierService().getLabel(), actorExternalId.getIdentifier()
-                            )
-                    );
-
-                    continue;
-                }
-            }
-
-            errors.popNestedPath();
-        }
-
-        return actorExternalIds;
-    }
-
-    private ActorExternalId prepareExternalId(ActorExternalIdCore externalId, Actor actor, Errors errors) {
-        Optional<ActorSource> actorSource = actorSourceRepository.findById(externalId.getServiceIdentifier());
-
-        if (actorSource.isEmpty()) {
-            errors.rejectValue(
-                    "serviceIdentifier", "field.notExist",
-                    String.format("Unknown service identifier: %s", externalId.getServiceIdentifier())
-            );
-
-            return null;
-        }
-
-        return new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor);
     }
 
     private List<Actor> prepareAffiliations(List<ActorId> actorIds, Actor affiliatedActor, Errors errors, String nestedPath) {

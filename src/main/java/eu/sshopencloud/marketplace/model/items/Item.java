@@ -144,6 +144,12 @@ public abstract class Item {
         this.accessibleAt = new ArrayList<>(baseItem.getAccessibleAt());
         this.source = baseItem.getSource();
         this.sourceItemId = baseItem.getSourceItemId();
+
+        this.externalIds = baseItem.getExternalIds().stream()
+                .map(externalId ->
+                        new ItemExternalId(externalId.getIdentifierService(), externalId.getIdentifier(), this)
+                )
+                .collect(Collectors.toList());
     }
 
     public String getPersistentId() {
@@ -174,6 +180,15 @@ public abstract class Item {
         }
 
         return Collections.unmodifiableList(properties);
+    }
+
+    public void addExternalIds(List<ItemExternalId> externalIds) {
+        this.externalIds.clear();
+        this.externalIds.addAll(externalIds);
+    }
+
+    public List<ItemExternalId> getExternalIds() {
+        return Collections.unmodifiableList(externalIds);
     }
 
     public boolean isOwner(User user) {

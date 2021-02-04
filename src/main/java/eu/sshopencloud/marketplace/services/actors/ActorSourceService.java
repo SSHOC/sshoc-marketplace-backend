@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -29,10 +30,14 @@ public class ActorSourceService extends BaseOrderableEntityService<ActorSource, 
     }
 
     public ActorSourceDto getActorSource(String code) {
-        ActorSource actorSource = actorSourceRepository.findById(code)
+        ActorSource actorSource = loadActorSource(code)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Actor source with code %s not found", code)));
 
         return ActorSourceMapper.INSTANCE.toDto(actorSource);
+    }
+
+    public Optional<ActorSource> loadActorSource(String code) {
+        return actorSourceRepository.findById(code);
     }
 
     public ActorSourceDto createActorSource(ActorSourceCore actorSourceCore) {
