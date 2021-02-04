@@ -225,3 +225,14 @@ ActorSource:
     code:                        Wikidata
     label:                       Wikidata
     ord:                         3
+
+ItemSource:
+  - !!eu.sshopencloud.marketplace.model.items.ItemSource
+    code:                        Wikidata
+    label:                       Wikidata
+    ord:                         1
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemSource
+    code:                        GitHub
+    label:                       GitHub
+    ord:                         2

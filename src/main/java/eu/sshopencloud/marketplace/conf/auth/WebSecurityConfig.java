@@ -136,6 +136,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/actor-sources/**").hasAuthority(Authority.MODERATOR.name());
         http
                 .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/item-sources/**").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/item-sources/**").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/item-sources/**").hasAuthority(Authority.MODERATOR.name());
+        http
+                .authorizeRequests()
                 .antMatchers("/api/items/*/comments/**").authenticated();
         http
                 .authorizeRequests()

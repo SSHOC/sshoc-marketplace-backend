@@ -30,6 +30,8 @@ public class ItemDto extends ItemBasicDto {
 
     private List<PropertyDto> properties;
 
+    private List<ItemExternalIdDto> externalIds;
+
     private List<String> accessibleAt;
 
     private SourceBasicDto source;

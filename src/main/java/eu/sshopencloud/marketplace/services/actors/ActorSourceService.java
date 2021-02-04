@@ -5,47 +5,51 @@ import eu.sshopencloud.marketplace.dto.actors.ActorSourceDto;
 import eu.sshopencloud.marketplace.mappers.actors.ActorSourceMapper;
 import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.repositories.actors.ActorSourceRepository;
+import eu.sshopencloud.marketplace.services.common.BaseOrderableEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ActorSourceService {
+public class ActorSourceService extends BaseOrderableEntityService<ActorSource, String> {
 
     private final ActorSourceRepository actorSourceRepository;
 
 
     public List<ActorSourceDto> getAllActorSources() {
-        return ActorSourceMapper.INSTANCE.toDto(loadAllActorSources());
+        return ActorSourceMapper.INSTANCE.toDto(loadAllEntries());
     }
 
     public ActorSourceDto getActorSource(String code) {
-        ActorSource actorSource = actorSourceRepository.findById(code)
+        ActorSource actorSource = loadActorSource(code)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Actor source with code %s not found", code)));
 
         return ActorSourceMapper.INSTANCE.toDto(actorSource);
     }
 
+    public Optional<ActorSource> loadActorSource(String code) {
+        return actorSourceRepository.findById(code);
+    }
+
     public ActorSourceDto createActorSource(ActorSourceCore actorSourceCore) {
         ActorSource actorSource = new ActorSource(
-                actorSourceCore.getCode(), actorSourceCore.getLabel(), actorSourceCore.getOrd()
+                actorSourceCore.getCode(), actorSourceCore.getLabel()
         );
 
         if (actorSource.getCode() == null)
             throw new IllegalArgumentException("Actor's source's code is required.");
 
-        validateActorSourcePosition(actorSource.getOrd());
-
+        placeEntryAtPosition(actorSource, actorSourceCore.getOrd(), true);
         actorSource = actorSourceRepository.save(actorSource);
-        reorderActorSources(actorSource.getCode(), actorSource.getOrd());
 
         return ActorSourceMapper.INSTANCE.toDto(actorSource);
     }
@@ -55,10 +59,7 @@ public class ActorSourceService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Actor source with code %s not found", code)));
 
         actorSource.setLabel(actorSourceCore.getLabel());
-        actorSource.setOrd(actorSourceCore.getOrd());
-
-        validateActorSourcePosition(actorSource.getOrd());
-        reorderActorSources(code, actorSource.getOrd());
+        placeEntryAtPosition(actorSource, actorSourceCore.getOrd(), false);
 
         return ActorSourceMapper.INSTANCE.toDto(actorSource);
     }
@@ -69,41 +70,15 @@ public class ActorSourceService {
 
         try {
             actorSourceRepository.deleteById(code);
-            reorderActorSources(code, null);
+            removeEntryFromPosition(code);
         }
         catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(String.format("Actor source with code %s not found", code));
         }
     }
 
-    private void reorderActorSources(String actorSourceCode, Integer actorSourceOrd) {
-        int ord = 1;
-
-        for (ActorSource actorSource : loadAllActorSources()) {
-            if (actorSource.getCode().equals(actorSourceCode))
-                continue;
-
-            if (actorSourceOrd != null && ord == actorSourceOrd)
-                ord++;
-
-            if (actorSource.getOrd() != ord)
-                actorSource.setOrd(ord);
-
-            ord++;
-        }
-    }
-
-    private List<ActorSource> loadAllActorSources() {
-        return actorSourceRepository.findAll(Sort.by(Sort.Order.asc("ord")));
-    }
-
-    private void validateActorSourcePosition(int ord) {
-        long sourcesCount = actorSourceRepository.count();
-
-        if (ord < 1 || ord > sourcesCount + 1) {
-            throw new IllegalArgumentException(
-                    String.format("Invalid position index: %d (maximum possible: %d)", ord, sourcesCount + 1)
-            );
-        }
+    @Override
+    protected JpaRepository<ActorSource, String> getEntityRepository() {
+        return actorSourceRepository;
     }
 }
