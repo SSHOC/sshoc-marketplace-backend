@@ -1,8 +1,6 @@
 package eu.sshopencloud.marketplace;
 
 import eu.sshopencloud.marketplace.conf.auth.SecurityProperties;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,7 +17,6 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 @SpringBootApplication
 @EnableCaching
 @EnableConfigurationProperties(SecurityProperties.class)
-@Slf4j
 public class MarketplaceApplication {
 
 
@@ -33,11 +30,6 @@ public class MarketplaceApplication {
     }
 
     public static void main(String[] args) {
-        log.debug("APPLICATION_PROFILE variable: " + System.getenv("APPLICATION_PROFILE"));
-        String egiId = System.getenv("egi_id");
-        if (StringUtils.isNotBlank(egiId)) {
-            System.setProperty("egi_client_id", egiId);
-        }
         SpringApplication.run(MarketplaceApplication.class, args);
     }
 }

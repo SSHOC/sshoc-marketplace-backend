@@ -72,7 +72,7 @@ public abstract class Item {
     private List<Property> properties;
 
     // Hibernate does not handle sparse order properly
-    // When using OrderColumn annotation and there is some order index missing from 0..size-1,
+    // When using OrderColumn annotation and there is some order index missing in 0..size-1 range,
     // then a null is inserted
     @Transient
     private boolean sparseProperties = true;
@@ -91,11 +91,7 @@ public abstract class Item {
     private String sourceItemId;
 
     @ManyToOne
-    @JoinTable(
-            name = "items_information_contributors",
-            joinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
-    )
+    @JoinColumn(name = "info_contributor_id", nullable = false)
     private User informationContributor;
 
     @CreationTimestamp
@@ -105,6 +101,9 @@ public abstract class Item {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemStatus status;
+
+    @Column(nullable = false)
+    private boolean proposedVersion;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "persistent_id", nullable = false)
@@ -150,6 +149,10 @@ public abstract class Item {
         return (status == ItemStatus.APPROVED && versionedItem.isActive());
     }
 
+    public boolean isProposedVersion() {
+        return (proposedVersion && versionedItem.isActive());
+    }
+
     public boolean isDraft() {
         return (status == ItemStatus.DRAFT);
     }
@@ -166,5 +169,12 @@ public abstract class Item {
         }
 
         return Collections.unmodifiableList(properties);
+    }
+
+    public boolean isOwner(User user) {
+        if (user == null)
+            return false;
+
+        return user.equals(informationContributor);
     }
 }

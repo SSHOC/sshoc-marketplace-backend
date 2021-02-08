@@ -26,6 +26,8 @@ public class IndexConcept {
     public static final String VOCABULARY_CODE_FIELD = "vocabulary_code";
 
     public static final String LABEL_FIELD = "label";
+    public static final String LABEL_TEXT_FIELD = "label_text";
+    public static final String LABEL_TEXT_EN_FIELD = "label_text_en";
 
     public static final String NOTATION_FIELD = "notation";
 

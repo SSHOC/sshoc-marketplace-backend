@@ -34,6 +34,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private final ItemRepository itemRepository;
     private final VersionedItemRepository versionedItemRepository;
+    private final ItemVisibilityService itemVisibilityService;
     private final DraftItemRepository draftItemRepository;
     private final ItemUpgradeRegistry<I> itemUpgradeRegistry;
 
@@ -44,14 +45,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                           ItemUpgradeRegistry<I> itemUpgradeRegistry, DraftItemRepository draftItemRepository,
-                           ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
-                           IndexService indexService, UserService userService) {
+                           ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
+                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
 
-        super(versionedItemRepository);
+        super(versionedItemRepository, itemVisibilityService);
 
         this.itemRepository = itemRepository;
         this.versionedItemRepository = versionedItemRepository;
+        this.itemVisibilityService = itemVisibilityService;
         this.draftItemRepository = draftItemRepository;
         this.itemUpgradeRegistry = itemUpgradeRegistry;
 
@@ -62,8 +64,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    protected P getItemsPage(PageCoords pageCoords) {
-        Page<I> itemsPage = loadLatestItems(pageCoords);
+    protected P getItemsPage(PageCoords pageCoords, boolean approved) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+
+        Page<I> itemsPage = loadLatestItems(pageCoords, currentUser, approved);
         List<D> dtos = itemsPage.stream()
                 .map(this::prepareItemDto)
                 .collect(Collectors.toList());
@@ -73,16 +77,27 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected D getItemVersion(String persistentId, Long versionId) {
         I item = loadItemVersion(persistentId, versionId);
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!itemVisibilityService.hasAccessToVersion(item, currentUser)) {
+            throw new AccessDeniedException(
+                    String.format(
+                            "User is not authorized to access the given item version with id %s (version id: %d)",
+                            persistentId, versionId
+                    )
+            );
+        }
+
         return prepareItemDto(item);
     }
 
-    protected D getLatestItem(String persistentId, boolean draft) {
+    protected D getLatestItem(String persistentId, boolean draft, boolean approved) {
         if (draft) {
             I itemDraft = loadItemDraftForCurrentUser(persistentId);
             return prepareItemDto(itemDraft);
         }
 
-        I item = loadLatestItem(persistentId);
+        I item = approved ? loadLatestItem(persistentId) : loadLatestItemForCurrentUser(persistentId, true);
         return prepareItemDto(item);
     }
 
@@ -162,7 +177,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         // If not a draft
         if (!draft) {
-            assignItemVersionStatus(version, versionedItem, changeStatus);
+            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus);
 
             if (version.getStatus() == ItemStatus.APPROVED)
                 deprecatePrevApprovedVersion(versionedItem);
@@ -197,6 +212,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         while (version != null) {
             if (version.getStatus() == ItemStatus.APPROVED)
                 break;
+
+            if (version.isProposedVersion())
+                version.setProposedVersion(false);
 
             version = version.getPrevVersion();
         }
@@ -240,7 +258,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        assignItemVersionStatus(version, versionedItem, true);
+        itemVisibilityService.setupItemVersionVisibility(version, versionedItem, true);
 
         if (version.getStatus() == ItemStatus.APPROVED)
             deprecatePrevApprovedVersion(versionedItem);
@@ -251,41 +269,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         draftItemRepository.delete(draft);
 
         return version;
-    }
-
-    private void assignItemVersionStatus(I version, VersionedItem versionedItem, boolean changeStatus) {
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
-        if (!currentUser.isContributor())
-            throw new AccessDeniedException("Not authorized to create new item version");
-
-        if (!versionedItem.isActive()) {
-            throw new IllegalArgumentException(
-                    String.format("Deleted/merged item with id %s cannot be modified anymore", versionedItem.getPersistentId())
-            );
-        }
-
-        if (!changeStatus && version.getPrevVersion() != null) {
-            version.setStatus(version.getPrevVersion().getStatus());
-            return;
-        }
-
-        // The order of these role checks does matter as, for example, a moderator is a contributor as well
-        if (currentUser.isModerator()) {
-            version.setStatus(ItemStatus.APPROVED);
-            versionedItem.setStatus(VersionedItemStatus.REVIEWED);
-        }
-        else if (currentUser.isSystemContributor()) {
-            version.setStatus(ItemStatus.INGESTED);
-
-            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
-                versionedItem.setStatus(VersionedItemStatus.INGESTED);
-        }
-        else if (currentUser.isContributor()) {
-            version.setStatus(ItemStatus.SUGGESTED);
-
-            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
-                versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
-        }
     }
 
     private VersionedItem createNewVersionedItem() {
@@ -374,7 +357,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             versionedItem.setActive(false);
         }
 
-        indexService.removeItem(item);
+        indexService.removeItemVersions(item);
     }
 
     private void cleanupDraft(I draftItem) {

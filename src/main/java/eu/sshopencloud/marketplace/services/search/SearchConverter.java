@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.search.*;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
@@ -19,11 +20,13 @@ public class SearchConverter {
 
     public SearchItem convertIndexItem(IndexItem indexItem) {
         return SearchItem.builder()
-                .id(indexItem.getId())
+                .id(indexItem.getVersionId())
                 .persistentId(indexItem.getPersistentId())
                 .label(indexItem.getLabel())
                 .description(indexItem.getDescription())
                 .category(ItemCategoryConverter.convertCategory(indexItem.getCategory()))
+                .status(ItemStatus.of(indexItem.getStatus()))
+                .owner(indexItem.getOwner())
                 .build();
     }
 

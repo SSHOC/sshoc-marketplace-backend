@@ -28,8 +28,15 @@ public class SearchConceptRepository {
                                                          Pageable pageable) {
 
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q, advancedSearch))
-                .addProjectionOnFields(IndexConcept.CODE_FIELD, IndexConcept.VOCABULARY_CODE_FIELD, IndexConcept.LABEL_FIELD, IndexConcept.NOTATION_FIELD, IndexConcept.DEFINITION_FIELD,
-                        IndexConcept.URI_FIELD, IndexConcept.TYPES_FIELD)
+                .addProjectionOnFields(
+                        IndexConcept.CODE_FIELD,
+                        IndexConcept.VOCABULARY_CODE_FIELD,
+                        IndexConcept.LABEL_FIELD,
+                        IndexConcept.NOTATION_FIELD,
+                        IndexConcept.DEFINITION_FIELD,
+                        IndexConcept.URI_FIELD,
+                        IndexConcept.TYPES_FIELD
+                )
                 .setPageRequest(pageable);
 
         filterCriteria.stream().forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
@@ -43,22 +50,24 @@ public class SearchConceptRepository {
         if (queryParts.isEmpty()) {
             return Criteria.where(IndexConcept.LABEL_FIELD).boost(4f).contains("");
         } else {
-            Criteria andCriteria = AnyCriteria.any();;
+            Criteria andCriteria = AnyCriteria.any();
             for (QueryPart queryPart : queryParts) {
                 Criteria orCriteria = null;
                 if (!queryPart.isPhrase()) {
                     Criteria definitionTextCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_FIELD).boost(1f).contains(queryPart.getExpression());
-                    Criteria labelCriteria = Criteria.where(IndexConcept.LABEL_FIELD).boost(4f).contains(queryPart.getExpression());
+                    Criteria labelCriteria = Criteria.where(IndexConcept.LABEL_TEXT_FIELD).boost(4f).contains(queryPart.getExpression());
                     Criteria notationCriteria = Criteria.where(IndexConcept.NOTATION_FIELD).boost(4f).contains(queryPart.getExpression());
                     orCriteria = definitionTextCriteria.or(labelCriteria).or(notationCriteria);
                 }
+                Criteria codeCriteria = Criteria.where(IndexConcept.CODE_FIELD).boost(10f).is(queryPart.getExpression());
                 Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
-                Criteria labelFuzzyCriteria = Criteria.where(IndexConcept.LABEL_FIELD).boost(4f).fuzzy(queryPart.getExpression());
-                Criteria notationFuzzyCriteria = Criteria.where(IndexConcept.NOTATION_FIELD).boost(4f).fuzzy(queryPart.getExpression());
+                Criteria labelCriteria = Criteria.where(IndexConcept.LABEL_FIELD).boost(4f).is(queryPart.getExpression());
+                Criteria labelEngCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).is(queryPart.getExpression());
+                Criteria notationCriteria = Criteria.where(IndexConcept.NOTATION_FIELD).boost(4f).is(queryPart.getExpression());
                 if (orCriteria == null) {
-                    orCriteria = definitionTextEnCriteria.or(labelFuzzyCriteria).or(notationFuzzyCriteria);
+                    orCriteria = codeCriteria.or(definitionTextEnCriteria).or(labelCriteria).or(labelEngCriteria).or(notationCriteria);
                 } else {
-                    orCriteria = orCriteria.or(definitionTextEnCriteria).or(labelFuzzyCriteria).or(notationFuzzyCriteria);
+                    orCriteria = orCriteria.or(codeCriteria).or(definitionTextEnCriteria).or(labelCriteria).or(labelEngCriteria).or(notationCriteria);
                 }
                 andCriteria = andCriteria.and(orCriteria);
             }
