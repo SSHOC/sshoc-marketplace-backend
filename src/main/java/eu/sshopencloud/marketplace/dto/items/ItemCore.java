@@ -23,6 +23,8 @@ public class ItemCore implements ItemRelationsCore {
 
     private List<ItemContributorId> contributors;
 
+    private List<ItemExternalIdCore> externalIds;
+
     private List<PropertyCore> properties;
 
     private List<RelatedItemCore> relatedItems;

@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.items.ItemSourceService;
 import eu.sshopencloud.marketplace.validators.licenses.LicenseFactory;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
@@ -13,8 +14,7 @@ import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
 import java.net.MalformedURLException;
@@ -28,14 +28,14 @@ import java.util.stream.Collectors;
 import java.time.ZonedDateTime;
 
 
-@Service
-@Transactional
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class ItemFactory {
 
     private final LicenseFactory licenseFactory;
     private final ItemContributorFactory itemContributorFactory;
+    private final ItemExternalIdFactory itemExternalIdFactory;
     private final PropertyFactory propertyFactory;
     private final SourceFactory sourceFactory;
     private final UserRepository userRepository;
@@ -105,6 +105,8 @@ public class ItemFactory {
                     "Source is required if Source item id is provided."
             );
         }
+
+        item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
 
         setInfoDates(item, true);
         updateInformationContributor(item);
