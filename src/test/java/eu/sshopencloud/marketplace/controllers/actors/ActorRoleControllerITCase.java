@@ -204,7 +204,7 @@ public class ActorRoleControllerITCase {
         String payload = mapper.writeValueAsString(actorRole);
 
         mvc.perform(
-                post("/api/actor-roles/{roleId}", "actor")
+                put("/api/actor-roles/{roleId}", "actor")
                         .content(payload)
                         .contentType(MediaType.APPLICATION_JSON)
         )

@@ -5,9 +5,10 @@ import eu.sshopencloud.marketplace.dto.actors.ActorRoleDto;
 import eu.sshopencloud.marketplace.mappers.actors.ActorRoleMapper;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
+import eu.sshopencloud.marketplace.services.common.BaseOrderableEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +19,12 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ActorRoleService {
+public class ActorRoleService extends BaseOrderableEntityService<ActorRole, String> {
 
     private final ActorRoleRepository actorRoleRepository;
 
     public List<ActorRoleDto> getAllActorRoles() {
-        return ActorRoleMapper.INSTANCE.toDto(loadAllActorRoles());
+        return ActorRoleMapper.INSTANCE.toDto(loadAllEntries());
     }
 
     public ActorRoleDto getActorRole(String code) {
@@ -37,16 +38,13 @@ public class ActorRoleService {
         ActorRole newActorRole = ActorRole.builder()
                 .code(actorRoleCore.getCode())
                 .label(actorRoleCore.getLabel())
-                .ord(actorRoleCore.getOrd())
                 .build();
 
         if (newActorRole.getCode() == null)
             throw new IllegalArgumentException("Actor's role's code is required.");
 
-        validateActorRolePosition(newActorRole.getOrd());
-
+        placeEntryAtPosition(newActorRole, actorRoleCore.getOrd(), true);
         newActorRole = actorRoleRepository.save(newActorRole);
-        reorderActorRoles(newActorRole.getCode(), newActorRole.getOrd());
 
         return ActorRoleMapper.INSTANCE.toDto(newActorRole);
     }
@@ -56,9 +54,7 @@ public class ActorRoleService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Actor role with code %s not found", code)));
 
         actorRole.setLabel(actorRoleCore.getLabel());
-        actorRole.setOrd(actorRoleCore.getOrd());
-
-        reorderActorRoles(code, actorRole.getOrd());
+        placeEntryAtPosition(actorRole, actorRoleCore.getOrd(), false);
 
         return ActorRoleMapper.INSTANCE.toDto(actorRole);
     }
@@ -69,41 +65,15 @@ public class ActorRoleService {
 
         try {
             actorRoleRepository.deleteById(code);
-            reorderActorRoles(code, null);
+            removeEntryFromPosition(code);
         }
         catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(String.format("Actor role with code %s not found", code));
         }
     }
 
-    private void reorderActorRoles(String actorRoleCode, Integer actorRoleOrd) {
-        int ord = 1;
-
-        for (ActorRole role : loadAllActorRoles()) {
-            if (role.getCode().equals(actorRoleCode))
-                continue;
-
-            if (actorRoleOrd != null && ord == actorRoleOrd)
-                ord++;
-
-            if (role.getOrd() != ord)
-                role.setOrd(ord);
-
-            ord++;
-        }
-    }
-
-    private List<ActorRole> loadAllActorRoles() {
-        return actorRoleRepository.findAll(Sort.by(Sort.Order.asc("ord")));
-    }
-
-    private void validateActorRolePosition(int ord) {
-        long rolesCount = actorRoleRepository.count();
-
-        if (ord < 1 || ord > rolesCount + 1) {
-            throw new IllegalArgumentException(
-                    String.format("Invalid position index: %d (maximum possible: %d)", ord, rolesCount + 1)
-            );
-        }
+    @Override
+    protected JpaRepository<ActorRole, String> getEntityRepository() {
+        return actorRoleRepository;
     }
 }

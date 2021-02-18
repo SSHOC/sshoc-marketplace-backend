@@ -40,6 +40,7 @@ public class InitialDataLoader {
 
     private final ActorRoleRepository actorRoleRepository;
     private final ItemRelationRepository itemRelationRepository;
+    private final ItemSourceRepository itemSourceRepository;
     private final ConceptRelationRepository conceptRelationRepository;
     private final SourceRepository sourceRepository;
     private final ActorSourceRepository actorSourceRepository;
@@ -103,6 +104,15 @@ public class InitialDataLoader {
         }
         else
             log.debug("Skipping loading actor sources. {} already present.", actorSourcesCount);
+
+        long itemSourcesCount = itemSourceRepository.count();
+        if (itemSourcesCount == 0) {
+            List<ItemSource> itemSources = YamlLoader.getObjects(data, "ItemSource");
+            itemSourceRepository.saveAll(itemSources);
+            log.debug("Loaded {} ItemSource objects", itemSources.size());
+        }
+        else
+            log.debug("Skipping loading item sources. {} already present.", itemSourcesCount);
     }
 
 

@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.model.actors;
+package eu.sshopencloud.marketplace.model.items;
 
 import eu.sshopencloud.marketplace.services.common.OrderableEntity;
 import lombok.*;
@@ -10,13 +10,14 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "actor_external_sources")
+@Table(name = "item_external_sources")
 @Data
-@ToString
 @EqualsAndHashCode
+@ToString
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActorSource implements OrderableEntity<String> {
+public class ItemSource implements OrderableEntity<String> {
 
     @Id
     private String code;
@@ -25,14 +26,6 @@ public class ActorSource implements OrderableEntity<String> {
     private String label;
 
     private int ord;
-
-
-    public ActorSource(String code, String label) {
-        this.code = code;
-        this.label = label;
-        this.ord = 0;
-    }
-
 
     @Override
     public String getId() {
