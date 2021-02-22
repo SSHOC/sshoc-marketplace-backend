@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.domain.media.dto;
 
-public enum MediaType {
+public enum MediaCategory {
     IMAGE,
     VIDEO,
     OBJECT

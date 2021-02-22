@@ -92,3 +92,7 @@ marketplace:
     logging:
         path: ${marketplace_log_dir:/tmp}
 
+    media:
+        path: /var/sshoc/media
+        maxFilenameLength: 128
+
