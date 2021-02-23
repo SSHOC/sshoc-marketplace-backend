@@ -46,11 +46,21 @@ class MediaData {
         this.id = id;
         this.category = category;
         this.filePath = filePath;
+        this.originalFilename = originalFilename;
+        this.mimeType = mimeType;
         this.thumbnail = null;
         this.linkCount = 0;
     }
 
     public boolean isTemporary() {
         return (linkCount == 0);
+    }
+
+    public boolean isStoredLocally() {
+        return (filePath != null);
+    }
+
+    public boolean hasThumbnail() {
+        return (thumbnail != null);
     }
 }

@@ -6,7 +6,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: media_data
-            # TODO resolve final structure of the table
             columns:
               - column:
                   name: id

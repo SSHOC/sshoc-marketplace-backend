@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.domain.media;
 
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaInfo;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSource;
 import org.springframework.core.io.Resource;
@@ -9,6 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MediaStorageService {
+
+    MediaDownload getMediaForDownload(UUID mediaId);
+    MediaDownload getThumbnailForDownload(UUID mediaId);
 
     MediaInfo saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType);
     MediaInfo saveMediaChunk(Optional<UUID> mediaId, Resource mediaChunk, int chunkNo);

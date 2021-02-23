@@ -37,6 +37,7 @@ class MediaCategoryResolver {
             case "jpeg":
             case "png":
             case "gif":
+            case "bmp":
                 return MediaCategory.IMAGE;
 
             default:

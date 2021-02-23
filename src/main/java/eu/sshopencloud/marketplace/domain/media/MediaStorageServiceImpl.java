@@ -1,8 +1,6 @@
 package eu.sshopencloud.marketplace.domain.media;
 
-import eu.sshopencloud.marketplace.domain.media.dto.MediaCategory;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaInfo;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSource;
+import eu.sshopencloud.marketplace.domain.media.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -31,7 +29,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
                                    MediaThumbnailService mediaThumbnailService,
                                    MediaCategoryResolver mediaCategoryResolver,
                                    MediaDataRepository mediaDataRepository,
-                                   @Value("${marketplace.media.maxFilenameLength}") int maxFilenameLength) {
+                                   @Value("${marketplace.media.files.maxFilenameLength}") int maxFilenameLength) {
 
         this.mediaFileStorage = mediaFileStorage;
         this.mediaThumbnailService = mediaThumbnailService;
@@ -42,23 +40,50 @@ class MediaStorageServiceImpl implements MediaStorageService {
 
 
     @Override
+    public MediaDownload getMediaForDownload(UUID mediaId) {
+        MediaData mediaData = loadMediaData(mediaId);
+
+        if (!mediaData.isStoredLocally())
+            throw new IllegalArgumentException("Requested media file comes from an external source");
+
+        return retrieveDownloadData(mediaData);
+    }
+
+    @Override
+    public MediaDownload getThumbnailForDownload(UUID mediaId) {
+        MediaData mediaData = loadMediaData(mediaId);
+
+        if (mediaData.getThumbnail() == null)
+            throw new EntityNotFoundException(String.format("Thumbnail for requested media with id %s is not present", mediaId));
+
+        MediaData thumbnail = mediaData.getThumbnail();
+        return retrieveDownloadData(thumbnail);
+    }
+
+    private MediaDownload retrieveDownloadData(MediaData media) {
+        MediaFileHandle mediaHandle = mediaFileStorage.retrieveMediaFile(media.getId());
+        MediaType mediaType = (media.getMimeType() != null) ? MediaType.parseMediaType(media.getMimeType()) : null;
+
+        return MediaDownload.builder()
+                .mediaFile(mediaHandle.getMediaFile())
+                .filename(media.getOriginalFilename())
+                .mimeType(mediaType)
+                .build();
+    }
+
+    @Override
     public MediaInfo saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType) {
-        try {
-            UUID mediaId = resolveNewMediaId();
-            MediaFileInfo fileInfo = mediaFileStorage.storeMediaFile(mediaId, mediaFile);
+        UUID mediaId = resolveNewMediaId();
+        MediaFileInfo fileInfo = mediaFileStorage.storeMediaFile(mediaId, mediaFile);
 
-            String mediaFilename = extractFilename(mediaFile);
-            MediaCategory mediaCategory = mediaCategoryResolver.resolve(mediaFile, mimeType, mediaFilename);
-            String mediaMimeType = mimeType.map(MediaType::toString).orElse(null);
+        String mediaFilename = extractFilename(mediaFile);
+        MediaCategory mediaCategory = mediaCategoryResolver.resolve(mediaFile, mimeType, mediaFilename);
+        String mediaMimeType = mimeType.map(MediaType::toString).orElse(null);
 
-            MediaData mediaData = new MediaData(mediaId, mediaCategory, fileInfo.getMediaFilePath(), mediaFilename, mediaMimeType);
-            mediaData = mediaDataRepository.save(mediaData);
+        MediaData mediaData = new MediaData(mediaId, mediaCategory, fileInfo.getMediaFilePath(), mediaFilename, mediaMimeType);
+        mediaData = mediaDataRepository.save(mediaData);
 
-            return toMediaInfo(mediaData);
-        }
-        catch (IOException e) {
-            throw new IllegalStateException("Failed to save media file");
-        }
+        return toMediaInfo(mediaData);
     }
 
     private String extractFilename(Resource mediaFile) {
@@ -74,7 +99,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
             return filename;
         }
         catch (IOException e) {
-            throw new IllegalArgumentException("Failed to extract filename");
+            throw new IllegalArgumentException("Failed to extract filename", e);
         }
     }
 
@@ -106,13 +131,18 @@ class MediaStorageServiceImpl implements MediaStorageService {
     }
 
     private MediaData changeMediaLinkCount(UUID mediaId, long amount) {
-        MediaData mediaData = loadMediaFile(mediaId);
+        MediaData mediaData = loadMediaData(mediaId);
         mediaData.setLinkCount(mediaData.getLinkCount() + amount);
+
+        if (mediaData.getThumbnail() != null) {
+            MediaData thumbnail = mediaData.getThumbnail();
+            thumbnail.setLinkCount(thumbnail.getLinkCount() + amount);
+        }
 
         return mediaData;
     }
 
-    private MediaData loadMediaFile(UUID mediaId) {
+    private MediaData loadMediaData(UUID mediaId) {
         return mediaDataRepository.findById(mediaId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Media with id %s not found", mediaId)));
     }
@@ -122,14 +152,16 @@ class MediaStorageServiceImpl implements MediaStorageService {
     }
 
     private MediaInfo toMediaInfo(MediaData mediaData) {
-        boolean hasThumbnail = (mediaData.getThumbnail() != null);
-
-        return MediaInfo.builder()
+        MediaInfo.MediaInfoBuilder builder = MediaInfo.builder()
                 .mediaId(mediaData.getId())
                 .category(mediaData.getCategory())
                 .filename(mediaData.getOriginalFilename())
                 .mimeType(mediaData.getMimeType())
-                .hasThumbnail(hasThumbnail)
-                .build();
+                .hasThumbnail(mediaData.hasThumbnail());
+
+        if (mediaData.getSourceUrl() != null)
+            builder.source(new MediaSource(mediaData.getSourceUrl()));
+
+        return builder.build();
     }
 }

@@ -2,10 +2,13 @@ package eu.sshopencloud.marketplace.controllers.media;
 
 import eu.sshopencloud.marketplace.controllers.util.MimeTypeUtils;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaInfo;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +28,35 @@ public class MediaUploadController {
 
     @GetMapping(path = "/download/{mediaId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getMediaFile(@PathVariable("mediaId") UUID mediaId) {
-        // TODO implement fetching media file
-        return ResponseEntity.badRequest().build();
+        MediaDownload mediaDownload = mediaStorageService.getMediaForDownload(mediaId);
+        return serveMedia(mediaDownload);
     }
 
     @GetMapping(path = "/thumbnail/{mediaId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getMediaThumbnail(@PathVariable("mediaId") UUID mediaId) {
-        // TODO implement fetching media thumbnail
-        return ResponseEntity.badRequest().build();
+        MediaDownload thumbnailDownload = mediaStorageService.getThumbnailForDownload(mediaId);
+        return serveMedia(thumbnailDownload);
+    }
+
+    private ResponseEntity<Resource> serveMedia(MediaDownload mediaDownload) {
+        MediaType contentType = (mediaDownload.getMimeType() != null) ?
+                mediaDownload.getMimeType() : MediaType.APPLICATION_OCTET_STREAM;
+
+        HttpHeaders headers = new HttpHeaders();
+
+        if (mediaDownload.getFilename() != null) {
+            headers.setContentDisposition(
+                    ContentDisposition.builder("attachment")
+                            .filename(mediaDownload.getFilename())
+                            .build()
+            );
+        }
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(mediaDownload.getContentLength())
+                .contentType(contentType)
+                .body(mediaDownload.getMediaFile());
     }
 
     @PostMapping(path = "/upload/full", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

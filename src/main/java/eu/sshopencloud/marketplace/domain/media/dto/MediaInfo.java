@@ -15,7 +15,7 @@ import java.util.UUID;
 public class MediaInfo {
     private UUID mediaId;
     private MediaCategory category;
-    private String sourceUrl;
+    private MediaSource source;
     private String filename;
     private String mimeType;
     private boolean hasThumbnail;
