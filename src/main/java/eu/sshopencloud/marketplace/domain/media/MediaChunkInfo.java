@@ -6,10 +6,13 @@ import lombok.Value;
 import java.nio.file.Path;
 import java.util.UUID;
 
+
 @Value
 @Builder
-class MediaFileInfo {
+class MediaChunkInfo {
     UUID mediaId;
-    Path mediaFilePath;
-    long fileSize;
+    Path chunksDirectory;
+    Path chunkPath;
+
+    int nextChunkNo;
 }

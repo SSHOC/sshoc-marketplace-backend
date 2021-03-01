@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.domain.media;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaCategory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,7 @@ import java.util.Optional;
 @Component
 class MediaCategoryResolver {
 
-    public MediaCategory resolve(Resource mediaResource, Optional<MediaType> mimeType, String filename) {
+    public MediaCategory resolve(Optional<MediaType> mimeType, String filename) {
         return mimeType.flatMap(this::resolveByMimeType)
                 .orElseGet(() -> resolveByFilename(filename));
     }

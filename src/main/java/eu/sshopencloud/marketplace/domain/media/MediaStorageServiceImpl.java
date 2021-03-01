@@ -7,6 +7,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MimeType;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
@@ -22,6 +23,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
     private final MediaThumbnailService mediaThumbnailService;
     private final MediaCategoryResolver mediaCategoryResolver;
     private final MediaDataRepository mediaDataRepository;
+    private final MediaUploadRepository mediaUploadRepository;
     private final int maxFilenameLength;
 
 
@@ -29,12 +31,14 @@ class MediaStorageServiceImpl implements MediaStorageService {
                                    MediaThumbnailService mediaThumbnailService,
                                    MediaCategoryResolver mediaCategoryResolver,
                                    MediaDataRepository mediaDataRepository,
+                                   MediaUploadRepository mediaUploadRepository,
                                    @Value("${marketplace.media.files.maxFilenameLength}") int maxFilenameLength) {
 
         this.mediaFileStorage = mediaFileStorage;
         this.mediaThumbnailService = mediaThumbnailService;
         this.mediaCategoryResolver = mediaCategoryResolver;
         this.mediaDataRepository = mediaDataRepository;
+        this.mediaUploadRepository = mediaUploadRepository;
         this.maxFilenameLength = maxFilenameLength;
     }
 
@@ -77,11 +81,56 @@ class MediaStorageServiceImpl implements MediaStorageService {
         MediaFileInfo fileInfo = mediaFileStorage.storeMediaFile(mediaId, mediaFile);
 
         String mediaFilename = extractFilename(mediaFile);
-        MediaCategory mediaCategory = mediaCategoryResolver.resolve(mediaFile, mimeType, mediaFilename);
+        MediaData mediaData = saveMediaData(fileInfo, mediaFilename, mimeType);
+
+        return toMediaInfo(mediaData);
+    }
+
+    private MediaData saveMediaData(MediaFileInfo mediaFileInfo, String mediaFilename, Optional<MediaType> mimeType) {
+        UUID mediaId = mediaFileInfo.getMediaId();
+        MediaCategory mediaCategory = mediaCategoryResolver.resolve(mimeType, mediaFilename);
         String mediaMimeType = mimeType.map(MediaType::toString).orElse(null);
 
-        MediaData mediaData = new MediaData(mediaId, mediaCategory, fileInfo.getMediaFilePath(), mediaFilename, mediaMimeType);
-        mediaData = mediaDataRepository.save(mediaData);
+        MediaData mediaData = new MediaData(mediaId, mediaCategory, mediaFileInfo.getMediaFilePath(), mediaFilename, mediaMimeType);
+        return mediaDataRepository.save(mediaData);
+    }
+
+    @Override
+    public MediaUploadInfo saveMediaChunk(Optional<UUID> mediaId, Resource mediaChunk, int chunkNo, Optional<MediaType> mimeType) {
+        Optional<MediaUpload> ongoingMediaUpload = mediaId.flatMap(mediaUploadRepository::findByMediaId);
+
+        if (ongoingMediaUpload.isPresent()) {
+            MediaChunkInfo chunkInfo = mediaFileStorage.storeNextMediaChunk(mediaId.get(), mediaChunk, chunkNo);
+            MediaUpload mediaUpload = ongoingMediaUpload.get();
+
+            return toMediaUploadInfo(mediaUpload, chunkInfo.getNextChunkNo());
+        }
+        else {
+            if (mediaId.isPresent())
+                throw new IllegalArgumentException(String.format("No ongoing media upload with id: %s", mediaId));
+
+            UUID newMediaId = resolveNewMediaId();
+            String mediaFilename = extractFilename(mediaChunk);
+            String mediaType = mimeType.map(MimeType::toString).orElse(null);
+
+            MediaUpload mediaUpload = new MediaUpload(newMediaId, mediaFilename, mediaType);
+            MediaChunkInfo chunkInfo = mediaFileStorage.storeFirstMediaChunk(newMediaId, mediaChunk, chunkNo);
+
+            mediaUpload = mediaUploadRepository.save(mediaUpload);
+
+            return toMediaUploadInfo(mediaUpload, chunkInfo.getNextChunkNo());
+        }
+    }
+
+    @Override
+    public MediaInfo completeMediaUpload(UUID mediaId) {
+        MediaUpload mediaUpload = mediaUploadRepository.findByMediaId(mediaId)
+                .orElseThrow(() -> new EntityNotFoundException("Media upload with id %s not found"));
+
+        MediaFileInfo mediaFileInfo = mediaFileStorage.completeMediaUpload(mediaId);
+
+        Optional<MediaType> mimeType = Optional.ofNullable(mediaUpload.getMimeType()).map(MediaType::parseMediaType);
+        MediaData mediaData = saveMediaData(mediaFileInfo, mediaUpload.getFilename(), mimeType);
 
         return toMediaInfo(mediaData);
     }
@@ -104,42 +153,24 @@ class MediaStorageServiceImpl implements MediaStorageService {
     }
 
     @Override
-    public MediaInfo saveMediaChunk(Optional<UUID> mediaId, Resource mediaChunk, int chunkNo) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public MediaInfo completeMediaUpload(UUID mediaId) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
     public MediaInfo importMedia(MediaSource mediaSource) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public MediaInfo addMediaLink(UUID mediaId) {
-        MediaData mediaData = changeMediaLinkCount(mediaId, 1);
+        MediaData mediaData = loadMediaData(mediaId);
+        mediaData.incrementLinkCount(1);
+
         return toMediaInfo(mediaData);
     }
 
     @Override
     public MediaInfo removeMediaLink(UUID mediaId) {
-        MediaData mediaData = changeMediaLinkCount(mediaId, -1);
-        return toMediaInfo(mediaData);
-    }
-
-    private MediaData changeMediaLinkCount(UUID mediaId, long amount) {
         MediaData mediaData = loadMediaData(mediaId);
-        mediaData.setLinkCount(mediaData.getLinkCount() + amount);
+        mediaData.incrementLinkCount(-1);
 
-        if (mediaData.getThumbnail() != null) {
-            MediaData thumbnail = mediaData.getThumbnail();
-            thumbnail.setLinkCount(thumbnail.getLinkCount() + amount);
-        }
-
-        return mediaData;
+        return toMediaInfo(mediaData);
     }
 
     private MediaData loadMediaData(UUID mediaId) {
@@ -163,5 +194,14 @@ class MediaStorageServiceImpl implements MediaStorageService {
             builder.source(new MediaSource(mediaData.getSourceUrl()));
 
         return builder.build();
+    }
+
+    private MediaUploadInfo toMediaUploadInfo(MediaUpload mediaUpload, int nextChunkNo) {
+        return MediaUploadInfo.builder()
+                .mediaId(mediaUpload.getMediaId())
+                .filename(mediaUpload.getFilename())
+                .mimeType(mediaUpload.getMimeType())
+                .nextChunkNo(nextChunkNo)
+                .build();
     }
 }

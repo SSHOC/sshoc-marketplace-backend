@@ -1,0 +1,82 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0030-SSHOC_53-media_upload-1
+      author: swolarz
+      description: Creates table for media uploads
+      changes:
+        - createSequence:
+            sequenceName: media_upload_id_seq
+            startValue: 1
+            incrementBy: 1
+
+        - createTable:
+            tableName: media_uploads
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: media_id
+                  type: uuid
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: filename
+                  type: varchar(128)
+              - column:
+                  name: mime_type
+                  type: varchar(32)
+              - column:
+                  name: created
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 0030-SSHOC_53-media_upload-2
+      author: swolarz
+      description: Creates table for media file uploads
+      changes:
+        - createTable:
+            tableName: media_file_uploads
+            columns:
+              - column:
+                  name: media_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: optlock
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: chunks_directory
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: next_chunk_no
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: current_size
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed
+                  type: boolean
+                  constraints:
+                    nullable: false

@@ -9,7 +9,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: varchar(64)
+                  type: uuid
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -32,8 +32,17 @@ databaseChangeLog:
                   type: varchar(1024)
               - column:
                   name: thumbnail_id
-                  type: varchar(64)
+                  type: uuid
                   constraints:
                     foreignKeyName: media_data_thumbnail_fk
                     references: media_data(id)
-
+              - column:
+                  name: touch_timestamp
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: link_count
+                  type: bigint
+                  constraints:
+                    nullable: false

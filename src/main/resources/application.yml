@@ -97,6 +97,7 @@ marketplace:
             path: /var/sshoc/media
             maxFilenameLength: 128
             maxSize: 100MB
+            maxChunks: 100
 
         thumbnail:
             width: 100

@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaInfo;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSource;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -29,16 +30,16 @@ public class MediaUploadController {
     @GetMapping(path = "/download/{mediaId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getMediaFile(@PathVariable("mediaId") UUID mediaId) {
         MediaDownload mediaDownload = mediaStorageService.getMediaForDownload(mediaId);
-        return serveMedia(mediaDownload);
+        return serveMediaFile(mediaDownload);
     }
 
     @GetMapping(path = "/thumbnail/{mediaId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getMediaThumbnail(@PathVariable("mediaId") UUID mediaId) {
         MediaDownload thumbnailDownload = mediaStorageService.getThumbnailForDownload(mediaId);
-        return serveMedia(thumbnailDownload);
+        return serveMediaFile(thumbnailDownload);
     }
 
-    private ResponseEntity<Resource> serveMedia(MediaDownload mediaDownload) {
+    private ResponseEntity<Resource> serveMediaFile(MediaDownload mediaDownload) {
         MediaType contentType = (mediaDownload.getMimeType() != null) ?
                 mediaDownload.getMimeType() : MediaType.APPLICATION_OCTET_STREAM;
 
@@ -63,16 +64,19 @@ public class MediaUploadController {
     public ResponseEntity<MediaInfo> uploadMedia(@RequestParam("file") MultipartFile mediaFile) {
         Optional<MediaType> mediaType = MimeTypeUtils.parseMimeType(mediaFile.getContentType());
         MediaInfo mediaInfo = mediaStorageService.saveCompleteMedia(mediaFile.getResource(), mediaType);
+
         return ResponseEntity.ok(mediaInfo);
     }
 
     @PostMapping(path = "/upload/chunk", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MediaInfo> uploadMediaChunk(@RequestParam(name = "mediaId", required = false) Optional<UUID> mediaId,
-                                                      @RequestParam("no") int chunkNo,
-                                                      @RequestParam("chunk") MultipartFile mediaChunk) {
+    public ResponseEntity<MediaUploadInfo> uploadMediaChunk(@RequestParam(name = "mediaId", required = false) Optional<UUID> mediaId,
+                                                            @RequestParam("no") int chunkNo,
+                                                            @RequestParam("chunk") MultipartFile mediaChunk) {
 
-        MediaInfo mediaInfo = mediaStorageService.saveMediaChunk(mediaId, mediaChunk.getResource(), chunkNo);
-        return ResponseEntity.ok(mediaInfo);
+        Optional<MediaType> mediaType = MimeTypeUtils.parseMimeType(mediaChunk.getContentType());
+        MediaUploadInfo uploadInfo= mediaStorageService.saveMediaChunk(mediaId, mediaChunk.getResource(), chunkNo, mediaType);
+
+        return ResponseEntity.ok(uploadInfo);
     }
 
     @PostMapping(path = "/upload/complete", produces = MediaType.APPLICATION_JSON_VALUE)
