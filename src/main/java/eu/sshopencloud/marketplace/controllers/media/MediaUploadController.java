@@ -2,9 +2,9 @@ package eu.sshopencloud.marketplace.controllers.media;
 
 import eu.sshopencloud.marketplace.controllers.util.MimeTypeUtils;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaInfo;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSource;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -61,11 +61,11 @@ public class MediaUploadController {
     }
 
     @PostMapping(path = "/upload/full", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MediaInfo> uploadMedia(@RequestParam("file") MultipartFile mediaFile) {
+    public ResponseEntity<MediaDetails> uploadMedia(@RequestParam("file") MultipartFile mediaFile) {
         Optional<MediaType> mediaType = MimeTypeUtils.parseMimeType(mediaFile.getContentType());
-        MediaInfo mediaInfo = mediaStorageService.saveCompleteMedia(mediaFile.getResource(), mediaType);
+        MediaDetails mediaDetails = mediaStorageService.saveCompleteMedia(mediaFile.getResource(), mediaType);
 
-        return ResponseEntity.ok(mediaInfo);
+        return ResponseEntity.ok(mediaDetails);
     }
 
     @PostMapping(path = "/upload/chunk", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -80,14 +80,14 @@ public class MediaUploadController {
     }
 
     @PostMapping(path = "/upload/complete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaInfo> completeMediaUpload(@RequestParam("mediaId") UUID mediaId) {
-        MediaInfo mediaInfo = mediaStorageService.completeMediaUpload(mediaId);
-        return ResponseEntity.ok(mediaInfo);
+    public ResponseEntity<MediaDetails> completeMediaUpload(@RequestParam("mediaId") UUID mediaId) {
+        MediaDetails mediaDetails = mediaStorageService.completeMediaUpload(mediaId);
+        return ResponseEntity.ok(mediaDetails);
     }
 
     @PostMapping(path = "/upload/import", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaInfo> importMedia(@RequestBody MediaSource mediaSource) {
-        MediaInfo mediaInfo = mediaStorageService.importMedia(mediaSource);
-        return ResponseEntity.ok(mediaInfo);
+    public ResponseEntity<MediaDetails> importMedia(@RequestBody MediaLocation mediaLocation) {
+        MediaDetails mediaDetails = mediaStorageService.importMedia(mediaLocation);
+        return ResponseEntity.ok(mediaDetails);
     }
 }

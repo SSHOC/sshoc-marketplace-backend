@@ -1,8 +1,8 @@
 package eu.sshopencloud.marketplace.domain.media;
 
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaInfo;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSource;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -15,12 +15,12 @@ public interface MediaStorageService {
     MediaDownload getMediaForDownload(UUID mediaId);
     MediaDownload getThumbnailForDownload(UUID mediaId);
 
-    MediaInfo saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType);
+    MediaDetails saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType);
     MediaUploadInfo saveMediaChunk(Optional<UUID> mediaId, Resource mediaChunk, int chunkNo, Optional<MediaType> mimeType);
-    MediaInfo completeMediaUpload(UUID mediaId);
+    MediaDetails completeMediaUpload(UUID mediaId);
 
-    MediaInfo importMedia(MediaSource mediaSource);
+    MediaDetails importMedia(MediaLocation mediaLocation);
 
-    MediaInfo addMediaLink(UUID mediaId);
-    MediaInfo removeMediaLink(UUID mediaId);
+    MediaDetails addMediaLink(UUID mediaId);
+    MediaDetails removeMediaLink(UUID mediaId);
 }

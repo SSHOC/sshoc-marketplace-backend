@@ -12,10 +12,10 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MediaInfo {
+public class MediaDetails {
     private UUID mediaId;
     private MediaCategory category;
-    private MediaSource source;
+    private MediaLocation source;
     private String filename;
     private String mimeType;
     private boolean hasThumbnail;

@@ -236,3 +236,6 @@ ItemSource:
     code:                        GitHub
     label:                       GitHub
     ord:                         2
+
+MediaSource:
+  - !!eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore

@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @AllArgsConstructor
-public class MediaSource {
+public class MediaLocation {
     private String sourceUrl;
 }

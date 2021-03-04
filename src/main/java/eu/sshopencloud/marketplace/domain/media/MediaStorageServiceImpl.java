@@ -76,14 +76,14 @@ class MediaStorageServiceImpl implements MediaStorageService {
     }
 
     @Override
-    public MediaInfo saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType) {
+    public MediaDetails saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType) {
         UUID mediaId = resolveNewMediaId();
         MediaFileInfo fileInfo = mediaFileStorage.storeMediaFile(mediaId, mediaFile);
 
         String mediaFilename = extractFilename(mediaFile);
         MediaData mediaData = saveMediaData(fileInfo, mediaFilename, mimeType);
 
-        return toMediaInfo(mediaData);
+        return toMediaDetails(mediaData);
     }
 
     private MediaData saveMediaData(MediaFileInfo mediaFileInfo, String mediaFilename, Optional<MediaType> mimeType) {
@@ -123,7 +123,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
     }
 
     @Override
-    public MediaInfo completeMediaUpload(UUID mediaId) {
+    public MediaDetails completeMediaUpload(UUID mediaId) {
         MediaUpload mediaUpload = mediaUploadRepository.findByMediaId(mediaId)
                 .orElseThrow(() -> new EntityNotFoundException("Media upload with id %s not found"));
 
@@ -132,7 +132,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
         Optional<MediaType> mimeType = Optional.ofNullable(mediaUpload.getMimeType()).map(MediaType::parseMediaType);
         MediaData mediaData = saveMediaData(mediaFileInfo, mediaUpload.getFilename(), mimeType);
 
-        return toMediaInfo(mediaData);
+        return toMediaDetails(mediaData);
     }
 
     private String extractFilename(Resource mediaFile) {
@@ -153,24 +153,24 @@ class MediaStorageServiceImpl implements MediaStorageService {
     }
 
     @Override
-    public MediaInfo importMedia(MediaSource mediaSource) {
+    public MediaDetails importMedia(MediaLocation mediaLocation) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public MediaInfo addMediaLink(UUID mediaId) {
+    public MediaDetails addMediaLink(UUID mediaId) {
         MediaData mediaData = loadMediaData(mediaId);
         mediaData.incrementLinkCount(1);
 
-        return toMediaInfo(mediaData);
+        return toMediaDetails(mediaData);
     }
 
     @Override
-    public MediaInfo removeMediaLink(UUID mediaId) {
+    public MediaDetails removeMediaLink(UUID mediaId) {
         MediaData mediaData = loadMediaData(mediaId);
         mediaData.incrementLinkCount(-1);
 
-        return toMediaInfo(mediaData);
+        return toMediaDetails(mediaData);
     }
 
     private MediaData loadMediaData(UUID mediaId) {
@@ -182,8 +182,8 @@ class MediaStorageServiceImpl implements MediaStorageService {
         return UUID.randomUUID();
     }
 
-    private MediaInfo toMediaInfo(MediaData mediaData) {
-        MediaInfo.MediaInfoBuilder builder = MediaInfo.builder()
+    private MediaDetails toMediaDetails(MediaData mediaData) {
+        MediaDetails.MediaDetailsBuilder builder = MediaDetails.builder()
                 .mediaId(mediaData.getId())
                 .category(mediaData.getCategory())
                 .filename(mediaData.getOriginalFilename())
@@ -191,7 +191,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
                 .hasThumbnail(mediaData.hasThumbnail());
 
         if (mediaData.getSourceUrl() != null)
-            builder.source(new MediaSource(mediaData.getSourceUrl()));
+            builder.source(new MediaLocation(mediaData.getSourceUrl()));
 
         return builder.build();
     }

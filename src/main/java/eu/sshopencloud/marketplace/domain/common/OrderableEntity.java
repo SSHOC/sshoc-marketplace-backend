@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.services.common;
+package eu.sshopencloud.marketplace.domain.common;
 
 public interface OrderableEntity<Id> {
 
