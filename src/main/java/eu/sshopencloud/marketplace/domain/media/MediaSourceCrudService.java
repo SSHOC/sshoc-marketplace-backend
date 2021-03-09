@@ -13,5 +13,8 @@ public interface MediaSourceCrudService {
     MediaSourceDetails registerMediaSource(MediaSourceCore mediaSourceCore);
     MediaSourceDetails updateMediaSource(String mediaSourceCode, MediaSourceCore mediaSourceCore);
 
+    void saveMediaSources(List<MediaSourceCore> mediaSources);
+    long countAllMediaSources();
+
     void removeMediaSource(String mediaSourceCode);
 }

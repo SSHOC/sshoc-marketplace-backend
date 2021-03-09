@@ -124,4 +124,14 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
     protected JpaRepository<MediaSource, String> getEntityRepository() {
         return mediaSourceRepository;
     }
+
+    @Override
+    public void saveMediaSources(List<MediaSourceCore> mediaSources) {
+        mediaSources.forEach(this::registerMediaSource);
+    }
+
+    @Override
+    public long countAllMediaSources() {
+        return mediaSourceRepository.count();
+    }
 }
