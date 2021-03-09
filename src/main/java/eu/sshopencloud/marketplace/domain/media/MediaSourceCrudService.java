@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface MediaSourceCrudService {
 
-    List<MediaSourceDetails> getAllMediaServices();
-    MediaSourceDetails getMediaService(String mediaSourceCode);
+    List<MediaSourceDetails> getAllMediaSources();
+    MediaSourceDetails getMediaSource(String mediaSourceCode);
 
-    MediaSourceDetails registerMediaService(MediaSourceCore mediaSourceCore);
-    MediaSourceDetails updateMediaService(MediaSourceCore mediaSourceCore);
+    MediaSourceDetails registerMediaSource(MediaSourceCore mediaSourceCore);
+    MediaSourceDetails updateMediaSource(String mediaSourceCode, MediaSourceCore mediaSourceCore);
 
-    void removeMediaService(String mediaSourceCode);
+    void removeMediaSource(String mediaSourceCode);
 }

@@ -44,6 +44,11 @@ spring:
             max-file-size: 10MB
             max-request-size: 10MB
 
+    cache:
+        cache-names: mediaMetadata
+        caffeine:
+            spec: maximumSize=500,expireAfterAccess=60s
+
     security:
         oauth2:
             client:

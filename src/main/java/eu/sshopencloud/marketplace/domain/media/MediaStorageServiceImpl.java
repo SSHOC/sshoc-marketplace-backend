@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.domain.media;
 
+import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaMetadata;
 import eu.sshopencloud.marketplace.domain.media.dto.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -17,19 +19,24 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@Slf4j
 class MediaStorageServiceImpl implements MediaStorageService {
 
     private final MediaFileStorage mediaFileStorage;
     private final MediaThumbnailService mediaThumbnailService;
     private final MediaCategoryResolver mediaCategoryResolver;
+    private final MediaExternalClient mediaExternalClient;
+
     private final MediaDataRepository mediaDataRepository;
     private final MediaUploadRepository mediaUploadRepository;
+
     private final int maxFilenameLength;
 
 
     public MediaStorageServiceImpl(MediaFileStorage mediaFileStorage,
                                    MediaThumbnailService mediaThumbnailService,
                                    MediaCategoryResolver mediaCategoryResolver,
+                                   MediaExternalClient mediaExternalClient,
                                    MediaDataRepository mediaDataRepository,
                                    MediaUploadRepository mediaUploadRepository,
                                    @Value("${marketplace.media.files.maxFilenameLength}") int maxFilenameLength) {
@@ -37,6 +44,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
         this.mediaFileStorage = mediaFileStorage;
         this.mediaThumbnailService = mediaThumbnailService;
         this.mediaCategoryResolver = mediaCategoryResolver;
+        this.mediaExternalClient = mediaExternalClient;
         this.mediaDataRepository = mediaDataRepository;
         this.mediaUploadRepository = mediaUploadRepository;
         this.maxFilenameLength = maxFilenameLength;
@@ -66,12 +74,11 @@ class MediaStorageServiceImpl implements MediaStorageService {
 
     private MediaDownload retrieveDownloadData(MediaData media) {
         MediaFileHandle mediaHandle = mediaFileStorage.retrieveMediaFile(media.getId());
-        MediaType mediaType = (media.getMimeType() != null) ? MediaType.parseMediaType(media.getMimeType()) : null;
 
         return MediaDownload.builder()
                 .mediaFile(mediaHandle.getMediaFile())
                 .filename(media.getOriginalFilename())
-                .mimeType(mediaType)
+                .mimeType(media.getMimeType())
                 .build();
     }
 
@@ -89,7 +96,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
     private MediaData saveMediaData(MediaFileInfo mediaFileInfo, String mediaFilename, Optional<MediaType> mimeType) {
         UUID mediaId = mediaFileInfo.getMediaId();
         MediaCategory mediaCategory = mediaCategoryResolver.resolve(mimeType, mediaFilename);
-        String mediaMimeType = mimeType.map(MediaType::toString).orElse(null);
+        MediaType mediaMimeType = mimeType.orElse(null);
 
         MediaData mediaData = new MediaData(mediaId, mediaCategory, mediaFileInfo.getMediaFilePath(), mediaFilename, mediaMimeType);
         return mediaDataRepository.save(mediaData);
@@ -154,7 +161,27 @@ class MediaStorageServiceImpl implements MediaStorageService {
 
     @Override
     public MediaDetails importMedia(MediaLocation mediaLocation) {
-        throw new UnsupportedOperationException("Not implemented");
+        UUID newMediaId = resolveNewMediaId();
+        MediaCategory mediaCategory = mediaCategoryResolver.resolve(mediaLocation);
+        MediaType mimeType = fetchMediaType(mediaLocation);
+
+        MediaData importedMedia = new MediaData(newMediaId, mediaCategory, mediaLocation.getSourceUrl(), mimeType);
+        importedMedia = mediaDataRepository.save(importedMedia);
+
+        return toMediaDetails(importedMedia);
+    }
+
+    private MediaType fetchMediaType(MediaLocation mediaLocation) {
+        try {
+            MediaMetadata metadata = mediaExternalClient.resolveMetadata(mediaLocation);
+            if (metadata.getMimeType().isPresent())
+                return metadata.getMimeType().get();
+        }
+        catch (MediaServiceUnavailableException e) {
+            log.info("Media source service is not available: {}", e.getMessage());
+        }
+
+        return null;
     }
 
     @Override
@@ -187,7 +214,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
                 .mediaId(mediaData.getId())
                 .category(mediaData.getCategory())
                 .filename(mediaData.getOriginalFilename())
-                .mimeType(mediaData.getMimeType())
+                .mimeType(mediaData.getMimeType().toString())
                 .hasThumbnail(mediaData.hasThumbnail());
 
         if (mediaData.getSourceUrl() != null)

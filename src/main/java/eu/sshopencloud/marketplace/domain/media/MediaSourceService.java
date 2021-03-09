@@ -9,7 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -20,8 +23,20 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
     private final MediaSourceRepository mediaSourceRepository;
 
 
+    public Optional<MediaSource> resolveMediaSource(URL mediaUrl) {
+        return mediaSourceRepository.findAll()
+                .stream()
+                .filter(mediaSource -> checkMediaSourceMatchesUrl(mediaSource, mediaUrl))
+                .findFirst();
+    }
+
+    private boolean checkMediaSourceMatchesUrl(MediaSource mediaSource, URL mediaUrl) {
+        URL serviceUrl = mediaSource.getServiceUrl();
+        return mediaUrl.getPath().startsWith(serviceUrl.getPath());
+    }
+
     @Override
-    public List<MediaSourceDetails> getAllMediaServices() {
+    public List<MediaSourceDetails> getAllMediaSources() {
         return loadAllEntries()
                 .stream()
                 .map(this::toMediaSourceDetails)
@@ -29,13 +44,13 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
     }
 
     @Override
-    public MediaSourceDetails getMediaService(String mediaSourceCode) {
+    public MediaSourceDetails getMediaSource(String mediaSourceCode) {
         MediaSource mediaSource = loadMediaSource(mediaSourceCode);
         return toMediaSourceDetails(mediaSource);
     }
 
     @Override
-    public MediaSourceDetails registerMediaService(MediaSourceCore mediaSourceCore) {
+    public MediaSourceDetails registerMediaSource(MediaSourceCore mediaSourceCore) {
         String code = mediaSourceCore.getCode();
         if (code == null)
             throw new IllegalArgumentException("Media source's code is not present");
@@ -43,7 +58,8 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
         if (mediaSourceRepository.existsById(code))
             throw new IllegalArgumentException(String.format("Media source with code '%s' is already present", code));
 
-        MediaSource mediaSource = new MediaSource(code, mediaSourceCore.getServiceUrl(), mediaSourceCore.getMediaCategory());
+        URL serviceUrl = parseServiceUrl(mediaSourceCore.getServiceUrl());
+        MediaSource mediaSource = new MediaSource(code, serviceUrl, mediaSourceCore.getMediaCategory());
 
         placeEntryAtPosition(mediaSource, mediaSource.getOrd(), true);
         mediaSource = mediaSourceRepository.save(mediaSource);
@@ -52,13 +68,15 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
     }
 
     @Override
-    public MediaSourceDetails updateMediaService(MediaSourceCore mediaSourceCore) {
+    public MediaSourceDetails updateMediaSource(String mediaSourceCode, MediaSourceCore mediaSourceCore) {
         String code = mediaSourceCore.getCode();
         if (code == null)
             throw new IllegalArgumentException("Media source's code is not present");
 
         MediaSource mediaSource = loadMediaSource(code);
-        mediaSource.setServiceUrl(mediaSourceCore.getServiceUrl());
+        URL serviceUrl = parseServiceUrl(mediaSourceCore.getServiceUrl());
+
+        mediaSource.setServiceUrl(serviceUrl);
         mediaSource.setMediaCategory(mediaSource.getMediaCategory());
 
         placeEntryAtPosition(mediaSource, mediaSourceCore.getOrd(), false);
@@ -66,8 +84,17 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
         return toMediaSourceDetails(mediaSource);
     }
 
+    private URL parseServiceUrl(String serviceUrl) {
+        try {
+            return new URL(serviceUrl);
+        }
+        catch (MalformedURLException e) {
+            throw new IllegalArgumentException(String.format("Invalid url: %s", serviceUrl), e);
+        }
+    }
+
     @Override
-    public void removeMediaService(String mediaSourceCode) {
+    public void removeMediaSource(String mediaSourceCode) {
         try {
             mediaSourceRepository.deleteById(mediaSourceCode);
             removeEntryFromPosition(mediaSourceCode);
@@ -88,7 +115,7 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
     private MediaSourceDetails toMediaSourceDetails(MediaSource mediaSource) {
         return MediaSourceDetails.builder()
                 .code(mediaSource.getCode())
-                .serviceUrl(mediaSource.getServiceUrl())
+                .serviceUrl(mediaSource.getServiceUrl().toString())
                 .mediaCategory(mediaSource.getMediaCategory())
                 .build();
     }
