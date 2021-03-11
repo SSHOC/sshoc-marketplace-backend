@@ -34,7 +34,9 @@ class MediaCategoryResolver {
             MediaMetadata mediaMetadata = mediaExternalClient.resolveMetadata(mediaLocation);
 
             if (mediaMetadata.getMimeType().isPresent()) {
-                Optional<MediaCategory> category = resolveByMimeType(mediaMetadata.getMimeType().get());
+                MediaType mimeType = mediaMetadata.getMimeType().get();
+                Optional<MediaCategory> category = resolveByMimeType(mimeType);
+
                 if (category.isPresent())
                     return category.get();
             }
@@ -60,7 +62,7 @@ class MediaCategoryResolver {
         if (imageType.includes(mimeType))
             return Optional.of(MediaCategory.IMAGE);
 
-        return Optional.of(MediaCategory.OBJECT);
+        return Optional.empty();
     }
 
     private MediaCategory resolveByFilename(String filename) {

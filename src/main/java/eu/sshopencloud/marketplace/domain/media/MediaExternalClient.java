@@ -1,56 +1,68 @@
 package eu.sshopencloud.marketplace.domain.media;
 
+import eu.sshopencloud.marketplace.domain.common.util.WebClientUtils;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import lombok.Builder;
 import lombok.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URISyntaxException;
-import java.time.Duration;
 import java.util.Optional;
+import java.util.OptionalLong;
 
 
 @Component
 class MediaExternalClient {
-    private static final int MEDIA_EXTERNAL_CONNECT_TIMEOUT_MS = 100;
-    private static final int MEDIA_EXTERNAL_READ_TIMEOUT_MS = 100;
+    public static final long MEDIA_FILE_MAX_BYTES = 1024 * 1024 * 5; // 5 MB
 
-    private final RestTemplate restTemplate;
+    private static final int MEDIA_CONNECT_TIMEOUT_MS = 100;
+    private static final int MEDIA_HEAD_READ_TIMEOUT_MS = 100;
+    private static final int MEDIA_RESOURCE_READ_TIMEOUT_MS = 5000;
+
+    private final WebClient headClient;
+    private final WebClient mediaClient;
 
 
-    public MediaExternalClient(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder
-                .setConnectTimeout(Duration.ofMillis(MEDIA_EXTERNAL_CONNECT_TIMEOUT_MS))
-                .setReadTimeout(Duration.ofMillis(MEDIA_EXTERNAL_READ_TIMEOUT_MS))
-                .build();
+    public MediaExternalClient(WebClient.Builder webClientBuilder) {
+        this.headClient = WebClientUtils.create(
+                webClientBuilder, MEDIA_CONNECT_TIMEOUT_MS, MEDIA_HEAD_READ_TIMEOUT_MS, Optional.empty()
+        );
+
+        this.mediaClient = WebClientUtils.create(
+                webClientBuilder, MEDIA_CONNECT_TIMEOUT_MS, MEDIA_RESOURCE_READ_TIMEOUT_MS, Optional.of(MEDIA_FILE_MAX_BYTES)
+        );
     }
 
 
     @Cacheable(cacheNames = "mediaMetadata", sync = true)
     public MediaMetadata resolveMetadata(MediaLocation mediaLocation) throws MediaServiceUnavailableException {
         try {
-            HttpHeaders headers = restTemplate.headForHeaders(mediaLocation.getSourceUrl().toURI());
+            ClientResponse response = headClient.head()
+                    .uri(mediaLocation.getSourceUrl().toURI())
+                    .exchange()
+                    .block();
 
-            MediaType mimeType = headers.getContentType();
-            String filename = headers.getContentDisposition().getFilename();
+            if (response == null)
+                throw new IllegalStateException("Failed to get a response from the media service");
+
+            if (response.statusCode().is4xxClientError())
+                throw new IllegalArgumentException("Media resource client error", response.createException().block());
+
+            if (response.statusCode().isError())
+                throw new MediaServiceUnavailableException("Failed to get a response from the media service", response.createException().block());
+
+            ClientResponse.Headers headers = response.headers();
+            String filename = headers.asHttpHeaders().getContentDisposition().getFilename();
 
             return MediaMetadata.builder()
-                    .mimeType(Optional.ofNullable(mimeType))
+                    .mimeType(headers.contentType())
                     .filename(Optional.ofNullable(filename))
+                    .contentLength(headers.contentLength())
                     .build();
-        }
-        catch (HttpClientErrorException e) {
-            throw new IllegalArgumentException("Media resource is not available in the given service", e);
-        }
-        catch (RestClientException e) {
-            throw new MediaServiceUnavailableException("Failed to connect to the media service", e);
         }
         catch (URISyntaxException e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
@@ -62,5 +74,6 @@ class MediaExternalClient {
     public static class MediaMetadata {
         Optional<MediaType> mimeType;
         Optional<String> filename;
+        OptionalLong contentLength;
     }
 }
