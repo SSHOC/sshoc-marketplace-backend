@@ -66,7 +66,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
         MediaData mediaData = loadMediaData(mediaId);
 
         if (mediaData.getThumbnail() == null)
-            throw new EntityNotFoundException(String.format("Thumbnail for requested media with id %s is not present", mediaId));
+            throw new EntityNotFoundException(String.format("Thumbnail for media with id %s is not present", mediaId));
 
         MediaData thumbnail = mediaData.getThumbnail();
         return retrieveDownloadData(thumbnail);
@@ -88,18 +88,35 @@ class MediaStorageServiceImpl implements MediaStorageService {
         MediaFileInfo fileInfo = mediaFileStorage.storeMediaFile(mediaId, mediaFile);
 
         String mediaFilename = extractFilename(mediaFile);
-        MediaData mediaData = saveMediaData(fileInfo, mediaFilename, mimeType);
+        MediaData mediaData = prepareMediaData(fileInfo, mediaFilename, mimeType);
+
+        if (mediaData.thumbnailPossible()) {
+            MediaData thumbnailData = prepareThumbnail(mediaData);
+            mediaData.setThumbnail(thumbnailData);
+        }
+
+        mediaData = mediaDataRepository.save(mediaData);
 
         return toMediaDetails(mediaData);
     }
 
-    private MediaData saveMediaData(MediaFileInfo mediaFileInfo, String mediaFilename, Optional<MediaType> mimeType) {
+    private MediaData prepareThumbnail(MediaData media) {
+        Resource thumbnailFile = mediaThumbnailService.generateThumbnail(media.getFilePath());
+        UUID thumbnailId = resolveNewMediaId();
+        MediaFileInfo thumbnailInfo = mediaFileStorage.storeMediaFile(thumbnailId, thumbnailFile);
+
+        String thumbnailFilename = mediaThumbnailService.getDefaultThumbnailFilename();
+        return new MediaData(
+                thumbnailId, MediaCategory.THUMBNAIL, thumbnailInfo.getMediaFilePath(), thumbnailFilename, MediaType.IMAGE_JPEG
+        );
+    }
+
+    private MediaData prepareMediaData(MediaFileInfo mediaFileInfo, String mediaFilename, Optional<MediaType> mimeType) {
         UUID mediaId = mediaFileInfo.getMediaId();
         MediaCategory mediaCategory = mediaCategoryResolver.resolve(mimeType, mediaFilename);
         MediaType mediaMimeType = mimeType.orElse(null);
 
-        MediaData mediaData = new MediaData(mediaId, mediaCategory, mediaFileInfo.getMediaFilePath(), mediaFilename, mediaMimeType);
-        return mediaDataRepository.save(mediaData);
+        return new MediaData(mediaId, mediaCategory, mediaFileInfo.getMediaFilePath(), mediaFilename, mediaMimeType);
     }
 
     @Override
@@ -137,7 +154,14 @@ class MediaStorageServiceImpl implements MediaStorageService {
         MediaFileInfo mediaFileInfo = mediaFileStorage.completeMediaUpload(mediaId);
 
         Optional<MediaType> mimeType = Optional.ofNullable(mediaUpload.getMimeType()).map(MediaType::parseMediaType);
-        MediaData mediaData = saveMediaData(mediaFileInfo, mediaUpload.getFilename(), mimeType);
+        MediaData mediaData = prepareMediaData(mediaFileInfo, mediaUpload.getFilename(), mimeType);
+
+        if (mediaData.thumbnailPossible()) {
+            MediaData thumbnailData = prepareThumbnail(mediaData);
+            mediaData.setThumbnail(thumbnailData);
+        }
+
+        mediaData = mediaDataRepository.save(mediaData);
 
         return toMediaDetails(mediaData);
     }
@@ -166,6 +190,12 @@ class MediaStorageServiceImpl implements MediaStorageService {
         MediaType mimeType = fetchMediaType(mediaLocation);
 
         MediaData importedMedia = new MediaData(newMediaId, mediaCategory, mediaLocation.getSourceUrl(), mimeType);
+
+        if (importedMedia.thumbnailPossible()) {
+            MediaData thumbnailData = prepareThumbnail(importedMedia);
+            importedMedia.setThumbnail(thumbnailData);
+        }
+
         importedMedia = mediaDataRepository.save(importedMedia);
 
         return toMediaDetails(importedMedia);

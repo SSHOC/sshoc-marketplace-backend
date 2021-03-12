@@ -80,6 +80,11 @@ class MediaData {
         this.thumbnail.setLinkCount(this.linkCount);
     }
 
+    public boolean thumbnailPossible() {
+        // TODO change in case, for example, video thumbnail possibilities
+        return (category == MediaCategory.IMAGE);
+    }
+
     public boolean isTemporary() {
         return (linkCount == 0);
     }

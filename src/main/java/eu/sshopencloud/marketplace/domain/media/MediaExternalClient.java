@@ -5,11 +5,15 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import lombok.Builder;
 import lombok.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -63,6 +67,20 @@ class MediaExternalClient {
                     .filename(Optional.ofNullable(filename))
                     .contentLength(headers.contentLength())
                     .build();
+        }
+        catch (URISyntaxException e) {
+            throw new IllegalStateException("Unexpected invalid media location url syntax", e);
+        }
+    }
+
+    public DownloadedMediaFile fetchMediaFile(MediaLocation mediaLocation) {
+        try {
+            Flux<DataBuffer> mediaContent = mediaClient.get()
+                    .uri(mediaLocation.getSourceUrl().toURI())
+                    .retrieve()
+                    .bodyToFlux(DataBuffer.class);
+
+            return new DownloadedFluxMediaFile(mediaContent);
         }
         catch (URISyntaxException e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
