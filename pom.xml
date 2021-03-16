@@ -181,6 +181,7 @@
                             <alias>psql-test</alias>
                             <name>postgres:9.6</name>
                             <run>
+                                <containerNamePattern>%a-%i</containerNamePattern>
                                 <ports>
                                     <port>5433:5432</port>
                                 </ports>
@@ -198,6 +199,7 @@
                                 <contextDir>${project.basedir}/etc/solr</contextDir>
                             </build>
                             <run>
+                                <containerNamePattern>%a-%i</containerNamePattern>
                                 <ports>
                                     <port>8984:8983</port>
                                 </ports>

@@ -18,30 +18,4 @@ public class ItemConverter {
         basicItem.setVersion(item.getVersion());
         return basicItem;
     }
-
-    public RelatedItemDto convertRelatedItemFromSubject(ItemRelatedItem subjectRelatedItem) {
-        RelatedItemDto relatedItem = new RelatedItemDto();
-        relatedItem.setId(subjectRelatedItem.getObject().getId());
-        relatedItem.setPersistentId(subjectRelatedItem.getObject().getPersistentId());
-        relatedItem.setRelation(ItemRelationMapper.INSTANCE.toDto(subjectRelatedItem.getRelation()));
-
-        return completeRelatedItem(relatedItem, subjectRelatedItem.getObject());
-    }
-
-    public RelatedItemDto convertRelatedItemFromObject(ItemRelatedItem objectRelatedItem) {
-        RelatedItemDto relatedItem = new RelatedItemDto();
-        relatedItem.setId(objectRelatedItem.getSubject().getId());
-        relatedItem.setPersistentId(objectRelatedItem.getSubject().getPersistentId());
-        relatedItem.setRelation(ItemRelationMapper.INSTANCE.toDto(objectRelatedItem.getRelation().getInverseOf()));
-
-        return completeRelatedItem(relatedItem, objectRelatedItem.getSubject());
-    }
-
-    private RelatedItemDto completeRelatedItem(RelatedItemDto relatedItem, Item item) {
-        relatedItem.setCategory(item.getCategory());
-        relatedItem.setLabel(item.getLabel());
-        relatedItem.setDescription(item.getDescription());
-        return relatedItem;
-    }
-
 }

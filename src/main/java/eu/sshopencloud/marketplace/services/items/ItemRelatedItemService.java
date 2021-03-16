@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.mappers.items.ItemRelatedItemMapper;
+import eu.sshopencloud.marketplace.mappers.items.RelatedItemsConverter;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelatedItemRepository;
@@ -33,6 +34,7 @@ public class ItemRelatedItemService {
     private final ItemVisibilityService itemVisibilityService;
     private final DraftItemRepository draftItemRepository;
     private final VersionedItemRepository versionedItemRepository;
+    private final RelatedItemsConverter relatedItemsConverter;
 
 
     public List<RelatedItemDto> getItemRelatedItems(Item item) {
@@ -49,12 +51,12 @@ public class ItemRelatedItemService {
 
         List<RelatedItemDto> subjectRelations = itemRelatedItemRepository.findAllBySubjectId(itemId).stream()
                 .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getObject()))
-                .map(ItemConverter::convertRelatedItemFromSubject)
+                .map(relatedItemsConverter::convertRelatedItemFromSubject)
                 .collect(Collectors.toList());
 
         List<RelatedItemDto> objectRelations = itemRelatedItemRepository.findAllByObjectId(itemId).stream()
                 .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getSubject()))
-                .map(ItemConverter::convertRelatedItemFromObject)
+                .map(relatedItemsConverter::convertRelatedItemFromObject)
                 .collect(Collectors.toList());
 
         relatedItems.addAll(subjectRelations);
@@ -68,7 +70,7 @@ public class ItemRelatedItemService {
 
         return draftItem.getRelations().stream()
                 .map(ItemRelatedItem::new)
-                .map(ItemConverter::convertRelatedItemFromSubject)
+                .map(relatedItemsConverter::convertRelatedItemFromSubject)
                 .collect(Collectors.toList());
     }
 
