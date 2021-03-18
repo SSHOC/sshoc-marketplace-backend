@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.dto.items;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceBasicDto;
@@ -39,6 +40,8 @@ public class ItemDto extends ItemBasicDto {
     private String sourceItemId;
 
     private List<RelatedItemDto> relatedItems;
+
+    private List<ItemMediaDto> itemMedia;
 
     private UserDto informationContributor;
 

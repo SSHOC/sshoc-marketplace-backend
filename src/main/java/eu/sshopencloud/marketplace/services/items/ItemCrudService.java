@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
+import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
@@ -42,12 +44,14 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final PropertyTypeService propertyTypeService;
     private final IndexService indexService;
     private final UserService userService;
+    private final MediaStorageService mediaStorageService;
 
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
+                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                           MediaStorageService mediaStorageService) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -61,6 +65,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         this.propertyTypeService = propertyTypeService;
         this.indexService = indexService;
         this.userService = userService;
+
+        this.mediaStorageService = mediaStorageService;
     }
 
 
@@ -203,7 +209,20 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             draftItemRepository.save(draftItem);
         }
 
+        linkItemMedia(version);
+
         return version;
+    }
+
+    private void linkItemMedia(I version) {
+        for (ItemMedia media : version.getMedia()) {
+            try {
+                mediaStorageService.linkToMedia(media.getMediaId());
+            }
+            catch (MediaNotAvailableException e) {
+                throw new IllegalStateException("Media not available unexpectedly");
+            }
+        }
     }
 
     private void deprecatePrevApprovedVersion(VersionedItem versionedItem) {
@@ -371,11 +390,19 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
+        unlinkItemMedia(draftItem);
+
         draftItemRepository.deleteByItemId(draftItem.getId());
         getItemRepository().delete(draftItem);
 
         if (versionedItem.getStatus().equals(VersionedItemStatus.DRAFT))
             versionedItemRepository.delete(draftItem.getVersionedItem());
+    }
+
+    private void unlinkItemMedia(I version) {
+        version.getMedia().stream()
+                .map(ItemMedia::getMediaId)
+                .forEach(mediaStorageService::removeMediaLink);
     }
 
     private void commitDraftRelations(DraftItem draftItem) {

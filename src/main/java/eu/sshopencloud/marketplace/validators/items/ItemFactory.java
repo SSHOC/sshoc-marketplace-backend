@@ -38,6 +38,8 @@ public class ItemFactory {
     private final ItemExternalIdFactory itemExternalIdFactory;
     private final PropertyFactory propertyFactory;
     private final SourceFactory sourceFactory;
+    private final ItemMediaFactory itemMediaFactory;
+
     private final UserRepository userRepository;
 
 
@@ -107,6 +109,7 @@ public class ItemFactory {
         }
 
         item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
+        item.addMedia(itemMediaFactory.create(itemCore.getMedia(), item, errors));
 
         setInfoDates(item, true);
         updateInformationContributor(item);

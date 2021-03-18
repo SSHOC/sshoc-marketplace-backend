@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.domain.media;
 
 import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaMetadata;
 import eu.sshopencloud.marketplace.domain.media.dto.*;
+import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,6 +81,11 @@ class MediaStorageServiceImpl implements MediaStorageService {
                 .filename(media.getOriginalFilename())
                 .mimeType(media.getMimeType())
                 .build();
+    }
+
+    @Override
+    public boolean ensureMediaAvailable(UUID mediaId) {
+        return mediaDataRepository.existsById(mediaId);
     }
 
     @Override
@@ -215,11 +221,15 @@ class MediaStorageServiceImpl implements MediaStorageService {
     }
 
     @Override
-    public MediaDetails addMediaLink(UUID mediaId) {
-        MediaData mediaData = loadMediaData(mediaId);
-        mediaData.incrementLinkCount(1);
+    public MediaDetails linkToMedia(UUID mediaId) throws MediaNotAvailableException {
+        Optional<MediaData> mediaData = mediaDataRepository.findById(mediaId);
 
-        return toMediaDetails(mediaData);
+        if (mediaData.isEmpty())
+            throw new MediaNotAvailableException(mediaId);
+
+        mediaData.get().incrementLinkCount(1);
+
+        return toMediaDetails(mediaData.get());
     }
 
     @Override

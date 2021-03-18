@@ -98,6 +98,10 @@ public abstract class Item {
     @JoinColumn(name = "info_contributor_id", nullable = false)
     private User informationContributor;
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "ord", nullable = false)
+    private List<ItemMedia> media;
+
     @CreationTimestamp
     @Column(nullable = false)
     private ZonedDateTime lastInfoUpdate;
@@ -125,6 +129,7 @@ public abstract class Item {
         this.licenses = new ArrayList<>();
         this.contributors = new ArrayList<>();
         this.externalIds = new ArrayList<>();
+        this.media = new ArrayList<>();
     }
 
     public Item(Item baseItem) {
@@ -149,6 +154,10 @@ public abstract class Item {
                 .map(externalId ->
                         new ItemExternalId(externalId.getIdentifierService(), externalId.getIdentifier(), this)
                 )
+                .collect(Collectors.toList());
+
+        this.media = baseItem.getMedia().stream()
+                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption()))
                 .collect(Collectors.toList());
     }
 
@@ -189,6 +198,15 @@ public abstract class Item {
 
     public List<ItemExternalId> getExternalIds() {
         return Collections.unmodifiableList(externalIds);
+    }
+
+    public void addMedia(List<ItemMedia> media) {
+        this.media.clear();
+        this.media.addAll(media);
+    }
+
+    public List<ItemMedia> getMedia() {
+        return Collections.unmodifiableList(media);
     }
 
     public boolean isOwner(User user) {
