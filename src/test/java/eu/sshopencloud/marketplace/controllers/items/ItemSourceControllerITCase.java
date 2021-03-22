@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
 import eu.sshopencloud.marketplace.dto.items.ItemSourceCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

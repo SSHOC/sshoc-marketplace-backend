@@ -1,17 +1,17 @@
 package eu.sshopencloud.marketplace.domain.media;
 
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceDetails;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceDto;
 
 import java.util.List;
 
 public interface MediaSourceCrudService {
 
-    List<MediaSourceDetails> getAllMediaSources();
-    MediaSourceDetails getMediaSource(String mediaSourceCode);
+    List<MediaSourceDto> getAllMediaSources();
+    MediaSourceDto getMediaSource(String mediaSourceCode);
 
-    MediaSourceDetails registerMediaSource(MediaSourceCore mediaSourceCore);
-    MediaSourceDetails updateMediaSource(String mediaSourceCode, MediaSourceCore mediaSourceCore);
+    MediaSourceDto registerMediaSource(MediaSourceCore mediaSourceCore);
+    MediaSourceDto updateMediaSource(String mediaSourceCode, MediaSourceCore mediaSourceCore);
 
     void saveMediaSources(List<MediaSourceCore> mediaSources);
     long countAllMediaSources();

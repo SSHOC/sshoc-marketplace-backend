@@ -21,6 +21,5 @@ public class WebConvertersConfig implements WebMvcConfigurer {
         registry.addFormatterForFieldType(ItemStatus.class, new ItemStatusFormatter());
         registry.addFormatterForFieldType(SearchOrder.class, new SearchOrderFormatter());
         registry.addFormatterForFieldType(PropertyTypeClass.class, new PropertyTypeClassFormatter());
-        registry.addFormatterForFieldType(MediaCategory.class, new MediaCategoryFormatter());
     }
 }

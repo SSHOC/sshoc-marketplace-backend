@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.domain.media;
 
 import eu.sshopencloud.marketplace.domain.common.BaseOrderableEntityService;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceDetails;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,7 +36,7 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
     }
 
     @Override
-    public List<MediaSourceDetails> getAllMediaSources() {
+    public List<MediaSourceDto> getAllMediaSources() {
         return loadAllEntries()
                 .stream()
                 .map(this::toMediaSourceDetails)
@@ -44,13 +44,13 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
     }
 
     @Override
-    public MediaSourceDetails getMediaSource(String mediaSourceCode) {
+    public MediaSourceDto getMediaSource(String mediaSourceCode) {
         MediaSource mediaSource = loadMediaSource(mediaSourceCode);
         return toMediaSourceDetails(mediaSource);
     }
 
     @Override
-    public MediaSourceDetails registerMediaSource(MediaSourceCore mediaSourceCore) {
+    public MediaSourceDto registerMediaSource(MediaSourceCore mediaSourceCore) {
         String code = mediaSourceCore.getCode();
         if (code == null)
             throw new IllegalArgumentException("Media source's code is not present");
@@ -61,14 +61,14 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
         URL serviceUrl = parseServiceUrl(mediaSourceCore.getServiceUrl());
         MediaSource mediaSource = new MediaSource(code, serviceUrl, mediaSourceCore.getMediaCategory());
 
-        placeEntryAtPosition(mediaSource, mediaSource.getOrd(), true);
+        placeEntryAtPosition(mediaSource, mediaSourceCore.getOrd(), true);
         mediaSource = mediaSourceRepository.save(mediaSource);
 
         return toMediaSourceDetails(mediaSource);
     }
 
     @Override
-    public MediaSourceDetails updateMediaSource(String mediaSourceCode, MediaSourceCore mediaSourceCore) {
+    public MediaSourceDto updateMediaSource(String mediaSourceCode, MediaSourceCore mediaSourceCore) {
         String code = mediaSourceCore.getCode();
         if (code == null)
             throw new IllegalArgumentException("Media source's code is not present");
@@ -112,8 +112,8 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Media source with code %s not found", mediaSourceCode)));
     }
 
-    private MediaSourceDetails toMediaSourceDetails(MediaSource mediaSource) {
-        return MediaSourceDetails.builder()
+    private MediaSourceDto toMediaSourceDetails(MediaSource mediaSource) {
+        return MediaSourceDto.builder()
                 .code(mediaSource.getCode())
                 .serviceUrl(mediaSource.getServiceUrl().toString())
                 .mediaCategory(mediaSource.getMediaCategory())

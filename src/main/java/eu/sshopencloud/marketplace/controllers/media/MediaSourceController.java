@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.controllers.media;
 
 import eu.sshopencloud.marketplace.domain.media.MediaSourceCrudService;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceDetails;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,24 +19,30 @@ public class MediaSourceController {
 
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<MediaSourceDetails>> getAllMediaSources() {
+    public ResponseEntity<List<MediaSourceDto>> getAllMediaSources() {
         return ResponseEntity.ok(mediaSourceService.getAllMediaSources());
     }
 
     @GetMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaSourceDetails> getMediaSource(@PathVariable("code") String mediaSourceCode) {
+    public ResponseEntity<MediaSourceDto> getMediaSource(@PathVariable("code") String mediaSourceCode) {
         return ResponseEntity.ok(mediaSourceService.getMediaSource(mediaSourceCode));
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaSourceDetails> postMediaSource(@RequestBody MediaSourceCore mediaSourceCore) {
+    public ResponseEntity<MediaSourceDto> postMediaSource(@RequestBody MediaSourceCore mediaSourceCore) {
         return ResponseEntity.ok(mediaSourceService.registerMediaSource(mediaSourceCore));
     }
 
     @PutMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaSourceDetails> putMediaSource(@PathVariable("code") String mediaSourceCode,
-                                                             @RequestBody MediaSourceCore mediaSourceCore) {
+    public ResponseEntity<MediaSourceDto> putMediaSource(@PathVariable("code") String mediaSourceCode,
+                                                         @RequestBody MediaSourceCore mediaSourceCore) {
 
         return ResponseEntity.ok(mediaSourceService.updateMediaSource(mediaSourceCode, mediaSourceCore));
+    }
+
+    @DeleteMapping("/{code}")
+    public ResponseEntity<Void> deleteMediaSource(@PathVariable("code") String mediaSourceCode) {
+        mediaSourceService.removeMediaSource(mediaSourceCode);
+        return ResponseEntity.ok().build();
     }
 }
