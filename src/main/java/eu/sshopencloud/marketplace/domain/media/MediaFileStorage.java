@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.domain.media;
 
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 
 
 @Component
+@Slf4j
 class MediaFileStorage {
     private static final int MEDIA_CHUNK_BUFFER_SIZE = 1024 * 256;
 
@@ -177,7 +179,7 @@ class MediaFileStorage {
                 }
             }
 
-            cleanupMediaChunks(mediaId);
+            cleanupMediaChunks(mediaUpload, true);
 
             long mediaSize = Files.size(mediaPath);
 
@@ -192,8 +194,49 @@ class MediaFileStorage {
         }
     }
 
-    private void cleanupMediaChunks(UUID mediaId) {
-        // TODO
+    public void cleanupMediaFile(UUID mediaId) {
+        Path mediaPath = getPathForMedia(mediaId);
+
+        try {
+            Files.deleteIfExists(mediaPath);
+        }
+        catch (IOException e) {
+            log.warn("Warning: unexpected error when cleaning up media file at: {} (reason: {})", mediaPath, e.getMessage());
+        }
+    }
+
+    public void cleanupFileUpload(UUID mediaId, boolean quietly) {
+        if (quietly && fileUploadRepository.findById(mediaId).isEmpty())
+            return;
+
+        MediaFileUpload fileUpload = loadMediaFileUpload(mediaId);
+        cleanupMediaChunks(fileUpload, quietly);
+    }
+
+    private void cleanupMediaChunks(MediaFileUpload upload, boolean quietly) {
+        Path chunksPath = upload.getChunksDirectory();
+        try {
+            FileUtils.deleteDirectory(chunksPath.toFile());
+        }
+        catch (IOException e) {
+            if (quietly) {
+                log.warn(
+                        "Warning: unexpected error when cleaning up media chunks directory at: {} (reason: {})",
+                        chunksPath, e.getMessage()
+                );
+            }
+            else {
+                throw new IllegalStateException(
+                        String.format(
+                                "Failed to remove upload chunks directory at: %s (reason: %s)",
+                                chunksPath, e.getMessage()
+                        )
+                );
+            }
+        }
+
+        fileUploadRepository.delete(upload);
+        processedChunks.remove(upload.getMediaId());
     }
 
     private MediaFileUpload loadMediaFileUpload(UUID mediaId) {

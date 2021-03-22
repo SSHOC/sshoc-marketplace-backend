@@ -31,9 +31,6 @@ class MediaFileUpload {
     @Column(nullable = false)
     private long currentSize;
 
-    @Column(nullable = false)
-    private boolean completed;
-
 
     public MediaFileUpload(UUID mediaId, Path chunksPath) {
         this.mediaId = mediaId;
@@ -41,7 +38,6 @@ class MediaFileUpload {
         this.chunksDirectory = chunksPath;
         this.nextChunkNo = 0;
         this.currentSize = 0;
-        this.completed = false;
     }
 
     public int chunksNumber() {

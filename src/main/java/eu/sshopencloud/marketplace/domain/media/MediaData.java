@@ -68,16 +68,22 @@ class MediaData {
         this.mimeType = mimeType;
     }
 
-    public void incrementLinkCount(long amount) {
-        this.linkCount += amount;
+    public void incrementLinkCount() {
+        this.linkCount += 1;
+    }
 
-        if (this.thumbnail != null)
-            this.thumbnail.incrementLinkCount(amount);
+    public void decrementLinkCount() {
+        this.linkCount -= 1;
     }
 
     public void setThumbnail(MediaData thumbnail) {
+        if (this.thumbnail != null)
+            this.thumbnail.decrementLinkCount();
+
         this.thumbnail = thumbnail;
-        this.thumbnail.setLinkCount(this.linkCount);
+
+        if (thumbnail != null)
+            this.thumbnail.incrementLinkCount();
     }
 
     public boolean thumbnailPossible() {
@@ -95,5 +101,9 @@ class MediaData {
 
     public boolean hasThumbnail() {
         return (thumbnail != null);
+    }
+
+    public boolean isThumbnail() {
+        return (category == MediaCategory.THUMBNAIL);
     }
 }

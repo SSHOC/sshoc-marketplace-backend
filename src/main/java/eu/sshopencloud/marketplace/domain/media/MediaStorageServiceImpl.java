@@ -46,8 +46,10 @@ class MediaStorageServiceImpl implements MediaStorageService {
         this.mediaThumbnailService = mediaThumbnailService;
         this.mediaCategoryResolver = mediaCategoryResolver;
         this.mediaExternalClient = mediaExternalClient;
+
         this.mediaDataRepository = mediaDataRepository;
         this.mediaUploadRepository = mediaUploadRepository;
+
         this.maxFilenameLength = maxFilenameLength;
     }
 
@@ -227,7 +229,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
         if (mediaData.isEmpty())
             throw new MediaNotAvailableException(mediaId);
 
-        mediaData.get().incrementLinkCount(1);
+        mediaData.get().incrementLinkCount();
 
         return toMediaDetails(mediaData.get());
     }
@@ -235,7 +237,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
     @Override
     public MediaDetails removeMediaLink(UUID mediaId) {
         MediaData mediaData = loadMediaData(mediaId);
-        mediaData.incrementLinkCount(-1);
+        mediaData.decrementLinkCount();
 
         return toMediaDetails(mediaData);
     }

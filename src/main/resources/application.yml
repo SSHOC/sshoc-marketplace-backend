@@ -109,3 +109,6 @@ marketplace:
                 main: 150
                 side: 100
 
+        retention:
+            temporary: 2h
+            upload: 2h
