@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.domain.media;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -44,7 +45,8 @@ class MediaStorageGarbageCollector {
 
     // Run with initial delay of 15 minutes and with delay of 30 minutes between invocations
     @Scheduled(fixedDelayString = "PT30M", initialDelayString = "PT15M")
-    void handleMediaCleanup() {
+    @Transactional
+    public void handleMediaCleanup() {
         LocalDateTime mediaRetentionTimestamp = LocalDateTime.now(clock).minus(temporaryMediaRetention);
         Stream<MediaData> staleMedia = mediaDataRepository.streamStaleMedia(mediaRetentionTimestamp);
 

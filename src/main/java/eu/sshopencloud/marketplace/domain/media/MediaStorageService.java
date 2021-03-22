@@ -20,7 +20,7 @@ public interface MediaStorageService {
 
     MediaDetails saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType);
     MediaUploadInfo saveMediaChunk(Optional<UUID> mediaId, Resource mediaChunk, int chunkNo, Optional<MediaType> mimeType);
-    MediaDetails completeMediaUpload(UUID mediaId);
+    MediaDetails completeMediaUpload(UUID mediaId, Optional<String> filename);
 
     MediaDetails importMedia(MediaLocation mediaLocation);
 

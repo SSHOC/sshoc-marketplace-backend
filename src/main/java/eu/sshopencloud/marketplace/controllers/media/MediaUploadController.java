@@ -80,8 +80,10 @@ public class MediaUploadController {
     }
 
     @PostMapping(path = "/upload/complete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaDetails> completeMediaUpload(@RequestParam("mediaId") UUID mediaId) {
-        MediaDetails mediaDetails = mediaStorageService.completeMediaUpload(mediaId);
+    public ResponseEntity<MediaDetails> completeMediaUpload(@RequestParam("mediaId") UUID mediaId,
+                                                            @RequestParam(value = "fileName", required = false) Optional<String> filename) {
+
+        MediaDetails mediaDetails = mediaStorageService.completeMediaUpload(mediaId, filename);
         return ResponseEntity.ok(mediaDetails);
     }
 

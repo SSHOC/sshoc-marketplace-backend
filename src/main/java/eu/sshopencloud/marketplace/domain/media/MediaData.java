@@ -57,8 +57,8 @@ class MediaData {
         this.filePath = filePath;
         this.originalFilename = originalFilename;
         this.mimeType = mimeType;
-        this.thumbnail = null;
         this.linkCount = 0;
+        this.thumbnail = null;
     }
 
     public MediaData(UUID id, MediaCategory category, URL sourceUrl, MediaType mimeType) {
@@ -66,6 +66,10 @@ class MediaData {
         this.category = category;
         this.sourceUrl = sourceUrl;
         this.mimeType = mimeType;
+        this.filePath = null;
+        this.originalFilename = null;
+        this.linkCount = 0;
+        this.thumbnail = null;
     }
 
     public void incrementLinkCount() {

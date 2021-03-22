@@ -95,7 +95,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
         UUID mediaId = resolveNewMediaId();
         MediaFileInfo fileInfo = mediaFileStorage.storeMediaFile(mediaId, mediaFile);
 
-        String mediaFilename = extractFilename(mediaFile);
+        String mediaFilename = extractFilename(mediaFile, true);
         MediaData mediaData = prepareMediaData(fileInfo, mediaFilename, mimeType);
 
         if (mediaData.thumbnailPossible()) {
@@ -142,7 +142,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
                 throw new IllegalArgumentException(String.format("No ongoing media upload with id: %s", mediaId));
 
             UUID newMediaId = resolveNewMediaId();
-            String mediaFilename = extractFilename(mediaChunk);
+            String mediaFilename = extractFilename(mediaChunk, false);
             String mediaType = mimeType.map(MimeType::toString).orElse(null);
 
             MediaUpload mediaUpload = new MediaUpload(newMediaId, mediaFilename, mediaType);
@@ -155,14 +155,20 @@ class MediaStorageServiceImpl implements MediaStorageService {
     }
 
     @Override
-    public MediaDetails completeMediaUpload(UUID mediaId) {
+    public MediaDetails completeMediaUpload(UUID mediaId, Optional<String> filename) {
         MediaUpload mediaUpload = mediaUploadRepository.findByMediaId(mediaId)
                 .orElseThrow(() -> new EntityNotFoundException("Media upload with id %s not found"));
 
         MediaFileInfo mediaFileInfo = mediaFileStorage.completeMediaUpload(mediaId);
+        String mediaFilename = filename.orElseGet(() -> {
+            if (StringUtils.isBlank(mediaUpload.getFilename()))
+                throw new IllegalArgumentException("Filename not present");
+
+            return mediaUpload.getFilename();
+        });
 
         Optional<MediaType> mimeType = Optional.ofNullable(mediaUpload.getMimeType()).map(MediaType::parseMediaType);
-        MediaData mediaData = prepareMediaData(mediaFileInfo, mediaUpload.getFilename(), mimeType);
+        MediaData mediaData = prepareMediaData(mediaFileInfo, mediaFilename, mimeType);
 
         if (mediaData.thumbnailPossible()) {
             MediaData thumbnailData = prepareThumbnail(mediaData);
@@ -174,12 +180,16 @@ class MediaStorageServiceImpl implements MediaStorageService {
         return toMediaDetails(mediaData);
     }
 
-    private String extractFilename(Resource mediaFile) {
+    private String extractFilename(Resource mediaFile, boolean required) {
         try {
             String filename = mediaFile.getFile().getName();
 
-            if (StringUtils.isBlank(filename))
-                throw new IllegalArgumentException("Filename not present");
+            if (StringUtils.isBlank(filename)) {
+                if (required)
+                    throw new IllegalArgumentException("Filename not present");
+
+                return null;
+            }
 
             if (filename.length() > maxFilenameLength)
                 throw new IllegalArgumentException("Filename too long");
