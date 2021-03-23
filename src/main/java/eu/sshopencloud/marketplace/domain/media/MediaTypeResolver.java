@@ -17,7 +17,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-class MediaCategoryResolver {
+class MediaTypeResolver {
 
     private final MediaSourceService mediaSourceService;
     private final MediaExternalClient mediaExternalClient;
@@ -42,7 +42,7 @@ class MediaCategoryResolver {
             }
 
             if (mediaMetadata.getFilename().isPresent())
-                return resolveByFilename(mediaMetadata.getFilename().get());
+                return resolveCategoryByFilename(mediaMetadata.getFilename().get());
         }
         catch (MediaServiceUnavailableException e) {
             log.info(String.format("Service for media URL is not available: %s", mediaLocation.getSourceUrl().toString()), e);
@@ -53,7 +53,17 @@ class MediaCategoryResolver {
 
     public MediaCategory resolve(Optional<MediaType> mimeType, String filename) {
         return mimeType.flatMap(this::resolveByMimeType)
-                .orElseGet(() -> resolveByFilename(filename));
+                .orElseGet(() -> resolveCategoryByFilename(filename));
+    }
+
+    public Optional<MediaType> resolveMimeType(String filename) {
+        return resolveMimeTypeByFilename(filename);
+    }
+
+    private MediaCategory resolveCategoryByFilename(String filename) {
+        return resolveMimeTypeByFilename(filename)
+                .flatMap(this::resolveByMimeType)
+                .orElse(MediaCategory.OBJECT);
     }
 
     private Optional<MediaCategory> resolveByMimeType(MediaType mimeType) {
@@ -65,21 +75,26 @@ class MediaCategoryResolver {
         return Optional.empty();
     }
 
-    private MediaCategory resolveByFilename(String filename) {
+    private Optional<MediaType> resolveMimeTypeByFilename(String filename) {
         String extension = FilenameUtils.getExtension(filename);
         if (StringUtils.isBlank(extension))
-            return MediaCategory.OBJECT;
+            return Optional.of(MediaType.APPLICATION_OCTET_STREAM);
 
         switch (extension.toLowerCase()) {
             case "jpg":
             case "jpeg":
-            case "png":
-            case "gif":
-            case "bmp":
-                return MediaCategory.IMAGE;
+                return Optional.of(MediaType.IMAGE_JPEG);
 
-            default:
-                return MediaCategory.OBJECT;
+            case "png":
+                return Optional.of(MediaType.IMAGE_PNG);
+
+            case "gif":
+                return Optional.of(MediaType.IMAGE_GIF);
+
+            case "bmp":
+                return Optional.of(new MediaType("image", "bmp"));
         }
+
+        return Optional.empty();
     }
 }

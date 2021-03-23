@@ -23,9 +23,9 @@ import java.util.OptionalLong;
 class MediaExternalClient {
     public static final long MEDIA_FILE_MAX_BYTES = 1024 * 1024 * 5; // 5 MB
 
-    private static final int MEDIA_CONNECT_TIMEOUT_MS = 100;
-    private static final int MEDIA_HEAD_READ_TIMEOUT_MS = 100;
-    private static final int MEDIA_RESOURCE_READ_TIMEOUT_MS = 5000;
+    private static final int MEDIA_CONNECT_TIMEOUT_MS = 500;
+    private static final int MEDIA_HEAD_READ_TIMEOUT_MS = 500;
+    private static final int MEDIA_RESOURCE_READ_TIMEOUT_MS = 10000;
 
     private final WebClient headClient;
     private final WebClient mediaClient;

@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.domain.media;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +61,7 @@ class MediaThumbnailService {
             ByteArrayOutputStream thumbnailBytes = new ByteArrayOutputStream();
             ImageIO.write(thumbImage, THUMBNAIL_FILE_EXTENSION, thumbnailBytes);
 
-            return new InputStreamResource(new ByteArrayInputStream(thumbnailBytes.toByteArray()));
+            return new ByteArrayResource(thumbnailBytes.toByteArray());
         }
         catch (IOException e) {
             throw new ThumbnailGenerationException("Error while creating a thumb", e);

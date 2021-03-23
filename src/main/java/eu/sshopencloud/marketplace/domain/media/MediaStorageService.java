@@ -17,6 +17,7 @@ public interface MediaStorageService {
     MediaDownload getThumbnailForDownload(UUID mediaId);
 
     boolean ensureMediaAvailable(UUID mediaId);
+    MediaDetails getMediaDetails(UUID mediaId);
 
     MediaDetails saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType);
     MediaUploadInfo saveMediaChunk(Optional<UUID> mediaId, Resource mediaChunk, int chunkNo, Optional<MediaType> mimeType);

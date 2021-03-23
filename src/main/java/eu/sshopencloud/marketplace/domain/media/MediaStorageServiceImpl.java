@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MimeType;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,7 +25,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
 
     private final MediaFileStorage mediaFileStorage;
     private final MediaThumbnailService mediaThumbnailService;
-    private final MediaCategoryResolver mediaCategoryResolver;
+    private final MediaTypeResolver mediaTypeResolver;
     private final MediaExternalClient mediaExternalClient;
 
     private final MediaDataRepository mediaDataRepository;
@@ -37,7 +36,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
 
     public MediaStorageServiceImpl(MediaFileStorage mediaFileStorage,
                                    MediaThumbnailService mediaThumbnailService,
-                                   MediaCategoryResolver mediaCategoryResolver,
+                                   MediaTypeResolver mediaTypeResolver,
                                    MediaExternalClient mediaExternalClient,
                                    MediaDataRepository mediaDataRepository,
                                    MediaUploadRepository mediaUploadRepository,
@@ -45,7 +44,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
 
         this.mediaFileStorage = mediaFileStorage;
         this.mediaThumbnailService = mediaThumbnailService;
-        this.mediaCategoryResolver = mediaCategoryResolver;
+        this.mediaTypeResolver = mediaTypeResolver;
         this.mediaExternalClient = mediaExternalClient;
 
         this.mediaDataRepository = mediaDataRepository;
@@ -89,6 +88,12 @@ class MediaStorageServiceImpl implements MediaStorageService {
     @Override
     public boolean ensureMediaAvailable(UUID mediaId) {
         return mediaDataRepository.existsById(mediaId);
+    }
+
+    @Override
+    public MediaDetails getMediaDetails(UUID mediaId) {
+        MediaData mediaData = loadMediaData(mediaId);
+        return toMediaDetails(mediaData);
     }
 
     @Override
@@ -136,8 +141,8 @@ class MediaStorageServiceImpl implements MediaStorageService {
 
     private MediaData prepareMediaData(MediaFileInfo mediaFileInfo, String mediaFilename, Optional<MediaType> mimeType) {
         UUID mediaId = mediaFileInfo.getMediaId();
-        MediaCategory mediaCategory = mediaCategoryResolver.resolve(mimeType, mediaFilename);
-        MediaType mediaMimeType = mimeType.orElse(null);
+        MediaCategory mediaCategory = mediaTypeResolver.resolve(mimeType, mediaFilename);
+        MediaType mediaMimeType = mimeType.orElseGet(() -> mediaTypeResolver.resolveMimeType(mediaFilename).orElse(null));
 
         return new MediaData(mediaId, mediaCategory, mediaFileInfo.getMediaFilePath(), mediaFilename, mediaMimeType);
     }
@@ -196,30 +201,25 @@ class MediaStorageServiceImpl implements MediaStorageService {
     }
 
     private String extractFilename(Resource mediaFile, boolean required) {
-        try {
-            String filename = mediaFile.getFile().getName();
+        String filename = mediaFile.getFilename();
 
-            if (StringUtils.isBlank(filename)) {
-                if (required)
-                    throw new IllegalArgumentException("Filename not present");
+        if (StringUtils.isBlank(filename)) {
+            if (required)
+                throw new IllegalArgumentException("Filename not present");
 
-                return null;
-            }
-
-            if (filename.length() > maxFilenameLength)
-                throw new IllegalArgumentException("Filename too long");
-
-            return filename;
+            return null;
         }
-        catch (IOException e) {
-            throw new IllegalArgumentException("Failed to extract filename", e);
-        }
+
+        if (filename.length() > maxFilenameLength)
+            throw new IllegalArgumentException("Filename too long");
+
+        return filename;
     }
 
     @Override
     public MediaDetails importMedia(MediaLocation mediaLocation) {
         UUID newMediaId = resolveNewMediaId();
-        MediaCategory mediaCategory = mediaCategoryResolver.resolve(mediaLocation);
+        MediaCategory mediaCategory = mediaTypeResolver.resolve(mediaLocation);
         MediaType mimeType = fetchMediaType(mediaLocation);
 
         MediaData importedMedia = new MediaData(newMediaId, mediaCategory, mediaLocation.getSourceUrl(), mimeType);
@@ -286,11 +286,13 @@ class MediaStorageServiceImpl implements MediaStorageService {
                 .mediaId(mediaData.getId())
                 .category(mediaData.getCategory())
                 .filename(mediaData.getOriginalFilename())
-                .mimeType(mediaData.getMimeType().toString())
                 .hasThumbnail(mediaData.hasThumbnail());
 
+        if (mediaData.getMimeType() != null)
+            builder = builder.mimeType(mediaData.getMimeType().toString());
+
         if (mediaData.getSourceUrl() != null)
-            builder.location(new MediaLocation(mediaData.getSourceUrl()));
+            builder = builder.location(new MediaLocation(mediaData.getSourceUrl()));
 
         return builder.build();
     }

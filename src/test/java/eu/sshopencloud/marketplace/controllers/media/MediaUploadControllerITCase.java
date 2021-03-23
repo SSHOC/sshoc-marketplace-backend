@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.media;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
@@ -195,6 +196,9 @@ public class MediaUploadControllerITCase {
         UUID mediaId = details.getMediaId();
 
         mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("mediaId", is(mediaId.toString())))
                 .andExpect(jsonPath("category", is("video")))
@@ -210,14 +214,19 @@ public class MediaUploadControllerITCase {
         InputStream grumpyStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/grumpycat.png");
         byte[] grumpyContent = FileCopyUtils.copyToByteArray(grumpyStream);
 
+        ResponseDefinitionBuilder grumpyResponse = aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "image/png")
+                .withHeader("Content-Length", String.valueOf(grumpyContent.length));
+
+        stubFor(
+                WireMock.head(urlEqualTo("/grumpy"))
+                        .willReturn(grumpyResponse)
+        );
+
         stubFor(
                 WireMock.get(urlEqualTo("/grumpy"))
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(200)
-                                        .withHeader("Content-Type", "image/png")
-                                        .withBody(grumpyContent)
-                        )
+                        .willReturn(grumpyResponse.withBody(grumpyContent))
         );
 
         URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpy");
@@ -235,17 +244,19 @@ public class MediaUploadControllerITCase {
                 .andExpect(jsonPath("mediaId", notNullValue()))
                 .andExpect(jsonPath("category", is("image")))
                 .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/png")))
                 .andExpect(jsonPath("hasThumbnail", is(true)))
                 .andReturn().getResponse().getContentAsString();
 
         MediaDetails details = mapper.readValue(response, MediaDetails.class);
         UUID mediaId = details.getMediaId();
 
-        mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("mediaId", is(mediaId.toString())))
                 .andExpect(jsonPath("category", is("image")))
                 .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/png")))
                 .andExpect(jsonPath("hasThumbnail", is(true)));
 
         mvc.perform(get("/api/media/download/{mediaId}", mediaId))

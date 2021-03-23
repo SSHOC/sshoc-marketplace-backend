@@ -60,6 +60,12 @@ public class MediaUploadController {
                 .body(mediaDownload.getMediaFile());
     }
 
+    @GetMapping(path = "/info/{mediaId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MediaDetails> getMediaInfo(@PathVariable("mediaId") UUID mediaId) {
+        MediaDetails details = mediaStorageService.getMediaDetails(mediaId);
+        return ResponseEntity.ok(details);
+    }
+
     @PostMapping(path = "/upload/full", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MediaDetails> uploadMedia(@RequestParam("file") MultipartFile mediaFile) {
         Optional<MediaType> mediaType = MimeTypeUtils.parseMimeType(mediaFile.getContentType());
