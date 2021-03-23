@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,11 +15,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 
@@ -26,6 +27,8 @@ import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
@@ -271,18 +274,102 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadImageInChunks() {
-        // TODO
-        throw new RuntimeException("Not implemented");
+    public void shouldUploadImageInChunks() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        byte[] mediaContent = FileCopyUtils.copyToByteArray(mediaStream);
+
+        UUID mediaId = uploadMediaFileInChunks(
+                mediaContent, "seriouscat.jpg", Optional.of(MediaType.IMAGE_JPEG), 5, MODERATOR_JWT
+        );
+
+        byte[] downloadedContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaContent, downloadedContent);
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("hasThumbnail", is(true)));
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
     }
 
     @Test
-    public void shouldUploadPdfInChunks() {
-        throw new RuntimeException("Not implemented");
-        // TODO
+    public void shouldUploadPdfInChunks() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/jwt-handbook.pdf");
+        byte[] mediaContent = FileCopyUtils.copyToByteArray(mediaStream);
+
+        UUID mediaId = uploadMediaFileInChunks(
+                mediaContent, "jwt-handbook.pdf", Optional.of(MediaType.APPLICATION_PDF), 10, CONTRIBUTOR_JWT
+        );
+
+        byte[] downloadedContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaContent, downloadedContent);
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("object")))
+                .andExpect(jsonPath("filename", is("jwt-handbook.pdf")))
+                .andExpect(jsonPath("mimeType", is("application/pdf")))
+                .andExpect(jsonPath("hasThumbnail", is(false)));
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isNotFound());
     }
 
-    private void uploadMediFileInChunks(Resource mediaResource) {
-        // TODO
+    private UUID uploadMediaFileInChunks(byte[] content, String filename, Optional<MediaType> mimeType, int chunks, String user)
+            throws Exception {
+
+        int chunkSize = (content.length + chunks - 1) / chunks;
+        String contentType = mimeType.map(MediaType::toString).orElse(null);
+        UUID mediaId = null;
+
+        for (int i = 0; i * chunkSize < content.length; ++i) {
+            int offset = i * chunkSize;
+            byte[] range = Arrays.copyOfRange(content, offset, Math.min(offset + chunkSize, content.length));
+
+            MockMultipartFile chunkFile = new MockMultipartFile("chunk", filename, contentType, range);
+            MockHttpServletRequestBuilder uploadRequest = multipart("/api/media/upload/chunk")
+                    .file(chunkFile)
+                    .header("Authorization", user)
+                    .param("no", Integer.toString(i));
+
+            if (mediaId != null)
+                uploadRequest = uploadRequest.param("mediaId", mediaId.toString());
+
+            String response = mvc.perform(uploadRequest)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("mediaId", notNullValue()))
+                    .andExpect(jsonPath("filename", is(filename)))
+                    .andExpect(jsonPath("nextChunkNo", is(i + 1)))
+                    .andReturn().getResponse().getContentAsString();
+
+            MediaUploadInfo uploadInfo = mapper.readValue(response, MediaUploadInfo.class);
+            mediaId = uploadInfo.getMediaId();
+        }
+
+        mvc.perform(
+                post("/api/media/upload/complete/{mediaId}", mediaId)
+                        .param("filename", filename)
+                        .header("Authorization", user)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("filename", is(filename)));
+
+        return mediaId;
     }
 }

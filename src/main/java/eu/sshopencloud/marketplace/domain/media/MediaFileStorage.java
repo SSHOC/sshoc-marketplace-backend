@@ -142,7 +142,7 @@ class MediaFileStorage {
                 .mediaId(mediaId)
                 .chunksDirectory(chunkDirectory)
                 .chunkPath(storedChunk.getChunkPath())
-                .nextChunkNo(mediaUpload.getCurrentChunkNo())
+                .nextChunkNo(mediaUpload.getNextChunkNo())
                 .build();
     }
 

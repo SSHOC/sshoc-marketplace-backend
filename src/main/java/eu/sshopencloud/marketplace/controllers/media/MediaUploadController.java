@@ -85,9 +85,9 @@ public class MediaUploadController {
         return ResponseEntity.ok(uploadInfo);
     }
 
-    @PostMapping(path = "/upload/complete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaDetails> completeMediaUpload(@RequestParam("mediaId") UUID mediaId,
-                                                            @RequestParam(value = "fileName", required = false) Optional<String> filename) {
+    @PostMapping(path = "/upload/complete/{mediaId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MediaDetails> completeMediaUpload(@PathVariable("mediaId") UUID mediaId,
+                                                            @RequestParam(value = "filename", required = false) Optional<String> filename) {
 
         MediaDetails mediaDetails = mediaStorageService.completeMediaUpload(mediaId, filename);
         return ResponseEntity.ok(mediaDetails);
