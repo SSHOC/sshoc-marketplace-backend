@@ -14,6 +14,7 @@ import org.springframework.util.MimeType;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -68,7 +69,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
     public MediaDownload getThumbnailForDownload(UUID mediaId) {
         MediaData mediaData = loadMediaData(mediaId);
 
-        if (mediaData.getThumbnail() == null)
+        if (!mediaData.hasThumbnail())
             throw new EntityNotFoundException(String.format("Thumbnail for media with id %s is not present", mediaId));
 
         MediaData thumbnail = mediaData.getThumbnail();
@@ -99,8 +100,13 @@ class MediaStorageServiceImpl implements MediaStorageService {
         MediaData mediaData = prepareMediaData(fileInfo, mediaFilename, mimeType);
 
         if (mediaData.thumbnailPossible()) {
-            MediaData thumbnailData = prepareThumbnail(mediaData);
-            mediaData.setThumbnail(thumbnailData);
+            try {
+                MediaData thumbnailData = prepareThumbnail(mediaData.getFilePath());
+                mediaData.setThumbnail(thumbnailData);
+            }
+            catch (ThumbnailGenerationException e) {
+                log.info("Failed to generate thumbnail for media: {} ({})", mediaId, mediaFilename);
+            }
         }
 
         mediaData = mediaDataRepository.save(mediaData);
@@ -108,8 +114,17 @@ class MediaStorageServiceImpl implements MediaStorageService {
         return toMediaDetails(mediaData);
     }
 
-    private MediaData prepareThumbnail(MediaData media) {
-        Resource thumbnailFile = mediaThumbnailService.generateThumbnail(media.getFilePath());
+    private MediaData prepareThumbnail(Path mediaFilePath) {
+        Resource thumbnailFile = mediaThumbnailService.generateThumbnail(mediaFilePath);
+        return prepareThumbnail(thumbnailFile);
+    }
+
+    private MediaData prepareThumbnail(MediaLocation mediaLocation) {
+        Resource thumbnailFile = mediaThumbnailService.generateThumbnail(mediaLocation);
+        return prepareThumbnail(thumbnailFile);
+    }
+
+    private MediaData prepareThumbnail(Resource thumbnailFile) {
         UUID thumbnailId = resolveNewMediaId();
         MediaFileInfo thumbnailInfo = mediaFileStorage.storeMediaFile(thumbnailId, thumbnailFile);
 
@@ -171,7 +186,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
         MediaData mediaData = prepareMediaData(mediaFileInfo, mediaFilename, mimeType);
 
         if (mediaData.thumbnailPossible()) {
-            MediaData thumbnailData = prepareThumbnail(mediaData);
+            MediaData thumbnailData = prepareThumbnail(mediaData.getFilePath());
             mediaData.setThumbnail(thumbnailData);
         }
 
@@ -210,8 +225,13 @@ class MediaStorageServiceImpl implements MediaStorageService {
         MediaData importedMedia = new MediaData(newMediaId, mediaCategory, mediaLocation.getSourceUrl(), mimeType);
 
         if (importedMedia.thumbnailPossible()) {
-            MediaData thumbnailData = prepareThumbnail(importedMedia);
-            importedMedia.setThumbnail(thumbnailData);
+            try {
+                MediaData thumbnailData = prepareThumbnail(mediaLocation);
+                importedMedia.setThumbnail(thumbnailData);
+            }
+            catch (ThumbnailGenerationException e) {
+                log.info("Failed to generate thumbnail from location: {}", mediaLocation.getSourceUrl());
+            }
         }
 
         importedMedia = mediaDataRepository.save(importedMedia);
@@ -270,7 +290,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
                 .hasThumbnail(mediaData.hasThumbnail());
 
         if (mediaData.getSourceUrl() != null)
-            builder.source(new MediaLocation(mediaData.getSourceUrl()));
+            builder.location(new MediaLocation(mediaData.getSourceUrl()));
 
         return builder.build();
     }

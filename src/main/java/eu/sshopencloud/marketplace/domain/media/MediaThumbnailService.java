@@ -37,8 +37,6 @@ class MediaThumbnailService {
 
 
     public Resource generateThumbnail(MediaLocation mediaLocation) throws ThumbnailGenerationException {
-
-
         DownloadedMediaFile downloadedMediaFile = mediaExternalClient.fetchMediaFile(mediaLocation);
         return downloadedMediaFile.consumeFile(this::generateThumbnail);
     }

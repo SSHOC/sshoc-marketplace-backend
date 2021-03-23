@@ -20,7 +20,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/media")
+@RequestMapping("/api/media")
 @RequiredArgsConstructor
 public class MediaUploadController {
 
@@ -74,7 +74,7 @@ public class MediaUploadController {
                                                             @RequestParam("chunk") MultipartFile mediaChunk) {
 
         Optional<MediaType> mediaType = MimeTypeUtils.parseMimeType(mediaChunk.getContentType());
-        MediaUploadInfo uploadInfo= mediaStorageService.saveMediaChunk(mediaId, mediaChunk.getResource(), chunkNo, mediaType);
+        MediaUploadInfo uploadInfo = mediaStorageService.saveMediaChunk(mediaId, mediaChunk.getResource(), chunkNo, mediaType);
 
         return ResponseEntity.ok(uploadInfo);
     }
