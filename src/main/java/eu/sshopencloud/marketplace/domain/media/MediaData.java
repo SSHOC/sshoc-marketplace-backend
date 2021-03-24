@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.conf.jpa.UrlConverter;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.http.MediaType;
 
@@ -19,7 +18,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "media_data")
-@DynamicUpdate
 @Data
 @NoArgsConstructor
 class MediaData {

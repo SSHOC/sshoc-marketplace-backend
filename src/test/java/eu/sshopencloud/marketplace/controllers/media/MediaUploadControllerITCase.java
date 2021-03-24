@@ -5,9 +5,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
+import eu.sshopencloud.marketplace.domain.media.dto.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -177,15 +175,37 @@ public class MediaUploadControllerITCase {
 
     @Test
     public void shouldImportVideoMedia() throws Exception {
-        URL videoUrl = new URL("https://www.youtube.com/watch?v=r8mtXJh3hzM&ab_channel=VoxxedDaysVienna");
-        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(videoUrl).build();
+        String localYoutubeUrl = String.format("http://localhost:%d", wireMockRule.port());
+        String youtubeVideoUrl = "/youtube/watch?v=r8mtXJh3hzM&ab_channel=VoxxedDaysVienna";
+        URL videoUrl = new URL(localYoutubeUrl + youtubeVideoUrl);
 
-        String payload = mapper.writeValueAsString(mediaLocation);
+        MediaSourceCore mediaSource = new MediaSourceCore("local-youtube", localYoutubeUrl, MediaCategory.VIDEO, 3);
+        String mediaSourcePayload = mapper.writeValueAsString(mediaSource);
+
+        mvc.perform(
+                post("/api/media-sources")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mediaSourcePayload)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk());
+
+        stubFor(
+                WireMock.head(urlEqualTo(youtubeVideoUrl))
+                .willReturn(
+                        aResponse()
+                                .withStatus(200)
+                                .withHeader("Content-Type", "text/html")
+                )
+        );
+
+        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(videoUrl).build();
+        String mediaPayload = mapper.writeValueAsString(mediaLocation);
 
         String response = mvc.perform(
                 post("/api/media/upload/import")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
+                        .content(mediaPayload)
                         .header("Authorization", CONTRIBUTOR_JWT)
         )
                 .andExpect(status().isOk())
