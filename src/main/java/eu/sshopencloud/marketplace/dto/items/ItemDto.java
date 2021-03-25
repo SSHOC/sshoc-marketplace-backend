@@ -41,7 +41,9 @@ public class ItemDto extends ItemBasicDto {
 
     private List<RelatedItemDto> relatedItems;
 
-    private List<ItemMediaDto> itemMedia;
+    private List<ItemMediaDto> media;
+
+    private ItemThumbnailId thumbnail;
 
     private UserDto informationContributor;
 

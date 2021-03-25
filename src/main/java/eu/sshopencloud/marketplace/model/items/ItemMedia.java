@@ -25,11 +25,19 @@ public class ItemMedia {
 
     private String caption;
 
+    private boolean itemThumbnail;
+
 
     public ItemMedia(Item item, UUID mediaId, String caption) {
         this.id = null;
         this.item = item;
         this.mediaId = mediaId;
         this.caption = caption;
+        this.itemThumbnail = false;
+    }
+
+    public ItemMedia(Item item, UUID mediaId, String caption, boolean itemThumbnail) {
+        this(item, mediaId, caption);
+        this.itemThumbnail = itemThumbnail;
     }
 }

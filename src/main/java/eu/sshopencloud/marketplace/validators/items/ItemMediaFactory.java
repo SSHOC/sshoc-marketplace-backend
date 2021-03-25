@@ -27,7 +27,7 @@ public class ItemMediaFactory {
             return newMedia;
 
         for (int i = 0; i < itemMedia.size(); ++i) {
-            String nestedPath = String.format("externalIds[%d]", i);
+            String nestedPath = String.format("media[%d]", i);
             errors.pushNestedPath(nestedPath);
 
             ItemMediaCore mediaCore = itemMedia.get(i);
@@ -43,6 +43,7 @@ public class ItemMediaFactory {
             }
 
             processedMediaIds.add(mediaId);
+            errors.popNestedPath();
 
             if (mediaStorageService.ensureMediaAvailable(mediaId)) {
                 newMedia.add(new ItemMedia(item, mediaId, mediaCore.getCaption()));
@@ -50,8 +51,6 @@ public class ItemMediaFactory {
             else {
                 errors.rejectValue(nestedPath, "field.notExist", String.format("Media with id %s not available", mediaId));
             }
-
-            errors.popNestedPath();
         }
 
         return newMedia;

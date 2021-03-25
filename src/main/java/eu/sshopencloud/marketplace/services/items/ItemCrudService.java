@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
@@ -117,7 +118,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
         dto.setRelatedItems(relatedItems);
 
-        completeItem(dto);
+        completeItemDto(dto, item);
 
         if (withHistory)
             completeHistory(dto);
@@ -431,9 +432,16 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
-    private void completeItem(D item) {
-        for (PropertyDto property : item.getProperties())
+    private void completeItemDto(D dto, I item) {
+        for (PropertyDto property : dto.getProperties())
             propertyTypeService.completePropertyType(property.getType());
+
+        for (int i = 0; i < item.getMedia().size(); ++i) {
+            ItemMedia media = item.getMedia().get(i);
+            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
+
+            dto.getMedia().get(i).setMetadata(mediaDetails);
+        }
     }
 
     private void completeHistory(D item) {

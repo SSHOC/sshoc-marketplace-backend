@@ -157,7 +157,7 @@ public abstract class Item {
                 .collect(Collectors.toList());
 
         this.media = baseItem.getMedia().stream()
-                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption()))
+                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption(), media.isItemThumbnail()))
                 .collect(Collectors.toList());
     }
 
@@ -207,6 +207,10 @@ public abstract class Item {
 
     public List<ItemMedia> getMedia() {
         return Collections.unmodifiableList(media);
+    }
+
+    public ItemMedia getThumbnail() {
+        return media.stream().filter(ItemMedia::isItemThumbnail).findFirst().orElse(null);
     }
 
     public boolean isOwner(User user) {
