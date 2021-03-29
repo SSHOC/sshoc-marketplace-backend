@@ -29,12 +29,12 @@ public class MediaSourceController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaSourceDto> postMediaSource(@RequestBody MediaSourceCore mediaSourceCore) {
+    public ResponseEntity<MediaSourceDto> createMediaSource(@RequestBody MediaSourceCore mediaSourceCore) {
         return ResponseEntity.ok(mediaSourceService.registerMediaSource(mediaSourceCore));
     }
 
     @PutMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaSourceDto> putMediaSource(@PathVariable("code") String mediaSourceCode,
+    public ResponseEntity<MediaSourceDto> updateMediaSource(@PathVariable("code") String mediaSourceCode,
                                                          @RequestBody MediaSourceCore mediaSourceCore) {
 
         return ResponseEntity.ok(mediaSourceService.updateMediaSource(mediaSourceCode, mediaSourceCore));
