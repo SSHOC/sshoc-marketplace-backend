@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.domain.media;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import java.util.stream.Stream;
 
 
 @Component
+@Slf4j
 class MediaStorageGarbageCollector {
 
     private final MediaFileStorage mediaFileStorage;
@@ -47,6 +49,7 @@ class MediaStorageGarbageCollector {
     @Scheduled(fixedDelayString = "PT30M", initialDelayString = "PT15M")
     @Transactional
     public void handleMediaCleanup() {
+        log.debug("media cleanup started");
         LocalDateTime mediaRetentionTimestamp = LocalDateTime.now(clock).minus(temporaryMediaRetention);
         Stream<MediaData> staleMedia = mediaDataRepository.streamStaleMedia(mediaRetentionTimestamp);
 
@@ -56,6 +59,7 @@ class MediaStorageGarbageCollector {
         Stream<MediaUpload> staleUploads = mediaUploadRepository.findAllByUpdatedBefore(uploadRetentionTimestamp);
 
         deleteStaleUploads(staleUploads);
+        log.debug("media cleanup finished");
     }
 
     private void deleteStaleMedia(Stream<MediaData> staleMedia) {
@@ -70,17 +74,24 @@ class MediaStorageGarbageCollector {
 
             deleteBatch.add(media);
             if (deleteBatch.size() >= 10) {
+                if (log.isDebugEnabled()) {
+                    deleteBatch.forEach(md -> log.debug(md.getId().toString()));
+                }
                 mediaDataRepository.deleteInBatch(deleteBatch);
                 deleteBatch.clear();
             }
         });
 
         if (!deleteBatch.isEmpty())
+            if (log.isDebugEnabled()) {
+                deleteBatch.forEach(md -> log.debug(md.getId().toString()));
+            }
             mediaDataRepository.deleteInBatch(deleteBatch);
     }
 
     private void deleteStaleUploads(Stream<MediaUpload> staleUploads) {
         staleUploads.forEach(upload -> {
+            log.debug(upload.getMediaId().toString());
             mediaFileStorage.cleanupFileUpload(upload.getMediaId(), true);
             mediaUploadRepository.delete(upload);
         });
