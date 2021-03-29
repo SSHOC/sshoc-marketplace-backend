@@ -39,11 +39,13 @@ public class PropertyTypeControllerITCase {
 
     private String CONTRIBUTOR_JWT;
     private String MODERATOR_JWT;
+    private String ADMINISTRATOR_JWT;
 
     @Before
     public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
+        ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
     }
 
 
@@ -335,6 +337,162 @@ public class PropertyTypeControllerITCase {
 
         mvc.perform(get("/api/property-types/{code}", "activity"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void shouldRetrieveHiddenPropertyForModeratorsOnly() throws Exception {
+        String code = "http-status";
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code(code)
+                .label("HTTP resource status code")
+                .type(PropertyTypeClass.INT)
+                .groupName("availability")
+                .hidden(true)
+                .build();
+
+        String payload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                post("/api/property-types")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("http-status")))
+                .andExpect(jsonPath("label", is("HTTP resource status code")))
+                .andExpect(jsonPath("type", is("int")))
+                .andExpect(jsonPath("groupName", is("availability")))
+                .andExpect(jsonPath("hidden", is(true)));
+
+        mvc.perform(get("/api/property-types/{code}", code))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(
+                get("/api/property-types/{code}", code)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+        mvc.perform(
+                get("/api/property-types/{code}", code)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("http-status")))
+                .andExpect(jsonPath("label", is("HTTP resource status code")))
+                .andExpect(jsonPath("type", is("int")))
+                .andExpect(jsonPath("groupName", is("availability")))
+                .andExpect(jsonPath("hidden", is(true)));
+
+        mvc.perform(
+                get("/api/property-types/{code}", code)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk());
+
+        mvc.perform(
+                get("/api/property-types")
+                        .param("q", "http resource")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hits", is(0)))
+                .andExpect(jsonPath("$.count", is(0)))
+                .andExpect(jsonPath("$.pages", is(0)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(0)));
+
+        mvc.perform(
+                get("/api/property-types")
+                        .param("q", "http resource")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hits", is(0)))
+                .andExpect(jsonPath("$.count", is(0)))
+                .andExpect(jsonPath("$.pages", is(0)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(0)));
+
+        mvc.perform(
+                get("/api/property-types")
+                        .param("q", "http resource")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hits", is(1)))
+                .andExpect(jsonPath("$.count", is(1)))
+                .andExpect(jsonPath("$.pages", is(1)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(1)))
+                .andExpect(jsonPath("$.propertyTypes[0].code", is(code)))
+                .andExpect(jsonPath("$.propertyTypes[0].hidden", is(true)));
+
+        mvc.perform(
+                get("/api/property-types")
+                        .param("q", "http resource")
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hits", is(1)))
+                .andExpect(jsonPath("$.count", is(1)))
+                .andExpect(jsonPath("$.pages", is(1)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(1)))
+                .andExpect(jsonPath("$.propertyTypes[0].code", is(code)))
+                .andExpect(jsonPath("$.propertyTypes[0].hidden", is(true)));
+    }
+
+    @Test
+    public void shouldCreatePropertyWithGroupName() throws Exception {
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("grouped-property")
+                .label("This property is grouped")
+                .type(PropertyTypeClass.STRING)
+                .groupName("group")
+                .hidden(false)
+                .build();
+
+        String payload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                post("/api/property-types")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("grouped-property")))
+                .andExpect(jsonPath("groupName", is("group")));
+    }
+
+    @Test
+    public void shouldUpdatePropertyGroupName() throws Exception {
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("media")
+                .label("Media")
+                .type(PropertyTypeClass.URL)
+                .groupName("browsable")
+                .hidden(false)
+                .ord(16)
+                .build();
+
+        String payload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                put("/api/property-types/{code}", "media")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("media")))
+                .andExpect(jsonPath("groupName", is("browsable")));
+
+        mvc.perform(get("/api/property-types/{code}", "media"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("media")))
+                .andExpect(jsonPath("label", is("Media")))
+                .andExpect(jsonPath("type", is("url")))
+                .andExpect(jsonPath("groupName", is("browsable")))
+                .andExpect(jsonPath("hidden", is(false)))
+                .andExpect(jsonPath("ord", is(16)));
     }
 
     @Test

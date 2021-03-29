@@ -4,9 +4,11 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyTypeMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeVocabularyRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.PropertyTypeAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -18,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 
 @Service
 @Transactional(rollbackFor = Throwable.class)
@@ -51,29 +54,31 @@ public class PropertyTypeService {
     }
 
     private Page<PropertyType> queryPropertyTypes(String q, PageCoords pageCoords) {
-        if (q == null) {
-            return propertyTypeRepository.findAll(
-                    PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("ord")))
-            );
-        }
-
-        ExampleMatcher queryPropertyTypeMatcher = ExampleMatcher.matchingAny()
-                .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
-        PropertyType queryPropertyType = new PropertyType();
-        queryPropertyType.setLabel(q);
-
-        return propertyTypeRepository.findAll(
-                Example.of(queryPropertyType, queryPropertyTypeMatcher),
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("ord")))
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        PageRequest pageRequest = PageRequest.of(
+                pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("ord"))
         );
+
+        if (q == null)
+            return loadPropertyTypesPage(pageRequest);
+
+        if (currentUser != null && currentUser.isModerator())
+            return propertyTypeRepository.findAllByLabelContainingIgnoreCase(q, pageRequest);
+
+        return propertyTypeRepository.findAllByLabelContainingIgnoreCaseAndHiddenIsFalse(q, pageRequest);
     }
 
     public void completePropertyType(PropertyTypeDto propertyType) {
-        propertyType.setAllowedVocabularies(VocabularyBasicMapper.INSTANCE.toDto(getAllowedVocabulariesForPropertyType(propertyType.getCode())));
+        propertyType.setAllowedVocabularies(
+                VocabularyBasicMapper.INSTANCE.toDto(
+                        getAllowedVocabulariesForPropertyType(propertyType.getCode())
+                )
+        );
     }
 
     public Map<String, PropertyType> getAllPropertyTypes() {
-        return propertyTypeRepository.findAll().stream().collect(Collectors.toMap(PropertyType::getCode, propertyType -> propertyType));
+        return loadPropertyTypes().stream()
+                .collect(Collectors.toMap(PropertyType::getCode, propertyType -> propertyType));
     }
 
     public PropertyTypeDto getPropertyType(String code) {
@@ -86,8 +91,15 @@ public class PropertyTypeService {
     }
 
     public PropertyType loadPropertyType(String propertyTypeCode) {
-        return propertyTypeRepository.findById(propertyTypeCode)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Property type with code = '%s' not found", propertyTypeCode)));
+        String notFoundMessage = String.format("Property type with code = '%s' not found", propertyTypeCode);
+        PropertyType propertyType = propertyTypeRepository.findById(propertyTypeCode)
+                .orElseThrow(() -> new EntityNotFoundException(notFoundMessage));
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (propertyType.isHidden() && (currentUser == null || !currentUser.isModerator()))
+            throw new EntityNotFoundException(notFoundMessage);
+
+        return propertyType;
     }
 
     public List<Vocabulary> getAllowedVocabulariesForPropertyType(String propertyTypeCode) {
@@ -276,6 +288,21 @@ public class PropertyTypeService {
     }
 
     private List<PropertyType> loadPropertyTypes() {
-        return propertyTypeRepository.findAll(Sort.by(Sort.Order.asc("ord")));
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        Sort order = Sort.by(Sort.Order.asc("ord"));
+
+        if (currentUser != null && currentUser.isModerator())
+            return propertyTypeRepository.findAll(order);
+
+        return propertyTypeRepository.findAllByHiddenIsFalse(order);
+    }
+
+    private Page<PropertyType> loadPropertyTypesPage(PageRequest pageRequest) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+
+        if (currentUser != null && currentUser.isModerator())
+            return propertyTypeRepository.findAll(pageRequest);
+
+        return propertyTypeRepository.findAllByHiddenIsFalse(pageRequest);
     }
 }
