@@ -136,7 +136,11 @@ public class PropertyTypeService {
         if (ord == null)
             ord = getMaxOrdForPropertyType();
 
-        PropertyType propertyType = new PropertyType(code, propertyTypeCore.getType(), propertyTypeCore.getLabel(), ord);
+        PropertyType propertyType = new PropertyType(
+                code, propertyTypeCore.getType(), propertyTypeCore.getLabel(),
+                propertyTypeCore.getGroupName(), propertyTypeCore.isHidden(), ord
+        );
+
         propertyType = propertyTypeRepository.save(propertyType);
 
         reorderPropertyTypes(code, ord);
@@ -154,6 +158,8 @@ public class PropertyTypeService {
         PropertyType propertyType = loadPropertyType(code);
 
         propertyType.setLabel(propertyTypeCore.getLabel());
+        propertyType.setGroupName(propertyTypeCore.getGroupName());
+        propertyType.setHidden(propertyTypeCore.isHidden());
 
         Integer ord = propertyTypeCore.getOrd();
         if (ord != null) {

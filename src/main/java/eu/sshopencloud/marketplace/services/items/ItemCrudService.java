@@ -405,8 +405,22 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     private void completeItem(D item) {
-        for (PropertyDto property : item.getProperties())
-            propertyTypeService.completePropertyType(property.getType());
+        completeItemProperties(item);
+    }
+
+    private void completeItemProperties(D item) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        List<PropertyDto> properties = item.getProperties()
+                .stream()
+                .filter(property -> shouldRenderProperty(property, currentUser))
+                .peek(property -> propertyTypeService.completePropertyType(property.getType()))
+                .collect(Collectors.toList());
+
+        item.setProperties(properties);
+    }
+
+    private boolean shouldRenderProperty(PropertyDto property, User user) {
+        return (!property.getType().isHidden() || (user != null && user.isModerator()));
     }
 
     private void completeHistory(D item) {

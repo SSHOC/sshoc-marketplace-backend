@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0029-SSHOC_70-property_type_groups-1
+      author: swolarz
+      description: Add columns for property type groups
+      changes:
+        - addColumn:
+            tableName: property_types
+            columns:
+              - column:
+                  name: group_name
+                  type: varchar(255)
+              - column:
+                  name: hidden
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false

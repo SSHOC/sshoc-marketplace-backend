@@ -25,6 +25,11 @@ public class PropertyType {
     @Column(nullable = false)
     private String label;
 
+    private String groupName;
+
+    @Column(nullable = false)
+    private boolean hidden;
+
     @Column(nullable = false)
     private int ord;
 }
