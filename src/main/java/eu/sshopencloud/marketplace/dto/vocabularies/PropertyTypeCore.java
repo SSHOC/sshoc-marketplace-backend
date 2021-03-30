@@ -19,6 +19,9 @@ public class PropertyTypeCore {
     private String label;
     private PropertyTypeClass type;
 
+    private String groupName;
+    private boolean hidden;
+
     private Integer ord;
 
     private List<String> allowedVocabularies;

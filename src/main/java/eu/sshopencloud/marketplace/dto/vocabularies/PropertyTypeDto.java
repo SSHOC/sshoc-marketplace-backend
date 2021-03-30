@@ -11,13 +11,13 @@ import java.util.List;
 public class PropertyTypeDto {
 
     private String code;
-
     private String label;
-
     private PropertyTypeClass type;
+
+    private String groupName;
+    private boolean hidden;
 
     private int ord;
 
     private List<VocabularyBasicDto> allowedVocabularies;
-
 }

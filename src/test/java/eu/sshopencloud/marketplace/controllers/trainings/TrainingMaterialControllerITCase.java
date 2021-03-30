@@ -10,10 +10,8 @@ import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -1592,5 +1590,90 @@ public class TrainingMaterialControllerITCase {
 
         mvc.perform(get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void shouldNotRenderHiddenProperty() throws Exception {
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("http-status")
+                .label("HTTP resource status code")
+                .type(PropertyTypeClass.INT)
+                .groupName("status")
+                .hidden(true)
+                .build();
+
+        String propertyTypePayload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                post("/api/property-types")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(propertyTypePayload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("http-status")))
+                .andExpect(jsonPath("hidden", is(true)));
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Confidential training material");
+        trainingMaterial.setDescription("Training material with hidden property");
+        trainingMaterial.setProperties(
+                List.of(
+                        new PropertyCore(new PropertyTypeId("http-status"), "404"),
+                        new PropertyCore(new PropertyTypeId("keyword"), "confidential")
+                )
+        );
+
+        String trainingMaterialPayload = mapper.writeValueAsString(trainingMaterial);
+
+        String responseJson = mvc.perform(
+                post("/api/training-materials")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(trainingMaterialPayload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].type.code", is("http-status")))
+                .andExpect(jsonPath("properties[0].type.groupName", is("status")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(true)))
+                .andExpect(jsonPath("properties[1].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[1].type.hidden", is(false)))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto dto = mapper.readValue(responseJson, TrainingMaterialDto.class);
+        String persistentId = dto.getPersistentId();
+
+        mvc.perform(get("/api/training-materials/{persistentId}", persistentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistentId)))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(false)));
+
+        mvc.perform(
+                get("/api/training-materials/{persistentId}", persistentId)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistentId)))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(false)));
+
+
+        mvc.perform(
+                get("/api/training-materials/{persistentId}", persistentId)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistentId)))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].type.code", is("http-status")))
+                .andExpect(jsonPath("properties[0].type.groupName", is("status")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(true)))
+                .andExpect(jsonPath("properties[1].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[1].type.hidden", is(false)));
     }
 }

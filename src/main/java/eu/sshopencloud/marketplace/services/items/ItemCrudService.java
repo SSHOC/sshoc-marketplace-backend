@@ -433,8 +433,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     private void completeItemDto(D dto, I item) {
-        for (PropertyDto property : dto.getProperties())
-            propertyTypeService.completePropertyType(property.getType());
+        completeItemDtoProperties(dto);
 
         for (int i = 0; i < item.getMedia().size(); ++i) {
             ItemMedia media = item.getMedia().get(i);
@@ -442,6 +441,21 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
             dto.getMedia().get(i).setMetadata(mediaDetails);
         }
+    }
+
+    private void completeItemDtoProperties(D dto) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        List<PropertyDto> properties = dto.getProperties()
+                .stream()
+                .filter(property -> shouldRenderProperty(property, currentUser))
+                .peek(property -> propertyTypeService.completePropertyType(property.getType()))
+                .collect(Collectors.toList());
+
+        dto.setProperties(properties);
+    }
+
+    private boolean shouldRenderProperty(PropertyDto property, User user) {
+        return (!property.getType().isHidden() || (user != null && user.isModerator()));
     }
 
     private void completeHistory(D item) {
