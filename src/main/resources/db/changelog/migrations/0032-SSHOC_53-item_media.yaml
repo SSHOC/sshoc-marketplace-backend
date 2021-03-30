@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0032-SSHOC_53-item_media-1
+      author: swolarz
+      description: Create table for item media
+      changes:
+        - createSequence:
+            sequenceName: items_media_id_seq
+            startValue: 1
+            incrementBy: 1
+
+        - createTable:
+            tableName: items_media
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: item_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: media_item_fk
+                    references: items(id)
+              - column:
+                  name: media_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: caption
+                  type: varchar(255)
+              - column:
+                  name: ord
+                  type: integer

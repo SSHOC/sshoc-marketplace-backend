@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0029-SSHOC_53-media_data-1
+      author: swolarz
+      description: Create table for media data entries
+      changes:
+        - createTable:
+            tableName: media_data
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: media_category
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_path
+                  type: varchar(255)
+              - column:
+                  name: original_filename
+                  type: varchar(255)
+              - column:
+                  name: mime_type
+                  type: varchar(32)
+              - column:
+                  name: source_url
+                  type: varchar(1024)
+              - column:
+                  name: thumbnail_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: media_data_thumbnail_fk
+                    references: media_data(id)
+              - column:
+                  name: touch_timestamp
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: link_count
+                  type: bigint
+                  constraints:
+                    nullable: false

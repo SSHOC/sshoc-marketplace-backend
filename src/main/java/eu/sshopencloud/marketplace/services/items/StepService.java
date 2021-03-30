@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
@@ -42,11 +43,12 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
                        ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                        ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Step> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                       PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
+                       PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                       MediaStorageService mediaStorageService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
         );
 
         this.stepRepository = stepRepository;

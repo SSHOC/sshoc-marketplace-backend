@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemSourceService;
@@ -21,9 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.time.ZonedDateTime;
 
@@ -38,6 +37,8 @@ public class ItemFactory {
     private final ItemExternalIdFactory itemExternalIdFactory;
     private final PropertyFactory propertyFactory;
     private final SourceFactory sourceFactory;
+    private final ItemMediaFactory itemMediaFactory;
+
     private final UserRepository userRepository;
 
 
@@ -107,6 +108,24 @@ public class ItemFactory {
         }
 
         item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
+        item.addMedia(itemMediaFactory.create(itemCore.getMedia(), item, errors));
+
+        if (itemCore.getThumbnail() != null) {
+            UUID thumbnailId = itemCore.getThumbnail().getMediaId();
+            Optional<ItemMedia> itemThumbnail = item.getMedia().stream()
+                    .filter(media -> media.getMediaId().equals(thumbnailId))
+                    .findFirst();
+
+            if (itemThumbnail.isPresent()) {
+                itemThumbnail.get().setItemThumbnail(true);
+            }
+            else {
+                errors.rejectValue(
+                        "thumbnail", "field.notExist",
+                        String.format("Thumbnail media %s not present in item's media", thumbnailId)
+                );
+            }
+        }
 
         setInfoDates(item, true);
         updateInformationContributor(item);

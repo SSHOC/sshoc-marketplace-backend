@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.services.common;
+package eu.sshopencloud.marketplace.domain.common;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
