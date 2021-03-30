@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
@@ -32,11 +33,12 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
                        ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                        ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Tool> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                       PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
+                       PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                       MediaStorageService mediaStorageService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
         );
 
         this.toolRepository = toolRepository;

@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.model.actors;
 
-import eu.sshopencloud.marketplace.services.common.OrderableEntity;
+import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
 import lombok.*;
 
 import javax.persistence.Column;

@@ -1,30 +1,35 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
+import eu.sshopencloud.marketplace.domain.media.MediaTestUtils;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
+import eu.sshopencloud.marketplace.dto.items.ItemThumbnailId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
-import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
-import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
-import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.util.MediaTestUploadUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -32,27 +37,40 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URL;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestEntityManager
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Slf4j
 @Transactional
 public class DatasetControllerITCase {
 
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Autowired
     private ObjectMapper mapper;
@@ -780,5 +798,176 @@ public class DatasetControllerITCase {
 
         mvc.perform(get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void shouldCreateDatasetWithMediaAndImportedThumbnail() throws Exception {
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+        UUID grumpycatId = MediaTestUploadUtils.importMedia(
+                mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
+        );
+
+        ItemMediaCore seriouscat = new ItemMediaCore(seriouscatId, "Serious Cat");
+        ItemMediaCore grumpycat = new ItemMediaCore(grumpycatId, "Grumpy Cat");
+
+        URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("A dataset of cats");
+        dataset.setDescription("This dataset contains cats");
+        dataset.setMedia(List.of(grumpycat, seriouscat));
+        dataset.setThumbnail(new ItemThumbnailId(grumpycatId));
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                post("/api/datasets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("thumbnail.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("media", hasSize(2)))
+                .andExpect(jsonPath("media[0].metadata.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("media[0].metadata.category", is("image")))
+                .andExpect(jsonPath("media[0].metadata.location.sourceUrl", is(grumpyUrl.toString())))
+                .andExpect(jsonPath("media[0].metadata.mimeType", is("image/png")))
+                .andExpect(jsonPath("media[0].metadata.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].caption", is("Grumpy Cat")))
+                .andExpect(jsonPath("media[1].metadata.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[1].metadata.category", is("image")))
+                .andExpect(jsonPath("media[1].metadata.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[1].metadata.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[1].metadata.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[1].caption", is("Serious Cat")));
+
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
+    }
+
+    @Test
+    public void shouldUpdateDatasetWithMediaAndUploadedThumbnail() throws Exception {
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+        UUID grumpycatId = MediaTestUploadUtils.importMedia(
+                mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
+        );
+
+        ItemMediaCore seriouscat = new ItemMediaCore(seriouscatId, "Serious Cat");
+        ItemMediaCore grumpycat = new ItemMediaCore(grumpycatId, "Grumpy Cat");
+
+        URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
+
+        String datasetId = "OdKfPc";
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Consortium of European Social Science Data Archives v2");
+        dataset.setDescription("Consortium of European Social Science Data Archives with many cat pictures");
+        dataset.setMedia(List.of(grumpycat, seriouscat));
+        dataset.setThumbnail(new ItemThumbnailId(seriouscatId));
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                put("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media", hasSize(2)))
+                .andExpect(jsonPath("media[0].metadata.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("media[0].metadata.category", is("image")))
+                .andExpect(jsonPath("media[0].metadata.location.sourceUrl", is(grumpyUrl.toString())))
+                .andExpect(jsonPath("media[0].metadata.mimeType", is("image/png")))
+                .andExpect(jsonPath("media[0].metadata.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].caption", is("Grumpy Cat")))
+                .andExpect(jsonPath("media[1].metadata.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[1].metadata.category", is("image")))
+                .andExpect(jsonPath("media[1].metadata.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[1].metadata.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[1].metadata.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[1].caption", is("Serious Cat")));
+
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
+    }
+
+    @Test
+    public void shouldPreventInvalidMediaUpload() throws Exception {
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+        UUID grumpycatId = MediaTestUploadUtils.importMedia(
+                mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
+        );
+
+        ItemMediaCore seriouscat = new ItemMediaCore(seriouscatId, "Serious Cat");
+        ItemMediaCore grumpycat = new ItemMediaCore(grumpycatId, "Grumpy Cat");
+        ItemMediaCore notFound1 = new ItemMediaCore(UUID.randomUUID(), "404");
+        ItemMediaCore notFound2 = new ItemMediaCore(UUID.randomUUID(), "404");
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("A dataset of cats");
+        dataset.setDescription("This dataset contains cats");
+        dataset.setMedia(List.of(notFound1, grumpycat, seriouscat, grumpycat, notFound2));
+        dataset.setThumbnail(new ItemThumbnailId(grumpycatId));
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                post("/api/datasets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(3)))
+                .andExpect(jsonPath("errors[0].field", is("media[0]")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()))
+                .andExpect(jsonPath("errors[1].field", is("media[3]")))
+                .andExpect(jsonPath("errors[1].code", is("field.duplicateEntry")))
+                .andExpect(jsonPath("errors[1].message", notNullValue()))
+                .andExpect(jsonPath("errors[2].field", is("media[4]")))
+                .andExpect(jsonPath("errors[2].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[2].message", notNullValue()));
+
+        assertTrue(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
+        assertTrue(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
+    }
+
+    @Test
+    public void shouldNotAssignNotPresentThumbnail() throws Exception {
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", ADMINISTRATOR_JWT);
+        UUID grumpycatId = MediaTestUploadUtils.importMedia(
+                mvc, mapper, wireMockRule, "grumpycat.png", "image/png", ADMINISTRATOR_JWT
+        );
+
+        ItemMediaCore seriouscat = new ItemMediaCore(seriouscatId, "Serious Cat");
+        ItemMediaCore grumpycat = new ItemMediaCore(grumpycatId, "Grumpy Cat");
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("A dataset of cats");
+        dataset.setDescription("This dataset contains cats");
+        dataset.setMedia(List.of(seriouscat, grumpycat));
+        dataset.setThumbnail(new ItemThumbnailId(UUID.randomUUID()));
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                post("/api/datasets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(1)))
+                .andExpect(jsonPath("errors[0].field", is("thumbnail")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
+
+        assertTrue(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
+        assertTrue(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
     }
 }

@@ -18,6 +18,9 @@ services:
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
       marketplace_log_dir: /tmp
+      marketplace_media_dir: /var/sshoc/media
+    volumes:
+      - media-data:/var/sshoc/media
 
   psql:
     image: postgres:9.6
@@ -40,4 +43,4 @@ services:
 volumes:
   psql-data:
   solr-data:
-
+  media-data:

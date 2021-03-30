@@ -5,7 +5,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemSourceDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemSourceMapper;
 import eu.sshopencloud.marketplace.model.items.ItemSource;
 import eu.sshopencloud.marketplace.repositories.items.ItemSourceRepository;
-import eu.sshopencloud.marketplace.services.common.BaseOrderableEntityService;
+import eu.sshopencloud.marketplace.domain.common.BaseOrderableEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;

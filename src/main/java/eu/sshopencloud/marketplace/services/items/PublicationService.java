@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
@@ -32,11 +33,12 @@ public class PublicationService extends ItemCrudService<Publication, Publication
                               ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                               ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                              PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
+                              PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                              MediaStorageService mediaStorageService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
         );
 
         this.publicationRepository = publicationRepository;

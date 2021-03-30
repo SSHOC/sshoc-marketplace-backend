@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
@@ -35,11 +36,12 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
                           ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                           ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                          PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
+                          PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                          MediaStorageService mediaStorageService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
         );
 
         this.datasetRepository = datasetRepository;
