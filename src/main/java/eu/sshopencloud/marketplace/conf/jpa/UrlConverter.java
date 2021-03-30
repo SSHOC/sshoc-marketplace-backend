@@ -16,7 +16,7 @@ public class UrlConverter implements AttributeConverter<URL, String> {
     @Override
     public URL convertToEntityAttribute(String dbData) {
         try {
-            return new URL(dbData);
+            return (dbData != null) ? new URL(dbData) : null;
         }
         catch (MalformedURLException e) {
             throw new IllegalArgumentException(String.format("Invalid url syntax: %s", dbData), e);

@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.unit.DataSize;
@@ -60,8 +61,11 @@ class MediaFileStorage {
             throw new IllegalArgumentException("Media file does not exist");
 
         try {
+            InputStream mediaStream = new BufferedInputStream(new FileInputStream(mediaPath.toFile()));
+            InputStreamResource mediaResource = new InputStreamResource(mediaStream);
+
             return MediaFileHandle.builder()
-                    .mediaFile(new FileSystemResource(mediaPath))
+                    .mediaFile(mediaResource)
                     .fileSize(Files.size(mediaPath))
                     .build();
         }

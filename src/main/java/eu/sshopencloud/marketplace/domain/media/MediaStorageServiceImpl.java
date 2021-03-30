@@ -81,6 +81,7 @@ class MediaStorageServiceImpl implements MediaStorageService {
         return MediaDownload.builder()
                 .mediaFile(mediaHandle.getMediaFile())
                 .filename(media.getOriginalFilename())
+                .contentLength(mediaHandle.getFileSize())
                 .mimeType(media.getMimeType())
                 .build();
     }
