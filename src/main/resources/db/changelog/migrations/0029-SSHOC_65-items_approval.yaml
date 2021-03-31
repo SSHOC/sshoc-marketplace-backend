@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0029-SSHOC_65-items_approval-1
+      author: swolarz
+      description: Drops invalid constraint for previous item references
+      changes:
+        - dropUniqueConstraint:
+            tableName: items
+            constraintName: item_prev_version_item_id_uq
+            uniqueColumns: prev_version_id
