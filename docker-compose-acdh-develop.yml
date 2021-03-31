@@ -30,6 +30,7 @@ services:
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
       marketplace_log_dir: /log
+      marketplace_media_dir: /var/sshoc/media
     labels:
       - traefik.backend=marketplace-api
       - traefik.frontend.rule=Host:marketplace-api.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh-dev.oeaw.ac.at
@@ -41,6 +42,7 @@ services:
       - web
     volumes:
       - app-log:/log
+      - media-data:/var/sshoc/media
   psql:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres
@@ -70,7 +72,6 @@ services:
     networks:
       - backend
       - web
-      
   gitlab-runner:
     image: gitlab/gitlab-runner:latest
     container_name: sshoc-mp-backend-runner
@@ -82,8 +83,7 @@ services:
       - gitlab-runner:/etc/gitlab-runner
       - docker:/var/run
     networks:
-      - backend   
-      
+      - backend
 networks:
   backend:
     driver: bridge
@@ -120,4 +120,10 @@ volumes:
     driver_opts:
       type: "none"
       device: "/home/sshocmp/shares/app-log"
+      o: "bind"
+  media-data:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmp/shares/media-data"
       o: "bind"

@@ -15,6 +15,8 @@ services:
       - psql-prod
       - solr-prod
     environment:
+      GID: 1031
+      UID: 1031
       APPLICATION_PROFILE: prod
       POSTGRES_DB: marketplace_db
       POSTGRES_USER: marketplace
@@ -30,6 +32,7 @@ services:
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
       marketplace_log_dir: /log
+      marketplace_media_dir: /var/sshoc/media
     labels:
       - traefik.backend=marketplace-api-prod
       - traefik.frontend.rule=Host:marketplace-api-prod.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api.acdh.oeaw.ac.at,marketplace-api.sshoc.eu,marketplace-api.sshopencloud.eu
@@ -41,7 +44,7 @@ services:
       - web
     volumes:
       - app-log:/log
-
+      - media-data:/var/sshoc/media
   psql-prod:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres-prod
@@ -99,4 +102,10 @@ volumes:
     driver_opts:
       type: "none"
       device: "/home/sshocmarketplacecuration/shares/app-log"
+      o: "bind"
+  media-data:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmarketplacecuration/shares/media-data"
       o: "bind"
