@@ -21,7 +21,7 @@ COPY --from=build /usr/src/app/target/marketplace-*.jar ./app.jar
 
 ENV APPLICATION_PROFILE=''
 
-RUN mkdir /log && mkdir /var/sshoc/media && chown -R user:user /log  /var/sshoc/media /usr/app
+RUN mkdir /log && mkdir -p /var/sshoc/media && chown -R user:user /log  /var/sshoc/media /usr/app
 
 USER user 
 
