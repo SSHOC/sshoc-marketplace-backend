@@ -4,7 +4,6 @@ import eu.sshopencloud.marketplace.dto.items.ItemRelatedItemDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
-import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.mappers.items.ItemRelatedItemMapper;
 import eu.sshopencloud.marketplace.mappers.items.RelatedItemsConverter;
 import eu.sshopencloud.marketplace.model.items.*;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -93,8 +91,17 @@ public class ItemRelatedItemService {
             relatedItems = new ArrayList<>();
 
         List<RelatedItemDto> prevRelations = (prevItem != null) ? getRelatedItems(prevItem.getId()) : new ArrayList<>();
-        Map<String, RelatedItemDto> relatedObjects = prevRelations.stream()
-                .collect(Collectors.toUnmodifiableMap(RelatedItemDto::getPersistentId, Function.identity()));
+
+        Map<String, Set<String>> existentRelations = new HashMap<>();
+        prevRelations.forEach(relatedItem -> {
+            String persistentId = relatedItem.getPersistentId();
+
+            if (!existentRelations.containsKey(persistentId))
+                existentRelations.put(persistentId, new HashSet<>());
+
+            existentRelations.get(persistentId)
+                    .add(relatedItem.getRelation().getCode());
+        });
 
         Map<String, RelatedItemCore> toKeep = new HashMap<>();
 
@@ -104,9 +111,8 @@ public class ItemRelatedItemService {
 
             String objectId = relatedItem.getObjectId();
             String relationCode = relatedItem.getRelation().getCode();
-            RelatedItemDto existentRelation = relatedObjects.get(objectId);
 
-            if (existentRelation != null && relationCode.equals(existentRelation.getRelation().getCode())) {
+            if (existentRelations.containsKey(objectId) && existentRelations.get(objectId).contains(relationCode)) {
                 toKeep.put(objectId, relatedItem);
                 return;
             }
