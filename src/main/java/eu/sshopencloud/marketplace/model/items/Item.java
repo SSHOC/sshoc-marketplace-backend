@@ -14,9 +14,7 @@ import java.util.stream.Collectors;
 
 
 @Entity
-@Table(name = "items", uniqueConstraints = {
-        @UniqueConstraint(name = "item_prev_version_item_id_uq", columnNames = {"prev_version_id"} )
-    })
+@Table(name = "items")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @ToString(of = { "id", "category", "label", "version", "description", "source", "sourceItemId", "status" })
