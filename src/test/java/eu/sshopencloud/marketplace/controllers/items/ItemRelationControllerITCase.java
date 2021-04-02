@@ -210,8 +210,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Draft Gephi ...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("Xgufde").relation(new ItemRelationId("relates-to")).build(),
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("documents")).build()
+                        RelatedItemCore.builder().persistentId("Xgufde").relation(new ItemRelationId("relates-to")).build(),
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("documents")).build()
                 )
         );
 
@@ -516,8 +516,8 @@ public class ItemRelationControllerITCase {
         dataset.setDescription("A dataset of algorithmic problems ...");
         dataset.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("prblMo").relation(new ItemRelationId("is-mentioned-in")).build(),
-                        RelatedItemCore.builder().objectId("OdKfPc").relation(new ItemRelationId("relates-to")).build()
+                        RelatedItemCore.builder().persistentId("prblMo").relation(new ItemRelationId("is-mentioned-in")).build(),
+                        RelatedItemCore.builder().persistentId("OdKfPc").relation(new ItemRelationId("relates-to")).build()
                 )
         );
 
@@ -650,8 +650,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Gephi v2...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
-                        RelatedItemCore.builder().objectId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
+                        RelatedItemCore.builder().persistentId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
                 )
         );
 
@@ -737,8 +737,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Gephi v2...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("Xgufde").relation(new ItemRelationId("is-related-to")).build(),
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
+                        RelatedItemCore.builder().persistentId("Xgufde").relation(new ItemRelationId("is-related-to")).build(),
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
                 )
         );
 
@@ -817,8 +817,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Gephi v2...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
-                        RelatedItemCore.builder().objectId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
+                        RelatedItemCore.builder().persistentId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
                 )
         );
 
@@ -946,8 +946,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Gephi v2...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-related-to")).build(),
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-related-to")).build(),
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
                 )
         );
 
@@ -1147,7 +1147,7 @@ public class ItemRelationControllerITCase {
         publication.setDescription("Publication that is mentioned in some of a workflow steps");
         publication.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("prblMo").relation(new ItemRelationId("is-mentioned-in")).build()
+                        RelatedItemCore.builder().persistentId("prblMo").relation(new ItemRelationId("is-mentioned-in")).build()
                 )
         );
 

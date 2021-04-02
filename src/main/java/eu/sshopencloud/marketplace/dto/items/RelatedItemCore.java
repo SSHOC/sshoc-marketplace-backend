@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RelatedItemCore {
 
-    private String objectId;
+    private String persistentId;
     private ItemRelationId relation;
 }

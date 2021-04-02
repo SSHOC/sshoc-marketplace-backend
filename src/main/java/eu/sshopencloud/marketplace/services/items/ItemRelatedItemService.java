@@ -109,20 +109,20 @@ public class ItemRelatedItemService {
         relatedItems.forEach(relatedItem -> {
             ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
 
-            String objectId = relatedItem.getObjectId();
+            String persistentId = relatedItem.getPersistentId();
             String relationCode = relatedItem.getRelation().getCode();
 
-            if (existentRelations.containsKey(objectId) && existentRelations.get(objectId).contains(relationCode)) {
-                toKeep.put(objectId, relatedItem);
+            if (existentRelations.containsKey(persistentId) && existentRelations.get(persistentId).contains(relationCode)) {
+                toKeep.put(persistentId, relatedItem);
                 return;
             }
 
-            if (!relatedVersions.containsKey(objectId)) {
-                Item objectVersion = itemsService.liftItemVersion(objectId, false, false);
-                relatedVersions.put(objectId, objectVersion);
+            if (!relatedVersions.containsKey(persistentId)) {
+                Item objectVersion = itemsService.liftItemVersion(persistentId, false, false);
+                relatedVersions.put(persistentId, objectVersion);
             }
 
-            Item objectVersion = relatedVersions.get(objectId);
+            Item objectVersion = relatedVersions.get(persistentId);
             ItemRelatedItem itemsRelation = saveItemsRelationChecked(newVersion, objectVersion, relationType);
 
             savedRelations.put(itemsRelation.getObject().getId(), relationType);
@@ -158,9 +158,9 @@ public class ItemRelatedItemService {
 
         // Keep relations from previous version
         toKeep.values().forEach(relatedItem -> {
-            String objectId = relatedItem.getObjectId();
-            Item objectVersion = relatedVersions.containsKey(objectId) ?
-                    relatedVersions.get(objectId) : itemsService.loadCurrentItem(objectId);
+            String persistentId = relatedItem.getPersistentId();
+            Item objectVersion = relatedVersions.containsKey(persistentId) ?
+                    relatedVersions.get(persistentId) : itemsService.loadCurrentItem(persistentId);
 
             ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
             saveItemsRelationChecked(newVersion, objectVersion, relationType);
@@ -171,13 +171,13 @@ public class ItemRelatedItemService {
         if (relatedItems == null)
             return;
 
-        Set<String> relatedObjectIds = new HashSet<>();
+        Set<String> relatedPersistentIds = new HashSet<>();
 
         relatedItems.forEach(rel -> {
-            if (relatedObjectIds.contains(rel.getObjectId()))
-                throw new IllegalArgumentException(String.format("Duplicate relation to object with id %s", rel.getObjectId()));
+            if (relatedPersistentIds.contains(rel.getPersistentId()))
+                throw new IllegalArgumentException(String.format("Duplicate relation to object with id %s", rel.getPersistentId()));
 
-            relatedObjectIds.add(rel.getObjectId());
+            relatedPersistentIds.add(rel.getPersistentId());
         });
     }
 
@@ -205,11 +205,11 @@ public class ItemRelatedItemService {
         relatedItems.forEach(relatedItem -> {
             ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
             try {
-                createDraftItemRelation(subject.getPersistentId(), relatedItem.getObjectId(), relationType);
+                createDraftItemRelation(subject.getPersistentId(), relatedItem.getPersistentId(), relationType);
             }
             catch (ItemsRelationAlreadyExistsException e) {
                 throw new IllegalArgumentException(
-                        String.format("Repeated relation to object with id %s", relatedItem.getObjectId())
+                        String.format("Repeated relation to object with id %s", relatedItem.getPersistentId())
                 );
             }
         });
@@ -291,7 +291,7 @@ public class ItemRelatedItemService {
         List<RelatedItemCore> relatedItems = draftItem.getRelations().stream()
                 .map(rel ->
                         RelatedItemCore.builder()
-                                .objectId(rel.getObject().getPersistentId())
+                                .persistentId(rel.getObject().getPersistentId())
                                 .relation(rel.getRelation().getId())
                                 .build()
                 )
