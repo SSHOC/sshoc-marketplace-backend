@@ -3,6 +3,9 @@ package eu.sshopencloud.marketplace.controllers.auth;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.PaginatedUsers;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
+import eu.sshopencloud.marketplace.model.auth.UserRole;
+import eu.sshopencloud.marketplace.model.auth.UserStatus;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,16 @@ public class UserController {
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDto> getUser(@PathVariable("id") long id) {
         return ResponseEntity.ok(userService.getUser(id));
+    }
+
+    @PutMapping(path = "/{id}/status/{userStatus}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDto> updateUserStatus(@PathVariable("id") long id, @PathVariable("userStatus") UserStatus status) {
+        return ResponseEntity.ok(userService.updateUserStatus(id, status));
+    }
+
+    @PutMapping(path = "/{id}/role/{userRole}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDto> updateUserRole(@PathVariable("id") long id, @PathVariable("userRole") UserRole role) {
+        return ResponseEntity.ok(userService.updateUserRole(id, role));
     }
 
 }

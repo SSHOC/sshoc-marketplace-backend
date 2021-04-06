@@ -58,7 +58,7 @@ public class ItemExternalIdFactory {
     }
 
     public ItemExternalId create(ItemExternalIdCore externalId, Item item, Errors errors) {
-        Optional<ItemSource> itemSource = itemSourceService.loadItemSource(externalId.getServiceIdentifier());
+        Optional<ItemSource> itemSource = itemSourceService.loadItemSource(externalId.getServiceIdentifier().getCode());
 
         if (itemSource.isEmpty()) {
             errors.rejectValue(

@@ -58,7 +58,7 @@ public class ActorExternalIdFactory {
     }
 
     public ActorExternalId create(ActorExternalIdCore externalId, Actor actor, Errors errors) {
-        Optional<ActorSource> actorSource = actorSourceService.loadActorSource(externalId.getServiceIdentifier());
+        Optional<ActorSource> actorSource = actorSourceService.loadActorSource(externalId.getServiceIdentifier().getCode());
 
         if (actorSource.isEmpty()) {
             errors.rejectValue(

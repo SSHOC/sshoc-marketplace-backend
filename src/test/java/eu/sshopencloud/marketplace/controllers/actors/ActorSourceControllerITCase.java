@@ -5,8 +5,8 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorSourceCore;
+import eu.sshopencloud.marketplace.dto.actors.ActorSourceId;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,7 +168,7 @@ public class ActorSourceControllerITCase {
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
         ));
 
         String payload = mapper.writeValueAsString(actor);

@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.items;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
+import eu.sshopencloud.marketplace.dto.items.ItemExternalIdId;
 import eu.sshopencloud.marketplace.dto.items.ItemSourceCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import org.junit.Before;
@@ -166,8 +167,8 @@ public class ItemSourceControllerITCase {
         trainingMaterial.setDescription("Test Training Material imported from Wikidata and GitHub");
         trainingMaterial.setExternalIds(
                 List.of(
-                        new ItemExternalIdCore("Wikidata", "cdefgahc"),
-                        new ItemExternalIdCore("GitHub", "code-like-chopin")
+                        new ItemExternalIdCore(new ItemExternalIdId("Wikidata"), "cdefgahc"),
+                        new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "code-like-chopin")
                 )
         );
 

@@ -1,10 +1,10 @@
 package eu.sshopencloud.marketplace.conf.converters;
 
-import eu.sshopencloud.marketplace.domain.media.dto.MediaCategory;
+import eu.sshopencloud.marketplace.domain.media.MediaCategory;
 
 
-@Deprecated
 public class MediaCategoryFormatter extends BaseEnumFormatter<MediaCategory> {
+
     private static final String MEDIA_CATEGORY_NAME = "media-category";
 
     @Override
@@ -16,4 +16,5 @@ public class MediaCategoryFormatter extends BaseEnumFormatter<MediaCategory> {
     protected String getEnumName() {
         return MEDIA_CATEGORY_NAME;
     }
+
 }

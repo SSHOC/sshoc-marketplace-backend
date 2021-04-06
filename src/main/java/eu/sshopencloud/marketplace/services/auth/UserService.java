@@ -7,8 +7,11 @@ import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.auth.OAuthRegistrationDto;
 import eu.sshopencloud.marketplace.mappers.auth.UserMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.auth.UserRole;
+import eu.sshopencloud.marketplace.model.auth.UserStatus;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,13 +31,14 @@ public class UserService {
 
 
     public PaginatedUsers getUsers(String q, PageCoords pageCoords) {
-        ExampleMatcher queryUserMatcher = ExampleMatcher.matchingAny()
-                .withMatcher("username", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
-        User queryUser = new User();
-        queryUser.setUsername(q);
-
-        Page<User> usersPage = userRepository.findAll(Example.of(queryUser, queryUserMatcher),
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("username"))));
+        Page<User> usersPage;
+        if (StringUtils.isBlank(q)) {
+            usersPage = userRepository.findAll(
+                    PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("username"))));
+        } else {
+            usersPage = userRepository.findByUsernameContainingIgnoreCase(q,
+                    PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("username"))));
+        }
 
         List<UserDto> users = usersPage.stream().map(UserMapper.INSTANCE::toDto).collect(Collectors.toList());
 
@@ -65,4 +69,20 @@ public class UserService {
         User loggedUser = LoggedInUserHolder.getLoggedInUser();
         return userRepository.findByUsername(loggedUser.getUsername());
     }
+
+    public UserDto updateUserStatus(long id, UserStatus status) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id));
+        //user.setStatus(status);
+        return UserMapper.INSTANCE.toDto(user);
+    }
+
+    public UserDto updateUserRole(long id, UserRole role) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id));
+        user.setRole(role);
+        return UserMapper.INSTANCE.toDto(user);
+    }
+
+
 }

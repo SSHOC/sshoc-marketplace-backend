@@ -13,6 +13,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
+import eu.sshopencloud.marketplace.dto.items.ItemExternalIdId;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
@@ -612,8 +613,8 @@ public class PublicationControllerITCase {
         publicationV2.setDescription("New recognized Publication");
         publicationV2.setExternalIds(
                 List.of(
-                        new ItemExternalIdCore("GitHub", "https://github.com/tesseract-ocr/tessdoc"),
-                        new ItemExternalIdCore("Wikidata", "Q945242")
+                        new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "https://github.com/tesseract-ocr/tessdoc"),
+                        new ItemExternalIdCore(new ItemExternalIdId("Wikidata"), "Q945242")
                 )
         );
 

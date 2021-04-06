@@ -1,24 +1,20 @@
 package eu.sshopencloud.marketplace.conf.converters;
 
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
-import org.springframework.format.Formatter;
 
-import java.text.ParseException;
-import java.util.Locale;
 
-public class PropertyTypeClassFormatter implements Formatter<PropertyTypeClass>  {
+public class PropertyTypeClassFormatter extends BaseEnumFormatter<PropertyTypeClass> {
+
+    private static final String PROPERTY_TYPE_CLASS_NAME = "property-type-class";
 
     @Override
-    public String print(PropertyTypeClass object, Locale locale) {
-        return object.getValue();
+    protected PropertyTypeClass toEnum(String enumValue) {
+        return PropertyTypeClass.valueOf(enumValue);
     }
 
-    public PropertyTypeClass parse(String text, Locale locale) throws ParseException {
-        try {
-            return PropertyTypeClass.valueOf(text.toUpperCase().replace('-', '_'));
-        } catch (Exception e) {
-            throw new ParseException("Incorrect value '" + text + "' for enum '" + "order" + "'!", 0);
-        }
+    @Override
+    protected String getEnumName() {
+        return PROPERTY_TYPE_CLASS_NAME;
     }
 
 }

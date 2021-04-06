@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.domain.media;
 import eu.sshopencloud.marketplace.conf.jpa.FilePathConverter;
 import eu.sshopencloud.marketplace.conf.jpa.MediaTypeConverter;
 import eu.sshopencloud.marketplace.conf.jpa.UrlConverter;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;

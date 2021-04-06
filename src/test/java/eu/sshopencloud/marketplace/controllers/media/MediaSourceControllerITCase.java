@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.controllers.media;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaCategory;
+import eu.sshopencloud.marketplace.domain.media.MediaCategory;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import org.junit.Before;
 import org.junit.Test;

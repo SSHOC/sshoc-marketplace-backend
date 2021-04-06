@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.domain.media;
 
 import eu.sshopencloud.marketplace.conf.jpa.UrlConverter;
 import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

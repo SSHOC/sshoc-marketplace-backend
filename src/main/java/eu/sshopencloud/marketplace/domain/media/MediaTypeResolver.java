@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.domain.media;
 
 import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaMetadata;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaCategory;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -5,10 +5,7 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
-import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
-import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
-import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
-import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
@@ -1140,7 +1137,7 @@ public class ToolControllerITCase {
         tool.setLabel("Tesseract");
         tool.setDescription("The best tool for Optical Character Recognition");
         tool.setExternalIds(List.of(
-                new ItemExternalIdCore("GitHub", "https://github.com/tesseract-ocr/tesseract")
+                new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "https://github.com/tesseract-ocr/tesseract")
         ));
 
         String payload = mapper.writeValueAsString(tool);
