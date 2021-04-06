@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.services.auth;
 import eu.sshopencloud.marketplace.conf.auth.OAuth2UserInfo;
 import eu.sshopencloud.marketplace.conf.auth.UserPrincipal;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.auth.UserStatus;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -60,7 +61,7 @@ public class CustomOidcUserService extends OidcUserService {
         user.setDisplayName(oAuth2UserInfo.getName());
         user.setEmail(oAuth2UserInfo.getEmail());
         user.setTokenKey(UUID.randomUUID().toString());
-        user.setEnabled(false);
+        user.setStatus(UserStatus.DURING_REGISTRATION);
         user.setPreferences("{}");
 //        user.setImageUrl(oAuth2UserInfo.getImageUrl());
         return userRepository.save(user);

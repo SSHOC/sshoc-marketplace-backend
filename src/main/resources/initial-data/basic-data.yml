@@ -237,4 +237,16 @@ ItemSource:
     label:                       GitHub
     ord:                         2
 
-MediaSource: []
+
+MediaSource:
+  - !!eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore
+    code:                        youtube
+    serviceUrl:                  https://www.youtube.com/watch
+    mediaCategory:               VIDEO
+    ord:                         1
+
+  - !!eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore
+    code:                        vimeo
+    serviceUrl:                  https://vimeo.com/watch
+    mediaCategory:               VIDEO
+    ord:                         2

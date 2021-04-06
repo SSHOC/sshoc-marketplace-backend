@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.conf.auth;
 
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.auth.UserStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,31 +19,31 @@ public class UserPrincipal implements UserDetails, OidcUser {
     private String email;
     private String username;
     private String password;
-    private boolean enabled;
+    private UserStatus status;
     private Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
     private boolean registered;
     private String tokenKey;
 
-    public UserPrincipal(Long id, String email, String username, String password, boolean enabled, String tokenKey, boolean registered, OidcUser oidcUser) {
+    public UserPrincipal(Long id, String email, String username, String password, UserStatus status, String tokenKey, boolean registered, OidcUser oidcUser) {
         this.oidcUser = oidcUser;
         this.id = id;
         this.email = email;
         this.username = username;
         this.password = password;
-        this.enabled = enabled;
+        this.status = status;
         this.authorities = oidcUser.getAuthorities();
         this.registered = registered;
         this.tokenKey = tokenKey;
     }
 
-    public UserPrincipal(Long id, String email, String username, String password, boolean enabled, String tokenKey, boolean registered,
+    public UserPrincipal(Long id, String email, String username, String password, UserStatus status, String tokenKey, boolean registered,
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.username = username;
         this.password = password;
-        this.enabled = enabled;
+        this.status = status;
         this.authorities = authorities;
         this.registered = registered;
         this.tokenKey = tokenKey;
@@ -54,7 +55,7 @@ public class UserPrincipal implements UserDetails, OidcUser {
                 user.getEmail(),
                 user.getUsername(),
                 user.getPassword(),
-                user.isEnabled(),
+                user.getStatus(),
                 user.getTokenKey(),
                 user.getRegistrationDate() != null,
                 user.getRole() != null ? user.getRole().getAuthorities() : Collections.emptyList()
@@ -67,7 +68,7 @@ public class UserPrincipal implements UserDetails, OidcUser {
                 user.getEmail(),
                 user.getUsername(),
                 user.getPassword(),
-                user.isEnabled(),
+                user.getStatus(),
                 user.getTokenKey(),
                 user.getRegistrationDate() != null,
                 oidcUser
@@ -102,7 +103,7 @@ public class UserPrincipal implements UserDetails, OidcUser {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !status.equals(UserStatus.LOCKED);
     }
 
     @Override
@@ -112,7 +113,11 @@ public class UserPrincipal implements UserDetails, OidcUser {
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return status.equals(UserStatus.ENABLED);
+    }
+
+    public UserStatus getStatus() {
+        return status;
     }
 
     public String getTokenKey() {

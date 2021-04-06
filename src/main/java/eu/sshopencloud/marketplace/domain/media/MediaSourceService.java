@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-class MediaSourceService extends BaseOrderableEntityService<MediaSource, String> implements MediaSourceCrudService {
+public class MediaSourceService extends BaseOrderableEntityService<MediaSource, String> {
 
     private final MediaSourceRepository mediaSourceRepository;
 
@@ -35,7 +35,6 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
         return mediaUrl.getPath().startsWith(serviceUrl.getPath());
     }
 
-    @Override
     public List<MediaSourceDto> getAllMediaSources() {
         return loadAllEntries()
                 .stream()
@@ -43,13 +42,11 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
                 .collect(Collectors.toList());
     }
 
-    @Override
     public MediaSourceDto getMediaSource(String mediaSourceCode) {
         MediaSource mediaSource = loadMediaSource(mediaSourceCode);
         return toMediaSourceDetails(mediaSource);
     }
 
-    @Override
     public MediaSourceDto registerMediaSource(MediaSourceCore mediaSourceCore) {
         String code = mediaSourceCore.getCode();
         if (code == null)
@@ -67,7 +64,6 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
         return toMediaSourceDetails(mediaSource);
     }
 
-    @Override
     public MediaSourceDto updateMediaSource(String mediaSourceCode, MediaSourceCore mediaSourceCore) {
         String code = mediaSourceCore.getCode();
         if (code == null)
@@ -93,7 +89,6 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
         }
     }
 
-    @Override
     public void removeMediaSource(String mediaSourceCode) {
         try {
             mediaSourceRepository.deleteById(mediaSourceCode);
@@ -125,13 +120,12 @@ class MediaSourceService extends BaseOrderableEntityService<MediaSource, String>
         return mediaSourceRepository;
     }
 
-    @Override
     public void saveMediaSources(List<MediaSourceCore> mediaSources) {
         mediaSources.forEach(this::registerMediaSource);
     }
 
-    @Override
     public long countAllMediaSources() {
         return mediaSourceRepository.count();
     }
+
 }

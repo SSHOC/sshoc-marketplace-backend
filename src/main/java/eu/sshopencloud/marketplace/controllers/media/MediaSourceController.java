@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.media;
 
-import eu.sshopencloud.marketplace.domain.media.MediaSourceCrudService;
+import eu.sshopencloud.marketplace.domain.media.MediaSourceService;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceDto;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MediaSourceController {
 
-    private final MediaSourceCrudService mediaSourceService;
+    private final MediaSourceService mediaSourceService;
 
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

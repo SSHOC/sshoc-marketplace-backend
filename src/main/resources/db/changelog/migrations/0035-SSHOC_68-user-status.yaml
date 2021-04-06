@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0035-SSHOC_68-user-status-1
+      author: mkozak
+      description: Add column user status instead of enabled flag
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              constraints:
+                nullable: false
+              defaultValue: DURING_REGISTRATION
+              name: status
+              type: varchar(255)
+
+  - changeSet:
+      id: 0035-SSHOC_68-user-status-2
+      author: mkozak
+      description: Set the status depending on enabled flag
+      changes:
+        - sql:
+            sql: >
+              update users set status = 'ENABLED' where enabled = true
+        - sql:
+            sql: >
+              update users set status = 'LOCKED' where enabled = false
+
+  - changeSet:
+      id: 0035-SSHOC_68-user-status-3
+      author: mkozak
+      description: Delete enabled column
+      changes:
+        - dropColumn:
+            tableName: users
+            columnName: enabled
