@@ -36,7 +36,7 @@ public class UserService {
             usersPage = userRepository.findAll(
                     PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("username"))));
         } else {
-            usersPage = userRepository.findByUsernameContainingIgnoreCase(q,
+            usersPage = userRepository.findLikeUsernameOrDisplayNameOrEmail(q,
                     PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("username"))));
         }
 
