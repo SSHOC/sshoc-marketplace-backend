@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0033-SSHOC_53-test_media_source-1
+      author: swolarz
+      description: Add test example media source
+      context: dev, test
+      changes:
+        - insert:
+            tableName: media_sources
+            columns:
+              - column:
+                  name: code
+                  value: youtube
+              - column:
+                  name: service_url
+                  value: https://www.youtube.com/watch
+              - column:
+                  name: media_category
+                  value: VIDEO
+              - column:
+                  name: ord
+                  value: 1
+        - insert:
+            tableName: media_sources
+            columns:
+              - column:
+                  name: code
+                  value: vimeo
+              - column:
+                  name: service_url
+                  value: https://vimeo.com/watch
+              - column:
+                  name: media_category
+                  value: VIDEO
+              - column:
+                  name: ord
+                  value: 2

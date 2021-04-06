@@ -14,9 +14,7 @@ import java.util.stream.Collectors;
 
 
 @Entity
-@Table(name = "items", uniqueConstraints = {
-        @UniqueConstraint(name = "item_prev_version_item_id_uq", columnNames = {"prev_version_id"} )
-    })
+@Table(name = "items")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @ToString(of = { "id", "category", "label", "version", "description", "source", "sourceItemId", "status" })
@@ -90,9 +88,17 @@ public abstract class Item {
     @Column
     private String sourceItemId;
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "ord", nullable = false)
+    private List<ItemExternalId> externalIds;
+
     @ManyToOne
     @JoinColumn(name = "info_contributor_id", nullable = false)
     private User informationContributor;
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "ord", nullable = false)
+    private List<ItemMedia> media;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -120,6 +126,8 @@ public abstract class Item {
         this.properties = new ArrayList<>();
         this.licenses = new ArrayList<>();
         this.contributors = new ArrayList<>();
+        this.externalIds = new ArrayList<>();
+        this.media = new ArrayList<>();
     }
 
     public Item(Item baseItem) {
@@ -139,6 +147,16 @@ public abstract class Item {
         this.accessibleAt = new ArrayList<>(baseItem.getAccessibleAt());
         this.source = baseItem.getSource();
         this.sourceItemId = baseItem.getSourceItemId();
+
+        this.externalIds = baseItem.getExternalIds().stream()
+                .map(externalId ->
+                        new ItemExternalId(externalId.getIdentifierService(), externalId.getIdentifier(), this)
+                )
+                .collect(Collectors.toList());
+
+        this.media = baseItem.getMedia().stream()
+                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption(), media.isItemThumbnail()))
+                .collect(Collectors.toList());
     }
 
     public String getPersistentId() {
@@ -169,6 +187,28 @@ public abstract class Item {
         }
 
         return Collections.unmodifiableList(properties);
+    }
+
+    public void addExternalIds(List<ItemExternalId> externalIds) {
+        this.externalIds.clear();
+        this.externalIds.addAll(externalIds);
+    }
+
+    public List<ItemExternalId> getExternalIds() {
+        return Collections.unmodifiableList(externalIds);
+    }
+
+    public void addMedia(List<ItemMedia> media) {
+        this.media.clear();
+        this.media.addAll(media);
+    }
+
+    public List<ItemMedia> getMedia() {
+        return Collections.unmodifiableList(media);
+    }
+
+    public ItemMedia getThumbnail() {
+        return media.stream().filter(ItemMedia::isItemThumbnail).findFirst().orElse(null);
     }
 
     public boolean isOwner(User user) {

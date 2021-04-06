@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0028-SSHOC_67-item_external_id-1
+      author: swolarz
+      description: Add table for item external sources
+      changes:
+        - createTable:
+            tableName: item_external_sources
+            columns:
+              - column:
+                  name: code
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: label
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ord
+                  type: integer
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 0028-SSHOC_67-item_external_id-2
+      author: swolarz
+      description: Setup table for item external ids
+      changes:
+        - createSequence:
+            sequenceName: item_external_ids_id_seq
+            startValue: 1
+            incrementBy: 1
+
+        - createTable:
+            tableName: item_external_ids
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: identifier_service_code
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: item_external_id_source_fk
+                    references: item_external_sources(code)
+              - column:
+                  name: identifier
+                  type: varchar(2048)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: item_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: item_external_id_item_fk
+                    references: items(id)
+              - column:
+                  name: ord
+                  type: integer
+
+        - addUniqueConstraint:
+            tableName: item_external_ids
+            columnNames: identifier_service_code, identifier

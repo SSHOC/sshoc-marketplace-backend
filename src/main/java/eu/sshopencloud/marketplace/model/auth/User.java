@@ -36,7 +36,9 @@ public class User {
     private String password;
 
     @Column(nullable = false, columnDefinition = "boolean default false")
+    // TODO @Enumerated(EnumType.STRING)
     private boolean enabled;
+    // TODO private UserStatus status;
 
     private ZonedDateTime registrationDate;
 

@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.dto.auth;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
+import eu.sshopencloud.marketplace.model.auth.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class UserDto {
 
     private String displayName;
 
+    //private UserStatus status;
     private boolean enabled;
 
     @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)

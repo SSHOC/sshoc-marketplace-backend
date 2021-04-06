@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0032-SSHOC_53-media_cleanup-1
+      author: swolarz
+      description: Remove unused column for media file upload
+      changes:
+        - dropColumn:
+            tableName: media_file_uploads
+            columnName: completed

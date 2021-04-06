@@ -5,7 +5,7 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
-import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
@@ -1129,5 +1129,154 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("id", is(toolVersionId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("status", is("approved")));
+    }
+
+    @Test
+    public void shouldCreateToolWithExternalId() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Tesseract");
+        tool.setDescription("The best tool for Optical Character Recognition");
+        tool.setExternalIds(List.of(
+                new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "https://github.com/tesseract-ocr/tesseract")
+        ));
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                post("/api/tools-services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(1)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("GitHub")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("https://github.com/tesseract-ocr/tesseract")))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("id", is(toolVersionId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(1)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("GitHub")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("https://github.com/tesseract-ocr/tesseract")));
+    }
+
+    @Test
+    public void shouldCreateMultipleToolDrafts() throws Exception {
+        String toolId = "DstBL5";
+
+        ToolCore firstDraft = new ToolCore();
+        firstDraft.setLabel("Stata v1.1");
+        firstDraft.setDescription("Stata with many bugfixes");
+
+        ToolCore secondDraft = new ToolCore();
+        secondDraft.setLabel("Stata v1.2");
+        secondDraft.setDescription("Stata with new features");
+
+        String firstPayload = mapper.writeValueAsString(firstDraft);
+        String secondPayload = mapper.writeValueAsString(secondDraft);
+
+        String firstResponse = mvc.perform(
+                put("/api/tools-services/{id}", toolId)
+                        .param("draft", "true")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(firstPayload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("status", is("draft")))
+                .andReturn().getResponse().getContentAsString();
+
+        String secondResponse = mvc.perform(
+                put("/api/tools-services/{id}", toolId)
+                        .param("draft", "true")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(secondPayload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("status", is("draft")))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto firstDto = mapper.readValue(firstResponse, ToolDto.class);
+        ToolDto secondDto = mapper.readValue(secondResponse, ToolDto.class);
+        int firstVersionId = firstDto.getId().intValue();
+        int secondVersionId = secondDto.getId().intValue();
+
+        mvc.perform(
+                get("/api/tools-services/{id}", toolId)
+                        .param("draft", "true")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("id", is(firstVersionId)))
+                .andExpect(jsonPath("status", is("draft")));
+
+        mvc.perform(
+                get("/api/tools-services/{id}", toolId)
+                        .param("draft", "true")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("id", is(secondVersionId)))
+                .andExpect(jsonPath("status", is("draft")));
+    }
+
+    @Test
+    public void shouldUpdateToolWhenDraftIsPresent() throws Exception {
+        String toolId = "Xgufde";
+
+        ToolCore draftTool = new ToolCore();
+        draftTool.setLabel("WebSty v2");
+        draftTool.setDescription("WebSty version 2. draft");
+        draftTool.setRelatedItems(
+                List.of(new RelatedItemCore("n21Kfc", new ItemRelationId("relates-to")))
+        );
+
+        String draftPayload = mapper.writeValueAsString(draftTool);
+        mvc.perform(
+                put("/api/tools-services/{toolId}", toolId)
+                        .param("draft", "true")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(draftPayload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk());
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("WebSty v1.1");
+        tool.setDescription("WebSty legacy support");
+        tool.setRelatedItems(
+                List.of(new RelatedItemCore("n21Kfc", new ItemRelationId("relates-to")))
+        );
+
+        String payload = mapper.writeValueAsString(tool);
+        mvc.perform(
+                put("/api/tools-services/{toolId}", toolId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk());
     }
 }

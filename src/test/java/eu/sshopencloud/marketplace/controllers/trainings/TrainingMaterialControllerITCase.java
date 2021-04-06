@@ -7,13 +7,14 @@ import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
+import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -1592,5 +1593,204 @@ public class TrainingMaterialControllerITCase {
 
         mvc.perform(get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void shouldNotRenderHiddenProperty() throws Exception {
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("http-status")
+                .label("HTTP resource status code")
+                .type(PropertyTypeClass.INT)
+                .groupName("status")
+                .hidden(true)
+                .build();
+
+        String propertyTypePayload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                post("/api/property-types")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(propertyTypePayload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("http-status")))
+                .andExpect(jsonPath("hidden", is(true)));
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Confidential training material");
+        trainingMaterial.setDescription("Training material with hidden property");
+        trainingMaterial.setProperties(
+                List.of(
+                        new PropertyCore(new PropertyTypeId("http-status"), "404"),
+                        new PropertyCore(new PropertyTypeId("keyword"), "confidential")
+                )
+        );
+
+        String trainingMaterialPayload = mapper.writeValueAsString(trainingMaterial);
+
+        String responseJson = mvc.perform(
+                post("/api/training-materials")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(trainingMaterialPayload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].type.code", is("http-status")))
+                .andExpect(jsonPath("properties[0].type.groupName", is("status")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(true)))
+                .andExpect(jsonPath("properties[1].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[1].type.hidden", is(false)))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto dto = mapper.readValue(responseJson, TrainingMaterialDto.class);
+        String persistentId = dto.getPersistentId();
+
+        mvc.perform(get("/api/training-materials/{persistentId}", persistentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistentId)))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(false)));
+
+        mvc.perform(
+                get("/api/training-materials/{persistentId}", persistentId)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistentId)))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(false)));
+
+
+        mvc.perform(
+                get("/api/training-materials/{persistentId}", persistentId)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistentId)))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].type.code", is("http-status")))
+                .andExpect(jsonPath("properties[0].type.groupName", is("status")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(true)))
+                .andExpect(jsonPath("properties[1].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[1].type.hidden", is(false)));
+    }
+
+    @Test
+    public void shouldApproveTrainingMaterialRelatedToAToolMultipleTimes() throws Exception {
+        String trainingMaterialId = "heBAGQ";
+        String relatedObjectId = "n21Kfc";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Gephi: explore the networks");
+        trainingMaterial.setDescription("An open source software for exploring and manipulating networks");
+        trainingMaterial.setRelatedItems(
+                List.of(new RelatedItemCore(relatedObjectId, new ItemRelationId("documents")))
+        );
+
+        String suggestedPayload = mapper.writeValueAsString(trainingMaterial);
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(suggestedPayload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(relatedObjectId)));
+
+        mvc.perform(
+                get("/api/tools-services/{id}", relatedObjectId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(relatedObjectId)))
+                .andExpect(jsonPath("relatedItems", hasSize(3)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")))
+                .andExpect(jsonPath("relatedItems[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("relatedItems[2].id", not(is(4))))
+                .andExpect(jsonPath("relatedItems[2].relation.code", is("is-documented-by")));
+
+        trainingMaterial.setLabel("Gephi: explore the networks!");
+
+        String approvalPayload = mapper.writeValueAsString(trainingMaterial);
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(approvalPayload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(relatedObjectId)));
+    }
+
+    @Test
+    public void shouldRemoveMultiVersionRelationToItem() throws Exception {
+        String trainingMaterialId = "heBAGQ";
+        String relatedObjectId = "n21Kfc";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Gephi: explore the networks");
+        trainingMaterial.setDescription("An open source software for exploring and manipulating networks");
+        trainingMaterial.setRelatedItems(
+                List.of(new RelatedItemCore(relatedObjectId, new ItemRelationId("documents")))
+        );
+
+        String trainingMaterialPayload = mapper.writeValueAsString(trainingMaterial);
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(trainingMaterialPayload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(relatedObjectId)));
+
+        mvc.perform(
+                get("/api/tools-services/{id}", relatedObjectId)
+                        .param("approved", "false")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(relatedObjectId)))
+                .andExpect(jsonPath("relatedItems", hasSize(3)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")))
+                .andExpect(jsonPath("relatedItems[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("relatedItems[2].id", not(is(4))))
+                .andExpect(jsonPath("relatedItems[2].relation.code", is("is-documented-by")));
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Gephi: lonline");
+        tool.setDescription("Gephi without any relations");
+        tool.setRelatedItems(List.of());
+
+        String toolPayload = mapper.writeValueAsString(tool);
+        mvc.perform(
+                put("/api/tools-services/{id}", relatedObjectId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolPayload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
     }
 }

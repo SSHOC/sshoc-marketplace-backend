@@ -3,10 +3,7 @@ package eu.sshopencloud.marketplace.controllers.actors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
-import eu.sshopencloud.marketplace.dto.actors.ActorCore;
-import eu.sshopencloud.marketplace.dto.actors.ActorDto;
-import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
-import eu.sshopencloud.marketplace.dto.actors.ActorId;
+import eu.sshopencloud.marketplace.dto.actors.*;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -188,7 +185,7 @@ public class ActorControllerITCase {
         actor.setEmail("test@example.org");
         actor.setAffiliations(List.of(new ActorId(1L)));
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("DBLP", "https://dblp.org/pers/g/Gray_0001:Jim.html")
+                new ActorExternalIdCore(new ActorSourceId("DBLP"), "https://dblp.org/pers/g/Gray_0001:Jim.html")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -237,8 +234,8 @@ public class ActorControllerITCase {
         actor.setEmail("test@example.org");
         actor.setAffiliations(List.of(new ActorId(4L)));
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("ORCID", "0000-0000-0000-1234"),
-                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -293,8 +290,8 @@ public class ActorControllerITCase {
         actor.setEmail("test@example.org");
         actor.setAffiliations(List.of(new ActorId(2L)));
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42"),
-                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -316,7 +313,7 @@ public class ActorControllerITCase {
         actor.setEmail("test@example.org");
         actor.setAffiliations(List.of(new ActorId(2L)));
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("None", "Void")
+                new ActorExternalIdCore(new ActorSourceId("None"), "Void")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -493,8 +490,8 @@ public class ActorControllerITCase {
         int actorId = actorDto.getId().intValue();
 
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("ORCID", "0000-0000-0000-1234"),
-                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
         ));
 
         payload = mapper.writeValueAsString(actor);
@@ -516,8 +513,8 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")));
 
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("DBLP", "https://dblp.org/pers/g/Gray_0001:Jim.html"),
-                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("DBLP"), "https://dblp.org/pers/g/Gray_0001:Jim.html"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
         ));
 
         payload = mapper.writeValueAsString(actor);
@@ -546,8 +543,8 @@ public class ActorControllerITCase {
         actor.setEmail("test@example.org");
         actor.setAffiliations(List.of(new ActorId(2L)));
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("ORCID", "0000-0000-0000-1234"),
-                new ActorExternalIdCore("None", "Void")
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
+                new ActorExternalIdCore(new ActorSourceId("None"), "Void")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -594,8 +591,8 @@ public class ActorControllerITCase {
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("ORCID", "0000-0000-0000-1234"),
-                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
         ));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);

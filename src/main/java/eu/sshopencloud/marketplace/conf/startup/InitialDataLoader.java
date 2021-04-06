@@ -4,6 +4,8 @@ import eu.sshopencloud.marketplace.conf.startup.datasets.DatasetLoader;
 import eu.sshopencloud.marketplace.conf.startup.tools.ToolLoader;
 import eu.sshopencloud.marketplace.conf.startup.trainings.TrainingMaterialLoader;
 import eu.sshopencloud.marketplace.conf.startup.workflows.WorkflowLoader;
+import eu.sshopencloud.marketplace.domain.media.MediaSourceCrudService;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
@@ -40,6 +42,7 @@ public class InitialDataLoader {
 
     private final ActorRoleRepository actorRoleRepository;
     private final ItemRelationRepository itemRelationRepository;
+    private final ItemSourceRepository itemSourceRepository;
     private final ConceptRelationRepository conceptRelationRepository;
     private final SourceRepository sourceRepository;
     private final ActorSourceRepository actorSourceRepository;
@@ -53,6 +56,8 @@ public class InitialDataLoader {
     private final DatasetLoader datasetLoader;
     private final WorkflowLoader workflowLoader;
     private final ItemRelatedItemRepository itemRelatedItemRepository;
+
+    private final MediaSourceCrudService mediaSourceCrudService;
 
 
     public void loadBasicData() {
@@ -103,6 +108,24 @@ public class InitialDataLoader {
         }
         else
             log.debug("Skipping loading actor sources. {} already present.", actorSourcesCount);
+
+        long itemSourcesCount = itemSourceRepository.count();
+        if (itemSourcesCount == 0) {
+            List<ItemSource> itemSources = YamlLoader.getObjects(data, "ItemSource");
+            itemSourceRepository.saveAll(itemSources);
+            log.debug("Loaded {} ItemSource objects", itemSources.size());
+        }
+        else
+            log.debug("Skipping loading item sources. {} already present.", itemSourcesCount);
+
+        long mediaSourcesCount = mediaSourceCrudService.countAllMediaSources();
+        if (mediaSourcesCount == 0) {
+            List<MediaSourceCore> mediaSources = YamlLoader.getObjects(data, "MediaSource");
+            mediaSourceCrudService.saveMediaSources(mediaSources);
+            log.debug("Loaded {} MediaSource objects", mediaSources.size());
+        }
+        else
+            log.debug("Skipping loading item sources. {} already present.", mediaSourcesCount);
     }
 
 

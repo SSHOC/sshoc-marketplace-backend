@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.model.actors;
 
+import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -15,7 +16,7 @@ import javax.persistence.Table;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActorSource {
+public class ActorSource implements OrderableEntity<String> {
 
     @Id
     private String code;
@@ -24,4 +25,17 @@ public class ActorSource {
     private String label;
 
     private int ord;
+
+
+    public ActorSource(String code, String label) {
+        this.code = code;
+        this.label = label;
+        this.ord = 0;
+    }
+
+
+    @Override
+    public String getId() {
+        return code;
+    }
 }

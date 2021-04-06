@@ -12,6 +12,8 @@ import eu.sshopencloud.marketplace.conf.datetime.ZonedDateTimeDeserializer;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
+import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
+import eu.sshopencloud.marketplace.dto.items.ItemExternalIdId;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
@@ -577,5 +579,64 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("id", is(publicationVersionId)))
                 .andExpect(jsonPath("category", is("publication")))
                 .andExpect(jsonPath("status", is("ingested")));
+    }
+
+    @Test
+    public void shouldUpdatePublicationAndAddExternalIds() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test publication");
+        publication.setDescription("New unknown publication");
+
+        String payload = mapper.writeValueAsString(publication);
+
+        String publicationJson = mvc.perform(
+                post("/api/publications")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(publication.getLabel())))
+                .andExpect(jsonPath("description", is(publication.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto publicationDto = mapper.readValue(publicationJson, PublicationDto.class);
+        String publicationId = publicationDto.getPersistentId();
+
+        PublicationCore publicationV2 = new PublicationCore();
+        publicationV2.setLabel("Test Publication");
+        publicationV2.setDescription("New recognized Publication");
+        publicationV2.setExternalIds(
+                List.of(
+                        new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "https://github.com/tesseract-ocr/tessdoc"),
+                        new ItemExternalIdCore(new ItemExternalIdId("Wikidata"), "Q945242")
+                )
+        );
+
+        String payloadV2 = mapper.writeValueAsString(publicationV2);
+
+        mvc.perform(
+                put("/api/publications/{id}", publicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payloadV2)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(publicationV2.getLabel())))
+                .andExpect(jsonPath("description", is(publicationV2.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("GitHub")))
+                .andExpect(jsonPath("externalIds[0].identifier", is(publicationV2.getExternalIds().get(0).getIdentifier())))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifier", is(publicationV2.getExternalIds().get(1).getIdentifier())));
     }
 }

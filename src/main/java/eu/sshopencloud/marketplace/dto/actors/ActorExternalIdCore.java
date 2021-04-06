@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 public class ActorExternalIdCore {
 
     @NotNull
-    private String serviceIdentifier;
+    private ActorSourceId serviceIdentifier;
 
     @NotNull
     private String identifier;

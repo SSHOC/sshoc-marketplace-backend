@@ -1,5 +1,8 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
+import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
@@ -42,12 +45,14 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final PropertyTypeService propertyTypeService;
     private final IndexService indexService;
     private final UserService userService;
+    private final MediaStorageService mediaStorageService;
 
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
+                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                           MediaStorageService mediaStorageService) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -61,6 +66,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         this.propertyTypeService = propertyTypeService;
         this.indexService = indexService;
         this.userService = userService;
+
+        this.mediaStorageService = mediaStorageService;
     }
 
 
@@ -111,7 +118,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
         dto.setRelatedItems(relatedItems);
 
-        completeItem(dto);
+        completeItemDto(dto, item);
 
         if (withHistory)
             completeHistory(dto);
@@ -203,7 +210,20 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             draftItemRepository.save(draftItem);
         }
 
+        linkItemMedia(version);
+
         return version;
+    }
+
+    private void linkItemMedia(I version) {
+        for (ItemMedia media : version.getMedia()) {
+            try {
+                mediaStorageService.linkToMedia(media.getMediaId());
+            }
+            catch (MediaNotAvailableException e) {
+                throw new IllegalStateException("Media not available unexpectedly");
+            }
+        }
     }
 
     private void deprecatePrevApprovedVersion(VersionedItem versionedItem) {
@@ -371,11 +391,19 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
+        unlinkItemMedia(draftItem);
+
         draftItemRepository.deleteByItemId(draftItem.getId());
         getItemRepository().delete(draftItem);
 
         if (versionedItem.getStatus().equals(VersionedItemStatus.DRAFT))
             versionedItemRepository.delete(draftItem.getVersionedItem());
+    }
+
+    private void unlinkItemMedia(I version) {
+        version.getMedia().stream()
+                .map(ItemMedia::getMediaId)
+                .forEach(mediaStorageService::removeMediaLink);
     }
 
     private void commitDraftRelations(DraftItem draftItem) {
@@ -404,9 +432,30 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
-    private void completeItem(D item) {
-        for (PropertyDto property : item.getProperties())
-            propertyTypeService.completePropertyType(property.getType());
+    private void completeItemDto(D dto, I item) {
+        completeItemDtoProperties(dto);
+
+        for (int i = 0; i < item.getMedia().size(); ++i) {
+            ItemMedia media = item.getMedia().get(i);
+            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
+
+            dto.getMedia().get(i).setMetadata(mediaDetails);
+        }
+    }
+
+    private void completeItemDtoProperties(D dto) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        List<PropertyDto> properties = dto.getProperties()
+                .stream()
+                .filter(property -> shouldRenderProperty(property, currentUser))
+                .peek(property -> propertyTypeService.completePropertyType(property.getType()))
+                .collect(Collectors.toList());
+
+        dto.setProperties(properties);
+    }
+
+    private boolean shouldRenderProperty(PropertyDto property, User user) {
+        return (!property.getType().isHidden() || (user != null && user.isModerator()));
     }
 
     private void completeHistory(D item) {

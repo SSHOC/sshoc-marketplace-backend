@@ -210,8 +210,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Draft Gephi ...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("Xgufde").relation(new ItemRelationId("relates-to")).build(),
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("documents")).build()
+                        RelatedItemCore.builder().persistentId("Xgufde").relation(new ItemRelationId("relates-to")).build(),
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("documents")).build()
                 )
         );
 
@@ -516,8 +516,8 @@ public class ItemRelationControllerITCase {
         dataset.setDescription("A dataset of algorithmic problems ...");
         dataset.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("prblMo").relation(new ItemRelationId("is-mentioned-in")).build(),
-                        RelatedItemCore.builder().objectId("OdKfPc").relation(new ItemRelationId("relates-to")).build()
+                        RelatedItemCore.builder().persistentId("prblMo").relation(new ItemRelationId("is-mentioned-in")).build(),
+                        RelatedItemCore.builder().persistentId("OdKfPc").relation(new ItemRelationId("relates-to")).build()
                 )
         );
 
@@ -650,8 +650,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Gephi v2...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
-                        RelatedItemCore.builder().objectId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
+                        RelatedItemCore.builder().persistentId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
                 )
         );
 
@@ -737,8 +737,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Gephi v2...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("Xgufde").relation(new ItemRelationId("is-related-to")).build(),
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
+                        RelatedItemCore.builder().persistentId("Xgufde").relation(new ItemRelationId("is-related-to")).build(),
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
                 )
         );
 
@@ -817,8 +817,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Gephi v2...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
-                        RelatedItemCore.builder().objectId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-mentioned-in")).build(),
+                        RelatedItemCore.builder().persistentId("tqmbGY").relation(new ItemRelationId("is-documented-by")).build()
                 )
         );
 
@@ -946,8 +946,8 @@ public class ItemRelationControllerITCase {
         tool.setDescription("Gephi v2...");
         tool.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-related-to")).build(),
-                        RelatedItemCore.builder().objectId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-related-to")).build(),
+                        RelatedItemCore.builder().persistentId("heBAGQ").relation(new ItemRelationId("is-documented-by")).build()
                 )
         );
 
@@ -1136,5 +1136,83 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].id", is(trainingMaterialDto.getId().intValue())))
                 .andExpect(jsonPath("relatedItems[0].label", is(acceptedTrainingMaterial.getLabel())))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("is-documented-by")));
+    }
+
+    @Test
+    public void shouldReturnWorkflowIdForStepRelatedToNewItem() throws Exception {
+        String workflowId = "tqmbGY";
+
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Publication for a step");
+        publication.setDescription("Publication that is mentioned in some of a workflow steps");
+        publication.setRelatedItems(
+                List.of(
+                        RelatedItemCore.builder().persistentId("prblMo").relation(new ItemRelationId("is-mentioned-in")).build()
+                )
+        );
+
+        String publicationPayload = mapper.writeValueAsString(publication);
+
+        mvc.perform(
+                post("/api/publications")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(publicationPayload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("prblMo")))
+                .andExpect(jsonPath("relatedItems[0].label", is("Build the model of the dictionary")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("relatedItems[0].workflowId", is(workflowId)));
+    }
+
+    @Test
+    public void shouldReturnWorkflowIdForStepRelatedToExistingItem() throws Exception {
+        String subjectPersistentId = "gQu2wl";
+        String objectPersistentId = "EPax9f";
+
+        String subjectWorkflowId = "vHQEhe";
+        String objectWorkflowId = "tqmbGY";
+
+        ItemRelationId itemRelation = new ItemRelationId();
+        itemRelation.setCode("mentions");
+
+        String payload = mapper.writeValueAsString(itemRelation);
+
+        mvc.perform(
+                post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("subject.category", is("step")))
+                .andExpect(jsonPath("object.persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("object.category", is("step")))
+                .andExpect(jsonPath("relation.code", is("mentions")))
+                .andExpect(jsonPath("relation.label", is("Mentions")));
+
+        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", subjectWorkflowId, subjectPersistentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("relatedItems[0].label", is("Linguistic annotation")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
+                .andExpect(jsonPath("relatedItems[0].workflowId", is(objectWorkflowId)));
+
+        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", objectWorkflowId, objectPersistentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("relatedItems[0].label", is("Interpret results")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("relatedItems[0].workflowId", is(subjectWorkflowId)));
     }
 }

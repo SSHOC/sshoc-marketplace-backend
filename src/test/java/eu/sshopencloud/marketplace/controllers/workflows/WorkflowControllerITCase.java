@@ -1692,7 +1692,7 @@ public class WorkflowControllerITCase {
         step.setDescription("This step's purpose is to inspire the user to think a little bit and draw conclusions.");
         step.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("OdKfPc").relation(new ItemRelationId("relates-to")).build()
+                        RelatedItemCore.builder().persistentId("OdKfPc").relation(new ItemRelationId("relates-to")).build()
                 )
         );
 
@@ -1760,7 +1760,7 @@ public class WorkflowControllerITCase {
         step.setDescription("This step's purpose is to inspire the user to think a little bit and draw conclusions.");
         step.setRelatedItems(
                 List.of(
-                        RelatedItemCore.builder().objectId("gQu2wl").relation(new ItemRelationId("relates-to")).build()
+                        RelatedItemCore.builder().persistentId("gQu2wl").relation(new ItemRelationId("relates-to")).build()
                 )
         );
 

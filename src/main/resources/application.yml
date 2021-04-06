@@ -44,6 +44,11 @@ spring:
             max-file-size: 10MB
             max-request-size: 10MB
 
+    cache:
+        cache-names: mediaMetadata
+        caffeine:
+            spec: maximumSize=500,expireAfterAccess=60s
+
     security:
         oauth2:
             client:
@@ -92,3 +97,18 @@ marketplace:
     logging:
         path: ${marketplace_log_dir:/tmp}
 
+    media:
+        files:
+            path: ${marketplace_media_dir:/var/sshoc/media}
+            maxFilenameLength: 128
+            maxSize: 100MB
+            maxChunks: 100
+
+        thumbnail:
+            size:
+                main: 150
+                side: 100
+
+        retention:
+            temporary: 2h
+            upload: 2h
