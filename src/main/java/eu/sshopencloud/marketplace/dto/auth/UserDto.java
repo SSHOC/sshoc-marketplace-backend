@@ -20,8 +20,7 @@ public class UserDto {
 
     private String displayName;
 
-    //private UserStatus status;
-    private boolean enabled;
+    private UserStatus status;
 
     @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)

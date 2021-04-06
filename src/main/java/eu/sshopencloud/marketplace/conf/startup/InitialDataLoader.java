@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.conf.startup.datasets.DatasetLoader;
 import eu.sshopencloud.marketplace.conf.startup.tools.ToolLoader;
 import eu.sshopencloud.marketplace.conf.startup.trainings.TrainingMaterialLoader;
 import eu.sshopencloud.marketplace.conf.startup.workflows.WorkflowLoader;
-import eu.sshopencloud.marketplace.domain.media.MediaSourceCrudService;
+import eu.sshopencloud.marketplace.domain.media.MediaSourceService;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorSource;
@@ -57,7 +57,7 @@ public class InitialDataLoader {
     private final WorkflowLoader workflowLoader;
     private final ItemRelatedItemRepository itemRelatedItemRepository;
 
-    private final MediaSourceCrudService mediaSourceCrudService;
+    private final MediaSourceService mediaSourceCrudService;
 
 
     public void loadBasicData() {
@@ -125,7 +125,7 @@ public class InitialDataLoader {
             log.debug("Loaded {} MediaSource objects", mediaSources.size());
         }
         else
-            log.debug("Skipping loading item sources. {} already present.", mediaSourcesCount);
+            log.debug("Skipping loading media sources. {} already present.", mediaSourcesCount);
     }
 
 

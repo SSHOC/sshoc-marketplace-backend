@@ -26,7 +26,7 @@ public class LoggedInUserHolder {
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             user.setId(userPrincipal.getId());
             user.setUsername(userPrincipal.getUsername());
-            user.setEnabled(userPrincipal.isEnabled());
+            user.setStatus(userPrincipal.getStatus());
             user.setRole(findRoleByAuthorities((Collection<Authority>) authentication.getAuthorities()));
             return user;
         }

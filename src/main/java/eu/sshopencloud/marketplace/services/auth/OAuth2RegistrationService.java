@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.dto.auth.OAuthRegistrationData;
 import eu.sshopencloud.marketplace.mappers.auth.UserMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
+import eu.sshopencloud.marketplace.model.auth.UserStatus;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.validators.auth.OAuth2RegistrationValidator;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class OAuth2RegistrationService {
     public UserDto registerOAuth2User(OAuthRegistrationData oAuthRegistrationData) {
         User loggedInUser = LoggedInUserHolder.getLoggedInUser();
         User user = oAuth2RegistrationValidator.validate(oAuthRegistrationData, loggedInUser.getId());
-        user.setEnabled(true);
+        user.setStatus(UserStatus.ENABLED);
         user.setRole(UserRole.CONTRIBUTOR);
         user.setRegistrationDate(ZonedDateTime.now());
         userRepository.save(user);

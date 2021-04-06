@@ -73,7 +73,10 @@ public class UserService {
     public UserDto updateUserStatus(long id, UserStatus status) {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id));
-        //user.setStatus(status);
+        if (status != UserStatus.DURING_REGISTRATION) {
+            user.setStatus(status);
+            user = userRepository.save(user);
+        }
         return UserMapper.INSTANCE.toDto(user);
     }
 
@@ -81,6 +84,7 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + User.class.getName() + " with id " + id));
         user.setRole(role);
+        user = userRepository.save(user);
         return UserMapper.INSTANCE.toDto(user);
     }
 
