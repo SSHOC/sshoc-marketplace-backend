@@ -5,10 +5,11 @@ import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.repositories.search.solr.ForceFacetSortSolrTemplate;
-import eu.sshopencloud.marketplace.services.items.ItemsService;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
+import eu.sshopencloud.marketplace.services.search.filter.SearchExpressionCriteria;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
+import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
@@ -33,14 +34,15 @@ import java.util.stream.Collectors;
 public class SearchItemRepository {
 
     private final ForceFacetSortSolrTemplate solrTemplate;
-    private final ItemsService itemsService;
 
 
-    public FacetPage<IndexItem> findByQueryAndFilters(String q, boolean advancedSearch, User currentUser,
+    public FacetPage<IndexItem> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
+                                                      List<SearchExpressionCriteria> expressionCriteria,
+                                                      User currentUser,
                                                       List<SearchFilterCriteria> filterCriteria,
                                                       List<SearchOrder> order, Pageable pageable) {
 
-        SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q, advancedSearch))
+        SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria.getQueryCriteria())
                 .addProjectionOnFields(
                         IndexItem.ID_FIELD,
                         IndexItem.PERSISTENT_ID_FIELD,
@@ -53,9 +55,10 @@ public class SearchItemRepository {
                 .addSort(Sort.by(createQueryOrder(order)))
                 .setPageRequest(pageable);
 
-        if (currentUser == null || !currentUser.isModerator())
+        if (currentUser == null || !currentUser.isModerator()) {
             facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
-
+        }
+        expressionCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
         filterCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
         facetQuery.setFacetOptions(createFacetOptions());
 
@@ -72,33 +75,6 @@ public class SearchItemRepository {
         Criteria visibilityCriteria = approvedVisibility.or(userVisibility);
 
         return new SimpleFilterQuery(visibilityCriteria);
-    }
-
-    private Criteria createQueryCriteria(String q, boolean advancedSearch) {
-        List<QueryPart> queryParts = QueryParser.parseQuery(q, advancedSearch);
-        if (queryParts.isEmpty()) {
-            return Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains("");
-        } else {
-            Criteria andCriteria = AnyCriteria.any();
-            for (QueryPart queryPart : queryParts) {
-                Criteria orCriteria = null;
-                if (!queryPart.isPhrase()) {
-                    Criteria nameTextCriteria = Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains(queryPart.getExpression());
-                    Criteria descTextCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_FIELD).boost(3f).contains(queryPart.getExpression());
-                    orCriteria = nameTextCriteria.or(descTextCriteria);
-                }
-                Criteria nameTextEnCriteria = Criteria.where(IndexItem.LABEL_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
-                Criteria descTextEnCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_EN_FIELD).boost(1f).is(queryPart.getExpression());
-                Criteria keywordTextCriteria = Criteria.where(IndexItem.KEYWORD_TEXT_FIELD).boost(3f).is(queryPart.getExpression());
-                if (orCriteria == null) {
-                    orCriteria = nameTextEnCriteria.or(descTextEnCriteria).or(keywordTextCriteria);
-                } else {
-                    orCriteria = orCriteria.or(nameTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria);
-                }
-                andCriteria = andCriteria.and(orCriteria);
-            }
-            return andCriteria;
-        }
     }
 
     private List<Sort.Order> createQueryOrder(List<SearchOrder> order) {

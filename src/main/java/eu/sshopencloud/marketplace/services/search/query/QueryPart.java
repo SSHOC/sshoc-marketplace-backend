@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.repositories.search;
+package eu.sshopencloud.marketplace.services.search.query;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +11,6 @@ public class QueryPart {
 
     private String expression;
 
-    private boolean phrase;
+    private boolean complexPhrase;
 
 }

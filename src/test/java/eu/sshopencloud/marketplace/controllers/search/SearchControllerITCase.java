@@ -498,6 +498,65 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("facets.keyword.['social network analysis'].checked", is(false)));
     }
 
+
+    @Test
+    public void shouldReturnItemsByExpressionOnContributors() throws Exception {
+
+        mvc.perform(get("/api/item-search?d.contributor=(+CESSDE~ -*Academy*)")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(3)))
+                .andExpect(jsonPath("items[0].id", is(10)))
+                .andExpect(jsonPath("items[0].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("items[0].label", is("Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("items[1].id", is(4)))
+                .andExpect(jsonPath("items[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("items[1].label", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("items[2].id", is(8)))
+                .andExpect(jsonPath("items[2].persistentId", is("JmBgWa")))
+                .andExpect(jsonPath("items[2].label", is("Webinar on DH")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(0)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(2)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(1)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.workflow.count", is(0)))
+                .andExpect(jsonPath("categories.workflow.checked", is(false)))
+                .andExpect(jsonPath("facets.activity.['Seeking'].count", is(1)))
+                .andExpect(jsonPath("facets.activity.['Seeking'].checked", is(false)))
+                .andExpect(jsonPath("facets.keyword.topic.count", is(1)))
+                .andExpect(jsonPath("facets.keyword.topic.checked", is(false)))
+                .andExpect(jsonPath("facets.source.['Programming Historian'].count", is(1)))
+                .andExpect(jsonPath("facets.source.['Programming Historian'].checked", is(false)));
+    }
+
+
+    @Test
+    public void shouldReturnItemsByExpressionOnContributorsAndExpressionOnLanguage() throws Exception {
+
+        mvc.perform(get("/api/item-search?d.contributor=(+CESSDE~ -*Academy*)&d.language=(en?)")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(1)))
+                .andExpect(jsonPath("items[0].id", is(4)))
+                .andExpect(jsonPath("items[0].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("items[0].label", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(0)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(1)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(0)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.workflow.count", is(0)))
+                .andExpect(jsonPath("categories.workflow.checked", is(false)));
+    }
+
+
     @Test
     public void shouldReturnAllConcepts() throws Exception {
 

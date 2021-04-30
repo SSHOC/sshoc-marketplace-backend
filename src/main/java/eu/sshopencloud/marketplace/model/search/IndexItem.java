@@ -1,11 +1,14 @@
 package eu.sshopencloud.marketplace.model.search;
 
 import lombok.*;
+import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.solr.core.mapping.Dynamic;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import java.util.List;
+import java.util.Map;
 
 
 @SolrDocument(collection = IndexItem.COLLECTION_NAME)
@@ -26,6 +29,11 @@ public class IndexItem {
     public static final String DESCRIPTION_FIELD = "description";
     public static final String DESCRIPTION_TEXT_FIELD = "description_text";
     public static final String DESCRIPTION_TEXT_EN_FIELD = "description_text_en";
+
+    public static final String CONTRIBUTOR_FIELD = "contributor";
+    public static final String CONTRIBUTOR_TEXT_FIELD = "contributor_text";
+
+    public static final String EXTERNAL_IDENTIFIER_FIELD = "external_identifier";
 
     public static final String CATEGORY_FIELD = "category";
     public static final String STATUS_FIELD = "status";
@@ -67,6 +75,18 @@ public class IndexItem {
     @Indexed(name = DESCRIPTION_TEXT_EN_FIELD, type = "text_en")
     private String descriptionTextEn;
 
+    @Indexed(name = CONTRIBUTOR_FIELD, type = "strings")
+    @Singular
+    private List<String> contributors;
+
+    @Indexed(name = CONTRIBUTOR_TEXT_FIELD, type = "text_general_rev")
+    @Singular("contributorText")
+    private List<String> contributorsText;
+
+    @Indexed(name = EXTERNAL_IDENTIFIER_FIELD, type = "strings")
+    @Singular
+    private List<String> externalIdentifiers;
+
     @Indexed(name = CATEGORY_FIELD, type = "string")
     private String category;
 
@@ -91,6 +111,11 @@ public class IndexItem {
     private List<String> keywords;
 
     @Indexed(name = KEYWORD_TEXT_FIELD, type = "text_general_rev")
-    @Singular
+    @Singular("keywordText")
     private  List<String> keywordsTexts;
+
+    @Dynamic
+    @Field("dynamic_property_*")
+    private Map<String, List<String>> dynamicProperties;
+
 }
