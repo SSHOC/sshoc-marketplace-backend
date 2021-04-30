@@ -1015,8 +1015,6 @@ public class ToolControllerITCase {
 
         String payload = mapper.writeValueAsString(tool);
 
-        System.out.println(payload);
-
         mvc.perform(
                 put("/api/tools-services/{id}", toolPersistentId)
                         .content(payload)
