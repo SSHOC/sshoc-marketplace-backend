@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.repositories.search.dto;
+package eu.sshopencloud.marketplace.dto.search;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

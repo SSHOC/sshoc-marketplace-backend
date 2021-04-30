@@ -118,6 +118,9 @@
     <field name="description" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="description_text" type="text_general_rev" indexed="true" stored="false" required="true" multiValued="false" />
     <field name="description_text_en" type="text_en" indexed="true" stored="false" required="true" multiValued="false" />
+    <field name="contributor" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="contributor_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
+    <field name="external_identifier" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="category" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="status" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="owner" type="string" indexed="false" stored="true" required="false" multiValued="false" />
