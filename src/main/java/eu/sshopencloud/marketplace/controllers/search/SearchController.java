@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.controllers.search;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.repositories.search.dto.SuggestedSearchPhrases;
+import eu.sshopencloud.marketplace.dto.search.SuggestedSearchPhrases;
 import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
 import eu.sshopencloud.marketplace.dto.search.PaginatedSearchConcepts;
 import eu.sshopencloud.marketplace.dto.search.PaginatedSearchItems;
@@ -39,6 +39,10 @@ class SearchController {
     @Operation(description = "Search among items.")
     public ResponseEntity<PaginatedSearchItems> searchItems(
             @RequestParam(value = "q", required = false) String q,
+            @Parameter(
+                    description = "Dynamic property filter parameters should be provided with putting multiple d.{property}={expression} as request parameters. Allowed property codes: "
+                            + "contributor, external-identifier and those codes returned by GET /api/property-types .", schema = @Schema(type = "string"))
+            @RequestParam(required = false) MultiValueMap<String, String> d,
             @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
             @RequestParam(value = "order", required = false) List<SearchOrder> order,
             @RequestParam(value = "page", required = false) Integer page,
@@ -49,8 +53,10 @@ class SearchController {
                             + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
             @RequestParam(required = false) MultiValueMap<String, String> f) throws PageTooLargeException, IllegalFilterException {
 
-        Map<String, List<String>> filterParams = FilterParamsExtractor.extractFilterParams(f);
-        return ResponseEntity.ok(searchService.searchItems(q, advanced, categories, filterParams, order, pageCoordsValidator.validate(page, perpage)));
+        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(f);
+        Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
+        return ResponseEntity.ok(searchService.searchItems(q, advanced, expressionParams, categories, filterParams, order,
+                pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping("/concept-search")

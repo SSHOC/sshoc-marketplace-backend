@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.repositories.search;
+package eu.sshopencloud.marketplace.services.search.query;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -11,34 +11,34 @@ import java.util.List;
 @Slf4j
 public class QueryParser {
 
-    public List<QueryPart> parseQuery(String q, boolean advanced) {
-        log.debug("Original query: {}", q);
+    public List<QueryPart> parseQuery(String phrase, boolean advanced) {
+        log.debug("Original query: {}", phrase);
 
         List<QueryPart> result = new ArrayList<QueryPart>();
-        String[] words = q.split(" ", -1);
+        String[] words = phrase.split(" ", -1);
 
-        boolean phrase = false;
+        boolean complexPhrase = false;
         String expression = "";
 
         for (String word : words) {
             if (!word.isEmpty()) {
-                if (phrase) {
+                if (complexPhrase) {
                     if (word.endsWith("\"")) {
                         expression += " " + word;
                         result.add(createQueryPart(expression, true, advanced));
                         expression = "";
-                        phrase = false;
+                        complexPhrase = false;
                     } else {
                         expression += " " + word;
                     }
                 } else {
                     if (word.startsWith("\"")) {
                         expression += word;
-                        phrase = true;
+                        complexPhrase = true;
                         if (word.endsWith("\"")) {
                             result.add(createQueryPart(expression, true, advanced));
                             expression = "";
-                            phrase = false;
+                            complexPhrase = false;
                         }
                     } else {
                         expression = word;
@@ -52,18 +52,18 @@ public class QueryParser {
         return result;
     }
 
-    private QueryPart createQueryPart(String expression, boolean phrase, boolean advancedSearch) {
-        if (advancedSearch)
-            return new QueryPart(expression, phrase);
-
-        expression = escapeQueryExpression(expression, phrase);
-
-        return new QueryPart(expression, phrase);
+    private QueryPart createQueryPart(String expression, boolean complexPhrase, boolean advanced) {
+        if (advanced) {
+            return new QueryPart(expression, complexPhrase);
+        }
+        expression = escapeQueryExpression(expression, complexPhrase);
+        return new QueryPart(expression, complexPhrase);
     }
 
-    private String escapeQueryExpression(String expression, boolean phrase) {
-        if (!phrase)
+    private String escapeQueryExpression(String expression, boolean complexPhrase) {
+        if (!complexPhrase) {
             return ClientUtils.escapeQueryChars(expression);
+        }
 
         // If phrase then remove the quotes (the first and last quotes should not be escaped) and restore at the end
         expression = expression.substring(1, expression.length() - 1);
