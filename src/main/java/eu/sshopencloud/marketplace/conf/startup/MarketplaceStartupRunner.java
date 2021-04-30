@@ -33,7 +33,9 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
         initialDataLoader.loadBasicData();
         initialVocabularyLoader.loadPropertyTypeData();
 
+        log.debug("reindexing items...");
         indexService.reindexItems();
+        log.debug("reindexing concepts...");
         indexService.reindexConcepts();
     }
 
