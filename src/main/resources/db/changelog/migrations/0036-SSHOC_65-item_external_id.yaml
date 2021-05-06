@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0036-SSHOC_65-item_external_id-1
+      author: wowasa
+      description: Add column to unique constraint
+      changes:
+         - dropUniqueConstraint: 
+            tableName: item_external_ids
+            constraintName: item_external_ids_identifier_service_code_identifier_key
+         - addUniqueConstraint:
+             tableName: item_external_ids
+             columnNames: identifier_service_code, identifier, item_id
