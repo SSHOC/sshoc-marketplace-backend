@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemExternalIdDto {
-    private ItemSourceDto identifierService;
+    private ItemSourceDto serviceIdentifier;
     private String identifier;
 }
