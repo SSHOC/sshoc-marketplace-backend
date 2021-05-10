@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Table(
         name = "actor_external_ids",
-        uniqueConstraints = @UniqueConstraint(columnNames = { "identifier_service_code", "identifier" })
+        uniqueConstraints = @UniqueConstraint(columnNames = { "identifier_service_code", "identifier", "actor_id" })
 )
 @Data
 @ToString(exclude = "actor")
