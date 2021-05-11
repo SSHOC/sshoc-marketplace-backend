@@ -43,7 +43,7 @@ class MediaExternalClient {
 
 
     @Cacheable(cacheNames = "mediaMetadata", sync = true)
-    public MediaMetadata resolveMetadata(MediaLocation mediaLocation) throws MediaServiceUnavailableException {
+    public MediaInfo resolveMediaInfo(MediaLocation mediaLocation) throws MediaServiceUnavailableException {
         try {
             ClientResponse response = headClient.head()
                     .uri(mediaLocation.getSourceUrl().toURI())
@@ -62,7 +62,7 @@ class MediaExternalClient {
             ClientResponse.Headers headers = response.headers();
             String filename = headers.asHttpHeaders().getContentDisposition().getFilename();
 
-            return MediaMetadata.builder()
+            return MediaInfo.builder()
                     .mimeType(headers.contentType())
                     .filename(Optional.ofNullable(filename))
                     .contentLength(headers.contentLength())
@@ -89,7 +89,7 @@ class MediaExternalClient {
 
     @Value
     @Builder
-    public static class MediaMetadata {
+    public static class MediaInfo {
         Optional<MediaType> mimeType;
         Optional<String> filename;
         OptionalLong contentLength;

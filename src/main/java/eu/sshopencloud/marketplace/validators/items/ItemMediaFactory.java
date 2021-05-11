@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.validators.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
+import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import lombok.RequiredArgsConstructor;
@@ -31,26 +32,41 @@ public class ItemMediaFactory {
             errors.pushNestedPath(nestedPath);
 
             ItemMediaCore mediaCore = itemMedia.get(i);
-            UUID mediaId = mediaCore.getMediaId();
+            MediaDetailsId info = mediaCore.getInfo();
+            UUID mediaId = info != null ? info.getMediaId() : null;
+
+            if (mediaId == null) {
+                errors.pushNestedPath("info");
+                errors.rejectValue(
+                        "mediaId", "field.required", "The field mediaId is required"
+                );
+                errors.popNestedPath();
+                errors.popNestedPath();
+                continue;
+            }
 
             if (processedMediaIds.contains(mediaId)) {
-                errors.popNestedPath();
+                errors.pushNestedPath("info");
                 errors.rejectValue(
-                        nestedPath, "field.duplicateEntry",
-                        String.format("Duplicate item media with id: %s", mediaCore.getMediaId())
+                        "mediaId", "field.duplicateEntry",
+                        String.format("Duplicate item media with id: %s", mediaCore.getInfo().getMediaId())
                 );
+                errors.popNestedPath();
+                errors.popNestedPath();
                 continue;
             }
 
             processedMediaIds.add(mediaId);
-            errors.popNestedPath();
 
             if (mediaStorageService.ensureMediaAvailable(mediaId)) {
                 newMedia.add(new ItemMedia(item, mediaId, mediaCore.getCaption()));
             }
             else {
-                errors.rejectValue(nestedPath, "field.notExist", String.format("Media with id %s not available", mediaId));
+                errors.pushNestedPath("info");
+                errors.rejectValue("mediaId", "field.notExist", String.format("Media with id %s is not available", mediaId));
+                errors.popNestedPath();
             }
+            errors.popNestedPath();
         }
 
         return newMedia;

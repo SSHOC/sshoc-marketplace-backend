@@ -13,6 +13,7 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.ItemThumbnailId;
+import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
@@ -807,8 +808,8 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
-        ItemMediaCore seriouscat = new ItemMediaCore(seriouscatId, "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(grumpycatId, "Grumpy Cat");
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
 
         URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
 
@@ -830,17 +831,17 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("thumbnail.mediaId", is(grumpycatId.toString())))
                 .andExpect(jsonPath("media", hasSize(2)))
-                .andExpect(jsonPath("media[0].metadata.mediaId", is(grumpycatId.toString())))
-                .andExpect(jsonPath("media[0].metadata.category", is("image")))
-                .andExpect(jsonPath("media[0].metadata.location.sourceUrl", is(grumpyUrl.toString())))
-                .andExpect(jsonPath("media[0].metadata.mimeType", is("image/png")))
-                .andExpect(jsonPath("media[0].metadata.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("media[0].info.category", is("image")))
+                .andExpect(jsonPath("media[0].info.location.sourceUrl", is(grumpyUrl.toString())))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/png")))
+                .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
                 .andExpect(jsonPath("media[0].caption", is("Grumpy Cat")))
-                .andExpect(jsonPath("media[1].metadata.mediaId", is(seriouscatId.toString())))
-                .andExpect(jsonPath("media[1].metadata.category", is("image")))
-                .andExpect(jsonPath("media[1].metadata.filename", is("seriouscat.jpg")))
-                .andExpect(jsonPath("media[1].metadata.mimeType", is("image/jpeg")))
-                .andExpect(jsonPath("media[1].metadata.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[1].info.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[1].info.category", is("image")))
+                .andExpect(jsonPath("media[1].info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[1].info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[1].info.hasThumbnail", is(true)))
                 .andExpect(jsonPath("media[1].caption", is("Serious Cat")));
 
         assertFalse(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
@@ -854,8 +855,8 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
-        ItemMediaCore seriouscat = new ItemMediaCore(seriouscatId, "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(grumpycatId, "Grumpy Cat");
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
 
         URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
 
@@ -878,17 +879,17 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())))
                 .andExpect(jsonPath("media", hasSize(2)))
-                .andExpect(jsonPath("media[0].metadata.mediaId", is(grumpycatId.toString())))
-                .andExpect(jsonPath("media[0].metadata.category", is("image")))
-                .andExpect(jsonPath("media[0].metadata.location.sourceUrl", is(grumpyUrl.toString())))
-                .andExpect(jsonPath("media[0].metadata.mimeType", is("image/png")))
-                .andExpect(jsonPath("media[0].metadata.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("media[0].info.category", is("image")))
+                .andExpect(jsonPath("media[0].info.location.sourceUrl", is(grumpyUrl.toString())))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/png")))
+                .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
                 .andExpect(jsonPath("media[0].caption", is("Grumpy Cat")))
-                .andExpect(jsonPath("media[1].metadata.mediaId", is(seriouscatId.toString())))
-                .andExpect(jsonPath("media[1].metadata.category", is("image")))
-                .andExpect(jsonPath("media[1].metadata.filename", is("seriouscat.jpg")))
-                .andExpect(jsonPath("media[1].metadata.mimeType", is("image/jpeg")))
-                .andExpect(jsonPath("media[1].metadata.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[1].info.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[1].info.category", is("image")))
+                .andExpect(jsonPath("media[1].info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[1].info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[1].info.hasThumbnail", is(true)))
                 .andExpect(jsonPath("media[1].caption", is("Serious Cat")));
 
         assertFalse(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
@@ -902,10 +903,10 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
-        ItemMediaCore seriouscat = new ItemMediaCore(seriouscatId, "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(grumpycatId, "Grumpy Cat");
-        ItemMediaCore notFound1 = new ItemMediaCore(UUID.randomUUID(), "404");
-        ItemMediaCore notFound2 = new ItemMediaCore(UUID.randomUUID(), "404");
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
+        ItemMediaCore notFound1 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404");
+        ItemMediaCore notFound2 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404");
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("A dataset of cats");
@@ -923,13 +924,13 @@ public class DatasetControllerITCase {
         )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(3)))
-                .andExpect(jsonPath("errors[0].field", is("media[0]")))
+                .andExpect(jsonPath("errors[0].field", is("media[0].info.mediaId")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()))
-                .andExpect(jsonPath("errors[1].field", is("media[3]")))
+                .andExpect(jsonPath("errors[1].field", is("media[3].info.mediaId")))
                 .andExpect(jsonPath("errors[1].code", is("field.duplicateEntry")))
                 .andExpect(jsonPath("errors[1].message", notNullValue()))
-                .andExpect(jsonPath("errors[2].field", is("media[4]")))
+                .andExpect(jsonPath("errors[2].field", is("media[4].info.mediaId")))
                 .andExpect(jsonPath("errors[2].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[2].message", notNullValue()));
 
@@ -944,8 +945,8 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", ADMINISTRATOR_JWT
         );
 
-        ItemMediaCore seriouscat = new ItemMediaCore(seriouscatId, "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(grumpycatId, "Grumpy Cat");
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("A dataset of cats");
