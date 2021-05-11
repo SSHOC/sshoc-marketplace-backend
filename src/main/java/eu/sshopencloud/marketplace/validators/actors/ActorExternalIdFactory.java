@@ -58,12 +58,12 @@ public class ActorExternalIdFactory {
     }
 
     public ActorExternalId create(ActorExternalIdCore externalId, Actor actor, Errors errors) {
-        Optional<ActorSource> actorSource = actorSourceService.loadActorSource(externalId.getServiceIdentifier().getCode());
+        Optional<ActorSource> actorSource = actorSourceService.loadActorSource(externalId.getIdentifierService().getCode());
 
         if (actorSource.isEmpty()) {
             errors.rejectValue(
-                    "serviceIdentifier", "field.notExist",
-                    String.format("Unknown service identifier: %s", externalId.getServiceIdentifier())
+                    "identifierService", "field.notExist",
+                    String.format("Unknown identifier service: %s", externalId.getIdentifierService())
             );
 
             return null;

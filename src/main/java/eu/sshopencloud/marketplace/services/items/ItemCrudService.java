@@ -439,7 +439,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             ItemMedia media = item.getMedia().get(i);
             MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
 
-            dto.getMedia().get(i).setMetadata(mediaDetails);
+            dto.getMedia().get(i).setInfo(mediaDetails);
         }
     }
 

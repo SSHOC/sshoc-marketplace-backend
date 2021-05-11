@@ -58,12 +58,12 @@ public class ItemExternalIdFactory {
     }
 
     public ItemExternalId create(ItemExternalIdCore externalId, Item item, Errors errors) {
-        Optional<ItemSource> itemSource = itemSourceService.loadItemSource(externalId.getServiceIdentifier().getCode());
+        Optional<ItemSource> itemSource = itemSourceService.loadItemSource(externalId.getIdentifierService().getCode());
 
         if (itemSource.isEmpty()) {
             errors.rejectValue(
-                    "serviceIdentifier", "field.notExist",
-                    String.format("Unknown service identifier: %s", externalId.getServiceIdentifier())
+                    "identifierService", "field.notExist",
+                    String.format("Unknown identifier service: %s", externalId.getIdentifierService())
             );
 
             return null;

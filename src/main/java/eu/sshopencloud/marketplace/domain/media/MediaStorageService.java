@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.domain.media;
 
-import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaMetadata;
+import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaInfo;
 import eu.sshopencloud.marketplace.domain.media.dto.*;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import lombok.extern.slf4j.Slf4j;
@@ -234,9 +234,9 @@ public class MediaStorageService {
 
     private MediaType fetchMediaType(MediaLocation mediaLocation) {
         try {
-            MediaMetadata metadata = mediaExternalClient.resolveMetadata(mediaLocation);
-            if (metadata.getMimeType().isPresent())
-                return metadata.getMimeType().get();
+            MediaInfo mediaInfo = mediaExternalClient.resolveMediaInfo(mediaLocation);
+            if (mediaInfo.getMimeType().isPresent())
+                return mediaInfo.getMimeType().get();
         }
         catch (MediaServiceUnavailableException e) {
             log.info("Media source service is not available: {}", e.getMessage());

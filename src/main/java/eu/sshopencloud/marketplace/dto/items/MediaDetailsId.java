@@ -1,15 +1,14 @@
 package eu.sshopencloud.marketplace.dto.items;
 
-import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemMediaDto {
-    private MediaDetails info;
-    private String caption;
+public class MediaDetailsId {
+    private UUID mediaId;
 }

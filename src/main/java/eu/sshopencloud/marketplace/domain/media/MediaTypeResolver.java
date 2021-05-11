@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.domain.media;
 
-import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaMetadata;
+import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaInfo;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,18 +30,18 @@ class MediaTypeResolver {
             return mediaSource.get().getMediaCategory();
 
         try {
-            MediaMetadata mediaMetadata = mediaExternalClient.resolveMetadata(mediaLocation);
+            MediaInfo mediaInfo = mediaExternalClient.resolveMediaInfo(mediaLocation);
 
-            if (mediaMetadata.getMimeType().isPresent()) {
-                MediaType mimeType = mediaMetadata.getMimeType().get();
+            if (mediaInfo.getMimeType().isPresent()) {
+                MediaType mimeType = mediaInfo.getMimeType().get();
                 Optional<MediaCategory> category = resolveByMimeType(mimeType);
 
                 if (category.isPresent())
                     return category.get();
             }
 
-            if (mediaMetadata.getFilename().isPresent())
-                return resolveCategoryByFilename(mediaMetadata.getFilename().get());
+            if (mediaInfo.getFilename().isPresent())
+                return resolveCategoryByFilename(mediaInfo.getFilename().get());
         }
         catch (MediaServiceUnavailableException e) {
             log.info(String.format("Service for media URL is not available: %s", mediaLocation.getSourceUrl().toString()), e);
