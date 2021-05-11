@@ -62,8 +62,8 @@ public class ActorExternalIdFactory {
 
         if (actorSource.isEmpty()) {
             errors.rejectValue(
-                    "serviceIdentifier", "field.notExist",
-                    String.format("Unknown service identifier: %s", externalId.getIdentifierService())
+                    "identifierService", "field.notExist",
+                    String.format("Unknown identifier service: %s", externalId.getIdentifierService())
             );
 
             return null;
