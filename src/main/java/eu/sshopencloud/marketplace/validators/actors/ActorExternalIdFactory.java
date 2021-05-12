@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.actors.ActorSource;
+import eu.sshopencloud.marketplace.services.actors.ActorExternalIdService;
 import eu.sshopencloud.marketplace.services.actors.ActorSourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,8 @@ import java.util.*;
 public class ActorExternalIdFactory {
 
     private final ActorSourceService actorSourceService;
+
+    private final ActorExternalIdService actorExternalIdService;
 
 
     public List<ActorExternalId> create(List<ActorExternalIdCore> externalIds, Actor actor, Errors errors) {
@@ -69,6 +72,8 @@ public class ActorExternalIdFactory {
             return null;
         }
 
-        return new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor);
+        Optional<ActorExternalId> actorExternalId = actorExternalIdService.loadActorExternalId(actorSource.get(), externalId.getIdentifier());
+        return actorExternalId.orElseGet(() -> new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor));
     }
+
 }
