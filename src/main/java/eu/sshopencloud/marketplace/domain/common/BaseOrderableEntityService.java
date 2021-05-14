@@ -13,6 +13,9 @@ public abstract class BaseOrderableEntityService<T extends OrderableEntity<Id>, 
     }
 
     protected void placeEntryAtPosition(T entry, int ord, boolean insert) {
+
+        if (ord == 0)ord = (int) getEntityRepository().count();
+
         validateEntryPosition(ord, insert);
         entry.setOrd(ord);
 
@@ -47,9 +50,10 @@ public abstract class BaseOrderableEntityService<T extends OrderableEntity<Id>, 
         if (insert)
             maxPosition += 1;
 
+
         if (ord < 1 || ord > maxPosition) {
             throw new IllegalArgumentException(
-                    String.format("Invalid position index %d (maximum possible: %d)", ord, maxPosition)
+                    String.format("Invalid position index %d (index range from 1 to %d)", ord, maxPosition)
             );
         }
     }
