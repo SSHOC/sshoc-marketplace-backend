@@ -12,9 +12,9 @@ public abstract class BaseOrderableEntityService<T extends OrderableEntity<Id>, 
         return getEntityRepository().findAll(Sort.by(Sort.Order.asc("ord")));
     }
 
-    protected void placeEntryAtPosition(T entry, int ord, boolean insert) {
+    protected void placeEntryAtPosition(T entry, Integer ord, boolean insert) {
 
-        if (ord == 0)ord = (int) getEntityRepository().count();
+        if (ord == null)ord = (int) getEntityRepository().count();
 
         validateEntryPosition(ord, insert);
         entry.setOrd(ord);
@@ -43,7 +43,7 @@ public abstract class BaseOrderableEntityService<T extends OrderableEntity<Id>, 
         }
     }
 
-    private void validateEntryPosition(int ord, boolean insert) {
+    private void validateEntryPosition(Integer ord, boolean insert) {
         long entriesCount = getEntityRepository().count();
         int maxPosition = (int) entriesCount;
 
