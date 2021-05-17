@@ -41,8 +41,8 @@ services:
       - backend
       - web
     volumes:
-      - app-log:/log
-      - media-data:/var/sshoc/media
+      - app-log-stage:/log
+      - media-data-stage:/var/sshoc/media
   psql-stage:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres-stage
@@ -62,7 +62,7 @@ services:
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr
     container_name: sshoc-marketplace-backend-solr-stage
     volumes:
-      - solr-data:/var/solr
+      - solr-data-stage:/var/solr
     labels:
       - traefik.backend=solr-stage
       - traefik.frontend.rule=Host:marketplace-solr-stage.sisyphos.arz.oeaw.ac.at
@@ -85,19 +85,19 @@ volumes:
       type: "none"
       device: "/home/sshocmpbackendstage/shares/psql-data"
       o: "bind"
-  solr-data:
+  solr-data-stage:
     driver: local
     driver_opts:
       type: "none"
       device: "/home/sshocmpbackendstage/shares/solr-data"
       o: "bind"
-  app-log:
+  app-log-stage:
     driver: local
     driver_opts:
       type: "none"
       device: "/home/sshocmpbackendstage/shares/app-log"
       o: "bind"
-  media-data:
+  media-data-stage:
     driver: local
     driver_opts:
       type: "none"
