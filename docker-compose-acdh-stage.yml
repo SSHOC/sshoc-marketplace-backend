@@ -47,7 +47,7 @@ services:
     image: postgres:9.6
     container_name: sshoc-marketplace-backend-postgres-stage
     volumes:
-      - psql-data:/var/lib/postgresql/data
+      - psql-data-stage:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: marketplace_db
       POSTGRES_USER: marketplace
@@ -79,7 +79,7 @@ networks:
     external:
       name: web
 volumes:
-  psql-data:
+  psql-data-stage:
     driver: local
     driver_opts:
       type: "none"
