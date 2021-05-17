@@ -1,0 +1,105 @@
+version: "2"
+services:
+  marketplace-stage:
+    build:
+      context: .
+      dockerfile: Dockerfile-acdh-ch
+      args: 
+        - GID=1057
+        - UID=1057
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
+    container_name: sshoc-marketplace-backend-api-stage
+    depends_on:
+      - psql-stage
+      - solr-stage
+    environment:
+      GID: 1057
+      UID: 1057
+      APPLICATION_PROFILE: prod
+      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+      POSTGRES_HOST: psql-stage
+      POSTGRES_PORT: 5432
+      SOLR_HOST: solr-stage
+      SOLR_PORT: 8983
+      aai_base_uri: https://aai.eosc-portal.eu/oidc
+      egi_id: ${egi_id}
+      egi_secret: ${egi_secret}
+      token_secret: ${token_secret}
+      recaptcha_site_key: ${recaptcha_site_key}
+      recaptcha_secret_key: ${recaptcha_secret_key}
+      marketplace_log_dir: /log
+      marketplace_media_dir: /var/sshoc/media
+    labels:
+      - traefik.backend=marketplace-api-stage
+      - traefik.frontend.rule=Host:marketplace-api-stage.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api-stage.acdh-dev.oeaw.ac.at
+      - traefik.docker.network=web
+      - traefik.port=8080
+      - ID=19133
+    networks:
+      - backend
+      - web
+    volumes:
+      - app-log:/log
+      - media-data:/var/sshoc/media
+  psql-stage:
+    image: postgres:9.6
+    container_name: sshoc-marketplace-backend-postgres-stage
+    volumes:
+      - psql-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+      POSTGRES_HOST: psql-stage
+    labels:
+      - ID=19134
+    networks:
+      - backend
+  solr-stage:
+    build: etc/solr
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr
+    container_name: sshoc-marketplace-backend-solr-stage
+    volumes:
+      - solr-data:/var/solr
+    labels:
+      - traefik.backend=solr-stage
+      - traefik.frontend.rule=Host:marketplace-solr-stage.sisyphos.arz.oeaw.ac.at
+      - traefik.docker.network=web
+      - traefik.port=8983
+      - ID=19135
+    networks:
+      - backend
+      - web
+networks:
+  backend:
+    driver: bridge
+  web:
+    external:
+      name: web
+volumes:
+  psql-data:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmpstage/shares/psql-data"
+      o: "bind"
+  solr-data:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmpstage/shares/solr-data"
+      o: "bind"
+  app-log:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmpstage/shares/app-log"
+      o: "bind"
+  media-data:
+    driver: local
+    driver_opts:
+      type: "none"
+      device: "/home/sshocmpstage/shares/media-data"
+      o: "bind"
