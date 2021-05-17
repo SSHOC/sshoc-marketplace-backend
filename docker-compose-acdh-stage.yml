@@ -83,23 +83,23 @@ volumes:
     driver: local
     driver_opts:
       type: "none"
-      device: "/home/sshocmpstage/shares/psql-data"
+      device: "/home/sshocmpbackendstage/shares/psql-data"
       o: "bind"
   solr-data:
     driver: local
     driver_opts:
       type: "none"
-      device: "/home/sshocmpstage/shares/solr-data"
+      device: "/home/sshocmpbackendstage/shares/solr-data"
       o: "bind"
   app-log:
     driver: local
     driver_opts:
       type: "none"
-      device: "/home/sshocmpstage/shares/app-log"
+      device: "/home/sshocmpbackendstage/shares/app-log"
       o: "bind"
   media-data:
     driver: local
     driver_opts:
       type: "none"
-      device: "/home/sshocmpstage/shares/media-data"
+      device: "/home/sshocmpbackendstage/shares/media-data"
       o: "bind"
