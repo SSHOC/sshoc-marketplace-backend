@@ -1,7 +1,7 @@
 version: "2"
 services:
   marketplace-stage:
-    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
+    image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-stage:latest
     container_name: sshoc-marketplace-backend-api-stage
     depends_on:
       - psql-stage
