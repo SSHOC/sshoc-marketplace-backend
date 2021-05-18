@@ -47,7 +47,7 @@ build-stage:
   script: 
     - echo "Building the app (stage)"
     - docker-compose -f docker-compose-acdh-stage.yml build 
-    - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
-    - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr:latest
+    - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-stage:latest
+    - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr-stage:latest
   only:
   - develop
