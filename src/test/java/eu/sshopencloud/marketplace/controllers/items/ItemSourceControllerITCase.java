@@ -146,6 +146,37 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
+    public void shouldUpdateItemSourceWithoutOrder() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
+                .code("Wikidata")
+                .label("Wikidata test")
+                .build();
+
+        String payload = mapper.writeValueAsString(itemSource);
+
+        mvc.perform(
+                put("/api/item-sources/{sourceId}", "Wikidata")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("Wikidata")))
+                .andExpect(jsonPath("label", is("Wikidata test")));
+
+
+        mvc.perform(get("/api/item-sources")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].code", is("GitHub")))
+                .andExpect(jsonPath("$[1].code", is("Wikidata")))
+                .andExpect(jsonPath("$[1].label", is("Wikidata test")));
+
+
+    }
+
+    @Test
     public void shouldRemoveItemSource() throws Exception {
         mvc.perform(
                 delete("/api/item-sources/{sourceId}", "Wikidata")
