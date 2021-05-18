@@ -11,23 +11,43 @@ ActorRole:
     label:                       Author
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
-    code:                        provider
+    code:                        reviewer
     ord:                         3
+    label:                       Reviewer
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        director
+    ord:                         4
+    label:                       Director
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        programmer
+    ord:                         5
+    label:                       Programmer
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        editor
+    ord:                         6
+    label:                       Editor
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        provider
+    ord:                         7
     label:                       Provider
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        contact
-    ord:                         4
+    ord:                         8
     label:                       Contact
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        funder
-    ord:                         5
+    ord:                         9
     label:                       Funder
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        helpdesk
-    ord:                         6
+    ord:                         10
     label:                       Helpdesk
 
 ItemRelation:
@@ -236,6 +256,11 @@ ItemSource:
     code:                        GitHub
     label:                       GitHub
     ord:                         2
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemSource
+    code:                        doi
+    label:                       DOI
+    ord:                         3
 
 
 MediaSource:

@@ -39,3 +39,15 @@ build-prod:
   only:
     - master
 
+build-stage:
+  stage: build
+  tags:
+    - sshoc-acdh-runner
+  extends: .docker
+  script: 
+    - echo "Building the app (stage)"
+    - docker-compose -f docker-compose-acdh-stage.yml build 
+    - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
+    - docker push docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr:latest
+  only:
+  - develop
