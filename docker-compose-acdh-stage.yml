@@ -1,12 +1,6 @@
 version: "2"
 services:
   marketplace-stage:
-    build:
-      context: .
-      dockerfile: Dockerfile-acdh-ch
-      args: 
-        - GID=1057
-        - UID=1057
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
     container_name: sshoc-marketplace-backend-api-stage
     depends_on:
@@ -58,7 +52,6 @@ services:
     networks:
       - backend
   solr-stage:
-    build: etc/solr
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr
     container_name: sshoc-marketplace-backend-solr-stage
     volumes:
