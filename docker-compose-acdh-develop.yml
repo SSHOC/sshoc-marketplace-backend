@@ -1,6 +1,12 @@
 version: "2"
 services:
   marketplace:
+    build: 
+      context: .
+      dockerfile: Dockerfile-acdh-ch
+      args: 
+        - GID=1032
+        - UID=1032
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api:latest
     container_name: sshoc-marketplace-backend-api
     depends_on:
@@ -52,6 +58,7 @@ services:
     networks:
       - backend
   solr:
+    build: etc/solr
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/solr
     container_name: sshoc-marketplace-backend-solr
     volumes:
