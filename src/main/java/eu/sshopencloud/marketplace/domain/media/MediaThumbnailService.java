@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.domain.media;
 
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
@@ -24,6 +27,9 @@ class MediaThumbnailService {
     private final MediaExternalClient mediaExternalClient;
     private final int thumbnailMainLength;
     private final int thumbnailSideLength;
+
+    private final int thumbnailWidth= 150;
+    private final int thumbnailHeight= 100;
 
 
     public MediaThumbnailService(MediaExternalClient mediaExternalClient,
@@ -62,26 +68,27 @@ class MediaThumbnailService {
             ImageIO.write(thumbImage, THUMBNAIL_FILE_EXTENSION, thumbnailBytes);
 
             return new ByteArrayResource(thumbnailBytes.toByteArray());
-        }
-        catch (IOException e) {
+
+        } catch (IOException e) {
             throw new ThumbnailGenerationException("Error while creating a thumb", e);
         }
+
     }
 
     private BufferedImage resizeImage(BufferedImage originalImage) {
-        Dimension originalSize = new Dimension(originalImage.getWidth(), originalImage.getHeight());
-        Dimension thumbSize = getScaledDimension(originalSize);
 
-        Image thumbImage = originalImage.getScaledInstance(thumbSize.width, thumbSize.height, Image.SCALE_SMOOTH);
+        BufferedImage thumbImage = null;
+        try {
+            thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_INT_RGB).forceSize(thumbnailWidth, thumbnailHeight).asBufferedImage();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
-        BufferedImage resizedImage = new BufferedImage(thumbSize.width, thumbSize.height, type);
-
-        Graphics2D g = resizedImage.createGraphics();
+        Graphics2D g = thumbImage.createGraphics();
         g.drawImage(thumbImage, 0, 0, null);
         g.dispose();
 
-        return resizedImage;
+        return thumbImage;
     }
 
     private Dimension getScaledDimension(Dimension size) {
@@ -101,4 +108,5 @@ class MediaThumbnailService {
     public String getDefaultThumbnailFilename() {
         return DEFAULT_THUMBNAIL_FILENAME;
     }
+
 }
