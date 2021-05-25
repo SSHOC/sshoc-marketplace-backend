@@ -82,6 +82,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return wrapPage(itemsPage, dtos);
     }
 
+    //
     protected D getItemVersion(String persistentId, Long versionId) {
         I item = loadItemVersion(persistentId, versionId);
 
@@ -108,10 +109,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
+    //
     protected D prepareItemDto(I item) {
         return prepareItemDto(item, true);
     }
 
+    //here loadung related Items
     protected D prepareItemDto(I item, boolean withHistory) {
         D dto = convertItemToDto(item);
 
@@ -410,6 +413,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         itemRelatedItemService.commitDraftRelations(draftItem);
     }
 
+    //here
     private List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
         // TODO change to recursive subordinates query in ItemRepository
         List<ItemBasicDto> versions = new ArrayList<>();
@@ -421,6 +425,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
+    //here
     private List<ItemBasicDto> getOlderVersionsOfItem(Long itemId) {
         // TODO change to recursive subordinates query in ItemRepository
         List<ItemBasicDto> versions = new ArrayList<>();
@@ -458,9 +463,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return (!property.getType().isHidden() || (user != null && user.isModerator()));
     }
 
+    //complete History...- POINT OF VIEW!!
     private void completeHistory(D item) {
         item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
-        item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
+        //item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
     }
 
     private I makeItemVersion(C itemCore, I prevItem) {

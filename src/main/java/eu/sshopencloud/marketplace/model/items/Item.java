@@ -217,4 +217,5 @@ public abstract class Item {
 
         return user.equals(informationContributor);
     }
+
 }
