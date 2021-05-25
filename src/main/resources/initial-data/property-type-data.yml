@@ -1,7 +1,5 @@
 PropertyType:
 
-PropertyType:
-
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        license
     label:                       License
