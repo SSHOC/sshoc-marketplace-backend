@@ -106,8 +106,8 @@ marketplace:
 
         thumbnail:
             size:
-                main: 150
-                side: 100
+                width: 150
+                height: 100
 
         retention:
             temporary: 2h

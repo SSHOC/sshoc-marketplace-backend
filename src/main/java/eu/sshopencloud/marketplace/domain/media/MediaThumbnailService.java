@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
@@ -25,20 +23,17 @@ class MediaThumbnailService {
     private static final String THUMBNAIL_FILE_EXTENSION = "jpg";
 
     private final MediaExternalClient mediaExternalClient;
-    private final int thumbnailMainLength;
-    private final int thumbnailSideLength;
-
-    private final int thumbnailWidth= 150;
-    private final int thumbnailHeight= 100;
+    private final int thumbnailWidth;
+    private final int thumbnailHeight;
 
 
     public MediaThumbnailService(MediaExternalClient mediaExternalClient,
-                                 @Value("${marketplace.media.thumbnail.size.main}") int thumbnailMainLength,
-                                 @Value("${marketplace.media.thumbnail.size.side}") int thumbnailSideLength) {
+                                 @Value("${marketplace.media.thumbnail.size.width}") int thumbnailWidth,
+                                 @Value("${marketplace.media.thumbnail.size.height}") int thumbnailHeight) {
 
         this.mediaExternalClient = mediaExternalClient;
-        this.thumbnailMainLength = thumbnailMainLength;
-        this.thumbnailSideLength = thumbnailSideLength;
+        this.thumbnailWidth = thumbnailWidth;
+        this.thumbnailHeight = thumbnailHeight;
     }
 
 
@@ -89,20 +84,6 @@ class MediaThumbnailService {
         g.dispose();
 
         return thumbImage;
-    }
-
-    private Dimension getScaledDimension(Dimension size) {
-        if (size.height > size.width) {
-            Dimension target = new Dimension(size.height, size.width);
-            Dimension scaled = scaleDimension(target);
-
-            return new Dimension(scaled.height, scaled.width);
-        }
-        else return scaleDimension(size);
-    }
-
-    private Dimension scaleDimension(Dimension size) {
-        return new Dimension(thumbnailMainLength, (size.height * thumbnailMainLength) / size.width);
     }
 
     public String getDefaultThumbnailFilename() {
