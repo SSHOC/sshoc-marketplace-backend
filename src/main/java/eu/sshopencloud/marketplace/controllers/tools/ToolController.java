@@ -37,6 +37,13 @@ public class ToolController {
         return ResponseEntity.ok(toolService.getLatestTool(id, draft, approved));
     }
 
+
+    @GetMapping(path = "/{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> getToolHistory(@PathVariable("id") String id ) {
+        return ResponseEntity.ok(toolService.getToolVersion(id, toolService.getLatestTool(id, false, true).getId()));
+    }
+
+    //delete ?
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> getToolVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(toolService.getToolVersion(id, versionId));
@@ -49,12 +56,14 @@ public class ToolController {
         return ResponseEntity.ok(toolService.createTool(newTool, draft));
     }
 
+
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> updateTool(@PathVariable("id") String id, @RequestBody ToolCore updatedTool,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(toolService.updateTool(id, updatedTool, draft));
     }
+
 
     @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> revertTool(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
