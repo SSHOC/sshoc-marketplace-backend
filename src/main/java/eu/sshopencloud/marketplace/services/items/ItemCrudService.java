@@ -5,14 +5,12 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
-import eu.sshopencloud.marketplace.dto.items.ItemDto;
-import eu.sshopencloud.marketplace.dto.items.ItemRelationsCore;
-import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
+import eu.sshopencloud.marketplace.mappers.items.HistoryPositionConverter;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
-import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
@@ -82,7 +80,28 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return wrapPage(itemsPage, dtos);
     }
 
-    //
+
+    protected List<HistoryPositionDto> getItemHistory(String persistentId, Long versionId) {
+        I item = loadItemVersion(persistentId, versionId);
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!itemVisibilityService.hasAccessToVersion(item, currentUser)) {
+            throw new AccessDeniedException(
+                    String.format(
+                            "User is not authorized to access the given item version with id %s (version id: %d)",
+                            persistentId, versionId
+                    )
+            );
+        }
+
+        D dto = convertItemToDto(item);
+        completeItemDto(dto, item);
+        completeHistory(dto);
+
+        return dto.getHistoryPositions();
+    }
+
+
     protected D getItemVersion(String persistentId, Long versionId) {
         I item = loadItemVersion(persistentId, versionId);
 
@@ -109,12 +128,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
-    //
+
     protected D prepareItemDto(I item) {
         return prepareItemDto(item, true);
     }
 
-    //here loadung related Items
+
     protected D prepareItemDto(I item, boolean withHistory) {
         D dto = convertItemToDto(item);
 
@@ -128,6 +147,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         return dto;
     }
+
 
     protected I createItem(C itemCore, boolean draft) {
         return createOrUpdateItemVersion(itemCore, null, draft);
@@ -413,7 +433,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         itemRelatedItemService.commitDraftRelations(draftItem);
     }
 
-    //here
     private List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
         // TODO change to recursive subordinates query in ItemRepository
         List<ItemBasicDto> versions = new ArrayList<>();
@@ -425,7 +444,18 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
-    //here
+
+    private List<HistoryPositionDto> getHistoryOfItem(Long itemId) {
+        // TODO change to recursive subordinates query in ItemRepository
+        List<HistoryPositionDto> versions = new ArrayList<>();
+        Item prevVersion = itemRepository.getOne(itemId).getPrevVersion();
+        while (prevVersion != null) {
+            versions.add(HistoryPositionConverter.convertItem(prevVersion));
+            prevVersion = prevVersion.getPrevVersion();
+        }
+        return versions;
+    }
+
     private List<ItemBasicDto> getOlderVersionsOfItem(Long itemId) {
         // TODO change to recursive subordinates query in ItemRepository
         List<ItemBasicDto> versions = new ArrayList<>();
@@ -465,7 +495,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     //complete History...- POINT OF VIEW!!
     private void completeHistory(D item) {
-        item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
+        item.setHistoryPositions(getHistoryOfItem(item.getId()));
+        //item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
         //item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
     }
 

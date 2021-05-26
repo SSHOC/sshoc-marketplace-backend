@@ -2,7 +2,9 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.dto.workflows.*;
+import eu.sshopencloud.marketplace.mappers.items.HistoryPositionConverter;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
@@ -66,8 +68,12 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return getLatestItem(persistentId, draft, approved);
     }
 
-    public WorkflowDto getWorkflowVersion(String persistentId, long versionId) {
-        return getItemVersion(persistentId, versionId);
+    public HistoryPositionDto getWorkflowVersion(String persistentId, long versionId) {
+        return HistoryPositionConverter.convertItem(getItemVersion(persistentId, versionId));
+    }
+
+    public List<HistoryPositionDto> getWorkflowVersions(String persistentId, long versionId) {
+        return getItemHistory(persistentId, versionId);
     }
 
     private void collectSteps(WorkflowDto dto, Workflow workflow) {

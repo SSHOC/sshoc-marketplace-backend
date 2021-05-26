@@ -2,9 +2,11 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
+import eu.sshopencloud.marketplace.mappers.items.HistoryPositionConverter;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
@@ -54,8 +56,12 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return getLatestItem(persistentId, draft, approved);
     }
 
-    public PublicationDto getPublicationVersion(String persistentId, long versionId) {
-        return getItemVersion(persistentId, versionId);
+    public HistoryPositionDto getPublicationVersion(String persistentId, long versionId) {
+        return HistoryPositionConverter.convertItem(getItemVersion(persistentId, versionId));
+    }
+
+    public  List<HistoryPositionDto> getPublicationVersions(String persistentId, long versionId) {
+        return getItemHistory(persistentId, versionId);
     }
 
     public PublicationDto createPublication(PublicationCore publicationCore, boolean draft) {

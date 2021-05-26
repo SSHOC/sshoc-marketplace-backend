@@ -3,6 +3,8 @@ package eu.sshopencloud.marketplace.controllers.datasets;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -10,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -38,7 +42,7 @@ public class DatasetController {
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getDatasetVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+    public ResponseEntity<HistoryPositionDto> getDatasetVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(datasetService.getDatasetVersion(id, versionId));
     }
 
@@ -72,5 +76,10 @@ public class DatasetController {
     public ResponseEntity<DatasetDto> publishDataset(@PathVariable("datasetId") String datasetId) {
         DatasetDto dataset = datasetService.commitDraftDataset(datasetId);
         return ResponseEntity.ok(dataset);
+    }
+
+    @GetMapping(path = "/{datasetId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<HistoryPositionDto>> getDatasetHistory(@PathVariable("datasetId") String id ) {
+        return ResponseEntity.ok(datasetService.getDatasetVersions(id, datasetService.getLatestDataset(id, false, true).getId()));
     }
 }

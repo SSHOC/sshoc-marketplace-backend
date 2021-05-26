@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.controllers.workflows;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
@@ -13,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -42,7 +46,7 @@ public class WorkflowController {
     }
 
     @GetMapping(path = "/{workflowId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> getWorkflowVersion(@PathVariable("workflowId") String workflowId,
+    public ResponseEntity<HistoryPositionDto> getWorkflowVersion(@PathVariable("workflowId") String workflowId,
                                                           @PathVariable("versionId") long versionId) {
 
         return ResponseEntity.ok(workflowService.getWorkflowVersion(workflowId, versionId));
@@ -84,7 +88,7 @@ public class WorkflowController {
     }
 
     @GetMapping(path = "/{workflowId}/steps/{stepId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StepDto> getStepVersion(@PathVariable("workflowId") String workflowId,
+    public ResponseEntity<HistoryPositionDto> getStepVersion(@PathVariable("workflowId") String workflowId,
                                                   @PathVariable("stepId") String stepId,
                                                   @PathVariable("versionId") long versionId) {
 
@@ -151,5 +155,15 @@ public class WorkflowController {
     public ResponseEntity<WorkflowDto> publishWorkflow(@PathVariable("workflowId") String workflowId) {
         WorkflowDto workflow = workflowService.commitDraftWorkflow(workflowId);
         return ResponseEntity.ok(workflow);
+    }
+
+    @GetMapping(path = "/{workflowId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<HistoryPositionDto>> getWorkflowHistory(@PathVariable("workflowId") String id ) {
+        return ResponseEntity.ok(workflowService.getWorkflowVersions(id, workflowService.getLatestWorkflow(id, false, true).getId()));
+    }
+
+    @GetMapping(path = "/{workflowId}/steps/{stepId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<HistoryPositionDto>> getStepHistory(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId ) {
+        return ResponseEntity.ok(stepService.getStepVersions(workflowId, stepId, stepService.getLatestStep(workflowId, stepId, false, true).getId()));
     }
 }

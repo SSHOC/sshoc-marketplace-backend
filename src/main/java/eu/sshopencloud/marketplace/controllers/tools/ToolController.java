@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -39,15 +42,16 @@ public class ToolController {
 
 
     @GetMapping(path = "/{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> getToolHistory(@PathVariable("id") String id ) {
-        return ResponseEntity.ok(toolService.getToolVersion(id, toolService.getLatestTool(id, false, true).getId()));
+    public ResponseEntity<List<HistoryPositionDto>> getToolHistory(@PathVariable("id") String id ) {
+        return ResponseEntity.ok(toolService.getToolVersions(id, toolService.getLatestTool(id, false, true).getId()));
     }
 
-    //delete ?
+
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> getToolVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+    public ResponseEntity<HistoryPositionDto> getToolVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
         return ResponseEntity.ok(toolService.getToolVersion(id, versionId));
     }
+
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool,

@@ -5,7 +5,9 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
+import eu.sshopencloud.marketplace.mappers.items.HistoryPositionConverter;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.repositories.items.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
@@ -53,8 +55,11 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return getItemsPage(pageCoords, approved);
     }
 
-    public DatasetDto getDatasetVersion(String persistentId, Long versionId) {
-        return getItemVersion(persistentId, versionId);
+    public List<HistoryPositionDto> getDatasetVersions(String persistentId, Long versionId) {
+        return getItemHistory(persistentId, versionId);
+    }
+    public HistoryPositionDto getDatasetVersion(String persistentId, Long versionId) {
+        return HistoryPositionConverter.convertItem(getItemVersion(persistentId, versionId));
     }
 
     public DatasetDto getLatestDataset(String persistentId, boolean draft, boolean approved) {

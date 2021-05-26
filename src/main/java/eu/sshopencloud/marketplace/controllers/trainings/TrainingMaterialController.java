@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.controllers.trainings;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
@@ -10,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -38,7 +42,7 @@ public class TrainingMaterialController {
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> getTrainingMaterialVersion(@PathVariable("id") String id,
+    public ResponseEntity<HistoryPositionDto> getTrainingMaterialVersion(@PathVariable("id") String id,
                                                                           @PathVariable("versionId") long versionId) {
 
         return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersion(id, versionId));
@@ -77,5 +81,10 @@ public class TrainingMaterialController {
     public ResponseEntity<TrainingMaterialDto> publishTrainingMaterial(@PathVariable("trainingMaterialId") String trainingMaterialId) {
         TrainingMaterialDto trainingMaterial = trainingMaterialService.commitDraftTrainingMaterial(trainingMaterialId);
         return ResponseEntity.ok(trainingMaterial);
+    }
+
+    @GetMapping(path = "/{trainingMaterialId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<HistoryPositionDto>> getTrainingMaterialHistory(@PathVariable("trainingMaterialId") String id ) {
+        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersions(id, trainingMaterialService.getLatestTrainingMaterial(id, false, true).getId()));
     }
 }

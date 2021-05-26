@@ -21,11 +21,6 @@ public class ItemConverter {
         basicItem.setCategory(item.getCategory());
         basicItem.setLabel(item.getLabel());
         basicItem.setVersion(item.getVersion());
-
-        basicItem.setLastInfoUpdate(item.getLastInfoUpdate());
-        basicItem.setStatus(item.getStatus());
-        basicItem.setInformationContributor(UserMapperImpl.INSTANCE.toDto(item.getInformationContributor()));
-
         return basicItem;
     }
 }

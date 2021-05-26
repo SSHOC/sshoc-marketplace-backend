@@ -25,11 +25,4 @@ public class ItemBasicDto {
 
     private String persistentId;
 
-    private ItemStatus status;
-
-    @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
-    private ZonedDateTime lastInfoUpdate;
-
-    private UserDto informationContributor;
 }
