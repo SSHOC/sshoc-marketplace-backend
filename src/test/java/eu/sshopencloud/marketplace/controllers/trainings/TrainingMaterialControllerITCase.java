@@ -289,7 +289,6 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("version", is("1.0")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("informationContributor.id", is(1)))
                 .andExpect(jsonPath("historyPositions", hasSize(0)));
     }
