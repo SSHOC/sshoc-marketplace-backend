@@ -80,10 +80,11 @@ class MediaTypeResolver {
             return Optional.of(MediaType.APPLICATION_OCTET_STREAM);
 
         switch (extension.toLowerCase()) {
+            case "jfif":
             case "jpg":
+            case "jps":
             case "jpeg":
                 return Optional.of(MediaType.IMAGE_JPEG);
-
             case "png":
                 return Optional.of(MediaType.IMAGE_PNG);
 
