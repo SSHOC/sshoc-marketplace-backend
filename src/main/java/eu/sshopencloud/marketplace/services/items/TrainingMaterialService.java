@@ -2,9 +2,11 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
+import eu.sshopencloud.marketplace.mappers.items.HistoryPositionConverter;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
@@ -56,8 +58,11 @@ public class TrainingMaterialService
         return getLatestItem(persistentId, draft, approved);
     }
 
-    public TrainingMaterialDto getTrainingMaterialVersion(String persistentId, long versionId) {
-        return getItemVersion(persistentId, versionId);
+    public HistoryPositionDto getTrainingMaterialVersion(String persistentId, long versionId) {
+        return HistoryPositionConverter.convertItem(getItemVersion(persistentId, versionId));
+    }
+    public List<HistoryPositionDto> getTrainingMaterialVersions(String persistentId, long versionId) {
+        return getItemHistory(persistentId, versionId);
     }
 
     public TrainingMaterialDto createTrainingMaterial(TrainingMaterialCore trainingMaterialCore, boolean draft) {

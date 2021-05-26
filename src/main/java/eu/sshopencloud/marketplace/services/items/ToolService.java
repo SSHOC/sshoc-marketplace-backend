@@ -2,9 +2,11 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
+import eu.sshopencloud.marketplace.mappers.items.HistoryPositionConverter;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.items.*;
@@ -50,13 +52,18 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return getItemsPage(pageCoords, approved);
     }
 
-    public ToolDto getToolVersion(String persistentId, long versionId) {
-        return getItemVersion(persistentId, versionId);
+    public HistoryPositionDto getToolVersion(String persistentId, long versionId) {
+        return HistoryPositionConverter.convertItem(getItemVersion(persistentId, versionId));
+    }
+
+    public List<HistoryPositionDto> getToolVersions(String persistentId, long versionId) {
+        return getItemHistory(persistentId, versionId);
     }
 
     public ToolDto getLatestTool(String persistentId, boolean draft, boolean approved) {
         return getLatestItem(persistentId, draft, approved);
     }
+
 
     public ToolDto createTool(ToolCore toolCore, boolean draft) {
         Tool tool = createItem(toolCore, draft);

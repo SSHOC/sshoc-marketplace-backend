@@ -2,8 +2,10 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
+import eu.sshopencloud.marketplace.mappers.items.HistoryPositionConverter;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
@@ -63,9 +65,14 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return getLatestItem(stepId, draft, approved);
     }
 
-    public StepDto getStepVersion(String workflowId, String stepId, long stepVersionId) {
+    public List<HistoryPositionDto> getStepVersions(String workflowId, String stepId, long stepVersionId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId, stepVersionId);
-        return getItemVersion(stepId, stepVersionId);
+        return getItemHistory(stepId, stepVersionId);
+    }
+
+    public HistoryPositionDto getStepVersion(String workflowId, String stepId, long stepVersionId) {
+        validateWorkflowAndStepVersionConsistency(workflowId, stepId, stepVersionId);
+        return HistoryPositionConverter.convertItem(getItemVersion(stepId, stepVersionId));
     }
 
     public StepDto createStep(String workflowId, StepCore stepCore, boolean draft) {

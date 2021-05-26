@@ -45,16 +45,18 @@ public class ItemDto extends ItemBasicDto {
 
     private ItemThumbnailId thumbnail;
 
-    private UserDto informationContributor;
+    private ItemStatus status;
 
     @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
     private ZonedDateTime lastInfoUpdate;
 
-    private ItemStatus status;
+    private UserDto informationContributor;
 
-    private List<ItemBasicDto> olderVersions;
+    private List<HistoryPositionDto> historyPositions;
 
-    private List<ItemBasicDto> newerVersions;
+    //private List<ItemBasicDto> olderVersions;
+
+    //private List<ItemBasicDto> newerVersions;
 
 }
