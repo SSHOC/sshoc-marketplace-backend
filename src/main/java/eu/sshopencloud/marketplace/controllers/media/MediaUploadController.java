@@ -66,13 +66,14 @@ public class MediaUploadController {
         return ResponseEntity.ok(details);
     }
 
+
     @PostMapping(path = "/upload/full", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MediaDetails> uploadMedia(@RequestParam("file") MultipartFile mediaFile) {
         Optional<MediaType> mediaType = MimeTypeUtils.parseMimeType(mediaFile.getContentType());
         MediaDetails mediaDetails = mediaStorageService.saveCompleteMedia(mediaFile.getResource(), mediaType);
-
         return ResponseEntity.ok(mediaDetails);
     }
+
 
     @PostMapping(path = "/upload/chunk", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MediaUploadInfo> uploadMediaChunk(@RequestParam(name = "mediaId", required = false) Optional<UUID> mediaId,

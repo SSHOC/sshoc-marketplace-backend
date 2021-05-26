@@ -94,6 +94,7 @@ public class MediaStorageService {
     }
 
     public MediaDetails saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType) {
+
         UUID mediaId = resolveNewMediaId();
         MediaFileInfo fileInfo = mediaFileStorage.storeMediaFile(mediaId, mediaFile);
 
@@ -130,9 +131,9 @@ public class MediaStorageService {
         MediaFileInfo thumbnailInfo = mediaFileStorage.storeMediaFile(thumbnailId, thumbnailFile);
 
         String thumbnailFilename = mediaThumbnailService.getDefaultThumbnailFilename();
-        return new MediaData(
-                thumbnailId, MediaCategory.THUMBNAIL, thumbnailInfo.getMediaFilePath(), thumbnailFilename, MediaType.IMAGE_JPEG
-        );
+        return (new MediaData(
+                thumbnailId, MediaCategory.THUMBNAIL, thumbnailInfo.getMediaFilePath(), thumbnailFilename, MediaType.IMAGE_JPEG));
+
     }
 
     private MediaData prepareMediaData(MediaFileInfo mediaFileInfo, String mediaFilename, Optional<MediaType> mimeType) {

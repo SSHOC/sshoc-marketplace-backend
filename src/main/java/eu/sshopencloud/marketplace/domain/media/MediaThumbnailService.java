@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.domain.media;
 
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -22,17 +23,17 @@ class MediaThumbnailService {
     private static final String THUMBNAIL_FILE_EXTENSION = "jpg";
 
     private final MediaExternalClient mediaExternalClient;
-    private final int thumbnailMainLength;
-    private final int thumbnailSideLength;
+    private final int thumbnailWidth;
+    private final int thumbnailHeight;
 
 
     public MediaThumbnailService(MediaExternalClient mediaExternalClient,
-                                 @Value("${marketplace.media.thumbnail.size.main}") int thumbnailMainLength,
-                                 @Value("${marketplace.media.thumbnail.size.side}") int thumbnailSideLength) {
+                                 @Value("${marketplace.media.thumbnail.size.width}") int thumbnailWidth,
+                                 @Value("${marketplace.media.thumbnail.size.height}") int thumbnailHeight) {
 
         this.mediaExternalClient = mediaExternalClient;
-        this.thumbnailMainLength = thumbnailMainLength;
-        this.thumbnailSideLength = thumbnailSideLength;
+        this.thumbnailWidth = thumbnailWidth;
+        this.thumbnailHeight = thumbnailHeight;
     }
 
 
@@ -62,43 +63,31 @@ class MediaThumbnailService {
             ImageIO.write(thumbImage, THUMBNAIL_FILE_EXTENSION, thumbnailBytes);
 
             return new ByteArrayResource(thumbnailBytes.toByteArray());
-        }
-        catch (IOException e) {
+
+        } catch (IOException e) {
             throw new ThumbnailGenerationException("Error while creating a thumb", e);
         }
+
     }
 
     private BufferedImage resizeImage(BufferedImage originalImage) {
-        Dimension originalSize = new Dimension(originalImage.getWidth(), originalImage.getHeight());
-        Dimension thumbSize = getScaledDimension(originalSize);
 
-        Image thumbImage = originalImage.getScaledInstance(thumbSize.width, thumbSize.height, Image.SCALE_SMOOTH);
+        BufferedImage thumbImage = null;
+        try {
+            thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_INT_RGB).forceSize(thumbnailWidth, thumbnailHeight).asBufferedImage();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
-        BufferedImage resizedImage = new BufferedImage(thumbSize.width, thumbSize.height, type);
-
-        Graphics2D g = resizedImage.createGraphics();
+        Graphics2D g = thumbImage.createGraphics();
         g.drawImage(thumbImage, 0, 0, null);
         g.dispose();
 
-        return resizedImage;
-    }
-
-    private Dimension getScaledDimension(Dimension size) {
-        if (size.height > size.width) {
-            Dimension target = new Dimension(size.height, size.width);
-            Dimension scaled = scaleDimension(target);
-
-            return new Dimension(scaled.height, scaled.width);
-        }
-        else return scaleDimension(size);
-    }
-
-    private Dimension scaleDimension(Dimension size) {
-        return new Dimension(thumbnailMainLength, (size.height * thumbnailMainLength) / size.width);
+        return thumbImage;
     }
 
     public String getDefaultThumbnailFilename() {
         return DEFAULT_THUMBNAIL_FILENAME;
     }
+
 }
