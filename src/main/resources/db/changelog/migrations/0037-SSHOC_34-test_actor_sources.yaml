@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0037-SSHOC_34-test_actor_source
+      author: mkozak
+      description: Add test example actor source
+      context: dev, test
+      changes:
+        - insert:
+            tableName: actor_external_sources
+            columns:
+              - column:
+                  name: code
+                  value: ORCID
+              - column:
+                  name: label
+                  value: ORCID
+              - column:
+                  name: ord
+                  value: 1
+        - insert:
+            tableName: actor_external_sources
+            columns:
+              - column:
+                  name: code
+                  value: DBLP
+              - column:
+                  name: label
+                  value: DBLP
+              - column:
+                  name: ord
+                  value: 2
+        - insert:
+            tableName: actor_external_sources
+            columns:
+              - column:
+                  name: code
+                  value: Wikidata
+              - column:
+                  name: label
+                  value: Wikidata
+              - column:
+                  name: ord
+                  value: 3
