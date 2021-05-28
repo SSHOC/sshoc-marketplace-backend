@@ -9,7 +9,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageReaderSpi;
+import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.Iterator;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -32,7 +39,14 @@ class MediaTypeResolver {
         try {
             MediaInfo mediaInfo = mediaExternalClient.resolveMediaInfo(mediaLocation);
 
-            if (mediaInfo.getMimeType().isPresent()) {
+            if (Objects.isNull(mediaInfo.getMimeType()) || !mediaInfo.getMimeType().isPresent()) {
+                MediaType mimeType = resolveWithNoContentTypeHeader(mediaLocation);
+                Optional<MediaCategory> category = resolveByMimeType(mimeType);
+
+                if (category.isPresent())
+                    return category.get();
+            }
+            else {
                 MediaType mimeType = mediaInfo.getMimeType().get();
                 Optional<MediaCategory> category = resolveByMimeType(mimeType);
 
@@ -48,6 +62,17 @@ class MediaTypeResolver {
         }
 
         return MediaCategory.OBJECT;
+    }
+
+    public MediaType resolveWithNoContentTypeHeader(MediaLocation mediaLocation) {
+        try {
+            URLConnection conn = mediaLocation.getSourceUrl().openConnection();
+            String contentType = conn.getContentType();
+            return MediaType.parseMediaType(contentType);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public MediaCategory resolve(Optional<MediaType> mimeType, String filename) {

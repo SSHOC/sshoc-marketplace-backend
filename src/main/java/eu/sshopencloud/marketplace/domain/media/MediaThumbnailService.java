@@ -62,7 +62,11 @@ class MediaThumbnailService {
     private Resource generateThumbnail(InputStream mediaStream) throws ThumbnailGenerationException {
         try {
             BufferedImage mediaImage = ImageIO.read(mediaStream);
-            BufferedImage thumbImage = resizeImage(mediaImage);
+            BufferedImage thumbImage;
+
+            if(checkSize(mediaImage.getWidth(), mediaImage.getHeight()))
+                thumbImage = mediaImage;
+            else thumbImage = resizeImage(mediaImage);
 
             ByteArrayOutputStream thumbnailBytes = new ByteArrayOutputStream();
             ImageIO.write(thumbImage, THUMBNAIL_FILE_EXTENSION, thumbnailBytes);
@@ -79,7 +83,8 @@ class MediaThumbnailService {
 
         BufferedImage thumbImage = null;
         try {
-            thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_INT_RGB).forceSize(thumbnailWidth, thumbnailHeight).asBufferedImage();
+            thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_3BYTE_BGR).scale((double) thumbnailWidth /(double) originalImage.getWidth(),(double) thumbnailHeight / (double)  originalImage.getHeight()).asBufferedImage();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -89,6 +94,13 @@ class MediaThumbnailService {
         g.dispose();
 
         return thumbImage;
+    }
+
+    private boolean checkSize(int width, int height) {
+        if (width <= thumbnailWidth && height <= thumbnailHeight) {
+            return true;
+        }
+        else return false;
     }
 
     private Dimension getScaledDimension(Dimension size) {
