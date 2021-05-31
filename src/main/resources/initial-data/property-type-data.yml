@@ -33,9 +33,9 @@ PropertyType:
     ord:                         4
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        geographical-availabilities
-    label:                       Geographical Availabilities
-    type:                        STRING
+    code:                        geographical-availability
+    label:                       Geographical Availability
+    type:                        CONCEPT
     groupName:                   'Access'
     hidden:                      false
     ord:                         5
