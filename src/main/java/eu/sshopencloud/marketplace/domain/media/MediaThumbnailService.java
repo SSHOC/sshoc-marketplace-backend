@@ -86,7 +86,7 @@ class MediaThumbnailService {
             thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_3BYTE_BGR).scale((double) thumbnailWidth /(double) originalImage.getWidth(),(double) thumbnailHeight / (double)  originalImage.getHeight()).asBufferedImage();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ThumbnailGenerationException("Error while resizing a thumb", e);
         }
 
         Graphics2D g = thumbImage.createGraphics();

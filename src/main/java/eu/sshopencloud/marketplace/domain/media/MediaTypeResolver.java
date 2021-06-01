@@ -70,7 +70,7 @@ class MediaTypeResolver {
             String contentType = conn.getContentType();
             return MediaType.parseMediaType(contentType);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.info(String.format("Connection for media URL is not available: %s", mediaLocation.getSourceUrl().toString()),e);
         }
         return null;
     }

@@ -112,11 +112,13 @@ public class ItemFactory {
 
         if (itemCore.getThumbnail() != null) {
             UUID thumbnailId = itemCore.getThumbnail().getMediaId();
+
             Optional<ItemMedia> itemThumbnail = item.getMedia().stream()
                     .filter(media -> media.getMediaId().equals(thumbnailId))
                     .findFirst();
 
-            if (itemThumbnail.isPresent()) {
+            if(!Objects.isNull(itemCore.getThumbnail())){
+            //if (itemThumbnail.isPresent()) {
                 itemThumbnail.get().setItemThumbnail(true);
             }
             else {

@@ -258,8 +258,8 @@ public class MediaStorageService {
         }
         catch (MediaServiceUnavailableException e) {
             log.info("Media source service is not available: {}", e.getMessage());
-        }catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            log.info("Url connection not found", e.getMessage());
         }
 
         return null;

@@ -11,6 +11,6 @@ import java.util.stream.Stream;
 
 interface MediaDataRepository extends JpaRepository<MediaData, UUID> {
 
-    @Query("select m from MediaData m where m.linkCount = 0 and m.touchTimestamp < :retentionTimestamp")
+    @Query("select m from MediaData m where m.linkCount = 0 and m.touchTimestamp < :retentionTimestamp and m.thumbnail IS NOT NULL")
     Stream<MediaData> streamStaleMedia(@Param("retentionTimestamp") LocalDateTime retentionTimestamp);
 }
