@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.internal.util.logging.Log;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -69,6 +71,7 @@ public class MediaUploadController {
 
     @PostMapping(path = "/upload/full", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MediaDetails> uploadMedia(@RequestParam("file") MultipartFile mediaFile) {
+
         Optional<MediaType> mediaType = MimeTypeUtils.parseMimeType(mediaFile.getContentType());
         MediaDetails mediaDetails = mediaStorageService.saveCompleteMedia(mediaFile.getResource(), mediaType);
         return ResponseEntity.ok(mediaDetails);

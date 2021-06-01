@@ -12,8 +12,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MimeType;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
+import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Path;
+import java.util.Iterator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -213,6 +223,7 @@ public class MediaStorageService {
 
     public MediaDetails importMedia(MediaLocation mediaLocation) {
         UUID newMediaId = resolveNewMediaId();
+
         MediaCategory mediaCategory = mediaTypeResolver.resolve(mediaLocation);
         MediaType mimeType = fetchMediaType(mediaLocation);
 
@@ -236,11 +247,19 @@ public class MediaStorageService {
     private MediaType fetchMediaType(MediaLocation mediaLocation) {
         try {
             MediaInfo mediaInfo = mediaExternalClient.resolveMediaInfo(mediaLocation);
-            if (mediaInfo.getMimeType().isPresent())
+
+            if (Objects.isNull(mediaInfo.getMimeType()) || !mediaInfo.getMimeType().isPresent()) {
+
+                URLConnection conn = mediaLocation.getSourceUrl().openConnection();
+                return MediaType.parseMediaType(conn.getContentType());
+            }else{
                 return mediaInfo.getMimeType().get();
+            }
         }
         catch (MediaServiceUnavailableException e) {
             log.info("Media source service is not available: {}", e.getMessage());
+        }catch (IOException e) {
+            e.printStackTrace();
         }
 
         return null;
