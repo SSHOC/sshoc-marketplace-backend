@@ -238,9 +238,7 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
                 .andExpect(jsonPath("properties[0].concept.label", is("Pre-Print")))
                 .andExpect(jsonPath("properties[1].value", is("2010")))
-                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))));
     }
 
     @Test
@@ -265,9 +263,7 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("label", is("Test publication with Z zone")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
-                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
     }
 
 
@@ -314,9 +310,7 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("label", is("Test publication with Z zone")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
-                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
     }
 
     private class ZoneOffsetXXWithMillisecondsTestJsonMapper {
@@ -364,9 +358,7 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("label", is("Test publication with offset zone")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
-                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
     }
 
     private class ZoneOffsetZZTestJsonMapper {
@@ -413,9 +405,7 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("label", is("Test publication with offset zone")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
-                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
     }
 
     private class ZoneOffsetZZWithMillisecondsTestJsonMapper {

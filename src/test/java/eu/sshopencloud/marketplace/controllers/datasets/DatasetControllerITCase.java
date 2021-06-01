@@ -110,9 +110,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Austin Crime Data")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("informationContributor.id", is(3)))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("informationContributor.id", is(3)));
     }
 
     @Test
@@ -439,11 +437,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("informationContributor.username", is("Administrator")))
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(datasetCurrentId)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Austin Crime Data")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("properties", hasSize(0)));
     }
 
     @Test
@@ -516,11 +510,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
-                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(datasetCurrentId)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Austin Crime Data")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
     }
 
     @Test
