@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
@@ -298,5 +299,10 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     @Override
     protected String getItemTypeName() {
         return Workflow.class.getName();
+    }
+
+    public List<HistoryPositionDto> getStepVersions(String workflowId, String stepId, boolean draft, boolean approved) {
+        validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
+        return getItemHistory(stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
     }
 }

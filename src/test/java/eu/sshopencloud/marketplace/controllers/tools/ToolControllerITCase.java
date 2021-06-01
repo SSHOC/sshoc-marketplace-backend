@@ -84,9 +84,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
                 .andExpect(jsonPath("licenses[0].label", is("Common Development and Distribution License 1.0")))
-                .andExpect(jsonPath("informationContributor.id", is(2)))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("informationContributor.id", is(2)));
     }
 
     @Test
@@ -180,9 +178,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[1].value", is("paper")))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("properties[1].value", is("paper")));
     }
 
 
@@ -467,9 +463,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("status", is("draft")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Stata")))
-                .andExpect(jsonPath("description", is("Draft Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.")))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("description", is("Draft Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.")));
     }
 
     @Test
@@ -500,11 +494,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("source", nullValue()))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(toolCurrentId)))
-                .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("source", nullValue()));
     }
 
     @Test
@@ -570,11 +560,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
                 .andExpect(jsonPath("properties", hasSize(2)))
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
-                .andExpect(jsonPath("properties[1].value", is("paper")))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(toolCurrentId)))
-                .andExpect(jsonPath("olderVersions[0].label", is("WebSty")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("properties[1].value", is("paper")));
     }
 
     @Test
@@ -636,10 +622,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
                 .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(toolCurrentId)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Gephi")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
                 .andExpect(jsonPath("licenses", hasSize(2)))
@@ -1027,10 +1009,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
                 .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
-                .andExpect(jsonPath("olderVersions", hasSize(1)))
-                .andExpect(jsonPath("olderVersions[0].id", is(toolCurrentId)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Gephi")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
                 .andExpect(jsonPath("licenses", hasSize(2)))
