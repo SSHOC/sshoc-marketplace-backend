@@ -118,7 +118,6 @@ public class ItemFactory {
                     .findFirst();
 
             if(!Objects.isNull(itemCore.getThumbnail())){
-            //if (itemThumbnail.isPresent()) {
                 itemThumbnail.get().setItemThumbnail(true);
             }
             else {
