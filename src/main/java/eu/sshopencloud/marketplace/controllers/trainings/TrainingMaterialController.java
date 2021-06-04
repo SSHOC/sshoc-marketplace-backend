@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.trainings;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
@@ -11,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -81,12 +78,4 @@ public class TrainingMaterialController {
         TrainingMaterialDto trainingMaterial = trainingMaterialService.commitDraftTrainingMaterial(trainingMaterialId);
         return ResponseEntity.ok(trainingMaterial);
     }
-
-    @GetMapping(path = "/{trainingMaterialId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<HistoryPositionDto>> getTrainingMaterialHistory(@PathVariable("trainingMaterialId") String id,
-                                                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                                               @RequestParam(value = "approved", defaultValue = "true") boolean approved ) {
-        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersions(id, draft, approved));
-    }
-
 }

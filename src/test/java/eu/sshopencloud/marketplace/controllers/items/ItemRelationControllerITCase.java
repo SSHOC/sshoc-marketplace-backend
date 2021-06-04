@@ -119,7 +119,11 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")))
                 .andExpect(jsonPath("relatedItems[2].persistentId", is(objectPersistentId)))
-                .andExpect(jsonPath("relatedItems[2].relation.code", is("mentions")));
+                .andExpect(jsonPath("relatedItems[2].relation.code", is("mentions")))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(1)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Gephi")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
         mvc.perform(get("/api/tools-services/{id}", objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +135,11 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Stata")))
                 .andExpect(jsonPath("relatedItems", hasSize(1)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(subjectPersistentId)))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")));
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(2)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Stata")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
     @Test
@@ -189,7 +197,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("composedOf[1].relatedItems[0].relation.code", is("mentions")))
                 .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
                 .andExpect(jsonPath("composedOf[2].status", is("approved")))
-                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)));
     }
 
     @Test
@@ -219,7 +228,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Gephi")))
                 .andExpect(jsonPath("description", is("Draft Gephi ...")))
-                .andExpect(jsonPath("relatedItems", hasSize(2)));
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
         String objectPersistentId = "DstBL5";
 
@@ -251,7 +262,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Draft Gephi")))
                 .andExpect(jsonPath("relatedItems", hasSize(3)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
         mvc.perform(get("/api/tools-services/{id}", objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -261,7 +274,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Stata")))
-                .andExpect(jsonPath("relatedItems", hasSize(0)));
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(0)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
     @Test
@@ -355,7 +370,11 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Stata")))
                 .andExpect(jsonPath("relatedItems", hasSize(1)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(2)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Stata")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
         mvc.perform(get("/api/datasets/{id}", objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -367,7 +386,11 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Test dataset with markdown description")))
                 .andExpect(jsonPath("relatedItems", hasSize(1)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(subjectPersistentId)))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")));
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("olderVersions[0].id", is(11)))
+                .andExpect(jsonPath("olderVersions[0].label", is("Test dataset with markdown description")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -382,7 +405,11 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Stata")))
-                .andExpect(jsonPath("relatedItems", hasSize(0)));
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(2)))
+                .andExpect(jsonPath("olderVersions[1].id", is(2)))
+                .andExpect(jsonPath("olderVersions[1].label", is("Stata")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
         mvc.perform(get("/api/datasets/{id}", objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -392,7 +419,11 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test dataset with markdown description")))
-                .andExpect(jsonPath("relatedItems", hasSize(0)));
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(2)))
+                .andExpect(jsonPath("olderVersions[1].id", is(11)))
+                .andExpect(jsonPath("olderVersions[1].label", is("Test dataset with markdown description")))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
     }
 
     @Test
@@ -416,7 +447,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Stata")))
                 .andExpect(jsonPath("description", is("Draft Stata ...")))
-                .andExpect(jsonPath("relatedItems", hasSize(0)));
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
         String objectPersistentId = "dU0BZc";
 
@@ -442,7 +475,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Draft Stata")))
                 .andExpect(jsonPath("relatedItems", hasSize(1)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}?draft=true", subjectPersistentId, objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -457,7 +492,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("status", is("draft")))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Stata")))
-                .andExpect(jsonPath("relatedItems", hasSize(0)));
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("olderVersions", hasSize(1)))
+                .andExpect(jsonPath("newerVersions", hasSize(0)));
 
     }
 
@@ -1066,6 +1103,39 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")))
                 .andReturn().getResponse().getContentAsString();
 
+        trainingMaterialDto = mapper.readValue(trainingMaterialJson, TrainingMaterialDto.class);
+
+        String latestPublicationJson = mvc.perform(
+                get("/api/publications/{publicationId}", publicationDto.getPersistentId())
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("newerVersions", hasSize(1)))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto latestPublication = mapper.readValue(latestPublicationJson, PublicationDto.class);
+        long publicationVersionId = latestPublication.getNewerVersions().get(0).getId();
+
+        mvc.perform(
+                get(
+                        "/api/publications/{publicationId}/versions/{versionId}",
+                        publicationDto.getPersistentId(), publicationVersionId
+                )
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(publicationDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(publicationDto.getId()))))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is(publication.getLabel())))
+                .andExpect(jsonPath("description", is(publication.getDescription())))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(trainingMaterialDto.getPersistentId())))
+                .andExpect(jsonPath("relatedItems[0].id", is(trainingMaterialDto.getId().intValue())))
+                .andExpect(jsonPath("relatedItems[0].label", is(acceptedTrainingMaterial.getLabel())))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-documented-by")));
     }
 
     @Test

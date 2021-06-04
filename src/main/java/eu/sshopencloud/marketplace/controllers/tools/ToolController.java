@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
@@ -11,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -75,12 +72,4 @@ public class ToolController {
         ToolDto tool = toolService.commitDraftTool(toolId);
         return ResponseEntity.ok(tool);
     }
-
-    @GetMapping(path = "/{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<HistoryPositionDto>> getToolHistory(@PathVariable("id") String id,
-                                                                   @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
-        return ResponseEntity.ok(toolService.getToolVersions(id, draft, approved));
-    }
-
 }
