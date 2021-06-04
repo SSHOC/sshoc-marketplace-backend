@@ -48,8 +48,7 @@ class MediaThumbnailService {
             mediaStream = new BufferedInputStream(mediaStream);
 
             return generateThumbnail(mediaStream);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ThumbnailGenerationException("Error while opening media file", e);
         }
     }
@@ -59,7 +58,7 @@ class MediaThumbnailService {
             BufferedImage mediaImage = ImageIO.read(mediaStream);
             BufferedImage thumbImage;
 
-            if(checkSize(mediaImage.getWidth(), mediaImage.getHeight()))
+            if (checkSize(mediaImage.getWidth(), mediaImage.getHeight()))
                 thumbImage = mediaImage;
             else thumbImage = resizeImage(mediaImage);
 
@@ -78,19 +77,18 @@ class MediaThumbnailService {
     private BufferedImage resizeImage(BufferedImage originalImage) {
 
         BufferedImage thumbImage = null;
-        double scale_width = (double) thumbnailWidth /(double) originalImage.getWidth();
-        double scale_height = (double) thumbnailHeight / (double)  originalImage.getHeight();
+        double scale_width = (double) thumbnailWidth / (double) originalImage.getWidth();
+        double scale_height = (double) thumbnailHeight / (double) originalImage.getHeight();
 
-        if(originalImage.getHeight() > originalImage.getWidth()) {
+        if (originalImage.getHeight() > originalImage.getWidth()) {
             try {
-                 thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_INT_RGB).scale(scale_height, scale_height).asBufferedImage();
+                thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_INT_RGB).scale(scale_height, scale_height).asBufferedImage();
             } catch (IOException e) {
                 throw new ThumbnailGenerationException("Error while creating a thumb", e);
             }
-        }else {
-
+        } else {
             try {
-                 thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_3BYTE_BGR).scale(scale_width, scale_width).asBufferedImage();
+                thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_3BYTE_BGR).scale(scale_width, scale_width).asBufferedImage();
             } catch (IOException e) {
                 throw new ThumbnailGenerationException("Error while creating a thumb", e);
             }
@@ -106,8 +104,7 @@ class MediaThumbnailService {
     private boolean checkSize(int width, int height) {
         if (width <= thumbnailWidth && height <= thumbnailHeight) {
             return true;
-        }
-        else return false;
+        } else return false;
     }
 
 

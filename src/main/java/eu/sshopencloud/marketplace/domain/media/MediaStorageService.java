@@ -105,8 +105,7 @@ public class MediaStorageService {
             try {
                 MediaData thumbnailData = prepareThumbnail(mediaData.getFilePath());
                 mediaData.setThumbnail(thumbnailData);
-            }
-            catch (ThumbnailGenerationException e) {
+            } catch (ThumbnailGenerationException e) {
                 log.info("Failed to generate thumbnail for media: {} ({})", mediaId, mediaFilename);
             }
         }
@@ -152,8 +151,7 @@ public class MediaStorageService {
             MediaUpload mediaUpload = ongoingMediaUpload.get();
 
             return toMediaUploadInfo(mediaUpload, chunkInfo.getNextChunkNo());
-        }
-        else {
+        } else {
             if (mediaId.isPresent())
                 throw new IllegalArgumentException(String.format("No ongoing media upload with id: %s", mediaId));
 
@@ -222,8 +220,7 @@ public class MediaStorageService {
             try {
                 MediaData thumbnailData = prepareThumbnail(mediaLocation);
                 importedMedia.setThumbnail(thumbnailData);
-            }
-            catch (ThumbnailGenerationException e) {
+            } catch (ThumbnailGenerationException e) {
                 log.info("Failed to generate thumbnail from location: {}", mediaLocation.getSourceUrl());
             }
         }
@@ -235,11 +232,10 @@ public class MediaStorageService {
 
     private MediaType fetchMediaType(MediaLocation mediaLocation) {
         try {
-            MediaInfo mediaInfo = mediaExternalClient.resolveMediaInfo(mediaLocation);
+            MediaInfo mediaInfo = mediaTypeResolver.resolveMediaInfo(mediaLocation);
             if (mediaInfo.getMimeType().isPresent())
                 return mediaInfo.getMimeType().get();
-        }
-        catch (MediaServiceUnavailableException e) {
+        } catch (MediaServiceUnavailableException e) {
             log.info("Media source service is not available: {}", e.getMessage());
         }
 

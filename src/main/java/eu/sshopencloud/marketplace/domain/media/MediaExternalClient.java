@@ -4,6 +4,9 @@ import eu.sshopencloud.marketplace.domain.common.util.WebClientUtils;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import lombok.Builder;
 import lombok.Value;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.Tika;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -13,8 +16,22 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -42,37 +59,6 @@ class MediaExternalClient {
     }
 
 
-    @Cacheable(cacheNames = "mediaMetadata", sync = true)
-    public MediaInfo resolveMediaInfo(MediaLocation mediaLocation) throws MediaServiceUnavailableException {
-        try {
-            ClientResponse response = headClient.head()
-                    .uri(mediaLocation.getSourceUrl().toURI())
-                    .exchange()
-                    .block();
-
-            if (response == null)
-                throw new IllegalStateException("Failed to get a response from the media service");
-
-            if (response.statusCode().is4xxClientError())
-                throw new IllegalArgumentException("Media resource client error", response.createException().block());
-
-            if (response.statusCode().isError())
-                throw new MediaServiceUnavailableException("Failed to get a response from the media service", response.createException().block());
-
-            ClientResponse.Headers headers = response.headers();
-            String filename = headers.asHttpHeaders().getContentDisposition().getFilename();
-
-            return MediaInfo.builder()
-                    .mimeType(headers.contentType())
-                    .filename(Optional.ofNullable(filename))
-                    .contentLength(headers.contentLength())
-                    .build();
-        }
-        catch (URISyntaxException e) {
-            throw new IllegalStateException("Unexpected invalid media location url syntax", e);
-        }
-    }
-
     public DownloadedMediaFile fetchMediaFile(MediaLocation mediaLocation) {
         try {
             Flux<DataBuffer> mediaContent = mediaClient.get()
@@ -86,6 +72,7 @@ class MediaExternalClient {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
         }
     }
+
 
     @Value
     @Builder
