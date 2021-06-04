@@ -93,8 +93,11 @@ class MediaTypeResolver {
 
         switch (extension.toLowerCase()) {
             case "jfif":
+                return Optional.of(new MediaType("image", "jfif"));
             case "jpg":
+                return Optional.of(new MediaType("image", "jpg"));
             case "jps":
+                return Optional.of(new MediaType("image", "jps"));
             case "jpeg":
                 return Optional.of(MediaType.IMAGE_JPEG);
             case "png":
@@ -134,7 +137,7 @@ class MediaTypeResolver {
             }
 
             return MediaInfo.builder()
-                    .mimeType(resolveMimeTypeByFilename(mediaFormat))
+                    .mimeType(resolveMimeTypeByFilename("." + mediaFormat))
                     .filename(Optional.ofNullable(filename))
                     .contentLength(OptionalLong.of(Long.valueOf(bytes.length)))
                     .build();
