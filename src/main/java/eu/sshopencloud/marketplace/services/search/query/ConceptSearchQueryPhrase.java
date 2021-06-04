@@ -13,33 +13,48 @@ public class ConceptSearchQueryPhrase extends SearchQueryPhrase {
     }
 
     @Override
-    public Criteria getQueryCriteria() {
-        List<QueryPart> queryParts = QueryParser.parseQuery(phrase, advanced);
+    protected Criteria getPhraseQueryCriteria() {
+        List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
         if (queryParts.isEmpty()) {
-            return Criteria.where(IndexConcept.LABEL_FIELD).boost(4f).contains("");
+            return AnyCriteria.any();
         } else {
             Criteria andCriteria = AnyCriteria.any();
             for (QueryPart queryPart : queryParts) {
-                Criteria orCriteria = null;
-                if (!queryPart.isComplexPhrase()) {
-                    Criteria definitionTextCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_FIELD).boost(1f).contains(queryPart.getExpression());
-                    Criteria labelCriteria = Criteria.where(IndexConcept.LABEL_TEXT_FIELD).boost(4f).contains(queryPart.getExpression());
-                    Criteria notationCriteria = Criteria.where(IndexConcept.NOTATION_FIELD).boost(4f).contains(queryPart.getExpression());
-                    orCriteria = definitionTextCriteria.or(labelCriteria).or(notationCriteria);
-                }
                 Criteria codeCriteria = Criteria.where(IndexConcept.CODE_FIELD).boost(10f).is(queryPart.getExpression());
-                Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
-                Criteria labelCriteria = Criteria.where(IndexConcept.LABEL_FIELD).boost(4f).is(queryPart.getExpression());
-                Criteria labelEngCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).is(queryPart.getExpression());
+                Criteria uriCriteria = Criteria.where(IndexConcept.URI_FIELD).boost(10f).is(queryPart.getExpression());
                 Criteria notationCriteria = Criteria.where(IndexConcept.NOTATION_FIELD).boost(4f).is(queryPart.getExpression());
-                if (orCriteria == null) {
-                    orCriteria = codeCriteria.or(definitionTextEnCriteria).or(labelCriteria).or(labelEngCriteria).or(notationCriteria);
+                Criteria labelTextEnCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).expression(queryPart.getExpression());
+                Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).expression(queryPart.getExpression());
+                Criteria orCriteria;
+                if (!queryPart.isQuotedPhrase()) {
+                    Criteria labelTextCriteria = Criteria.where(IndexConcept.LABEL_TEXT_FIELD).boost(2f).contains(queryPart.getExpression());
+                    Criteria definitionTextCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_FIELD).boost(1f).contains(queryPart.getExpression());
+                    orCriteria = codeCriteria.or(uriCriteria).or(notationCriteria).or(labelTextCriteria)
+                            .or(definitionTextCriteria).or(labelTextEnCriteria).or(definitionTextEnCriteria);
                 } else {
-                    orCriteria = orCriteria.or(codeCriteria).or(definitionTextEnCriteria).or(labelCriteria).or(labelEngCriteria).or(notationCriteria);
+                    orCriteria = codeCriteria.or(uriCriteria).or(notationCriteria).or(labelTextEnCriteria).
+                            or(definitionTextEnCriteria);
                 }
                 andCriteria = andCriteria.and(orCriteria);
             }
             return andCriteria;
+        }
+    }
+
+    @Override
+    protected Criteria getAdvancedQueryCriteria() {
+        if (phrase.isEmpty()) {
+            return AnyCriteria.any();
+        } else {
+            Criteria codeCriteria = Criteria.where(IndexConcept.CODE_FIELD).boost(10f).expression(phrase);
+            Criteria uriCriteria = Criteria.where(IndexConcept.URI_FIELD).boost(10f).expression(phrase);
+            Criteria notationCriteria = Criteria.where(IndexConcept.NOTATION_FIELD).boost(4f).expression(phrase);
+            Criteria labelCriteria = Criteria.where(IndexConcept.LABEL_TEXT_FIELD).boost(4f).expression(phrase);
+            Criteria definitionTextCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_FIELD).boost(2f).expression(phrase);
+            Criteria labelTextEnCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).expression(phrase);
+            Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).expression(phrase);
+            return codeCriteria.or(uriCriteria).or(notationCriteria).or(labelCriteria)
+                    .or(definitionTextCriteria).or(labelTextEnCriteria).or(definitionTextEnCriteria);
         }
     }
 

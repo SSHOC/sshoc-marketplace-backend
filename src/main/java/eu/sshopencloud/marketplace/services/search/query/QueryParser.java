@@ -6,71 +6,68 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 @UtilityClass
 @Slf4j
 public class QueryParser {
 
-    public List<QueryPart> parseQuery(String phrase, boolean advanced) {
-        log.debug("Original query: {}", phrase);
+    private List<String> QUERY_UNACCEPTABLE_CHARACTERS = List.of("-", "–");
 
+    public List<QueryPart> parsePhrase(String phrase) {
         List<QueryPart> result = new ArrayList<QueryPart>();
-        String[] words = phrase.split(" ", -1);
-
-        boolean complexPhrase = false;
-        String expression = "";
-
-        for (String word : words) {
-            if (!word.isEmpty()) {
-                if (complexPhrase) {
-                    if (word.endsWith("\"")) {
-                        expression += " " + word;
-                        result.add(createQueryPart(expression, true, advanced));
-                        expression = "";
-                        complexPhrase = false;
-                    } else {
-                        expression += " " + word;
-                    }
+        StringBuilder expression = new StringBuilder();
+        boolean insideQuote = false;
+        StringTokenizer tokenizer = new StringTokenizer(phrase, " \"", true);
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            if (token.equals(" ")) {
+                if (insideQuote) {
+                    expression.append(token);
                 } else {
-                    if (word.startsWith("\"")) {
-                        expression += word;
-                        complexPhrase = true;
-                        if (word.endsWith("\"")) {
-                            result.add(createQueryPart(expression, true, advanced));
-                            expression = "";
-                            complexPhrase = false;
+                    if (isAcceptableExpression(expression.toString())) {
+                        result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), false));
+                    }
+                    expression = new StringBuilder();
+                }
+            } else if (token.equals("\"")) {
+                if (expression.length() > 0 && expression.substring(expression.length() - 1, expression.length()).equals("\\")) {
+                    // escaped quote
+                    expression.replace(expression.length() - 1, expression.length(), "\"");
+                } else {
+                    if (insideQuote) {
+                        insideQuote = false;
+                        if (isAcceptableExpression(expression.toString())) {
+                            result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), true));
                         }
+                        expression = new StringBuilder();
                     } else {
-                        expression = word;
-                        result.add(createQueryPart(expression, false, advanced));
-                        expression = "";
+                        insideQuote = true;
                     }
                 }
+            } else {
+                expression.append(token);
             }
         }
-        log.debug("Combined query: {}", result);
+        if (isAcceptableExpression(expression.toString())) {
+            if (insideQuote) {
+                result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), true));
+            } else {
+                result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), false));
+            }
+        }
         return result;
     }
 
-    private QueryPart createQueryPart(String expression, boolean complexPhrase, boolean advanced) {
-        if (advanced) {
-            return new QueryPart(expression, complexPhrase);
-        }
-        expression = escapeQueryExpression(expression, complexPhrase);
-        return new QueryPart(expression, complexPhrase);
+    private boolean isAcceptableExpression(String expression) {
+        return !expression.isEmpty() && hasAllUnacceptableCharacters(expression);
     }
 
-    private String escapeQueryExpression(String expression, boolean complexPhrase) {
-        if (!complexPhrase) {
-            return ClientUtils.escapeQueryChars(expression);
+    private boolean hasAllUnacceptableCharacters(String expression) {
+        for (String character: QUERY_UNACCEPTABLE_CHARACTERS) {
+            expression = expression.replace(character, "");
         }
-
-        // If phrase then remove the quotes (the first and last quotes should not be escaped) and restore at the end
-        expression = expression.substring(1, expression.length() - 1);
-        expression = expression.replaceAll("\"", "\\\"");
-        expression = expression.replaceAll(" ", "\\ ");
-        expression = "\"" + expression + "\"";
-
-        return expression;
+        return !expression.isEmpty();
     }
+
 }

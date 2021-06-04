@@ -1,16 +1,28 @@
 package eu.sshopencloud.marketplace.services.search.query;
 
-import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
-@AllArgsConstructor
+@EqualsAndHashCode
 public class QueryPart {
 
     private String expression;
 
-    private boolean complexPhrase;
+    private boolean quotedPhrase;
+
+    public QueryPart() {
+    }
+
+    public QueryPart(String expression, boolean quotedPhrase) {
+        this.quotedPhrase = quotedPhrase;
+        if (quotedPhrase) {
+            this.expression = "\"" + expression + "\"";
+        } else {
+            this.expression = expression;
+        }
+    }
 
 }

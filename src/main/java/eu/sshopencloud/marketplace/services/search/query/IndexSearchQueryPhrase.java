@@ -1,11 +1,13 @@
 package eu.sshopencloud.marketplace.services.search.query;
 
 import eu.sshopencloud.marketplace.model.search.IndexItem;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.solr.core.query.AnyCriteria;
 import org.springframework.data.solr.core.query.Criteria;
 
 import java.util.List;
 
+@Slf4j
 public class IndexSearchQueryPhrase extends SearchQueryPhrase {
 
     public IndexSearchQueryPhrase(String phrase, boolean advanced) {
@@ -13,30 +15,48 @@ public class IndexSearchQueryPhrase extends SearchQueryPhrase {
     }
 
     @Override
-    public Criteria getQueryCriteria() {
-        List<QueryPart> queryParts = QueryParser.parseQuery(phrase, advanced);
+    protected Criteria getPhraseQueryCriteria() {
+        List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
         if (queryParts.isEmpty()) {
-            return Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains("");
+            return AnyCriteria.any();
         } else {
             Criteria andCriteria = AnyCriteria.any();
             for (QueryPart queryPart : queryParts) {
-                Criteria orCriteria = null;
-                if (!queryPart.isComplexPhrase()) {
-                    Criteria nameTextCriteria = Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains(queryPart.getExpression());
-                    Criteria descTextCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_FIELD).boost(3f).contains(queryPart.getExpression());
-                    orCriteria = nameTextCriteria.or(descTextCriteria);
-                }
-                Criteria nameTextEnCriteria = Criteria.where(IndexItem.LABEL_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
+                Criteria persistentIdCriteria = Criteria.where(IndexItem.PERSISTENT_ID_FIELD).boost(5f).is(queryPart.getExpression());
+                Criteria externalIdCriteria = Criteria.where(IndexItem.EXTERNAL_IDENTIFIER_FIELD).boost(5f).is(queryPart.getExpression());
+                Criteria labelTextEnCriteria = Criteria.where(IndexItem.LABEL_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
                 Criteria descTextEnCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_EN_FIELD).boost(1f).is(queryPart.getExpression());
                 Criteria keywordTextCriteria = Criteria.where(IndexItem.KEYWORD_TEXT_FIELD).boost(3f).is(queryPart.getExpression());
-                if (orCriteria == null) {
-                    orCriteria = nameTextEnCriteria.or(descTextEnCriteria).or(keywordTextCriteria);
+                Criteria orCriteria;
+                if (!queryPart.isQuotedPhrase()) {
+                    Criteria labelTextCriteria = Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(3f).contains(queryPart.getExpression());
+                    Criteria descTextCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_FIELD).boost(1f).contains(queryPart.getExpression());
+                    orCriteria = persistentIdCriteria.or(externalIdCriteria).or(labelTextCriteria).or(descTextCriteria)
+                            .or(labelTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria);
                 } else {
-                    orCriteria = orCriteria.or(nameTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria);
+                    orCriteria = persistentIdCriteria.or(externalIdCriteria).or(labelTextEnCriteria).or(descTextEnCriteria)
+                            .or(keywordTextCriteria);
                 }
                 andCriteria = andCriteria.and(orCriteria);
             }
             return andCriteria;
+        }
+    }
+
+    @Override
+    protected Criteria getAdvancedQueryCriteria() {
+        if (phrase.isEmpty()) {
+            return AnyCriteria.any();
+        } else {
+            Criteria persistentIdCriteria = Criteria.where(IndexItem.PERSISTENT_ID_FIELD).boost(5f).expression(phrase);
+            Criteria externalIdCriteria = Criteria.where(IndexItem.EXTERNAL_IDENTIFIER_FIELD).boost(5f).expression(phrase);
+            Criteria labelTextCriteria = Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).expression(phrase);
+            Criteria descTextCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_FIELD).boost(3f).expression(phrase);
+            Criteria labelTextEnCriteria = Criteria.where(IndexItem.LABEL_TEXT_EN_FIELD).boost(2f).expression(phrase);
+            Criteria descTextEnCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_EN_FIELD).boost(1f).expression(phrase);
+            Criteria keywordTextCriteria = Criteria.where(IndexItem.KEYWORD_TEXT_FIELD).boost(3f).expression(phrase);
+            return persistentIdCriteria.or(externalIdCriteria).or(labelTextCriteria).or(descTextCriteria)
+                    .or(labelTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria);
         }
     }
 
