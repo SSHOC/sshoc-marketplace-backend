@@ -13,6 +13,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByUsername(String username);
 
+    User findByEmail(String email);
+
     @Query("select u from User u" +
             " where lower(u.username) like lower(concat('%', :q,'%'))" +
             " or lower(u.displayName) like lower(concat('%', :q,'%'))" +
