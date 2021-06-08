@@ -464,6 +464,10 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Stata")))
                 .andExpect(jsonPath("description", is("Draft Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.")));
+
+
+        //TODO Eliza add calling the history endpoint for toolPersistentId = "DstBL5";
+
     }
 
     @Test

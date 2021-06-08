@@ -113,6 +113,10 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("informationContributor.id", is(3)));
     }
 
+    //TODO Eliza add test shouldReturnDatasetHistory for datasetPersistentId = "dmbq4v";
+
+
+
     @Test
     public void shouldNotReturnDatasetWhenNotExist() throws Exception {
         String datasetPersistentId = "xxxxxx7";
@@ -511,6 +515,10 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
+
+
+        //TODO Eliza add calling the history endpoint for id
+
     }
 
     @Test

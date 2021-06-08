@@ -58,11 +58,6 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return getItemVersion(persistentId, versionId);
     }
 
-    public List<HistoryPositionDto> getDatasetVersions(String persistentId, boolean draft, boolean approved) {
-        return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
-    }
-
-
     public DatasetDto getLatestDataset(String persistentId, boolean draft, boolean approved) {
         return getLatestItem(persistentId, draft, approved);
     }
@@ -132,4 +127,9 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     protected String getItemTypeName() {
         return Dataset.class.getName();
     }
+
+    public List<HistoryPositionDto> getDatasetVersions(String persistentId, boolean draft, boolean approved) {
+        return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
+    }
+
 }

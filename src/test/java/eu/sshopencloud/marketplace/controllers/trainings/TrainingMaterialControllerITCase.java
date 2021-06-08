@@ -505,52 +505,6 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
     }
 
-    /*
-    @Test
-    public void shouldCreateTrainingMaterialWithPrevVersionInChain() throws Exception {
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test complex online course");
-        trainingMaterial.setDescription("Lorem Ipsum ...");
-        trainingMaterial.setPrevVersionId(7l);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("training-material")))
-                .andExpect(jsonPath("label", is("Test complex online course")))
-                .andExpect(jsonPath("description", is("Lorem Ipsum ...")));
-    }
-
-    @Test
-    public void shouldCreateTrainingMaterialWithPrevVersionInSubChain() throws Exception {
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test complex online course");
-        trainingMaterial.setDescription("Lorem ipsum");
-        trainingMaterial.setPrevVersionId(6l);
-
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("training-material")))
-                .andExpect(jsonPath("label", is("Test complex online course")))
-                .andExpect(jsonPath("description", is("Lorem ipsum")));
-    }
-    */
 
     @Test
     public void shouldNotCreateTrainingMaterialWithImplicitSourceButWithoutSourceItemId() throws Exception {
@@ -909,6 +863,8 @@ public class TrainingMaterialControllerITCase {
         )
                 .andExpect(status().isNotFound());
 
+        // TODO Eliza add calling the history endpoint for trainingMaterialId = "WfcKvG" with draft = true;
+
         mvc.perform(
                 get("/api/training-materials/{id}", trainingMaterialId)
                         .header("Authorization", MODERATOR_JWT)
@@ -918,6 +874,9 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("label", is(trainingMaterial.getLabel())));
+
+        // TODO Eliza add calling the history endpoint for trainingMaterialId = "WfcKvG" with draft = false;
+
     }
 
     @Test
@@ -1046,8 +1005,10 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     @Deprecated
-    public void shouldUpdateTrainingMaterialWithPrevVersionForMiddleOfChain() throws Exception {
+    public void shouldUpdateTrainingMaterialWithHistory() throws Exception {
         String trainingMaterialId = "WfcKvG";
+
+        //TODO Eliza add calling the history endpoint for trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Introduction to GEPHI");
@@ -1068,6 +1029,9 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")));
+
+        //TODO Eliza add again calling the history endpoint for trainingMaterialId = "WfcKvG";
+
     }
 
     @Test

@@ -8,7 +8,6 @@ import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.HistoryPositionConverter;
-import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
@@ -402,27 +401,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         itemRelatedItemService.commitDraftRelations(draftItem);
     }
 
-    private List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
-        // TODO change to recursive subordinates query in ItemRepository
-        List<ItemBasicDto> versions = new ArrayList<>();
-        Item nextVersion = itemRepository.findByPrevVersionId(itemId);
-        while (nextVersion != null) {
-            versions.add(ItemConverter.convertItem(nextVersion));
-            nextVersion = itemRepository.findByPrevVersion(nextVersion);
-        }
-        return versions;
-    }
-
-    private List<ItemBasicDto> getOlderVersionsOfItem(Long itemId) {
-        // TODO change to recursive subordinates query in ItemRepository
-        List<ItemBasicDto> versions = new ArrayList<>();
-        Item prevVersion = itemRepository.getOne(itemId).getPrevVersion();
-        while (prevVersion != null) {
-            versions.add(ItemConverter.convertItem(prevVersion));
-            prevVersion = prevVersion.getPrevVersion();
-        }
-        return versions;
-    }
 
     private void completeItemDto(D dto, I item) {
         completeItemDtoProperties(dto);
@@ -450,11 +428,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return (!property.getType().isHidden() || (user != null && user.isModerator()));
     }
 
-    private void completeHistory(D item) {
-        //item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
-        //item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
-    }
-
     protected List<HistoryPositionDto> getItemHistory(String persistentId, Long versionId) {
         I item = loadItemVersion(persistentId, versionId);
 
@@ -471,7 +444,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    //Eliza
     private List<HistoryPositionDto> getHistoryOfItem(Long itemId) {
         // TODO change to recursive subordinates query in ItemRepository
         List<HistoryPositionDto> versions = new ArrayList<>();
