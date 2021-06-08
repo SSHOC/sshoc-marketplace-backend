@@ -139,7 +139,7 @@ PropertyType:
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        keyword
     label:                       Keyword
-    type:                        STRING
+    type:                        CONCEPT
     groupName:                   'Categorisation'
     hidden:                      false
     ord:                         18
@@ -217,12 +217,20 @@ PropertyType:
     ord:                         27
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        deprecated-at-source
+    label:                       Deprecated at Source
+    type:                        STRING
+    groupName:                   'Curation'
+    hidden:                      true
+    ord:                         28
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        life-cycle-status
     label:                       Life Cycle Status
     type:                        STRING
     groupName:                   'Technical'
     hidden:                      false
-    ord:                         28
+    ord:                         29
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        technical-readiness-level
@@ -230,7 +238,7 @@ PropertyType:
     type:                        STRING
     groupName:                   'Technical'
     hidden:                      false
-    ord:                         29
+    ord:                         30
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        version
@@ -238,7 +246,7 @@ PropertyType:
     type:                        STRING
     groupName:                   'Technical'
     hidden:                      false
-    ord:                         30
+    ord:                         31
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        object-format
@@ -246,19 +254,11 @@ PropertyType:
     type:                        CONCEPT
     groupName:                   ''
     hidden:                      false
-    ord:                         31
+    ord:                         32
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        thumbnail
     label:                       Thumbnail
-    type:                        URL
-    groupName:                   ''
-    hidden:                      false
-    ord:                         32
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        media
-    label:                       Media
     type:                        URL
     groupName:                   ''
     hidden:                      false
@@ -279,14 +279,6 @@ PropertyType:
     groupName:                   ''
     hidden:                      false
     ord:                         35
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        media-caption
-    label:                       Media credits
-    type:                        STRING
-    groupName:                   ''
-    hidden:                      false
-    ord:                         36
 
 
 
