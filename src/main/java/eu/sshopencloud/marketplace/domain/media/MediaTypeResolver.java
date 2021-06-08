@@ -8,6 +8,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import eu.sshopencloud.marketplace.domain.media.MimeTypeByFilenameUtils;
 
 import java.net.URL;
 import java.util.Optional;
@@ -56,11 +57,11 @@ class MediaTypeResolver {
     }
 
     public Optional<MediaType> resolveMimeType(String filename) {
-        return resolveMimeTypeByFilename(filename);
+        return MimeTypeByFilenameUtils.resolveMimeTypeByFilename(filename);
     }
 
     private MediaCategory resolveCategoryByFilename(String filename) {
-        return resolveMimeTypeByFilename(filename)
+        return MimeTypeByFilenameUtils.resolveMimeTypeByFilename(filename)
                 .flatMap(this::resolveByMimeType)
                 .orElse(MediaCategory.OBJECT);
     }
@@ -74,27 +75,4 @@ class MediaTypeResolver {
         return Optional.empty();
     }
 
-    private Optional<MediaType> resolveMimeTypeByFilename(String filename) {
-        String extension = FilenameUtils.getExtension(filename);
-        if (StringUtils.isBlank(extension))
-            return Optional.of(MediaType.APPLICATION_OCTET_STREAM);
-
-        switch (extension.toLowerCase()) {
-            case "jfif":
-            case "jpg":
-            case "jps":
-            case "jpeg":
-                return Optional.of(MediaType.IMAGE_JPEG);
-            case "png":
-                return Optional.of(MediaType.IMAGE_PNG);
-
-            case "gif":
-                return Optional.of(MediaType.IMAGE_GIF);
-
-            case "bmp":
-                return Optional.of(new MediaType("image", "bmp"));
-        }
-
-        return Optional.empty();
-    }
 }

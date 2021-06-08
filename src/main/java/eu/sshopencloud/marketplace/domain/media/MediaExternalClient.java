@@ -6,15 +6,20 @@ import lombok.Builder;
 import lombok.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -62,13 +67,32 @@ class MediaExternalClient {
             ClientResponse.Headers headers = response.headers();
             String filename = headers.asHttpHeaders().getContentDisposition().getFilename();
 
-            return MediaInfo.builder()
-                    .mimeType(headers.contentType())
-                    .filename(Optional.ofNullable(filename))
-                    .contentLength(headers.contentLength())
-                    .build();
-        }
-        catch (URISyntaxException e) {
+            if (headers.contentType().isEmpty()) {
+
+                String mediaFormat = "";
+                filename = Paths.get(new URI(String.valueOf(mediaLocation.getSourceUrl())).getPath()).getFileName().toString();
+
+                //INPUT
+                Iterator<ImageReader> readers = fetchMediaFile(mediaLocation).consumeFile(this::generateReaders);
+                byte[] bytes = fetchMediaFile(mediaLocation).consumeFile(this::generateByteArray);
+
+                if (readers.hasNext()) {
+                    ImageReader reader = readers.next();
+                    mediaFormat = reader.getFormatName();
+
+                }
+                return MediaInfo.builder()
+                        .mimeType(MimeTypeByFilenameUtils.resolveMimeTypeByFilename("." + mediaFormat))
+                        .filename(Optional.ofNullable(filename))
+                        //.contentLength(OptionalLong.of(Long.valueOf(bytes.length)))
+                        .build();
+            } else
+                return MediaInfo.builder()
+                        .mimeType(headers.contentType())
+                        .filename(Optional.ofNullable(filename))
+                        .contentLength(headers.contentLength())
+                        .build();
+        } catch (URISyntaxException | IOException e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
         }
     }
@@ -80,11 +104,23 @@ class MediaExternalClient {
                     .retrieve()
                     .bodyToFlux(DataBuffer.class);
 
+
             return new DownloadedFluxMediaFile(mediaContent);
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
         }
+    }
+
+    public Iterator<ImageReader> generateReaders(InputStream mediaStream) {
+        return ImageIO.getImageReaders(mediaStream);
+    }
+
+    public byte[] generateByteArray(InputStream mediaStream) {
+        try {
+            return mediaStream.readAllBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } return null;
     }
 
     @Value
