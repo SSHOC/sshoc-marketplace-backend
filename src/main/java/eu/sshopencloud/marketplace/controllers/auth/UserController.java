@@ -1,9 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.auth;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.auth.PaginatedUsers;
-import eu.sshopencloud.marketplace.dto.auth.UserCore;
-import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.auth.*;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
 import eu.sshopencloud.marketplace.model.auth.UserStatus;
 import eu.sshopencloud.marketplace.services.auth.UserService;
@@ -38,6 +36,16 @@ public class UserController {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDto> createUser(@RequestBody UserCore userCore) {
         return ResponseEntity.ok(userService.createUser(userCore));
+    }
+
+    @PutMapping(path = "/{id}/password", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDto> updateUserPassword(@PathVariable("id") long id, @RequestBody NewPasswordData newPasswordData) {
+        return ResponseEntity.ok(userService.updateUserPassword(id, newPasswordData));
+    }
+
+    @PutMapping(path = "/{id}/display-name", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDto> updateUserDisplayName(@PathVariable("id") long id, @RequestBody UserDisplayNameCore displayNameCore) {
+        return ResponseEntity.ok(userService.updateUserDisplayName(id, displayNameCore));
     }
 
     @PutMapping(path = "/{id}/status/{userStatus}", produces = MediaType.APPLICATION_JSON_VALUE)
