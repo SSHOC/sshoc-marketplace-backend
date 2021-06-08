@@ -1,6 +1,14 @@
 package eu.sshopencloud.marketplace.controllers.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.dto.auth.NewPasswordData;
+import eu.sshopencloud.marketplace.dto.auth.UserCore;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.model.auth.UserRole;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -14,8 +22,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,11 +34,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Slf4j
 @Transactional
 public class UserControllerITCase {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     private String CONTRIBUTOR_JWT;
     private String MODERATOR_JWT;
@@ -77,12 +92,86 @@ public class UserControllerITCase {
 
     @Test
     public void shouldNotReturnUserWhenNotExist() throws Exception {
-        Integer actorId = 51;
+        Integer userId = 51;
 
-        mvc.perform(get("/api/users/{id}", actorId)
+        mvc.perform(get("/api/users/{id}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void shouldCreateConfigUserAndChangePassword() throws Exception {
+        UserCore user = new UserCore();
+        String username = "New Config";
+        user.setUsername(username);
+        user.setDisplayName("New Config User");
+        user.setEmail("test@example.com");
+        user.setRole(UserRole.SYSTEM_MODERATOR);
+        String password = "qwerty";
+        user.setPassword(password);
+
+        String payload = mapper.writeValueAsString(user);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/users")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username", is(username)))
+                .andExpect(jsonPath("displayName", is("New Config User")))
+                .andExpect(jsonPath("email", is("test@example.com")))
+                .andExpect(jsonPath("config", is(true)))
+                .andExpect(jsonPath("status", is("enabled")))
+                .andExpect(jsonPath("role", is("system-moderator")))
+                .andReturn().getResponse().getContentAsString();
+
+        Long userId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, UserDto.class).getId();
+
+        String jwt = LogInTestClient.getJwt(mvc, username, password);
+        assertThat(jwt, not(blankOrNullString()));
+
+        NewPasswordData newPasswordData = new NewPasswordData();
+        newPasswordData.setCurrentPassword(password);
+        String newPassword = "q1w2e3r4";
+        newPasswordData.setNewPassword(newPassword);
+        newPasswordData.setVerifiedPassword(newPassword);
+
+        payload = mapper.writeValueAsString(newPasswordData);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/users/{id}/password", userId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username", is(username)));
+
+        jwt = LogInTestClient.getJwt(mvc, username, password);
+        assertThat(jwt, blankOrNullString());
+
+        jwt = LogInTestClient.getJwt(mvc, username, newPassword);
+        assertThat(jwt, not(blankOrNullString()));
+    }
+
+    @Test
+    public void shouldNotCreateConfigUserForModerator() throws Exception {
+        UserCore user = new UserCore();
+        user.setUsername("New Config");
+        user.setDisplayName("New Config User");
+        user.setEmail("test@example.com");
+        user.setRole(UserRole.SYSTEM_MODERATOR);
+        user.setPassword("qwerty");
+
+        String payload = mapper.writeValueAsString(user);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/users")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isForbidden());
     }
 
 }
