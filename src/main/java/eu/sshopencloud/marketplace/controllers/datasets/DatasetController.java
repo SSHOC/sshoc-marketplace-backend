@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.datasets;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -73,4 +76,14 @@ public class DatasetController {
         DatasetDto dataset = datasetService.commitDraftDataset(datasetId);
         return ResponseEntity.ok(dataset);
     }
+
+    @GetMapping(path = "/{datasetId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<HistoryPositionDto>> getDatasetHistory(@PathVariable("datasetId") String id,
+                                                                      @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+
+        return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));
+    }
+
+
 }
