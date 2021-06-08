@@ -1,3 +1,17 @@
+User:
+
+  - !!eu.sshopencloud.marketplace.model.auth.User
+    id:                          1
+    username:                    Administrator
+    displayName:                 Administrator
+    password:                    $2a$10$kPF9JIeRO5BNOutUrZj3c.dn.8NNAKHdO.KO2GvkFkMBDupHx7kZi
+    status:                      ENABLED
+    role:                        ADMINISTRATOR
+    config:                      true
+    preferences:                 "{}"
+    email:                       administrator@example.com
+
+
 ActorRole:
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
