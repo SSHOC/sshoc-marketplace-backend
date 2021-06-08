@@ -7,9 +7,8 @@ import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.services.items.ItemSourceService;
-import eu.sshopencloud.marketplace.validators.licenses.LicenseFactory;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
+import eu.sshopencloud.marketplace.validators.licenses.LicenseFactory;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +21,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.time.ZonedDateTime;
 
 
 @Component
