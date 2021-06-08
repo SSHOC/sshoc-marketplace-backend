@@ -7,7 +7,7 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
-import eu.sshopencloud.marketplace.mappers.items.HistoryPositionConverter;
+import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
@@ -428,7 +428,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return (!property.getType().isHidden() || (user != null && user.isModerator()));
     }
 
-    protected List<HistoryPositionDto> getItemHistory(String persistentId, Long versionId) {
+    protected List<ItemExtBasicDto> getItemHistory(String persistentId, Long versionId) {
         I item = loadItemVersion(persistentId, versionId);
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
@@ -444,12 +444,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    private List<HistoryPositionDto> getHistoryOfItem(Long itemId) {
+    private List<ItemExtBasicDto> getHistoryOfItem(Long itemId) {
         // TODO change to recursive subordinates query in ItemRepository
-        List<HistoryPositionDto> versions = new ArrayList<>();
+        List<ItemExtBasicDto> versions = new ArrayList<>();
         Item prevVersion = itemRepository.getOne(itemId).getPrevVersion();
         while (prevVersion != null) {
-            versions.add(HistoryPositionConverter.convertItem(prevVersion));
+            versions.add(ItemExtBasicConverter.convertItem(prevVersion));
             prevVersion = prevVersion.getPrevVersion();
         }
         return versions;

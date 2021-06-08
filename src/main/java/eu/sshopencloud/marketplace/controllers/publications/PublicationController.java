@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.publications;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
@@ -79,9 +79,9 @@ public class PublicationController {
     }
 
     @GetMapping(path = "/{publicationId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<HistoryPositionDto>> getPublicationHistory(@PathVariable("publicationId") String id,
-                                                                          @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                                          @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+    public ResponseEntity<List<ItemExtBasicDto>> getPublicationHistory(@PathVariable("publicationId") String id,
+                                                                       @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                                       @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(publicationService.getPublicationVersions(id, draft, approved));
     }
 

@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
@@ -126,7 +126,7 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return Publication.class.getName();
     }
 
-    public List<HistoryPositionDto> getPublicationVersions(String persistentId, boolean draft, boolean approved) {
+    public List<ItemExtBasicDto> getPublicationVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestPublication(persistentId, draft, approved).getId());
     }
 

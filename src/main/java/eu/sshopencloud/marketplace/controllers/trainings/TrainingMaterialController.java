@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.trainings;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
@@ -83,9 +83,9 @@ public class TrainingMaterialController {
     }
 
     @GetMapping(path = "/{trainingMaterialId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<HistoryPositionDto>> getTrainingMaterialHistory(@PathVariable("trainingMaterialId") String id,
-                                                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                                               @RequestParam(value = "approved", defaultValue = "true") boolean approved ) {
+    public ResponseEntity<List<ItemExtBasicDto>> getTrainingMaterialHistory(@PathVariable("trainingMaterialId") String id,
+                                                                            @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                                            @RequestParam(value = "approved", defaultValue = "true") boolean approved ) {
         return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersions(id, draft, approved));
     }
 

@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.workflows;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
@@ -157,16 +157,16 @@ public class WorkflowController {
     }
 
     @GetMapping(path = "/{workflowId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<HistoryPositionDto>> getWorkflowHistory(@PathVariable("workflowId") String id,
-                                                                       @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                                       @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+    public ResponseEntity<List<ItemExtBasicDto>> getWorkflowHistory(@PathVariable("workflowId") String id,
+                                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(workflowService.getWorkflowVersions(id, draft, approved));
     }
 
     @GetMapping(path = "/{workflowId}/steps/{stepId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<HistoryPositionDto>> getStepHistory(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId,
-                                                                   @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+    public ResponseEntity<List<ItemExtBasicDto>> getStepHistory(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId,
+                                                                @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                                @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(stepService.getStepVersions(workflowId, stepId, draft, approved));
     }
 

@@ -1,15 +1,15 @@
 package eu.sshopencloud.marketplace.mappers.items;
 
-import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.mappers.auth.UserMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class HistoryPositionConverter {
+public class ItemExtBasicConverter {
 
-    public HistoryPositionDto convertItem(Item item) {
-        HistoryPositionDto historyPosition = new HistoryPositionDto();
+    public ItemExtBasicDto convertItem(Item item) {
+        ItemExtBasicDto historyPosition = new ItemExtBasicDto();
         historyPosition.setId(item.getId());
         historyPosition.setPersistentId(item.getPersistentId());
         historyPosition.setCategory(item.getCategory());

@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.items.HistoryPositionDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
@@ -125,7 +125,7 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return Tool.class.getName();
     }
 
-    public List<HistoryPositionDto> getToolVersions(String persistentId, boolean draft, boolean approved) {
+    public List<ItemExtBasicDto> getToolVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestTool(persistentId, draft, approved).getId());
     }
 
