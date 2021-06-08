@@ -102,6 +102,16 @@ public class PropertyTypeService {
         return propertyType;
     }
 
+    public PropertyType loadPropertyTypeOrNull(String propertyTypeCode) {
+        PropertyType propertyType = propertyTypeRepository.findById(propertyTypeCode).orElse(null);
+        if (propertyType != null) {
+            User currentUser = LoggedInUserHolder.getLoggedInUser();
+            if (propertyType.isHidden() && (currentUser == null || !currentUser.isModerator()))
+                return null;
+        }
+        return propertyType;
+    }
+
     public List<Vocabulary> getAllowedVocabulariesForPropertyType(String propertyTypeCode) {
         List<PropertyTypeVocabulary> propertyTypeVocabularies = propertyTypeVocabularyRepository.findByPropertyTypeCode(propertyTypeCode);
         return propertyTypeVocabularies.stream().map(PropertyTypeVocabulary::getVocabulary).collect(Collectors.toList());

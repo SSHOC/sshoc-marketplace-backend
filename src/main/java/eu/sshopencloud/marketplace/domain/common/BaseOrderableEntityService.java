@@ -12,7 +12,10 @@ public abstract class BaseOrderableEntityService<T extends OrderableEntity<Id>, 
         return getEntityRepository().findAll(Sort.by(Sort.Order.asc("ord")));
     }
 
-    protected void placeEntryAtPosition(T entry, int ord, boolean insert) {
+    protected void placeEntryAtPosition(T entry, Integer ord, boolean insert) {
+
+        if (ord == null)ord = (int) getEntityRepository().count();
+
         validateEntryPosition(ord, insert);
         entry.setOrd(ord);
 
@@ -40,16 +43,17 @@ public abstract class BaseOrderableEntityService<T extends OrderableEntity<Id>, 
         }
     }
 
-    private void validateEntryPosition(int ord, boolean insert) {
+    private void validateEntryPosition(Integer ord, boolean insert) {
         long entriesCount = getEntityRepository().count();
         int maxPosition = (int) entriesCount;
 
         if (insert)
             maxPosition += 1;
 
+
         if (ord < 1 || ord > maxPosition) {
             throw new IllegalArgumentException(
-                    String.format("Invalid position index %d (maximum possible: %d)", ord, maxPosition)
+                    String.format("Invalid position index %d (index range from 1 to %d)", ord, maxPosition)
             );
         }
     }

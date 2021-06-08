@@ -71,10 +71,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/oauth/sign-up").authenticated();
         http
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/api/draft-items").authenticated();
+        http
+                .authorizeRequests()
                 .antMatchers(HttpMethod.PUT, "/api/item-reindex").hasAuthority(Authority.ADMINISTRATOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/item-autocomplete-rebuild").hasAuthority(Authority.ADMINISTRATOR.name())
-                .antMatchers(HttpMethod.PUT, "/api/concept-reindex").hasAuthority(Authority.ADMINISTRATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/concept-reindex").hasAuthority(Authority.ADMINISTRATOR.name());
+        http
+                .authorizeRequests()
+
+                .antMatchers(HttpMethod.GET, "/api/users/*/password").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/users/*/display-name").authenticated()
                 .antMatchers("/api/users/**").hasAuthority(Authority.ADMINISTRATOR.name());
+
+
         http
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/property-types/**").hasAuthority(Authority.MODERATOR.name())

@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0038-SSHOC_67-test_item_source
+      author: mkozak
+      description: Add test example item source
+      context: dev, test
+      changes:
+        - insert:
+            tableName: item_external_sources
+            columns:
+              - column:
+                  name: code
+                  value: Wikidata
+              - column:
+                  name: label
+                  value: Wikidata
+              - column:
+                  name: ord
+                  value: 1
+        - insert:
+            tableName: item_external_sources
+            columns:
+              - column:
+                  name: code
+                  value: GitHub
+              - column:
+                  name: label
+                  value: GitHub
+              - column:
+                  name: ord
+                  value: 2

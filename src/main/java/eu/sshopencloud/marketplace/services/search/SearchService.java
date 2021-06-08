@@ -12,13 +12,13 @@ import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
-import eu.sshopencloud.marketplace.repositories.search.dto.SuggestedSearchPhrases;
+import eu.sshopencloud.marketplace.dto.search.SuggestedSearchPhrases;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
-import eu.sshopencloud.marketplace.services.search.filter.IndexType;
-import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
-import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
-import eu.sshopencloud.marketplace.services.search.filter.SearchFilterValuesSelection;
+import eu.sshopencloud.marketplace.services.search.filter.*;
+import eu.sshopencloud.marketplace.services.search.query.ConceptSearchQueryPhrase;
+import eu.sshopencloud.marketplace.services.search.query.IndexSearchQueryPhrase;
+import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +32,7 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,26 +50,27 @@ public class SearchService {
     private final PropertyTypeService propertyTypeService;
 
 
-    public PaginatedSearchItems searchItems(String q, boolean advanced, List<ItemCategory> categories,
-                                            @NotNull Map<String, List<String>> filterParams,
+    public PaginatedSearchItems searchItems(String q, boolean advanced, @NotNull Map<String, String> expressionParams,
+                                            List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams,
                                             List<SearchOrder> order, PageCoords pageCoords) throws IllegalFilterException {
 
         log.debug("filterParams " + filterParams.toString());
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
-        if (StringUtils.isBlank(q)) {
-            q = "";
-        }
+        SearchQueryCriteria queryCriteria = new IndexSearchQueryPhrase(q, advanced);
 
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         filterCriteria.add(makeCategoryCriteria(categories));
         filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.ITEMS));
+
+        List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
         if (order == null || order.isEmpty()) {
             order = Collections.singletonList(SearchOrder.SCORE);
         }
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(q, advanced, currentUser, filterCriteria, order, pageable);
+        FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(queryCriteria, expressionCriteria,
+                currentUser, filterCriteria, order, pageable);
 
         Map<ItemCategory, LabeledCheckedCount> categoryFacets = gatherCategoryFacets(facetPage, categories);
         Map<String, Map<String, CheckedCount>> facets = gatherSearchFacets(facetPage, filterParams);
@@ -167,13 +169,12 @@ public class SearchService {
 
     public PaginatedSearchConcepts searchConcepts(String q, boolean advanced, List<String> types, PageCoords pageCoords) {
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
-        if (StringUtils.isBlank(q)) {
-            q = "";
-        }
+        SearchQueryCriteria queryCriteria = new ConceptSearchQueryPhrase(q, advanced);
+
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         filterCriteria.add(makePropertyTypeCriteria(types));
 
-        FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters(q, advanced, filterCriteria, pageable);
+        FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters(queryCriteria, filterCriteria, pageable);
 
         Map<String, PropertyType> propertyTypes = propertyTypeService.getAllPropertyTypes();
         List<CountedPropertyType> countedPropertyTypes = facetPage.getFacetFields().stream()
@@ -222,7 +223,6 @@ public class SearchService {
                 .collect(Collectors.toList());
     }
 
-
     private SearchFilterCriteria createFilterCriteria(SearchFilter filter, List<String> values) {
         switch (filter.getType()) {
             case VALUES_SELECTION_FILTER:
@@ -235,6 +235,22 @@ public class SearchService {
                 throw new RuntimeException();   // impossible to happen
         }
     }
+
+    private List<SearchExpressionCriteria> makeExpressionCriteria(@NotNull Map<String, String> expressionParams) {
+        return expressionParams.keySet().stream()
+                .map(code -> createExpressionCriteria(code, expressionParams.get(code)))
+                .collect(Collectors.toList());
+    }
+
+    private SearchExpressionCriteria createExpressionCriteria(String code, String expression) {
+        PropertyType propertyType = propertyTypeService.loadPropertyTypeOrNull(code);
+        if (propertyType != null) {
+            return new SearchExpressionDynamicFieldCriteria(code, expression, propertyType.getType());
+        } else {
+            return new SearchExpressionCriteria(code, expression);
+        }
+    }
+
 
     public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase) {
         if (StringUtils.isBlank(searchPhrase))

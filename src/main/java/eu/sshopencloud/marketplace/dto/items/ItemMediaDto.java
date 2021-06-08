@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemMediaDto {
-    private MediaDetails metadata;
+    private MediaDetails info;
     private String caption;
 }

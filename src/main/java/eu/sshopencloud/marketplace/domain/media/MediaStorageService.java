@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.domain.media;
 
-import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaMetadata;
+import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaInfo;
 import eu.sshopencloud.marketplace.domain.media.dto.*;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +94,7 @@ public class MediaStorageService {
     }
 
     public MediaDetails saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType) {
+
         UUID mediaId = resolveNewMediaId();
         MediaFileInfo fileInfo = mediaFileStorage.storeMediaFile(mediaId, mediaFile);
 
@@ -130,9 +131,9 @@ public class MediaStorageService {
         MediaFileInfo thumbnailInfo = mediaFileStorage.storeMediaFile(thumbnailId, thumbnailFile);
 
         String thumbnailFilename = mediaThumbnailService.getDefaultThumbnailFilename();
-        return new MediaData(
-                thumbnailId, MediaCategory.THUMBNAIL, thumbnailInfo.getMediaFilePath(), thumbnailFilename, MediaType.IMAGE_JPEG
-        );
+        return (new MediaData(
+                thumbnailId, MediaCategory.THUMBNAIL, thumbnailInfo.getMediaFilePath(), thumbnailFilename, MediaType.IMAGE_JPEG));
+
     }
 
     private MediaData prepareMediaData(MediaFileInfo mediaFileInfo, String mediaFilename, Optional<MediaType> mimeType) {
@@ -234,9 +235,9 @@ public class MediaStorageService {
 
     private MediaType fetchMediaType(MediaLocation mediaLocation) {
         try {
-            MediaMetadata metadata = mediaExternalClient.resolveMetadata(mediaLocation);
-            if (metadata.getMimeType().isPresent())
-                return metadata.getMimeType().get();
+            MediaInfo mediaInfo = mediaExternalClient.resolveMediaInfo(mediaLocation);
+            if (mediaInfo.getMimeType().isPresent())
+                return mediaInfo.getMimeType().get();
         }
         catch (MediaServiceUnavailableException e) {
             log.info("Media source service is not available: {}", e.getMessage());

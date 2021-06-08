@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.actors.ActorSource;
+import eu.sshopencloud.marketplace.services.actors.ActorExternalIdService;
 import eu.sshopencloud.marketplace.services.actors.ActorSourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,8 @@ import java.util.*;
 public class ActorExternalIdFactory {
 
     private final ActorSourceService actorSourceService;
+
+    private final ActorExternalIdService actorExternalIdService;
 
 
     public List<ActorExternalId> create(List<ActorExternalIdCore> externalIds, Actor actor, Errors errors) {
@@ -58,17 +61,19 @@ public class ActorExternalIdFactory {
     }
 
     public ActorExternalId create(ActorExternalIdCore externalId, Actor actor, Errors errors) {
-        Optional<ActorSource> actorSource = actorSourceService.loadActorSource(externalId.getServiceIdentifier().getCode());
+        Optional<ActorSource> actorSource = actorSourceService.loadActorSource(externalId.getIdentifierService().getCode());
 
         if (actorSource.isEmpty()) {
             errors.rejectValue(
-                    "serviceIdentifier", "field.notExist",
-                    String.format("Unknown service identifier: %s", externalId.getServiceIdentifier())
+                    "identifierService", "field.notExist",
+                    String.format("Unknown identifier service: %s", externalId.getIdentifierService())
             );
 
             return null;
         }
 
-        return new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor);
+        Optional<ActorExternalId> actorExternalId = actorExternalIdService.loadActorExternalId(actorSource.get(), externalId.getIdentifier());
+        return actorExternalId.orElseGet(() -> new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor));
     }
+
 }

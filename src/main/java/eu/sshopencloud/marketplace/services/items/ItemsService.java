@@ -1,13 +1,22 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemOrder;
+import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
+import eu.sshopencloud.marketplace.model.items.DraftItem;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +29,7 @@ import java.util.stream.Collectors;
 public class ItemsService extends ItemVersionService<Item> {
 
     private final ItemRepository itemRepository;
+    private final DraftItemRepository draftItemRepository;
 
     private final ToolService toolService;
     private final TrainingMaterialService trainingMaterialService;
@@ -29,7 +39,7 @@ public class ItemsService extends ItemVersionService<Item> {
     private final StepService stepService;
 
 
-    public ItemsService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+    public ItemsService(ItemRepository itemRepository, DraftItemRepository draftItemRepository, VersionedItemRepository versionedItemRepository,
                         ItemVisibilityService itemVisibilityService,
                         @Lazy ToolService toolService, @Lazy TrainingMaterialService trainingMaterialService,
                         @Lazy PublicationService publicationService, @Lazy DatasetService datasetService,
@@ -38,6 +48,7 @@ public class ItemsService extends ItemVersionService<Item> {
         super(versionedItemRepository, itemVisibilityService);
 
         this.itemRepository = itemRepository;
+        this.draftItemRepository = draftItemRepository;
         this.toolService = toolService;
         this.trainingMaterialService = trainingMaterialService;
         this.publicationService = publicationService;
@@ -46,11 +57,43 @@ public class ItemsService extends ItemVersionService<Item> {
         this.stepService = stepService;
     }
 
+    public PaginatedItemsBasic getMyDraftItems(ItemOrder order, PageCoords pageCoords) {
+        if (order == null) order = ItemOrder.MODIFIED_ON;
+        Page<DraftItem> draftItemsPage = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser(),
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))));
+        List<ItemBasicDto> items = draftItemsPage.stream().map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
+
+        return PaginatedItemsBasic.builder().items(items)
+                .count(draftItemsPage.getContent().size()).hits(draftItemsPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(draftItemsPage.getTotalPages())
+                .build();
+    }
+
+    private Sort.Order getSortOrderByItemOrder(ItemOrder itemOrder) {
+        switch (itemOrder) {
+            case LABEL:
+                if (itemOrder.isAsc()) {
+                    return Sort.Order.asc("item.label");
+                } else {
+                    return Sort.Order.desc("item.label");
+                }
+            case MODIFIED_ON:
+                if (itemOrder.isAsc()) {
+                    return Sort.Order.asc("item.lastInfoUpdate");
+                } else {
+                    return Sort.Order.desc("item.lastInfoUpdate");
+                }
+            default:
+                return Sort.Order.asc("item.lastInfoUpdate");
+        }
+    }
 
     public List<ItemBasicDto> getItems(Long sourceId, String sourceItemId) {
         List<Item> items = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);
         return items.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
     }
+
 
     public Item liftItemVersion(String persistentId, boolean draft, boolean changeStatus) {
         Item currentItem = loadCurrentItem(persistentId);
