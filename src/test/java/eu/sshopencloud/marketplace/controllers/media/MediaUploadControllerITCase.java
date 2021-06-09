@@ -1186,7 +1186,7 @@ public class MediaUploadControllerITCase {
                 .andExpect(jsonPath("mimeType", is("image/webp")))
                 .andExpect(jsonPath("hasThumbnail", is(true)));
 
-        //mvc.perform(get("/api/media/download/{mediaId}", mediaId)).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/media/download/{mediaId}", mediaId)).andExpect(status().isBadRequest());
 
         byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
                 .andExpect(status().isOk())
@@ -1196,6 +1196,7 @@ public class MediaUploadControllerITCase {
         ImageIO.read(new ByteArrayInputStream(thumbnail));
     }
 
+
     @Test
     public void shouldImportImageMediaWithoutContentType() throws Exception {
         InputStream grumpyStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/grumpycat.png");
@@ -1203,7 +1204,7 @@ public class MediaUploadControllerITCase {
 
         ResponseDefinitionBuilder grumpyResponse = aResponse()
                 .withStatus(200)
-                .withHeader("Content-Type", "image/png")
+                //.withHeader("Content-Type", "image/png")
                 .withHeader("Content-Length", String.valueOf(grumpyContent.length));
 
         stubFor(
