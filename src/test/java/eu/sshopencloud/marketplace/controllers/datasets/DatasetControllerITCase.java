@@ -114,7 +114,26 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("informationContributor.id", is(3)));
     }
 
+
+
     //TODO Eliza add test shouldReturnDatasetHistory for datasetPersistentId = "dmbq4v";
+    @Test
+    public void shouldReturnDatasetHistory() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+
+        mvc.perform(get("/api/datasets/{id}/history", datasetPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("id", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Austin Crime Data")))
+                .andExpect(jsonPath("licenses", hasSize(0)))
+                .andExpect(jsonPath("informationContributor.id", is(3)));
+    }
+
+
 
 
 
