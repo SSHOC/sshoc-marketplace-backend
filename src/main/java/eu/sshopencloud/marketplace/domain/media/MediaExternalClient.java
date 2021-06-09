@@ -14,6 +14,8 @@ import reactor.core.publisher.Flux;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -69,14 +71,13 @@ class MediaExternalClient {
 
             if (headers.contentType().isEmpty()) {
 
+                byte[] bytes = fetchMediaFile(mediaLocation).consumeFile(this::generateByteArray);
+                Iterator<ImageReader> readers = ImageIO.getImageReaders(ImageIO.createImageInputStream(new ByteArrayInputStream(bytes)));
+
                 String mediaFormat = "";
                 filename = Paths.get(new URI(String.valueOf(mediaLocation.getSourceUrl())).getPath()).getFileName().toString();
 
-                //INPUT
-                Iterator<ImageReader> readers = fetchMediaFile(mediaLocation).consumeFile(this::generateReaders);
-                byte[] bytes = fetchMediaFile(mediaLocation).consumeFile(this::generateByteArray);
-
-                if (readers.hasNext()) {
+                if(readers.hasNext()) {
                     ImageReader reader = readers.next();
                     mediaFormat = reader.getFormatName();
 
@@ -84,7 +85,7 @@ class MediaExternalClient {
                 return MediaInfo.builder()
                         .mimeType(MimeTypeByFilenameUtils.resolveMimeTypeByFilename("." + mediaFormat))
                         .filename(Optional.ofNullable(filename))
-                        //.contentLength(OptionalLong.of(Long.valueOf(bytes.length)))
+                        .contentLength(OptionalLong.of(Long.valueOf(bytes.length)))
                         .build();
             } else
                 return MediaInfo.builder()
@@ -109,10 +110,6 @@ class MediaExternalClient {
         } catch (URISyntaxException e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
         }
-    }
-
-    public Iterator<ImageReader> generateReaders(InputStream mediaStream) {
-        return ImageIO.getImageReaders(mediaStream);
     }
 
     public byte[] generateByteArray(InputStream mediaStream) {

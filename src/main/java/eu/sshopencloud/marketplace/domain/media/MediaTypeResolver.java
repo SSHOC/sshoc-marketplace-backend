@@ -4,11 +4,8 @@ import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaInfo;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import eu.sshopencloud.marketplace.domain.media.MimeTypeByFilenameUtils;
 
 import java.net.URL;
 import java.util.Optional;
