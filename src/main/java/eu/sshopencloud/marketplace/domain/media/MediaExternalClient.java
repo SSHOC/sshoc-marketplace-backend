@@ -14,7 +14,6 @@ import reactor.core.publisher.Flux;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -116,8 +115,8 @@ class MediaExternalClient {
         try {
             return mediaStream.readAllBytes();
         } catch (IOException e) {
-            e.printStackTrace();
-        } return null;
+            throw new IllegalStateException("Error while loading byte array from media stream", e);
+        }
     }
 
     @Value
