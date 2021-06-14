@@ -788,7 +788,24 @@ public class TrainingMaterialControllerITCase {
     @Test
     public void shouldPerformDraftUpdateAndCommit() throws Exception {
         String trainingMaterialId = "WfcKvG";
-        int prevVersionId = 7;
+
+        mvc.perform(get("/api/training-materials/{id}/history?draft=false", trainingMaterialId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")));
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("First attempt of making a test simple blog");
@@ -837,6 +854,29 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
                 .andExpect(jsonPath("sourceItemId", is("9999")));
 
+        mvc.perform(get("/api/training-materials/{id}/history?draft=true", trainingMaterialId)
+                .header("Authorization", MODERATOR_JWT)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].status", is("draft")))
+
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("$[1].status", is("approved")))
+
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[3].category", is("training-material")))
+                .andExpect(jsonPath("$[3].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[3].status", is("deprecated")));
+
         mvc.perform(
                 put("/api/training-materials/{id}", trainingMaterialId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -863,7 +903,11 @@ public class TrainingMaterialControllerITCase {
         )
                 .andExpect(status().isNotFound());
 
-        // TODO Eliza add calling the history endpoint for trainingMaterialId = "WfcKvG" with draft = true;
+        mvc.perform(get("/api/training-materials/{id}/history?draft=true", trainingMaterialId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
+
 
         mvc.perform(
                 get("/api/training-materials/{id}", trainingMaterialId)
@@ -875,7 +919,26 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("label", is(trainingMaterial.getLabel())));
 
-        // TODO Eliza add calling the history endpoint for trainingMaterialId = "WfcKvG" with draft = false;
+        mvc.perform(get("/api/training-materials/{id}/history?draft=false", trainingMaterialId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[3].category", is("training-material")))
+                .andExpect(jsonPath("$[3].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[3].status", is("deprecated")));
 
     }
 
@@ -1008,7 +1071,20 @@ public class TrainingMaterialControllerITCase {
     public void shouldUpdateTrainingMaterialWithHistory() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
-        //TODO Eliza add calling the history endpoint for trainingMaterialId = "WfcKvG";
+        mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")));
+
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Introduction to GEPHI");
@@ -1030,7 +1106,28 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")));
 
-        //TODO Eliza add again calling the history endpoint for trainingMaterialId = "WfcKvG";
+
+        mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[0].version", is("4.0")))
+                .andExpect(jsonPath("$[0].label", is("Introduction to GEPHI")))
+
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[3].category", is("training-material")))
+                .andExpect(jsonPath("$[3].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[3].status", is("deprecated")));
 
     }
 

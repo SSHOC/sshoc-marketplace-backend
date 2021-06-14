@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
+import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
@@ -121,7 +122,20 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[2].persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("relatedItems[2].relation.code", is("mentions")));
 
-        //TODO Eliza add calling the history endpoint for subjectPersistentId = "n21Kfc";
+
+        mvc.perform(get("/api/tools-services/{id}/history", subjectPersistentId)
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                    .andExpect(jsonPath("$[0].label", is("Gephi")))
+                    .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
+                    .andExpect(jsonPath("$[0].status", is("approved")))
+                    .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                    .andExpect(jsonPath("$[1].label", is("Gephi")))
+                    .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
+                    .andExpect(jsonPath("$[1].status", is("deprecated")));
+
 
         mvc.perform(get("/api/tools-services/{id}", objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -135,7 +149,18 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")));
 
-        //TODO Eliza add calling the history endpoint for objectPersistentId = "DstBL5";
+        mvc.perform(get("/api/tools-services/{id}/history", objectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Stata")))
+                .andExpect(jsonPath("$[0].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].label", is("Stata")))
+                .andExpect(jsonPath("$[1].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")));
 
     }
 
@@ -196,7 +221,20 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("composedOf[2].status", is("approved")))
                 .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
 
-        //TODO Eliza add calling the history endpoint for workflowPersistentId = "vHQEhe";
+        mvc.perform(get("/api/workflows/{id}/history", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", not(is(21))))
+                .andExpect(jsonPath("$[0].category", is("workflow")))
+                .andExpect(jsonPath("$[0].label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[1].id", is(21)))
+                .andExpect(jsonPath("$[1].category", is("workflow")))
+                .andExpect(jsonPath("$[1].label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("$[1].persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")));
 
     }
 
@@ -227,10 +265,24 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Draft Gephi")))
                 .andExpect(jsonPath("description", is("Draft Gephi ...")))
-                .andExpect(jsonPath("relatedItems", hasSize(2)));
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("documents")));
 
-        //TODO Eliza add calling the history endpoint for subjectPersistentId = "n21Kfc" with draft = true;
-
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Draft Gephi")))
+                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("draft")))
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("approved")));
 
         String objectPersistentId = "DstBL5";
 
@@ -262,9 +314,25 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Draft Gephi")))
                 .andExpect(jsonPath("relatedItems", hasSize(3)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("relates-to")))
+                .andExpect(jsonPath("relatedItems[2].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[2].relation.code", is("documents")));
 
-        //TODO Eliza add calling the history endpoint for subjectPersistentId = "n21Kfc" with draft = true;
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Draft Gephi")))
+                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("draft")))
+
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("approved")));
 
         mvc.perform(get("/api/tools-services/{id}", objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -276,7 +344,25 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Stata")))
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
-        //TODO Eliza add calling the history endpoint for objectPersistentId = "DstBL5"
+        mvc.perform(get("/api/tools-services/{id}?draft=true", objectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/tools-services/{id}/history",  objectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Stata")))
+                .andExpect(jsonPath("$[0].persistentId", is( objectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")));
+
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  objectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
 
     }
 
@@ -373,7 +459,17 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
 
-        //TODO Eliza add calling the history endpoint for subjectPersistentId = "DstBL5"
+        mvc.perform(get("/api/tools-services/{id}/history",   subjectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Stata")))
+                .andExpect(jsonPath("$[0].persistentId", is(  subjectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].persistentId", is(  subjectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")));
 
         mvc.perform(get("/api/datasets/{id}", objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -387,7 +483,19 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")));
 
-        //TODO Eliza add calling the history endpoint for objectPersistentId = "dU0BZc"
+
+        mvc.perform(get("/api/datasets/{id}/history", objectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("dataset")))
+                .andExpect(jsonPath("$[0].label", is("Test dataset with markdown description")))
+                .andExpect(jsonPath("$[0].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[1].category", is("dataset")))
+                .andExpect(jsonPath("$[1].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")));
+
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -404,7 +512,21 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Stata")))
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
-        //TODO Eliza add calling the history endpoint for subjectPersistentId = "DstBL5"
+        mvc.perform(get("/api/tools-services/{id}/history", subjectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("$[1].label", is("Stata")))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+                .andExpect(jsonPath("$[2].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[2].persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")));
+
 
         mvc.perform(get("/api/datasets/{id}", objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -416,7 +538,22 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Test dataset with markdown description")))
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
-        //TODO Eliza add calling the history endpoint for objectPersistentId = "dU0BZc"
+
+        mvc.perform(get("/api/datasets/{id}/history", objectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].category", is("dataset")))
+                .andExpect(jsonPath("$[0].label", is("Test dataset with markdown description")))
+                .andExpect(jsonPath("$[0].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[1].category", is("dataset")))
+                .andExpect(jsonPath("$[1].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+                .andExpect(jsonPath("$[2].category", is("dataset")))
+                .andExpect(jsonPath("$[2].persistentId", is(objectPersistentId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")));
+
 
     }
 
@@ -443,7 +580,20 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("description", is("Draft Stata ...")))
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
-        //TODO Eliza add calling the history endpoint for subjectPersistentId = "DstBL5" with draft = true
+
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Draft Stata")))
+                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("draft")))
+
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("approved")));
 
         String objectPersistentId = "dU0BZc";
 
@@ -471,7 +621,21 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
 
-        //TODO Eliza add calling the history endpoint for subjectPersistentId = "DstBL5" with draft = true
+        //HERE
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Draft Stata")))
+                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("draft")))
+
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("approved")));
+
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}?draft=true", subjectPersistentId, objectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -488,7 +652,20 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Draft Stata")))
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
-        //TODO Eliza add calling the history endpoint for subjectPersistentId = "DstBL5" with draft = true
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Draft Stata")))
+                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("draft")))
+
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("approved")));
+
 
     }
 
@@ -1072,7 +1249,7 @@ public class ItemRelationControllerITCase {
         acceptedTrainingMaterial.setDescription("In this approved tutorial you have access to the latest research");
 
         acceptedTrainingMaterial.setRelatedItems(
-                List.of(new RelatedItemCore(publicationDto.getPersistentId(), new ItemRelationId("documents")))
+                List.of(new RelatedItemCore(publicationDto.getPersistentId(), new ItemRelationId("is-documented-by")))
         );
 
         String acceptedTrainingMaterialPayload = mapper.writeValueAsString(acceptedTrainingMaterial);
@@ -1094,11 +1271,13 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(publicationDto.getPersistentId())))
                 .andExpect(jsonPath("relatedItems[0].id", not(is(publicationDto.getId()))))
                 .andExpect(jsonPath("relatedItems[0].label", is(publication.getLabel())))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-documented-by")))
                 .andReturn().getResponse().getContentAsString();
 
-        //TODO Eliza get "relatedItems[0].id" as newerPublicationVersionId and uncomment below (should work):
-        /*
+
+        Long newerTrainingMaterialVersionId = mapper.readValue(trainingMaterialJson, PublicationDto.class).getId();
+        Long newerPublicationVersionId = mapper.readValue(trainingMaterialJson, PublicationDto.class).getRelatedItems().get(0).getId();
+
         mvc.perform(
                 get("/api/publications/{publicationId}/versions/{versionId}",
                         publicationDto.getPersistentId(), newerPublicationVersionId)
@@ -1112,10 +1291,10 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("description", is(publication.getDescription())))
                 .andExpect(jsonPath("relatedItems", hasSize(1)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(trainingMaterialDto.getPersistentId())))
-                .andExpect(jsonPath("relatedItems[0].id", is(trainingMaterialDto.getId().intValue())))
+                .andExpect(jsonPath("relatedItems[0].id", is(newerTrainingMaterialVersionId.intValue())))
                 .andExpect(jsonPath("relatedItems[0].label", is(acceptedTrainingMaterial.getLabel())))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-documented-by")));
-        */
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")));
+
     }
 
     @Test

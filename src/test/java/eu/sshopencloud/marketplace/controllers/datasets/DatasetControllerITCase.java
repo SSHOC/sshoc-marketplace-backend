@@ -114,7 +114,29 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("informationContributor.id", is(3)));
     }
 
-    //TODO Eliza add test shouldReturnDatasetHistory for datasetPersistentId = "dmbq4v";
+
+
+    @Test
+    public void shouldReturnDatasetHistory() throws Exception {
+
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+
+        mvc.perform(get("/api/datasets/{id}/history", datasetPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(datasetId)))
+                .andExpect(jsonPath("$[0].category", is("dataset")))
+                .andExpect(jsonPath("$[0].label", is("Austin Crime Data")))
+                //.andExpect(jsonPath("$[0].version", is("null")))
+                .andExpect(jsonPath("$[0].persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("$[0].lastInfoUpdate", is("2020-08-04T12:29:02+0200")))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[0].informationContributor.id", is(3)));
+    }
+
+
 
 
 
@@ -517,8 +539,23 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
 
-
-        //TODO Eliza add calling the history endpoint for id
+        mvc.perform(get("/api/datasets/{id}/history", datasetPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("dataset")))
+                .andExpect(jsonPath("$[0].label", is("Test complex dataset")))
+                .andExpect(jsonPath("$[0].persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[0].informationContributor.id", is(1)))
+                .andExpect(jsonPath("$[0].informationContributor.role", is("administrator")))
+                .andExpect(jsonPath("$[1].id", is(datasetCurrentId)))
+                .andExpect(jsonPath("$[1].category", is("dataset")))
+                .andExpect(jsonPath("$[1].label", is("Austin Crime Data")))
+                .andExpect(jsonPath("$[1].persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("$[1].lastInfoUpdate", is("2020-08-04T12:29:02+0200")))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+                .andExpect(jsonPath("$[1].informationContributor.id", is(3)));
 
     }
 
