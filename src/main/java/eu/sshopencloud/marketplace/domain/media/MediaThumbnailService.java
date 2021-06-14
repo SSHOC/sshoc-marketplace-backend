@@ -83,18 +83,14 @@ class MediaThumbnailService {
         double scale_width = (double) thumbnailWidth / (double) originalImage.getWidth();
         double scale_height = (double) thumbnailHeight / (double) originalImage.getHeight();
 
-        if (originalImage.getHeight() > originalImage.getWidth()) {
-            try {
+        try {
+            if (originalImage.getHeight() > originalImage.getWidth()) {
                 thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_INT_RGB).scale(scale_height, scale_height).asBufferedImage();
-            } catch (IOException e) {
-                throw new ThumbnailGenerationException("Error while creating a thumb", e);
-            }
-        } else {
-            try {
+            } else {
                 thumbImage = Thumbnails.of(originalImage).imageType(BufferedImage.TYPE_3BYTE_BGR).scale(scale_width, scale_width).asBufferedImage();
-            } catch (IOException e) {
-                throw new ThumbnailGenerationException("Error while creating a thumb", e);
             }
+        } catch (IOException e) {
+            throw new ThumbnailGenerationException("Error while creating a thumb", e);
         }
 
         Graphics2D g = thumbImage.createGraphics();

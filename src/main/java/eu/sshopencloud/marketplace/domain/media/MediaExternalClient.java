@@ -14,7 +14,6 @@ import reactor.core.publisher.Flux;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -67,24 +66,17 @@ class MediaExternalClient {
 
             ClientResponse.Headers headers = response.headers();
             String filename = headers.asHttpHeaders().getContentDisposition().getFilename();
+            if (filename == null) {
+                filename = Paths.get(new URI(String.valueOf(mediaLocation.getSourceUrl())).getPath()).getFileName().toString();
+            }
 
             if (headers.contentType().isEmpty()) {
-
-                byte[] bytes = fetchMediaFile(mediaLocation).consumeFile(this::generateByteArray);
-                Iterator<ImageReader> readers = ImageIO.getImageReaders(ImageIO.createImageInputStream(new ByteArrayInputStream(bytes)));
-
-                String mediaFormat = "";
-                filename = Paths.get(new URI(String.valueOf(mediaLocation.getSourceUrl())).getPath()).getFileName().toString();
-
-                if(readers.hasNext()) {
-                    ImageReader reader = readers.next();
-                    mediaFormat = reader.getFormatName();
-
-                }
+                DownloadedMediaFile downloadedMediaFile = fetchMediaFile(mediaLocation);
+                String mediaFormat = downloadedMediaFile.consumeFile(this::recognizeFormat);
                 return MediaInfo.builder()
                         .mimeType(MimeTypeByFilenameUtils.resolveMimeTypeByFilename("." + mediaFormat))
                         .filename(Optional.ofNullable(filename))
-                        .contentLength(OptionalLong.of(Long.valueOf(bytes.length)))
+                        .contentLength(headers.contentLength())
                         .build();
             } else
                 return MediaInfo.builder()
@@ -92,7 +84,7 @@ class MediaExternalClient {
                         .filename(Optional.ofNullable(filename))
                         .contentLength(headers.contentLength())
                         .build();
-        } catch (URISyntaxException | IOException e) {
+        } catch (URISyntaxException e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
         }
     }
@@ -111,13 +103,19 @@ class MediaExternalClient {
         }
     }
 
-    public byte[] generateByteArray(InputStream mediaStream) {
+    public String recognizeFormat(InputStream mediaStream) {
         try {
-            return mediaStream.readAllBytes();
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(ImageIO.createImageInputStream(mediaStream));
+            if (readers.hasNext()) {
+                ImageReader reader = readers.next();
+                return reader.getFormatName();
+            }
+            return "";
         } catch (IOException e) {
             throw new IllegalStateException("Error while loading byte array from media stream", e);
         }
     }
+
 
     @Value
     @Builder
