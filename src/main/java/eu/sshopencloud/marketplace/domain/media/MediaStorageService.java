@@ -1,7 +1,10 @@
 package eu.sshopencloud.marketplace.domain.media;
 
 import eu.sshopencloud.marketplace.domain.media.MediaExternalClient.MediaInfo;
-import eu.sshopencloud.marketplace.domain.media.dto.*;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
