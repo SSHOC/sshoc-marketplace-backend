@@ -440,14 +440,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     )
             );
         }
-        return getHistoryOfItem(item.getId());
+        return getHistoryOfItem(item);
     }
 
 
-    private List<ItemExtBasicDto> getHistoryOfItem(Long itemId) {
+    private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
         // TODO change to recursive subordinates query in ItemRepository
         List<ItemExtBasicDto> versions = new ArrayList<>();
-        Item prevVersion = itemRepository.getOne(itemId).getPrevVersion();
+        versions.add(ItemExtBasicConverter.convertItem(item));
+        Item prevVersion = itemRepository.getOne(item.getId()).getPrevVersion();
         while (prevVersion != null) {
             versions.add(ItemExtBasicConverter.convertItem(prevVersion));
             prevVersion = prevVersion.getPrevVersion();

@@ -466,7 +466,29 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("description", is("Draft Stata is the solution for your data science needs. Obtain and manipulate data. Explore. Visualize. Model. Make inferences. Collect your results into reproducible reports.")));
 
 
-        //TODO Eliza add calling the history endpoint for toolPersistentId = "DstBL5";
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true", toolPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Draft Stata")))
+                .andExpect(jsonPath("$[0].persistentId", is( toolPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("draft")))
+
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].persistentId", is( toolPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("approved")));
+
+        mvc.perform(get("/api/tools-services/{id}/history", toolPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", not(is("Draft Stata"))))
+                .andExpect(jsonPath("$[0].persistentId", is( toolPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")));
+
 
     }
 
