@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
@@ -131,4 +132,9 @@ public class TrainingMaterialService
     protected String getItemTypeName() {
         return TrainingMaterial.class.getName();
     }
+
+    public List<ItemExtBasicDto> getTrainingMaterialVersions(String persistentId, boolean draft, boolean approved) {
+        return getItemHistory(persistentId, getLatestTrainingMaterial( persistentId, draft, approved).getId());
+    }
+
 }

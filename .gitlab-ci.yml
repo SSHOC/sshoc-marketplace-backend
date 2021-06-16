@@ -1,3 +1,8 @@
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
 stages:
   - build
 
@@ -16,7 +21,7 @@ stages:
 build:
   stage: build
   tags:
-    - sshoc-acdh-runner
+    - cluster
   extends: .docker
   script: 
     - echo "Building the app (develop)"
@@ -29,7 +34,7 @@ build:
 build-prod:
   stage: build
   tags:
-    - sshoc-acdh-runner
+    - cluster
   extends: .docker
   script:
     - echo "Building the app (prod)"
@@ -42,7 +47,7 @@ build-prod:
 build-stage:
   stage: build
   tags:
-    - sshoc-acdh-runner
+    - cluster
   extends: .docker
   script: 
     - echo "Building the app (stage)"

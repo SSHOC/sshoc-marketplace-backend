@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
@@ -79,7 +80,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             @Override
             public void onNextStep(StepsTree stepTree) {
                 Step step = stepTree.getStep();
-                StepDto stepDto = stepService.prepareItemDto(step, false);
+                StepDto stepDto = stepService.prepareItemDto(step);
                 List<StepDto> childCollection = (nestedSteps.empty()) ? rootSteps : nestedSteps.peek().getComposedOf();
 
                 childCollection.add(stepDto);
@@ -233,4 +234,11 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     protected String getItemTypeName() {
         return Workflow.class.getName();
     }
+
+    public List<ItemExtBasicDto> getWorkflowVersions(String persistentId, boolean draft, boolean approved) {
+        return getItemHistory(persistentId, getLatestWorkflow(persistentId, draft, approved).getId());
+    }
+
+
+
 }
