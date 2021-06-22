@@ -139,7 +139,7 @@ public abstract class Item {
                 .collect(Collectors.toList());
 
         this.media = baseItem.getMedia().stream()
-                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption(), media.isItemThumbnail()))
+                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption(), media.getItemMediaThumbnail()))
                 .collect(Collectors.toList());
     }
 
@@ -192,7 +192,7 @@ public abstract class Item {
     }
 
     public ItemMedia getThumbnail() {
-        return media.stream().filter(ItemMedia::isItemThumbnail).findFirst().orElse(null);
+        return media.stream().filter(m -> m.getItemMediaThumbnail() != ItemMediaType.MEDIA).findFirst().orElse(null);
     }
 
     public boolean isOwner(User user) {

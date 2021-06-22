@@ -113,7 +113,7 @@ public class ItemFactory {
                     .findFirst();
 
             if (itemThumbnail.isPresent()) {
-                itemThumbnail.get().setItemThumbnail(true);
+               // itemThumbnail.get().setItemThumbnail(true);
             }
             else {
                 errors.rejectValue(
