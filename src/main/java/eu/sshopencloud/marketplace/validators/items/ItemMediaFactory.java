@@ -72,9 +72,9 @@ public class ItemMediaFactory {
         return newMedia;
     }
 
-    public ItemMedia create(UUID itemMedia, Item item, Errors errors, ItemMediaType itemThumbnail) {
+    public ItemMedia create(UUID itemMediaId, Item item, Errors errors, ItemMediaType itemThumbnail, String caption) {
 
-        if (itemMedia == null) {
+        if (itemMediaId == null) {
             errors.pushNestedPath("info");
             errors.rejectValue(
                     "mediaId", "field.required", "The field mediaId is required"
@@ -83,11 +83,11 @@ public class ItemMediaFactory {
             return null;
         }
 
-        if (mediaStorageService.ensureMediaAvailable(itemMedia)) {
-            return new ItemMedia(item, itemMedia, "Thumbnail", itemThumbnail);
+        if (mediaStorageService.ensureMediaAvailable(itemMediaId)) {
+            return new ItemMedia(item, itemMediaId, caption, itemThumbnail);
         } else {
             errors.pushNestedPath("info");
-            errors.rejectValue("mediaId", "field.notExist", String.format("Media with id %s is not available", itemMedia));
+            errors.rejectValue("mediaId", "field.notExist", String.format("Media with id %s is not available", itemMediaId));
             errors.popNestedPath();
             return null;
         }
