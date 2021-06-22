@@ -291,7 +291,6 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("web-usable", 11);
         assertPropertyTypeOrder("tool-family", 12);
         assertPropertyTypeOrder("media", 16);
-        assertPropertyTypeOrder("license-type", 10);
 
         mvc.perform(
                 delete("/api/property-types/{code}", "technique")

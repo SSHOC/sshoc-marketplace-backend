@@ -8,7 +8,6 @@ import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
-import eu.sshopencloud.marketplace.validators.licenses.LicenseFactory;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemFactory {
 
-    private final LicenseFactory licenseFactory;
     private final ItemContributorFactory itemContributorFactory;
     private final ItemExternalIdFactory itemExternalIdFactory;
     private final PropertyFactory propertyFactory;
@@ -57,7 +55,6 @@ public class ItemFactory {
             item.setDescription(MarkdownConverter.convertHtmlToMarkdown(itemCore.getDescription()));
         }
 
-        item.setLicenses(licenseFactory.create(itemCore.getLicenses(), item, errors, "licenses"));
         item.setContributors(itemContributorFactory.create(itemCore.getContributors(), item, errors, "contributors"));
         item.setProperties(propertyFactory.create(category, itemCore.getProperties(), item, errors, "properties"));
 
