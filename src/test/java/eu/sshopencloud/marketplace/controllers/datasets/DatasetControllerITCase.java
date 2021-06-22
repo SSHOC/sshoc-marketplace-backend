@@ -1004,38 +1004,4 @@ public class DatasetControllerITCase {
         assertTrue(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
         assertTrue(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
     }
-
-    @Test
-    public void shouldNotAssignNotPresentThumbnail() throws Exception {
-        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", ADMINISTRATOR_JWT);
-        UUID grumpycatId = MediaTestUploadUtils.importMedia(
-                mvc, mapper, wireMockRule, "grumpycat.png", "image/png", ADMINISTRATOR_JWT
-        );
-
-        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
-
-        DatasetCore dataset = new DatasetCore();
-        dataset.setLabel("A dataset of cats");
-        dataset.setDescription("This dataset contains cats");
-        dataset.setMedia(List.of(seriouscat, grumpycat));
-        dataset.setThumbnail(new ItemThumbnailId(UUID.randomUUID()));
-
-        String payload = mapper.writeValueAsString(dataset);
-
-        mvc.perform(
-                post("/api/datasets")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", ADMINISTRATOR_JWT)
-        )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors", hasSize(1)))
-                .andExpect(jsonPath("errors[0].field", is("thumbnail")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-
-        assertTrue(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
-        assertTrue(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
-    }
 }

@@ -1,8 +1,6 @@
 package eu.sshopencloud.marketplace.validators.items;
 
 import eu.sshopencloud.marketplace.dto.items.ItemCore;
-import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
-import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
