@@ -12,6 +12,8 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static javax.persistence.FetchType.LAZY;
+
 
 @Entity
 @Table(name = "items")
@@ -111,11 +113,11 @@ public abstract class Item {
     @Column(nullable = false)
     private boolean proposedVersion;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(fetch = LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "persistent_id", nullable = false)
     private VersionedItem versionedItem;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))
     private Item prevVersion;
 
@@ -155,7 +157,7 @@ public abstract class Item {
                 .collect(Collectors.toList());
 
         this.media = baseItem.getMedia().stream()
-                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption(), media.isItemThumbnail()))
+                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption(), media.getItemMediaThumbnail()))
                 .collect(Collectors.toList());
     }
 
@@ -173,6 +175,10 @@ public abstract class Item {
 
     public boolean isDraft() {
         return (status == ItemStatus.DRAFT);
+    }
+
+    public boolean isThumbnailOnly(){
+        return media.stream().anyMatch(m -> m.getItemMediaThumbnail().equals(ItemMediaType.THUMBNAIL_ONLY));
     }
 
     public void setContributors(List<ItemContributor> contributors) {
@@ -203,12 +209,18 @@ public abstract class Item {
         this.media.addAll(media);
     }
 
-    public List<ItemMedia> getMedia() {
-        return Collections.unmodifiableList(media);
+    public void addMedia(ItemMedia media) {
+        this.media.add(media);
     }
 
+
+    public List<ItemMedia> getMedia() {
+        return Collections.unmodifiableList(media.stream().filter(m -> m.getItemMediaThumbnail()!= ItemMediaType.THUMBNAIL_ONLY).collect(Collectors.toList()));
+    }
+
+
     public ItemMedia getThumbnail() {
-        return media.stream().filter(ItemMedia::isItemThumbnail).findFirst().orElse(null);
+       return media.stream().filter(m -> m.getItemMediaThumbnail() != ItemMediaType.MEDIA).findFirst().orElse(null);
     }
 
     public boolean isOwner(User user) {

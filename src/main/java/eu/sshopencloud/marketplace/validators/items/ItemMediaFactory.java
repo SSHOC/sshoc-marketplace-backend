@@ -6,6 +6,8 @@ import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
+import eu.sshopencloud.marketplace.model.items.ItemMediaType;
+import liquibase.pro.packaged.U;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -70,5 +72,26 @@ public class ItemMediaFactory {
         }
 
         return newMedia;
+    }
+
+    public ItemMedia create(UUID itemMedia, Item item, Errors errors, ItemMediaType itemThumbnail) {
+
+        if (itemMedia == null) {
+            errors.pushNestedPath("info");
+            errors.rejectValue(
+                    "mediaId", "field.required", "The field mediaId is required"
+            );
+            errors.popNestedPath();
+            return null;
+        }
+
+        if (mediaStorageService.ensureMediaAvailable(itemMedia)) {
+            return new ItemMedia(item, itemMedia, "Thumbnail", itemThumbnail);
+        } else {
+            errors.pushNestedPath("info");
+            errors.rejectValue("mediaId", "field.notExist", String.format("Media with id %s is not available", itemMedia));
+            errors.popNestedPath();
+            return null;
+        }
     }
 }

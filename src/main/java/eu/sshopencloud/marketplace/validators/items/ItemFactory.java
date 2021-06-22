@@ -1,10 +1,13 @@
 package eu.sshopencloud.marketplace.validators.items;
 
 import eu.sshopencloud.marketplace.dto.items.ItemCore;
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
+import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
+import eu.sshopencloud.marketplace.model.items.ItemMediaType;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
@@ -107,6 +110,7 @@ public class ItemFactory {
         }
 
         item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
+
         item.addMedia(itemMediaFactory.create(itemCore.getMedia(), item, errors));
 
         if (itemCore.getThumbnail() != null) {
@@ -116,15 +120,19 @@ public class ItemFactory {
                     .findFirst();
 
             if (itemThumbnail.isPresent()) {
-                itemThumbnail.get().setItemThumbnail(true);
+                itemThumbnail.get().setItemMediaThumbnail(ItemMediaType.THUMBNAIL);
+            } else {
+                //RETHINK
+                item.addMedia(itemMediaFactory.create(itemCore.getThumbnail().getMediaId(), item, errors, ItemMediaType.THUMBNAIL_ONLY));
             }
-            else {
-                errors.rejectValue(
-                        "thumbnail", "field.notExist",
-                        String.format("Thumbnail media %s not present in item's media", thumbnailId)
-                );
-            }
+
+        } else {
+            errors.rejectValue(
+                    "thumbnail", "field.notExist",
+                    String.format("Thumbnail media %s not present in item's media", itemCore.getThumbnail().getMediaId())
+            );
         }
+
 
         setInfoDates(item, true);
         updateInformationContributor(item);
