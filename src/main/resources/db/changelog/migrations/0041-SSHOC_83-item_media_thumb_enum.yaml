@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 0040-SSHOC_83-item_media_thumb_enum-1
+      id: 0041-SSHOC_83-item_media_thumb_enum-1
       author: ekalata
       description: Add column to items media table
       changes:
@@ -14,7 +14,7 @@ databaseChangeLog:
               defaultValue: MEDIA
 
   - changeSet:
-      id: 0040-SSHOC_83-item_media_thumb_enum-2
+      id: 0041-SSHOC_83-item_media_thumb_enum-2
       author: ekalata
       description: Set the status depending on item thumbnail flag
       changes:
@@ -26,7 +26,7 @@ databaseChangeLog:
               update items_media set item_media_thumbnail = 'MEDIA' where item_thumbnail = false
 
   - changeSet:
-      id: 0040-SSHOC_83-item_media_thumb_enum-3
+      id: 0041-SSHOC_83-item_media_thumb_enum-3
       author: ekalata
       description: Delete item thumbnail flag column
       changes:
