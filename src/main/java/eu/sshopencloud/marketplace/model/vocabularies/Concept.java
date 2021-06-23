@@ -1,10 +1,12 @@
 package eu.sshopencloud.marketplace.model.vocabularies;
 
+import eu.sshopencloud.marketplace.conf.jpa.HashMapConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.Map;
 
 
 @Entity
@@ -27,6 +29,11 @@ public class Concept {
     @Column(nullable = false)
     private String label;
 
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @Convert(converter = HashMapConverter.class)
+    @Column(nullable = false, length = 2048)
+    private Map<String, String> labels;
+
     @Basic
     @Column(nullable = false)
     private String notation;
@@ -36,8 +43,13 @@ public class Concept {
     private Integer ord;
 
     @Basic
-    @Column(nullable = true, length = 4096)
+    @Column(nullable = false, length = 4096)
     private String definition;
+
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @Convert(converter = HashMapConverter.class)
+    @Column(nullable = false, length = 16384)
+    private Map<String, String> definitions;
 
     @Basic
     @Column(nullable = false, unique = true, length = 2048)
