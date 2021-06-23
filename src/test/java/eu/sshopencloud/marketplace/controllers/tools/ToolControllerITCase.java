@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.*;
-import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
@@ -83,8 +82,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
-                .andExpect(jsonPath("licenses[0].label", is("Common Development and Distribution License 1.0")))
-                .andExpect(jsonPath("informationContributor.id", is(2)));
+                 .andExpect(jsonPath("informationContributor.id", is(2)));
     }
 
     @Test
@@ -127,11 +125,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("apache-2.0");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        tool.setLicenses(licenses);
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
         actor.setId(3l);
@@ -174,7 +167,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("licenses[0].label", is("Apache License 2.0")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
@@ -200,33 +192,6 @@ public class ToolControllerITCase {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("label")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-
-    @Test
-    public void shouldNotCreateToolWhenLicenseIsUnknown() throws Exception {
-        ToolCore tool = new ToolCore();
-        tool.setLabel("Test Software");
-        tool.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("qwerty1");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        tool.setLicenses(licenses);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        tool.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/tools-services")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
@@ -517,7 +482,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://example.com")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source", nullValue()));
@@ -531,11 +495,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("mit");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        tool.setLicenses(licenses);
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
         actor.setId(3l);
@@ -579,8 +538,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("licenses", hasSize(1)))
-                .andExpect(jsonPath("licenses[0].label", is("MIT License")))
                 .andExpect(jsonPath("contributors", hasSize(1)))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
@@ -619,10 +576,6 @@ public class ToolControllerITCase {
         tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
         tool.setAccessibleAt(Arrays.asList("https://gephi.org/"));
 
-        LicenseId license1 = new LicenseId("cddl-1.0");
-        LicenseId license2 = new LicenseId("gpl-3.0");
-        tool.setLicenses(List.of(license1, license2));
-
         ItemContributorId contributor1 = new ItemContributorId(new ActorId(5L), new ActorRoleId("author"));
         ItemContributorId contributor2 = new ItemContributorId(new ActorId(4L), new ActorRoleId("funder"));
         tool.setContributors(List.of(contributor1, contributor2));
@@ -650,7 +603,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
-                .andExpect(jsonPath("licenses", hasSize(2)))
                 .andExpect(jsonPath("contributors", hasSize(2)))
                 .andExpect(jsonPath("properties", hasSize(4)));
     }
@@ -674,34 +626,6 @@ public class ToolControllerITCase {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("label")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-    @Test
-    public void shouldNotUpdateToolWhenLicenseIsUnknown() throws Exception {
-        String toolPersistentId = "Xgufde";
-
-        ToolCore tool = new ToolCore();
-        tool.setLabel("Test Software");
-        tool.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("qwerty1");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        tool.setLicenses(licenses);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        tool.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
@@ -1003,10 +927,6 @@ public class ToolControllerITCase {
         tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
         tool.setAccessibleAt(List.of("https://gephi.org/"));
 
-        LicenseId license1 = new LicenseId("cddl-1.0");
-        LicenseId license2 = new LicenseId("gpl-3.0");
-        tool.setLicenses(List.of(license1, license2));
-
         ItemContributorId contributor1 = new ItemContributorId(new ActorId(5L), new ActorRoleId("author"));
         ItemContributorId contributor2 = new ItemContributorId(new ActorId(4L), new ActorRoleId("funder"));
         tool.setContributors(List.of(contributor1, contributor2));
@@ -1037,7 +957,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
-                .andExpect(jsonPath("licenses", hasSize(2)))
                 .andExpect(jsonPath("contributors", hasSize(2)))
                 .andExpect(jsonPath("properties", hasSize(6)));
     }

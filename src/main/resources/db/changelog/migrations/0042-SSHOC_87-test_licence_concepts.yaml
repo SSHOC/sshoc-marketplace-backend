@@ -1,0 +1,39 @@
+databaseChangeLog:
+    - changeSet:
+          id: SSHOC_87-license_property
+          author: mkozak
+          description: Change license-type property (not used any more) to license property and assign vocabluary to it
+          context: dev, test
+          changes:
+              - update:
+                    tableName: property_types
+                    columns:
+                        - column:
+                              name: code
+                              value: license
+                        - column:
+                              name: label
+                              value: License
+                        - column:
+                              name: type
+                              value: CONCEPT
+                    where: code = 'license-type'
+              - insert:
+                    tableName: property_types_vocabularies
+                    columns:
+                        - column:
+                              name: property_type_code
+                              value: license
+                        - column:
+                              name: vocabulary_code
+                              value: software-license
+
+    - changeSet:
+        id: SSHOC_87-license_concepts
+        author: mkozak
+        description: Update license concepts
+        context: dev, test
+        changes:
+              - sql:
+                    sql: >
+                        update concepts set code = substring(code, 26, length(code)) where vocabulary_code = 'software-license'

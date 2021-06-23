@@ -25,19 +25,20 @@ public class ItemMedia {
 
     private String caption;
 
-    private boolean itemThumbnail;
-
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ItemMediaType itemMediaThumbnail;
 
     public ItemMedia(Item item, UUID mediaId, String caption) {
         this.id = null;
         this.item = item;
         this.mediaId = mediaId;
         this.caption = caption;
-        this.itemThumbnail = false;
+        this.itemMediaThumbnail = ItemMediaType.MEDIA;
     }
 
-    public ItemMedia(Item item, UUID mediaId, String caption, boolean itemThumbnail) {
+    public ItemMedia(Item item, UUID mediaId, String caption, ItemMediaType itemThumbnail) {
         this(item, mediaId, caption);
-        this.itemThumbnail = itemThumbnail;
+        this.itemMediaThumbnail = itemThumbnail;
     }
 }
