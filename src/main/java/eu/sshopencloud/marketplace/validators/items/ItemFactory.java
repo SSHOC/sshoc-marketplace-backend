@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
+import eu.sshopencloud.marketplace.model.items.ItemMediaType;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
@@ -113,7 +114,7 @@ public class ItemFactory {
                     .findFirst();
 
             if (itemThumbnail.isPresent()) {
-               // itemThumbnail.get().setItemThumbnail(true);
+                itemThumbnail.get().setItemMediaThumbnail(ItemMediaType.THUMBNAIL);
             }
             else {
                 errors.rejectValue(
