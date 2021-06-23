@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.SimpleLiteral;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -90,8 +92,9 @@ public class RDFModelParser {
         result.setCode(conceptCode);
         result.setVocabulary(vocabulary);
         result.setLabel("");
-        result.setDefinition("");
+        result.setLabels(new LinkedHashMap<>());
         result.setNotation("");
+        result.setDefinitions(new LinkedHashMap<>());
         result.setUri(conceptUri);
         return result;
     }
@@ -130,23 +133,55 @@ public class RDFModelParser {
 
             completeConcept(conceptMap.get(subjectUri), statement);
         });
+        for (Concept concept : conceptMap.values()) {
+            if (StringUtils.isBlank(concept.getLabel()) && concept.getLabels().containsKey("en")) {
+                concept.setLabel(concept.getLabels().get("en"));
+            }
+            if (StringUtils.isBlank(concept.getDefinition()) && concept.getDefinitions().containsKey("en")) {
+                concept.setDefinition(concept.getDefinitions().get("en"));
+            }
+        }
     }
 
-    private void completeConcept(Concept concept, Statement statement) {
-        if (statement.getPredicate().stringValue().equals(SKOS_LABEL)) {
-            if (StringUtils.isBlank(concept.getLabel())) {
-                concept.setLabel(statement.getObject().stringValue());
-            }
-        }
-        if (statement.getPredicate().stringValue().equals(SKOS_NOTATION)) {
-            if (StringUtils.isBlank(concept.getNotation())) {
-                concept.setNotation(statement.getObject().stringValue());
-            }
-        }
-        if (statement.getPredicate().stringValue().equals(SKOS_DEFINITION)) {
-            if (StringUtils.isBlank(concept.getDefinition())) {
-                concept.setDefinition(statement.getObject().stringValue());
-            }
+    private void completeConcept(Concept concept, @NotNull Statement statement) {
+        switch (statement.getPredicate().stringValue()) {
+            case SKOS_LABEL:
+                if (statement.getObject() instanceof SimpleLiteral) {
+                    SimpleLiteral object = (SimpleLiteral) statement.getObject();
+                    if (object.getLanguage().isPresent()) {
+                        concept.getLabels().put(object.getLanguage().get(), object.getLabel());
+                    } else {
+                        if (StringUtils.isBlank(concept.getLabel())) {
+                            concept.setLabel(object.getLabel());
+                        }
+                    }
+                } else {
+                    if (StringUtils.isBlank(concept.getLabel())) {
+                        concept.setLabel(statement.getObject().stringValue());
+                    }
+                }
+                break;
+            case SKOS_NOTATION:
+                if (StringUtils.isBlank(concept.getNotation())) {
+                    concept.setNotation(statement.getObject().stringValue());
+                }
+                break;
+            case SKOS_DEFINITION:
+                if (statement.getObject() instanceof SimpleLiteral) {
+                    SimpleLiteral object = (SimpleLiteral) statement.getObject();
+                    if (object.getLanguage().isPresent()) {
+                        concept.getDefinitions().put(object.getLanguage().get(), object.getLabel());
+                    } else {
+                        if (StringUtils.isBlank(concept.getDefinition())) {
+                            concept.setDefinition(object.getLabel());
+                        }
+                    }
+                } else {
+                    if (StringUtils.isBlank(concept.getDefinition())) {
+                        concept.setDefinition(statement.getObject().stringValue());
+                    }
+                }
+                break;
         }
     }
 

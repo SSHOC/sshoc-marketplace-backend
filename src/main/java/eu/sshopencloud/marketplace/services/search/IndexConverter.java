@@ -136,7 +136,7 @@ public class IndexConverter {
                 .vocabularyCode(vocabulary.getCode())
                 .label(concept.getLabel())
                 .notation(concept.getNotation())
-                .definition(concept.getDefinition())
+                .definition(concept.getDefinition() != null ? concept.getDefinition() : "") // TODO change definition to an optional field
                 .uri(concept.getUri())
                 .types(proopertyTypes.stream().map(PropertyType::getCode).collect(Collectors.toList()));
         return builder.build();

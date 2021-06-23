@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0043-SSHOC_19-multilanguage-concepts-1
+      author: mkozak
+      description: Add columns for i18n labels and definiotions
+      changes:
+        - addColumn:
+            tableName: concepts
+            columns:
+              - column:
+                  name: labels
+                  type: VARCHAR(2048)
+              - column:
+                  name: definitions
+                  type: VARCHAR(16384)
+
+  - changeSet:
+      id: 0043-SSHOC_19-multilanguage-concepts-2
+      author: mkozak
+      description: Update current i18n labels and definiotions
+      changes:
+        - sql:
+            sql: >
+                update concepts set labels = '{"en":"' || replace(label, '"', '\"') || '"}'
+        - sql:
+            sql: >
+                update concepts set definition = null where definition = ''
+        - sql:
+            sql: >
+                update concepts set definitions = '{"en":"' || replace(definition, '"', '\"') || '"}' where definition is not null
+        - sql:
+            sql: >
+                update concepts set definitions = '{}' where definition is null
+
+  - changeSet:
+      id: 0043-SSHOC_19-multilanguage-concepts-3
+      author: mkozak
+      description: Make labels not nullable
+      changes:
+        - addNotNullConstraint:
+            tableName: concepts
+            columnName: labels
+        - addNotNullConstraint:
+            tableName: concepts
+            columnName: definitions
