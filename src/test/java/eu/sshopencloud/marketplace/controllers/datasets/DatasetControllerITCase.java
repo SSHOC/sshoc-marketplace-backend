@@ -14,7 +14,6 @@ import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.ItemThumbnailId;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
-import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
@@ -110,7 +109,6 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("id", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Austin Crime Data")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("informationContributor.id", is(3)));
     }
 
@@ -429,7 +427,6 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("label", is("Label")))
                 .andExpect(jsonPath("description", is("Lorem ipsum dolor")))
                 .andExpect(jsonPath("informationContributor.username", is("Moderator")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(3)))
                 .andExpect(jsonPath("contributors[0].actor.id", is(1)))
                 .andExpect(jsonPath("contributors[0].role.code", is("contributor")))
@@ -447,6 +444,20 @@ public class DatasetControllerITCase {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
         dataset.setDescription("Lorem ipsum");
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("license");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("MIT");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("software-license");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property1);
+        dataset.setProperties(properties);
+
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
         log.debug("JSON: " + payload);
@@ -462,9 +473,9 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("label", is("Test simple dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("informationContributor.username", is("Administrator")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(0)));
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("MIT License")));
     }
 
     @Test
@@ -475,11 +486,6 @@ public class DatasetControllerITCase {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test complex dataset");
         dataset.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("mit");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        dataset.setLicenses(licenses);
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
         actor.setId(3l);
@@ -528,8 +534,6 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("label", is("Test complex dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("informationContributor.username", is("Administrator")))
-                .andExpect(jsonPath("licenses", hasSize(1)))
-                .andExpect(jsonPath("licenses[0].label", is("MIT License")))
                 .andExpect(jsonPath("contributors", hasSize(1)))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
@@ -638,11 +642,6 @@ public class DatasetControllerITCase {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Dataset to delete");
         dataset.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("apache-2.0");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        dataset.setLicenses(licenses);
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
         actor.setId(3l);

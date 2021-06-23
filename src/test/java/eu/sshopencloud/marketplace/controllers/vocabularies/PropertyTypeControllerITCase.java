@@ -67,7 +67,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.propertyTypes", hasSize(10)))
                 .andExpect(jsonPath("$.propertyTypes[*].code", contains(
                         "language", "activity", "technique", "material", "object-format",
-                        "keyword", "tadirah-goals", "thumbnail", "repository-url", "license-type"
+                        "keyword", "tadirah-goals", "thumbnail", "repository-url", "license"
                 )))
                 .andExpect(jsonPath("$.propertyTypes[5].label", is("Keyword")))
                 .andExpect(jsonPath("$.propertyTypes[0].allowedVocabularies", hasSize(2)))
@@ -291,7 +291,6 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("web-usable", 11);
         assertPropertyTypeOrder("tool-family", 12);
         assertPropertyTypeOrder("media", 16);
-        assertPropertyTypeOrder("license-type", 10);
 
         mvc.perform(
                 delete("/api/property-types/{code}", "technique")
@@ -311,7 +310,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("web-usable", 10);
         assertPropertyTypeOrder("tool-family", 11);
         assertPropertyTypeOrder("media", 15);
-        assertPropertyTypeOrder("license-type", 9);
+        assertPropertyTypeOrder("license", 9);
     }
 
     @Test
@@ -502,7 +501,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -526,7 +525,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("repository-url", 7);
         assertPropertyTypeOrder("tadirah-goals", 8);
         assertPropertyTypeOrder("keyword", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
     }
 
     @Test
@@ -536,7 +535,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -563,7 +562,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -590,7 +589,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -617,7 +616,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
