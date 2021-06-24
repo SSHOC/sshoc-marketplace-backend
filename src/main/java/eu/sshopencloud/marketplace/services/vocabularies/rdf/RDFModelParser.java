@@ -130,11 +130,23 @@ public class RDFModelParser {
             if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getTitles().containsKey("en")) {
                 vocabulary.setLabel(vocabulary.getTitles().get("en"));
             }
+            if (StringUtils.isBlank(vocabulary.getLabel()) && !vocabulary.getLabels().isEmpty()) {
+                vocabulary.setLabel(vocabulary.getLabels().values().iterator().next());
+            }
+            if (StringUtils.isBlank(vocabulary.getLabel()) && !vocabulary.getTitles().isEmpty()) {
+                vocabulary.setLabel(vocabulary.getTitles().values().iterator().next());
+            }
             if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getComments().containsKey("en")) {
                 vocabulary.setDescription(vocabulary.getComments().get("en"));
             }
             if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getDescriptions().containsKey("en")) {
                 vocabulary.setDescription(vocabulary.getDescriptions().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && !vocabulary.getComments().isEmpty()) {
+                vocabulary.setDescription(vocabulary.getComments().values().iterator().next());
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && !vocabulary.getDescriptions().isEmpty()) {
+                vocabulary.setDescription(vocabulary.getDescriptions().values().iterator().next());
             }
         }
         return vocabulary;
@@ -200,8 +212,14 @@ public class RDFModelParser {
             if (StringUtils.isBlank(concept.getLabel()) && concept.getLabels().containsKey("en")) {
                 concept.setLabel(concept.getLabels().get("en"));
             }
+            if (StringUtils.isBlank(concept.getLabel()) && !concept.getLabels().isEmpty()) {
+                concept.setLabel(concept.getLabels().values().iterator().next());
+            }
             if (StringUtils.isBlank(concept.getDefinition()) && concept.getDefinitions().containsKey("en")) {
                 concept.setDefinition(concept.getDefinitions().get("en"));
+            }
+            if (StringUtils.isBlank(concept.getDefinition()) && !concept.getDefinitions().isEmpty()) {
+                concept.setDefinition(concept.getDefinitions().values().iterator().next());
             }
         }
     }
