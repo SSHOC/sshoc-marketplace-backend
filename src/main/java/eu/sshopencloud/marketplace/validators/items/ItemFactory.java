@@ -116,8 +116,7 @@ public class ItemFactory {
             if (itemThumbnail.isPresent()) {
                 itemThumbnail.get().setItemMediaThumbnail(ItemMediaType.THUMBNAIL);
             }else {
-                //RETHINK
-                item.addMedia(itemMediaFactory.create(itemCore.getThumbnail().getMediaId(), item, errors, ItemMediaType.THUMBNAIL_ONLY, "Thumbnail"));
+                item.addMedia(itemMediaFactory.create(itemCore.getThumbnail().getMediaId(), item, errors, ItemMediaType.THUMBNAIL_ONLY, itemCore.getThumbnail().getCaption()));
             }
         }
 

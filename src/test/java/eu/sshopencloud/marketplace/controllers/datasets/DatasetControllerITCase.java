@@ -10,10 +10,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
-import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
-import eu.sshopencloud.marketplace.dto.items.ItemThumbnailId;
-import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
@@ -851,7 +848,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(grumpycat, seriouscat));
-        dataset.setThumbnail(new ItemThumbnailId(grumpycatId));
+        dataset.setThumbnail(new ItemThumbnailCore(grumpycatId, "Thumbnail"));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -899,7 +896,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("Consortium of European Social Science Data Archives v2");
         dataset.setDescription("Consortium of European Social Science Data Archives with many cat pictures");
         dataset.setMedia(List.of(grumpycat, seriouscat));
-        dataset.setThumbnail(new ItemThumbnailId(seriouscatId));
+        dataset.setThumbnail(new ItemThumbnailCore(seriouscatId, "Serious Cat"));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -912,6 +909,7 @@ public class DatasetControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("thumbnail.caption", is("Serious Cat")))
                 .andExpect(jsonPath("media", hasSize(2)))
                 .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
                 .andExpect(jsonPath("media[0].info.category", is("image")))
@@ -946,7 +944,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(notFound1, grumpycat, seriouscat, grumpycat, notFound2));
-        dataset.setThumbnail(new ItemThumbnailId(grumpycatId));
+        dataset.setThumbnail(new ItemThumbnailCore(grumpycatId, "Thumbnail"));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -988,7 +986,7 @@ public class DatasetControllerITCase {
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(grumpycat, seriouscat));
 
-        dataset.setThumbnail(new ItemThumbnailId(backgoundId));
+        dataset.setThumbnail(new ItemThumbnailCore(backgoundId, "Thumbnail"));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -1001,6 +999,7 @@ public class DatasetControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("thumbnail.mediaId", is(backgoundId.toString())))
+                .andExpect(jsonPath("thumbnail.caption", is("Thumbnail")))
                 .andExpect(jsonPath("media", hasSize(2)))
                 .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
                 .andExpect(jsonPath("media[0].info.category", is("image")))
