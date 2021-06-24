@@ -13,5 +13,4 @@ import lombok.NoArgsConstructor;
 public class ItemMediaDto {
     private MediaDetails info;
     private String caption;
-    private ItemMediaType itemThumbnail;
 }
