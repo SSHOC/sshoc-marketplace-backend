@@ -3,12 +3,17 @@ package eu.sshopencloud.marketplace.model.items;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -187,9 +192,16 @@ public abstract class Item {
         this.media.addAll(media);
     }
 
-    public List<ItemMedia> getMedia() {
-        return Collections.unmodifiableList(media);
+
+    public void addMedia(ItemMedia media) {
+        this.media.add(media);
     }
+
+
+    public List<ItemMedia> getMedia() {
+        return media.stream().filter(m -> m.getItemMediaThumbnail() != ItemMediaType.THUMBNAIL_ONLY).collect(Collectors.toUnmodifiableList());
+    }
+
 
     public ItemMedia getThumbnail() {
         return media.stream().filter(m -> m.getItemMediaThumbnail() != ItemMediaType.MEDIA).findFirst().orElse(null);

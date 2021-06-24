@@ -28,7 +28,7 @@ public class ItemCore implements ItemRelationsCore {
 
     private List<ItemMediaCore> media;
 
-    private ItemThumbnailId thumbnail;
+    private ItemMediaCore thumbnail;
 
     private List<String> accessibleAt;
 

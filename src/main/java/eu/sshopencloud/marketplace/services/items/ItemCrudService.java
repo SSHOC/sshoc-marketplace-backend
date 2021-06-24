@@ -408,8 +408,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         for (int i = 0; i < item.getMedia().size(); ++i) {
             ItemMedia media = item.getMedia().get(i);
             MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
-
             dto.getMedia().get(i).setInfo(mediaDetails);
+        }
+
+        ItemMedia thumbnail = item.getThumbnail();
+        if (thumbnail != null) {
+            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(thumbnail.getMediaId());
+            dto.getThumbnail().setInfo(mediaDetails);
         }
     }
 
