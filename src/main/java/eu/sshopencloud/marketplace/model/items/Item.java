@@ -187,9 +187,20 @@ public abstract class Item {
         this.media.addAll(media);
     }
 
-    public List<ItemMedia> getMedia() {
-        return Collections.unmodifiableList(media);
+    public boolean isThumbnailOnly(){
+        return media.stream().anyMatch(m -> m.getItemMediaThumbnail().equals(ItemMediaType.THUMBNAIL_ONLY));
     }
+
+
+    public void addMedia(ItemMedia media) {
+        this.media.add(media);
+    }
+
+
+    public List<ItemMedia> getMedia() {
+        return Collections.unmodifiableList(media.stream().filter(m -> m.getItemMediaThumbnail()!= ItemMediaType.THUMBNAIL_ONLY).collect(Collectors.toList()));
+    }
+
 
     public ItemMedia getThumbnail() {
         return media.stream().filter(m -> m.getItemMediaThumbnail() != ItemMediaType.MEDIA).findFirst().orElse(null);

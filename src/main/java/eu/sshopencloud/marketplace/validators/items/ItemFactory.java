@@ -115,12 +115,9 @@ public class ItemFactory {
 
             if (itemThumbnail.isPresent()) {
                 itemThumbnail.get().setItemMediaThumbnail(ItemMediaType.THUMBNAIL);
-            }
-            else {
-                errors.rejectValue(
-                        "thumbnail", "field.notExist",
-                        String.format("Thumbnail media %s not present in item's media", thumbnailId)
-                );
+            }else {
+                //RETHINK
+                item.addMedia(itemMediaFactory.create(itemCore.getThumbnail().getMediaId(), item, errors, ItemMediaType.THUMBNAIL_ONLY, "Thumbnail"));
             }
         }
 
