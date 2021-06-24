@@ -13,6 +13,7 @@ import org.eclipse.rdf4j.model.impl.SimpleLiteral;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -24,7 +25,13 @@ public class RDFModelParser {
 
     private static final String RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label";
 
+    private static final String DC_TITLE = "http://purl.org/dc/elements/1.1/title";
+
+    private static final String DCT_TITLE = "http://purl.org/dc/terms/title";
+
     private static final String RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment";
+
+    private static final String DC_DESCRIPTION = "http://purl.org/dc/elements/1.1/description";
 
     private static final String SKOS_CONCEPT = "http://www.w3.org/2004/02/skos/core#Concept";
 
@@ -39,31 +46,75 @@ public class RDFModelParser {
     private static final String SKOS_NARROWER = "http://www.w3.org/2004/02/skos/core#narrower";
 
 
-
-    private void completeVocabulary(Vocabulary vocabulary, Statement statement) {
-        if (statement.getPredicate().stringValue().equals(RDFS_LABEL)) {
-            if (StringUtils.isBlank(vocabulary.getLabel())) {
-                String label = statement.getObject().stringValue();
-                if (label.endsWith(".")) {
-                    vocabulary.setLabel(label.substring(0, label.length() - 1));
-                } else {
-                    vocabulary.setLabel(label);
+    private void completeWithStatement(Statement statement, Map<String, String> values,
+                                       Function<Void, String> checkFunction, Function<String, Void> setFunction) {
+        if (statement.getObject() instanceof SimpleLiteral) {
+            SimpleLiteral object = (SimpleLiteral) statement.getObject();
+            if (object.getLanguage().isPresent()) {
+                if (!values.containsKey(object.getLanguage().get())) {
+                    values.put(object.getLanguage().get(), object.getLabel());
+                }
+            } else {
+                if (StringUtils.isBlank(checkFunction.apply(null))) {
+                    setFunction.apply(object.getLabel());
                 }
             }
-        }
-        if (statement.getPredicate().stringValue().equals(RDFS_COMMENT)) {
-            if (StringUtils.isBlank(vocabulary.getDescription())) {
-                vocabulary.setDescription(statement.getObject().stringValue());
+        } else {
+            if (StringUtils.isBlank(checkFunction.apply(null))) {
+                setFunction.apply(statement.getObject().stringValue());
             }
+        }
+    }
+
+
+    private void completeVocabulary(Vocabulary vocabulary, Statement statement) {
+        switch (statement.getPredicate().stringValue()) {
+            case RDFS_LABEL:
+                completeWithStatement(statement, vocabulary.getLabels(),
+                        v -> vocabulary.getLabel(),
+                        s -> {
+                            vocabulary.setLabel(s);
+                            return null;
+                        });
+                break;
+            case DC_TITLE:
+            case DCT_TITLE:
+                completeWithStatement(statement, vocabulary.getTitles(),
+                        v -> vocabulary.getLabel(),
+                        s -> {
+                            vocabulary.setLabel(s);
+                            return null;
+                        });
+                break;
+            case RDFS_COMMENT:
+                completeWithStatement(statement, vocabulary.getComments(),
+                        v -> vocabulary.getDescription(),
+                        s -> {
+                            vocabulary.setDescription(s);
+                            return null;
+                        });
+                break;
+            case DC_DESCRIPTION:
+                completeWithStatement(statement, vocabulary.getDescriptions(),
+                        v -> vocabulary.getDescription(),
+                        s -> {
+                            vocabulary.setDescription(s);
+                            return null;
+                        });
+                break;
         }
         // TODO accessibleAt
     }
+
 
     public Vocabulary createVocabulary(String vocabularyCode, Model rdfModel) {
         Vocabulary vocabulary = new Vocabulary();
         vocabulary.setCode(vocabularyCode);
         vocabulary.setLabel("");
-        vocabulary.setDescription("");
+        vocabulary.setLabels(new HashMap<>());
+        vocabulary.setTitles(new HashMap<>());
+        vocabulary.setComments(new HashMap<>());
+        vocabulary.setDescriptions(new HashMap<>());
         Optional<Statement> schemeStatement = rdfModel.stream()
                 .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
                 .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT_SCHEME))
@@ -73,6 +124,18 @@ public class RDFModelParser {
             rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(scheme))
                     .forEach(statement -> completeVocabulary(vocabulary, statement));
+            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getLabels().containsKey("en")) {
+                vocabulary.setLabel(vocabulary.getLabels().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getTitles().containsKey("en")) {
+                vocabulary.setLabel(vocabulary.getTitles().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getComments().containsKey("en")) {
+                vocabulary.setDescription(vocabulary.getComments().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getDescriptions().containsKey("en")) {
+                vocabulary.setDescription(vocabulary.getDescriptions().get("en"));
+            }
         }
         return vocabulary;
     }
@@ -146,20 +209,12 @@ public class RDFModelParser {
     private void completeConcept(Concept concept, @NotNull Statement statement) {
         switch (statement.getPredicate().stringValue()) {
             case SKOS_LABEL:
-                if (statement.getObject() instanceof SimpleLiteral) {
-                    SimpleLiteral object = (SimpleLiteral) statement.getObject();
-                    if (object.getLanguage().isPresent()) {
-                        concept.getLabels().put(object.getLanguage().get(), object.getLabel());
-                    } else {
-                        if (StringUtils.isBlank(concept.getLabel())) {
-                            concept.setLabel(object.getLabel());
-                        }
-                    }
-                } else {
-                    if (StringUtils.isBlank(concept.getLabel())) {
-                        concept.setLabel(statement.getObject().stringValue());
-                    }
-                }
+                completeWithStatement(statement, concept.getLabels(),
+                        v -> concept.getLabel(),
+                        s -> {
+                            concept.setLabel(s);
+                            return null;
+                        });
                 break;
             case SKOS_NOTATION:
                 if (StringUtils.isBlank(concept.getNotation())) {
@@ -167,20 +222,12 @@ public class RDFModelParser {
                 }
                 break;
             case SKOS_DEFINITION:
-                if (statement.getObject() instanceof SimpleLiteral) {
-                    SimpleLiteral object = (SimpleLiteral) statement.getObject();
-                    if (object.getLanguage().isPresent()) {
-                        concept.getDefinitions().put(object.getLanguage().get(), object.getLabel());
-                    } else {
-                        if (StringUtils.isBlank(concept.getDefinition())) {
-                            concept.setDefinition(object.getLabel());
-                        }
-                    }
-                } else {
-                    if (StringUtils.isBlank(concept.getDefinition())) {
-                        concept.setDefinition(statement.getObject().stringValue());
-                    }
-                }
+                completeWithStatement(statement, concept.getDefinitions(),
+                        v -> concept.getDefinition(),
+                        s -> {
+                            concept.setDefinition(s);
+                            return null;
+                        });
                 break;
         }
     }

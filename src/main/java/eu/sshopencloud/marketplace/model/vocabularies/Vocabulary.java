@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.model.vocabularies;
 
+import eu.sshopencloud.marketplace.conf.jpa.HashMapConverter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 
 
 @Entity
@@ -23,8 +25,28 @@ public class Vocabulary {
     @Column(nullable = false)
     private String label;
 
-    @Column(nullable = false, length = 4096)
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @Convert(converter = HashMapConverter.class)
+    @Column(nullable = false, length = 2048)
+    private Map<String, String> labels;
+
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @Convert(converter = HashMapConverter.class)
+    @Column(nullable = false, length = 2048)
+    private Map<String, String> titles;
+
+    @Column(nullable = true, length = 4096)
     private String description;
+
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @Convert(converter = HashMapConverter.class)
+    @Column(nullable = false, length = 16384)
+    private Map<String, String> comments;
+
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @Convert(converter = HashMapConverter.class)
+    @Column(nullable = false, length = 16384)
+    private Map<String, String> descriptions;
 
     @Column
     private String accessibleAt;
@@ -32,4 +54,5 @@ public class Vocabulary {
     @OneToMany(mappedBy = "vocabulary", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
     @OrderBy("ord")
     private List<Concept> concepts;
+
 }
