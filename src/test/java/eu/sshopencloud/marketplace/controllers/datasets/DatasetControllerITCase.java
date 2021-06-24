@@ -10,10 +10,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
-import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
-import eu.sshopencloud.marketplace.dto.items.ItemThumbnailId;
-import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
@@ -851,7 +848,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(grumpycat, seriouscat));
-        dataset.setThumbnail(new ItemThumbnailId(grumpycatId));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Not used caption as the thumbnail is one of item media (shared)"));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -863,7 +860,12 @@ public class DatasetControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
-                .andExpect(jsonPath("thumbnail.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("thumbnail.info.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("thumbnail.info.category", is("image")))
+                .andExpect(jsonPath("thumbnail.info.location.sourceUrl", is(grumpyUrl.toString())))
+                .andExpect(jsonPath("thumbnail.info.mimeType", is("image/png")))
+                .andExpect(jsonPath("thumbnail.info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("thumbnail.caption", is("Grumpy Cat")))
                 .andExpect(jsonPath("media", hasSize(2)))
                 .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
                 .andExpect(jsonPath("media[0].info.category", is("image")))
@@ -899,7 +901,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("Consortium of European Social Science Data Archives v2");
         dataset.setDescription("Consortium of European Social Science Data Archives with many cat pictures");
         dataset.setMedia(List.of(grumpycat, seriouscat));
-        dataset.setThumbnail(new ItemThumbnailId(seriouscatId));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(seriouscatId), null));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -911,7 +913,12 @@ public class DatasetControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
-                .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("thumbnail.info.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("thumbnail.info.category", is("image")))
+                .andExpect(jsonPath("thumbnail.info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("thumbnail.info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("thumbnail.info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("thumbnail.caption", is("Serious Cat")))
                 .andExpect(jsonPath("media", hasSize(2)))
                 .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
                 .andExpect(jsonPath("media[0].info.category", is("image")))
@@ -946,7 +953,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(notFound1, grumpycat, seriouscat, grumpycat, notFound2));
-        dataset.setThumbnail(new ItemThumbnailId(grumpycatId));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Thumbnail"));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -973,20 +980,22 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldNotAssignNotPresentThumbnail() throws Exception {
-        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", ADMINISTRATOR_JWT);
-        UUID grumpycatId = MediaTestUploadUtils.importMedia(
-                mvc, mapper, wireMockRule, "grumpycat.png", "image/png", ADMINISTRATOR_JWT
-        );
+    public void shouldCreateDatasetWithMediaWithoutThumbnailIncludedInMedia() throws Exception {
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+        UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
+        UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg",  CONTRIBUTOR_JWT);
 
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
         ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
 
+        URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
+
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
-        dataset.setMedia(List.of(seriouscat, grumpycat));
-        dataset.setThumbnail(new ItemThumbnailId(UUID.randomUUID()));
+        dataset.setMedia(List.of(grumpycat, seriouscat));
+
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(backgoundId), "Thumbnail caption as it is separated image (not shared with item media)"));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -994,15 +1003,33 @@ public class DatasetControllerITCase {
                 post("/api/datasets")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload)
-                        .header("Authorization", ADMINISTRATOR_JWT)
+                        .header("Authorization", CONTRIBUTOR_JWT)
         )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors", hasSize(1)))
-                .andExpect(jsonPath("errors[0].field", is("thumbnail")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("thumbnail.info.mediaId", is(backgoundId.toString())))
+                .andExpect(jsonPath("thumbnail.info.category", is("image")))
+                .andExpect(jsonPath("thumbnail.info.filename", is("jpeg_example.jpeg")))
+                .andExpect(jsonPath("thumbnail.info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("thumbnail.info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("thumbnail.caption", is("Thumbnail caption as it is separated image (not shared with item media)")))
+                .andExpect(jsonPath("media", hasSize(2)))
+                .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("media[0].info.category", is("image")))
+                .andExpect(jsonPath("media[0].info.location.sourceUrl", is(grumpyUrl.toString())))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/png")))
+                .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].caption", is("Grumpy Cat")))
+                .andExpect(jsonPath("media[1].info.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[1].info.category", is("image")))
+                .andExpect(jsonPath("media[1].info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[1].info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[1].info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[1].caption", is("Serious Cat")));
 
-        assertTrue(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
-        assertTrue(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
+
     }
+
 }

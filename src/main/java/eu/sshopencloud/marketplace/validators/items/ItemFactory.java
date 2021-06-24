@@ -107,20 +107,16 @@ public class ItemFactory {
         item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
         item.addMedia(itemMediaFactory.create(itemCore.getMedia(), item, errors));
 
-        if (itemCore.getThumbnail() != null) {
-            UUID thumbnailId = itemCore.getThumbnail().getMediaId();
+        if (itemCore.getThumbnail() != null && itemCore.getThumbnail().getInfo() != null) {
+            UUID thumbnailId = itemCore.getThumbnail().getInfo().getMediaId();
             Optional<ItemMedia> itemThumbnail = item.getMedia().stream()
                     .filter(media -> media.getMediaId().equals(thumbnailId))
                     .findFirst();
 
             if (itemThumbnail.isPresent()) {
                 itemThumbnail.get().setItemMediaThumbnail(ItemMediaType.THUMBNAIL);
-            }
-            else {
-                errors.rejectValue(
-                        "thumbnail", "field.notExist",
-                        String.format("Thumbnail media %s not present in item's media", thumbnailId)
-                );
+            } else {
+                item.addMedia(itemMediaFactory.create(itemCore.getThumbnail().getInfo().getMediaId(), item, errors, ItemMediaType.THUMBNAIL_ONLY, itemCore.getThumbnail().getCaption()));
             }
         }
 

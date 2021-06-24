@@ -31,6 +31,6 @@ public class ItemDto extends ItemExtBasicDto {
 
     private List<ItemMediaDto> media;
 
-    private ItemThumbnailId thumbnail;
+    private ItemMediaDto thumbnail;
 
 }

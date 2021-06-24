@@ -1,11 +1,11 @@
 package eu.sshopencloud.marketplace.validators.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
-import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
+import eu.sshopencloud.marketplace.model.items.ItemMediaType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -71,4 +71,26 @@ public class ItemMediaFactory {
 
         return newMedia;
     }
+
+    public ItemMedia create(UUID itemMediaId, Item item, Errors errors, ItemMediaType itemThumbnail, String caption) {
+
+        if (itemMediaId == null) {
+            errors.pushNestedPath("info");
+            errors.rejectValue(
+                    "mediaId", "field.required", "The field mediaId is required"
+            );
+            errors.popNestedPath();
+            return null;
+        }
+
+        if (mediaStorageService.ensureMediaAvailable(itemMediaId)) {
+            return new ItemMedia(item, itemMediaId, caption, itemThumbnail);
+        } else {
+            errors.pushNestedPath("info");
+            errors.rejectValue("mediaId", "field.notExist", String.format("Media with id %s is not available", itemMediaId));
+            errors.popNestedPath();
+            return null;
+        }
+    }
+
 }
