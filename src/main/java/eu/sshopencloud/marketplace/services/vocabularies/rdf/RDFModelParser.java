@@ -24,7 +24,13 @@ public class RDFModelParser {
 
     private static final String RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label";
 
+    private static final String DC_TITLE = "http://purl.org/dc/elements/1.1/title";
+
+    private static final String DCT_TITLE = "http://purl.org/dc/terms/title";
+
     private static final String RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment";
+
+    private static final String DC_DESCRIPTION = "http://purl.org/dc/elements/1.1/description";
 
     private static final String SKOS_CONCEPT = "http://www.w3.org/2004/02/skos/core#Concept";
 
@@ -41,6 +47,7 @@ public class RDFModelParser {
 
 
     private void completeVocabulary(Vocabulary vocabulary, Statement statement) {
+
         if (statement.getPredicate().stringValue().equals(RDFS_LABEL)) {
             if (StringUtils.isBlank(vocabulary.getLabel())) {
                 String label = statement.getObject().stringValue();
@@ -63,7 +70,6 @@ public class RDFModelParser {
         Vocabulary vocabulary = new Vocabulary();
         vocabulary.setCode(vocabularyCode);
         vocabulary.setLabel("");
-        vocabulary.setDescription("");
         Optional<Statement> schemeStatement = rdfModel.stream()
                 .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
                 .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT_SCHEME))

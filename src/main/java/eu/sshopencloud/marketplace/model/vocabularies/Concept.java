@@ -43,7 +43,7 @@ public class Concept {
     private Integer ord;
 
     @Basic
-    @Column(nullable = false, length = 4096)
+    @Column(nullable = true, length = 4096)
     private String definition;
 
     @SuppressWarnings("JpaAttributeTypeInspection")
