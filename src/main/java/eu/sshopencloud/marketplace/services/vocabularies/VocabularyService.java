@@ -191,6 +191,7 @@ public class VocabularyService {
 
         Vocabulary vocabulary = RDFModelParser.createVocabulary(vocabularyCode, rdfModel);
 
+        // TODO change possible candidate concepts and relations to the proper one
         Map<String, Concept> conceptMap = RDFModelParser.createConcepts(rdfModel, vocabulary);
         vocabulary.setConcepts(new ArrayList<>(conceptMap.values()));
 

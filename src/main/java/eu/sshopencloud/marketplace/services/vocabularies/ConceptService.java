@@ -1,14 +1,14 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptBasicCore;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
 import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptMapper;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptDetachingRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptRepository;
-import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelationRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -66,9 +66,29 @@ public class ConceptService {
         return conceptRepository.findByVocabularyCode(vocabularyCode, Sort.by(Sort.Order.asc("ord")));
     }
 
-    public Concept getConcept(String code, String vocabularyCode) {
-        return conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build())
+    public ConceptDto getConcept(String code, String vocabularyCode) {
+        Concept concept = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build())
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));
+        ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
+        return attachRelatedConcepts(conceptDto, vocabularyCode);
+    }
+
+    public ConceptDto createConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) {
+
+        // TODOD
+        return null;
+    }
+
+    public ConceptDto updateConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) {
+
+        // TODOD
+        return null;
+    }
+
+    public ConceptDto commitConcept(String code, String vocabularyCode) {
+
+        // TODOD
+        return null;
     }
 
     public List<Concept> getRelatedConceptsOfConcept(Concept concept, ConceptRelation relation) {
@@ -90,6 +110,10 @@ public class ConceptService {
         return conceptRepository.saveAll(concepts);
     }
 
+
+    public void removeConcept(String code, String vocabularyCode, boolean force) {
+    }
+
     public void removeConcepts(List<Concept> concepts) {
         concepts.forEach(this::removeConceptAssociations);
         conceptRepository.deleteAll(concepts);
@@ -98,4 +122,5 @@ public class ConceptService {
     private void removeConceptAssociations(Concept concept) {
         conceptRelatedConceptRepository.deleteConceptRelations(concept.getCode());
     }
+
 }

@@ -5,11 +5,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class RelatedConceptDto {
+public class ConceptBasicCore {
 
     private String code;
-
-    private VocabularyBasicDto vocabulary;
 
     private String label;
 
@@ -19,8 +17,5 @@ public class RelatedConceptDto {
 
     private String uri;
 
-    private ConceptRelationDto relation;
-
-    private boolean candidate;
 
 }

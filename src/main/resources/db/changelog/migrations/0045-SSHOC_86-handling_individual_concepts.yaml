@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-1
+      author: mkozak
+      description: Add columns for uri of relations
+      changes:
+        - addColumn:
+            tableName: concept_relations
+            columns:
+              - column:
+                  name: uri
+                  type: VARCHAR(2048)
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-2
+      author: mkozak
+      description: Update current uri relations
+      changes:
+        - sql:
+            sql: >
+                update concept_relations set uri = 'http://www.w3.org/2004/02/skos/core#related' where code = 'related'
+        - sql:
+            sql: >
+                update concept_relations set uri = 'http://www.w3.org/2002/07/owl#sameAs' where code = 'sameAs'
+        - sql:
+            sql: >
+                update concept_relations set uri = 'http://www.w3.org/2004/02/skos/core#broader' where code = 'broader'
+        - sql:
+            sql: >
+                update concept_relations set uri = 'http://www.w3.org/2004/02/skos/core#narrower' where code = 'narrower'
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-3
+      author: mkozak
+      description: Make uri uniqiue and not nullable
+      changes:
+        - addNotNullConstraint:
+            tableName: concept_relations
+            columnName: uri
+        - addUniqueConstraint:
+            tableName: concept_relations
+            columnNames: uri
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-4
+      author: mkozak
+      description: Add columns for candidate flags
+      changes:
+        - addColumn:
+            tableName: concepts
+            columns:
+              - column:
+                  name: candidate
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
