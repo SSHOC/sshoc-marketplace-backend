@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
@@ -304,5 +305,16 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public List<ItemExtBasicDto> getStepVersions(String workflowId, String stepId, boolean draft, boolean approved) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
         return getItemHistory(stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
+    }
+
+    public List<UserDto> getStepInformationContributors(String workflowId, String stepId) {
+        validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
+        return getInformationContributors(stepId);
+    }
+
+    public List<UserDto> getStepInformationContributorsForVersion(String workflowId, String stepId, Long versionId) {
+        validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
+
+        return getInformationContributorsForVersion(stepId, versionId);
     }
 }

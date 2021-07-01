@@ -1,10 +1,11 @@
 package eu.sshopencloud.marketplace.controllers.trainings;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
-import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.services.items.TrainingMaterialService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
@@ -87,6 +88,18 @@ public class TrainingMaterialController {
                                                                             @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                             @RequestParam(value = "approved", defaultValue = "true") boolean approved ) {
         return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersions(id, draft, approved));
+    }
+
+    @GetMapping(path = "/{trainingMaterialId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("trainingMaterialId") String id) {
+
+        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialInformationContributors(id));
+    }
+
+    @GetMapping(path = "/{trainingMaterialId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("trainingMaterialId") String id, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialInformationContributorsForVersion(id,versionId));
     }
 
 }

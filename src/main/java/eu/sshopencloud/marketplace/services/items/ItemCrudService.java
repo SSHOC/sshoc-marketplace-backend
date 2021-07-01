@@ -5,7 +5,11 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
-import eu.sshopencloud.marketplace.dto.items.*;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.items.ItemDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationsCore;
+import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -445,7 +449,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        // TODO change to recursive subordinates query in ItemRepository
         List<ItemExtBasicDto> versions = new ArrayList<>();
         versions.add(ItemExtBasicConverter.convertItem(item));
         Item prevVersion = itemRepository.getOne(item.getId()).getPrevVersion();
@@ -456,6 +459,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
+    protected List<UserDto> getInformationContributorsForVersion(String itemId,  Long versionId) {
+        return userService.getInformationContributorsForVersion(itemId,versionId);
+    }
+
+    protected List<UserDto> getInformationContributors(String itemId) {
+        return userService.getInformationContributors(itemId);
+    }
 
 
     private I makeItemVersion(C itemCore, I prevItem) {

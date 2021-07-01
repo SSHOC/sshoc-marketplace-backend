@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
@@ -130,6 +131,14 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
     public List<ItemExtBasicDto> getDatasetVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
+    }
+
+    public List<UserDto> getDatasetInformationContributors(String id) {
+        return getInformationContributors(id);
+    }
+
+    public List<UserDto> getDatasetInformationContributorsForVersion(String id, Long versionId) {
+        return getInformationContributorsForVersion(id, versionId);
     }
 
 }

@@ -5,7 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 
 @Repository
@@ -20,5 +23,39 @@ public interface UserRepository extends JpaRepository<User, Long> {
             " or lower(u.displayName) like lower(concat('%', :q,'%'))" +
             " or lower(u.email) like lower(concat('%', :q,'%'))")
     Page<User> findLikeUsernameOrDisplayNameOrEmail(String q, Pageable pageable);
+
+    //Eliza QUERY
+    @Query(value =
+            "WITH RECURSIVE sub_item AS (\n" +
+                    " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id \n" +
+                    " FROM items i \n" +
+                    " WHERE i.persistent_id = :persistentId" +
+                    "  UNION\n" +
+                    " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id\n" +
+                    " FROM items i, sub_item si\n" +
+                    "WHERE i.id = si.prev_version_id ) \n" +
+
+                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences FROM Users u \n" +
+                    "INNER JOIN sub_item s\n" +
+                    "ON u.id = s.info_contributor_id", nativeQuery = true
+    )
+    List<User> findInformationContributors(@Param("persistentId") String persistentId);
+
+
+    @Query(value =
+            "WITH RECURSIVE sub_item AS (\n" +
+                    " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id \n" +
+                    " FROM items i \n" +
+                    " WHERE i.persistent_id = :persistentId and i.id = :versionId " +
+                    "  UNION\n" +
+                    " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id\n" +
+                    " FROM items i, sub_item si\n" +
+                    "WHERE i.id = si.prev_version_id ) \n" +
+
+                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences FROM Users u \n" +
+                    "INNER JOIN sub_item s\n" +
+                    "ON u.id = s.info_contributor_id", nativeQuery = true
+    )
+    List<User> findInformationContributorsForVersion(@Param("persistentId") String persistentId, @Param("versionId") Long versionId);
 
 }

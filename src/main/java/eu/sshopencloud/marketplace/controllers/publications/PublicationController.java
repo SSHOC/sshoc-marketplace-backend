@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.publications;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
@@ -83,6 +84,18 @@ public class PublicationController {
                                                                        @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                        @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(publicationService.getPublicationVersions(id, draft, approved));
+    }
+
+    @GetMapping(path = "/{publicationId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("publicationId") String id) {
+
+        return ResponseEntity.ok(publicationService.getPublicationInformationContributors(id));
+    }
+
+    @GetMapping(path = "/{publicationId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("publicationId") String id, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(publicationService.getPublicationInformationContributorsForVersion(id,versionId));
     }
 
 

@@ -6,6 +6,8 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
@@ -1727,5 +1729,89 @@ public class TrainingMaterialControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
+    }
+
+    @Test
+    public void shouldReturnTrainingMaterialInformationContributors() throws Exception {
+
+        String trainingMaterialPersistentId = "heBAGQ";
+
+        mvc.perform(get("/api/training-materials/{id}/information-contributors", trainingMaterialPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].username", is("Moderator")))
+                .andExpect(jsonPath("$[0].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("moderator")))
+                .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+    }
+
+    @Test
+    public void shouldReturnTrainingMaterialInformationContributorsForVersion() throws Exception {
+
+        String trainingMaterialPersistentId = "heBAGQ";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Gephi: explore the networks");
+        trainingMaterial.setDescription("An open source software for exploring and manipulating networks");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(put("/api/training-materials/{id}", trainingMaterialPersistentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial.getDescription())))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("contributors", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+
+        Long versionId = TestJsonMapper.serializingObjectMapper()
+                .readValue(jsonResponse, DatasetDto.class).getId();
+
+        log.debug("Dataset version Id: " + versionId);
+
+        mvc.perform(get("/api/training-materials/{id}/versions/{versionId}/information-contributors", trainingMaterialPersistentId, versionId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[0].displayName", is("Administrator")))
+                .andExpect(jsonPath("$[1].id", is(2)))
+                .andExpect(jsonPath("$[1].username", is("Moderator")))
+                .andExpect(jsonPath("$[1].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[1].status", is("enabled")))
+                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].role", is("moderator")))
+                .andExpect(jsonPath("$[1].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[1].config", is(true)));
+
+
+        Long beforeVersionId = 4l;
+
+        mvc.perform(get("/api/training-materials/{id}/versions/{versionId}/information-contributors", trainingMaterialPersistentId, beforeVersionId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].username", is("Moderator")))
+                .andExpect(jsonPath("$[0].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("moderator")))
+                .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+
     }
 }

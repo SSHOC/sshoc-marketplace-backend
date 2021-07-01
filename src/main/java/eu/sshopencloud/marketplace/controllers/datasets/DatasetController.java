@@ -1,11 +1,12 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
-import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -83,6 +84,18 @@ public class DatasetController {
                                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
         return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));
+    }
+
+    @GetMapping(path = "/{datasetId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("datasetId") String id) {
+
+        return ResponseEntity.ok(datasetService.getDatasetInformationContributors(id));
+    }
+
+    @GetMapping(path = "/{datasetId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("datasetId") String id, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(datasetService.getDatasetInformationContributorsForVersion(id,versionId));
     }
 
 
