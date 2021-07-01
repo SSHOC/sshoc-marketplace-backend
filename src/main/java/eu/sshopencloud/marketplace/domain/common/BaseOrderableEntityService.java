@@ -14,7 +14,9 @@ public abstract class BaseOrderableEntityService<T extends OrderableEntity<Id>, 
 
     protected void placeEntryAtPosition(T entry, Integer ord, boolean insert) {
 
-        if (ord == null)ord = (int) getEntityRepository().count();
+        if (ord == null)
+            if (insert == false) ord = (int) getEntityRepository().count();
+            else ord = (int) getEntityRepository().count() + 1;
 
         validateEntryPosition(ord, insert);
         entry.setOrd(ord);
@@ -36,7 +38,7 @@ public abstract class BaseOrderableEntityService<T extends OrderableEntity<Id>, 
             if (modifiedEntryOrd != null && ord == modifiedEntryOrd)
                 ord++;
 
-            if  (entry.getOrd() != ord)
+            if (entry.getOrd() != ord)
                 entry.setOrd(ord);
 
             ord++;

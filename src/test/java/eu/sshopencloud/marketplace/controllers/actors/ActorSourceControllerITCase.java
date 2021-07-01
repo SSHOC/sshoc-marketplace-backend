@@ -57,8 +57,11 @@ public class ActorSourceControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].code", is("ORCID")))
+                .andExpect(jsonPath("$[0].ord", is(1)))
                 .andExpect(jsonPath("$[1].code", is("DBLP")))
-                .andExpect(jsonPath("$[2].code", is("Wikidata")));
+                .andExpect(jsonPath("$[1].ord", is(2)))
+                .andExpect(jsonPath("$[2].code", is("Wikidata")))
+                .andExpect(jsonPath("$[2].ord", is(3)));
     }
 
     @Test
@@ -89,6 +92,41 @@ public class ActorSourceControllerITCase {
                 .andExpect(jsonPath("$[2].code", is("test")))
                 .andExpect(jsonPath("$[2].label", is("Test source service")))
                 .andExpect(jsonPath("$[3].code", is("Wikidata")));
+    }
+
+    @Test
+    public void shouldCreateActorSourceWithoutOrd() throws Exception {
+        ActorSourceCore actorSource = ActorSourceCore.builder()
+                .code("test")
+                .label("Test source service")
+                .build();
+
+        String payload = mapper.writeValueAsString(actorSource);
+
+        mvc.perform(
+                post("/api/actor-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test source service")))
+                .andExpect(jsonPath("ord", is(4)))
+        ;
+
+        mvc.perform(get("/api/actor-sources")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code", is("ORCID")))
+                .andExpect(jsonPath("$[0].ord", is(1)))
+                .andExpect(jsonPath("$[1].code", is("DBLP")))
+                .andExpect(jsonPath("$[1].ord", is(2)))
+                .andExpect(jsonPath("$[2].code", is("Wikidata")))
+                .andExpect(jsonPath("$[2].ord", is(3)))
+                .andExpect(jsonPath("$[3].label", is("Test source service")))
+                .andExpect(jsonPath("$[3].code", is("test")))
+                .andExpect(jsonPath("$[3].ord", is(4)));
     }
 
     @Test

@@ -51,11 +51,17 @@ public class ActorRoleControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].code", is("contributor")))
+                .andExpect(jsonPath("$[0].ord", is(1)))
                 .andExpect(jsonPath("$[1].code", is("author")))
+                .andExpect(jsonPath("$[1].ord", is(2)))
                 .andExpect(jsonPath("$[2].code", is("provider")))
+                .andExpect(jsonPath("$[2].ord", is(3)))
                 .andExpect(jsonPath("$[3].code", is("contact")))
+                .andExpect(jsonPath("$[3].ord", is(4)))
                 .andExpect(jsonPath("$[4].code", is("funder")))
-                .andExpect(jsonPath("$[5].code", is("helpdesk")));
+                .andExpect(jsonPath("$[4].ord", is(5)))
+                .andExpect(jsonPath("$[5].code", is("helpdesk")))
+                .andExpect(jsonPath("$[5].ord", is(6)));
     }
 
     @Test
@@ -88,6 +94,39 @@ public class ActorRoleControllerITCase {
                 .andExpect(jsonPath("$[4].code", is("contact")))
                 .andExpect(jsonPath("$[5].code", is("funder")))
                 .andExpect(jsonPath("$[6].code", is("helpdesk")));
+    }
+
+    @Test
+    public void shouldCreateActorRoleWithoutOrder() throws Exception {
+        ActorRoleCore actorRole = ActorRoleCore.builder()
+                .code("test")
+                .label("Test...")
+                .build();
+
+        String payload = mapper.writeValueAsString(actorRole);
+
+        mvc.perform(
+                post("/api/actor-roles")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test...")))
+                .andExpect(jsonPath("ord", is(7)));
+
+        mvc.perform(get("/api/actor-roles")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code", is("contributor")))
+                .andExpect(jsonPath("$[1].code", is("author")))
+                .andExpect(jsonPath("$[2].code", is("provider")))
+                .andExpect(jsonPath("$[3].code", is("contact")))
+                .andExpect(jsonPath("$[4].code", is("funder")))
+                .andExpect(jsonPath("$[5].code", is("helpdesk")))
+                .andExpect(jsonPath("$[6].code", is("test")))
+                .andExpect(jsonPath("$[6].ord", is(7)));
     }
 
     @Test
