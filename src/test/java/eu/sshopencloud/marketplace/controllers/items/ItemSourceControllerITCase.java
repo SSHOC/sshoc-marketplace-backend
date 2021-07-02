@@ -19,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringRunner.class)
@@ -86,9 +88,12 @@ public class ItemSourceControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].code", is("Wikidata")))
+                .andExpect(jsonPath("$[0].ord", is(1)))
                 .andExpect(jsonPath("$[1].code", is("test")))
                 .andExpect(jsonPath("$[1].label", is("Test source service")))
-                .andExpect(jsonPath("$[2].code", is("GitHub")));
+                .andExpect(jsonPath("$[1].ord", is(2)))
+                .andExpect(jsonPath("$[2].code", is("GitHub")))
+                .andExpect(jsonPath("$[2].ord", is(3)));
     }
 
     @Test
