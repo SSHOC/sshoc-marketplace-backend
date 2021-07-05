@@ -51,6 +51,28 @@ public class SourceService {
                 .build();
     }
 
+    public PaginatedSources getSources(SourceOrder order, String q, PageCoords pageCoords) {
+        if (order == null) order = SourceOrder.NAME;
+
+        ExampleMatcher querySourceMatcher = ExampleMatcher.matchingAny()
+                .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
+                .withMatcher("url", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+        Source querySource = new Source();
+        querySource.setLabel(q);
+        querySource.setUrl(q);
+
+        Page<Source> sourcesPage = sourceRepository.findAll(Example.of(querySource, querySourceMatcher),
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderBySourceOrder(order))));
+
+        List<SourceDto> sources = sourcesPage.stream().map(SourceMapper.INSTANCE::toDto).collect(Collectors.toList());
+
+        return PaginatedSources.builder().sources(sources)
+                .count(sourcesPage.getContent().size()).hits(sourcesPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(sourcesPage.getTotalPages())
+                .build();
+    }
+
     public SourceDto getSource(Long id) {
         Source source = sourceRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + id));
@@ -79,22 +101,22 @@ public class SourceService {
         sourceRepository.deleteById(id);
     }
 
-    private Sort.Order getSortOrderByItemOrder(SourceOrder sourceOrder) {
+    private Sort.Order getSortOrderBySourceOrder(SourceOrder sourceOrder) {
         switch (sourceOrder) {
             case NAME:
                 if (sourceOrder.isAsc()) {
-                    return Sort.Order.asc("source.label");
+                    return Sort.Order.asc("label");
                 } else {
-                    return Sort.Order.desc("source.label");
+                    return Sort.Order.desc("label");
                 }
             case HARVEST_DATE:
                 if (sourceOrder.isAsc()) {
-                    return Sort.Order.asc("source.lastHarvestedDate");
+                    return Sort.Order.asc("lastHarvestedDate");
                 } else {
-                    return Sort.Order.desc("source.lastHarvestedDate");
+                    return Sort.Order.desc("lastHarvestedDate");
                 }
             default:
-                return Sort.Order.asc("source.lastHarvestedDate");
+                return Sort.Order.desc("lastHarvestedDate");
         }
     }
 

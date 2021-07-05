@@ -6,7 +6,7 @@ public enum SourceOrder {
 
     NAME(true),
 
-    HARVEST_DATE(true);
+    HARVEST_DATE(false);
 
     private boolean asc;
 

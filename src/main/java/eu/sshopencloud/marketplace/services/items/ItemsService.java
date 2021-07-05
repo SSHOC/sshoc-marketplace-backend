@@ -61,6 +61,7 @@ public class ItemsService extends ItemVersionService<Item> {
         if (order == null) order = ItemOrder.MODIFIED_ON;
         Page<DraftItem> draftItemsPage = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser(),
                 PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))));
+
         List<ItemBasicDto> items = draftItemsPage.stream().map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
 
         return PaginatedItemsBasic.builder().items(items)

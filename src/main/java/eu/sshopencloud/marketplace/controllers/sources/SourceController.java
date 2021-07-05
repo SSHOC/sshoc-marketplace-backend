@@ -24,12 +24,12 @@ public class SourceController {
     //Here
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedSources> getSources(
-            //@RequestParam(value = "order", required = false) SourceOrder order,
+                                                        @RequestParam(value = "order", required = false) SourceOrder order,
                                                         @RequestParam(value = "q", required = false) String q,
                                                        @RequestParam(value = "page", required = false) Integer page,
                                                        @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
-        return ResponseEntity.ok(sourceService.getSources(q, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(sourceService.getSources(order,q, pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
