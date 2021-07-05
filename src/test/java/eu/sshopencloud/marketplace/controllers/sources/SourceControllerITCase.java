@@ -54,32 +54,63 @@ public class SourceControllerITCase {
                 .andExpect(status().isOk());
     }
 
-    //Eliza
     @Test
     public void shouldReturnSourcesBySortedByLabel() throws Exception {
+
+        SourceCore source = new SourceCore();
+        source.setLabel("Source Test");
+        source.setUrl("http://example.com");
+        source.setUrlTemplate("http://example.com/{source-item-id}");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(source);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/sources")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
 
         mvc.perform(get("/api/sources?order=NAME")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("hits", is(1)))
-                .andExpect(jsonPath("sources[0].label", is("TAPoR")))
-                .andExpect(jsonPath("sources[0].url", is("http://tapor.ca")))
-                .andExpect(jsonPath("sources[0].urlTemplate", is("http://tapor.ca/tools/{source-item-id}")));
+                .andExpect(jsonPath("hits", is(3)))
+                .andExpect(jsonPath("sources[0].label", notNullValue()))
+                .andExpect(jsonPath("sources[1].label", is(source.getLabel())))
+                .andExpect(jsonPath("sources[1].url", is(source.getUrl())))
+                .andExpect(jsonPath("sources[2].label", is("TAPoR")))
+                .andExpect(jsonPath("sources[2].url", is("http://tapor.ca")))
+                .andExpect(jsonPath("sources[2].urlTemplate", is("http://tapor.ca/tools/{source-item-id}")));
     }
 
     //Eliza
     @Test
     public void shouldReturnSourcesBySortedByDate() throws Exception {
 
+        SourceCore source = new SourceCore();
+        source.setLabel("Test");
+        source.setUrl("http://example.com");
+        source.setUrlTemplate("http://example.com/{source-item-id}");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(source);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/sources")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
         mvc.perform(get("/api/sources?order=DATE")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("hits", is(1)))
-                .andExpect(jsonPath("sources[0].label", is("TAPoR")))
-                .andExpect(jsonPath("sources[0].url", is("http://tapor.ca")))
-                .andExpect(jsonPath("sources[0].urlTemplate", is("http://tapor.ca/tools/{source-item-id}")));
+                .andExpect(jsonPath("hits", is(3)));
+               // .andExpect(jsonPath("sources[0].label", is(source.getLabel())))
+                //.andExpect(jsonPath("sources[0].url", is(source.getUrl())));
     }
 
     @Test
