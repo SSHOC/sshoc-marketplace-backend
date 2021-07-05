@@ -1,9 +1,11 @@
 package eu.sshopencloud.marketplace.services.sources;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.sources.PaginatedSources;
 import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceOrder;
 import eu.sshopencloud.marketplace.mappers.sources.SourceMapper;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
@@ -75,6 +77,25 @@ public class SourceService {
             throw new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + id);
         }
         sourceRepository.deleteById(id);
+    }
+
+    private Sort.Order getSortOrderByItemOrder(SourceOrder sourceOrder) {
+        switch (sourceOrder) {
+            case NAME:
+                if (sourceOrder.isAsc()) {
+                    return Sort.Order.asc("source.label");
+                } else {
+                    return Sort.Order.desc("source.label");
+                }
+            case HARVEST_DATE:
+                if (sourceOrder.isAsc()) {
+                    return Sort.Order.asc("source.lastHarvestedDate");
+                } else {
+                    return Sort.Order.desc("source.lastHarvestedDate");
+                }
+            default:
+                return Sort.Order.asc("source.lastHarvestedDate");
+        }
     }
 
 }
