@@ -24,7 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             " or lower(u.email) like lower(concat('%', :q,'%'))")
     Page<User> findLikeUsernameOrDisplayNameOrEmail(String q, Pageable pageable);
 
-    //Eliza QUERY
     @Query(value =
             "WITH RECURSIVE sub_item AS (\n" +
                     " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id \n" +
