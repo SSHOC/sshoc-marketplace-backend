@@ -27,6 +27,7 @@ public class SearchConverter {
                 .category(ItemCategoryConverter.convertCategory(indexItem.getCategory()))
                 .status(ItemStatus.of(indexItem.getStatus()))
                 .owner(indexItem.getOwner())
+                .lastInfoUpdate(indexItem.getLastInfoUpdate())
                 .build();
     }
 

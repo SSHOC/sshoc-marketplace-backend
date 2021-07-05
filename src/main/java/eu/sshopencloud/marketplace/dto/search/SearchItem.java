@@ -34,4 +34,6 @@ public class SearchItem {
     private ItemStatus status;
 
     private String owner;
+
+    private String lastInfoUpdate;
 }
