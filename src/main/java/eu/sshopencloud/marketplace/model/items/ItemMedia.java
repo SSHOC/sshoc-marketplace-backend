@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.model.items;
 
+import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,13 @@ public class ItemMedia {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemMediaType itemMediaThumbnail;
+
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @JoinColumns(
+            value = { @JoinColumn(name = "code"), @JoinColumn(name = "vocabulary_code") },
+            foreignKey = @ForeignKey(name="item_media_concept_fk")
+    )
+    private Concept concept;
 
     public ItemMedia(Item item, UUID mediaId, String caption) {
         this.id = null;

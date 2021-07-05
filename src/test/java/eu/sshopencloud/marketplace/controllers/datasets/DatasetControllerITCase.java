@@ -839,8 +839,8 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
-        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
 
         URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
 
@@ -848,7 +848,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(grumpycat, seriouscat));
-        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Not used caption as the thumbnail is one of item media (shared)"));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Not used caption as the thumbnail is one of item media (shared)", null));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -891,8 +891,8 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
-        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
 
         URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
 
@@ -901,7 +901,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("Consortium of European Social Science Data Archives v2");
         dataset.setDescription("Consortium of European Social Science Data Archives with many cat pictures");
         dataset.setMedia(List.of(grumpycat, seriouscat));
-        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(seriouscatId), null));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(seriouscatId), null, null));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -944,16 +944,17 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
-        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
-        ItemMediaCore notFound1 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404");
-        ItemMediaCore notFound2 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404");
+        //ELIZA  - TO FIX NULLS
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
+        ItemMediaCore notFound1 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404",null);
+        ItemMediaCore notFound2 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404",null);
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(notFound1, grumpycat, seriouscat, grumpycat, notFound2));
-        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Thumbnail"));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Thumbnail",null));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -985,8 +986,8 @@ public class DatasetControllerITCase {
         UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
         UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg",  CONTRIBUTOR_JWT);
 
-        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
 
         URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
 
@@ -995,7 +996,7 @@ public class DatasetControllerITCase {
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(grumpycat, seriouscat));
 
-        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(backgoundId), "Thumbnail caption as it is separated image (not shared with item media)"));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(backgoundId), "Thumbnail caption as it is separated image (not shared with item media)", null));
 
         String payload = mapper.writeValueAsString(dataset);
 
