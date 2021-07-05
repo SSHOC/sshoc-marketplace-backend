@@ -85,7 +85,6 @@ public class SourceControllerITCase {
                 .andExpect(jsonPath("sources[2].urlTemplate", is("http://tapor.ca/tools/{source-item-id}")));
     }
 
-    //Eliza
     @Test
     public void shouldReturnSourcesBySortedByDate() throws Exception {
 
@@ -104,13 +103,12 @@ public class SourceControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
+        //to fill in NULL harvest date
         mvc.perform(get("/api/sources?order=DATE")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(3)));
-               // .andExpect(jsonPath("sources[0].label", is(source.getLabel())))
-                //.andExpect(jsonPath("sources[0].url", is(source.getUrl())));
     }
 
     @Test
