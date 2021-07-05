@@ -109,7 +109,7 @@ public class SourceService {
                 } else {
                     return Sort.Order.desc("label");
                 }
-            case HARVEST_DATE:
+            case DATE:
                 if (sourceOrder.isAsc()) {
                     return Sort.Order.asc("lastHarvestedDate");
                 } else {

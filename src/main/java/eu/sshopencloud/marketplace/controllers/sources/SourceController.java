@@ -21,11 +21,9 @@ public class SourceController {
 
     private final SourceService sourceService;
 
-    //Here
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedSources> getSources(
-                                                        @RequestParam(value = "order", required = false) SourceOrder order,
-                                                        @RequestParam(value = "q", required = false) String q,
+    public ResponseEntity<PaginatedSources> getSources(@RequestParam(value = "order", required = false) SourceOrder order,
+                                                       @RequestParam(value = "q", required = false) String q,
                                                        @RequestParam(value = "page", required = false) Integer page,
                                                        @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {

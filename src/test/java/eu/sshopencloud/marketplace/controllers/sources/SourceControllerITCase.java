@@ -54,6 +54,34 @@ public class SourceControllerITCase {
                 .andExpect(status().isOk());
     }
 
+    //Eliza
+    @Test
+    public void shouldReturnSourcesBySortedByLabel() throws Exception {
+
+        mvc.perform(get("/api/sources?order=NAME")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("sources[0].label", is("TAPoR")))
+                .andExpect(jsonPath("sources[0].url", is("http://tapor.ca")))
+                .andExpect(jsonPath("sources[0].urlTemplate", is("http://tapor.ca/tools/{source-item-id}")));
+    }
+
+    //Eliza
+    @Test
+    public void shouldReturnSourcesBySortedByDate() throws Exception {
+
+        mvc.perform(get("/api/sources?order=DATE")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("sources[0].label", is("TAPoR")))
+                .andExpect(jsonPath("sources[0].url", is("http://tapor.ca")))
+                .andExpect(jsonPath("sources[0].urlTemplate", is("http://tapor.ca/tools/{source-item-id}")));
+    }
+
     @Test
     public void shouldReturnSourcesByLabel() throws Exception {
 
