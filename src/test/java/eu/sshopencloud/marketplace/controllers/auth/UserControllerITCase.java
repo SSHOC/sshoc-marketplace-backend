@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.auth.NewPasswordData;
 import eu.sshopencloud.marketplace.dto.auth.UserCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -172,6 +173,38 @@ public class UserControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void shouldReturnUsersSortedByLabel() throws Exception {
+
+        mvc.perform(get("/api/users?order=USERNAME")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(4)))
+                .andExpect(jsonPath("users[0].username", is("Administrator")))
+                .andExpect(jsonPath("users[1].username", is("Contributor")))
+                .andExpect(jsonPath("users[2].username", is("Moderator")))
+                .andExpect(jsonPath("users[3].username", is("System importer")));
+    }
+
+    @Test
+    public void shouldReturnUsersSortedByRegistrationDate() throws Exception {
+
+        mvc.perform(get("/api/users?order=DATE")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(4)))
+                .andExpect(jsonPath("users[0].username", is("System importer")))
+                .andExpect(jsonPath("users[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("users[1].username", is("Contributor")))
+                .andExpect(jsonPath("users[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("users[2].username", is("Moderator")))
+                .andExpect(jsonPath("users[2].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("users[3].username", is("Administrator")))
+                .andExpect(jsonPath("users[3].registrationDate", is("2020-08-04T12:29:00+0200")));
     }
 
 }

@@ -30,27 +30,6 @@ public class SourceService {
 
     private final SourceFactory sourceFactory;
 
-
-    public PaginatedSources getSources(String q, PageCoords pageCoords) {
-        ExampleMatcher querySourceMatcher = ExampleMatcher.matchingAny()
-                .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
-                .withMatcher("url", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
-        Source querySource = new Source();
-        querySource.setLabel(q);
-        querySource.setUrl(q);
-
-        Page<Source> sourcesPage = sourceRepository.findAll(Example.of(querySource, querySourceMatcher),
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
-
-        List<SourceDto> sources = sourcesPage.stream().map(SourceMapper.INSTANCE::toDto).collect(Collectors.toList());
-
-        return PaginatedSources.builder().sources(sources)
-                .count(sourcesPage.getContent().size()).hits(sourcesPage.getTotalElements())
-                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
-                .pages(sourcesPage.getTotalPages())
-                .build();
-    }
-
     public PaginatedSources getSources(SourceOrder order, String q, PageCoords pageCoords) {
         if (order == null) order = SourceOrder.NAME;
 

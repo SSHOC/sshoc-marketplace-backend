@@ -55,7 +55,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldReturnSourcesBySortedByLabel() throws Exception {
+    public void shouldReturnSourcesSortedByLabel() throws Exception {
 
         SourceCore source = new SourceCore();
         source.setLabel("Source Test");
@@ -86,7 +86,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldReturnSourcesBySortedByDate() throws Exception {
+    public void shouldReturnSourcesSortedByDate() throws Exception {
 
         SourceCore source = new SourceCore();
         source.setLabel("Test");
