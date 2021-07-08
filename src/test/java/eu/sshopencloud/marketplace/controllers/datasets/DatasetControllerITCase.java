@@ -1033,4 +1033,66 @@ public class DatasetControllerITCase {
 
     }
 
+    //ELiza - test
+    @Test
+    public void shouldCreateDatasetWithMediaWithLicense() throws Exception {
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+        UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
+        UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg",  CONTRIBUTOR_JWT);
+
+        ConceptId conceptIdUri = new ConceptId();
+        conceptIdUri.setUri("http://spdx.org/licenses/0BSD");
+
+        ConceptId conceptIdCode = new ConceptId();
+        conceptIdCode.setCode("AFL-3.0");
+        conceptIdCode.setVocabulary(new VocabularyId("software-license"));
+
+
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", conceptIdUri);
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", conceptIdCode);
+
+        URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("A dataset of cats");
+        dataset.setDescription("This dataset contains cats");
+        dataset.setMedia(List.of(grumpycat, seriouscat));
+
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(backgoundId), "Thumbnail caption as it is separated image (not shared with item media)", null));
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                post("/api/datasets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("thumbnail.info.mediaId", is(backgoundId.toString())))
+                .andExpect(jsonPath("thumbnail.info.category", is("image")))
+                .andExpect(jsonPath("thumbnail.info.filename", is("jpeg_example.jpeg")))
+                .andExpect(jsonPath("thumbnail.info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("thumbnail.info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("thumbnail.caption", is("Thumbnail caption as it is separated image (not shared with item media)")))
+                .andExpect(jsonPath("media", hasSize(2)))
+                .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("media[0].info.category", is("image")))
+                .andExpect(jsonPath("media[0].info.location.sourceUrl", is(grumpyUrl.toString())))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/png")))
+                .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].caption", is("Grumpy Cat")))
+                .andExpect(jsonPath("media[1].info.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[1].info.category", is("image")))
+                .andExpect(jsonPath("media[1].info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[1].info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[1].info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[1].caption", is("Serious Cat")));
+
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
+
+    }
+
 }
