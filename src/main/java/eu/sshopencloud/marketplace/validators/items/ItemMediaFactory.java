@@ -4,16 +4,20 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptLicense;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import eu.sshopencloud.marketplace.model.items.ItemMediaType;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.fop.fo.properties.GenericBoolean;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 
 @Component
@@ -63,7 +67,6 @@ public class ItemMediaFactory {
             }
 
             processedMediaIds.add(mediaId);
-
             Concept conceptTmp = null;
 
             if (!Objects.isNull(concept)) {
@@ -90,20 +93,24 @@ public class ItemMediaFactory {
                     }
                 }
 
-                //validate if vocabulary code is in enum - list of licences
 
-                if (!conceptTmp.getVocabulary().getCode().equals("software-license")) {
-                    errors.pushNestedPath("info");
-                    errors.rejectValue("concept ", "field.notAppropriate", String.format("Concept with vocabulary code %s not available for license", concept.getVocabulary().getCode()));
-                    errors.popNestedPath();
+                boolean answer = false;
+                for (ConceptLicense day : ConceptLicense.values()) {
+                    answer = day.getValue().equals(conceptTmp.getVocabulary().getCode());
+                    if(answer) break;
                 }
 
-
+                if (!answer) {
+                    errors.pushNestedPath("info");
+                    errors.rejectValue("concept ", "field.notLicense", String.format("Concept with vocabulary code %s not available for license", concept.getVocabulary().getCode()));
+                    errors.popNestedPath();
+                }
             }
 
 
             if (mediaStorageService.ensureMediaAvailable(mediaId)) {
-                newMedia.add(new ItemMedia(item, mediaId, mediaCore.getCaption()));
+                if (conceptTmp == null) newMedia.add(new ItemMedia(item, mediaId, mediaCore.getCaption()));
+                else newMedia.add(new ItemMedia(item, mediaId, mediaCore.getCaption(), conceptTmp));
             } else {
                 errors.pushNestedPath("info");
                 errors.rejectValue("mediaId", "field.notExist", String.format("Media with id %s is not available", mediaId));
@@ -126,41 +133,50 @@ public class ItemMediaFactory {
             return null;
         }
 
-        Concept concept1 = null;
+        Concept conceptTmp = null;
 
         if (!Objects.isNull(concept)) {
-            if (!concept.getUri().isEmpty()) {
+            if (!Objects.isNull(concept.getUri())) {
 
-                concept1 = conceptService.getConceptByUri(concept.getUri());
+                conceptTmp = conceptService.getConceptByUri(concept.getUri());
 
-                if (concept1.equals(null)) {
+                if (Objects.isNull(conceptTmp)) {
                     errors.pushNestedPath("info");
                     errors.rejectValue("concept.URI ", "field.notExist", String.format("Concept with URI %s is not available", concept.getUri()));
                     errors.popNestedPath();
                 }
-            } else {
-                if (!concept.getCode().isEmpty() && !concept.getVocabulary().getCode().isEmpty()) {
-                    concept1 = conceptService.getConceptByCodeAndVocabularyCode(concept.getCode(), concept.getVocabulary().getCode());
 
-                    if (concept1.equals(null)) {
+            } else {
+                if (!Objects.isNull(concept.getCode()) && !Objects.isNull(concept.getVocabulary().getCode())) {
+
+                    conceptTmp = conceptService.getConceptByCodeAndVocabularyCode(concept.getCode(), concept.getVocabulary().getCode());
+
+                    if (Objects.isNull(conceptTmp)) {
                         errors.pushNestedPath("info");
                         errors.rejectValue("concept ", "field.notExist", String.format("Concept with code %s and vocabulary code %s is not available", concept.getCode(), concept.getVocabulary().getCode()));
                         errors.popNestedPath();
                     }
-                    if (!concept1.getVocabulary().getCode().equals("software-license")) {
-                        errors.pushNestedPath("info");
-                        errors.rejectValue("concept ", "field.notAppropriate", String.format("Concept with vocabulary code %s not available for license", concept.getVocabulary().getCode()));
-                        errors.popNestedPath();
-                    }
                 }
+            }
 
+
+            boolean answer = false;
+            for (ConceptLicense day : ConceptLicense.values()) {
+                answer = day.getValue().equals(conceptTmp.getVocabulary().getCode());
+                if(answer) break;
+            }
+
+            if (!answer) {
+                errors.pushNestedPath("info");
+                errors.rejectValue("concept ", "field.notLicense", String.format("Concept with vocabulary code %s not available for license", concept.getVocabulary().getCode()));
+                errors.popNestedPath();
             }
         }
-        //idea - create enum with vocabulary code available for license
+
 
         if (mediaStorageService.ensureMediaAvailable(itemMediaId)) {
-            if (concept1 == null) return new ItemMedia(item, itemMediaId, caption, itemThumbnail);
-            else return new ItemMedia(item, itemMediaId, caption, itemThumbnail, concept1);
+            if (conceptTmp == null) return new ItemMedia(item, itemMediaId, caption, itemThumbnail);
+            else return new ItemMedia(item, itemMediaId, caption, itemThumbnail, conceptTmp);
         } else {
             errors.pushNestedPath("info");
             errors.rejectValue("mediaId", "field.notExist", String.format("Media with id %s is not available", itemMediaId));

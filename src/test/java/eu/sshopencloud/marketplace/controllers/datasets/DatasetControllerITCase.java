@@ -1033,7 +1033,7 @@ public class DatasetControllerITCase {
 
     }
 
-    //ELiza - test
+    //ELiza - test 1 - URI
     @Test
     public void shouldCreateDatasetWithMediaWithLicense() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
@@ -1090,9 +1090,8 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("media[1].info.hasThumbnail", is(true)))
                 .andExpect(jsonPath("media[1].caption", is("Serious Cat")));
 
-        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
-        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
-
     }
+
+    //ELiza - test 2 - code
 
 }
