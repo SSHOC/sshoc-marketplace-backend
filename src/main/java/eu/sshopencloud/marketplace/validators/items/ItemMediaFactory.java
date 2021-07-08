@@ -70,8 +70,8 @@ public class ItemMediaFactory {
             Concept conceptTmp = null;
 
             if (!Objects.isNull(concept)) {
-                if (!Objects.isNull(concept.getUri())) {
 
+                if (!Objects.isNull(concept.getUri())) {
                     conceptTmp = conceptService.getConceptByUri(concept.getUri());
 
                     if (Objects.isNull(conceptTmp)) {
@@ -94,6 +94,7 @@ public class ItemMediaFactory {
                 }
 
 
+                //rethink
                 boolean answer = false;
                 for (ConceptLicense day : ConceptLicense.values()) {
                     answer = day.getValue().equals(conceptTmp.getVocabulary().getCode());
