@@ -43,8 +43,6 @@ public class SourceService {
         Page<Source> sourcesPage = sourceRepository.findAll(Example.of(querySource, querySourceMatcher),
                 PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderBySourceOrder(order))));
 
-
-        System.out.println("Eliza " + sourcesPage);
         List<SourceDto> sources = sourcesPage.stream().map(SourceMapper.INSTANCE::toDto).collect(Collectors.toList());
 
         return PaginatedSources.builder().sources(sources)
