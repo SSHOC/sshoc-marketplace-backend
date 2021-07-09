@@ -10,7 +10,9 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.dto.items.*;
+import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
+import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
@@ -110,7 +112,6 @@ public class DatasetControllerITCase {
     }
 
 
-
     @Test
     public void shouldReturnDatasetHistory() throws Exception {
 
@@ -130,9 +131,6 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[0].status", is("approved")))
                 .andExpect(jsonPath("$[0].informationContributor.id", is(3)));
     }
-
-
-
 
 
     @Test
@@ -947,14 +945,14 @@ public class DatasetControllerITCase {
         //ELIZA  - TO FIX NULLS
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
         ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
-        ItemMediaCore notFound1 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404",null);
-        ItemMediaCore notFound2 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404",null);
+        ItemMediaCore notFound1 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404", null);
+        ItemMediaCore notFound2 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404", null);
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(notFound1, grumpycat, seriouscat, grumpycat, notFound2));
-        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Thumbnail",null));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Thumbnail", null));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -984,7 +982,7 @@ public class DatasetControllerITCase {
     public void shouldCreateDatasetWithMediaWithoutThumbnailIncludedInMedia() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
         UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
-        UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg",  CONTRIBUTOR_JWT);
+        UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg", CONTRIBUTOR_JWT);
 
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
         ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
@@ -1033,32 +1031,20 @@ public class DatasetControllerITCase {
 
     }
 
-    //ELiza - test 1 - URI
+
     @Test
-    public void shouldCreateDatasetWithMediaWithLicense() throws Exception {
+    public void shouldCreateDatasetWithMediaWithLicenseFromUri() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
-        UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
-        UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg",  CONTRIBUTOR_JWT);
 
         ConceptId conceptIdUri = new ConceptId();
         conceptIdUri.setUri("http://spdx.org/licenses/0BSD");
 
-        ConceptId conceptIdCode = new ConceptId();
-        conceptIdCode.setCode("AFL-3.0");
-        conceptIdCode.setVocabulary(new VocabularyId("software-license"));
-
-
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", conceptIdUri);
-        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", conceptIdCode);
-
-        URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
-        dataset.setMedia(List.of(grumpycat, seriouscat));
-
-        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(backgoundId), "Thumbnail caption as it is separated image (not shared with item media)", null));
+        dataset.setMedia(List.of(seriouscat));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -1070,28 +1056,53 @@ public class DatasetControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
-                .andExpect(jsonPath("thumbnail.info.mediaId", is(backgoundId.toString())))
-                .andExpect(jsonPath("thumbnail.info.category", is("image")))
-                .andExpect(jsonPath("thumbnail.info.filename", is("jpeg_example.jpeg")))
-                .andExpect(jsonPath("thumbnail.info.mimeType", is("image/jpeg")))
-                .andExpect(jsonPath("thumbnail.info.hasThumbnail", is(true)))
-                .andExpect(jsonPath("thumbnail.caption", is("Thumbnail caption as it is separated image (not shared with item media)")))
-                .andExpect(jsonPath("media", hasSize(2)))
-                .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("media", hasSize(1)))
+                .andExpect(jsonPath("media[0].info.mediaId", is(seriouscatId.toString())))
                 .andExpect(jsonPath("media[0].info.category", is("image")))
-                .andExpect(jsonPath("media[0].info.location.sourceUrl", is(grumpyUrl.toString())))
-                .andExpect(jsonPath("media[0].info.mimeType", is("image/png")))
+                .andExpect(jsonPath("media[0].info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/jpeg")))
                 .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
-                .andExpect(jsonPath("media[0].caption", is("Grumpy Cat")))
-                .andExpect(jsonPath("media[1].info.mediaId", is(seriouscatId.toString())))
-                .andExpect(jsonPath("media[1].info.category", is("image")))
-                .andExpect(jsonPath("media[1].info.filename", is("seriouscat.jpg")))
-                .andExpect(jsonPath("media[1].info.mimeType", is("image/jpeg")))
-                .andExpect(jsonPath("media[1].info.hasThumbnail", is(true)))
-                .andExpect(jsonPath("media[1].caption", is("Serious Cat")));
+                .andExpect(jsonPath("media[0].caption", is("Serious Cat")))
+                .andExpect(jsonPath("media[0].concept.code", notNullValue()))
+                .andExpect(jsonPath("media[0].concept.uri", is(conceptIdUri.getUri())));
 
     }
 
-    //ELiza - test 2 - code
+
+    @Test
+    public void shouldCreateDatasetWithMediaWithLicenseFromCodeAndVocabularyCode() throws Exception {
+        UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
+
+        ConceptId conceptIdCode = new ConceptId();
+        conceptIdCode.setCode("AFL-3.0");
+        conceptIdCode.setVocabulary(new VocabularyId("software-license"));
+
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", conceptIdCode);
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("A dataset of cats");
+        dataset.setDescription("This dataset contains cats");
+        dataset.setMedia(List.of(grumpycat));
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                post("/api/datasets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("media", hasSize(1)))
+                .andExpect(jsonPath("media[0].info.mediaId", is(grumpycatId.toString())))
+                .andExpect(jsonPath("media[0].info.category", is("image")))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/png")))
+                .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].caption", is("Grumpy Cat")))
+                .andExpect(jsonPath("media[0].concept.code", is(conceptIdCode.getCode())))
+                .andExpect(jsonPath("media[0].concept.vocabulary.code", is(conceptIdCode.getVocabulary().getCode())));
+
+    }
 
 }

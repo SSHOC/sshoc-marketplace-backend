@@ -11,13 +11,10 @@ import eu.sshopencloud.marketplace.model.items.ItemMediaType;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.EnumUtils;
-import org.apache.fop.fo.properties.GenericBoolean;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 
 @Component
