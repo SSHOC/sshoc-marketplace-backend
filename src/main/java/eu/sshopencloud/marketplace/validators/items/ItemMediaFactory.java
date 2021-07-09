@@ -29,7 +29,6 @@ public class ItemMediaFactory {
         List<ItemMedia> newMedia = new ArrayList<>();
         Set<UUID> processedMediaIds = new HashSet<>();
 
-        //Eliza - here validation ??
         if (itemMedia == null)
             return newMedia;
 
