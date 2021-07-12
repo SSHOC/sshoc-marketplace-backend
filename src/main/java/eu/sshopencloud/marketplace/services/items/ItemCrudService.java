@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableExcep
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.*;
+import eu.sshopencloud.marketplace.dto.sources.SourceBasicDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -105,6 +106,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
+    //Eliza
     protected D prepareItemDto(I item) {
 
         D dto = convertItemToDto(item);
@@ -154,7 +156,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
-        return saveVersionInHistory(version ,prevVersion, draft, true);
+        return saveVersionInHistory(version, prevVersion, draft, true);
     }
 
     // Warning: important method! Do not change unless you know what you are doing!
@@ -210,8 +212,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         for (ItemMedia media : version.getMedia()) {
             try {
                 mediaStorageService.linkToMedia(media.getMediaId());
-            }
-            catch (MediaNotAvailableException e) {
+            } catch (MediaNotAvailableException e) {
                 throw new IllegalStateException("Media not available unexpectedly");
             }
         }
@@ -307,7 +308,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I currentVersion = loadCurrentItem(persistentId);
         I targetVersion = makeItemVersionCopy(item);
 
-        targetVersion =  saveVersionInHistory(targetVersion, currentVersion, false);
+        targetVersion = saveVersionInHistory(targetVersion, currentVersion, false);
         copyVersionRelations(targetVersion, item);
 
         indexService.indexItem(targetVersion);
@@ -348,7 +349,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
 
         if (draft) {
-            I draftItem  = loadItemDraftForCurrentUser(persistentId);
+            I draftItem = loadItemDraftForCurrentUser(persistentId);
             cleanupDraft(draftItem);
 
             return;
@@ -362,8 +363,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
             versionedItem.setStatus(VersionedItemStatus.REFUSED);
             item.setStatus(ItemStatus.DISAPPROVED);
-        }
-        else {
+        } else {
             versionedItem.setStatus(VersionedItemStatus.DELETED);
             versionedItem.setActive(false);
         }
@@ -461,6 +461,88 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
+    //Eliza
+    protected D prepareMergeItems(MergeCore mergeCores) {
+
+        List<D> itemDtoList = new ArrayList<D>();
+
+        for (int i = 0; i < mergeCores.getSize(); i++) {
+            itemDtoList.add(convertItemToDto(loadItemForCurrentUser(mergeCores.getPersistentId(i))));
+        }
+
+
+
+        itemDtoList.add(convertItemToDto(loadItemForCurrentUser(mergeCores.getPersistentId(0))));
+        D finalDto = itemDtoList.get(0);
+
+        for (int i = 1; i < mergeCores.getSize(); i++) {
+
+            itemDtoList.add(convertItemToDto(loadItemForCurrentUser(mergeCores.getPersistentId(i))));
+           // List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
+            //dto.setRelatedItems(relatedItems);
+
+            //private String description;
+            if (!finalDto.getDescription().equals(itemDtoList.get(i).getDescription()))
+                finalDto.setDescription(finalDto.getDescription() + "/" + itemDtoList.get(i).getDescription());
+
+            //private List<ItemContributorDto> contributors;
+            for(ItemContributorDto e: itemDtoList.get(i).getContributors()){
+                if(!finalDto.getContributors().contains(e))
+                    finalDto.getContributors().add(e);
+            }
+
+            //private List<PropertyDto> properties;
+            for(PropertyDto e: itemDtoList.get(i).getProperties()){
+                if(!finalDto.getProperties().contains(e))
+                    finalDto.getProperties().add(e);
+            }
+
+
+            //private List<ItemExternalIdDto> externalIds;
+            for(ItemExternalIdDto e: itemDtoList.get(i).getExternalIds()){
+                if(!finalDto.getExternalIds().contains(e))
+                    finalDto.getExternalIds().add(e);
+            }
+
+            //private List<String> accessibleAt;
+            for(String e: itemDtoList.get(i).getAccessibleAt()){
+                if(!finalDto.getAccessibleAt().contains(e))
+                    finalDto.getAccessibleAt().add(e);
+            }
+
+            //private SourceBasicDto source;
+
+            //private String sourceItemId;
+
+            //private List<RelatedItemDto> relatedItems;
+            for(String e: itemDtoList.get(i).getAccessibleAt()){
+                if(!finalDto.getAccessibleAt().contains(e))
+                    finalDto.getAccessibleAt().add(e);
+            }
+
+            //private List<ItemMediaDto> media;
+
+            //might be troubles
+           //private ItemMediaDto thumbnail;
+
+            //  private ItemStatus status;
+
+            //    private UserDto informationContributor;
+
+
+        }
+
+        //eliminate duplicityi
+
+        // List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
+        //dto.setRelatedItems(relatedItems);
+
+        //create and return dto
+        //completeItemDto(dto, item);
+
+        return finalDto;
+
+    }
 
 
     private I makeItemVersion(C itemCore, I prevItem) {
@@ -477,9 +559,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected abstract I makeItem(C itemCore, I prevItem);
+
     protected abstract I modifyItem(C itemCore, I item);
+
     protected abstract I makeItemCopy(I item);
 
     protected abstract P wrapPage(Page<I> resultsPage, List<D> convertedDtos);
+
     protected abstract D convertItemToDto(I item);
 }
