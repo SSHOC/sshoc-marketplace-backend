@@ -2,6 +2,8 @@ package eu.sshopencloud.marketplace.controllers.workflows;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
@@ -168,6 +170,14 @@ public class WorkflowController {
                                                                 @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(stepService.getStepVersions(workflowId, stepId, draft, approved));
+    }
+
+
+    //jak ze stepem ???
+
+    @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> getMerge(@RequestBody MergeCore mergeCore){
+        return ResponseEntity.ok(workflowService.getMerge(mergeCore));
     }
 
 }

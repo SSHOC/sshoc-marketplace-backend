@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.controllers.publications;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
@@ -85,5 +86,10 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.getPublicationVersions(id, draft, approved));
     }
 
+    @GetMapping( path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> getMerge(@RequestBody MergeCore mergeCore){
+        return ResponseEntity.ok(publicationService.getMerge(mergeCore));
+
+    }
 
 }

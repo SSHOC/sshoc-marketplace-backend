@@ -3,8 +3,11 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
@@ -228,6 +231,20 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         collectSteps(dto, workflow);
 
         return dto;
+    }
+
+    @Override
+    protected WorkflowDto convertToDto(Item item) {
+        //Eliza
+        WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
+        //collectSteps(dto, workflow);
+        return dto;
+    }
+
+    public WorkflowDto getMerge(MergeCore mergeCores) {
+        WorkflowDto tool= prepareMergeItems(mergeCores);
+        tool.setCategory(ItemCategory.WORKFLOW);
+        return tool;
     }
 
     @Override

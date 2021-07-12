@@ -3,9 +3,13 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
@@ -297,6 +301,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     @Override
+    protected StepDto convertToDto(Item item) {
+        return StepMapper.INSTANCE.toDto(item);
+    }
+
+    @Override
     protected String getItemTypeName() {
         return Workflow.class.getName();
     }
@@ -304,5 +313,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public List<ItemExtBasicDto> getStepVersions(String workflowId, String stepId, boolean draft, boolean approved) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
         return getItemHistory(stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
+    }
+
+    public StepDto getMerge(MergeCore mergeCores) {
+        StepDto tool= prepareMergeItems(mergeCores);
+        tool.setCategory(ItemCategory.STEP);
+        return tool;
     }
 }

@@ -3,10 +3,14 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
+import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
@@ -126,6 +130,17 @@ public class TrainingMaterialService
     @Override
     protected TrainingMaterialDto convertItemToDto(TrainingMaterial trainingMaterial) {
         return TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial);
+    }
+
+    @Override
+    protected TrainingMaterialDto convertToDto(Item item) {
+        return TrainingMaterialMapper.INSTANCE.toDto(item);
+    }
+
+    public TrainingMaterialDto getMerge(MergeCore mergeCores) {
+        TrainingMaterialDto tool= prepareMergeItems(mergeCores);
+        tool.setCategory(ItemCategory.TRAINING_MATERIAL);
+        return tool;
     }
 
     @Override

@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -83,6 +84,11 @@ public class DatasetController {
                                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
         return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));
+    }
+
+    @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getMerge(@RequestBody MergeCore mergeCore){
+        return ResponseEntity.ok(datasetService.getMerge(mergeCore));
     }
 
 

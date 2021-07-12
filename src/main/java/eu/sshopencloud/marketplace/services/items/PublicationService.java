@@ -2,11 +2,15 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
@@ -122,12 +126,23 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     @Override
+    protected PublicationDto convertToDto(Item item) {
+        return PublicationMapper.INSTANCE.toDto(item);
+    }
+
+    @Override
     protected String getItemTypeName() {
         return Publication.class.getName();
     }
 
     public List<ItemExtBasicDto> getPublicationVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestPublication(persistentId, draft, approved).getId());
+    }
+
+    public PublicationDto getMerge(MergeCore mergeCores) {
+        PublicationDto dataset= prepareMergeItems(mergeCores);
+        dataset.setCategory(ItemCategory.PUBLICATION);
+        return dataset;
     }
 
 }

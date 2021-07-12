@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.controllers.trainings;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
@@ -87,6 +88,12 @@ public class TrainingMaterialController {
                                                                             @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                             @RequestParam(value = "approved", defaultValue = "true") boolean approved ) {
         return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersions(id, draft, approved));
+    }
+
+    @GetMapping (path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> getMerge(@RequestBody MergeCore mergeCore){
+        return ResponseEntity.ok(trainingMaterialService.getMerge(mergeCore));
+
     }
 
 }

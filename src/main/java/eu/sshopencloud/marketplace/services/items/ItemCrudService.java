@@ -6,8 +6,8 @@ import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableExcep
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.items.*;
-import eu.sshopencloud.marketplace.dto.sources.SourceBasicDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
+import eu.sshopencloud.marketplace.mappers.auth.UserMapper;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
@@ -23,8 +23,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -106,7 +108,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
-    //Eliza
     protected D prepareItemDto(I item) {
 
         D dto = convertItemToDto(item);
@@ -465,84 +466,107 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     protected D prepareMergeItems(MergeCore mergeCores) {
 
         List<D> itemDtoList = new ArrayList<D>();
+        D finalDto = null;
 
         for (int i = 0; i < mergeCores.getSize(); i++) {
-            itemDtoList.add(convertItemToDto(loadItemForCurrentUser(mergeCores.getPersistentId(i))));
-        }
+
+            I vItem = (I) versionedItemRepository.getOne(mergeCores.getPersistentId(i)).getCurrentVersion();
+
+            D tmp = convertToDto(vItem);
+            itemDtoList.add(tmp);
+
+            itemDtoList.get(i).setRelatedItems(itemRelatedItemService.getItemRelatedItems(vItem));
+            completeItemDto(itemDtoList.get(i), vItem);
+
+            if (i == 0) {
+                finalDto = itemDtoList.get(0);
+                continue;
+            }
 
 
+            if(!Objects.isNull(finalDto.getDescription()) && !Objects.isNull(itemDtoList.get(i).getDescription()))
+                if (!finalDto.getDescription().equals(itemDtoList.get(i).getDescription()))
+                    finalDto.setDescription(finalDto.getDescription() + "/" + itemDtoList.get(i).getDescription());
 
-        itemDtoList.add(convertItemToDto(loadItemForCurrentUser(mergeCores.getPersistentId(0))));
-        D finalDto = itemDtoList.get(0);
 
-        for (int i = 1; i < mergeCores.getSize(); i++) {
+            if(!Objects.isNull(finalDto.getLabel()) && !Objects.isNull(itemDtoList.get(i).getLabel()))
+                if (!finalDto.getLabel().equals(itemDtoList.get(i).getLabel()))
+                finalDto.setLabel(finalDto.getLabel() + "/" + itemDtoList.get(i).getLabel());
 
-            itemDtoList.add(convertItemToDto(loadItemForCurrentUser(mergeCores.getPersistentId(i))));
-           // List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
-            //dto.setRelatedItems(relatedItems);
 
-            //private String description;
-            if (!finalDto.getDescription().equals(itemDtoList.get(i).getDescription()))
-                finalDto.setDescription(finalDto.getDescription() + "/" + itemDtoList.get(i).getDescription());
+            if(!Objects.isNull(finalDto.getVersion()) && !Objects.isNull(itemDtoList.get(i).getVersion()))
+                if (!finalDto.getVersion().equals(itemDtoList.get(i).getVersion()))
+                    finalDto.setVersion(finalDto.getVersion() + "/" + itemDtoList.get(i).getVersion());
 
-            //private List<ItemContributorDto> contributors;
-            for(ItemContributorDto e: itemDtoList.get(i).getContributors()){
-                if(!finalDto.getContributors().contains(e))
+
+            for (ItemContributorDto e : itemDtoList.get(i).getContributors()) {
+                if (!finalDto.getContributors().contains(e))
                     finalDto.getContributors().add(e);
             }
 
-            //private List<PropertyDto> properties;
-            for(PropertyDto e: itemDtoList.get(i).getProperties()){
-                if(!finalDto.getProperties().contains(e))
+
+            for (PropertyDto e : itemDtoList.get(i).getProperties()) {
+                if (!finalDto.getProperties().contains(e))
                     finalDto.getProperties().add(e);
             }
 
 
-            //private List<ItemExternalIdDto> externalIds;
-            for(ItemExternalIdDto e: itemDtoList.get(i).getExternalIds()){
-                if(!finalDto.getExternalIds().contains(e))
+            for (ItemExternalIdDto e : itemDtoList.get(i).getExternalIds()) {
+                if (!finalDto.getExternalIds().contains(e))
                     finalDto.getExternalIds().add(e);
             }
 
-            //private List<String> accessibleAt;
-            for(String e: itemDtoList.get(i).getAccessibleAt()){
-                if(!finalDto.getAccessibleAt().contains(e))
+
+            for (String e : itemDtoList.get(i).getAccessibleAt()) {
+                if (!finalDto.getAccessibleAt().contains(e))
                     finalDto.getAccessibleAt().add(e);
             }
 
-            //private SourceBasicDto source;
 
-            //private String sourceItemId;
+            if(!Objects.isNull(finalDto.getSourceItemId()) && !Objects.isNull(itemDtoList.get(i).getSourceItemId()))
+                if (!finalDto.getSourceItemId().equals(itemDtoList.get(i).getSourceItemId()))
+                finalDto.setSourceItemId(finalDto.getSourceItemId() + "/" + itemDtoList.get(i).getSourceItemId());
 
-            //private List<RelatedItemDto> relatedItems;
-            for(String e: itemDtoList.get(i).getAccessibleAt()){
-                if(!finalDto.getAccessibleAt().contains(e))
-                    finalDto.getAccessibleAt().add(e);
+
+
+            for (RelatedItemDto e : itemDtoList.get(i).getRelatedItems()) {
+                if (!finalDto.getRelatedItems().contains(e))
+                    finalDto.getRelatedItems().add(e);
             }
 
-            //private List<ItemMediaDto> media;
+
+            for (ItemMediaDto e : itemDtoList.get(i).getMedia()) {
+                if (!finalDto.getMedia().contains(e))
+                    finalDto.getMedia().add(e);
+            }
 
             //might be troubles
-           //private ItemMediaDto thumbnail;
+            //private ItemMediaDto thumbnail;
 
-            //  private ItemStatus status;
-
-            //    private UserDto informationContributor;
-
+            if(!Objects.isNull(finalDto.getSource()) && !Objects.isNull(itemDtoList.get(i).getSource()))
+                if (!finalDto.getSource().equals(itemDtoList.get(i).getSource())) {
+                finalDto.getSource().setId(-1l);
+                finalDto.getSource().setUrl(finalDto.getSource().getUrl() + "/" + itemDtoList.get(i).getSource().getUrl());
+                finalDto.getSource().setLabel(finalDto.getSource().getLabel() + "/" + itemDtoList.get(i).getSource().getLabel());
+                finalDto.getSource().setUrlTemplate(finalDto.getSource().getUrlTemplate() + "/" + itemDtoList.get(i).getSource().getUrlTemplate());
+            }
 
         }
 
-        //eliminate duplicityi
+        finalDto.setStatus(ItemStatus.APPROVED);
 
-        // List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
-        //dto.setRelatedItems(relatedItems);
+        finalDto.setInformationContributor(UserMapper.INSTANCE.toDto(LoggedInUserHolder.getLoggedInUser()));
 
-        //create and return dto
-        //completeItemDto(dto, item);
+        finalDto.setLastInfoUpdate(ZonedDateTime.now());
 
+        finalDto.setPersistentId(null);
+
+        finalDto.setId(null);
         return finalDto;
 
     }
+
+
 
 
     private I makeItemVersion(C itemCore, I prevItem) {
@@ -567,4 +591,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     protected abstract P wrapPage(Page<I> resultsPage, List<D> convertedDtos);
 
     protected abstract D convertItemToDto(I item);
+
+    protected abstract D convertToDto(Item item);
 }

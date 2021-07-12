@@ -6,8 +6,12 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
+import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.repositories.items.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
@@ -124,12 +128,24 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     @Override
+    public DatasetDto convertToDto(Item dataset) {
+        return DatasetMapper.INSTANCE.toDto(dataset);
+    }
+
+
+    @Override
     protected String getItemTypeName() {
         return Dataset.class.getName();
     }
 
     public List<ItemExtBasicDto> getDatasetVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
+    }
+
+    public DatasetDto getMerge(MergeCore mergeCores) {
+        DatasetDto dataset= prepareMergeItems(mergeCores);
+        dataset.setCategory(ItemCategory.DATASET);
+        return dataset;
     }
 
 }

@@ -1,10 +1,15 @@
 package eu.sshopencloud.marketplace.dto.items;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
+@Data
+@NoArgsConstructor
 public class MergeCore {
 
-    List<String> persistentIdList;
+    private List<String> persistentIdList;
 
     public int getSize(){
         return persistentIdList.size();

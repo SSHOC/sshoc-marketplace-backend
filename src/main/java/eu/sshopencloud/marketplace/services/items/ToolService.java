@@ -8,6 +8,8 @@ import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
@@ -122,6 +124,11 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     @Override
+    protected ToolDto convertToDto(Item item) {
+        return ToolMapper.INSTANCE.toDto(item);
+    }
+
+    @Override
     protected String getItemTypeName() {
         return Tool.class.getName();
     }
@@ -131,7 +138,9 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     public ToolDto getMerge(MergeCore mergeCores) {
-        return prepareMergeItems(mergeCores);
+        ToolDto tool= prepareMergeItems(mergeCores);
+        tool.setCategory(ItemCategory.TOOL_OR_SERVICE);
+        return tool;
     }
 
 }
