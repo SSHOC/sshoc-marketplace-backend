@@ -173,11 +173,14 @@ public class WorkflowController {
     }
 
 
-    //jak ze stepem ???
-
     @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> getMerge(@RequestBody MergeCore mergeCore){
         return ResponseEntity.ok(workflowService.getMerge(mergeCore));
+    }
+
+    @GetMapping(path = "/{workflowId}/steps/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StepDto> getMergeSteps(@RequestBody MergeCore mergeCore){
+        return ResponseEntity.ok(stepService.getMerge(mergeCore));
     }
 
 }
