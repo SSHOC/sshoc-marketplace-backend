@@ -140,7 +140,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     public PublicationDto getMerge(MergeCore mergeCores) {
-        PublicationDto dataset= prepareMergeItems(mergeCores);
+        PublicationDto dataset= null;
+       // PublicationDto dataset= prepareMergeItems(mergeCores);
         dataset.setCategory(ItemCategory.PUBLICATION);
         return dataset;
     }

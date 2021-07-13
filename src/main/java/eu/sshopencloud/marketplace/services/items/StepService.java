@@ -315,7 +315,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     public StepDto getMerge(MergeCore mergeCores) {
-        StepDto tool = prepareMergeItems(mergeCores);
+        StepDto tool = null;
+        //StepDto tool = prepareMergeItems(mergeCores);
         tool.setCategory(ItemCategory.STEP);
         return tool;
     }

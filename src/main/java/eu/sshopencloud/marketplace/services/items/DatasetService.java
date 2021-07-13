@@ -142,9 +142,13 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
     }
 
-    public DatasetDto getMerge(MergeCore mergeCores) {
-        DatasetDto dataset= prepareMergeItems(mergeCores);
-        dataset.setCategory(ItemCategory.DATASET);
+    public DatasetDto getMerge(String persistentId, MergeCore mergeCores) {
+        DatasetDto dataset= prepareMergeItems(persistentId, mergeCores);
+        return dataset;
+    }
+
+    public DatasetDto merge(DatasetCore mergeDataset, MergeCore mergeCores) {
+        DatasetDto dataset = null;
         return dataset;
     }
 

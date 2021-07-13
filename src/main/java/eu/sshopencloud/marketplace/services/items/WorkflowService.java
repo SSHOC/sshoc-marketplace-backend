@@ -243,7 +243,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public WorkflowDto getMerge(MergeCore mergeCores) {
-        WorkflowDto tool = prepareMergeItems(mergeCores);
+        WorkflowDto tool = null;
+       // WorkflowDto tool = prepareMergeItems(mergeCores);
         tool.setCategory(ItemCategory.WORKFLOW);
         return tool;
     }

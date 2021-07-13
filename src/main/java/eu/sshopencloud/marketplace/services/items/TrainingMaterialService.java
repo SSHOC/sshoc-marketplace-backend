@@ -138,7 +138,8 @@ public class TrainingMaterialService
     }
 
     public TrainingMaterialDto getMerge(MergeCore mergeCores) {
-        TrainingMaterialDto tool= prepareMergeItems(mergeCores);
+        TrainingMaterialDto tool = null;
+        //TrainingMaterialDto tool= prepareMergeItems(mergeCores);
         tool.setCategory(ItemCategory.TRAINING_MATERIAL);
         return tool;
     }

@@ -463,10 +463,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     //Eliza
-    protected D prepareMergeItems(MergeCore mergeCores) {
+    protected D prepareMergeItems(String persistentId, MergeCore mergeCores) {
 
         List<D> itemDtoList = new ArrayList<D>();
-        D finalDto = null;
+
+        I finalItem = (I) versionedItemRepository.getOne(persistentId).getCurrentVersion();
+        D finalDto = convertToDto(finalItem);
+
+        finalDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalItem));
+        completeItemDto(finalDto, finalItem);
 
         for (int i = 0; i < mergeCores.getSize(); i++) {
 
@@ -477,11 +482,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
             itemDtoList.get(i).setRelatedItems(itemRelatedItemService.getItemRelatedItems(vItem));
             completeItemDto(itemDtoList.get(i), vItem);
-
-            if (i == 0) {
-                finalDto = itemDtoList.get(0);
-                continue;
-            }
 
 
             if (!Objects.isNull(finalDto.getDescription()) && !Objects.isNull(itemDtoList.get(i).getDescription()))
@@ -523,11 +523,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             }
 
 
-            if (!Objects.isNull(finalDto.getSourceItemId()) && !Objects.isNull(itemDtoList.get(i).getSourceItemId()))
-                if (!finalDto.getSourceItemId().equals(itemDtoList.get(i).getSourceItemId()))
-                    finalDto.setSourceItemId(finalDto.getSourceItemId() + "/" + itemDtoList.get(i).getSourceItemId());
-
-
             for (RelatedItemDto e : itemDtoList.get(i).getRelatedItems()) {
                 if (!finalDto.getRelatedItems().contains(e))
                     finalDto.getRelatedItems().add(e);
@@ -539,30 +534,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     finalDto.getMedia().add(e);
             }
 
-            //private ItemMediaDto thumbnail;
-
-            if (!Objects.isNull(finalDto.getSource()) && !Objects.isNull(itemDtoList.get(i).getSource()))
-                if (!finalDto.getSource().equals(itemDtoList.get(i).getSource())) {
-                    finalDto.getSource().setId(-1l);
-                    finalDto.getSource().setUrl(finalDto.getSource().getUrl() + "/" + itemDtoList.get(i).getSource().getUrl());
-                    finalDto.getSource().setLabel(finalDto.getSource().getLabel() + "/" + itemDtoList.get(i).getSource().getLabel());
-                    finalDto.getSource().setUrlTemplate(finalDto.getSource().getUrlTemplate() + "/" + itemDtoList.get(i).getSource().getUrlTemplate());
-                }
 
         }
 
-        finalDto.setStatus(ItemStatus.APPROVED);
-
-        finalDto.setInformationContributor(UserMapper.INSTANCE.toDto(LoggedInUserHolder.getLoggedInUser()));
-
-        finalDto.setLastInfoUpdate(ZonedDateTime.now());
-
-        finalDto.setPersistentId(null);
-        finalDto.setId(null);
-
-
         return finalDto;
-
     }
 
 

@@ -86,9 +86,17 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));
     }
 
-    @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getMerge(@RequestBody MergeCore mergeCore) {
-        return ResponseEntity.ok(datasetService.getMerge(mergeCore));
+    @GetMapping(path = "/{id}/merge", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getMerge(@PathVariable("datasetId") String id,
+                                               @RequestBody MergeCore mergeCore) {
+        return ResponseEntity.ok(datasetService.getMerge(id, mergeCore));
+    }
+
+    @PostMapping(path = "/merge", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> merge(@RequestBody MergeCore mergeCore,
+                                            @RequestBody DatasetCore mergeDataset,
+                                            @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
+        return ResponseEntity.ok(datasetService.getMerge("1", mergeCore));
     }
 
 
