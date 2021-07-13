@@ -139,10 +139,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return getItemHistory(persistentId, getLatestPublication(persistentId, draft, approved).getId());
     }
 
-    public PublicationDto getMerge(MergeCore mergeCores) {
+    public PublicationDto getMerge(String persistentId, MergeCore mergeCores) {
         PublicationDto dataset= null;
-       // PublicationDto dataset= prepareMergeItems(mergeCores);
-        dataset.setCategory(ItemCategory.PUBLICATION);
         return dataset;
     }
 

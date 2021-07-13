@@ -91,8 +91,9 @@ public class TrainingMaterialController {
     }
 
     @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> getMerge(@RequestBody MergeCore mergeCore) {
-        return ResponseEntity.ok(trainingMaterialService.getMerge(mergeCore));
+    public ResponseEntity<TrainingMaterialDto> getMerge(@PathVariable("id") String id,
+                                                        @RequestBody MergeCore mergeCore) {
+        return ResponseEntity.ok(trainingMaterialService.getMerge(id, mergeCore));
 
     }
 

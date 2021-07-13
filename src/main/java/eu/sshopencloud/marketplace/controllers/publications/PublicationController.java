@@ -87,8 +87,10 @@ public class PublicationController {
     }
 
     @GetMapping( path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> getMerge(@RequestBody MergeCore mergeCore){
-        return ResponseEntity.ok(publicationService.getMerge(mergeCore));
+    public ResponseEntity<PublicationDto> getMerge(@PathVariable("id") String id,
+                                                   @RequestBody MergeCore mergeCore
+                                                   ){
+        return ResponseEntity.ok(publicationService.getMerge(id, mergeCore));
 
     }
 

@@ -314,10 +314,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return getItemHistory(stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
     }
 
-    public StepDto getMerge(MergeCore mergeCores) {
+    public StepDto getMerge(String persistentId, MergeCore mergeCores) {
         StepDto tool = null;
-        //StepDto tool = prepareMergeItems(mergeCores);
-        tool.setCategory(ItemCategory.STEP);
         return tool;
     }
 }

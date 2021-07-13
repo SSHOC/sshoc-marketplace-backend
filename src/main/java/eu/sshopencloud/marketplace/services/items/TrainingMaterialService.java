@@ -137,10 +137,8 @@ public class TrainingMaterialService
         return TrainingMaterialMapper.INSTANCE.toDto(item);
     }
 
-    public TrainingMaterialDto getMerge(MergeCore mergeCores) {
+    public TrainingMaterialDto getMerge(String persistentId, MergeCore mergeCores) {
         TrainingMaterialDto tool = null;
-        //TrainingMaterialDto tool= prepareMergeItems(mergeCores);
-        tool.setCategory(ItemCategory.TRAINING_MATERIAL);
         return tool;
     }
 
