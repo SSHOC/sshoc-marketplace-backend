@@ -10,7 +10,10 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.dto.items.*;
+import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
+import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
@@ -110,7 +113,6 @@ public class DatasetControllerITCase {
     }
 
 
-
     @Test
     public void shouldReturnDatasetHistory() throws Exception {
 
@@ -130,9 +132,6 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[0].status", is("approved")))
                 .andExpect(jsonPath("$[0].informationContributor.id", is(3)));
     }
-
-
-
 
 
     @Test
@@ -983,7 +982,7 @@ public class DatasetControllerITCase {
     public void shouldCreateDatasetWithMediaWithoutThumbnailIncludedInMedia() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
         UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
-        UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg",  CONTRIBUTOR_JWT);
+        UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg", CONTRIBUTOR_JWT);
 
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
         ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
@@ -1031,5 +1030,62 @@ public class DatasetControllerITCase {
         assertFalse(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
 
     }
+
+
+    @Test
+    public void shouldGetMergeForOnlyDataset() throws Exception {
+
+        MergeCore mergeCore = new MergeCore();
+        List<String> persistentIdList = new ArrayList<>();
+        persistentIdList.add("dmbq4v");
+        persistentIdList.add("OdKfPc");
+        mergeCore.setPersistentIdList(persistentIdList);
+
+        String payload = mapper.writeValueAsString(mergeCore);
+
+        mvc.perform(
+                get("/api/datasets/merge", mergeCore)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", nullValue()))
+                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Austin Crime Data/Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("properties", hasSize(2)));
+
+    }
+
+    @Test
+    public void shouldGetMergeForNotOnlyDataset() throws Exception {
+
+        MergeCore mergeCore = new MergeCore();
+        List<String> persistentIdList = new ArrayList<>();
+        persistentIdList.add("n21Kfc");
+        persistentIdList.add("DstBL5");
+        persistentIdList.add("OdKfPc");
+        mergeCore.setPersistentIdList(persistentIdList);
+
+        String payload = mapper.writeValueAsString(mergeCore);
+
+        mvc.perform(
+                get("/api/datasets/merge", mergeCore)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", nullValue()))
+                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Stata/Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("properties", hasSize(7)));
+
+    }
+
 
 }

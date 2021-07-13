@@ -146,7 +146,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             }
 
             @Override
-            public void onBackToParent() {}
+            public void onBackToParent() {
+            }
         });
 
         deleteItem(persistentId, draft);
@@ -242,7 +243,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public WorkflowDto getMerge(MergeCore mergeCores) {
-        WorkflowDto tool= prepareMergeItems(mergeCores);
+        WorkflowDto tool = prepareMergeItems(mergeCores);
         tool.setCategory(ItemCategory.WORKFLOW);
         return tool;
     }
@@ -255,7 +256,6 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     public List<ItemExtBasicDto> getWorkflowVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestWorkflow(persistentId, draft, approved).getId());
     }
-
 
 
 }

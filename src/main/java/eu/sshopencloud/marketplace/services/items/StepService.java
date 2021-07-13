@@ -119,8 +119,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     private void addStepToTree(Step step, Integer stepNo, StepsTree parentStepsTree) {
         if (stepNo == null) {
             parentStepsTree.appendStep(step);
-        }
-        else {
+        } else {
             parentStepsTree.addStep(step, stepNo);
         }
     }
@@ -316,7 +315,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     public StepDto getMerge(MergeCore mergeCores) {
-        StepDto tool= prepareMergeItems(mergeCores);
+        StepDto tool = prepareMergeItems(mergeCores);
         tool.setCategory(ItemCategory.STEP);
         return tool;
     }

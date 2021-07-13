@@ -14,6 +14,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
 import eu.sshopencloud.marketplace.dto.items.ItemExternalIdId;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
@@ -628,5 +629,33 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("externalIds[0].identifier", is(publicationV2.getExternalIds().get(0).getIdentifier())))
                 .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
                 .andExpect(jsonPath("externalIds[1].identifier", is(publicationV2.getExternalIds().get(1).getIdentifier())));
+    }
+
+    @Test
+    public void shouldGetMergeForNotOnlyPublication() throws Exception {
+
+        MergeCore mergeCore = new MergeCore();
+        List<String> persistentIdList = new ArrayList<>();
+        persistentIdList.add("n21Kfc");          //persistent id of dataset
+        persistentIdList.add("DstBL5");          //persistent id of tool
+        persistentIdList.add("OdKfPc");          //persistent id of training-material
+        mergeCore.setPersistentIdList(persistentIdList);
+
+        String payload = mapper.writeValueAsString(mergeCore);
+
+        mvc.perform(
+                get("/api/publications/merge", mergeCore)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", nullValue()))
+                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Stata/Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("properties", hasSize(7)));
+
     }
 }

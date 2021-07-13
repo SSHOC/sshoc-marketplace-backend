@@ -86,12 +86,12 @@ public class TrainingMaterialController {
     @GetMapping(path = "/{trainingMaterialId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemExtBasicDto>> getTrainingMaterialHistory(@PathVariable("trainingMaterialId") String id,
                                                                             @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                                            @RequestParam(value = "approved", defaultValue = "true") boolean approved ) {
+                                                                            @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersions(id, draft, approved));
     }
 
-    @GetMapping (path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> getMerge(@RequestBody MergeCore mergeCore){
+    @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> getMerge(@RequestBody MergeCore mergeCore) {
         return ResponseEntity.ok(trainingMaterialService.getMerge(mergeCore));
 
     }

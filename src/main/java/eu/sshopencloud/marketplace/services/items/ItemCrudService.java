@@ -484,17 +484,17 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             }
 
 
-            if(!Objects.isNull(finalDto.getDescription()) && !Objects.isNull(itemDtoList.get(i).getDescription()))
+            if (!Objects.isNull(finalDto.getDescription()) && !Objects.isNull(itemDtoList.get(i).getDescription()))
                 if (!finalDto.getDescription().equals(itemDtoList.get(i).getDescription()))
                     finalDto.setDescription(finalDto.getDescription() + "/" + itemDtoList.get(i).getDescription());
 
 
-            if(!Objects.isNull(finalDto.getLabel()) && !Objects.isNull(itemDtoList.get(i).getLabel()))
+            if (!Objects.isNull(finalDto.getLabel()) && !Objects.isNull(itemDtoList.get(i).getLabel()))
                 if (!finalDto.getLabel().equals(itemDtoList.get(i).getLabel()))
-                finalDto.setLabel(finalDto.getLabel() + "/" + itemDtoList.get(i).getLabel());
+                    finalDto.setLabel(finalDto.getLabel() + "/" + itemDtoList.get(i).getLabel());
 
 
-            if(!Objects.isNull(finalDto.getVersion()) && !Objects.isNull(itemDtoList.get(i).getVersion()))
+            if (!Objects.isNull(finalDto.getVersion()) && !Objects.isNull(itemDtoList.get(i).getVersion()))
                 if (!finalDto.getVersion().equals(itemDtoList.get(i).getVersion()))
                     finalDto.setVersion(finalDto.getVersion() + "/" + itemDtoList.get(i).getVersion());
 
@@ -523,10 +523,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             }
 
 
-            if(!Objects.isNull(finalDto.getSourceItemId()) && !Objects.isNull(itemDtoList.get(i).getSourceItemId()))
+            if (!Objects.isNull(finalDto.getSourceItemId()) && !Objects.isNull(itemDtoList.get(i).getSourceItemId()))
                 if (!finalDto.getSourceItemId().equals(itemDtoList.get(i).getSourceItemId()))
-                finalDto.setSourceItemId(finalDto.getSourceItemId() + "/" + itemDtoList.get(i).getSourceItemId());
-
+                    finalDto.setSourceItemId(finalDto.getSourceItemId() + "/" + itemDtoList.get(i).getSourceItemId());
 
 
             for (RelatedItemDto e : itemDtoList.get(i).getRelatedItems()) {
@@ -540,16 +539,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     finalDto.getMedia().add(e);
             }
 
-            //might be troubles
             //private ItemMediaDto thumbnail;
 
-            if(!Objects.isNull(finalDto.getSource()) && !Objects.isNull(itemDtoList.get(i).getSource()))
+            if (!Objects.isNull(finalDto.getSource()) && !Objects.isNull(itemDtoList.get(i).getSource()))
                 if (!finalDto.getSource().equals(itemDtoList.get(i).getSource())) {
-                finalDto.getSource().setId(-1l);
-                finalDto.getSource().setUrl(finalDto.getSource().getUrl() + "/" + itemDtoList.get(i).getSource().getUrl());
-                finalDto.getSource().setLabel(finalDto.getSource().getLabel() + "/" + itemDtoList.get(i).getSource().getLabel());
-                finalDto.getSource().setUrlTemplate(finalDto.getSource().getUrlTemplate() + "/" + itemDtoList.get(i).getSource().getUrlTemplate());
-            }
+                    finalDto.getSource().setId(-1l);
+                    finalDto.getSource().setUrl(finalDto.getSource().getUrl() + "/" + itemDtoList.get(i).getSource().getUrl());
+                    finalDto.getSource().setLabel(finalDto.getSource().getLabel() + "/" + itemDtoList.get(i).getSource().getLabel());
+                    finalDto.getSource().setUrlTemplate(finalDto.getSource().getUrlTemplate() + "/" + itemDtoList.get(i).getSource().getUrlTemplate());
+                }
 
         }
 
@@ -560,13 +558,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         finalDto.setLastInfoUpdate(ZonedDateTime.now());
 
         finalDto.setPersistentId(null);
-
         finalDto.setId(null);
+
+
         return finalDto;
 
     }
-
-
 
 
     private I makeItemVersion(C itemCore, I prevItem) {

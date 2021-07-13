@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
@@ -35,12 +36,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static eu.sshopencloud.marketplace.util.MatcherUtils.equalValue;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static eu.sshopencloud.marketplace.util.MatcherUtils.*;
 
 
 @RunWith(SpringRunner.class)
@@ -1143,7 +1144,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("workflow")))
                 .andExpect(jsonPath("$[0].label", is("Evaluation of an inflectional analyzer")))
-                .andExpect(jsonPath("$[0].persistentId", is( workflowPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].id", is(workflowId)))
                 .andExpect(jsonPath("$[0].status", is("approved")));
 
@@ -1224,15 +1225,15 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("workflow")))
-                .andExpect(jsonPath("$[0].persistentId", is( workflowPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id",not(is(workflowId))))
+                .andExpect(jsonPath("$[0].id", not(is(workflowId))))
                 .andExpect(jsonPath("$[0].label", is("Evaluation of an inflectional analyzer")))
 
                 .andExpect(jsonPath("$[1].category", is("workflow")))
                 .andExpect(jsonPath("$[1].id", is(workflowId)))
                 .andExpect(jsonPath("$[1].label", is("Evaluation of an inflectional analyzer")))
-                .andExpect(jsonPath("$[1].persistentId", is( workflowPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("deprecated")));
 
     }
@@ -1267,7 +1268,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].category", is("workflow")))
                 .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id",notNullValue()));
+                .andExpect(jsonPath("$[0].id", notNullValue()));
 
         String stepPersistentId = "BNw43H";
         Integer stepId = 22;
@@ -1330,9 +1331,9 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("step")))
-                .andExpect(jsonPath("$[0].persistentId", is( stepPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(stepPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id",notNullValue()));
+                .andExpect(jsonPath("$[0].id", notNullValue()));
 
         mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -1368,7 +1369,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].category", is("workflow")))
                 .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id",notNullValue()));
+                .andExpect(jsonPath("$[0].id", notNullValue()));
     }
 
     @Test
@@ -1870,5 +1871,64 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[3].relatedItems[0].label", is("Interpret results")))
                 .andExpect(jsonPath("composedOf[3].relatedItems[0].category", is("step")))
                 .andExpect(jsonPath("composedOf[3].relatedItems[0].relation.code", is("relates-to")));
+    }
+
+    @Test
+    public void shouldGetMergeForOnlyWorkflow() throws Exception {
+
+        MergeCore mergeCore = new MergeCore();
+        List<String> persistentIdList = new ArrayList<>();
+        persistentIdList.add("tqmbGY");
+        persistentIdList.add("vHQEhe");
+        mergeCore.setPersistentIdList(persistentIdList);
+
+
+        String payload = mapper.writeValueAsString(mergeCore);
+
+        mvc.perform(
+                get("/api/workflows/merge", mergeCore)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", nullValue()))
+                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary/Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("properties", hasSize(1)));
+
+    }
+
+    @Test
+    public void shouldGetMergeForNotOnlyWorkflow() throws Exception {
+
+        MergeCore mergeCore = new MergeCore();
+        List<String> persistentIdList = new ArrayList<>();
+        persistentIdList.add("n21Kfc");         //persistent id of dataset
+        persistentIdList.add("DstBL5");         //persistent id of tool
+        persistentIdList.add("OdKfPc");         //persistent id of training-material
+        persistentIdList.add("JmBgWa");         //persistent id of training-material
+        persistentIdList.add("vHQEhe");         //persistent id of workflow
+
+        mergeCore.setPersistentIdList(persistentIdList);
+
+        String payload = mapper.writeValueAsString(mergeCore);
+
+        mvc.perform(
+                get("/api/workflows/merge", mergeCore)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", nullValue()))
+                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Stata/Consortium of European Social Science Data Archives/Webinar on DH/Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("properties", hasSize(8)));
+
     }
 }

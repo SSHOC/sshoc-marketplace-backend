@@ -82,7 +82,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
-                 .andExpect(jsonPath("informationContributor.id", is(2)));
+                .andExpect(jsonPath("informationContributor.id", is(2)));
     }
 
     @Test
@@ -438,11 +438,11 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Draft Stata")))
-                .andExpect(jsonPath("$[0].persistentId", is( toolPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(toolPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("draft")))
 
                 .andExpect(jsonPath("$[1].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[1].persistentId", is( toolPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(toolPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("approved")));
 
         mvc.perform(get("/api/tools-services/{id}/history", toolPersistentId)
@@ -451,7 +451,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", not(is("Draft Stata"))))
-                .andExpect(jsonPath("$[0].persistentId", is( toolPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(toolPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")));
 
 
@@ -1202,4 +1202,62 @@ public class ToolControllerITCase {
         )
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void shouldGetMergeForOnlyTool() throws Exception {
+
+        MergeCore mergeCore = new MergeCore();
+        List<String> persistentIdList = new ArrayList<>();
+        persistentIdList.add("n21Kfc");
+        persistentIdList.add("DstBL5");
+        mergeCore.setPersistentIdList(persistentIdList);
+
+
+        String payload = mapper.writeValueAsString(mergeCore);
+
+        mvc.perform(
+                get("/api/tools-services/merge", mergeCore)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", nullValue()))
+                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Stata")))
+                .andExpect(jsonPath("properties", hasSize(6)));
+
+    }
+
+    @Test
+    public void shouldGetMergeForNotOnlyTool() throws Exception {
+
+        MergeCore mergeCore = new MergeCore();
+        List<String> persistentIdList = new ArrayList<>();
+        persistentIdList.add("n21Kfc");         //persistent id of dataset
+        persistentIdList.add("DstBL5");         //persistent id of tool
+        persistentIdList.add("OdKfPc");         //persistent id of training-material
+        mergeCore.setPersistentIdList(persistentIdList);
+
+        String payload = mapper.writeValueAsString(mergeCore);
+
+        mvc.perform(
+                get("/api/tools-services/merge", mergeCore)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", nullValue()))
+                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Stata/Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("properties", hasSize(7)));
+
+    }
+
+
 }

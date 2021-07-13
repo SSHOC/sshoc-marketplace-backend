@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
@@ -36,7 +37,6 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -1727,5 +1727,62 @@ public class TrainingMaterialControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
+    }
+
+    @Test
+    public void shouldGetMergeForOnlyTrainingMaterial() throws Exception {
+
+        MergeCore mergeCore = new MergeCore();
+        List<String> persistentIdList = new ArrayList<>();
+        persistentIdList.add("heBAGQ");
+        persistentIdList.add("JmBgWa");
+        mergeCore.setPersistentIdList(persistentIdList);
+
+
+        String payload = mapper.writeValueAsString(mergeCore);
+
+        mvc.perform(
+                get("/api/training-materials/merge", mergeCore)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", nullValue()))
+                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Webinar on DH")))
+                .andExpect(jsonPath("properties", hasSize(3)));
+
+    }
+
+    @Test
+    public void shouldGetMergeForNotOnlyTrainingMaterial() throws Exception {
+
+        MergeCore mergeCore = new MergeCore();
+        List<String> persistentIdList = new ArrayList<>();
+        persistentIdList.add("n21Kfc");         //persistent id of dataset
+        persistentIdList.add("DstBL5");         //persistent id of tool
+        persistentIdList.add("OdKfPc");         //persistent id of training-material
+        persistentIdList.add("JmBgWa");         //persistent id of training-material
+        mergeCore.setPersistentIdList(persistentIdList);
+
+        String payload = mapper.writeValueAsString(mergeCore);
+
+        mvc.perform(
+                get("/api/training-materials/merge", mergeCore)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", nullValue()))
+                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Stata/Consortium of European Social Science Data Archives/Webinar on DH")))
+                .andExpect(jsonPath("properties", hasSize(8)));
+
     }
 }

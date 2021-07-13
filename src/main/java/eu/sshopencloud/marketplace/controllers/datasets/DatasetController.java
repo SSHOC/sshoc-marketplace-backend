@@ -87,7 +87,7 @@ public class DatasetController {
     }
 
     @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getMerge(@RequestBody MergeCore mergeCore){
+    public ResponseEntity<DatasetDto> getMerge(@RequestBody MergeCore mergeCore) {
         return ResponseEntity.ok(datasetService.getMerge(mergeCore));
     }
 
