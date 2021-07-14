@@ -124,6 +124,37 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return createOrUpdateItemVersion(itemCore, null, draft);
     }
 
+    //Eliza
+    protected I mergeItem(C itemCore, List<String> mergedItems) {
+
+        I prevVersion = (I) versionedItemRepository.getOne(mergedItems.get(0)).getCurrentVersion();
+
+        //I prevVersion2 = loadItemForCurrentUser(mergedItems.get(0));
+
+        I newItem = makeItemVersion(itemCore, prevVersion);
+
+        newItem.setStatus(ItemStatus.APPROVED);
+        //to jest null == ??
+        newItem.getVersionedItem().setStatus(VersionedItemStatus.REVIEWED);
+
+        newItem = saveVersionInHistory(newItem, null, false);
+
+        itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, null, false);
+        indexService.indexItem(newItem);
+
+        //Update merged item status
+        for(int i = 0 ; i < mergedItems.size(); i++) {
+            I item = loadItemForCurrentUser(mergedItems.get(i));
+            item.setStatus(ItemStatus.DEPRECATED);
+            item.getVersionedItem().setStatus(VersionedItemStatus.MERGED);
+            createOrUpdateItemVersion(itemCore, item, false);
+            //newItem.getVersionedItem().getMergedWith().add(item.getVersionedItem());
+        }
+
+        return newItem;
+
+    }
+
     protected I updateItem(String persistentId, C itemCore, boolean draft) {
         I item = loadItemForCurrentUser(persistentId);
         return createOrUpdateItemVersion(itemCore, item, draft);
@@ -148,7 +179,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             return version;
         }
 
+
         I version = makeItemVersion(itemCore, prevVersion);
+
         version = saveVersionInHistory(version, prevVersion, draft);
 
         itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), version, prevVersion, draft);
@@ -463,7 +496,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     //Eliza
-    protected D prepareMergeItems(String persistentId, MergeCore mergeCores) {
+    protected D prepareMergeItems(String persistentId, List<String> mergeList) {
 
         List<D> itemDtoList = new ArrayList<D>();
 
@@ -473,9 +506,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         finalDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalItem));
         completeItemDto(finalDto, finalItem);
 
-        for (int i = 0; i < mergeCores.getSize(); i++) {
+        for (int i = 0; i < mergeList.size(); i++) {
 
-            I vItem = (I) versionedItemRepository.getOne(mergeCores.getPersistentId(i)).getCurrentVersion();
+            I vItem = (I) versionedItemRepository.getOne(mergeList.get(i)).getCurrentVersion();
 
             D tmp = convertToDto(vItem);
             itemDtoList.add(tmp);
@@ -485,17 +518,17 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
             if (!Objects.isNull(finalDto.getDescription()) && !Objects.isNull(itemDtoList.get(i).getDescription()))
-                if (!finalDto.getDescription().equals(itemDtoList.get(i).getDescription()))
+                if (!finalDto.getDescription().contains(itemDtoList.get(i).getDescription()))
                     finalDto.setDescription(finalDto.getDescription() + "/" + itemDtoList.get(i).getDescription());
 
 
             if (!Objects.isNull(finalDto.getLabel()) && !Objects.isNull(itemDtoList.get(i).getLabel()))
-                if (!finalDto.getLabel().equals(itemDtoList.get(i).getLabel()))
+                if (!finalDto.getLabel().contains(itemDtoList.get(i).getLabel()))
                     finalDto.setLabel(finalDto.getLabel() + "/" + itemDtoList.get(i).getLabel());
 
 
             if (!Objects.isNull(finalDto.getVersion()) && !Objects.isNull(itemDtoList.get(i).getVersion()))
-                if (!finalDto.getVersion().equals(itemDtoList.get(i).getVersion()))
+                if (!finalDto.getVersion().contains(itemDtoList.get(i).getVersion()))
                     finalDto.setVersion(finalDto.getVersion() + "/" + itemDtoList.get(i).getVersion());
 
 

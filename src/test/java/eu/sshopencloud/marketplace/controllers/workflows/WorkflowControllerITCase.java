@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static eu.sshopencloud.marketplace.util.MatcherUtils.equalValue;
+//import static eu.sshopencloud.marketplace.util.MatcherUtils.equalValue;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -633,7 +633,7 @@ public class WorkflowControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
-                .andExpect(jsonPath("id", equalValue(workflowVersionId)))
+                .andExpect(jsonPath("id", is(workflowVersionId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("status", is("draft")))
                 .andExpect(jsonPath("label", is("Test complex workflow with nested steps")))

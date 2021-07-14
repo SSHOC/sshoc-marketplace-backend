@@ -4,7 +4,6 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -82,21 +81,20 @@ public class DatasetController {
     public ResponseEntity<List<ItemExtBasicDto>> getDatasetHistory(@PathVariable("datasetId") String id,
                                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
-
         return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));
     }
 
-    @GetMapping(path = "/{id}/merge", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @GetMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> getMerge(@PathVariable("id") String id,
-                                               @RequestBody MergeCore mergeCore) {
-        return ResponseEntity.ok(datasetService.getMerge(id, mergeCore));
+                                               @RequestParam List<String> with) {
+        return ResponseEntity.ok(datasetService.getMerge(id, with));
     }
 
-    @PostMapping(path = "/merge", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> merge(@RequestBody MergeCore mergeCore,
-                                            @RequestBody DatasetCore mergeDataset,
-                                            @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
-        return ResponseEntity.ok(datasetService.getMerge("1", mergeCore));
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> merge(@RequestParam List<String> with,
+                                            @RequestBody DatasetCore mergeDataset) {
+        return ResponseEntity.ok(datasetService.merge(mergeDataset, with));
     }
 
 

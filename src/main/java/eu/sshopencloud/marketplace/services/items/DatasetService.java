@@ -12,6 +12,8 @@ import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.model.items.VersionedItemStatus;
 import eu.sshopencloud.marketplace.repositories.items.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
@@ -142,14 +144,17 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
     }
 
-    public DatasetDto getMerge(String persistentId, MergeCore mergeCores) {
-        DatasetDto dataset= prepareMergeItems(persistentId, mergeCores);
-        return dataset;
+    public DatasetDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
     }
 
-    public DatasetDto merge(DatasetCore mergeDataset, MergeCore mergeCores) {
-        DatasetDto dataset = null;
-        return dataset;
+    public DatasetDto merge(DatasetCore mergeDataset, List<String> mergeCores) {
+        //stwórz nowy obiekt
+        //zmień statusy w item na REVIEWED i APPROVED
+        //zmień statusy w verisonedItem na MERGED  i DEPRECATED
+
+        Dataset dataset = mergeItem(mergeDataset, mergeCores);
+        return prepareItemDto(dataset);
     }
 
 }

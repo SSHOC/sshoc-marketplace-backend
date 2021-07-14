@@ -37,6 +37,11 @@ public class VersionedItem {
     @OrderBy("dateCreated DESC")
     private List<ItemComment> comments;
 
+    //Eliza
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id", foreignKey = @ForeignKey(name="merged_with_fk"))
+    List<VersionedItem> mergedWith;
+
 
     public VersionedItem(String persistentId) {
         this.persistentId = persistentId;
