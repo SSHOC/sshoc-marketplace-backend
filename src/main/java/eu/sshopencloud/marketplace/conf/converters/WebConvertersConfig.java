@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.conf.converters;
 
 import eu.sshopencloud.marketplace.domain.media.MediaCategory;
+import eu.sshopencloud.marketplace.dto.auth.UserOrder;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
@@ -26,5 +27,7 @@ public class WebConvertersConfig implements WebMvcConfigurer {
         registry.addFormatterForFieldType(SearchOrder.class, new SearchOrderFormatter());
         registry.addFormatterForFieldType(PropertyTypeClass.class, new PropertyTypeClassFormatter());
         registry.addFormatterForFieldType(MediaCategory.class, new MediaCategoryFormatter());
+        registry.addFormatterForFieldType(SearchOrder.class, new SourceOrderFormatter());
+        registry.addFormatterForFieldType(UserOrder.class, new UserOrderFormatter());
     }
 }
