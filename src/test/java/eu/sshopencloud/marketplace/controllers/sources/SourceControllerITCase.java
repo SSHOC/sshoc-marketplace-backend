@@ -55,6 +55,62 @@ public class SourceControllerITCase {
     }
 
     @Test
+    public void shouldReturnSourcesSortedByLabel() throws Exception {
+
+        SourceCore source = new SourceCore();
+        source.setLabel("Source Test");
+        source.setUrl("http://example.com");
+        source.setUrlTemplate("http://example.com/{source-item-id}");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(source);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/sources")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(get("/api/sources?order=name")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(3)))
+                .andExpect(jsonPath("sources[0].label", notNullValue()))
+                .andExpect(jsonPath("sources[1].label", is(source.getLabel())))
+                .andExpect(jsonPath("sources[1].url", is(source.getUrl())))
+                .andExpect(jsonPath("sources[2].label", is("TAPoR")))
+                .andExpect(jsonPath("sources[2].url", is("http://tapor.ca")))
+                .andExpect(jsonPath("sources[2].urlTemplate", is("http://tapor.ca/tools/{source-item-id}")));
+    }
+
+    @Test
+    public void shouldReturnSourcesSortedByDate() throws Exception {
+
+        SourceCore source = new SourceCore();
+        source.setLabel("Test");
+        source.setUrl("http://example.com");
+        source.setUrlTemplate("http://example.com/{source-item-id}");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(source);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/sources")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(get("/api/sources?order=date")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(3)));
+    }
+
+    @Test
     public void shouldReturnSourcesByLabel() throws Exception {
 
         mvc.perform(get("/api/sources?q=tapor")
