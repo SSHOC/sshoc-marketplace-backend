@@ -1,11 +1,12 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
-import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -71,18 +72,30 @@ public class DatasetController {
         datasetService.deleteDataset(id, draft);
     }
 
-    @PostMapping(path = "/{datasetId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> publishDataset(@PathVariable("datasetId") String datasetId) {
-        DatasetDto dataset = datasetService.commitDraftDataset(datasetId);
+    @PostMapping(path = "/{id}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> publishDataset(@PathVariable("id") String id) {
+        DatasetDto dataset = datasetService.commitDraftDataset(id);
         return ResponseEntity.ok(dataset);
     }
 
-    @GetMapping(path = "/{datasetId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemExtBasicDto>> getDatasetHistory(@PathVariable("datasetId") String id,
+    @GetMapping(path = "/{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemExtBasicDto>> getDatasetHistory(@PathVariable("id") String id,
                                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
         return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));
+    }
+
+    @GetMapping(path = "/{id}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("id") String id) {
+
+        return ResponseEntity.ok(datasetService.getInformationContributors(id));
+    }
+
+    @GetMapping(path = "/{id}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(datasetService.getInformationContributors(id, versionId));
     }
 
 

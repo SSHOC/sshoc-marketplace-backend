@@ -12,6 +12,7 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
@@ -124,11 +125,93 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[0].id", is(datasetId)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
                 .andExpect(jsonPath("$[0].label", is("Austin Crime Data")))
-                //.andExpect(jsonPath("$[0].version", is("null")))
                 .andExpect(jsonPath("$[0].persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("$[0].lastInfoUpdate", is("2020-08-04T12:29:02+0200")))
                 .andExpect(jsonPath("$[0].status", is("approved")))
                 .andExpect(jsonPath("$[0].informationContributor.id", is(3)));
+    }
+
+    @Test
+    public void shouldReturnDatasetInformationContributors() throws Exception {
+
+        String datasetPersistentId = "dmbq4v";
+
+        mvc.perform(get("/api/datasets/{id}/information-contributors", datasetPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(3)))
+                .andExpect(jsonPath("$[0].username", is("Contributor")))
+                .andExpect(jsonPath("$[0].displayName", is("Contributor")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("contributor")))
+                .andExpect(jsonPath("$[0].email", is("contributor@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+    }
+
+    @Test
+    public void shouldReturnDatasetInformationContributorsForVersion() throws Exception {
+
+        String datasetPersistentId = "dmbq4v";
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test simple dataset");
+        dataset.setDescription("Lorem ipsum");
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("license");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("MIT");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("software-license");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property1);
+        dataset.setProperties(properties);
+        dataset.setVersion("2.0");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test simple dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("contributors", hasSize(0)))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("MIT License")))
+                .andReturn().getResponse().getContentAsString();
+
+
+       Long versionId = TestJsonMapper.serializingObjectMapper()
+                .readValue(jsonResponse, DatasetDto.class).getId();
+
+        log.debug("Dataset version Id: " + versionId);
+
+        mvc.perform(get("/api/datasets/{id}/versions/{versionId}/information-contributors", datasetPersistentId, versionId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[0].displayName", is("Administrator")))
+                .andExpect(jsonPath("$[1].id", is(3)))
+                .andExpect(jsonPath("$[1].username", is("Contributor")))
+                .andExpect(jsonPath("$[1].displayName", is("Contributor")))
+                .andExpect(jsonPath("$[1].status", is("enabled")))
+                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].role", is("contributor")))
+                .andExpect(jsonPath("$[1].email", is("contributor@example.com")))
+                .andExpect(jsonPath("$[1].config", is(true)));
     }
 
 

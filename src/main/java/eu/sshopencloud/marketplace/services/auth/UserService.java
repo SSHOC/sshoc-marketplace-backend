@@ -133,6 +133,12 @@ public class UserService {
         return UserMapper.INSTANCE.toDto(user);
     }
 
+    public List<UserDto> getInformationContributors(String itemId) {
+        return UserMapper.INSTANCE.toDto(userRepository.findInformationContributors(itemId));
+    }
+    public List<UserDto> getInformationContributors(String itemId, Long versionId) {
+        return UserMapper.INSTANCE.toDto(userRepository.findInformationContributors(itemId,versionId));
+    }
 
 
 }
