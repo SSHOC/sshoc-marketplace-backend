@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaCategory;
 import eu.sshopencloud.marketplace.dto.auth.UserOrder;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.dto.sources.SourceOrder;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
 import eu.sshopencloud.marketplace.model.auth.UserStatus;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
@@ -27,7 +28,7 @@ public class WebConvertersConfig implements WebMvcConfigurer {
         registry.addFormatterForFieldType(SearchOrder.class, new SearchOrderFormatter());
         registry.addFormatterForFieldType(PropertyTypeClass.class, new PropertyTypeClassFormatter());
         registry.addFormatterForFieldType(MediaCategory.class, new MediaCategoryFormatter());
-        registry.addFormatterForFieldType(SearchOrder.class, new SourceOrderFormatter());
+        registry.addFormatterForFieldType(SourceOrder.class, new SourceOrderFormatter());
         registry.addFormatterForFieldType(UserOrder.class, new UserOrderFormatter());
     }
 }

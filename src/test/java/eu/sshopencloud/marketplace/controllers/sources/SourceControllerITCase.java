@@ -72,7 +72,7 @@ public class SourceControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        mvc.perform(get("/api/sources?order=NAME")
+        mvc.perform(get("/api/sources?order=name")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
@@ -103,8 +103,7 @@ public class SourceControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        //to fill in NULL harvest date
-        mvc.perform(get("/api/sources?order=DATE")
+        mvc.perform(get("/api/sources?order=date")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())

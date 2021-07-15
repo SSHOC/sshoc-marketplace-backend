@@ -178,7 +178,7 @@ public class UserControllerITCase {
     @Test
     public void shouldReturnUsersSortedByLabel() throws Exception {
 
-        mvc.perform(get("/api/users?order=USERNAME")
+        mvc.perform(get("/api/users?order=username")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
@@ -192,7 +192,7 @@ public class UserControllerITCase {
     @Test
     public void shouldReturnUsersSortedByRegistrationDate() throws Exception {
 
-        mvc.perform(get("/api/users?order=DATE")
+        mvc.perform(get("/api/users?order=date")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
