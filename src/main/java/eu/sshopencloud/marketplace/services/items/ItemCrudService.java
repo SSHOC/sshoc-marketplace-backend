@@ -112,6 +112,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         D dto = convertItemToDto(item);
 
+        //Here
         List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
         dto.setRelatedItems(relatedItems);
 
@@ -120,6 +121,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     }
 
+
+
     protected I createItem(C itemCore, boolean draft) {
         return createOrUpdateItemVersion(itemCore, null, draft);
     }
@@ -127,30 +130,70 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     //Eliza
     protected I mergeItem(C itemCore, List<String> mergedItems) {
 
-        I prevVersion = (I) versionedItemRepository.getOne(mergedItems.get(0)).getCurrentVersion();
+        //I prevVersion = (I) versionedItemRepository.getOne(mergedItems.get(0)).getCurrentVersion();
 
-        //I prevVersion2 = loadItemForCurrentUser(mergedItems.get(0));
+        I prevVersion = loadCurrentItem(mergedItems.get(0));
+        //System.out.println("Eliza " + prevVersion.getId() + prevVersion.getDescription());
 
+        //tutaj itemy powinny byc zgodne ponieważ jest ten sam
         I newItem = makeItemVersion(itemCore, prevVersion);
 
-        newItem.setStatus(ItemStatus.APPROVED);
-        //to jest null == ??
-        newItem.getVersionedItem().setStatus(VersionedItemStatus.REVIEWED);
+        //I newItem = makeItemVersion(itemCore, null);
+
+        //ta funkcja tworzy getVersionedItem
+        //newItem = saveVersionInHistory(newItem, prevVersion, false);
 
         newItem = saveVersionInHistory(newItem, null, false);
+        newItem = saveVersionInHistory(newItem, prevVersion, false);
 
-        itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, null, false);
-        indexService.indexItem(newItem);
+        //error??
+        //newItem.getVersionedItem().setStatus(VersionedItemStatus.REVIEWED);
+
+       // newItem.getVersionedItem().setMergedWith(new ArrayList<>());
+
+        itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, prevVersion, false);
 
         //Update merged item status
-        for(int i = 0 ; i < mergedItems.size(); i++) {
-            I item = loadItemForCurrentUser(mergedItems.get(i));
+        for (int i = 0; i < mergedItems.size(); i++) {
+            I item = (I) versionedItemRepository.getOne(mergedItems.get(i)).getCurrentVersion();
+            //I item = loadItemForCurrentUser(mergedItems.get(i));
             item.setStatus(ItemStatus.DEPRECATED);
             item.getVersionedItem().setStatus(VersionedItemStatus.MERGED);
-            createOrUpdateItemVersion(itemCore, item, false);
-            //newItem.getVersionedItem().getMergedWith().add(item.getVersionedItem());
+            // if(i ==0) createOrUpdateItemVersion(itemCore, item, false);
+            //if(Objects.isNull(newItem.getVersionedItem().getMergedWith())) newItem.getVersionedItem().setMergedWith(new ArrayList<>());
+            newItem.getVersionedItem().getMergedWith().add(item.getVersionedItem());
         }
 
+
+
+
+        //newItem = saveVersionInHistory(newItem, prevVersion, false);
+        //itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, prevVersion, false);
+
+
+        //jest problem z related items ....
+        indexService.indexItem(newItem);
+
+
+
+        return newItem;
+
+    }
+
+    protected I mergeItem22(C itemCore, List<String> mergedItems) {
+
+        I newItem = loadCurrentItem(mergedItems.get(0));
+
+        //Update merged item status
+        for (int i = 0; i < mergedItems.size(); i++) {
+            I item = (I) versionedItemRepository.getOne(mergedItems.get(i)).getCurrentVersion();
+            //I item = loadItemForCurrentUser(mergedItems.get(i));
+            item.setStatus(ItemStatus.DEPRECATED);
+            item.getVersionedItem().setStatus(VersionedItemStatus.MERGED);
+            if (i == 0) createOrUpdateItemVersion(itemCore, item, false);
+            //if(Objects.isNull(newItem.getVersionedItem().getMergedWith())) newItem.getVersionedItem().setMergedWith(new ArrayList<>());
+            newItem.getVersionedItem().getMergedWith().add(item.getVersionedItem());
+        }
         return newItem;
 
     }

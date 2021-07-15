@@ -154,6 +154,10 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         //zmień statusy w verisonedItem na MERGED  i DEPRECATED
 
         Dataset dataset = mergeItem(mergeDataset, mergeCores);
+        System.out.println("E" + dataset.getStatus().toString());
+        System.out.println("E" + dataset.getVersionedItem().getStatus());
+        dataset.getVersionedItem().getMergedWith().forEach( (n) -> { System.out.println(n.getPersistentId());
+        System.out.println("E");} );
         return prepareItemDto(dataset);
     }
 
