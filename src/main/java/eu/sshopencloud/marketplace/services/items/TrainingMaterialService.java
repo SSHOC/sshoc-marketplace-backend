@@ -138,12 +138,12 @@ public class TrainingMaterialService
         return getItemHistory(persistentId, getLatestTrainingMaterial( persistentId, draft, approved).getId());
     }
 
-    public List<UserDto> getTrainingMaterialInformationContributors(String id) {
-        return getInformationContributors(id);
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
     }
 
-    public List<UserDto> getTrainingMaterialInformationContributorsForVersion(String id, Long versionId) {
-        return getInformationContributorsForVersion(id, versionId);
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
     }
 
 }

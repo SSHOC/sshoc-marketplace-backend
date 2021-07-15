@@ -307,14 +307,13 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return getItemHistory(stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
     }
 
-    public List<UserDto> getStepInformationContributors(String workflowId, String stepId) {
+    public List<UserDto> getInformationContributors(String workflowId, String stepId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
-        return getInformationContributors(stepId);
+        return super.getInformationContributors(stepId);
     }
 
-    public List<UserDto> getStepInformationContributorsForVersion(String workflowId, String stepId, Long versionId) {
+    public List<UserDto> getInformationContributors(String workflowId, String stepId, Long versionId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
-
-        return getInformationContributorsForVersion(stepId, versionId);
+        return super.getInformationContributors(stepId, versionId);
     }
 }

@@ -459,12 +459,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
-    protected List<UserDto> getInformationContributorsForVersion(String itemId,  Long versionId) {
-        return userService.getInformationContributorsForVersion(itemId,versionId);
-    }
-
     protected List<UserDto> getInformationContributors(String itemId) {
         return userService.getInformationContributors(itemId);
+    }
+
+    protected List<UserDto> getInformationContributors(String itemId, Long versionId) {
+        return userService.getInformationContributors(itemId, versionId);
     }
 
 

@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -137,8 +136,8 @@ public class UserService {
     public List<UserDto> getInformationContributors(String itemId) {
         return UserMapper.INSTANCE.toDto(userRepository.findInformationContributors(itemId));
     }
-    public List<UserDto> getInformationContributorsForVersion(String itemId, Long versionId) {
-        return UserMapper.INSTANCE.toDto(userRepository.findInformationContributorsForVersion(itemId,versionId));
+    public List<UserDto> getInformationContributors(String itemId, Long versionId) {
+        return UserMapper.INSTANCE.toDto(userRepository.findInformationContributors(itemId,versionId));
     }
 
 

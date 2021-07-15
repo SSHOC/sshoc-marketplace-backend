@@ -133,12 +133,12 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
     }
 
-    public List<UserDto> getDatasetInformationContributors(String id) {
-        return getInformationContributors(id);
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
     }
 
-    public List<UserDto> getDatasetInformationContributorsForVersion(String id, Long versionId) {
-        return getInformationContributorsForVersion(id, versionId);
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
     }
 
 }

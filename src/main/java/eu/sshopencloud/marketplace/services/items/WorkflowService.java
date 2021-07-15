@@ -243,13 +243,12 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return getItemHistory(persistentId, getLatestWorkflow(persistentId, draft, approved).getId());
     }
 
-    public List<UserDto> getWorkflowInformationContributors(String id) {
-        return getInformationContributors(id);
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
     }
 
-
-    public List<UserDto> getWorkflowInformationContributorsForVersion(String id, Long versionId) {
-        return getInformationContributorsForVersion(id, versionId);
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
     }
 
 

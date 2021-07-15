@@ -62,9 +62,9 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.updateWorkflow(workflowId, updatedWorkflow, draft));
     }
 
-    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> revertWorkflow(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
-        return ResponseEntity.ok(workflowService.revertWorkflow(id, versionId));
+    @PutMapping(path = "/{workflowId}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> revertWorkflow(@PathVariable("workflowId") String workflowId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(workflowService.revertWorkflow(workflowId, versionId));
     }
 
     @DeleteMapping(path = "/{workflowId}")
@@ -170,25 +170,25 @@ public class WorkflowController {
     @GetMapping(path = "/{workflowId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("workflowId") String id) {
 
-        return ResponseEntity.ok(workflowService.getWorkflowInformationContributors(id));
+        return ResponseEntity.ok(workflowService.getInformationContributors(id));
     }
 
     @GetMapping(path = "/{workflowId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("workflowId") String id, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(workflowService.getWorkflowInformationContributorsForVersion(id,versionId));
+        return ResponseEntity.ok(workflowService.getInformationContributors(id,versionId));
     }
 
     @GetMapping(path = "/{workflowId}/steps/{stepId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getStepInformationContributors(@PathVariable("workflowId") String id, @PathVariable("stepId") String stepId) {
 
-        return ResponseEntity.ok(stepService.getStepInformationContributors(id, stepId));
+        return ResponseEntity.ok(stepService.getInformationContributors(id, stepId));
     }
 
     @GetMapping(path = "/{workflowId}/steps/{stepId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getStepInformationContributorsForVersion(@PathVariable("workflowId") String id, @PathVariable("stepId") String stepId, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(stepService.getStepInformationContributorsForVersion(id,stepId, versionId));
+        return ResponseEntity.ok(stepService.getInformationContributors(id,stepId, versionId));
     }
 
 }

@@ -71,9 +71,9 @@ public class ToolController {
         toolService.deleteTool(id, draft);
     }
 
-    @PostMapping(path = "/{toolId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> publishTool(@PathVariable("toolId") String toolId) {
-        ToolDto tool = toolService.commitDraftTool(toolId);
+    @PostMapping(path = "/{id}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> publishTool(@PathVariable("id") String id) {
+        ToolDto tool = toolService.commitDraftTool(id);
         return ResponseEntity.ok(tool);
     }
 
@@ -87,13 +87,13 @@ public class ToolController {
     @GetMapping(path = "/{id}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("id") String id) {
 
-        return ResponseEntity.ok(toolService.getToolInformationContributors(id));
+        return ResponseEntity.ok(toolService.getInformationContributors(id));
     }
 
     @GetMapping(path = "/{id}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(toolService.getToolInformationContributorsForVersion(id,versionId));
+        return ResponseEntity.ok(toolService.getInformationContributors(id, versionId));
     }
 
 }

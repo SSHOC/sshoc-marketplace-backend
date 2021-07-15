@@ -73,29 +73,29 @@ public class PublicationController {
         publicationService.deletePublication(id, draft);
     }
 
-    @PostMapping(path = "/{publicationId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> publishPublication(@PathVariable("publicationId") String publicationId) {
-        PublicationDto publication = publicationService.commitDraftPublication(publicationId);
+    @PostMapping(path = "/{id}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> publishPublication(@PathVariable("id") String id) {
+        PublicationDto publication = publicationService.commitDraftPublication(id);
         return ResponseEntity.ok(publication);
     }
 
-    @GetMapping(path = "/{publicationId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemExtBasicDto>> getPublicationHistory(@PathVariable("publicationId") String id,
+    @GetMapping(path = "/{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemExtBasicDto>> getPublicationHistory(@PathVariable("id") String id,
                                                                        @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                        @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(publicationService.getPublicationVersions(id, draft, approved));
     }
 
-    @GetMapping(path = "/{publicationId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("publicationId") String id) {
+    @GetMapping(path = "/{id}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("id") String id) {
 
-        return ResponseEntity.ok(publicationService.getPublicationInformationContributors(id));
+        return ResponseEntity.ok(publicationService.getInformationContributors(id));
     }
 
-    @GetMapping(path = "/{publicationId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("publicationId") String id, @PathVariable("versionId") long versionId) {
+    @GetMapping(path = "/{id}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(publicationService.getPublicationInformationContributorsForVersion(id,versionId));
+        return ResponseEntity.ok(publicationService.getInformationContributors(id,versionId));
     }
 
 
