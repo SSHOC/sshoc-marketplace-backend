@@ -130,51 +130,35 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     //Eliza
     protected I mergeItem(C itemCore, List<String> mergedItems) {
 
-        //I prevVersion = (I) versionedItemRepository.getOne(mergedItems.get(0)).getCurrentVersion();
-
         I prevVersion = loadCurrentItem(mergedItems.get(0));
-        //System.out.println("Eliza " + prevVersion.getId() + prevVersion.getDescription());
 
-        //tutaj itemy powinny byc zgodne ponieważ jest ten sam
         I newItem = makeItemVersion(itemCore, prevVersion);
-
         //I newItem = makeItemVersion(itemCore, null);
 
-        //ta funkcja tworzy getVersionedItem
-        //newItem = saveVersionInHistory(newItem, prevVersion, false);
-
+        //??
         newItem = saveVersionInHistory(newItem, null, false);
+        System.out.println("" + newItem.getVersionedItem().getMergedWith());
         newItem = saveVersionInHistory(newItem, prevVersion, false);
 
-        //error??
         //newItem.getVersionedItem().setStatus(VersionedItemStatus.REVIEWED);
-
-       // newItem.getVersionedItem().setMergedWith(new ArrayList<>());
+        //newItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
         itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, prevVersion, false);
 
-        //Update merged item status
+
         for (int i = 0; i < mergedItems.size(); i++) {
             I item = (I) versionedItemRepository.getOne(mergedItems.get(i)).getCurrentVersion();
-            //I item = loadItemForCurrentUser(mergedItems.get(i));
             item.setStatus(ItemStatus.DEPRECATED);
             item.getVersionedItem().setStatus(VersionedItemStatus.MERGED);
             // if(i ==0) createOrUpdateItemVersion(itemCore, item, false);
-            //if(Objects.isNull(newItem.getVersionedItem().getMergedWith())) newItem.getVersionedItem().setMergedWith(new ArrayList<>());
             newItem.getVersionedItem().getMergedWith().add(item.getVersionedItem());
         }
-
-
-
 
         //newItem = saveVersionInHistory(newItem, prevVersion, false);
         //itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, prevVersion, false);
 
-
         //jest problem z related items ....
         indexService.indexItem(newItem);
-
-
 
         return newItem;
 
