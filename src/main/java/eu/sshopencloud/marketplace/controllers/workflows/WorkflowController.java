@@ -1,12 +1,9 @@
 package eu.sshopencloud.marketplace.controllers.workflows;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.workflows.StepCore;
-import eu.sshopencloud.marketplace.dto.workflows.StepDto;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
-import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
+import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.services.items.StepService;
 import eu.sshopencloud.marketplace.services.items.WorkflowService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -65,9 +62,9 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.updateWorkflow(workflowId, updatedWorkflow, draft));
     }
 
-    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> revertWorkflow(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
-        return ResponseEntity.ok(workflowService.revertWorkflow(id, versionId));
+    @PutMapping(path = "/{workflowId}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> revertWorkflow(@PathVariable("workflowId") String workflowId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(workflowService.revertWorkflow(workflowId, versionId));
     }
 
     @DeleteMapping(path = "/{workflowId}")
@@ -168,6 +165,30 @@ public class WorkflowController {
                                                                 @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(stepService.getStepVersions(workflowId, stepId, draft, approved));
+    }
+
+    @GetMapping(path = "/{workflowId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("workflowId") String id) {
+
+        return ResponseEntity.ok(workflowService.getInformationContributors(id));
+    }
+
+    @GetMapping(path = "/{workflowId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("workflowId") String id, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(workflowService.getInformationContributors(id,versionId));
+    }
+
+    @GetMapping(path = "/{workflowId}/steps/{stepId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getStepInformationContributors(@PathVariable("workflowId") String id, @PathVariable("stepId") String stepId) {
+
+        return ResponseEntity.ok(stepService.getInformationContributors(id, stepId));
+    }
+
+    @GetMapping(path = "/{workflowId}/steps/{stepId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getStepInformationContributorsForVersion(@PathVariable("workflowId") String id, @PathVariable("stepId") String stepId, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(stepService.getInformationContributors(id,stepId, versionId));
     }
 
 }
