@@ -50,7 +50,8 @@ public class SearchItemRepository {
                         IndexItem.DESCRIPTION_FIELD,
                         IndexItem.CATEGORY_FIELD,
                         IndexItem.STATUS_FIELD,
-                        IndexItem.OWNER_FIELD
+                        IndexItem.OWNER_FIELD,
+                        IndexItem.LAST_INFO_UPDATE_FIELD
                 )
                 .addSort(Sort.by(createQueryOrder(order)))
                 .setPageRequest(pageable);
