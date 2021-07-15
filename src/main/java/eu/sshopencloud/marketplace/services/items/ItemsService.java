@@ -59,6 +59,7 @@ public class ItemsService extends ItemVersionService<Item> {
 
     public PaginatedItemsBasic getMyDraftItems(ItemOrder order, PageCoords pageCoords) {
         if (order == null) order = ItemOrder.MODIFIED_ON;
+
         Page<DraftItem> draftItemsPage = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser(),
                 PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))));
         List<ItemBasicDto> items = draftItemsPage.stream().map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
@@ -85,7 +86,7 @@ public class ItemsService extends ItemVersionService<Item> {
                     return Sort.Order.desc("item.lastInfoUpdate");
                 }
             default:
-                return Sort.Order.asc("item.lastInfoUpdate");
+                return Sort.Order.desc("item.lastInfoUpdate");
         }
     }
 
