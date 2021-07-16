@@ -57,7 +57,7 @@ public class ItemFactory {
         }
 
         item.setContributors(itemContributorFactory.create(itemCore.getContributors(), item, errors, "contributors"));
-        item.setProperties(propertyFactory.create(category, itemCore.getProperties(), item, errors, "properties"));
+        item.setProperties(propertyFactory.create(itemCore.getProperties(), item, errors, "properties"));
 
         List<URI> urls = parseAccessibleAtLinks(itemCore, errors);
         List<String> accessibleAtLinks = urls.stream()
@@ -116,7 +116,7 @@ public class ItemFactory {
             if (itemThumbnail.isPresent()) {
                 itemThumbnail.get().setItemMediaThumbnail(ItemMediaType.THUMBNAIL);
             } else {
-                item.addMedia(itemMediaFactory.create(itemCore.getThumbnail().getInfo().getMediaId(), item, errors, ItemMediaType.THUMBNAIL_ONLY, itemCore.getThumbnail().getCaption()));
+                item.addMedia(itemMediaFactory.create(itemCore.getThumbnail().getInfo().getMediaId(), item, errors, ItemMediaType.THUMBNAIL_ONLY, itemCore.getThumbnail().getCaption(), itemCore.getThumbnail().getConcept()));
             }
         }
 

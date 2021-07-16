@@ -1,0 +1,32 @@
+databaseChangeLog:
+    - changeSet:
+        id: 0045-SSHOC_90-license_media_item-1
+        description: adding column with vocabulary and code to items media table
+        author: ekalata
+        changes:
+            - addColumn:
+                tableName: items_media
+                columns:
+                    - column:
+                          name: vocabulary_code
+                          type: VARCHAR(255)
+                    - column:
+                          name: code
+                          type: VARCHAR(255)
+
+    - changeSet:
+        id: 0045-SSHOC_90-license_media_item-2
+        description: adding column with concept foreign key to item media table
+        author: ekalata
+        changes:
+            - addForeignKeyConstraint:
+                baseColumnNames: code, vocabulary_code
+                baseTableName: items_media
+                constraintName: item_media_concept_fk
+                deferrable: false
+                initiallyDeferred: false
+                onDelete: NO ACTION
+                onUpdate: NO ACTION
+                referencedColumnNames: code,vocabulary_code
+                referencedTableName: concepts
+                validate: true
