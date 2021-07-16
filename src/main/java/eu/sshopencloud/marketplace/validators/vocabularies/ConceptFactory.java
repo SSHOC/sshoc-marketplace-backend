@@ -26,7 +26,7 @@ public class ConceptFactory {
     private final VocabularyFactory vocabularyFactory;
 
 
-    public Concept create(ItemCategory category, ConceptId conceptId, PropertyType propertyType, List<Vocabulary> allowedVocabularies, Errors errors) {
+    public Concept create(ConceptId conceptId, PropertyType propertyType, List<Vocabulary> allowedVocabularies, Errors errors) {
         Concept concept;
         // either uri or code and vocabulary must be provided
         if (conceptId.getUri() == null) {

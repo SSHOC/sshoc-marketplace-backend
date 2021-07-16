@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,6 +72,10 @@ public class ConceptService {
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));
     }
 
+    public Concept getConceptByUri(String uri) {
+        return conceptRepository.findByUri(uri);
+    }
+
     public List<Concept> getRelatedConceptsOfConcept(Concept concept, ConceptRelation relation) {
         List<Concept> result = new ArrayList<>();
         List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectAndRelation(concept, relation);
@@ -98,4 +103,6 @@ public class ConceptService {
     private void removeConceptAssociations(Concept concept) {
         conceptRelatedConceptRepository.deleteConceptRelations(concept.getCode());
     }
+
+
 }
