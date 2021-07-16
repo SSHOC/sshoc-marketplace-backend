@@ -1064,6 +1064,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
                 .andExpect(jsonPath("media[0].caption", is("Serious Cat")))
                 .andExpect(jsonPath("media[0].concept.code", notNullValue()))
+                .andExpect(jsonPath("media[0].concept.vocabulary.code", is("software-license")))
                 .andExpect(jsonPath("media[0].concept.uri", is(conceptIdUri.getUri())));
 
     }
@@ -1101,7 +1102,8 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
                 .andExpect(jsonPath("media[0].caption", is("Grumpy Cat")))
                 .andExpect(jsonPath("media[0].concept.code", is(conceptIdCode.getCode())))
-                .andExpect(jsonPath("media[0].concept.vocabulary.code", is(conceptIdCode.getVocabulary().getCode())));
+                .andExpect(jsonPath("media[0].concept.vocabulary.code", is(conceptIdCode.getVocabulary().getCode())))
+                .andExpect(jsonPath("media[0].concept.uri", is("http://spdx.org/licenses/AFL-3.0")));
 
     }
 

@@ -55,8 +55,7 @@ public class ItemMedia {
     }
 
     public ItemMedia(Item item, UUID mediaId, String caption, ItemMediaType itemThumbnail, Concept concept) {
-        this(item, mediaId, caption);
-        this.itemMediaThumbnail = itemThumbnail;
+        this(item, mediaId, caption, itemThumbnail);
         this.concept = concept;
     }
 

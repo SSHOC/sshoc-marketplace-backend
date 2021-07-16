@@ -72,9 +72,8 @@ public class ConceptService {
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));
     }
 
-
-    public Concept getConcept(URI uri) {
-        return conceptRepository.findByUri(uri.toString());
+    public Concept getConceptByUri(String uri) {
+        return conceptRepository.findByUri(uri);
     }
 
     public List<Concept> getRelatedConceptsOfConcept(Concept concept, ConceptRelation relation) {
@@ -105,12 +104,5 @@ public class ConceptService {
         conceptRelatedConceptRepository.deleteConceptRelations(concept.getCode());
     }
 
-    public Concept getConceptByUri(String uri) {
-        return conceptRepository.findByUri(uri);
-    }
-
-    public Concept getConceptByCodeAndVocabularyCode(String code, String vocabularyCode) {
-        return conceptRepository.findByCodeAndVocabularyCode2(code, vocabularyCode);
-    }
 
 }
