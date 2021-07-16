@@ -5,8 +5,8 @@ import eu.sshopencloud.marketplace.mappers.auth.UserMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import lombok.experimental.UtilityClass;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemExtBasicConverter {
@@ -26,13 +26,8 @@ public class ItemExtBasicConverter {
         return historyPosition;
     }
 
-    public List<ItemExtBasicDto> convertItemList(List<Item> item) {
-
-        List<ItemExtBasicDto> historyPosition = new ArrayList<ItemExtBasicDto>();
-        for(int i = 0; i < item.size(); i++)
-            historyPosition.add(convertItem( item.get(i)));
-
-        return historyPosition;
+    public List<ItemExtBasicDto> convertItems(List<Item> items) {
+        return items.stream().map(ItemExtBasicConverter::convertItem).collect(Collectors.toList());
     }
 
 }

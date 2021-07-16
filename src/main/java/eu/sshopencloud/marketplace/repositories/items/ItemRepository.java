@@ -18,23 +18,23 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     List<Item> findBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
 
     @Query(value =
-            "WITH RECURSIVE sub_tree AS (\n" +
-                    "  SELECT i.id, i.category, i.description, i.label, i.last_info_update,\n" +
-                    "    i.source_item_id, i.status, i.version, i.prev_version_id, i.source_id,\n" +
-                    "    i.persistent_id, i.proposed_version, i.info_contributor_id, 1 AS clazz_\n" +
-                    "  FROM items i\n" +
-                    "  WHERE i.id = :versionId \n" +
-                    "  UNION\n" +
-                    "  SELECT cat.id, cat.category, cat.description, cat.label, cat.last_info_update,\n" +
-                    "    cat.source_item_id, cat.status, cat.version, cat.prev_version_id, cat.source_id,\n" +
-                    "    cat.persistent_id, cat.proposed_version, cat.info_contributor_id, 2 AS clazz_ \n" +
-                    "  FROM items cat INNER JOIN sub_tree st\n" +
-                    "  ON cat.id = st.prev_version_id \n" +
-                    ")\n" +
-                    "SELECT s.id, s.category, s.description, s.label, s.last_info_update, s.last_info_update AS date_last_updated ,\n" +
-                    "    s.source_item_id, s.status, s.version, s.prev_version_id, s.source_id,\n" +
-                    "    s.persistent_id, s.proposed_version, s.info_contributor_id, s.clazz_, s.last_info_update AS date_created " +
-                    "FROM sub_tree s", nativeQuery = true
+            "WITH RECURSIVE sub_tree AS (" +
+                    "  SELECT i1.id, i1.category, i1.description, i1.label, i1.last_info_update," +
+                    "    i1.source_item_id, i1.status, i1.version, i1.prev_version_id, i1.source_id," +
+                    "    i1.persistent_id, i1.proposed_version, i1.info_contributor_id, 1 as clazz_" +
+                    "  FROM items i1" +
+                    "  WHERE i1.id = :versionId" +
+                    "  UNION" +
+                    "  SELECT i2.id, i2.category, i2.description, i2.label, i2.last_info_update," +
+                    "    i2.source_item_id, i2.status, i2.version, i2.prev_version_id, i2.source_id," +
+                    "    i2.persistent_id, i2.proposed_version, i2.info_contributor_id, 2 as clazz_" +
+                    "  FROM items i2 INNER JOIN sub_tree st" +
+                    "  ON i2.id = st.prev_version_id" +
+                    ") " +
+                    "SELECT s.id, s.category, s.description, s.label, s.last_info_update, s.last_info_update AS date_last_updated," +
+                    "    s.source_item_id, s.status, s.version, s.prev_version_id, s.source_id," +
+                    "    s.persistent_id, s.proposed_version, s.info_contributor_id, s.last_info_update AS date_created, s.clazz_" +
+                    "    FROM sub_tree s", nativeQuery = true
     )
     List<Item> findInformationContributorsForVersion(@Param("versionId") Long versionId);
 

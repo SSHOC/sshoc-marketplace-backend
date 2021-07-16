@@ -449,7 +449,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        return ItemExtBasicConverter.convertItemList(itemRepository.findInformationContributorsForVersion( item.getId()));
+        return ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
     }
 
 
