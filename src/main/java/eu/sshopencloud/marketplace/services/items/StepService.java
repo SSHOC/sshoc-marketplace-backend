@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
@@ -119,7 +120,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     private void addStepToTree(Step step, Integer stepNo, StepsTree parentStepsTree) {
         if (stepNo == null) {
             parentStepsTree.appendStep(step);
-        } else {
+        }
+        else {
             parentStepsTree.addStep(step, stepNo);
         }
     }
@@ -312,6 +314,16 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public List<ItemExtBasicDto> getStepVersions(String workflowId, String stepId, boolean draft, boolean approved) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
         return getItemHistory(stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
+    }
+
+    public List<UserDto> getInformationContributors(String workflowId, String stepId) {
+        validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
+        return super.getInformationContributors(stepId);
+    }
+
+    public List<UserDto> getInformationContributors(String workflowId, String stepId, Long versionId) {
+        validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
+        return super.getInformationContributors(stepId, versionId);
     }
 
     public StepDto getMerge(String persistentId, MergeCore mergeCores) {

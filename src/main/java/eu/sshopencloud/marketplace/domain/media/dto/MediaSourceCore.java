@@ -17,5 +17,5 @@ public class MediaSourceCore {
     private String code;
     private String serviceUrl;
     private MediaCategory mediaCategory;
-    private int ord;
+    private Integer ord;
 }

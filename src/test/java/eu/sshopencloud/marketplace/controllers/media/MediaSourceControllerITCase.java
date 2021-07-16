@@ -52,7 +52,9 @@ public class MediaSourceControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].code", is("youtube")))
-                .andExpect(jsonPath("$[1].code", is("vimeo")));
+                .andExpect(jsonPath("$[0].ord", is(1)))
+                .andExpect(jsonPath("$[1].code", is("vimeo")))
+                .andExpect(jsonPath("$[1].ord", is(2)));
     }
 
     @Test
@@ -82,10 +84,13 @@ public class MediaSourceControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].code", is("youtube")))
+                .andExpect(jsonPath("$[0].ord", is(1)))
                 .andExpect(jsonPath("$[1].code", is("google-images")))
                 .andExpect(jsonPath("$[1].serviceUrl", is("https://www.google.com/imgres")))
                 .andExpect(jsonPath("$[1].mediaCategory", is("image")))
-                .andExpect(jsonPath("$[2].code", is("vimeo")));
+                .andExpect(jsonPath("$[1].ord", is(2)))
+                .andExpect(jsonPath("$[2].code", is("vimeo")))
+                .andExpect(jsonPath("$[2].ord", is(3)));
     }
 
     @Test

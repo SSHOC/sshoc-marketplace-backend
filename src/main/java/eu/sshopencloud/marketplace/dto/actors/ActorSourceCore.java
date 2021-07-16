@@ -16,5 +16,5 @@ public class ActorSourceCore {
     @NotNull
     private String label;
 
-    private int ord;
+    private Integer ord;
 }

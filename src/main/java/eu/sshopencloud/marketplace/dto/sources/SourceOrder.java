@@ -1,16 +1,16 @@
-package eu.sshopencloud.marketplace.dto.items;
+package eu.sshopencloud.marketplace.dto.sources;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum ItemOrder {
+public enum SourceOrder {
 
-    LABEL(true),
+    NAME(true),
 
-    MODIFIED_ON(false);
+    DATE(false);
 
     private boolean asc;
 
-    ItemOrder(boolean asc) {
+    SourceOrder(boolean asc) {
         this.asc = asc;
     }
 

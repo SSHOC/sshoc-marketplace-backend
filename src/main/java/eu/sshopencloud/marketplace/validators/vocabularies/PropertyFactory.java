@@ -26,14 +26,14 @@ public class PropertyFactory {
     private final PropertyValueValidator propertyValueValidator;
 
 
-    public List<Property> create(ItemCategory category, List<PropertyCore> propertyCores, Item item, Errors errors, String nestedPath) {
+    public List<Property> create(List<PropertyCore> propertyCores, Item item, Errors errors, String nestedPath) {
         List<Property> properties = new ArrayList<>();
 
         if (propertyCores != null) {
             for (int i = 0; i < propertyCores.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
                 PropertyCore propertyCore = propertyCores.get(i);
-                Property property = create(category, propertyCore, item, errors);
+                Property property = create(propertyCore, item, errors);
                 if (property != null) {
                     properties.add(property);
                 }
@@ -44,7 +44,7 @@ public class PropertyFactory {
         return properties;
     }
 
-    public Property create(ItemCategory category, PropertyCore propertyCore, Item item, Errors errors) {
+    public Property create(PropertyCore propertyCore, Item item, Errors errors) {
         if (propertyCore.getType() == null) {
             errors.rejectValue("type", "field.required", "Property type is required.");
             return null;
@@ -74,7 +74,7 @@ public class PropertyFactory {
                 errors.rejectValue("concept", "field.required", "Property concept is required.");
             } else {
                 errors.pushNestedPath("concept");
-                Concept concept = conceptFactory.create(category, propertyCore.getConcept(), propertyType, allowedVocabularies, errors);
+                Concept concept = conceptFactory.create(propertyCore.getConcept(), propertyType, allowedVocabularies, errors);
                 if (concept != null) {
                     property.setConcept(concept);
                 }

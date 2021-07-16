@@ -1,7 +1,9 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
@@ -83,6 +85,18 @@ public class ToolController {
                                                                 @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(toolService.getToolVersions(id, draft, approved));
+    }
+
+    @GetMapping(path = "/{id}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("id") String id) {
+
+        return ResponseEntity.ok(toolService.getInformationContributors(id));
+    }
+
+    @GetMapping(path = "/{id}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(toolService.getInformationContributors(id, versionId));
     }
 
     @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)

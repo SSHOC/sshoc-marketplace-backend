@@ -11,4 +11,6 @@ public class ActorRoleDto {
 
     private String label;
 
+    private int ord;
+
 }

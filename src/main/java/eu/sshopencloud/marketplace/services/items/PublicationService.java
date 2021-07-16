@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.MergeCore;
@@ -137,6 +138,14 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     public List<ItemExtBasicDto> getPublicationVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestPublication(persistentId, draft, approved).getId());
+    }
+
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
+    }
+
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
     }
 
     public PublicationDto getMerge(String persistentId, MergeCore mergeCores) {

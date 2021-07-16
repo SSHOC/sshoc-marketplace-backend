@@ -5,6 +5,8 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.MergeCore;
@@ -36,12 +38,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//import static eu.sshopencloud.marketplace.util.MatcherUtils.equalValue;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static eu.sshopencloud.marketplace.util.MatcherUtils.*;
 
 
 @RunWith(SpringRunner.class)
@@ -633,7 +635,7 @@ public class WorkflowControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
-                .andExpect(jsonPath("id", is(workflowVersionId)))
+                .andExpect(jsonPath("id", equalValue(workflowVersionId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("status", is("draft")))
                 .andExpect(jsonPath("label", is("Test complex workflow with nested steps")))
@@ -1144,7 +1146,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("workflow")))
                 .andExpect(jsonPath("$[0].label", is("Evaluation of an inflectional analyzer")))
-                .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is( workflowPersistentId)))
                 .andExpect(jsonPath("$[0].id", is(workflowId)))
                 .andExpect(jsonPath("$[0].status", is("approved")));
 
@@ -1225,15 +1227,15 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("workflow")))
-                .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is( workflowPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id", not(is(workflowId))))
+                .andExpect(jsonPath("$[0].id",not(is(workflowId))))
                 .andExpect(jsonPath("$[0].label", is("Evaluation of an inflectional analyzer")))
 
                 .andExpect(jsonPath("$[1].category", is("workflow")))
                 .andExpect(jsonPath("$[1].id", is(workflowId)))
                 .andExpect(jsonPath("$[1].label", is("Evaluation of an inflectional analyzer")))
-                .andExpect(jsonPath("$[1].persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is( workflowPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("deprecated")));
 
     }
@@ -1268,7 +1270,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].category", is("workflow")))
                 .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id", notNullValue()));
+                .andExpect(jsonPath("$[0].id",notNullValue()));
 
         String stepPersistentId = "BNw43H";
         Integer stepId = 22;
@@ -1331,9 +1333,9 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("step")))
-                .andExpect(jsonPath("$[0].persistentId", is(stepPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is( stepPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id", notNullValue()));
+                .andExpect(jsonPath("$[0].id",notNullValue()));
 
         mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -1369,7 +1371,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].category", is("workflow")))
                 .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id", notNullValue()));
+                .andExpect(jsonPath("$[0].id",notNullValue()));
     }
 
     @Test
@@ -1871,6 +1873,148 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[3].relatedItems[0].label", is("Interpret results")))
                 .andExpect(jsonPath("composedOf[3].relatedItems[0].category", is("step")))
                 .andExpect(jsonPath("composedOf[3].relatedItems[0].relation.code", is("relates-to")));
+    }
+
+    @Test
+    public void shouldReturnWorkflowInformationContributors() throws Exception {
+
+        String workflowPersistentId = "vHQEhe";
+
+        mvc.perform(get("/api/workflows/{id}/information-contributors", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[0].displayName", is("Administrator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("administrator")))
+                .andExpect(jsonPath("$[0].email", is("administrator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+    }
+
+    @Test
+    public void shouldReturnStepInformationContributors() throws Exception {
+
+        String workflowPersistentId = "vHQEhe";
+        String stepPersistentId = "BNw43H";
+
+        mvc.perform(get("/api/workflows/{id}/steps/{stepId}/information-contributors", workflowPersistentId,stepPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(3)))
+                .andExpect(jsonPath("$[0].username", is("Contributor")))
+                .andExpect(jsonPath("$[0].displayName", is("Contributor")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("contributor")))
+                .andExpect(jsonPath("$[0].email", is("contributor@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+    }
+
+    @Test
+    public void shouldReturnWorkflowInformationContributorsForVersion() throws Exception {
+
+        String workflowPersistentId = "vHQEhe";
+
+        WorkflowCore workflow = new WorkflowCore();
+        workflow.setLabel("Suggested workflow");
+        workflow.setDescription("This is a suggested workflow");
+
+        String payload = mapper.writeValueAsString(workflow);
+
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(put("/api/workflows/{id}", workflowPersistentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is(workflow.getLabel())))
+                .andExpect(jsonPath("description", is(workflow.getDescription())))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("contributors", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+
+        Long versionId = TestJsonMapper.serializingObjectMapper()
+                .readValue(jsonResponse, WorkflowDto.class).getId();
+
+        log.debug("Workflows version Id: " + versionId);
+
+        mvc.perform(get("/api/workflows/{id}/versions/{versionId}/information-contributors", workflowPersistentId, versionId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[0].displayName", is("Administrator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("administrator")))
+                .andExpect(jsonPath("$[0].email", is("administrator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+    }
+
+    @Test
+    public void shouldReturnStepInformationContributorsForVersion() throws Exception {
+
+        String workflowPersistentId = "vHQEhe";
+        String stepPersistentId = "BNw43H";
+
+        StepCore step = new StepCore();
+        step.setLabel("Suggested workflow");
+        step.setDescription("This is a suggested workflow");
+
+        String payload = mapper.writeValueAsString(step);
+
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(put("/api/workflows/{id}/steps/{stepId}", workflowPersistentId,stepPersistentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(stepPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("label", is(step.getLabel())))
+                .andExpect(jsonPath("description", is(step.getDescription())))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("contributors", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+
+        Long versionId = TestJsonMapper.serializingObjectMapper()
+                .readValue(jsonResponse, StepDto.class).getId();
+
+        log.debug("Workflows version Id: " + versionId);
+
+        mvc.perform(get("/api/workflows/{id}/steps/{stepId}/versions/{versionId}/information-contributors", workflowPersistentId, stepPersistentId,versionId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[0].displayName", is("Administrator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("administrator")))
+                .andExpect(jsonPath("$[0].email", is("administrator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)))
+                .andExpect(jsonPath("$[1].id", is(3)))
+                .andExpect(jsonPath("$[1].username", is("Contributor")))
+                .andExpect(jsonPath("$[1].displayName", is("Contributor")))
+                .andExpect(jsonPath("$[1].status", is("enabled")))
+                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].role", is("contributor")))
+                .andExpect(jsonPath("$[1].email", is("contributor@example.com")))
+                .andExpect(jsonPath("$[1].config", is(true)));
     }
 
     @Test

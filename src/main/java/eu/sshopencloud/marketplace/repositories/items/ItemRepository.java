@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
 @Repository
 public interface ItemRepository extends ItemVersionRepository<Item> {
 
@@ -14,4 +13,5 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     Item findByPrevVersion(Item item);
 
     List<Item> findBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
+
 }

@@ -5,6 +5,8 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
@@ -82,7 +84,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
-                .andExpect(jsonPath("informationContributor.id", is(2)));
+                 .andExpect(jsonPath("informationContributor.id", is(2)));
     }
 
     @Test
@@ -438,11 +440,11 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Draft Stata")))
-                .andExpect(jsonPath("$[0].persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is( toolPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("draft")))
 
                 .andExpect(jsonPath("$[1].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[1].persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is( toolPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("approved")));
 
         mvc.perform(get("/api/tools-services/{id}/history", toolPersistentId)
@@ -451,7 +453,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", not(is("Draft Stata"))))
-                .andExpect(jsonPath("$[0].persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is( toolPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")));
 
 
@@ -1202,6 +1204,67 @@ public class ToolControllerITCase {
         )
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void shouldReturnToolInformationContributors() throws Exception {
+
+        String toolPersistentId = "n21Kfc";
+
+        mvc.perform(get("/api/tools-services/{id}/information-contributors", toolPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].username", is("Moderator")))
+                .andExpect(jsonPath("$[0].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("moderator")))
+                .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+    }
+
+    @Test
+    public void shouldReturnToolInformationContributorsForVersion() throws Exception {
+
+        String toolPersistentId = "n21Kfc";
+
+        ToolCore draftTool = new ToolCore();
+        draftTool.setLabel("WebSty v2");
+        draftTool.setDescription("WebSty version 2. draft");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(draftTool);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+
+        Long versionId = TestJsonMapper.serializingObjectMapper()
+                .readValue(jsonResponse, DatasetDto.class).getId();
+
+        log.debug("datasetId: " + versionId);
+
+        mvc.perform(get("/api/tools-services/{id}/versions/{versionId}/information-contributors", toolPersistentId, versionId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[0].displayName", is("Administrator")))
+                .andExpect(jsonPath("$[1].id", is(2)))
+                .andExpect(jsonPath("$[1].username", is("Moderator")))
+                .andExpect(jsonPath("$[1].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[1].status", is("enabled")))
+                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].role", is("moderator")))
+                .andExpect(jsonPath("$[1].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[1].config", is(true)));
+    }
+
 
     @Test
     public void shouldGetMergeForOnlyTool() throws Exception {

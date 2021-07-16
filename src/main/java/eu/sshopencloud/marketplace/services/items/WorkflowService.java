@@ -2,7 +2,12 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
+import eu.sshopencloud.marketplace.dto.workflows.StepDto;
+import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
+import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
@@ -255,6 +260,15 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     public List<ItemExtBasicDto> getWorkflowVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestWorkflow(persistentId, draft, approved).getId());
     }
+
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
+    }
+
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
+    }
+
 
 
 }

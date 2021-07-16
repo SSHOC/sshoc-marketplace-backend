@@ -11,6 +11,8 @@ import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.conf.datetime.ZonedDateTimeDeserializer;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
 import eu.sshopencloud.marketplace.dto.items.ItemExternalIdId;
@@ -630,6 +632,124 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
                 .andExpect(jsonPath("externalIds[1].identifier", is(publicationV2.getExternalIds().get(1).getIdentifier())));
     }
+
+
+
+    @Test
+    public void shouldReturnPublicationInformationContributors() throws Exception {
+
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test ingested publication 1");
+        publication.setDescription("Lorem ipsum dolor sit");
+
+        String payload = mapper.writeValueAsString(publication);
+
+        String publicationJson = mvc.perform(
+                post("/api/publications")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is(publication.getLabel())))
+                .andExpect(jsonPath("description", is(publication.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        String publicationPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(publicationJson, PublicationDto.class).getPersistentId();
+
+        log.debug("publicationPersistentId: " + publicationPersistentId);
+
+        mvc.perform(get("/api/publications/{id}/information-contributors", publicationPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(3)))
+                .andExpect(jsonPath("$[0].username", is("Contributor")))
+                .andExpect(jsonPath("$[0].displayName", is("Contributor")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("contributor")))
+                .andExpect(jsonPath("$[0].email", is("contributor@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+    }
+
+    @Test
+    public void shouldReturnPublicationInformationContributorsForVersion() throws Exception {
+
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test ingested publication 1");
+        publication.setDescription("Lorem ipsum dolor sit");
+
+        String payload = mapper.writeValueAsString(publication);
+
+        String publicationJson = mvc.perform(
+                post("/api/publications")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is(publication.getLabel())))
+                .andExpect(jsonPath("description", is(publication.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        String publicationPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(publicationJson, PublicationDto.class).getPersistentId();
+
+        log.debug("publicationPersistentId: " + publicationPersistentId);
+
+        PublicationCore publication2 = new PublicationCore();
+        publication2.setLabel("Test ingested publication 2");
+        publication2.setDescription("Lorem ipsum dolor sit");
+
+        String payload2 = mapper.writeValueAsString(publication2);
+
+        String publicationJson2 = mvc.perform(
+                put("/api/publications/{id}", publicationPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload2)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("label", is(publication2.getLabel())))
+                .andExpect(jsonPath("description", is(publication2.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+
+        Long publicationId = TestJsonMapper.serializingObjectMapper()
+                .readValue(publicationJson2, DatasetDto.class).getId();
+
+        log.debug("datasetId: " + publicationId);
+
+        mvc.perform(get("/api/publications/{id}/versions/{versionId}/information-contributors", publicationPersistentId, publicationId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].username", is("Moderator")))
+                .andExpect(jsonPath("$[0].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[1].id", is(3)))
+                .andExpect(jsonPath("$[1].username", is("Contributor")))
+                .andExpect(jsonPath("$[1].displayName", is("Contributor")))
+                .andExpect(jsonPath("$[1].status", is("enabled")))
+                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].role", is("contributor")))
+                .andExpect(jsonPath("$[1].email", is("contributor@example.com")))
+                .andExpect(jsonPath("$[1].config", is(true)));
+    }
+
+
+
+
 
     @Test
     public void shouldGetMergeForNotOnlyPublication() throws Exception {

@@ -1,16 +1,16 @@
-package eu.sshopencloud.marketplace.dto.items;
+package eu.sshopencloud.marketplace.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum ItemOrder {
+public enum UserOrder {
 
-    LABEL(true),
+    USERNAME(true),
 
-    MODIFIED_ON(false);
+    DATE(false);
 
     private boolean asc;
 
-    ItemOrder(boolean asc) {
+    UserOrder(boolean asc) {
         this.asc = asc;
     }
 
@@ -27,5 +27,4 @@ public enum ItemOrder {
     public String toString() {
         return getValue();
     }
-
 }
