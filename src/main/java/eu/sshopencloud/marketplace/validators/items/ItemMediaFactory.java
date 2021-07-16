@@ -23,7 +23,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ItemMediaFactory {
 
-    private final String LICENSE_PROPERTY_CODE = "license";
+    private static final String LICENSE_PROPERTY_CODE = "license";
 
     private final MediaStorageService mediaStorageService;
 
