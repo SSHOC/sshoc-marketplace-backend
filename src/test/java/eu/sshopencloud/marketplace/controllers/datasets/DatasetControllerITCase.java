@@ -14,7 +14,6 @@ import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
-import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
