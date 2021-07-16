@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -68,4 +69,6 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
     Optional<T> findDraftVersion(@Param("persistentId") String persistentId, @Param("draftOwner") User draftOwner);
 
     Optional<T> findByVersionedItemPersistentIdAndId(String persistentId, long id);
+
+
 }

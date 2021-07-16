@@ -26,7 +26,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -454,14 +453,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        List<ItemExtBasicDto> versions = new ArrayList<>();
-        versions.add(ItemExtBasicConverter.convertItem(item));
-        Item prevVersion = itemRepository.getOne(item.getId()).getPrevVersion();
-        while (prevVersion != null) {
-            versions.add(ItemExtBasicConverter.convertItem(prevVersion));
-            prevVersion = prevVersion.getPrevVersion();
-        }
-        return versions;
+        return ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
     }
 
     protected List<UserDto> getInformationContributors(String itemId) {
