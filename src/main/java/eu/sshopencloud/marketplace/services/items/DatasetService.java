@@ -168,7 +168,7 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
       //  dataset.getVersionedItem().getMergedWith().forEach( (n) -> System.out.println(n.getPersistentId()));
         //System.out.println("E");} );
         //return null;
-       return prepareItemDto2(dataset);
+       return prepareItemDto(dataset);
     }
 
 }

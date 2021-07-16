@@ -112,7 +112,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         D dto = convertItemToDto(item);
 
-        //Here
         List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
         dto.setRelatedItems(relatedItems);
 
@@ -120,21 +119,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return dto;
 
     }
-
-    protected D prepareItemDto2(I item) {
-
-        D dto = convertItemToDto(item);
-
-        //Here
-        //List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
-        //dto.setRelatedItems(relatedItems);
-
-        completeItemDto(dto, item);
-        return dto;
-
-    }
-
-
 
     protected I createItem(C itemCore, boolean draft) {
         return createOrUpdateItemVersion(itemCore, null, draft);
@@ -198,6 +182,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             versionedItem.setCurrentVersion(newItem);
             versionedItemRepository.save(versionedItem);
 
+            /*
             ArrayList<RelatedItemCore> relatedItemDtoArrayList = new ArrayList<>();
 
             for (RelatedItemDto e : itemRelatedItemService.getItemRelatedItems(prevItem)) {
@@ -206,13 +191,14 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             }
 
             itemRelatedItemService.updateRelatedItems(relatedItemDtoArrayList, newItem, null,false);
-
+*/
             //jak to zapisać -- ??
              //newItem.getVersionedItem().getMergedWith().add(versionedItem);
         }
-        itemRelatedItemService.getItemRelatedItems()
+       // itemRelatedItemService.getItemRelatedItems()
 
-        itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, null, false);
+        //System.out.println("  " + itemCore.getRelatedItems());
+        //itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, null, false);
 
 
         //jakoś to zapisać w bazie ==== ??
