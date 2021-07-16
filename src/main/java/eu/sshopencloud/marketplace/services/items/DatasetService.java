@@ -2,12 +2,14 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.repositories.items.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;

@@ -11,11 +11,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
-import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
-import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
-import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
-import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
@@ -117,7 +113,6 @@ public class DatasetControllerITCase {
     }
 
 
-
     @Test
     public void shouldReturnDatasetHistory() throws Exception {
 
@@ -131,7 +126,6 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[0].id", is(datasetId)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
                 .andExpect(jsonPath("$[0].label", is("Austin Crime Data")))
-                //.andExpect(jsonPath("$[0].version", is("null")))
                 .andExpect(jsonPath("$[0].persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("$[0].lastInfoUpdate", is("2020-08-04T12:29:02+0200")))
                 .andExpect(jsonPath("$[0].status", is("approved")))
@@ -200,7 +194,7 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
 
-       Long versionId = TestJsonMapper.serializingObjectMapper()
+        Long versionId = TestJsonMapper.serializingObjectMapper()
                 .readValue(jsonResponse, DatasetDto.class).getId();
 
         log.debug("Dataset version Id: " + versionId);
@@ -926,8 +920,8 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
-        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat");
-        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat");
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
+        ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
 
         URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
 
@@ -935,7 +929,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("A dataset of cats");
         dataset.setDescription("This dataset contains cats");
         dataset.setMedia(List.of(grumpycat, seriouscat));
-        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Not used caption as the thumbnail is one of item media (shared)"));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(grumpycatId), "Not used caption as the thumbnail is one of item media (shared)", null));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -988,7 +982,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("Consortium of European Social Science Data Archives v2");
         dataset.setDescription("Consortium of European Social Science Data Archives with many cat pictures");
         dataset.setMedia(List.of(grumpycat, seriouscat));
-        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(seriouscatId), null));
+        dataset.setThumbnail(new ItemMediaCore(new MediaDetailsId(seriouscatId), null, null));
 
         String payload = mapper.writeValueAsString(dataset);
 
@@ -1119,63 +1113,6 @@ public class DatasetControllerITCase {
         assertFalse(MediaTestUtils.isMediaTemporary(entityManager, grumpycatId));
 
     }
-
-
-    @Test
-    public void shouldGetMergeForOnlyDataset() throws Exception {
-
-        MergeCore mergeCore = new MergeCore();
-        List<String> persistentIdList = new ArrayList<>();
-        persistentIdList.add("dmbq4v");
-        persistentIdList.add("OdKfPc");
-        mergeCore.setPersistentIdList(persistentIdList);
-
-        String payload = mapper.writeValueAsString(mergeCore);
-
-        mvc.perform(
-                get("/api/datasets/merge", mergeCore)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
-        )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", nullValue()))
-                .andExpect(jsonPath("id", nullValue()))
-                .andExpect(jsonPath("category", is("dataset")))
-                .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Austin Crime Data/Consortium of European Social Science Data Archives")))
-                .andExpect(jsonPath("properties", hasSize(2)));
-
-    }
-
-    @Test
-    public void shouldGetMergeForNotOnlyDataset() throws Exception {
-
-        MergeCore mergeCore = new MergeCore();
-        List<String> persistentIdList = new ArrayList<>();
-        persistentIdList.add("n21Kfc");
-        persistentIdList.add("DstBL5");
-        persistentIdList.add("OdKfPc");
-        mergeCore.setPersistentIdList(persistentIdList);
-
-        String payload = mapper.writeValueAsString(mergeCore);
-
-        mvc.perform(
-                get("/api/datasets/merge", mergeCore)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
-        )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", nullValue()))
-                .andExpect(jsonPath("id", nullValue()))
-                .andExpect(jsonPath("category", is("dataset")))
-                .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Stata/Consortium of European Social Science Data Archives")))
-                .andExpect(jsonPath("properties", hasSize(7)));
-
-    }
-
 
 
     @Test

@@ -6,12 +6,8 @@ import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableExcep
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
-import eu.sshopencloud.marketplace.dto.items.ItemDto;
-import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.ItemRelationsCore;
-import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
-import eu.sshopencloud.marketplace.mappers.auth.UserMapper;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
@@ -27,7 +23,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
