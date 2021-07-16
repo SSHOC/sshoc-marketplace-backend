@@ -10,8 +10,8 @@ import java.util.*;
 @Table(name = "versioned_items")
 @Data
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-@ToString(exclude = "comments")
-@EqualsAndHashCode(exclude = "comments")
+@ToString(exclude = "comments, merged_with_id" )
+@EqualsAndHashCode(exclude = "comments, merged_with_id")
 public class VersionedItem {
 
     @Id

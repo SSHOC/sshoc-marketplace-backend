@@ -121,6 +121,19 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     }
 
+    protected D prepareItemDto2(I item) {
+
+        D dto = convertItemToDto(item);
+
+        //Here
+        //List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
+        //dto.setRelatedItems(relatedItems);
+
+        completeItemDto(dto, item);
+        return dto;
+
+    }
+
 
 
     protected I createItem(C itemCore, boolean draft) {
@@ -131,22 +144,24 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     protected I mergeItem(C itemCore, List<String> mergedItems) {
 
         I prevVersion = loadCurrentItem(mergedItems.get(0));
-
         I newItem = makeItemVersion(itemCore, prevVersion);
-        //I newItem = makeItemVersion(itemCore, null);
 
-        //??
+
         newItem = saveVersionInHistory(newItem, null, false);
-        System.out.println("" + newItem.getVersionedItem().getMergedWith());
+        System.out.println("Elizaa " +newItem.getPersistentId());
         newItem = saveVersionInHistory(newItem, prevVersion, false);
-
+        System.out.println("Elizaa " +newItem.getPersistentId());
         //newItem.getVersionedItem().setStatus(VersionedItemStatus.REVIEWED);
         //newItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
+        //itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, prevVersion, false);
         itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, prevVersion, false);
 
 
-        for (int i = 0; i < mergedItems.size(); i++) {
+        //version.setPrevVersion(prevVersion);
+
+        for (int i = 1; i < mergedItems.size(); i++) {
+            System.out.println("In looop " +mergedItems.get(i));
             I item = (I) versionedItemRepository.getOne(mergedItems.get(i)).getCurrentVersion();
             item.setStatus(ItemStatus.DEPRECATED);
             item.getVersionedItem().setStatus(VersionedItemStatus.MERGED);
@@ -154,8 +169,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             newItem.getVersionedItem().getMergedWith().add(item.getVersionedItem());
         }
 
-        //newItem = saveVersionInHistory(newItem, prevVersion, false);
-        //itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, prevVersion, false);
+       // newItem = saveVersionInHistory(newItem, prevVersion, false);
 
         //jest problem z related items ....
         indexService.indexItem(newItem);
@@ -522,7 +536,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return versions;
     }
 
-    //Eliza
+
     protected D prepareMergeItems(String persistentId, List<String> mergeList) {
 
         List<D> itemDtoList = new ArrayList<D>();
