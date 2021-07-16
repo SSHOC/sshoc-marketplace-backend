@@ -18,6 +18,7 @@ import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
+import liquibase.pro.packaged.I;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
@@ -142,55 +143,83 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     //Eliza
     protected I mergeItem(C itemCore, List<String> mergedItems) {
 
-        I prevVersion = loadCurrentItem(mergedItems.get(0));
-        I newItem = makeItemVersion(itemCore, prevVersion);
+        //I prevVersion = loadCurrentItem(mergedItems.get(0));
 
+        //System.out.println("Elizaa prevVersion " +prevVersion.getPersistentId());
 
-        newItem = saveVersionInHistory(newItem, null, false);
-        System.out.println("Elizaa " +newItem.getPersistentId());
-        newItem = saveVersionInHistory(newItem, prevVersion, false);
-        System.out.println("Elizaa " +newItem.getPersistentId());
-        //newItem.getVersionedItem().setStatus(VersionedItemStatus.REVIEWED);
-        //newItem.getVersionedItem().setMergedWith(new ArrayList<>());
+        I newItem = createOrUpdateItemVersion(itemCore, null, false);
 
-        //itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, prevVersion, false);
-        itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, prevVersion, false);
+        newItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
-
-        //version.setPrevVersion(prevVersion);
-
-        for (int i = 1; i < mergedItems.size(); i++) {
+/*
+        for (int i = 0; i < mergedItems.size(); i++) {
             System.out.println("In looop " +mergedItems.get(i));
-            I item = (I) versionedItemRepository.getOne(mergedItems.get(i)).getCurrentVersion();
-            item.setStatus(ItemStatus.DEPRECATED);
-            item.getVersionedItem().setStatus(VersionedItemStatus.MERGED);
-            // if(i ==0) createOrUpdateItemVersion(itemCore, item, false);
-            newItem.getVersionedItem().getMergedWith().add(item.getVersionedItem());
+            //versioned item
+           // I prevItem = (I) versionedItemRepository.findLatestItem(mergedItems.get(i)).getCurrentVersion();
+            I prevItem = loadLatestItem(mergedItems.get(i));
+
+            VersionedItem versionedItem =prevItem.getVersionedItem();
+
+            itemVisibilityService.setupItemVersionVisibility(newItem, versionedItem, true);
+
+            versionedItem.setStatus(VersionedItemStatus.MERGED);
+            deprecatePrevApprovedVersion(versionedItem);
+            prevItem.setStatus(ItemStatus.DEPRECATED);
+
+            versionedItem.setCurrentVersion(newItem);
+
+            versionedItemRepository.save(versionedItem);
+
+            newItem.getVersionedItem().getMergedWith().add(versionedItem);
+            //jak to wszystko zapisać ????????
         }
 
-       // newItem = saveVersionInHistory(newItem, prevVersion, false);
-
-        //jest problem z related items ....
-        indexService.indexItem(newItem);
+*/
+        //save versioned item of created newItem
+        //versionedItemRepository.save(newItem.getVersionedItem());
 
         return newItem;
 
     }
 
-    protected I mergeItem22(C itemCore, List<String> mergedItems) {
+    protected I mergeItem22(C itemCore,String pId,  List<String> mergedItems) {
 
-        I newItem = loadCurrentItem(mergedItems.get(0));
+        I newItem = loadCurrentItem(pId);
+
+        newItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
         //Update merged item status
         for (int i = 0; i < mergedItems.size(); i++) {
-            I item = (I) versionedItemRepository.getOne(mergedItems.get(i)).getCurrentVersion();
+            I prevItem = (I) versionedItemRepository.getOne(mergedItems.get(i)).getCurrentVersion();
+            VersionedItem versionedItem =prevItem.getVersionedItem();
             //I item = loadItemForCurrentUser(mergedItems.get(i));
-            item.setStatus(ItemStatus.DEPRECATED);
-            item.getVersionedItem().setStatus(VersionedItemStatus.MERGED);
-            if (i == 0) createOrUpdateItemVersion(itemCore, item, false);
-            //if(Objects.isNull(newItem.getVersionedItem().getMergedWith())) newItem.getVersionedItem().setMergedWith(new ArrayList<>());
-            newItem.getVersionedItem().getMergedWith().add(item.getVersionedItem());
+            prevItem.setStatus(ItemStatus.DEPRECATED);
+            versionedItem.setStatus(VersionedItemStatus.MERGED);
+            versionedItem.setCurrentVersion(newItem);
+            versionedItemRepository.save(versionedItem);
+
+            ArrayList<RelatedItemCore> relatedItemDtoArrayList = new ArrayList<>();
+
+            for (RelatedItemDto e : itemRelatedItemService.getItemRelatedItems(prevItem)) {
+                if (!itemRelatedItemService.getItemRelatedItems(newItem).contains(e))
+                    relatedItemDtoArrayList.add(e);
+            }
+
+            itemRelatedItemService.updateRelatedItems(relatedItemDtoArrayList, newItem, null,false);
+
+            //jak to zapisać -- ??
+             //newItem.getVersionedItem().getMergedWith().add(versionedItem);
         }
+        itemRelatedItemService.getItemRelatedItems()
+
+        itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), newItem, null, false);
+
+
+        //jakoś to zapisać w bazie ==== ??
+
+        //zapisanie całego itemu
+        saveItemVersion(newItem);
+
         return newItem;
 
     }
@@ -207,6 +236,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return newItem;
     }
 
+    //here
     private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
