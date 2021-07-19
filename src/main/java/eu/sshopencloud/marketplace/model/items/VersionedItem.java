@@ -38,18 +38,8 @@ public class VersionedItem {
     private List<ItemComment> comments;
 
 
-    @ManyToMany()
-    @JoinTable(
-            name = "merged_with",
-            joinColumns = @JoinColumn(
-                    name = "merged_with_id", referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "merged_with_id_fk")
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "versioned_item_id", referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "merged_with_versioned_item_id_fk")
-            )
-    )
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id", foreignKey = @ForeignKey(name="merged_with_id_fk"))
     List<VersionedItem> mergedWith;
 
 
