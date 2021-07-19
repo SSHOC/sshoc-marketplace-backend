@@ -1,32 +1,53 @@
 databaseChangeLog:
   - changeSet:
       id: 0046-SSHOC_97-versioned_item_list-1
-      description: adding column with list of merged versioned items to versioned items table
       author: ekalata
       changes:
-        - addColumn:
-            tableName: versioned_items
+        - createTable:
             columns:
-                - column:
-                    name: merged_with_id
-                    type: varchar(128)
-                    constraints:
-                        nullable: true
-
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: merged_with_id_pkey
+                  name: merged_with_id
+                  type: varchar(128)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: versioned_item_id
+                  type: varchar(128)
+            tableName: merged_with
   - changeSet:
-        id: 0046-SSHOC_97-versioned_item_list-2
-        author: ekalata
-        changes:
-            - addForeignKeyConstraint:
-                  baseColumnNames: merged_with_id
-                  baseTableName: versioned_items
-                  constraintName: merged_with_id_fk
-                  deferrable: false
-                  initiallyDeferred: false
-                  onDelete: NO ACTION
-                  onUpdate: NO ACTION
-                  referencedColumnNames: id
-                  referencedTableName: versioned_items
-                  validate: true
+      id: 0046-SSHOC_97-versioned_item_list-2
+      author: ekalata
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: merged_with_id
+            baseTableName: merged_with
+            constraintName: merged_with_id_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: versioned_items
+            validate: true
+  - changeSet:
+      id: 0046-SSHOC_97-versioned_item_list-3
+      author: ekalata
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: versioned_item_id
+            baseTableName: merged_with
+            constraintName: merged_with_versioned_item_id_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: versioned_items
+            validate: true
+
 
 

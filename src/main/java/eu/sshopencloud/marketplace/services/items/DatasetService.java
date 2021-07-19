@@ -153,22 +153,20 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     public DatasetDto merge(DatasetCore mergeDataset, List<String> mergeCores) {
-        //stwórz nowy obiekt
-        //zmień statusy w item na REVIEWED i APPROVED
-        //zmień statusy w verisonedItem na MERGED  i DEPRECATED
+
         Dataset dataset = createItem(mergeDataset, false);
+       // mergeItem(dataset, mergeCores);
+        mergeItem(dataset.getPersistentId(), mergeCores);
 
-        dataset = mergeItem22(mergeDataset, dataset.getPersistentId(), mergeCores);
+        //Dataset dataset = mergeCreateItemTmp(mergeDataset, false, mergeCores);
 
-        //Dataset dataset = mergeItem(mergeDataset, mergeCores);
         System.out.println("E " + mergeCores);
         System.out.println("E " + dataset.getStatus().toString());
         System.out.println("E " + dataset.getVersionedItem().getStatus());
-        //dlaczego sie duplikuje ?????
-      //  dataset.getVersionedItem().getMergedWith().forEach( (n) -> System.out.println(n.getPersistentId()));
-        //System.out.println("E");} );
-        //return null;
-       return prepareItemDto(dataset);
+        System.out.println("E " + dataset.getPersistentId());
+
+        return null;
+       //return prepareItemDto2(dataset);
     }
 
 }

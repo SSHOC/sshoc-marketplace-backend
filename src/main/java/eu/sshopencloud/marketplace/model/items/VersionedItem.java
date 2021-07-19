@@ -11,7 +11,7 @@ import java.util.*;
 @Data
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @ToString(exclude = "comments, merged_with_id" )
-@EqualsAndHashCode(exclude = "comments, merged_with_id")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class VersionedItem {
 
     @Id
@@ -37,11 +37,28 @@ public class VersionedItem {
     @OrderBy("dateCreated DESC")
     private List<ItemComment> comments;
 
-    //Eliza
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id", foreignKey = @ForeignKey(name="merged_with_fk"))
+
+    @ManyToMany()
+    @JoinTable(
+            name = "merged_with",
+            joinColumns = @JoinColumn(
+                    name = "merged_with_id", referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "merged_with_id_fk")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "versioned_item_id", referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "merged_with_versioned_item_id_fk")
+            )
+    )
     List<VersionedItem> mergedWith;
 
+
+    public void addMergedWith(VersionedItem versionedItem) {
+        if(Objects.isNull(mergedWith))mergedWith = new ArrayList<>();
+        versionedItem.setStatus(VersionedItemStatus.MERGED);
+        mergedWith.add(0,versionedItem);
+        versionedItem.setCurrentVersion(this.currentVersion);
+    }
 
     public VersionedItem(String persistentId) {
         this.persistentId = persistentId;
