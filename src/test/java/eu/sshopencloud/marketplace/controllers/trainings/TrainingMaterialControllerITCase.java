@@ -1732,62 +1732,6 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
     }
 
-    @Test
-    public void shouldGetMergeForOnlyTrainingMaterial() throws Exception {
-
-        MergeCore mergeCore = new MergeCore();
-        List<String> persistentIdList = new ArrayList<>();
-        persistentIdList.add("heBAGQ");
-        persistentIdList.add("JmBgWa");
-        mergeCore.setPersistentIdList(persistentIdList);
-
-
-        String payload = mapper.writeValueAsString(mergeCore);
-
-        mvc.perform(
-                get("/api/training-materials/merge", mergeCore)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
-        )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", nullValue()))
-                .andExpect(jsonPath("id", nullValue()))
-                .andExpect(jsonPath("category", is("training-material")))
-                .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Webinar on DH")))
-                .andExpect(jsonPath("properties", hasSize(3)));
-
-    }
-
-    @Test
-    public void shouldGetMergeForNotOnlyTrainingMaterial() throws Exception {
-
-        MergeCore mergeCore = new MergeCore();
-        List<String> persistentIdList = new ArrayList<>();
-        persistentIdList.add("n21Kfc");         //persistent id of dataset
-        persistentIdList.add("DstBL5");         //persistent id of tool
-        persistentIdList.add("OdKfPc");         //persistent id of training-material
-        persistentIdList.add("JmBgWa");         //persistent id of training-material
-        mergeCore.setPersistentIdList(persistentIdList);
-
-        String payload = mapper.writeValueAsString(mergeCore);
-
-        mvc.perform(
-                get("/api/training-materials/merge", mergeCore)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
-        )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", nullValue()))
-                .andExpect(jsonPath("id", nullValue()))
-                .andExpect(jsonPath("category", is("training-material")))
-                .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Stata/Consortium of European Social Science Data Archives/Webinar on DH")))
-                .andExpect(jsonPath("properties", hasSize(8)));
-
-    }
 
     @Test
     public void shouldReturnTrainingMaterialInformationContributors() throws Exception {
@@ -1872,4 +1816,71 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[0].config", is(true)));
 
     }
+
+    @Test
+    public void shouldGetMergeForTrainingMaterial() throws Exception {
+
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        mvc.perform(
+                get("/api/training-materials/{id}/merge", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
+
+    }
+
+
+    @Test
+    public void shouldMergeIntoTrainingMaterial() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        String response = mvc.perform(
+                get("/api/training-materials/{id}/merge", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                post("/api/training-materials/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", datasetId, workflowId, toolId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(datasetId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
+
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+    }
+
 }

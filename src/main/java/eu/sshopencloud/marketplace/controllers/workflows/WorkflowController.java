@@ -4,13 +4,6 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.workflows.*;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
-import eu.sshopencloud.marketplace.dto.tools.ToolDto;
-import eu.sshopencloud.marketplace.dto.workflows.StepCore;
-import eu.sshopencloud.marketplace.dto.workflows.StepDto;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
-import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
 import eu.sshopencloud.marketplace.services.items.StepService;
 import eu.sshopencloud.marketplace.services.items.WorkflowService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -174,19 +167,6 @@ public class WorkflowController {
         return ResponseEntity.ok(stepService.getStepVersions(workflowId, stepId, draft, approved));
     }
 
-
-    @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> getMerge(@PathVariable("id") String id,
-                                                @RequestBody MergeCore mergeCore){
-        return ResponseEntity.ok(workflowService.getMerge(id, mergeCore));
-    }
-
-    @GetMapping(path = "/{workflowId}/steps/merge", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StepDto> getMergeSteps(@PathVariable("id") String id,
-                                                 @RequestBody MergeCore mergeCore){
-        return ResponseEntity.ok(stepService.getMerge(id, mergeCore));
-    }
-
     @GetMapping(path = "/{workflowId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("workflowId") String id) {
 
@@ -196,7 +176,7 @@ public class WorkflowController {
     @GetMapping(path = "/{workflowId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("workflowId") String id, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(workflowService.getInformationContributors(id,versionId));
+        return ResponseEntity.ok(workflowService.getInformationContributors(id, versionId));
     }
 
     @GetMapping(path = "/{workflowId}/steps/{stepId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -208,7 +188,33 @@ public class WorkflowController {
     @GetMapping(path = "/{workflowId}/steps/{stepId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getStepInformationContributorsForVersion(@PathVariable("workflowId") String id, @PathVariable("stepId") String stepId, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(stepService.getInformationContributors(id,stepId, versionId));
+        return ResponseEntity.ok(stepService.getInformationContributors(id, stepId, versionId));
+    }
+
+    @GetMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> getMerge(@PathVariable("id") String id,
+                                                @RequestParam List<String> with) {
+        return ResponseEntity.ok(workflowService.getMerge(id, with));
+    }
+
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> merge(@RequestParam List<String> with,
+                                             @RequestBody WorkflowCore mergeWorkflow) {
+        return ResponseEntity.ok(workflowService.merge(mergeWorkflow, with));
+    }
+
+    @GetMapping(path = "{workflowId}/steps/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StepDto> getMergeSteps(@PathVariable("workflowId") String workflowId,
+                                                 @PathVariable("id") String id,
+                                                 @RequestParam List<String> with) {
+        return ResponseEntity.ok(stepService.getMerge(id, with));
+    }
+
+    @PostMapping(path = "{workflowId}/steps/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StepDto> mergeSteps(@PathVariable("workflowId") String id,
+                                              @RequestParam List<String> with,
+                                              @RequestBody StepCore mergeStep) {
+        return ResponseEntity.ok(stepService.merge(id, mergeStep, with));
     }
 
 }

@@ -4,13 +4,11 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
@@ -138,17 +136,23 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return getItemHistory(persistentId, getLatestTool(persistentId, draft, approved).getId());
     }
 
-    public ToolDto getMerge(String persistentId, MergeCore mergeCores) {
-        ToolDto tool = null;
-        return tool;
-    }
-
     public List<UserDto> getInformationContributors(String id) {
         return super.getInformationContributors(id);
     }
 
     public List<UserDto> getInformationContributors(String id, Long versionId) {
         return super.getInformationContributors(id, versionId);
+    }
+
+    public ToolDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public ToolDto merge(ToolCore mergeTool, List<String> mergeCores) {
+
+        Tool tool = createItem(mergeTool, false);
+        tool = mergeItem(tool.getPersistentId(), mergeCores);
+        return prepareItemDto(tool);
     }
 
 }

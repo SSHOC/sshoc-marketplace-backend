@@ -4,14 +4,11 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
@@ -138,18 +135,13 @@ public class TrainingMaterialService
         return TrainingMaterialMapper.INSTANCE.toDto(item);
     }
 
-    public TrainingMaterialDto getMerge(String persistentId, MergeCore mergeCores) {
-        TrainingMaterialDto tool = null;
-        return tool;
-    }
-
     @Override
     protected String getItemTypeName() {
         return TrainingMaterial.class.getName();
     }
 
     public List<ItemExtBasicDto> getTrainingMaterialVersions(String persistentId, boolean draft, boolean approved) {
-        return getItemHistory(persistentId, getLatestTrainingMaterial( persistentId, draft, approved).getId());
+        return getItemHistory(persistentId, getLatestTrainingMaterial(persistentId, draft, approved).getId());
     }
 
     public List<UserDto> getInformationContributors(String id) {
@@ -158,6 +150,17 @@ public class TrainingMaterialService
 
     public List<UserDto> getInformationContributors(String id, Long versionId) {
         return super.getInformationContributors(id, versionId);
+    }
+
+    public TrainingMaterialDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public TrainingMaterialDto merge(TrainingMaterialCore mergeTrainingMaterial, List<String> mergeCores) {
+
+        TrainingMaterial trainingMaterial = createItem(mergeTrainingMaterial, false);
+        trainingMaterial = mergeItem(trainingMaterial.getPersistentId(), mergeCores);
+        return prepareItemDto(trainingMaterial);
     }
 
 }

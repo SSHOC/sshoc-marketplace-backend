@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.controllers.publications;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
@@ -96,15 +95,18 @@ public class PublicationController {
     @GetMapping(path = "/{id}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(publicationService.getInformationContributors(id,versionId));
+        return ResponseEntity.ok(publicationService.getInformationContributors(id, versionId));
     }
 
-    @GetMapping( path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> getMerge(@PathVariable("id") String id,
-                                                   @RequestBody MergeCore mergeCore
-                                                   ){
-        return ResponseEntity.ok(publicationService.getMerge(id, mergeCore));
-
+                                                   @RequestParam List<String> with) {
+        return ResponseEntity.ok(publicationService.getMerge(id, with));
     }
 
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> merge(@RequestParam List<String> with,
+                                                @RequestBody PublicationCore mergePublication) {
+        return ResponseEntity.ok(publicationService.merge(mergePublication, with));
+    }
 }

@@ -1189,4 +1189,68 @@ public class DatasetControllerITCase {
 
     }
 
+    @Test
+    public void shouldGetMergeForDataset() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        mvc.perform(
+                get("/api/datasets/{id}/merge", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
+
+    }
+
+    @Test
+    public void shouldMergeIntoDataset() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        String response = mvc.perform(
+                get("/api/datasets/{id}/merge", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                post("/api/datasets/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", datasetId, workflowId, toolId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
+
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+        
+    }
+
 }

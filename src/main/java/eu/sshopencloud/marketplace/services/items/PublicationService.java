@@ -3,15 +3,12 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
@@ -148,9 +145,16 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return super.getInformationContributors(id, versionId);
     }
 
-    public PublicationDto getMerge(String persistentId, MergeCore mergeCores) {
-        PublicationDto dataset= null;
-        return dataset;
+    public PublicationDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public PublicationDto merge(PublicationCore mergePublication, List<String> mergeCores) {
+
+        Publication publication = createItem(mergePublication, false);
+        publication = mergeItem(publication.getPersistentId(), mergeCores);
+
+        return prepareItemDto(publication);
     }
 
 }

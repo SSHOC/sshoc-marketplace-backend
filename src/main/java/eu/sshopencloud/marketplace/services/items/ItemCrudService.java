@@ -23,7 +23,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -120,37 +123,24 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return createOrUpdateItemVersion(itemCore, null, draft);
     }
 
-    //Here
-    protected I mergeCreateItemTmp(C itemCore, boolean draft, List<String> mergedItems) {
-        return createOrUpdateItemVersionTmp(itemCore, null, draft, mergedItems);
-    }
+    protected I mergeItem(String persistentId, List<String> mergedCores) {
 
-    //Here
-    protected I mergeItem(String pId, List<String> mergedItems) {
+        I mergedItem = loadCurrentItem(persistentId);
+        mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
-        I newItem = loadCurrentItem(pId);
-        //newItem.setVersionedItem(createNewVersionedItem());
-        //newItem.getVersionedItem().setStatus(VersionedItemStatus.REVIEWED);
+        for (int i = 0; i < mergedCores.size(); i++) {
 
-        ArrayList<VersionedItem> itemArrayList = new ArrayList<VersionedItem>();
-        newItem.getVersionedItem().setMergedWith(itemArrayList);
-        for (int i = 0; i < mergedItems.size(); i++) {
-
-            //VersionedItem versionedItem = versionedItemRepository.getOne(mergedItems.get(i));
-            //I prevItem = (I) versionedItem.getCurrentVersion();
-            //prevItem.setStatus(ItemStatus.DEPRECATED);
-
-            newItem.getVersionedItem().addMergedWith(versionedItemRepository.getOne(mergedItems.get(i)));
-
+            VersionedItem versionedItem = versionedItemRepository.getOne(mergedCores.get(i));
+            I prevItem = (I) versionedItem.getCurrentVersion();
+            prevItem.setStatus(ItemStatus.DEPRECATED);
+            mergedItem.getVersionedItem().addMergedWith(versionedItemRepository.getOne(mergedCores.get(i)));
+            itemRepository.save(prevItem);
+            versionedItemRepository.save(versionedItem);
         }
 
-        //versionedItemRepository.findById(pId).get().setMergedWith(itemArrayList);
-
-        versionedItemRepository.save(newItem.getVersionedItem());
-        itemRepository.save(newItem);
-        //itemUpgradeRegistry.registerUpgradedVersion(newItem);
-
-        return newItem;
+        versionedItemRepository.save(mergedItem.getVersionedItem());
+        itemRepository.save(mergedItem);
+        return mergedItem;
 
     }
 
@@ -161,14 +151,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft) {
         I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft);
-        indexService.indexItem(newItem);
-
-
-        return newItem;
-    }
-
-    private I createOrUpdateItemVersionTmp(C itemCore, I prevVersion, boolean draft, List<String> mergedItems) {
-        I newItem = prepareAndPushItemVersionTmp(itemCore, prevVersion, draft, mergedItems);
         indexService.indexItem(newItem);
 
 
@@ -198,90 +180,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return version;
     }
 
-    private I prepareAndPushItemVersionTmp(C itemCore, I prevVersion, boolean draft, List<String> mergedItems) {
-        // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
-        if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
-            I version = modifyItem(itemCore, prevVersion);
-            itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), prevVersion, null, true);
-
-            if (!draft)
-                commitItemDraft(version);
-
-            return version;
-        }
-
-
-        I version = makeItemVersion(itemCore, prevVersion);
-
-        version = saveVersionInHistoryTmp(version, prevVersion, draft, false, mergedItems);
-
-        //error for updating related items aftes adding mergedWith
-        //itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), version, prevVersion, draft);
-
-        return version;
-    }
-
 
     private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
         return saveVersionInHistory(version, prevVersion, draft, true);
-    }
-
-    // Warning: important method! Do not change unless you know what you are doing!
-    private I saveVersionInHistoryTmp(I version, I prevVersion, boolean draft, boolean changeStatus, List<String> mergedItems) {
-        VersionedItem versionedItem = (prevVersion == null) ? createNewVersionedItem() : prevVersion.getVersionedItem();
-
-        versionedItem.setMergedWith(new ArrayList<>());
-
-        for (int i = 0; i < mergedItems.size(); i++) {
-            VersionedItem versionedItemTmp = versionedItemRepository.getOne(mergedItems.get(i));
-            versionedItemRepository.findById(versionedItem.getPersistentId()).get().addMergedWith(versionedItemTmp);
-            //versionedItem.addMergedWith(versionedItemTmp);
-        }
-
-
-        if (!versionedItem.isActive()) {
-            throw new IllegalArgumentException(
-                    String.format(
-                            "Item with id %s has been deleted or merged, so adding a new version is prohibited",
-                            versionedItem.getPersistentId()
-                    )
-            );
-        }
-
-        version.setPrevVersion(prevVersion);
-
-
-        // If not a draft
-        if (!draft) {
-            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus);
-
-            if (version.getStatus() == ItemStatus.APPROVED)
-                deprecatePrevApprovedVersion(versionedItem);
-
-            versionedItem.setCurrentVersion(version);
-        }
-        // If it is a draft
-        else {
-            version.setStatus(ItemStatus.DRAFT);
-
-            // If it's a first (and draft) version of the item make persistent a draft
-            if (versionedItem.getStatus() == null)
-                versionedItem.setStatus(VersionedItemStatus.DRAFT);
-        }
-
-        version.setVersionedItem(versionedItem);
-        version = saveItemVersion(version);
-
-        if (draft) {
-            User draftOwner = userService.loadLoggedInUser();
-            DraftItem draftItem = new DraftItem(version, prevVersion, draftOwner);
-
-            draftItemRepository.save(draftItem);
-        }
-
-        linkItemMedia(version);
-
-        return version;
     }
 
 

@@ -1961,6 +1961,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].config", is(true)));
     }
 
+
     @Test
     public void shouldReturnStepInformationContributorsForVersion() throws Exception {
 
@@ -2018,61 +2019,129 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldGetMergeForOnlyWorkflow() throws Exception {
+    public void shouldGetMergeForWorkflow() throws Exception {
 
-        MergeCore mergeCore = new MergeCore();
-        List<String> persistentIdList = new ArrayList<>();
-        persistentIdList.add("tqmbGY");
-        persistentIdList.add("vHQEhe");
-        mergeCore.setPersistentIdList(persistentIdList);
-
-
-        String payload = mapper.writeValueAsString(mergeCore);
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
 
         mvc.perform(
-                get("/api/workflows/merge", mergeCore)
+                get("/api/workflows/{id}/merge", workflowId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
+                        .param("with", datasetId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", nullValue()))
-                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("persistentId", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Creation of a dictionary/Evaluation of an inflectional analyzer")))
-                .andExpect(jsonPath("properties", hasSize(1)));
+                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi")));
 
     }
 
     @Test
-    public void shouldGetMergeForNotOnlyWorkflow() throws Exception {
+    public void shouldMergeIntoWorkflow() throws Exception {
 
-        MergeCore mergeCore = new MergeCore();
-        List<String> persistentIdList = new ArrayList<>();
-        persistentIdList.add("n21Kfc");         //persistent id of dataset
-        persistentIdList.add("DstBL5");         //persistent id of tool
-        persistentIdList.add("OdKfPc");         //persistent id of training-material
-        persistentIdList.add("JmBgWa");         //persistent id of training-material
-        persistentIdList.add("vHQEhe");         //persistent id of workflow
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
 
-        mergeCore.setPersistentIdList(persistentIdList);
-
-        String payload = mapper.writeValueAsString(mergeCore);
-
-        mvc.perform(
-                get("/api/workflows/merge", mergeCore)
+        String response =  mvc.perform(
+                get("/api/workflows/{id}/merge", workflowId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
+                        .param("with", datasetId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", nullValue()))
-                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("persistentId", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Stata/Consortium of European Social Science Data Archives/Webinar on DH/Evaluation of an inflectional analyzer")))
-                .andExpect(jsonPath("properties", hasSize(8)));
+                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi")))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                post("/api/workflows/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowId,  datasetId, toolId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(workflowId)))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi")));
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    public void shouldGetMergeForStep() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+        String stepId = "prblMo";
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}/steps/{id}/merge", workflowId, stepId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", datasetId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(stepId)))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Build the model of the dictionary/Consortium of European Social Science Data Archives/Gephi")));
+
+    }
+
+    @Test
+    public void shouldMergeIntoStep() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+        String stepId = "prblMo";
+
+        String response =   mvc.perform(
+                get("/api/workflows/{workflowId}/steps/{id}/merge", workflowId, stepId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", datasetId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(stepId)))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Build the model of the dictionary/Consortium of European Social Science Data Archives/Gephi")))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                post("/api/workflows/{workflowId}/steps/merge", workflowId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", stepId,  datasetId, toolId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(stepId)))
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Build the model of the dictionary/Consortium of European Social Science Data Archives/Gephi")));
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
 
     }
 }

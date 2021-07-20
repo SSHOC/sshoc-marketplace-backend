@@ -1267,60 +1267,71 @@ public class ToolControllerITCase {
 
 
     @Test
-    public void shouldGetMergeForOnlyTool() throws Exception {
+    public void shouldGetMergeForTool() throws Exception {
 
-        MergeCore mergeCore = new MergeCore();
-        List<String> persistentIdList = new ArrayList<>();
-        persistentIdList.add("n21Kfc");
-        persistentIdList.add("DstBL5");
-        mergeCore.setPersistentIdList(persistentIdList);
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
 
-
-        String payload = mapper.writeValueAsString(mergeCore);
-
-        mvc.perform(
-                get("/api/tools-services/merge", mergeCore)
+        String response = mvc.perform(
+                get("/api/tools-services/{id}/merge", toolId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
+                        .param("with",  datasetId, workflowId)
+                        .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", nullValue()))
-                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Stata")))
-                .andExpect(jsonPath("properties", hasSize(6)));
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
 
     }
 
     @Test
-    public void shouldGetMergeForNotOnlyTool() throws Exception {
+    public void shouldMergeIntoTool() throws Exception {
 
-        MergeCore mergeCore = new MergeCore();
-        List<String> persistentIdList = new ArrayList<>();
-        persistentIdList.add("n21Kfc");         //persistent id of dataset
-        persistentIdList.add("DstBL5");         //persistent id of tool
-        persistentIdList.add("OdKfPc");         //persistent id of training-material
-        mergeCore.setPersistentIdList(persistentIdList);
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
 
-        String payload = mapper.writeValueAsString(mergeCore);
-
-        mvc.perform(
-                get("/api/tools-services/merge", mergeCore)
+        String response = mvc.perform(
+                get("/api/tools-services/{id}/merge", toolId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
+                        .param("with",  datasetId, workflowId)
+                        .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", nullValue()))
-                .andExpect(jsonPath("id", nullValue()))
+                .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Stata/Consortium of European Social Science Data Archives")))
-                .andExpect(jsonPath("properties", hasSize(7)));
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                post("/api/tools-services/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", toolId, datasetId, workflowId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(toolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")));
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
 
     }
+
+
+
 
 
 }

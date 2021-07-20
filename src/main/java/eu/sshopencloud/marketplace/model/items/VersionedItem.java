@@ -38,8 +38,8 @@ public class VersionedItem {
     private List<ItemComment> comments;
 
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id", foreignKey = @ForeignKey(name="merged_with_id_fk"))
+    @OneToMany()
+    @JoinColumn(name = "merged_with_id", foreignKey = @ForeignKey(name="merged_with_id_fk"))
     List<VersionedItem> mergedWith;
 
 

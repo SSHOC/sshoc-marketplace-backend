@@ -8,11 +8,8 @@ import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
-import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
@@ -241,16 +238,12 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertToDto(Item item) {
-        //Eliza
+        //here
         WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
-        //collectSteps(dto, workflow);
+        //collectSteps(dto, (Workflow) item);
         return dto;
     }
 
-    public WorkflowDto getMerge(String persistentId, MergeCore mergeCores) {
-        WorkflowDto tool = null;
-        return tool;
-    }
 
     @Override
     protected String getItemTypeName() {
@@ -269,6 +262,16 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return super.getInformationContributors(id, versionId);
     }
 
+
+    public WorkflowDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeCores) {
+        Workflow workflow = createItem(mergeWorkflow, false);
+        workflow = mergeItem(workflow.getPersistentId(), mergeCores);
+        return prepareItemDto(workflow);
+    }
 
 
 }

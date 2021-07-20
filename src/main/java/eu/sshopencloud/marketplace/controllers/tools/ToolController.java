@@ -4,10 +4,8 @@ import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
-import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.services.items.ToolService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -99,10 +96,16 @@ public class ToolController {
         return ResponseEntity.ok(toolService.getInformationContributors(id, versionId));
     }
 
-    @GetMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> getMerge(@PathVariable("id") String id,
-                                             @RequestBody MergeCore mergeCore){
-        return ResponseEntity.ok(toolService.getMerge(id, mergeCore));
+                                            @RequestParam List<String> with) {
+        return ResponseEntity.ok(toolService.getMerge(id, with));
+    }
+
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> merge(@RequestParam List<String> with,
+                                         @RequestBody ToolCore mergePublication) {
+        return ResponseEntity.ok(toolService.merge(mergePublication, with));
     }
 
 }

@@ -155,18 +155,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     public DatasetDto merge(DatasetCore mergeDataset, List<String> mergeCores) {
 
         Dataset dataset = createItem(mergeDataset, false);
-       // mergeItem(dataset, mergeCores);
-        mergeItem(dataset.getPersistentId(), mergeCores);
-
-        //Dataset dataset = mergeCreateItemTmp(mergeDataset, false, mergeCores);
-
-        System.out.println("E " + mergeCores);
-        System.out.println("E " + dataset.getStatus().toString());
-        System.out.println("E " + dataset.getVersionedItem().getStatus());
-        System.out.println("E " + dataset.getPersistentId());
-
-        return null;
-       //return prepareItemDto2(dataset);
+        dataset = mergeItem(dataset.getPersistentId(), mergeCores);
+        return prepareItemDto(dataset);
     }
 
 }
