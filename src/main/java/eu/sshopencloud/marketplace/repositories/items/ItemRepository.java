@@ -44,7 +44,7 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
                     "    i1.source_item_id, i1.status, i1.version, i1.prev_version_id, i1.source_id," +
                     "    i1.persistent_id, i1.proposed_version, i1.info_contributor_id, 1 as clazz_" +
                     "  FROM items i1" +
-                    "  WHERE i1.persistent_id = :persistentId" +
+                    "  WHERE i1.persistent_id = :persistentId and i1.id = :versionId" +
                     "  UNION" +
                     "  SELECT i2.id, i2.category, i2.description, i2.label, i2.last_info_update," +
                     "    i2.source_item_id, i2.status, i2.version, i2.prev_version_id, i2.source_id," +
@@ -57,6 +57,6 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
                     "    s.persistent_id, s.proposed_version, s.info_contributor_id, s.last_info_update AS date_created, s.clazz_" +
                     "    FROM sub_tree s", nativeQuery = true
     )
-    List<Item> findInformationContributorsForVersion(@Param("persistentId") String persistentId);
+    List<Item> findInformationContributorsForVersion(@Param("persistentId") String persistentId, @Param("versionId") Long versionId);
 
 }

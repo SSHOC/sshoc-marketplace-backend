@@ -20,13 +20,11 @@ import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -474,6 +472,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
+
         if(!item.getVersionedItem().getMergedWith().isEmpty()) return getHistoryOfItemWithMergedWith(item);
         else return getHistoryOfItem(item);
     }
@@ -483,17 +482,21 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         for(int i = 0 ;i < item.getVersionedItem().getMergedWith().size(); i++)
         {
-            List<ItemExtBasicDto> mergedItemsList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getVersionedItem().getMergedWith().get(i).getPersistentId()));
-
-
+            Long versionId = getLatestItem(item.getVersionedItem().getMergedWith().get(i).getPersistentId(), false, false).getId();
+            List<ItemExtBasicDto> mergedItemsList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getVersionedItem().getMergedWith().get(i).getPersistentId(), versionId));
+            mergedItemsList.forEach(v -> { if(tmpList.contains(v)) tmpList.add(v);});
         }
-        //tmpList.addAll()
-        return ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+
+        tmpList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
+
+        return tmpList;
     }
 
 
     private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        return ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+        List<ItemExtBasicDto> historyList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+       // historyList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
+        return historyList;
     }
 
     protected List<UserDto> getInformationContributors(String itemId) {

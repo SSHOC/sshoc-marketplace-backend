@@ -82,7 +82,6 @@ public class DatasetController {
 
     @GetMapping(path = "/{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemExtBasicDto>> getDatasetHistory(@PathVariable("id") String id,
-                                                                   @RequestParam(value = "order", required = false) ItemHistoryOrder order,
                                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));
