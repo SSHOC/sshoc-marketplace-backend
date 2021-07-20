@@ -1250,7 +1250,7 @@ public class DatasetControllerITCase {
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isNotFound());
-        
+
     }
 
 }

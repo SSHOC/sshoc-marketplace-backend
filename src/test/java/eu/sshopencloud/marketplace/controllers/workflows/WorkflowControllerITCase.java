@@ -1146,7 +1146,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("workflow")))
                 .andExpect(jsonPath("$[0].label", is("Evaluation of an inflectional analyzer")))
-                .andExpect(jsonPath("$[0].persistentId", is( workflowPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].id", is(workflowId)))
                 .andExpect(jsonPath("$[0].status", is("approved")));
 
@@ -1227,15 +1227,15 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("workflow")))
-                .andExpect(jsonPath("$[0].persistentId", is( workflowPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id",not(is(workflowId))))
+                .andExpect(jsonPath("$[0].id", not(is(workflowId))))
                 .andExpect(jsonPath("$[0].label", is("Evaluation of an inflectional analyzer")))
 
                 .andExpect(jsonPath("$[1].category", is("workflow")))
                 .andExpect(jsonPath("$[1].id", is(workflowId)))
                 .andExpect(jsonPath("$[1].label", is("Evaluation of an inflectional analyzer")))
-                .andExpect(jsonPath("$[1].persistentId", is( workflowPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("deprecated")));
 
     }
@@ -1270,7 +1270,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].category", is("workflow")))
                 .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id",notNullValue()));
+                .andExpect(jsonPath("$[0].id", notNullValue()));
 
         String stepPersistentId = "BNw43H";
         Integer stepId = 22;
@@ -1333,9 +1333,9 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("step")))
-                .andExpect(jsonPath("$[0].persistentId", is( stepPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(stepPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id",notNullValue()));
+                .andExpect(jsonPath("$[0].id", notNullValue()));
 
         mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -1371,7 +1371,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].category", is("workflow")))
                 .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
-                .andExpect(jsonPath("$[0].id",notNullValue()));
+                .andExpect(jsonPath("$[0].id", notNullValue()));
     }
 
     @Test
@@ -1900,7 +1900,7 @@ public class WorkflowControllerITCase {
         String workflowPersistentId = "vHQEhe";
         String stepPersistentId = "BNw43H";
 
-        mvc.perform(get("/api/workflows/{id}/steps/{stepId}/information-contributors", workflowPersistentId,stepPersistentId)
+        mvc.perform(get("/api/workflows/{id}/steps/{stepId}/information-contributors", workflowPersistentId, stepPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -1976,7 +1976,7 @@ public class WorkflowControllerITCase {
 
         log.debug("JSON: " + payload);
 
-        String jsonResponse = mvc.perform(put("/api/workflows/{id}/steps/{stepId}", workflowPersistentId,stepPersistentId)
+        String jsonResponse = mvc.perform(put("/api/workflows/{id}/steps/{stepId}", workflowPersistentId, stepPersistentId)
                 .content(payload)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -1996,7 +1996,7 @@ public class WorkflowControllerITCase {
 
         log.debug("Workflows version Id: " + versionId);
 
-        mvc.perform(get("/api/workflows/{id}/steps/{stepId}/versions/{versionId}/information-contributors", workflowPersistentId, stepPersistentId,versionId)
+        mvc.perform(get("/api/workflows/{id}/steps/{stepId}/versions/{versionId}/information-contributors", workflowPersistentId, stepPersistentId, versionId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -2046,7 +2046,7 @@ public class WorkflowControllerITCase {
         String workflowId = "tqmbGY";
         String toolId = "n21Kfc";
 
-        String response =  mvc.perform(
+        String response = mvc.perform(
                 get("/api/workflows/{id}/merge", workflowId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", datasetId, toolId)
@@ -2062,7 +2062,7 @@ public class WorkflowControllerITCase {
         mvc.perform(
                 post("/api/workflows/merge")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowId,  datasetId, toolId)
+                        .param("with", workflowId, datasetId, toolId)
                         .content(response)
                         .header("Authorization", MODERATOR_JWT)
         )
@@ -2111,7 +2111,7 @@ public class WorkflowControllerITCase {
         String toolId = "n21Kfc";
         String stepId = "prblMo";
 
-        String response =   mvc.perform(
+        String response = mvc.perform(
                 get("/api/workflows/{workflowId}/steps/{id}/merge", workflowId, stepId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", datasetId, toolId)
@@ -2127,7 +2127,7 @@ public class WorkflowControllerITCase {
         mvc.perform(
                 post("/api/workflows/{workflowId}/steps/merge", workflowId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", stepId,  datasetId, toolId)
+                        .param("with", stepId, datasetId, toolId)
                         .content(response)
                         .header("Authorization", MODERATOR_JWT)
         )
