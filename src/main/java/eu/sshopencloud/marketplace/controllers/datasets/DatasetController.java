@@ -6,6 +6,8 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemHistoryOrder;
+import eu.sshopencloud.marketplace.dto.sources.SourceOrder;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
@@ -80,6 +82,7 @@ public class DatasetController {
 
     @GetMapping(path = "/{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemExtBasicDto>> getDatasetHistory(@PathVariable("id") String id,
+                                                                   @RequestParam(value = "order", required = false) ItemHistoryOrder order,
                                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));

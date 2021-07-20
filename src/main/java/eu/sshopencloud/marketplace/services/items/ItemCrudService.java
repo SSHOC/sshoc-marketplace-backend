@@ -473,7 +473,22 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     )
             );
         }
-        return getHistoryOfItem(item);
+
+        if(!item.getVersionedItem().getMergedWith().isEmpty()) return getHistoryOfItemWithMergedWith(item);
+        else return getHistoryOfItem(item);
+    }
+
+    private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item) {
+        List<ItemExtBasicDto> tmpList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+
+        for(int i = 0 ;i < item.getVersionedItem().getMergedWith().size(); i++)
+        {
+            List<ItemExtBasicDto> mergedItemsList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getVersionedItem().getMergedWith().get(i).getPersistentId()));
+
+
+        }
+        //tmpList.addAll()
+        return ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
     }
 
 

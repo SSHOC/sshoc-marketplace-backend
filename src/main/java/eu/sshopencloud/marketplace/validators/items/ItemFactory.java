@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.model.items.ItemMediaType;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
+import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;
@@ -107,6 +108,8 @@ public class ItemFactory {
         item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
         item.addMedia(itemMediaFactory.create(itemCore.getMedia(), item, errors));
 
+
+
         if (itemCore.getThumbnail() != null && itemCore.getThumbnail().getInfo() != null) {
             UUID thumbnailId = itemCore.getThumbnail().getInfo().getMediaId();
             Optional<ItemMedia> itemThumbnail = item.getMedia().stream()
@@ -119,6 +122,7 @@ public class ItemFactory {
                 item.addMedia(itemMediaFactory.create(itemCore.getThumbnail().getInfo().getMediaId(), item, errors, ItemMediaType.THUMBNAIL_ONLY, itemCore.getThumbnail().getCaption(), itemCore.getThumbnail().getConcept()));
             }
         }
+
 
         setInfoDates(item, true);
         updateInformationContributor(item);
