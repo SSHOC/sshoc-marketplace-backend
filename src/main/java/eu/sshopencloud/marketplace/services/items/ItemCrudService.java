@@ -6,10 +6,7 @@ import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableExcep
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
-import eu.sshopencloud.marketplace.dto.items.ItemDto;
-import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.ItemRelationsCore;
-import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -26,8 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -124,6 +120,29 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return createOrUpdateItemVersion(itemCore, null, draft);
     }
 
+    protected I mergeItem(String persistentId, List<String> mergedCores) {
+
+        I mergedItem = loadCurrentItem(persistentId);
+        mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
+
+        for (int i = 0; i < mergedCores.size(); i++) {
+
+            VersionedItem versionedItem = versionedItemRepository.getOne(mergedCores.get(i));
+            I currentItem = (I) versionedItem.getCurrentVersion();
+            I prevItem = currentItem;
+            currentItem.setStatus(ItemStatus.DEPRECATED);
+            mergedItem.getVersionedItem().addMergedWith(versionedItemRepository.getOne(mergedCores.get(i)));
+            versionedItemRepository.save(versionedItem);
+            currentItem.setPrevVersion(prevItem);
+            itemRepository.save(currentItem);
+        }
+
+        versionedItemRepository.save(mergedItem.getVersionedItem());
+        itemRepository.save(mergedItem);
+        return mergedItem;
+
+    }
+
     protected I updateItem(String persistentId, C itemCore, boolean draft) {
         I item = loadItemForCurrentUser(persistentId);
         return createOrUpdateItemVersion(itemCore, item, draft);
@@ -133,8 +152,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft);
         indexService.indexItem(newItem);
 
+
         return newItem;
     }
+
 
     private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
@@ -148,7 +169,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             return version;
         }
 
+
         I version = makeItemVersion(itemCore, prevVersion);
+
         version = saveVersionInHistory(version, prevVersion, draft);
 
         itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), version, prevVersion, draft);
@@ -156,9 +179,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return version;
     }
 
+
     private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
-        return saveVersionInHistory(version ,prevVersion, draft, true);
+        return saveVersionInHistory(version, prevVersion, draft, true);
     }
+
 
     // Warning: important method! Do not change unless you know what you are doing!
     private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean changeStatus) {
@@ -175,6 +200,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         version.setPrevVersion(prevVersion);
+
 
         // If not a draft
         if (!draft) {
@@ -213,8 +239,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         for (ItemMedia media : version.getMedia()) {
             try {
                 mediaStorageService.linkToMedia(media.getMediaId());
-            }
-            catch (MediaNotAvailableException e) {
+            } catch (MediaNotAvailableException e) {
                 throw new IllegalStateException("Media not available unexpectedly");
             }
         }
@@ -310,7 +335,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I currentVersion = loadCurrentItem(persistentId);
         I targetVersion = makeItemVersionCopy(item);
 
-        targetVersion =  saveVersionInHistory(targetVersion, currentVersion, false);
+        targetVersion = saveVersionInHistory(targetVersion, currentVersion, false);
         copyVersionRelations(targetVersion, item);
 
         indexService.indexItem(targetVersion);
@@ -351,7 +376,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
 
         if (draft) {
-            I draftItem  = loadItemDraftForCurrentUser(persistentId);
+            I draftItem = loadItemDraftForCurrentUser(persistentId);
             cleanupDraft(draftItem);
 
             return;
@@ -365,8 +390,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
             versionedItem.setStatus(VersionedItemStatus.REFUSED);
             item.setStatus(ItemStatus.DISAPPROVED);
-        }
-        else {
+        } else {
             versionedItem.setStatus(VersionedItemStatus.DELETED);
             versionedItem.setActive(false);
         }
@@ -448,13 +472,23 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     )
             );
         }
-        return getHistoryOfItem(item);
-    }
 
 
-    private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        return ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+        return getHistoryOfItemWithMergedWith(item);
     }
+
+    private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item) {
+
+        List<ItemExtBasicDto> mergedItemHistoryList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+
+        if (!item.getVersionedItem().getMergedWith().isEmpty()) {
+            mergedItemHistoryList.addAll(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId())));
+            mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
+
+        }
+        return mergedItemHistoryList;
+    }
+
 
     protected List<UserDto> getInformationContributors(String itemId) {
         return userService.getInformationContributors(itemId);
@@ -462,6 +496,83 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected List<UserDto> getInformationContributors(String itemId, Long versionId) {
         return userService.getInformationContributors(itemId, versionId);
+    }
+
+    protected D prepareMergeItems(String persistentId, List<String> mergeList) {
+
+        List<D> itemDtoList = new ArrayList<D>();
+
+        I finalItem = (I) versionedItemRepository.getOne(persistentId).getCurrentVersion();
+        D finalDto = convertToDto(finalItem);
+
+        finalDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalItem));
+        completeItemDto(finalDto, finalItem);
+
+        for (int i = 0; i < mergeList.size(); i++) {
+
+            I vItem = (I) versionedItemRepository.getOne(mergeList.get(i)).getCurrentVersion();
+
+            D tmp = convertToDto(vItem);
+            itemDtoList.add(tmp);
+
+            itemDtoList.get(i).setRelatedItems(itemRelatedItemService.getItemRelatedItems(vItem));
+            completeItemDto(itemDtoList.get(i), vItem);
+
+
+            if (!Objects.isNull(finalDto.getDescription()) && !Objects.isNull(itemDtoList.get(i).getDescription()))
+                if (!finalDto.getDescription().contains(itemDtoList.get(i).getDescription()))
+                    finalDto.setDescription(finalDto.getDescription() + "/" + itemDtoList.get(i).getDescription());
+
+
+            if (!Objects.isNull(finalDto.getLabel()) && !Objects.isNull(itemDtoList.get(i).getLabel()))
+                if (!finalDto.getLabel().contains(itemDtoList.get(i).getLabel()))
+                    finalDto.setLabel(finalDto.getLabel() + "/" + itemDtoList.get(i).getLabel());
+
+
+            if (!Objects.isNull(finalDto.getVersion()) && !Objects.isNull(itemDtoList.get(i).getVersion()))
+                if (!finalDto.getVersion().contains(itemDtoList.get(i).getVersion()))
+                    finalDto.setVersion(finalDto.getVersion() + "/" + itemDtoList.get(i).getVersion());
+
+
+            for (ItemContributorDto e : itemDtoList.get(i).getContributors()) {
+                if (!finalDto.getContributors().contains(e))
+                    finalDto.getContributors().add(e);
+            }
+
+
+            for (PropertyDto e : itemDtoList.get(i).getProperties()) {
+                if (!finalDto.getProperties().contains(e))
+                    finalDto.getProperties().add(e);
+            }
+
+
+            for (ItemExternalIdDto e : itemDtoList.get(i).getExternalIds()) {
+                if (!finalDto.getExternalIds().contains(e))
+                    finalDto.getExternalIds().add(e);
+            }
+
+
+            for (String e : itemDtoList.get(i).getAccessibleAt()) {
+                if (!finalDto.getAccessibleAt().contains(e))
+                    finalDto.getAccessibleAt().add(e);
+            }
+
+
+            for (RelatedItemDto e : itemDtoList.get(i).getRelatedItems()) {
+                if (!finalDto.getRelatedItems().contains(e))
+                    finalDto.getRelatedItems().add(e);
+            }
+
+
+            for (ItemMediaDto e : itemDtoList.get(i).getMedia()) {
+                if (!finalDto.getMedia().contains(e))
+                    finalDto.getMedia().add(e);
+            }
+
+
+        }
+
+        return finalDto;
     }
 
 
@@ -479,9 +590,14 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected abstract I makeItem(C itemCore, I prevItem);
+
     protected abstract I modifyItem(C itemCore, I item);
+
     protected abstract I makeItemCopy(I item);
 
     protected abstract P wrapPage(Page<I> resultsPage, List<D> convertedDtos);
+
     protected abstract D convertItemToDto(I item);
+
+    protected abstract D convertToDto(Item item);
 }

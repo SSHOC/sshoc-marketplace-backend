@@ -86,7 +86,7 @@ public class TrainingMaterialController {
     @GetMapping(path = "/{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemExtBasicDto>> getTrainingMaterialHistory(@PathVariable("id") String id,
                                                                             @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                                            @RequestParam(value = "approved", defaultValue = "true") boolean approved ) {
+                                                                            @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersions(id, draft, approved));
     }
 
@@ -99,7 +99,20 @@ public class TrainingMaterialController {
     @GetMapping(path = "/{id}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(trainingMaterialService.getInformationContributors(id,versionId));
+        return ResponseEntity.ok(trainingMaterialService.getInformationContributors(id, versionId));
+    }
+
+
+    @GetMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> getMerge(@PathVariable("id") String id,
+                                                        @RequestParam List<String> with) {
+        return ResponseEntity.ok(trainingMaterialService.getMerge(id, with));
+    }
+
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> merge(@RequestParam List<String> with,
+                                                     @RequestBody TrainingMaterialCore mergeTrainingMaterial) {
+        return ResponseEntity.ok(trainingMaterialService.merge(mergeTrainingMaterial, with));
     }
 
 }

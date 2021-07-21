@@ -28,4 +28,13 @@ public abstract class DigitalObject extends Item {
         this.dateCreated = baseDigitalObject.getDateCreated();
         this.dateLastUpdated = baseDigitalObject.getDateLastUpdated();
     }
+
 }
+    /*
+    public DigitalObject(ZonedDateTime dateLastUpdated, ZonedDateTime dateCreated) {
+        super(baseDigitalObject);
+
+        this.dateCreated = dateLastUpdated;
+        this.dateLastUpdated = dateCreated;
+    }*?
+}*/

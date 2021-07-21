@@ -13,5 +13,4 @@ public class ItemMediaCore {
     private MediaDetailsId info;
     private String caption;
     private ConceptId concept;
-
 }

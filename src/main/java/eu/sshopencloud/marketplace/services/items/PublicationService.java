@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
@@ -123,6 +124,11 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     @Override
+    protected PublicationDto convertToDto(Item item) {
+        return PublicationMapper.INSTANCE.toDto(item);
+    }
+
+    @Override
     protected String getItemTypeName() {
         return Publication.class.getName();
     }
@@ -137,6 +143,18 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     public List<UserDto> getInformationContributors(String id, Long versionId) {
         return super.getInformationContributors(id, versionId);
+    }
+
+    public PublicationDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public PublicationDto merge(PublicationCore mergePublication, List<String> mergeCores) {
+
+        Publication publication = createItem(mergePublication, false);
+        publication = mergeItem(publication.getPersistentId(), mergeCores);
+
+        return prepareItemDto(publication);
     }
 
 }

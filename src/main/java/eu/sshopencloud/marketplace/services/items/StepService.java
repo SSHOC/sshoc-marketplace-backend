@@ -3,10 +3,17 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.MergeCore;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
+import eu.sshopencloud.marketplace.model.datasets.Dataset;
+import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
@@ -116,8 +123,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     private void addStepToTree(Step step, Integer stepNo, StepsTree parentStepsTree) {
         if (stepNo == null) {
             parentStepsTree.appendStep(step);
-        }
-        else {
+        } else {
             parentStepsTree.addStep(step, stepNo);
         }
     }
@@ -298,6 +304,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     @Override
+    protected StepDto convertToDto(Item item) {
+        return StepMapper.INSTANCE.toDto(item);
+    }
+
+    @Override
     protected String getItemTypeName() {
         return Workflow.class.getName();
     }
@@ -315,5 +326,15 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public List<UserDto> getInformationContributors(String workflowId, String stepId, Long versionId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
         return super.getInformationContributors(stepId, versionId);
+    }
+
+
+    public StepDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public StepDto merge(String workflowId, StepCore mergeStepCore, List<String> mergeCores) {
+        StepDto step = createStep(workflowId, mergeStepCore, false);
+        return prepareItemDto(mergeItem(step.getPersistentId(), mergeCores));
     }
 }
