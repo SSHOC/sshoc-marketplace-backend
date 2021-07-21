@@ -1298,6 +1298,8 @@ public class DatasetControllerITCase {
         String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse, DatasetDto.class).getPersistentId();
 
+        String mergedLabel = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, DatasetDto.class).getLabel();
 
         mvc.perform(
                 get("/api/datasets/{id}/history", mergedPersistentId)
@@ -1305,7 +1307,16 @@ public class DatasetControllerITCase {
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(4)));
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].category", is("dataset")))
+                .andExpect(jsonPath("$[0].label", is(mergedLabel)))
+                .andExpect(jsonPath("$[0].persistentId", is(mergedPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(workflowId)))
+                .andExpect(jsonPath("$[1].category", is("workflow")))
+                .andExpect(jsonPath("$[2].persistentId", is(datasetId)))
+                .andExpect(jsonPath("$[2].category", is("dataset")))
+                .andExpect(jsonPath("$[3].persistentId", is(toolId)))
+                .andExpect(jsonPath("$[3].category", is("tool-or-service")));
 
     }
 
