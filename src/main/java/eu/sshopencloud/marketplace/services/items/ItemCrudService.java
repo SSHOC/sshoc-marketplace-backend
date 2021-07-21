@@ -20,7 +20,6 @@ import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
@@ -482,7 +481,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         List<ItemExtBasicDto> mergedItemHistoryList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
 
-        if(!item.getVersionedItem().getMergedWith().isEmpty()) {
+        if (!item.getVersionedItem().getMergedWith().isEmpty()) {
             mergedItemHistoryList.addAll(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId())));
             mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
 
