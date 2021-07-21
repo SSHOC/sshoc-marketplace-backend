@@ -129,11 +129,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         for (int i = 0; i < mergedCores.size(); i++) {
 
             VersionedItem versionedItem = versionedItemRepository.getOne(mergedCores.get(i));
-            I prevItem = (I) versionedItem.getCurrentVersion();
-            prevItem.setStatus(ItemStatus.DEPRECATED);
+            I currentItem = (I) versionedItem.getCurrentVersion();
+            I prevItem = currentItem;
+            currentItem.setStatus(ItemStatus.DEPRECATED);
             mergedItem.getVersionedItem().addMergedWith(versionedItemRepository.getOne(mergedCores.get(i)));
-            itemRepository.save(prevItem);
             versionedItemRepository.save(versionedItem);
+            currentItem.setPrevVersion(prevItem);
+            itemRepository.save(currentItem);
         }
 
         versionedItemRepository.save(mergedItem.getVersionedItem());
@@ -473,31 +475,21 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
 
-        if(!item.getVersionedItem().getMergedWith().isEmpty()) return getHistoryOfItemWithMergedWith(item);
-        else return getHistoryOfItem(item);
+        return getHistoryOfItemWithMergedWith(item);
     }
 
     private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item) {
-        List<ItemExtBasicDto> tmpList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
 
-        for(int i = 0 ;i < item.getVersionedItem().getMergedWith().size(); i++)
-        {
-            Long versionId = getLatestItem(item.getVersionedItem().getMergedWith().get(i).getPersistentId(), false, false).getId();
-            List<ItemExtBasicDto> mergedItemsList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getVersionedItem().getMergedWith().get(i).getPersistentId(), versionId));
-            mergedItemsList.forEach(v -> { if(tmpList.contains(v)) tmpList.add(v);});
+        List<ItemExtBasicDto> mergedItemHistoryList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+
+        if(!item.getVersionedItem().getMergedWith().isEmpty()) {
+            mergedItemHistoryList.addAll(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId())));
+            mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
+
         }
-
-        tmpList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
-
-        return tmpList;
+        return mergedItemHistoryList;
     }
 
-
-    private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        List<ItemExtBasicDto> historyList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
-       // historyList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
-        return historyList;
-    }
 
     protected List<UserDto> getInformationContributors(String itemId) {
         return userService.getInformationContributors(itemId);

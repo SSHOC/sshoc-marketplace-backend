@@ -52,6 +52,8 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
     )
     Optional<T> findLatestItem(@Param("persistentId") String persistentId);
 
+
+
     @Query(
             "select v from Item v " +
                     "join VersionedItem i on i.currentVersion = v " +

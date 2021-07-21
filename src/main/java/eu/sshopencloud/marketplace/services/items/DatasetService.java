@@ -141,9 +141,7 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     public List<ItemExtBasicDto> getDatasetVersions(String persistentId, boolean draft, boolean approved) {
-        List<ItemExtBasicDto> historyList = getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
-        historyList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
-        return historyList;
+        return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
     }
 
     public List<UserDto> getInformationContributors(String id) {
