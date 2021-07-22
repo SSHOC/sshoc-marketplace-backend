@@ -13,6 +13,7 @@ import org.springframework.validation.Errors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -29,7 +30,7 @@ public class PropertyFactory {
     public List<Property> create(List<PropertyCore> propertyCores, Item item, Errors errors, String nestedPath) {
         List<Property> properties = new ArrayList<>();
 
-        if (propertyCores != null) {
+        if (propertyCores != null && !Objects.isNull(propertyCores.get(0))) {
             for (int i = 0; i < propertyCores.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
                 PropertyCore propertyCore = propertyCores.get(i);
