@@ -156,10 +156,10 @@ public class TrainingMaterialService
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public TrainingMaterialDto merge(TrainingMaterialCore mergeTrainingMaterial, List<String> mergeCores) {
+    public TrainingMaterialDto merge(TrainingMaterialCore mergeTrainingMaterial, List<String> mergeList) {
 
         TrainingMaterial trainingMaterial = createItem(mergeTrainingMaterial, false);
-        trainingMaterial = mergeItem(trainingMaterial.getPersistentId(), mergeCores);
+        trainingMaterial = mergeItem(trainingMaterial.getPersistentId(), mergeList);
         return prepareItemDto(trainingMaterial);
     }
 

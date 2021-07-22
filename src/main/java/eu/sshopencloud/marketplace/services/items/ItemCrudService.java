@@ -493,8 +493,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         List<D> itemDtoList = new ArrayList<D>();
 
-        I finalItem = (I) versionedItemRepository.getOne(persistentId).getCurrentVersion();
-        D finalDto = convertToDto(finalItem);
+        I finalItem = loadLatestItem(persistentId);
+        D finalDto = convertItemToDto(finalItem);
 
         finalDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalItem));
         completeItemDto(finalDto, finalItem);

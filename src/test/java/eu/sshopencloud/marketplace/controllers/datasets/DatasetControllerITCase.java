@@ -1245,11 +1245,15 @@ public class DatasetControllerITCase {
 
 
         mvc.perform(
-                get("/api/datasets/{id}", datasetId)
+                get("/api/datasets/{id}?approved=false", datasetId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT)
         )
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
         
     }
 
