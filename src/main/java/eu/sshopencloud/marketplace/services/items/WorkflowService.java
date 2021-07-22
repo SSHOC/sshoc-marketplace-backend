@@ -267,9 +267,9 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeCores) {
+    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) {
         Workflow workflow = createItem(mergeWorkflow, false);
-        workflow = mergeItem(workflow.getPersistentId(), mergeCores);
+        workflow = mergeItem(workflow.getPersistentId(), mergeList);
         return prepareItemDto(workflow);
     }
 

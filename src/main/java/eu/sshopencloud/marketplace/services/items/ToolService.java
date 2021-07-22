@@ -148,10 +148,10 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public ToolDto merge(ToolCore mergeTool, List<String> mergeCores) {
+    public ToolDto merge(ToolCore mergeTool, List<String> mergeList) {
 
         Tool tool = createItem(mergeTool, false);
-        tool = mergeItem(tool.getPersistentId(), mergeCores);
+        tool = mergeItem(tool.getPersistentId(), mergeList);
         return prepareItemDto(tool);
     }
 

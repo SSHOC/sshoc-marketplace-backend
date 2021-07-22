@@ -6,11 +6,9 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
-import eu.sshopencloud.marketplace.dto.items.MergeCore;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
@@ -1820,22 +1818,21 @@ public class TrainingMaterialControllerITCase {
     @Test
     public void shouldGetMergeForTrainingMaterial() throws Exception {
 
-
-        String datasetId = "OdKfPc";
+        String trainingMaterialId = "heBAGQ";
         String workflowId = "tqmbGY";
         String toolId = "n21Kfc";
 
         mvc.perform(
-                get("/api/training-materials/{id}/merge", datasetId)
+                get("/api/training-materials/{id}/merge", trainingMaterialId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", workflowId, toolId)
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(datasetId)))
-                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Creation of a dictionary")));
 
     }
 
@@ -1843,39 +1840,38 @@ public class TrainingMaterialControllerITCase {
     @Test
     public void shouldMergeIntoTrainingMaterial() throws Exception {
 
-        String datasetId = "OdKfPc";
+        String trainingMaterialId = "heBAGQ";
         String workflowId = "tqmbGY";
         String toolId = "n21Kfc";
 
-        String response = mvc.perform(
-                get("/api/training-materials/{id}/merge", datasetId)
+        String response =  mvc.perform(
+                get("/api/training-materials/{id}/merge", trainingMaterialId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", workflowId, toolId)
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(datasetId)))
-                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")))
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Creation of a dictionary")))
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
                 post("/api/training-materials/merge")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", datasetId, workflowId, toolId)
+                        .param("with", trainingMaterialId, workflowId, toolId)
                         .content(response)
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", not(datasetId)))
+                .andExpect(jsonPath("persistentId", not(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
-
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Creation of a dictionary")));
 
         mvc.perform(
-                get("/api/datasets/{id}", datasetId)
+                get("/api/training-materials/{id}", trainingMaterialId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT)
         )

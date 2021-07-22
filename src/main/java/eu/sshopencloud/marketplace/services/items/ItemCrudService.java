@@ -23,7 +23,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -128,13 +131,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         for (int i = 0; i < mergedCores.size(); i++) {
 
             VersionedItem versionedItem = versionedItemRepository.getOne(mergedCores.get(i));
-            I currentItem = (I) versionedItem.getCurrentVersion();
-            I prevItem = currentItem;
-            currentItem.setStatus(ItemStatus.DEPRECATED);
-            mergedItem.getVersionedItem().addMergedWith(versionedItemRepository.getOne(mergedCores.get(i)));
+            I prevItem = (I) versionedItem.getCurrentVersion();
+            prevItem.setStatus(ItemStatus.DEPRECATED);
+            mergedItem.getVersionedItem().addMergedWith(versionedItem);
+            itemRepository.save(prevItem);
             versionedItemRepository.save(versionedItem);
-            currentItem.setPrevVersion(prevItem);
-            itemRepository.save(currentItem);
         }
 
         versionedItemRepository.save(mergedItem.getVersionedItem());
@@ -472,23 +473,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     )
             );
         }
-
-
-        return getHistoryOfItemWithMergedWith(item);
+        return getHistoryOfItem(item);
     }
 
-    private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item) {
 
-        List<ItemExtBasicDto> mergedItemHistoryList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
-
-        if (!item.getVersionedItem().getMergedWith().isEmpty()) {
-            mergedItemHistoryList.addAll(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId())));
-            mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
-
-        }
-        return mergedItemHistoryList;
+    private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
+        return ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
     }
-
 
     protected List<UserDto> getInformationContributors(String itemId) {
         return userService.getInformationContributors(itemId);
@@ -502,8 +493,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         List<D> itemDtoList = new ArrayList<D>();
 
-        I finalItem = (I) versionedItemRepository.getOne(persistentId).getCurrentVersion();
-        D finalDto = convertToDto(finalItem);
+        I finalItem = loadLatestItem(persistentId);
+        D finalDto = convertItemToDto(finalItem);
 
         finalDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalItem));
         completeItemDto(finalDto, finalItem);

@@ -44,10 +44,10 @@ public class VersionedItem {
 
 
     public void addMergedWith(VersionedItem versionedItem) {
-        if(Objects.isNull(mergedWith))mergedWith = new ArrayList<>();
+        if (Objects.isNull(mergedWith)) mergedWith = new ArrayList<>();
         versionedItem.setStatus(VersionedItemStatus.MERGED);
-        mergedWith.add(0,versionedItem);
-        versionedItem.setCurrentVersion(this.currentVersion);
+        mergedWith.add(0, versionedItem);
+        //versionedItem.setCurrentVersion(this.currentVersion);
     }
 
     public VersionedItem(String persistentId) {
