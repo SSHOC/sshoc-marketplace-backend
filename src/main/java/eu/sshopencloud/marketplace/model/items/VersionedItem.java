@@ -47,7 +47,7 @@ public class VersionedItem {
         if (Objects.isNull(mergedWith)) mergedWith = new ArrayList<>();
         versionedItem.setStatus(VersionedItemStatus.MERGED);
         mergedWith.add(0, versionedItem);
-        versionedItem.setCurrentVersion(this.currentVersion);
+        //versionedItem.setCurrentVersion(this.currentVersion);
     }
 
     public VersionedItem(String persistentId) {

@@ -133,7 +133,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             VersionedItem versionedItem = versionedItemRepository.getOne(mergedCores.get(i));
             I prevItem = (I) versionedItem.getCurrentVersion();
             prevItem.setStatus(ItemStatus.DEPRECATED);
-            mergedItem.getVersionedItem().addMergedWith(versionedItemRepository.getOne(mergedCores.get(i)));
+            mergedItem.getVersionedItem().addMergedWith(versionedItem);
             itemRepository.save(prevItem);
             versionedItemRepository.save(versionedItem);
         }

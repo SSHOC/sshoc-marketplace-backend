@@ -1252,9 +1252,7 @@ public class DatasetControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
-                .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
-        
+                .andExpect(jsonPath("status", is("deprecated")));
     }
 
 }
