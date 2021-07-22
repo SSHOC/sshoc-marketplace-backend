@@ -70,7 +70,7 @@ public class SourceFactory {
         // explicit source has priority
         if (sourceId != null) {
             if (sourceId.getId() == null) {
-                errors.rejectValue("code", "field.required", "Source id is required.");
+                errors.rejectValue("id", "field.required", "Source id is required.");
                 return null;
             }
             Optional<Source> sourceHolder = sourceRepository.findById(sourceId.getId());
