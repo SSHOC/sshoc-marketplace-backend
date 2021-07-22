@@ -71,9 +71,9 @@ public class ToolController {
         toolService.deleteTool(id, draft);
     }
 
-    @PostMapping(path = "/{toolId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> publishTool(@PathVariable("toolId") String toolId) {
-        ToolDto tool = toolService.commitDraftTool(toolId);
+    @PostMapping(path = "/{id}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> publishTool(@PathVariable("id") String id) {
+        ToolDto tool = toolService.commitDraftTool(id);
         return ResponseEntity.ok(tool);
     }
 
@@ -104,8 +104,8 @@ public class ToolController {
 
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> merge(@RequestParam List<String> with,
-                                         @RequestBody ToolCore mergePublication) {
-        return ResponseEntity.ok(toolService.merge(mergePublication, with));
+                                         @RequestBody ToolCore mergeTool) {
+        return ResponseEntity.ok(toolService.merge(mergeTool, with));
     }
 
 }

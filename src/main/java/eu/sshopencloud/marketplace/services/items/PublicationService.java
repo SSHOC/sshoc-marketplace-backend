@@ -149,10 +149,10 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public PublicationDto merge(PublicationCore mergePublication, List<String> mergeCores) {
+    public PublicationDto merge(PublicationCore mergePublication, List<String> mergeList) {
 
         Publication publication = createItem(mergePublication, false);
-        publication = mergeItem(publication.getPersistentId(), mergeCores);
+        publication = mergeItem(publication.getPersistentId(), mergeList);
 
         return prepareItemDto(publication);
     }
