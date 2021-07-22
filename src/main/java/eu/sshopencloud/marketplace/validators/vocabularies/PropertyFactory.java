@@ -30,7 +30,7 @@ public class PropertyFactory {
     public List<Property> create(List<PropertyCore> propertyCores, Item item, Errors errors, String nestedPath) {
         List<Property> properties = new ArrayList<>();
 
-        if (propertyCores != null && !Objects.isNull(propertyCores.get(0))) {
+        if (propertyCores != null && !propertyCores.isEmpty()) {
             for (int i = 0; i < propertyCores.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
                 PropertyCore propertyCore = propertyCores.get(i);

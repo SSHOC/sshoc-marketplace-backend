@@ -87,7 +87,7 @@ public class ItemRelatedItemService {
         Map<String, Item> relatedVersions = new HashMap<>();
         Map<Long, ItemRelation> savedRelations = new HashMap<>();
 
-        if (relatedItems == null || Objects.isNull(relatedItems.get(0)))
+        if (relatedItems == null || relatedItems.isEmpty())
             relatedItems = new ArrayList<>();
 
         List<RelatedItemDto> prevRelations = (prevItem != null) ? getRelatedItems(prevItem.getId()) : new ArrayList<>();
@@ -168,7 +168,7 @@ public class ItemRelatedItemService {
     }
 
     private void validateNewRelatedItems(List<RelatedItemCore> relatedItems) {
-        if (relatedItems == null || Objects.isNull(relatedItems.get(0)))
+        if (relatedItems == null || relatedItems.isEmpty())
             return;
 
         Set<String> relatedPersistentIds = new HashSet<>();
