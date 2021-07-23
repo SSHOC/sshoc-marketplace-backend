@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
@@ -147,7 +148,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             }
 
             @Override
-            public void onBackToParent() {}
+            public void onBackToParent() {
+            }
         });
 
         deleteItem(persistentId, draft);
@@ -235,6 +237,15 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     @Override
+    protected WorkflowDto convertToDto(Item item) {
+        //here
+        WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
+        //collectSteps(dto, (Workflow) item);
+        return dto;
+    }
+
+
+    @Override
     protected String getItemTypeName() {
         return Workflow.class.getName();
     }
@@ -251,6 +262,16 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return super.getInformationContributors(id, versionId);
     }
 
+
+    public WorkflowDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) {
+        Workflow workflow = createItem(mergeWorkflow, false);
+        workflow = mergeItem(workflow.getPersistentId(), mergeList);
+        return prepareItemDto(workflow);
+    }
 
 
 }
