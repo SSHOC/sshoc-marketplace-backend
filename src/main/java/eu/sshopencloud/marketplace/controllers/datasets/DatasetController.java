@@ -82,7 +82,6 @@ public class DatasetController {
     public ResponseEntity<List<ItemExtBasicDto>> getDatasetHistory(@PathVariable("id") String id,
                                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
-
         return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));
     }
 
@@ -96,6 +95,19 @@ public class DatasetController {
     public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
 
         return ResponseEntity.ok(datasetService.getInformationContributors(id, versionId));
+    }
+
+
+    @GetMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getMerge(@PathVariable("id") String id,
+                                               @RequestParam List<String> with) {
+        return ResponseEntity.ok(datasetService.getMerge(id, with));
+    }
+
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> merge(@RequestParam List<String> with,
+                                            @RequestBody DatasetCore mergeDataset) {
+        return ResponseEntity.ok(datasetService.merge(mergeDataset, with));
     }
 
 

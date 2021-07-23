@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -59,6 +58,7 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
                     "and i.active = true"
     )
     Optional<T> findCurrentVersion(@Param("persistentId") String persistentId);
+
 
     @Query(
             "select v from #{#entityName} v " +

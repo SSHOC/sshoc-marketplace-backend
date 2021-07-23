@@ -11,7 +11,6 @@ import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.conf.datetime.ZonedDateTimeDeserializer;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
@@ -81,8 +80,6 @@ public class PublicationControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
-
-
 
     @Test
     public void shouldReturnPublicationsAndTheProposedOnes() throws Exception {
@@ -635,7 +632,6 @@ public class PublicationControllerITCase {
     }
 
 
-
     @Test
     public void shouldReturnPublicationInformationContributors() throws Exception {
 
@@ -747,8 +743,5 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("$[1].email", is("contributor@example.com")))
                 .andExpect(jsonPath("$[1].config", is(true)));
     }
-
-
-
 
 }
