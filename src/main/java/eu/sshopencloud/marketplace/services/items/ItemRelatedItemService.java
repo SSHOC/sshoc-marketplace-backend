@@ -35,7 +35,6 @@ public class ItemRelatedItemService {
     private final RelatedItemsConverter relatedItemsConverter;
 
 
-    //here
     public List<RelatedItemDto> getItemRelatedItems(Item item) {
         long itemId = item.getId();
 
@@ -48,7 +47,6 @@ public class ItemRelatedItemService {
     private List<RelatedItemDto> getRelatedItems(long itemId) {
         List<RelatedItemDto> relatedItems = new ArrayList<>();
 
-        //here
         List<RelatedItemDto> subjectRelations = itemRelatedItemRepository.findAllBySubjectId(itemId).stream()
                 .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getObject()))
                 .map(relatedItemsConverter::convertRelatedItemFromSubject)
