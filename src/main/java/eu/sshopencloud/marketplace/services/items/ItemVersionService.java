@@ -79,6 +79,7 @@ abstract class ItemVersionService<I extends Item> {
                 );
     }
 
+
     protected I loadLatestItemForCurrentUser(String persistentId, boolean authorize) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
 
@@ -139,6 +140,7 @@ abstract class ItemVersionService<I extends Item> {
         return resolveItemDraftForCurrentUser(persistentId)
                 .orElseGet(() -> loadCurrentItem(persistentId));
     }
+
 
     protected I loadDraftOrLatestItemForCurrentUser(String persistentId) {
         return resolveItemDraftForCurrentUser(persistentId)

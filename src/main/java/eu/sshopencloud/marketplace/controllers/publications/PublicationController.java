@@ -95,8 +95,18 @@ public class PublicationController {
     @GetMapping(path = "/{id}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(publicationService.getInformationContributors(id,versionId));
+        return ResponseEntity.ok(publicationService.getInformationContributors(id, versionId));
     }
 
+    @GetMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> getMerge(@PathVariable("id") String id,
+                                                   @RequestParam List<String> with) {
+        return ResponseEntity.ok(publicationService.getMerge(id, with));
+    }
 
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> merge(@RequestParam List<String> with,
+                                                @RequestBody PublicationCore mergePublication) {
+        return ResponseEntity.ok(publicationService.merge(mergePublication, with));
+    }
 }

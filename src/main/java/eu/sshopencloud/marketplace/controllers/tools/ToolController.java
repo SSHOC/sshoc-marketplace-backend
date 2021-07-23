@@ -96,4 +96,16 @@ public class ToolController {
         return ResponseEntity.ok(toolService.getInformationContributors(id, versionId));
     }
 
+    @GetMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> getMerge(@PathVariable("id") String id,
+                                            @RequestParam List<String> with) {
+        return ResponseEntity.ok(toolService.getMerge(id, with));
+    }
+
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> merge(@RequestParam List<String> with,
+                                         @RequestBody ToolCore mergeTool) {
+        return ResponseEntity.ok(toolService.merge(mergeTool, with));
+    }
+
 }

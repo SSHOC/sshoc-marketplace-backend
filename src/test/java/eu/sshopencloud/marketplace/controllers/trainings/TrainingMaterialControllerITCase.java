@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
@@ -1731,6 +1730,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
     }
 
+
     @Test
     public void shouldReturnTrainingMaterialInformationContributors() throws Exception {
 
@@ -1814,4 +1814,69 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[0].config", is(true)));
 
     }
+
+    @Test
+    public void shouldGetMergeForTrainingMaterial() throws Exception {
+
+        String trainingMaterialId = "heBAGQ";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        mvc.perform(
+                get("/api/training-materials/{id}/merge", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Creation of a dictionary")));
+
+    }
+
+
+    @Test
+    public void shouldMergeIntoTrainingMaterial() throws Exception {
+
+        String trainingMaterialId = "heBAGQ";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        String response =  mvc.perform(
+                get("/api/training-materials/{id}/merge", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                post("/api/training-materials/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", trainingMaterialId, workflowId, toolId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Creation of a dictionary")));
+
+        mvc.perform(
+                get("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+    }
+
 }
