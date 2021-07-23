@@ -51,6 +51,9 @@ public class Vocabulary {
     @Column
     private String accessibleAt;
 
+    @Column(nullable = false)
+    private String namespace;
+
     @OneToMany(mappedBy = "vocabulary", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
     @OrderBy("ord")
     private List<Concept> concepts;

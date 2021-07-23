@@ -55,3 +55,36 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   constraints:
                     nullable: false
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-5
+      author: mkozak
+      description: Add columns for namespace of the vocabulary
+      changes:
+        - addColumn:
+            tableName: vocabularies
+            columns:
+              - column:
+                  name: namespace
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-6
+      author: mkozak
+      description: Update namespace for vocabularies
+      changes:
+        - sql:
+            sql: >
+              update vocabularies vv set namespace = (select substring(c.uri, 1, length(c.uri) - length(c.code)) as namespace from concepts c inner join vocabularies v on c.vocabulary_code = v.code where v.code = vv.code limit 1)
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-7
+      author: mkozak
+      description: Make namespace uniqiue and not nullable
+      changes:
+        - addNotNullConstraint:
+            tableName: vocabularies
+            columnName: namespace
+        - addUniqueConstraint:
+            tableName: vocabularies
+            columnNames: namespace

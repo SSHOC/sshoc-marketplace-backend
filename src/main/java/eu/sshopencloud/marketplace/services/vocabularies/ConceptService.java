@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.vocabularies.ConceptBasicCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
@@ -10,6 +9,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptDetachingRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
+import eu.sshopencloud.marketplace.validators.vocabularies.ConceptFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class ConceptService {
 
     private final ConceptRepository conceptRepository;
+    private final ConceptFactory conceptFactory;
     private final ConceptRelatedConceptRepository conceptRelatedConceptRepository;
     private final ConceptRelatedConceptDetachingRepository conceptRelatedConceptDetachingRepository;
     private final ConceptRelatedConceptService conceptRelatedConceptService;
@@ -74,20 +75,24 @@ public class ConceptService {
     }
 
     public ConceptDto createConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) {
+        Optional<Concept> conceptHolder = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(conceptCore.getCode()).vocabulary(vocabularyCode).build());
+        if (conceptHolder.isPresent()) {
 
-        // TODOD
+        }
+        Concept concept = conceptFactory.create(conceptCore, vocabularyCode, candidate, null);
+        // TODO
         return null;
     }
 
     public ConceptDto updateConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) {
 
-        // TODOD
+        // TODO
         return null;
     }
 
     public ConceptDto commitConcept(String code, String vocabularyCode) {
 
-        // TODOD
+        // TODO
         return null;
     }
 

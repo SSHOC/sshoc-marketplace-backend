@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class ConceptCore extends ConceptBasicDto {
+public class ConceptCore extends ConceptBasicCore {
 
     private List<RelatedConceptCore> relatedConcepts;
 
