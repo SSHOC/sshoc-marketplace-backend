@@ -621,7 +621,7 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
 
-        //HERE
+
         mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
