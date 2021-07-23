@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0046-SSHOC_97-versioned_item_list-1
+      description: adding column with list of merged versioned items to versioned items table
+      author: ekalata
+      changes:
+        - addColumn:
+            tableName: versioned_items
+            columns:
+              - column:
+                  name: merged_with_id
+                  type: varchar(128)
+                  constraints:
+                    nullable: true
+                    foreignKeyName: merged_with_id_fk
+                    references: versioned_items(id)
+
+

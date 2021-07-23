@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.mappers.tools;
 
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,4 +19,6 @@ public interface ToolMapper {
 
     List<ToolDto> toDto(List<Tool> tools);
 
+    @Mapping(source = "versionedItem.persistentId", target = "persistentId")
+    ToolDto toDto(Item item);
 }
