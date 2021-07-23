@@ -328,7 +328,12 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     public StepDto merge(String workflowId, StepCore mergeStepCore, List<String> mergeList) {
-        StepDto step = createStep(workflowId, mergeStepCore, false);
-        return prepareItemDto(mergeItem(step.getPersistentId(), mergeList));
+        StepDto stepDto = createStep(workflowId, mergeStepCore, false);
+
+        //Step step = mergeItem(stepDto.getPersistentId(), mergeList);
+
+        //stepDto = updateStep(workflowId, stepDto.getPersistentId(), mergeStepCore,false);
+
+        return prepareItemDto(mergeItem(stepDto.getPersistentId(), mergeList));
     }
 }
