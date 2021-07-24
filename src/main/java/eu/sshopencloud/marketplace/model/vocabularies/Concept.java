@@ -55,4 +55,8 @@ public class Concept {
     @Column(nullable = false, unique = true, length = 2048)
     private String uri;
 
+    @Basic
+    @Column(nullable = false)
+    private boolean candidate;
+
 }

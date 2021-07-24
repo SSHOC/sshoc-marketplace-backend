@@ -2,14 +2,14 @@ package eu.sshopencloud.marketplace.dto.vocabularies;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
-public class RelatedConceptDto {
+public class ConceptBasicCore {
 
     private String code;
-
-    private VocabularyBasicDto vocabulary;
 
     private String label;
 
@@ -18,9 +18,5 @@ public class RelatedConceptDto {
     private String definition;
 
     private String uri;
-
-    private ConceptRelationDto relation;
-
-    private boolean candidate;
 
 }

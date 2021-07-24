@@ -31,6 +31,7 @@ public class ConceptConverter {
         relatedConcept.setDefinition(concept.getDefinition());
         relatedConcept.setUri(concept.getUri());
         relatedConcept.setVocabulary(vocabulary);
+        relatedConcept.setCandidate(concept.isCandidate());
         return relatedConcept;
     }
 
