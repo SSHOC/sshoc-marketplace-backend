@@ -33,10 +33,9 @@ public class ConceptController {
     @PutMapping(path = "/{vocabulary-code}/concepts/{code}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ConceptDto> updateConcept(@RequestBody ConceptCore updatedConcept,
                                                     @PathVariable("vocabulary-code") String vocabularyCode,
-                                                    @PathVariable("code") String code,
-                                                    @RequestParam(value = "candidate", defaultValue = "true") boolean candidate) {
+                                                    @PathVariable("code") String code) {
 
-        return ResponseEntity.ok(conceptService.updateConcept(code, updatedConcept, vocabularyCode, candidate));
+        return ResponseEntity.ok(conceptService.updateConcept(code, updatedConcept, vocabularyCode));
     }
 
     @PutMapping(path = "/{vocabulary-code}/concepts/{code}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
