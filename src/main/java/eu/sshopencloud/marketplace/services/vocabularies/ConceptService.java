@@ -9,6 +9,8 @@ import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptDetachingRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
 import eu.sshopencloud.marketplace.validators.vocabularies.ConceptFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 public class ConceptService {
 
     private final ConceptRepository conceptRepository;
+    private final VocabularyRepository vocabularyRepository;
     private final ConceptFactory conceptFactory;
     private final ConceptRelatedConceptRepository conceptRelatedConceptRepository;
     private final ConceptRelatedConceptDetachingRepository conceptRelatedConceptDetachingRepository;
@@ -74,17 +77,30 @@ public class ConceptService {
         return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
 
-    public ConceptDto createConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) {
-        Optional<Concept> conceptHolder = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(conceptCore.getCode()).vocabulary(vocabularyCode).build());
+    public ConceptDto createConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) throws ConceptAlreadyExistsException {
+        Vocabulary vocabulary = loadVocabulary(vocabularyCode);
+        String code = conceptFactory.resolveCode(conceptCore, vocabulary);
+        Optional<Concept> conceptHolder = conceptRepository.findById(
+                eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build());
         if (conceptHolder.isPresent()) {
-
+            throw new ConceptAlreadyExistsException(code, vocabularyCode);
         }
-        Concept concept = conceptFactory.create(conceptCore, vocabularyCode, candidate, null);
-        // TODO
-        return null;
+        conceptCore.setCode(code);
+        Concept concept = conceptFactory.create(conceptCore, vocabulary, candidate, null);
+
+        // TODO relations to other concepts
+
+        concept = conceptRepository.save(concept);
+
+        ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
+        return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
 
-    public ConceptDto updateConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) {
+    public ConceptDto updateConcept(String code, ConceptCore conceptCore, String vocabularyCode, boolean candidate) {
+        Vocabulary vocabulary = loadVocabulary(vocabularyCode);
+        if (!conceptRepository.existsById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build())) {
+            throw new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode);
+        }
 
         // TODO
         return null;
@@ -96,15 +112,32 @@ public class ConceptService {
         return null;
     }
 
+    public Vocabulary loadVocabulary(String vocabularyCode) {
+        return vocabularyRepository.findById(vocabularyCode)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + vocabularyCode));
+    }
+
+/*    public Concept loadConcept(String propertyTypeCode) {
+        String notFoundMessage = String.format("Property type with code = '%s' not found", propertyTypeCode);
+        PropertyType propertyType = propertyTypeRepository.findById(propertyTypeCode)
+                .orElseThrow(() -> new EntityNotFoundException(notFoundMessage));
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (propertyType.isHidden() && (currentUser == null || !currentUser.isModerator()))
+            throw new EntityNotFoundException(notFoundMessage);
+
+        return propertyType;
+    }*/
+
     public List<Concept> getRelatedConceptsOfConcept(Concept concept, ConceptRelation relation) {
         List<Concept> result = new ArrayList<>();
         List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectAndRelation(concept, relation);
-        for (ConceptRelatedConcept subjectRelatedConcept: subjectRelatedConcepts) {
+        for (ConceptRelatedConcept subjectRelatedConcept : subjectRelatedConcepts) {
             conceptRelatedConceptDetachingRepository.detach(subjectRelatedConcept);
             result.add(subjectRelatedConcept.getObject());
         }
         List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findByObjectAndRelation(concept, relation.getInverseOf());
-        for (ConceptRelatedConcept objectRelatedConcept: objectRelatedConcepts) {
+        for (ConceptRelatedConcept objectRelatedConcept : objectRelatedConcepts) {
             conceptRelatedConceptDetachingRepository.detach(objectRelatedConcept);
             result.add(objectRelatedConcept.getSubject());
         }
