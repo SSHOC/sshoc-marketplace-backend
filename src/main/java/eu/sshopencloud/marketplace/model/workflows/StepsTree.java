@@ -109,6 +109,17 @@ public class StepsTree {
         removePreviousStep(step);
     }
 
+    public void replaceStep(Step step, int stepNo, Step replacedStep) {
+        if (isInvalidStepNo(stepNo))
+            throw new IndexOutOfBoundsException(String.format("Invalid step number: %d/%d", stepNo, subTrees.size() + 1));
+
+        int stepOrd = resolveOrd(stepNo);
+        StepsTree subtree = newAddedTree(step);
+        subTrees.add(stepOrd, subtree);
+
+        removeStep(replacedStep);
+    }
+
     private StepsTree newAddedTree(Step step) {
         return locateSubStep(step)
                 .map(stepTree -> {

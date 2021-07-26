@@ -148,6 +148,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         else return false;
     }
 
+    protected boolean checkIfWorkflow(String itemPersistentId) {
+        VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
+        I prevItem = (I) versionedItem.getCurrentVersion();
+        if (prevItem.getCategory().equals(ItemCategory.WORKFLOW)) return true;
+        else return false;
+    }
+
     protected I updateItem(String persistentId, C itemCore, boolean draft) {
         I item = loadItemForCurrentUser(persistentId);
         return createOrUpdateItemVersion(itemCore, item, draft);
