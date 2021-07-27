@@ -41,4 +41,8 @@ public class Workflow extends Item {
 
         return stepsTree;
     }
+
+    public int getSize(){
+        return allSteps.size();
+    }
 }

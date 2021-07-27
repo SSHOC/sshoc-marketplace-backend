@@ -135,7 +135,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
 
-    private void addStepToTree(Step step, Integer stepNo, StepsTree parentStepsTree) {
+    protected void addStepToTree(Step step, Integer stepNo, StepsTree parentStepsTree) {
         if (stepNo == null) {
             parentStepsTree.appendStep(step);
         } else {

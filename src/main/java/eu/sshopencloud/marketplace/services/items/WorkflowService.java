@@ -30,10 +30,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -98,6 +96,35 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             }
         });
 
+
+        dto.setComposedOf(rootSteps);
+    }
+
+    private void collectMergedSteps(WorkflowDto dto, Workflow workflow) {
+        StepsTree tree = workflow.gatherSteps();
+        Stack<StepDto> nestedSteps = new Stack<>();
+        List<StepDto> rootSteps = new ArrayList<>();
+
+        tree.visit(new StepsTreeVisitor() {
+            @Override
+            public void onNextStep(StepsTree stepTree) {
+                Step step = stepTree.getStep();
+                StepDto stepDto = stepService.prepareItemDto(step);
+                List<StepDto> childCollection = (nestedSteps.empty()) ? rootSteps : nestedSteps.peek().getComposedOf();
+
+                childCollection.add(stepDto);
+                nestedSteps.push(stepDto);
+            }
+
+            @Override
+            public void onBackToParent() {
+                nestedSteps.pop();
+            }
+        });
+
+        rootSteps.addAll(dto.getComposedOf());
+        commitSteps(tree);
+        //dto.getComposedOf().addAll(rootSteps);
         dto.setComposedOf(rootSteps);
     }
 
@@ -238,10 +265,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertToDto(Item item) {
-        //here
-        WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
-        //collectSteps(dto, (Workflow) item);
-        return dto;
+        return WorkflowMapper.INSTANCE.toDto(item);
     }
 
 
@@ -267,10 +291,55 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return prepareMergeItems(persistentId, mergeList);
     }
 
+    public void collectStepsFromMergedWorkflows(Workflow workflow, List<String> workflowList) {
+
+        for (int i = 0; i < workflowList.size(); i++) {
+            Workflow workflowTmp = loadCurrentItem(workflowList.get(i));
+            if (!workflowTmp.getAllSteps().isEmpty())
+                collectTrees(workflow.getStepsTree(), workflowTmp.getAllSteps());
+        }
+
+    }
+
+    public void collectTrees(StepsTree parent, List<StepsTree> stepsTrees) {
+        StepsTree s;
+        for (int i = 0; i < stepsTrees.size(); i++) {
+            s = stepsTrees.get(i);
+            if (!s.isRoot() && !Objects.isNull(s) && !Objects.isNull(s.getId()))
+                if (s.getSubTrees().size() > 0) {
+                    stepService.addStepToTree(s.getStep(), null, parent);
+                    //Step step = s.getStep();
+                    //List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
+                    //StepsTree nextParent = nextParentList.get(0);
+                    i = i + s.getSubTrees().size();
+                    StepsTree nextParent2 = parent.getSubTrees().get(parent.getSubTrees().size() - 1);
+                    collectTrees(nextParent2, s.getSubTrees());
+                } else {
+                    stepService.addStepToTree(s.getStep(), null, parent);
+                }
+        }
+    }
+
     public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) {
         Workflow workflow = createItem(mergeWorkflow, false);
         workflow = mergeItem(workflow.getPersistentId(), mergeList);
-        return prepareItemDto(workflow);
+
+        WorkflowDto workflowDto = prepareItemDto(workflow);
+
+        collectStepsFromMergedWorkflows(workflow, findAllWorkflows(mergeList));
+
+        commitSteps(workflow.getStepsTree());
+
+        collectSteps(workflowDto,workflow);
+
+        return workflowDto;
+    }
+
+    public List<String> findAllWorkflows(List<String> mergeList) {
+        List<String> mergeWorkflowsList = new ArrayList<>();
+        for (int i = 0; i < mergeList.size(); i++)
+            if (checkIfWorkflow(mergeList.get(i))) mergeWorkflowsList.add(mergeList.get(i));
+        return mergeWorkflowsList;
     }
 
 

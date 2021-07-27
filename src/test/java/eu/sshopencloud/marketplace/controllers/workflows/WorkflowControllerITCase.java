@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -2271,8 +2272,86 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].id", not(21)))
                 .andExpect(jsonPath("$[1].id", is(21)));
 
-
-
     }
 
+    @Test
+    public void shouldMergeDifferentWorkflowsWithStepCollection() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowOneId = "tqmbGY";
+        String workflowTwoId = "vHQEhe";
+        String toolId = "n21Kfc";
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", workflowOneId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("composedOf", hasSize(4)));
+
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", workflowTwoId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("composedOf", hasSize(3)));
+
+        String response = mvc.perform(
+                get("/api/workflows/{id}/merge", workflowOneId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", datasetId, toolId,workflowTwoId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowOneId)))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi/Evaluation of an inflectional analyzer")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse = mvc.perform(
+                post("/api/workflows/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowOneId, datasetId, toolId,workflowTwoId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(workflowOneId)))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi/Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("composedOf", hasSize(7)))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(4)))
+                .andReturn().getResponse().getContentAsString();
+
+
+        String mergedWorkflowPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, WorkflowDto.class).getPersistentId();
+
+        String mergedWorkflowLabel = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, WorkflowDto.class).getLabel();
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", mergedWorkflowPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("label", is(mergedWorkflowLabel)))
+                .andExpect(jsonPath("composedOf", hasSize(7)))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(4)));
+
+    }
 }
