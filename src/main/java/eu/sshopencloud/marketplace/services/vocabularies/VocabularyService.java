@@ -13,7 +13,6 @@ import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
-import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyDoesNotExistException;
 import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -99,7 +98,7 @@ public class VocabularyService {
     }
 
     public VocabularyBasicDto updateUploadedVocabulary(String vocabularyCode, MultipartFile vocabularyFile, boolean forceUpdate)
-            throws IOException, VocabularyDoesNotExistException {
+            throws IOException {
 
         String fileVocabularyCode = FilenameUtils.getBaseName(vocabularyFile.getOriginalFilename());
 
@@ -125,10 +124,10 @@ public class VocabularyService {
     }
 
     public Vocabulary updateVocabulary(String vocabularyCode, InputStream turtleInputStream, boolean forceUpdate)
-            throws VocabularyDoesNotExistException, IOException, RDFParseException, UnsupportedRDFormatException {
+            throws IOException, RDFParseException, UnsupportedRDFormatException {
 
         Vocabulary oldVocabulary = vocabularyRepository.findById(vocabularyCode)
-                .orElseThrow(() -> new VocabularyDoesNotExistException(vocabularyCode));
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + vocabularyCode));
 
         List<Concept> oldConcepts = new ArrayList<>(oldVocabulary.getConcepts());
         Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream);
@@ -159,9 +158,9 @@ public class VocabularyService {
                 .collect(Collectors.toList());
     }
 
-    public void removeVocabulary(String vocabularyCode, boolean forceRemove) throws VocabularyDoesNotExistException {
+    public void removeVocabulary(String vocabularyCode, boolean forceRemove) {
         Vocabulary vocabulary = vocabularyRepository.findById(vocabularyCode)
-                .orElseThrow(() -> new VocabularyDoesNotExistException(vocabularyCode));
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + vocabularyCode));
 
         if (!forceRemove && propertyService.existPropertiesFromVocabulary(vocabularyCode)) {
             throw new IllegalArgumentException(
@@ -191,6 +190,7 @@ public class VocabularyService {
 
         Vocabulary vocabulary = RDFModelParser.createVocabulary(vocabularyCode, rdfModel);
 
+        // TODO change possible candidate concepts and relations to the proper one
         Map<String, Concept> conceptMap = RDFModelParser.createConcepts(rdfModel, vocabulary);
         vocabulary.setConcepts(new ArrayList<>(conceptMap.values()));
 

@@ -2,11 +2,9 @@ package eu.sshopencloud.marketplace.validators.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
@@ -19,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PropertyFactory {
 
-    private final ConceptFactory conceptFactory;
+    private final ConceptPropertyFactory conceptPropertyFactory;
     private final PropertyTypeFactory propertyTypeFactory;
     private final PropertyTypeService propertyTypeService;
 
@@ -74,7 +72,7 @@ public class PropertyFactory {
                 errors.rejectValue("concept", "field.required", "Property concept is required.");
             } else {
                 errors.pushNestedPath("concept");
-                Concept concept = conceptFactory.create(propertyCore.getConcept(), propertyType, allowedVocabularies, errors);
+                Concept concept = conceptPropertyFactory.create(propertyCore.getConcept(), propertyType, allowedVocabularies, errors);
                 if (concept != null) {
                     property.setConcept(concept);
                 }
