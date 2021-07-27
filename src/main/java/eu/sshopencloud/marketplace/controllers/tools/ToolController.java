@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.tools;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
@@ -106,6 +107,12 @@ public class ToolController {
     public ResponseEntity<ToolDto> merge(@RequestParam List<String> with,
                                          @RequestBody ToolCore mergeTool) {
         return ResponseEntity.ok(toolService.merge(mergeTool, with));
+    }
+
+    @GetMapping(path = "/{id}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("id") String id) {
+
+        return ResponseEntity.ok(toolService.getSources(id));
     }
 
 }

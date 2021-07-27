@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
@@ -20,6 +21,7 @@ import eu.sshopencloud.marketplace.repositories.items.workflow.StepRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepsTreeRepository;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -50,11 +52,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
                        ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Step> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                        PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                       MediaStorageService mediaStorageService) {
+                       MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.stepRepository = stepRepository;
@@ -361,7 +363,6 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return super.getInformationContributors(stepId, versionId);
     }
 
-
     public StepDto getMerge(String persistentId, List<String> mergeList) {
         List<String> tmpMergingList = new ArrayList<>(mergeList);
         tmpMergingList.add(persistentId);
@@ -422,5 +423,10 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         for (int i = 0; i < mergeList.size(); i++)
             if (checkIfStep(mergeList.get(i))) mergeStepsList.add(mergeList.get(i));
         return mergeStepsList;
+    }
+
+    public List<SourceDto> getSources(String workflowId, String stepId) {
+        validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
+        return super.getAllSources(stepId);
     }
 }

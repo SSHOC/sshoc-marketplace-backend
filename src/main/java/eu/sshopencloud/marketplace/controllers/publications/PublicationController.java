@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.PublicationService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
@@ -108,5 +109,11 @@ public class PublicationController {
     public ResponseEntity<PublicationDto> merge(@RequestParam List<String> with,
                                                 @RequestBody PublicationCore mergePublication) {
         return ResponseEntity.ok(publicationService.merge(mergePublication, with));
+    }
+
+    @GetMapping(path = "/{id}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("id") String id) {
+
+        return ResponseEntity.ok(publicationService.getSources(id));
     }
 }

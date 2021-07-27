@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.workflows;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.services.items.StepService;
 import eu.sshopencloud.marketplace.services.items.WorkflowService;
@@ -215,6 +216,18 @@ public class WorkflowController {
                                               @RequestParam List<String> with,
                                               @RequestBody StepCore mergeStep) {
         return ResponseEntity.ok(stepService.merge(workflowId, mergeStep, with));
+    }
+
+    @GetMapping(path = "/{id}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("id") String id) {
+
+        return ResponseEntity.ok(workflowService.getSources(id));
+    }
+
+    @GetMapping(path = "/{workflowId}/steps/{id}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getStepSources(@PathVariable("workflowId") String workflowId,
+                                                          @PathVariable("id") String id) {
+        return ResponseEntity.ok(stepService.getSources(workflowId, id));
     }
 
 }

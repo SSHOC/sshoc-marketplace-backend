@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
@@ -108,6 +109,12 @@ public class DatasetController {
     public ResponseEntity<DatasetDto> merge(@RequestParam List<String> with,
                                             @RequestBody DatasetCore mergeDataset) {
         return ResponseEntity.ok(datasetService.merge(mergeDataset, with));
+    }
+
+    @GetMapping(path = "/{id}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("id") String id) {
+
+        return ResponseEntity.ok(datasetService.getSources(id));
     }
 
 
