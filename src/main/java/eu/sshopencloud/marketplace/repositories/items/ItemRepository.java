@@ -37,7 +37,7 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
                     "    s.persistent_id, s.proposed_version, s.info_contributor_id, s.last_info_update AS date_created, s.clazz_" +
                     "    FROM sub_tree s", nativeQuery = true
     )
-    List<Item> findInformationContributorsForVersion(@Param("versionId") Long versionId);
+    List<Item> findInformationContributorsForVersion(@Param("versionId" ) Long versionId);
 
 
     @Query(value =
@@ -47,6 +47,6 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
                     "  FROM items i1 INNER JOIN versioned_items v ON i1.persistent_id = v.id" +
                     "  WHERE v.merged_with_id = :persistentId", nativeQuery = true
     )
-    List<Item> findMergedItemsHistory(@Param("persistentId") String persistentId);
+    List<Item> findMergedItemsHistory(@Param("persistentId" ) String persistentId);
 
 }
