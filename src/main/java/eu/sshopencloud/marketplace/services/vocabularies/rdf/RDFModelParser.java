@@ -119,7 +119,7 @@ public class RDFModelParser {
                 .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
                 .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT_SCHEME))
                 .findFirst();
-        String scheme = schemeStatement.isPresent() ? schemeStatement.get().getSubject().stringValue() : null;
+        String scheme = schemeStatement.map(value -> value.getSubject().stringValue()).orElse(null);
         if (scheme != null) {
             rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(scheme))
@@ -149,19 +149,38 @@ public class RDFModelParser {
                 vocabulary.setDescription(vocabulary.getDescriptions().values().iterator().next());
             }
         }
+        vocabulary.setNamespace(extractNamespaceUri(rdfModel));
         return vocabulary;
     }
 
-    private Concept createConcept(Statement statement, Vocabulary vocabulary, Set<Namespace> namespaces) {
-        String conceptUri = statement.getSubject().stringValue();
+    private String extractNamespaceUri(Model rdfModel) {
         String namespaceUri = "";
-        for (Namespace namespace: namespaces) {
-            if (conceptUri.startsWith(namespace.getName())) {
-                if (namespace.getName().startsWith(namespaceUri)) {
-                    namespaceUri = namespace.getName();
+        Optional<Statement> conceptStatement = rdfModel.stream()
+                .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
+                .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT))
+                .findFirst();
+        String conceptUri = conceptStatement.map(value -> value.getSubject().stringValue()).orElse(null);
+        if (conceptUri != null) {
+            for (Namespace namespace : rdfModel.getNamespaces()) {
+                if (conceptUri.startsWith(namespace.getName())) {
+                    if (namespace.getName().startsWith(namespaceUri)) {
+                        namespaceUri = namespace.getName();
+                    }
                 }
             }
         }
+        if (StringUtils.isBlank(namespaceUri)) {
+            Optional<Namespace> mainNamespace = rdfModel.getNamespace("");
+            if (mainNamespace.isPresent()) {
+                namespaceUri = mainNamespace.get().getName();
+            }
+        }
+        return namespaceUri;
+    }
+
+    private Concept createConcept(Statement statement, Vocabulary vocabulary) {
+        String conceptUri = statement.getSubject().stringValue();
+        String namespaceUri = vocabulary.getNamespace();
         String conceptCode = conceptUri.substring(namespaceUri.length());
         Concept result = new Concept();
         result.setCode(conceptCode);
@@ -171,18 +190,18 @@ public class RDFModelParser {
         result.setNotation("");
         result.setDefinitions(new LinkedHashMap<>());
         result.setUri(conceptUri);
+        result.setCandidate(false);
         return result;
     }
 
     public Map<String, Concept> createConcepts(Model rdfModel, Vocabulary vocabulary) {
-        Set<Namespace> namespaces = rdfModel.getNamespaces();
         Map<String, Concept> concepts = rdfModel.stream()
                 .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
                 .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT))
                 .collect(
                         Collectors.toMap(
                                 statement -> statement.getSubject().stringValue(),
-                                statement -> createConcept(statement, vocabulary, namespaces),
+                                statement -> createConcept(statement, vocabulary),
                                 (u, v) -> u,
                                 LinkedHashMap::new
                         )
@@ -195,7 +214,7 @@ public class RDFModelParser {
     }
 
     private void numberConcepts(Collection<Concept> concepts) {
-        int ord = 0;
+        int ord = 1;
         for (Concept concept : concepts)
             concept.setOrd(ord++);
     }

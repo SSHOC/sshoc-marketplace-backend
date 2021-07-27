@@ -11,7 +11,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
-import eu.sshopencloud.marketplace.validators.vocabularies.ConceptFactory;
+import eu.sshopencloud.marketplace.validators.vocabularies.ConceptPropertyFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -27,7 +27,7 @@ public class ItemMediaFactory {
 
     private final MediaStorageService mediaStorageService;
 
-    private final ConceptFactory conceptFactory;
+    private final ConceptPropertyFactory conceptPropertyFactory;
 
     private final PropertyTypeService propertyTypeService;
 
@@ -129,7 +129,7 @@ public class ItemMediaFactory {
         PropertyType licensePropertyType = propertyTypeService.loadPropertyTypeOrNull(LICENSE_PROPERTY_CODE);
         if (licensePropertyType != null) {
             List<Vocabulary> allowedVocabularies = propertyTypeService.getAllowedVocabulariesForPropertyType(licensePropertyType);
-            return conceptFactory.create(concept, licensePropertyType, allowedVocabularies, errors);
+            return conceptPropertyFactory.create(concept, licensePropertyType, allowedVocabularies, errors);
         } else {
             errors.rejectValue("concept ", "field.configError", String.format("No '%s' property defined in the system. Only licenses from allowed vocabularies for this property are acceptable", LICENSE_PROPERTY_CODE));
             return null;
