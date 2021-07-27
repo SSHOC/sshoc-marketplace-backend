@@ -5,7 +5,6 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
@@ -36,13 +35,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static eu.sshopencloud.marketplace.util.MatcherUtils.equalValue;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static eu.sshopencloud.marketplace.util.MatcherUtils.*;
 
 
 @RunWith(SpringRunner.class)
@@ -2302,7 +2300,7 @@ public class WorkflowControllerITCase {
         String response = mvc.perform(
                 get("/api/workflows/{id}/merge", workflowOneId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", datasetId, toolId,workflowTwoId)
+                        .param("with", datasetId, toolId, workflowTwoId)
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
@@ -2315,7 +2313,7 @@ public class WorkflowControllerITCase {
         String mergedResponse = mvc.perform(
                 post("/api/workflows/merge")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowOneId, datasetId, toolId,workflowTwoId)
+                        .param("with", workflowOneId, datasetId, toolId, workflowTwoId)
                         .content(response)
                         .header("Authorization", MODERATOR_JWT)
         )

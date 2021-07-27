@@ -11,7 +11,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
-import eu.sshopencloud.marketplace.dto.items.*;
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
@@ -1024,7 +1024,6 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
-        //ELIZA  - TO FIX NULLS
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
         ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
         ItemMediaCore notFound1 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404", null);

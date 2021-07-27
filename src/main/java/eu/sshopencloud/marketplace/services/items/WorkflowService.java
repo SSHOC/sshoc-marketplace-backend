@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -97,34 +96,6 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         });
 
 
-        dto.setComposedOf(rootSteps);
-    }
-
-    private void collectMergedSteps(WorkflowDto dto, Workflow workflow) {
-        StepsTree tree = workflow.gatherSteps();
-        Stack<StepDto> nestedSteps = new Stack<>();
-        List<StepDto> rootSteps = new ArrayList<>();
-
-        tree.visit(new StepsTreeVisitor() {
-            @Override
-            public void onNextStep(StepsTree stepTree) {
-                Step step = stepTree.getStep();
-                StepDto stepDto = stepService.prepareItemDto(step);
-                List<StepDto> childCollection = (nestedSteps.empty()) ? rootSteps : nestedSteps.peek().getComposedOf();
-
-                childCollection.add(stepDto);
-                nestedSteps.push(stepDto);
-            }
-
-            @Override
-            public void onBackToParent() {
-                nestedSteps.pop();
-            }
-        });
-
-        rootSteps.addAll(dto.getComposedOf());
-        commitSteps(tree);
-        //dto.getComposedOf().addAll(rootSteps);
         dto.setComposedOf(rootSteps);
     }
 
@@ -308,6 +279,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             if (!s.isRoot() && !Objects.isNull(s) && !Objects.isNull(s.getId()))
                 if (s.getSubTrees().size() > 0) {
                     stepService.addStepToTree(s.getStep(), null, parent);
+                    //WHICH IS OPTIMAL ?
                     //Step step = s.getStep();
                     //List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
                     //StepsTree nextParent = nextParentList.get(0);
@@ -330,7 +302,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
         commitSteps(workflow.getStepsTree());
 
-        collectSteps(workflowDto,workflow);
+        collectSteps(workflowDto, workflow);
 
         return workflowDto;
     }
@@ -341,6 +313,5 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             if (checkIfWorkflow(mergeList.get(i))) mergeWorkflowsList.add(mergeList.get(i));
         return mergeWorkflowsList;
     }
-
 
 }

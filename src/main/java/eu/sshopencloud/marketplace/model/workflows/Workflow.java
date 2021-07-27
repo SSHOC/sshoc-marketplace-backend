@@ -10,8 +10,8 @@ import java.util.List;
 @Entity
 @Table(name = "workflows")
 @Data
-@ToString(callSuper = true, exclude = { "stepsTree", "allSteps" })
-@EqualsAndHashCode(callSuper = true, exclude = { "stepsTree", "allSteps" })
+@ToString(callSuper = true, exclude = {"stepsTree", "allSteps"})
+@EqualsAndHashCode(callSuper = true, exclude = {"stepsTree", "allSteps"})
 public class Workflow extends Item {
 
     @OneToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -35,14 +35,10 @@ public class Workflow extends Item {
 
     public StepsTree gatherSteps() {
         // Invoke size method to force steps fetch
-        if (allSteps != null) {
-            int prefetchSize = allSteps.size();
-        }
-
         return stepsTree;
     }
 
-    public int getSize(){
+    public int getSize() {
         return allSteps.size();
     }
 }
