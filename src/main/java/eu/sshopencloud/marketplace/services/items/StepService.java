@@ -89,7 +89,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public StepDto replaceStep(String workflowId, StepCore stepCore, boolean draft, String replacedStepId, int replacedOrd) {
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
 
-        StepsTree stepTree = loadStepTreeInWorkflow(newWorkflow,replacedStepId );
+        StepsTree stepTree = loadStepTreeInWorkflow(newWorkflow, replacedStepId);
         StepsTree parentStepTree = stepTree.getParent();
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(stepCore, parentStepTree);
@@ -330,7 +330,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
     @Override
     protected PaginatedResult<StepDto> wrapPage(Page<Step> stepsPage, List<StepDto> steps) {
-        throw new UnsupportedOperationException("Steps pagination is not supported");
+        throw new UnsupportedOperationException("Steps pagination is not supported" );
     }
 
     @Override
@@ -368,7 +368,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         tmpMergingList.add(persistentId);
 
         if (!checkMergeStepConsistency(tmpMergingList))
-            throw new IllegalStateException("Steps to merge are from different workflows!");
+            throw new IllegalStateException("Steps to merge are from different workflows!" );
 
         return prepareMergeItems(persistentId, mergeList);
     }
@@ -378,7 +378,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         StepDto stepDto;
 
         if (!checkMergeStepConsistency(mergeList))
-            throw new IllegalStateException("Steps to merge are from different workflows!");
+            throw new IllegalStateException("Steps to merge are from different workflows!" );
 
         String stepId = findStep(mergeList);
         List<String> stepList = findAllStep(mergeList);
@@ -386,8 +386,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         else {
             WorkflowDto workflowDto = workflowService.getLatestWorkflow(workflowId, false, true);
             StepDto stepTmp = getLatestStep(workflowId, stepId, false, true);
-            int replacingOrder = workflowDto.getComposedOf().indexOf(stepTmp) +1 ;
-            stepDto = replaceStep(workflowId, mergeStepCore, false, stepId,replacingOrder );
+            int replacingOrder = workflowDto.getComposedOf().indexOf(stepTmp) + 1;
+            stepDto = replaceStep(workflowId, mergeStepCore, false, stepId, replacingOrder);
             stepList.remove(stepId);
         }
 
