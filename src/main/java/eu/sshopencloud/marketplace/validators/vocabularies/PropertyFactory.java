@@ -12,6 +12,7 @@ import org.springframework.validation.Errors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 @Service
 @Transactional
@@ -28,7 +29,7 @@ public class PropertyFactory {
     public List<Property> create(List<PropertyCore> propertyCores, Item item, Errors errors, String nestedPath) {
         List<Property> properties = new ArrayList<>();
 
-        if (propertyCores != null && !propertyCores.isEmpty()) {
+        if (propertyCores != null && !isAllNulls(propertyCores)) {
             for (int i = 0; i < propertyCores.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
                 PropertyCore propertyCore = propertyCores.get(i);
@@ -66,8 +67,7 @@ public class PropertyFactory {
             // value is mandatory
             if (propertyValueValidator.validate(propertyValue, propertyType, errors))
                 property.setValue(propertyCore.getValue());
-        }
-        else {
+        } else {
             // concept is mandatory
             if (propertyCore.getConcept() == null) {
                 errors.rejectValue("concept", "field.required", "Property concept is required.");
@@ -84,5 +84,9 @@ public class PropertyFactory {
             return property;
 
         return null;
+    }
+
+    public static boolean isAllNulls(Iterable<?> array) {
+        return StreamSupport.stream(array.spliterator(), true).allMatch(o -> Objects.isNull(o));
     }
 }

@@ -238,10 +238,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertToDto(Item item) {
-        //here
-        WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
-        //collectSteps(dto, (Workflow) item);
-        return dto;
+        return WorkflowMapper.INSTANCE.toDto(item);
     }
 
 
