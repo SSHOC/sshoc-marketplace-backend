@@ -20,4 +20,6 @@ public class ConceptBasicDto {
 
     private String uri;
 
+    private boolean candidate;
+
 }

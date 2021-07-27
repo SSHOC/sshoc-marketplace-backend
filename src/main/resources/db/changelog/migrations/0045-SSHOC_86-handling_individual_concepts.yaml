@@ -1,0 +1,90 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-1
+      author: mkozak
+      description: Add columns for uri of relations
+      changes:
+        - addColumn:
+            tableName: concept_relations
+            columns:
+              - column:
+                  name: uri
+                  type: VARCHAR(2048)
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-2
+      author: mkozak
+      description: Update current uri relations
+      changes:
+        - sql:
+            sql: >
+                update concept_relations set uri = 'http://www.w3.org/2004/02/skos/core#related' where code = 'related'
+        - sql:
+            sql: >
+                update concept_relations set uri = 'http://www.w3.org/2002/07/owl#sameAs' where code = 'sameAs'
+        - sql:
+            sql: >
+                update concept_relations set uri = 'http://www.w3.org/2004/02/skos/core#broader' where code = 'broader'
+        - sql:
+            sql: >
+                update concept_relations set uri = 'http://www.w3.org/2004/02/skos/core#narrower' where code = 'narrower'
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-3
+      author: mkozak
+      description: Make uri uniqiue and not nullable
+      changes:
+        - addNotNullConstraint:
+            tableName: concept_relations
+            columnName: uri
+        - addUniqueConstraint:
+            tableName: concept_relations
+            columnNames: uri
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-4
+      author: mkozak
+      description: Add columns for candidate flags
+      changes:
+        - addColumn:
+            tableName: concepts
+            columns:
+              - column:
+                  name: candidate
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-5
+      author: mkozak
+      description: Add columns for namespace of the vocabulary
+      changes:
+        - addColumn:
+            tableName: vocabularies
+            columns:
+              - column:
+                  name: namespace
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-6
+      author: mkozak
+      description: Update namespace for vocabularies
+      changes:
+        - sql:
+            sql: >
+              update vocabularies vv set namespace = (select substring(c.uri, 1, length(c.uri) - length(c.code)) as namespace from concepts c inner join vocabularies v on c.vocabulary_code = v.code where v.code = vv.code limit 1)
+
+  - changeSet:
+      id: 0045-SSHOC_86-handling_individual_concepts-7
+      author: mkozak
+      description: Make namespace uniqiue and not nullable
+      changes:
+        - addNotNullConstraint:
+            tableName: vocabularies
+            columnName: namespace
+        - addUniqueConstraint:
+            tableName: vocabularies
+            columnNames: namespace

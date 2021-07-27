@@ -74,6 +74,14 @@ public class VocabularyControllerITCase {
     }
 
     @Test
+    public void shouldNotReturnNonexistentVocabulary() throws Exception {
+
+        mvc.perform(get("/api/vocabularies/non-existent-code")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void shouldCreateNewVocabulary() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
@@ -106,6 +114,43 @@ public class VocabularyControllerITCase {
                         jsonPath(
                                 "$.conceptResults.concepts[*].code",
                                 containsInAnyOrder("image/tif", "application/pdff", "video/mpeg4")
+                        )
+                );
+    }
+
+    @Test
+    public void shouldCreateNewMultilingualVocabulary() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/sshoc-keyword-test.ttl");
+
+        MockMultipartFile uploadedVocabulary = new MockMultipartFile(
+                "ttl", "sshoc-keyword-test.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")));
+
+        mvc.perform(
+                get("/api/vocabularies/{code}", "sshoc-keyword-test")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")))
+                .andExpect(jsonPath("$.description", notNullValue()))
+                .andExpect(jsonPath("$.conceptResults.hits", is(4)))
+                .andExpect(jsonPath("$.conceptResults.count", is(4)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(4)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInAnyOrder("1-grams", "18th-century", "18th-century-literature", "zip")
                         )
                 );
     }
@@ -167,6 +212,23 @@ public class VocabularyControllerITCase {
                                 containsInAnyOrder("MPEG-1 Audio Layer III", "Portable Document File Format (PDF)")
                         )
                 );
+    }
+
+    @Test
+    public void shouldNotUpdateNonexistentVocabulary() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/non-existent-code.ttl");
+
+        MockMultipartFile newVocabulary = new MockMultipartFile(
+                "ttl", "non-existent-code.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "non-existent-code")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt)
+        )
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -356,6 +418,14 @@ public class VocabularyControllerITCase {
                         .header("Authorization", contributorJwt)
         )
                 .andExpect(status().isForbidden());
+    }
+
+
+    @Test
+    public void shouldNotDeleteNonexistentVocabulary() throws Exception {
+        mvc.perform(delete("/api/vocabularies/non-existent-code")
+                .header("Authorization", moderatorJwt))
+                .andExpect(status().isNotFound());
     }
 
     private MockHttpServletRequestBuilder vocabularyUpload(HttpMethod method, MockMultipartFile vocabularyFile,
