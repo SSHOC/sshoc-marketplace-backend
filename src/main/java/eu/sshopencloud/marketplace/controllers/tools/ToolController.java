@@ -18,7 +18,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/tools-services" )
+@RequestMapping("/api/tools-services")
 @RequiredArgsConstructor
 public class ToolController {
 
@@ -29,78 +29,78 @@ public class ToolController {
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
                                                    @RequestParam(value = "perpage", required = false) Integer perpage,
-                                                   @RequestParam(value = "approved", defaultValue = "true" ) boolean approved)
+                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
         return ResponseEntity.ok(toolService.getTools(pageCoordsValidator.validate(page, perpage), approved));
     }
 
-    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> getTool(@PathVariable("id" ) String id,
-                                           @RequestParam(value = "draft", defaultValue = "false" ) boolean draft,
-                                           @RequestParam(value = "approved", defaultValue = "true" ) boolean approved) {
+    @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> getTool(@PathVariable("persistentId") String persistentId,
+                                           @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(toolService.getLatestTool(id, draft, approved));
+        return ResponseEntity.ok(toolService.getLatestTool(persistentId, draft, approved));
     }
 
-    @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> getToolVersion(@PathVariable("id" ) String id, @PathVariable("versionId" ) long versionId) {
-        return ResponseEntity.ok(toolService.getToolVersion(id, versionId));
+    @GetMapping(path = "/{persistentId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> getToolVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(toolService.getToolVersion(persistentId, versionId));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool,
-                                              @RequestParam(value = "draft", defaultValue = "false" ) boolean draft) {
+                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(toolService.createTool(newTool, draft));
     }
 
-    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> updateTool(@PathVariable("id" ) String id, @RequestBody ToolCore updatedTool,
-                                              @RequestParam(value = "draft", defaultValue = "false" ) boolean draft) {
+    @PutMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> updateTool(@PathVariable("persistentId") String persistentId, @RequestBody ToolCore updatedTool,
+                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(toolService.updateTool(id, updatedTool, draft));
+        return ResponseEntity.ok(toolService.updateTool(persistentId, updatedTool, draft));
     }
 
-    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> revertTool(@PathVariable("id" ) String id, @PathVariable("versionId" ) long versionId) {
-        return ResponseEntity.ok(toolService.revertTool(id, versionId));
+    @PutMapping(path = "/{persistentId}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> revertTool(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(toolService.revertTool(persistentId, versionId));
     }
 
-    @DeleteMapping(path = "/{id}" )
-    public void deleteTool(@PathVariable("id" ) String id, @RequestParam(value = "draft", defaultValue = "false" ) boolean draft) {
+    @DeleteMapping(path = "/{persistentId}")
+    public void deleteTool(@PathVariable("persistentId") String persistentId, @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        toolService.deleteTool(id, draft);
+        toolService.deleteTool(persistentId, draft);
     }
 
-    @PostMapping(path = "/{id}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> publishTool(@PathVariable("id" ) String id) {
-        ToolDto tool = toolService.commitDraftTool(id);
+    @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> publishTool(@PathVariable("persistentId") String persistentId) {
+        ToolDto tool = toolService.commitDraftTool(persistentId);
         return ResponseEntity.ok(tool);
     }
 
-    @GetMapping(path = "/{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemExtBasicDto>> getToolHistory(@PathVariable("id" ) String id,
-                                                                @RequestParam(value = "draft", defaultValue = "false" ) boolean draft,
-                                                                @RequestParam(value = "approved", defaultValue = "true" ) boolean approved) {
-        return ResponseEntity.ok(toolService.getToolVersions(id, draft, approved));
+    @GetMapping(path = "/{persistentId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemExtBasicDto>> getToolHistory(@PathVariable("persistentId") String persistentId,
+                                                                @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                                @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+        return ResponseEntity.ok(toolService.getToolVersions(persistentId, draft, approved));
     }
 
-    @GetMapping(path = "/{id}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("id" ) String id) {
+    @GetMapping(path = "/{persistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId) {
 
-        return ResponseEntity.ok(toolService.getInformationContributors(id));
+        return ResponseEntity.ok(toolService.getInformationContributors(persistentId));
     }
 
-    @GetMapping(path = "/{id}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("id" ) String id, @PathVariable("versionId" ) long versionId) {
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(toolService.getInformationContributors(id, versionId));
+        return ResponseEntity.ok(toolService.getInformationContributors(persistentId, versionId));
     }
 
-    @GetMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> getMerge(@PathVariable("id" ) String id,
+    @GetMapping(path = "/{persistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> getMerge(@PathVariable("persistentId") String persistentId,
                                             @RequestParam List<String> with) {
-        return ResponseEntity.ok(toolService.getMerge(id, with));
+        return ResponseEntity.ok(toolService.getMerge(persistentId, with));
     }
 
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -109,10 +109,10 @@ public class ToolController {
         return ResponseEntity.ok(toolService.merge(mergeTool, with));
     }
 
-    @GetMapping(path = "/{id}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("id" ) String id) {
+    @GetMapping(path = "/{persistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("persistentId") String persistentId) {
 
-        return ResponseEntity.ok(toolService.getSources(id));
+        return ResponseEntity.ok(toolService.getSources(persistentId));
     }
 
 }
