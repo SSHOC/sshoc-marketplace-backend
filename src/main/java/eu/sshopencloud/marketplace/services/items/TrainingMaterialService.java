@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
@@ -13,6 +14,7 @@ import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.trainings.TrainingMaterialFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -39,11 +41,11 @@ public class TrainingMaterialService
                                    ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<TrainingMaterial> itemUpgradeRegistry,
                                    DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                                    PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                                   MediaStorageService mediaStorageService) {
+                                   MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.trainingMaterialRepository = trainingMaterialRepository;
@@ -161,6 +163,10 @@ public class TrainingMaterialService
         TrainingMaterial trainingMaterial = createItem(mergeTrainingMaterial, false);
         trainingMaterial = mergeItem(trainingMaterial.getPersistentId(), mergeList);
         return prepareItemDto(trainingMaterial);
+    }
+
+    public List<SourceDto> getSources(String id) {
+        return getAllSources(id);
     }
 
 }

@@ -7,12 +7,14 @@ import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.publications.PublicationFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -37,11 +39,11 @@ public class PublicationService extends ItemCrudService<Publication, Publication
                               ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                               PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                              MediaStorageService mediaStorageService) {
+                              MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.publicationRepository = publicationRepository;
@@ -155,6 +157,10 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         publication = mergeItem(publication.getPersistentId(), mergeList);
 
         return prepareItemDto(publication);
+    }
+
+    public List<SourceDto> getSources(String id) {
+        return getAllSources(id);
     }
 
 }

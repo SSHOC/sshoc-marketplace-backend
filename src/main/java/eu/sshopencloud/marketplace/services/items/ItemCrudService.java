@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.*;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -17,6 +18,7 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,13 +44,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final IndexService indexService;
     private final UserService userService;
     private final MediaStorageService mediaStorageService;
-
+    private final SourceService sourceService;
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                           MediaStorageService mediaStorageService) {
+                           MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -64,6 +66,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         this.userService = userService;
 
         this.mediaStorageService = mediaStorageService;
+        this.sourceService = sourceService;
     }
 
 
@@ -589,6 +592,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return finalDto;
     }
 
+    public List<SourceDto> getAllSources(String id) {
+        return sourceService.getAllSources(id);
+    }
 
     private I makeItemVersion(C itemCore, I prevItem) {
         return makeItem(itemCore, prevItem);
