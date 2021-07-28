@@ -339,6 +339,10 @@ public class ItemRelatedItemService {
         }
     }
 
+    // TODO Eliza move this to the utility class eu.sshopencloud.marketplace.validators.CollectionUtils and reuse where needed:
+    // - src/main/java/eu/sshopencloud/marketplace/validators/actors/ActorFactory.java 70
+    // - src/main/java/eu/sshopencloud/marketplace/validators/items/ItemContributorFactory.java 29
+    // - src/main/java/eu/sshopencloud/marketplace/validators/vocabularies/PropertyFactory.java 32
     public static boolean isAllNulls(Iterable<?> array) {
         return StreamSupport.stream(array.spliterator(), true).allMatch(o -> Objects.isNull(o));
     }
