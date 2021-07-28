@@ -21,14 +21,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u" +
             " where lower(u.username) like lower(concat('%', :q,'%'))" +
             " or lower(u.displayName) like lower(concat('%', :q,'%'))" +
-            " or lower(u.email) like lower(concat('%', :q,'%'))")
+            " or lower(u.email) like lower(concat('%', :q,'%'))" )
     Page<User> findLikeUsernameOrDisplayNameOrEmail(String q, Pageable pageable);
 
     @Query(value =
             "WITH RECURSIVE sub_item AS (" +
                     " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id" +
                     " FROM items i" +
-                    " WHERE i.persistent_id = :persistentId" +
+                    " INNER JOIN versioned_items v ON i.persistent_id = v.id" +
+                    " WHERE i.persistent_id = :persistentId OR v.merged_with_id = :persistentId" +
                     "  UNION" +
                     " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id" +
                     " FROM items i, sub_item si" +
@@ -38,14 +39,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     "INNER JOIN sub_item s " +
                     "ON u.id = s.info_contributor_id", nativeQuery = true
     )
-    List<User> findInformationContributors(@Param("persistentId") String persistentId);
+    List<User> findInformationContributors(@Param("persistentId" ) String persistentId);
 
 
     @Query(value =
             "WITH RECURSIVE sub_item AS (" +
                     " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id" +
-                    " FROM items i" +
-                    " WHERE i.persistent_id = :persistentId and i.id = :versionId" +
+                    " FROM items i " +
+                    " INNER JOIN versioned_items v ON i.persistent_id = v.id" +
+                    " WHERE v.merged_with_id = :persistentId OR (i.persistent_id = :persistentId and i.id = :versionId)" +
                     "  UNION" +
                     " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id" +
                     " FROM items i, sub_item si" +
@@ -53,8 +55,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
                     "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences FROM Users u " +
                     "INNER JOIN sub_item s " +
-                    "ON u.id = s.info_contributor_id", nativeQuery = true
+                    "ON u.id = s.info_contributor_id ", nativeQuery = true
     )
-    List<User> findInformationContributors(@Param("persistentId") String persistentId, @Param("versionId") Long versionId);
+    List<User> findInformationContributors(@Param("persistentId" ) String persistentId, @Param("versionId" ) Long versionId);
 
 }

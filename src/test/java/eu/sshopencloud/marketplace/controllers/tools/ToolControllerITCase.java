@@ -1330,6 +1330,74 @@ public class ToolControllerITCase {
 
     }
 
+    @Test
+    public void shouldGetHistoryForMergedTool() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        String response = mvc.perform(
+                get("/api/tools-services/{id}/merge", toolId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with",  datasetId, workflowId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse = mvc.perform(
+                post("/api/tools-services/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", toolId, datasetId, workflowId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(toolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
+
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+        String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, ToolDto.class).getPersistentId();
+
+        String mergedLabel = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, ToolDto.class).getLabel();
+
+
+        mvc.perform(
+                get("/api/tools-services/{id}/history", mergedPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is(mergedLabel)))
+                .andExpect(jsonPath("$[0].persistentId", is(mergedPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(workflowId)))
+                .andExpect(jsonPath("$[1].category", is("workflow")))
+                .andExpect(jsonPath("$[2].persistentId", is(datasetId)))
+                .andExpect(jsonPath("$[2].category", is("dataset")))
+                .andExpect(jsonPath("$[3].persistentId", is(toolId)))
+                .andExpect(jsonPath("$[3].category", is("tool-or-service")));
+
+    }
+
 
 
 
