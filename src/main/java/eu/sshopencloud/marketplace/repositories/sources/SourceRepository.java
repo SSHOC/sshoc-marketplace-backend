@@ -14,6 +14,8 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
 
     Source findByDomain(String domain);
 
+
+    // TODO Eliza - sources of two times merged items are not returned (with recursion?)
     @Query(value =
             "  SELECT DISTINCT (s.id), s.domain, s.label, s.last_harvested_date, s.url, s.url_template "+
                     " FROM sources s  " +
