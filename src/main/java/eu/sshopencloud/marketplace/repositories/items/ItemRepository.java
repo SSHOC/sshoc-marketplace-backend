@@ -16,6 +16,8 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
 
     List<Item> findBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
 
+    List<Item> findByVersionedItemMergedWith(String persistentId);
+
     @Query(value =
             "WITH RECURSIVE sub_tree AS (" +
                     "  SELECT i1.id, i1.category, i1.description, i1.label, i1.last_info_update," +
@@ -35,6 +37,16 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
                     "    s.persistent_id, s.proposed_version, s.info_contributor_id, s.last_info_update AS date_created, s.clazz_" +
                     "    FROM sub_tree s", nativeQuery = true
     )
-    List<Item> findInformationContributorsForVersion(@Param("versionId") Long versionId);
-    
+    List<Item> findItemHistory(@Param("versionId" ) Long versionId);
+
+
+    @Query(value =
+            "  SELECT i1.id, i1.category, i1.description, i1.label, i1.last_info_update, i1.last_info_update AS date_last_updated," +
+                    "    i1.source_item_id, i1.status, i1.version, i1.prev_version_id, i1.source_id," +
+                    "    i1.persistent_id, i1.proposed_version, i1.info_contributor_id, i1.last_info_update AS date_created, 2 AS clazz_" +
+                    "  FROM items i1 INNER JOIN versioned_items v ON i1.persistent_id = v.id" +
+                    "  WHERE v.merged_with_id = :persistentId", nativeQuery = true
+    )
+    List<Item> findMergedItemsHistory(@Param("persistentId" ) String persistentId);
+
 }
