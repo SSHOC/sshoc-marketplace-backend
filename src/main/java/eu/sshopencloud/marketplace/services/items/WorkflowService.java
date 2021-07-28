@@ -276,7 +276,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         StepsTree s;
         for (int i = 0; i < stepsTrees.size(); i++) {
             s = stepsTrees.get(i);
-            if (!s.isRoot() && !Objects.isNull(s) && !Objects.isNull(s.getId()))
+            if (!s.isRoot() && !Objects.isNull(s.getId()))
                 if (s.getSubTrees().size() > 0) {
                     stepService.addStepToTree(s.getStep(), null, parent);
                     //WHICH IS OPTIMAL ?

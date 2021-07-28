@@ -37,7 +37,7 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
                     "    s.persistent_id, s.proposed_version, s.info_contributor_id, s.last_info_update AS date_created, s.clazz_" +
                     "    FROM sub_tree s", nativeQuery = true
     )
-    List<Item> findInformationContributorsForVersion(@Param("versionId" ) Long versionId);
+    List<Item> findItemHistory(@Param("versionId" ) Long versionId);
 
 
     @Query(value =

@@ -1381,14 +1381,19 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[0].persistentId", is(mergedPersistentId)))
                 .andExpect(jsonPath("$[1].persistentId", is(workflowId)))
                 .andExpect(jsonPath("$[1].category", is("workflow")))
+                .andExpect(jsonPath("$[1].id", is(12)))
                 .andExpect(jsonPath("$[2].persistentId", is(datasetId)))
                 .andExpect(jsonPath("$[2].category", is("dataset")))
+                .andExpect(jsonPath("$[2].id", is(10)))
                 .andExpect(jsonPath("$[3].persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("$[3].category", is("training-material")))
+                .andExpect(jsonPath("$[3].id", is(7)))
                 .andExpect(jsonPath("$[4].persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("$[4].category", is("training-material")))
+                .andExpect(jsonPath("$[4].id", is(6)))
                 .andExpect(jsonPath("$[5].persistentId", is(trainingMaterialId)))
-                .andExpect(jsonPath("$[5].category", is("training-material")));
+                .andExpect(jsonPath("$[5].category", is("training-material")))
+                .andExpect(jsonPath("$[5].id", is(5)));
 
     }
 

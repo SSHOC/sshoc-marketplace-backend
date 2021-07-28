@@ -143,15 +143,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected boolean checkIfStep(String itemPersistentId) {
         VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
-        I prevItem = (I) versionedItem.getCurrentVersion();
-        if (prevItem.getCategory().equals(ItemCategory.STEP)) return true;
+        I currItem = (I) versionedItem.getCurrentVersion();
+        if (currItem.getCategory().equals(ItemCategory.STEP)) return true;
         else return false;
     }
 
     protected boolean checkIfWorkflow(String itemPersistentId) {
         VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
-        I prevItem = (I) versionedItem.getCurrentVersion();
-        if (prevItem.getCategory().equals(ItemCategory.WORKFLOW)) return true;
+        I currItem = (I) versionedItem.getCurrentVersion();
+        if (currItem.getCategory().equals(ItemCategory.WORKFLOW)) return true;
         else return false;
     }
 
@@ -489,7 +489,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item) {
 
-        List<ItemExtBasicDto> mergedItemHistoryList = ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+        List<ItemExtBasicDto> mergedItemHistoryList = ItemExtBasicConverter.convertItems(itemRepository.findItemHistory(item.getId()));
 
         if (!item.getVersionedItem().getMergedWith().isEmpty()) {
             mergedItemHistoryList.addAll(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId())));
@@ -501,7 +501,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        return ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+        return ItemExtBasicConverter.convertItems(itemRepository.findItemHistory(item.getId()));
     }
 
     protected List<UserDto> getInformationContributors(String itemId) {

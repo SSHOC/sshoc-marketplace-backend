@@ -34,7 +34,11 @@ public class Workflow extends Item {
     }
 
     public StepsTree gatherSteps() {
-        // Invoke size method to force steps fetch
+        // Invoke size method to force steps fetch - rethink is it really needed?
+        if (allSteps != null) {
+            int prefetchSize = allSteps.size();
+        }
+
         return stepsTree;
     }
 

@@ -2170,6 +2170,7 @@ public class WorkflowControllerITCase {
                         .param("with", datasetId, differentWorkflowStepId)
                         .header("Authorization", MODERATOR_JWT)
         )
+                // TODO Eliza - should be 400 with the message
                 .andExpect(status().is5xxServerError());
 
 
@@ -2270,6 +2271,8 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].id", not(21)))
                 .andExpect(jsonPath("$[1].id", is(21)));
 
+        // TODO Eliza -  - write assertions for all steps persistentIds in composedOf lists for the previous workflow "$[1].id"
+
     }
 
     @Test
@@ -2288,6 +2291,7 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("composedOf", hasSize(4)));
 
+        // TODO Eliza - write assertions for all steps persistentIds in composedOf lists
 
         mvc.perform(
                 get("/api/workflows/{workflowId}", workflowTwoId)
@@ -2350,6 +2354,26 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("label", is(mergedWorkflowLabel)))
                 .andExpect(jsonPath("composedOf", hasSize(7)))
                 .andExpect(jsonPath("composedOf[1].composedOf", hasSize(4)));
+
+        // TODO Eliza - also write assertions for all steps persistentIds in composedOf lists
+        mvc.perform(
+                get("/api/workflows/{workflowId}", workflowOneId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("approved", "false")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("composedOf", hasSize(4)));
+
+        mvc.perform(
+                get("/api/workflows/{workflowId}", workflowTwoId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("approved", "false")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("composedOf", hasSize(3)));
+
 
     }
 }

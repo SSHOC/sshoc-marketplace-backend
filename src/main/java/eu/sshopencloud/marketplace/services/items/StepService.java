@@ -390,7 +390,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
             stepList.remove(stepId);
         }
 
-        if (!stepList.isEmpty() && !Objects.isNull(stepList)) {
+        // TODO Eliza - why we remove these steps ?
+        if (!stepList.isEmpty()) {
             removeStepsFromTree(workflowId, stepList);
         }
 
