@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 
 @Service
@@ -75,8 +76,7 @@ public class ItemRelatedItemService {
     public void updateRelatedItems(List<RelatedItemCore> relatedItems, Item newVersion, Item prevItem, boolean draft) {
         if (draft) {
             updateDraftRelatedItems(relatedItems, newVersion);
-        }
-        else {
+        } else {
             updateRelatedItems(relatedItems, newVersion, prevItem);
         }
     }
@@ -87,7 +87,7 @@ public class ItemRelatedItemService {
         Map<String, Item> relatedVersions = new HashMap<>();
         Map<Long, ItemRelation> savedRelations = new HashMap<>();
 
-        if (relatedItems == null)
+        if (relatedItems == null || isAllNulls(relatedItems))
             relatedItems = new ArrayList<>();
 
         List<RelatedItemDto> prevRelations = (prevItem != null) ? getRelatedItems(prevItem.getId()) : new ArrayList<>();
@@ -168,7 +168,8 @@ public class ItemRelatedItemService {
     }
 
     private void validateNewRelatedItems(List<RelatedItemCore> relatedItems) {
-        if (relatedItems == null)
+
+        if (relatedItems == null || isAllNulls(relatedItems))
             return;
 
         Set<String> relatedPersistentIds = new HashSet<>();
@@ -184,8 +185,7 @@ public class ItemRelatedItemService {
     private ItemRelatedItem saveItemsRelationChecked(Item subject, Item object, ItemRelation itemRelation) {
         try {
             return saveItemsRelation(subject, object, itemRelation);
-        }
-        catch (ItemsRelationAlreadyExistsException e) {
+        } catch (ItemsRelationAlreadyExistsException e) {
             throw new IllegalArgumentException(
                     String.format(
                             "A relation between objects with ids %s and %s already exists",
@@ -206,8 +206,7 @@ public class ItemRelatedItemService {
             ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
             try {
                 createDraftItemRelation(subject.getPersistentId(), relatedItem.getPersistentId(), relationType);
-            }
-            catch (ItemsRelationAlreadyExistsException e) {
+            } catch (ItemsRelationAlreadyExistsException e) {
                 throw new IllegalArgumentException(
                         String.format("Repeated relation to object with id %s", relatedItem.getPersistentId())
                 );
@@ -338,6 +337,14 @@ public class ItemRelatedItemService {
         if (itemRelatedItemRepository.existsById(relationId)) {
             itemRelatedItemRepository.deleteById(relationId);
         }
+    }
+
+    // TODO Eliza move this to the utility class eu.sshopencloud.marketplace.validators.CollectionUtils and reuse where needed:
+    // - src/main/java/eu/sshopencloud/marketplace/validators/actors/ActorFactory.java 70
+    // - src/main/java/eu/sshopencloud/marketplace/validators/items/ItemContributorFactory.java 29
+    // - src/main/java/eu/sshopencloud/marketplace/validators/vocabularies/PropertyFactory.java 32
+    public static boolean isAllNulls(Iterable<?> array) {
+        return StreamSupport.stream(array.spliterator(), true).allMatch(o -> Objects.isNull(o));
     }
 
 }

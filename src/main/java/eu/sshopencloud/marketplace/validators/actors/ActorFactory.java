@@ -67,7 +67,7 @@ public class ActorFactory {
 
     private List<Actor> prepareAffiliations(List<ActorId> actorIds, Actor affiliatedActor, Errors errors, String nestedPath) {
         List<Actor> actors = new ArrayList<Actor>();
-        if (actorIds != null) {
+        if (actorIds != null && !Objects.isNull(actorIds.get(0))) {
             for (int i = 0; i < actorIds.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
                 Actor actor = prepareAffiliation(actorIds.get(i), errors);

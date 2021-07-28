@@ -69,9 +69,9 @@ public class SourceFactory {
 
     public Source create(SourceId sourceId, URI accessibleAtUri, Errors errors) {
         // explicit source has priority
-        if (!Objects.isNull(sourceId)) {
-            if (Objects.isNull(sourceId.getId())) {
-                errors.rejectValue("code", "field.required", "Source id is required.");
+        if (sourceId != null) {
+            if (sourceId.getId() == null) {
+                errors.rejectValue("id", "field.required", "Source id is required.");
                 return null;
             }
             Optional<Source> sourceHolder = sourceRepository.findById(sourceId.getId());
