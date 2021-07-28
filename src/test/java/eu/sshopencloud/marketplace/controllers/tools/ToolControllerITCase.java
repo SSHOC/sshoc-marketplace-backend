@@ -5,7 +5,6 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
@@ -84,7 +83,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
-                 .andExpect(jsonPath("informationContributor.id", is(2)));
+                .andExpect(jsonPath("informationContributor.id", is(2)));
     }
 
     @Test
@@ -1398,7 +1397,11 @@ public class ToolControllerITCase {
 
     }
 
+    @Test
+    public void shouldGetSourcesForTool()  throws Exception {
 
+
+    }
 
 
 
