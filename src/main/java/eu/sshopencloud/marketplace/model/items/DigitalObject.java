@@ -28,4 +28,6 @@ public abstract class DigitalObject extends Item {
         this.dateCreated = baseDigitalObject.getDateCreated();
         this.dateLastUpdated = baseDigitalObject.getDateLastUpdated();
     }
+
 }
+
