@@ -84,7 +84,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
-                 .andExpect(jsonPath("informationContributor.id", is(2)));
+                .andExpect(jsonPath("informationContributor.id", is(2)));
     }
 
     @Test
@@ -1398,7 +1398,11 @@ public class ToolControllerITCase {
 
     }
 
+    @Test
+    public void shouldGetSourcesForTool()  throws Exception {
 
+
+    }
 
 
 

@@ -10,7 +10,10 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
+import eu.sshopencloud.marketplace.dto.sources.SourceBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
@@ -1844,7 +1847,7 @@ public class TrainingMaterialControllerITCase {
         String workflowId = "tqmbGY";
         String toolId = "n21Kfc";
 
-        String response =  mvc.perform(
+        String response = mvc.perform(
                 get("/api/training-materials/{id}/merge", trainingMaterialId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", workflowId, toolId)
@@ -1876,6 +1879,133 @@ public class TrainingMaterialControllerITCase {
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    public void shouldGetSourcesForTrainingMaterial() throws Exception {
+
+        String trainingMaterialId = "WfcKvG";
+
+        mvc.perform(
+                get("/api/training-materials/{id}/sources", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].label", is("Programming Historian")))
+                .andExpect(jsonPath("$[0].url", is("https://programminghistorian.org")));
+
+
+    }
+
+
+    @Test
+    public void shouldGetSourcesForMergedTrainingMaterial() throws Exception {
+
+        String trainingMaterialId = "WfcKvG";
+        String datasetId = "OdKfPc";
+        String toolId = "Xgufde";
+
+        mvc.perform(
+                get("/api/training-materials/{id}/sources", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        mvc.perform(
+                get("/api/training-materials/{id}/sources", toolId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].label", is("TAPoR")))
+                .andExpect(jsonPath("$[0].url", is("http://tapor.ca")));
+
+
+        mvc.perform(
+                get("/api/training-materials/{id}/sources", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].label", is("Programming Historian")))
+                .andExpect(jsonPath("$[0].url", is("https://programminghistorian.org")));
+
+
+        String response = mvc.perform(
+                get("/api/training-materials/{id}/merge", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", datasetId, toolId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI/Consortium of European Social Science Data Archives/WebSty")))
+                .andReturn().getResponse().getContentAsString();
+
+
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1l);
+        String sourceItemId = new String("1");
+
+        TrainingMaterialDto t = TestJsonMapper.serializingObjectMapper()
+                .readValue(response, TrainingMaterialDto.class);
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI/Consortium of European Social Science Data Archives/WebSty");
+        trainingMaterial.setDescription(t.getDescription());
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId(t.getSourceItemId());
+        trainingMaterial.setAccessibleAt(t.getAccessibleAt());
+        trainingMaterial.setDateCreated(t.getDateCreated());
+        trainingMaterial.setVersion(t.getVersion());
+        trainingMaterial.setSourceItemId(sourceItemId);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+
+        String mergedResponse = mvc.perform(
+                post("/api/training-materials/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", trainingMaterialId, datasetId, toolId)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI/Consortium of European Social Science Data Archives/WebSty")))
+                .andReturn().getResponse().getContentAsString();
+
+
+        String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, TrainingMaterialDto.class).getPersistentId();
+
+        mvc.perform(
+                get("/api/training-materials/{id}/sources", mergedPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].label", is("TAPoR")))
+                .andExpect(jsonPath("$[0].url", is("http://tapor.ca")))
+                .andExpect(jsonPath("$[1].id", is(2)))
+                .andExpect(jsonPath("$[1].label", is("Programming Historian")))
+                .andExpect(jsonPath("$[1].url", is("https://programminghistorian.org")));
+
 
     }
 
