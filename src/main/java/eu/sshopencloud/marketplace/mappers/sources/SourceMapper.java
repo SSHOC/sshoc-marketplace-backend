@@ -14,6 +14,6 @@ public interface SourceMapper {
 
     SourceDto toDto(Source source);
 
-    List<SourceDto> toDto(List<SourceDto> sources);
+    List<SourceDto> toDto(List<Source> sources);
 
 }

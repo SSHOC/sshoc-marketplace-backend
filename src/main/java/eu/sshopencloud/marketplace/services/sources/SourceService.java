@@ -52,6 +52,10 @@ public class SourceService {
                 .build();
     }
 
+    public List<SourceDto> getAllSources(String itemId) {
+        return SourceMapper.INSTANCE.toDto(sourceRepository.findSources(itemId));
+    }
+
     public SourceDto getSource(Long id) {
         Source source = sourceRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + id));
@@ -98,5 +102,7 @@ public class SourceService {
                 return Sort.Order.desc("lastHarvestedDate");
         }
     }
+
+
 
 }
