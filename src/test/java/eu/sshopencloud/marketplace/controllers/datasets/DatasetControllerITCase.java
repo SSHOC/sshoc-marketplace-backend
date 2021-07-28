@@ -1024,6 +1024,7 @@ public class DatasetControllerITCase {
                 mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
+
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
         ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
         ItemMediaCore notFound1 = new ItemMediaCore(new MediaDetailsId(UUID.randomUUID()), "404", null);

@@ -26,7 +26,7 @@ public class ItemContributorFactory {
 
 
     public List<ItemContributor> create(List<ItemContributorId> itemContributorIds, Item item, Errors errors, String nestedPath) {
-        if (itemContributorIds == null)
+        if (itemContributorIds == null || Objects.isNull(itemContributorIds.get(0)))
             return new ArrayList<>();
 
         List<ItemContributor> itemContributors = new ArrayList<>();
