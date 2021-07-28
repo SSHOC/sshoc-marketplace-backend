@@ -23,10 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -142,6 +139,20 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         itemRepository.save(mergedItem);
         return mergedItem;
 
+    }
+
+    protected boolean checkIfStep(String itemPersistentId) {
+        VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
+        I currItem = (I) versionedItem.getCurrentVersion();
+        if (currItem.getCategory().equals(ItemCategory.STEP)) return true;
+        else return false;
+    }
+
+    protected boolean checkIfWorkflow(String itemPersistentId) {
+        VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
+        I currItem = (I) versionedItem.getCurrentVersion();
+        if (currItem.getCategory().equals(ItemCategory.WORKFLOW)) return true;
+        else return false;
     }
 
     protected I updateItem(String persistentId, C itemCore, boolean draft) {
@@ -473,12 +484,24 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     )
             );
         }
-        return getHistoryOfItem(item);
+        return getHistoryOfItemWithMergedWith(item);
+    }
+
+    private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item) {
+
+        List<ItemExtBasicDto> mergedItemHistoryList = ItemExtBasicConverter.convertItems(itemRepository.findItemHistory(item.getId()));
+
+        if (!item.getVersionedItem().getMergedWith().isEmpty()) {
+            mergedItemHistoryList.addAll(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId())));
+            mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
+
+        }
+        return mergedItemHistoryList;
     }
 
 
     private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        return ItemExtBasicConverter.convertItems(itemRepository.findInformationContributorsForVersion(item.getId()));
+        return ItemExtBasicConverter.convertItems(itemRepository.findItemHistory(item.getId()));
     }
 
     protected List<UserDto> getInformationContributors(String itemId) {

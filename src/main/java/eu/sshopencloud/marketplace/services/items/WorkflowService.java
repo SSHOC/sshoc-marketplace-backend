@@ -30,10 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 
 
 @Service
@@ -97,6 +94,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                 nestedSteps.pop();
             }
         });
+
 
         dto.setComposedOf(rootSteps);
     }
@@ -264,11 +262,56 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return prepareMergeItems(persistentId, mergeList);
     }
 
+    public void collectStepsFromMergedWorkflows(Workflow workflow, List<String> workflowList) {
+
+        for (int i = 0; i < workflowList.size(); i++) {
+            Workflow workflowTmp = loadCurrentItem(workflowList.get(i));
+            if (!workflowTmp.getAllSteps().isEmpty())
+                collectTrees(workflow.getStepsTree(), workflowTmp.getAllSteps());
+        }
+
+    }
+
+    public void collectTrees(StepsTree parent, List<StepsTree> stepsTrees) {
+        StepsTree s;
+        for (int i = 0; i < stepsTrees.size(); i++) {
+            s = stepsTrees.get(i);
+            if (!s.isRoot() && !Objects.isNull(s.getId()))
+                if (s.getSubTrees().size() > 0) {
+                    stepService.addStepToTree(s.getStep(), null, parent);
+                    //WHICH IS OPTIMAL ?
+                    //Step step = s.getStep();
+                    //List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
+                    //StepsTree nextParent = nextParentList.get(0);
+                    i = i + s.getSubTrees().size();
+                    StepsTree nextParent2 = parent.getSubTrees().get(parent.getSubTrees().size() - 1);
+                    collectTrees(nextParent2, s.getSubTrees());
+                } else {
+                    stepService.addStepToTree(s.getStep(), null, parent);
+                }
+        }
+    }
+
     public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) {
         Workflow workflow = createItem(mergeWorkflow, false);
         workflow = mergeItem(workflow.getPersistentId(), mergeList);
-        return prepareItemDto(workflow);
+
+        WorkflowDto workflowDto = prepareItemDto(workflow);
+
+        collectStepsFromMergedWorkflows(workflow, findAllWorkflows(mergeList));
+
+        commitSteps(workflow.getStepsTree());
+
+        collectSteps(workflowDto, workflow);
+
+        return workflowDto;
     }
 
+    public List<String> findAllWorkflows(List<String> mergeList) {
+        List<String> mergeWorkflowsList = new ArrayList<>();
+        for (int i = 0; i < mergeList.size(); i++)
+            if (checkIfWorkflow(mergeList.get(i))) mergeWorkflowsList.add(mergeList.get(i));
+        return mergeWorkflowsList;
+    }
 
 }
