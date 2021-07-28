@@ -255,7 +255,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             try {
                 mediaStorageService.linkToMedia(media.getMediaId());
             } catch (MediaNotAvailableException e) {
-                throw new IllegalStateException("Media not available unexpectedly" );
+                throw new IllegalStateException("Media not available unexpectedly");
             }
         }
     }
@@ -337,7 +337,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         while (versionedItemRepository.existsById(id)) {
             trials++;
             if (trials >= 10)
-                throw new RuntimeException("Could not assign an id for the new versioned item" );
+                throw new RuntimeException("Could not assign an id for the new versioned item");
 
             id = PersistentId.generated();
         }
@@ -388,7 +388,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     protected void deleteItem(String persistentId, boolean draft) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         if (!draft && !currentUser.isModerator())
-            throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items" );
+            throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
 
         if (draft) {
             I draftItem = loadItemDraftForCurrentUser(persistentId);

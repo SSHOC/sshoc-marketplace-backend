@@ -10,10 +10,8 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
-import eu.sshopencloud.marketplace.dto.sources.SourceBasicDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
-import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
@@ -40,7 +38,6 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -1957,7 +1954,7 @@ public class TrainingMaterialControllerITCase {
 
         SourceId sourceId = new SourceId();
         sourceId.setId(1l);
-        String sourceItemId = new String("1");
+        String sourceItemId = "1";
 
         TrainingMaterialDto t = TestJsonMapper.serializingObjectMapper()
                 .readValue(response, TrainingMaterialDto.class);
@@ -2005,7 +2002,6 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[1].id", is(2)))
                 .andExpect(jsonPath("$[1].label", is("Programming Historian")))
                 .andExpect(jsonPath("$[1].url", is("https://programminghistorian.org")));
-
 
     }
 
