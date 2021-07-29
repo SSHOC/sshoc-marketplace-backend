@@ -492,20 +492,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item) {
 
-        List<ItemExtBasicDto> mergedItemHistoryList = ItemExtBasicConverter.convertItems(itemRepository.findItemHistory(item.getId()));
+        List<ItemExtBasicDto> mergedItemHistoryList = new ArrayList<>(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId())));
+        mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
 
-        if (!item.getVersionedItem().getMergedWith().isEmpty()) {
-            mergedItemHistoryList.addAll(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId())));
-            mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
-
-        }
         return mergedItemHistoryList;
     }
 
-
-    private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        return ItemExtBasicConverter.convertItems(itemRepository.findItemHistory(item.getId()));
-    }
 
     protected List<UserDto> getInformationContributors(String itemId) {
         return userService.getInformationContributors(itemId);

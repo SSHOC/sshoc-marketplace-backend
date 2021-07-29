@@ -1507,4 +1507,87 @@ public class DatasetControllerITCase {
 
     }
 
+
+    @Test
+    public void shouldGetInformationContributorsForMultipleMergedDataset() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String trainingMaterialId = "WfcKvG";
+
+
+        String response = mvc.perform(
+                get("/api/datasets/{id}/merge", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowId, trainingMaterialId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse = mvc.perform(
+                post("/api/datasets/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", datasetId, workflowId, trainingMaterialId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, DatasetDto.class).getPersistentId();
+
+        String mergedLabel = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, DatasetDto.class).getLabel();
+
+        mvc.perform(
+                get("/api/datasets/{id}/information-contributors", mergedPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[1].username", is("Moderator")))
+                .andExpect(jsonPath("$[2].username", is("Contributor")));
+
+        String response2 = mvc.perform(
+                get("/api/datasets/{id}/merge", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowId, trainingMaterialId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse2 = mvc.perform(
+                post("/api/datasets/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", datasetId, workflowId, trainingMaterialId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andReturn().getResponse().getContentAsString();
+
+
+    }
+
 }

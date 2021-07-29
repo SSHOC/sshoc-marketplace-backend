@@ -2170,8 +2170,7 @@ public class WorkflowControllerITCase {
                         .param("with", datasetId, differentWorkflowStepId)
                         .header("Authorization", MODERATOR_JWT)
         )
-                // TODO Eliza - should be 400 with the message
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().is4xxClientError());
 
 
     }
@@ -2267,7 +2266,7 @@ public class WorkflowControllerITCase {
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].id", not(21)))
                 .andExpect(jsonPath("$[1].id", is(21)));
 

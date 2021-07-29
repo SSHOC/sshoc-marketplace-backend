@@ -25,38 +25,64 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findLikeUsernameOrDisplayNameOrEmail(String q, Pageable pageable);
 
     @Query(value =
-            "WITH RECURSIVE sub_item AS (" +
-                    " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id" +
-                    " FROM items i" +
-                    " INNER JOIN versioned_items v ON i.persistent_id = v.id" +
-                    " WHERE i.persistent_id = :persistentId OR v.merged_with_id = :persistentId" +
-                    "  UNION" +
-                    " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id" +
-                    " FROM items i, sub_item si" +
-                    " WHERE i.id = si.prev_version_id ) " +
+            "WITH RECURSIVE sub_item AS ( " +
+                    "   WITH RECURSIVE merge_item AS (" +
+                    "       SELECT v.id, v.merged_with_id" +
+                    "       FROM versioned_items v" +
+                    "       INNER JOIN items i ON i.persistent_id = v.id" +
+                    "       WHERE v.merged_with_id = :persistentId OR i.persistent_id = :persistentId " +
+                    "       UNION" +
+                    "       SELECT v.id, v.merged_with_id " +
+                    "       FROM versioned_items v, merge_item m" +
+                    "       WHERE m.id = v.merged_with_id)" +
+                    "   SELECT i.persistent_id , i.id,  i.prev_version_id" +
+                    "   FROM merge_item m" +
+                    "   INNER JOIN items i " +
+                    "   ON i.persistent_id  = m.id " +
+                    "   UNION" +
+                    "   SELECT i.persistent_id, i.id, i.prev_version_id" +
+                    "   FROM items i, sub_item si" +
+                    "   WHERE i.id = si.prev_version_id)" +
 
-                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences FROM Users u " +
-                    "INNER JOIN sub_item s " +
-                    "ON u.id = s.info_contributor_id", nativeQuery = true
+                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences " +
+                    "FROM Users u " +
+                    "INNER JOIN items i \n" +
+                    "ON u.id = i.info_contributor_id\n" +
+                    "INNER JOIN sub_item si\n" +
+                    "ON i.persistent_id = si.persistent_id AND si.id = i.id" , nativeQuery = true
     )
     List<User> findInformationContributors(@Param("persistentId" ) String persistentId);
 
 
-    @Query(value =
-            "WITH RECURSIVE sub_item AS (" +
-                    " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id" +
-                    " FROM items i " +
-                    " INNER JOIN versioned_items v ON i.persistent_id = v.id" +
-                    " WHERE v.merged_with_id = :persistentId OR (i.persistent_id = :persistentId and i.id = :versionId)" +
-                    "  UNION" +
-                    " SELECT i.persistent_id, i.info_contributor_id, i.id, i.prev_version_id" +
-                    " FROM items i, sub_item si" +
-                    " WHERE i.id = si.prev_version_id ) " +
 
-                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences FROM Users u " +
-                    "INNER JOIN sub_item s " +
-                    "ON u.id = s.info_contributor_id ", nativeQuery = true
+    @Query(value =
+            "WITH RECURSIVE sub_item AS ( " +
+                    "   WITH RECURSIVE merge_item AS (" +
+                    "       SELECT v.id, v.merged_with_id" +
+                    "       FROM versioned_items v" +
+                    "       INNER JOIN items i ON i.persistent_id = v.id" +
+                    "       WHERE v.merged_with_id = :persistentId OR (i.persistent_id = :persistentId and i.id = :versionId) " +
+                    "       UNION" +
+                    "       SELECT v.id, v.merged_with_id " +
+                    "       FROM versioned_items v, merge_item m" +
+                    "       WHERE m.id = v.merged_with_id)" +
+                    "   SELECT i.persistent_id , i.id,  i.prev_version_id" +
+                    "   FROM merge_item m" +
+                    "   INNER JOIN items i " +
+                    "   ON i.persistent_id  = m.id " +
+                    "   UNION" +
+                    "   SELECT i.persistent_id, i.id, i.prev_version_id" +
+                    "   FROM items i, sub_item si" +
+                    "   WHERE i.id = si.prev_version_id)" +
+
+                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences " +
+                    "FROM Users u " +
+                    "INNER JOIN items i \n" +
+                    "ON u.id = i.info_contributor_id\n" +
+                    "INNER JOIN sub_item si\n" +
+                    "ON i.persistent_id = si.persistent_id AND si.id = i.id", nativeQuery = true
     )
     List<User> findInformationContributors(@Param("persistentId" ) String persistentId, @Param("versionId" ) Long versionId);
+
 
 }
