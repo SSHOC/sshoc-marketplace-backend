@@ -18,6 +18,7 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
 
     List<Item> findByVersionedItemMergedWith(String persistentId);
 
+    @Deprecated
     @Query(value =
             "WITH RECURSIVE sub_tree AS (" +
                     "  SELECT i1.id, i1.category, i1.description, i1.label, i1.last_info_update," +
@@ -39,6 +40,7 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     )
     List<Item> findItemHistory(@Param("versionId" ) Long versionId);
 
+    @Deprecated
     @Query(value =
             "WITH RECURSIVE sub_item AS ( " +
                     "   WITH RECURSIVE merge_item AS (" +
