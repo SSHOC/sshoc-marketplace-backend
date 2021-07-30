@@ -1906,6 +1906,9 @@ public class TrainingMaterialControllerITCase {
         String datasetId = "OdKfPc";
         String toolId = "Xgufde";
 
+        String trainingMaterialSecondId = "heBAGQ";
+        String workflowId = "tqmbGY";
+
         mvc.perform(
                 get("/api/training-materials/{id}/sources", datasetId)
                         .contentType(MediaType.APPLICATION_JSON)

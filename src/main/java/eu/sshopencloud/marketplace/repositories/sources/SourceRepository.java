@@ -15,7 +15,6 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
     Source findByDomain(String domain);
 
 
-    // TODO Eliza - sources of two times merged items are not returned (with recursion?)
     @Query(value =
             "WITH RECURSIVE sub_item AS ( " +
                     "   WITH RECURSIVE merge_item AS (" +

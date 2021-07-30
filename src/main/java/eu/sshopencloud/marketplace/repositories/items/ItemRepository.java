@@ -87,8 +87,8 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
                     "SELECT i1.id, i1.category, i1.description, i1.label, i1.last_info_update, i1.last_info_update AS date_last_updated," +
                     " i1.source_item_id, i1.status, i1.version, i1.prev_version_id, i1.source_id," +
                     " i1.persistent_id, i1.proposed_version, i1.info_contributor_id, i1.last_info_update AS date_created, 2 AS clazz_" +
-                    "FROM items i1 INNER JOIN sub_item si" +
-                    "ON i1.persistent_id = si.persistent_id AND si.id = i1.id", nativeQuery = true
+                    " FROM items i1 INNER JOIN sub_item si" +
+                    " ON i1.persistent_id = si.persistent_id AND si.id = i1.id", nativeQuery = true
     )
     List<Item> findMergedItemsHistory(@Param("persistentId" ) String persistentId);
 
