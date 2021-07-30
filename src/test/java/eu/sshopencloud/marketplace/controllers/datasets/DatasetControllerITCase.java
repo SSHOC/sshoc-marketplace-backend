@@ -1515,12 +1515,16 @@ public class DatasetControllerITCase {
         String workflowId = "tqmbGY";
         String trainingMaterialId = "WfcKvG";
 
+        String toolId = "Xgufde";
+        String datasetSecondId =  "dmbq4v";
+
+        String workflowSecondId = "vHQEhe";
 
         String response = mvc.perform(
                 get("/api/datasets/{id}/merge", datasetId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", workflowId, trainingMaterialId)
-                        .header("Authorization", MODERATOR_JWT)
+                        .header("Authorization", ADMINISTRATOR_JWT)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
@@ -1534,7 +1538,7 @@ public class DatasetControllerITCase {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", datasetId, workflowId, trainingMaterialId)
                         .content(response)
-                        .header("Authorization", MODERATOR_JWT)
+                        .header("Authorization", ADMINISTRATOR_JWT)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(datasetId)))
@@ -1546,11 +1550,48 @@ public class DatasetControllerITCase {
         String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse, DatasetDto.class).getPersistentId();
 
-        String mergedLabel = TestJsonMapper.serializingObjectMapper()
-                .readValue(mergedResponse, DatasetDto.class).getLabel();
-
         mvc.perform(
                 get("/api/datasets/{id}/information-contributors", mergedPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[1].username", is("Contributor")));
+
+        String response2 = mvc.perform(
+                get("/api/datasets/{id}/merge", mergedPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", toolId, datasetSecondId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data" )))
+                .andReturn().getResponse().getContentAsString();
+
+
+        String mergedResponse2 = mvc.perform(
+                post("/api/datasets/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", mergedPersistentId, toolId, datasetSecondId)
+                        .content(response2)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data" ))) .andReturn().getResponse().getContentAsString();
+
+        String mergedSecondPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse2, DatasetDto.class).getPersistentId();
+
+        mvc.perform(
+                get("/api/datasets/{id}/information-contributors", mergedSecondPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT)
         )
@@ -1560,34 +1601,277 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[1].username", is("Moderator")))
                 .andExpect(jsonPath("$[2].username", is("Contributor")));
 
-        String response2 = mvc.perform(
-                get("/api/datasets/{id}/merge", datasetId)
+        String response3 = mvc.perform(
+                get("/api/datasets/{id}/merge", mergedSecondPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowId, trainingMaterialId)
+                        .param("with", workflowSecondId)
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data/Evaluation of an inflectional analyzer")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse3 = mvc.perform(
+                post("/api/datasets/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", mergedSecondPersistentId, workflowSecondId)
+                        .content(response3)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data/Evaluation of an inflectional analyzer")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedThirdPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse3, DatasetDto.class).getPersistentId();
+
+
+        mvc.perform(
+                get("/api/datasets/{id}/information-contributors", mergedThirdPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[1].username", is("Moderator")))
+                .andExpect(jsonPath("$[2].username", is("Contributor")));
+
+    }
+
+    @Test
+    public void shouldGetHistoryForMultipleMergedDataset() throws Exception {
+
+        String datasetPersistentId = "OdKfPc";
+        int datasetId = 10;
+
+        String workflowPersistentId = "tqmbGY";
+        int workflowId = 12;
+        String trainingMaterialPersistentId = "WfcKvG";
+        int trainingMaterialId = 7;
+
+        String toolPersistentId = "Xgufde";
+        int toolId = 3;
+        String datasetSecondPersistentId =  "dmbq4v";
+        int datasetSecondId = 103;
+
+        String workflowSecondPersistentId = "vHQEhe";
+        int workflowSecondId = 21;
+
+        mvc.perform(
+                get("/api/datasets/{id}/history", datasetPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(datasetId)));
+
+
+        mvc.perform(
+                get("/api/workflows/{id}/history", workflowPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(workflowId)));
+
+        mvc.perform(
+                get("/api/training-materials/{id}/history", trainingMaterialPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[1].id", is(6)))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[2].id", is(5)));
+
+        String response = mvc.perform(
+                get("/api/datasets/{id}/merge", datasetPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowPersistentId, trainingMaterialPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
-        String mergedResponse2 = mvc.perform(
+        String mergedResponse = mvc.perform(
                 post("/api/datasets/merge")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", datasetId, workflowId, trainingMaterialId)
+                        .param("with", datasetPersistentId, workflowPersistentId, trainingMaterialPersistentId)
                         .content(response)
                         .header("Authorization", MODERATOR_JWT)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", not(datasetId)))
+                .andExpect(jsonPath("persistentId", not(datasetPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
+        String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, DatasetDto.class).getPersistentId();
 
+        int mergedId  = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, DatasetDto.class).getId().intValue();
+
+        String mergedLabel = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, DatasetDto.class).getLabel();
+
+        mvc.perform(
+                get("/api/datasets/{id}/history", mergedPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(6)))
+                .andExpect(jsonPath("$[0].persistentId", is(mergedPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(mergedId)))
+                .andExpect(jsonPath("$[1].persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("$[1].id", is(workflowId)))
+                .andExpect(jsonPath("$[2].persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("$[2].id", is(datasetId)))
+                .andExpect(jsonPath("$[3].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[3].id", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[4].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[4].id", is(6)))
+                .andExpect(jsonPath("$[5].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[5].id", is(5)));
+
+
+        mvc.perform(
+                get("/api/tools-services/{id}/history", toolPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(toolId)));
+
+
+        mvc.perform(
+                get("/api/datasets/{id}/history", datasetSecondPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].persistentId", is(datasetSecondPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(datasetSecondPersistentId)))
+                .andExpect(jsonPath("$[1].id", is(9)));
+
+        String response2 = mvc.perform(
+                get("/api/datasets/{id}/merge", mergedPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", toolPersistentId, datasetSecondPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data" )))
+                .andReturn().getResponse().getContentAsString();
+
+
+        String mergedResponse2 = mvc.perform(
+                post("/api/datasets/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", mergedPersistentId, toolPersistentId, datasetSecondPersistentId)
+                        .content(response2)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data" ))) .andReturn().getResponse().getContentAsString();
+
+        String mergedSecondPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse2, DatasetDto.class).getPersistentId();
+
+        int mergedSecondId  = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse2, DatasetDto.class).getId().intValue();
+
+        String mergedSecondLabel = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse2, DatasetDto.class).getLabel();
+
+
+        mvc.perform(
+                get("/api/datasets/{id}/history", mergedSecondPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(12)));
+
+        mvc.perform(
+                get("/api/workflows/{id}/history", workflowSecondPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].persistentId", is(workflowSecondPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(workflowSecondId)));
+
+        String response3 = mvc.perform(
+                get("/api/datasets/{id}/merge", mergedSecondPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowSecondPersistentId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data/Evaluation of an inflectional analyzer")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse3 = mvc.perform(
+                post("/api/datasets/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", mergedSecondPersistentId, workflowSecondPersistentId)
+                        .content(response3)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data/Evaluation of an inflectional analyzer")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedThirdPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse3, DatasetDto.class).getPersistentId();
+
+
+        mvc.perform(
+                get("/api/datasets/{id}/history", mergedThirdPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(14)))
+                .andExpect(jsonPath("$[0].persistentId", is(mergedThirdPersistentId)));
     }
 
 }
