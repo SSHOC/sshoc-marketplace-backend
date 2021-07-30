@@ -23,11 +23,15 @@ import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
+import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -367,8 +371,9 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         List<String> tmpMergingList = new ArrayList<>(mergeList);
         tmpMergingList.add(persistentId);
 
+
         if (!checkMergeStepConsistency(tmpMergingList))
-            throw new IllegalStateException("Steps to merge are from different workflows!" );
+            throw new IllegalArgumentException("Steps to merge are from different workflows!" );
 
         return prepareMergeItems(persistentId, mergeList);
     }
@@ -378,7 +383,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         StepDto stepDto;
 
         if (!checkMergeStepConsistency(mergeList))
-            throw new IllegalStateException("Steps to merge are from different workflows!" );
+            throw new IllegalArgumentException("Steps to merge are from different workflows!" );
 
         String stepId = findStep(mergeList);
         List<String> stepList = findAllStep(mergeList);
@@ -391,7 +396,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
             stepList.remove(stepId);
         }
 
-        // TODO Eliza - why we remove these steps ?
+
         if (!stepList.isEmpty()) {
             removeStepsFromTree(workflowId, stepList);
         }

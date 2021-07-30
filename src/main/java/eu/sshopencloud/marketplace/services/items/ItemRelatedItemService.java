@@ -11,6 +11,7 @@ import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelatedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
+import eu.sshopencloud.marketplace.validators.CollectionUtils;
 import eu.sshopencloud.marketplace.validators.items.ItemRelationFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -87,7 +88,7 @@ public class ItemRelatedItemService {
         Map<String, Item> relatedVersions = new HashMap<>();
         Map<Long, ItemRelation> savedRelations = new HashMap<>();
 
-        if (relatedItems == null || isAllNulls(relatedItems))
+        if (relatedItems == null || CollectionUtils.isAllNulls(relatedItems))
             relatedItems = new ArrayList<>();
 
         List<RelatedItemDto> prevRelations = (prevItem != null) ? getRelatedItems(prevItem.getId()) : new ArrayList<>();
@@ -169,7 +170,7 @@ public class ItemRelatedItemService {
 
     private void validateNewRelatedItems(List<RelatedItemCore> relatedItems) {
 
-        if (relatedItems == null || isAllNulls(relatedItems))
+        if (relatedItems == null || CollectionUtils.isAllNulls(relatedItems))
             return;
 
         Set<String> relatedPersistentIds = new HashSet<>();
@@ -337,14 +338,6 @@ public class ItemRelatedItemService {
         if (itemRelatedItemRepository.existsById(relationId)) {
             itemRelatedItemRepository.deleteById(relationId);
         }
-    }
-
-    // TODO Eliza move this to the utility class eu.sshopencloud.marketplace.validators.CollectionUtils and reuse where needed:
-    // - src/main/java/eu/sshopencloud/marketplace/validators/actors/ActorFactory.java 70
-    // - src/main/java/eu/sshopencloud/marketplace/validators/items/ItemContributorFactory.java 29
-    // - src/main/java/eu/sshopencloud/marketplace/validators/vocabularies/PropertyFactory.java 32
-    public static boolean isAllNulls(Iterable<?> array) {
-        return StreamSupport.stream(array.spliterator(), true).allMatch(o -> Objects.isNull(o));
     }
 
 }

@@ -1754,6 +1754,7 @@ public class TrainingMaterialControllerITCase {
     public void shouldReturnTrainingMaterialInformationContributorsForVersion() throws Exception {
 
         String trainingMaterialPersistentId = "heBAGQ";
+        int trainingMaterialId = 4;
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Gephi: explore the networks");
@@ -1761,6 +1762,26 @@ public class TrainingMaterialControllerITCase {
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
+
+        mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(trainingMaterialId)));
+
+        mvc.perform(get("/api/training-materials/{id}/information-contributors", trainingMaterialPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].username", is("Moderator")))
+                .andExpect(jsonPath("$[0].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("moderator")))
+                .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
 
         String jsonResponse = mvc.perform(put("/api/training-materials/{id}", trainingMaterialPersistentId)
                 .content(payload)
@@ -1786,6 +1807,7 @@ public class TrainingMaterialControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", is( 1)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[0].displayName", is("Administrator")))
                 .andExpect(jsonPath("$[1].id", is(2)))
@@ -1798,13 +1820,23 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[1].config", is(true)));
 
 
-        Long beforeVersionId = 4l;
+        Long beforeVersionId = 2l;
+        int beforeVersion = 2;
 
-        mvc.perform(get("/api/training-materials/{id}/versions/{versionId}/information-contributors", trainingMaterialPersistentId, beforeVersionId)
+        mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(versionId.intValue())))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[1].id", is(trainingMaterialId)));
+
+        mvc.perform(get("/api/training-materials/{id}/versions/{versionId}/information-contributors", trainingMaterialPersistentId,  trainingMaterialId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].id", is( beforeVersion)))
                 .andExpect(jsonPath("$[0].username", is("Moderator")))
                 .andExpect(jsonPath("$[0].displayName", is("Moderator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
@@ -1905,6 +1937,9 @@ public class TrainingMaterialControllerITCase {
         String trainingMaterialId = "WfcKvG";
         String datasetId = "OdKfPc";
         String toolId = "Xgufde";
+
+        String trainingMaterialSecondId = "heBAGQ";
+        String workflowId = "tqmbGY";
 
         mvc.perform(
                 get("/api/training-materials/{id}/sources", datasetId)
