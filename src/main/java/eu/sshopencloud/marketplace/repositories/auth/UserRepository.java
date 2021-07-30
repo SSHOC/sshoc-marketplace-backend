@@ -58,18 +58,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value =
             "WITH RECURSIVE sub_item AS ( " +
                     "   WITH RECURSIVE merge_item AS (" +
-                    "       SELECT v.id, v.merged_with_id" +
+                    "       SELECT v.id, v.merged_with_id, i.id AS itemId" +
                     "       FROM versioned_items v" +
                     "       INNER JOIN items i ON i.persistent_id = v.id" +
-                    "       WHERE v.merged_with_id = :persistentId OR (i.persistent_id = :persistentId and i.id = :versionId) " +
+                    "       WHERE i.persistent_id = :persistentId and i.id = :versionId " +
                     "       UNION" +
-                    "       SELECT v.id, v.merged_with_id " +
-                    "       FROM versioned_items v, merge_item m" +
-                    "       WHERE m.id = v.merged_with_id)" +
+                    "       SELECT v.id, v.merged_with_id, i.id" +
+                    "       FROM versioned_items v, merge_item m, items i" +
+                    "       WHERE m.id = v.merged_with_id and i.persistent_id = v.id)" +
                     "   SELECT i.persistent_id , i.id,  i.prev_version_id" +
                     "   FROM merge_item m" +
                     "   INNER JOIN items i " +
-                    "   ON i.persistent_id  = m.id " +
+                    "   ON i.persistent_id  = m.id and m.itemId = i.id" +
                     "   UNION" +
                     "   SELECT i.persistent_id, i.id, i.prev_version_id" +
                     "   FROM items i, sub_item si" +
