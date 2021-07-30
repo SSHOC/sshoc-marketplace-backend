@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
+import eu.sshopencloud.marketplace.validators.CollectionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class PropertyFactory {
     public List<Property> create(List<PropertyCore> propertyCores, Item item, Errors errors, String nestedPath) {
         List<Property> properties = new ArrayList<>();
 
-        if (propertyCores != null && !isAllNulls(propertyCores)) {
+        if (propertyCores != null && !CollectionUtils.isAllNulls(propertyCores)) {
             for (int i = 0; i < propertyCores.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
                 PropertyCore propertyCore = propertyCores.get(i);
@@ -86,7 +87,4 @@ public class PropertyFactory {
         return null;
     }
 
-    public static boolean isAllNulls(Iterable<?> array) {
-        return StreamSupport.stream(array.spliterator(), true).allMatch(o -> Objects.isNull(o));
-    }
 }

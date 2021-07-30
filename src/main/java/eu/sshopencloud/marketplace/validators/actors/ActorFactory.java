@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
+import eu.sshopencloud.marketplace.validators.CollectionUtils;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -67,7 +68,7 @@ public class ActorFactory {
 
     private List<Actor> prepareAffiliations(List<ActorId> actorIds, Actor affiliatedActor, Errors errors, String nestedPath) {
         List<Actor> actors = new ArrayList<Actor>();
-        if (actorIds != null && !Objects.isNull(actorIds.get(0))) {
+        if (actorIds != null && !CollectionUtils.isAllNulls(actorIds)) {
             for (int i = 0; i < actorIds.size(); i++) {
                 errors.pushNestedPath(nestedPath + "[" + i + "]");
                 Actor actor = prepareAffiliation(actorIds.get(i), errors);

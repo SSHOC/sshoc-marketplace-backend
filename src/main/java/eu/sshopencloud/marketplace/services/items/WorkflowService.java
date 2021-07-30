@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -276,26 +277,28 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public void collectTrees(StepsTree parent, List<StepsTree> stepsTrees) {
         StepsTree s;
+        List<StepsTree> subTrees = new ArrayList<>();
+
         for (int i = 0; i < stepsTrees.size(); i++) {
             s = stepsTrees.get(i);
             if (!s.isRoot() && !Objects.isNull(s.getId()))
                 if (s.getSubTrees().size() > 0) {
                     stepService.addStepToTree(s.getStep(), null, parent);
-                    //WHICH IS OPTIMAL ?
-                    //Step step = s.getStep();
-                    //List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
-                    //StepsTree nextParent = nextParentList.get(0);
-                    i = i + s.getSubTrees().size();
-                    StepsTree nextParent2 = parent.getSubTrees().get(parent.getSubTrees().size() - 1);
-                    collectTrees(nextParent2, s.getSubTrees());
+                    Step step = s.getStep();
+                    List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
+                    StepsTree nextParent = nextParentList.get(0);
+                    subTrees.addAll(s.getSubTrees());
+                    collectTrees(nextParent, s.getSubTrees());
                 } else {
-                    stepService.addStepToTree(s.getStep(), null, parent);
+                    if (!subTrees.contains(s))
+                        stepService.addStepToTree(s.getStep(), null, parent);
                 }
         }
     }
 
     public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) {
         Workflow workflow = createItem(mergeWorkflow, false);
+
         workflow = mergeItem(workflow.getPersistentId(), mergeList);
 
         WorkflowDto workflowDto = prepareItemDto(workflow);
@@ -313,6 +316,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         List<String> mergeWorkflowsList = new ArrayList<>();
         for (int i = 0; i < mergeList.size(); i++)
             if (checkIfWorkflow(mergeList.get(i))) mergeWorkflowsList.add(mergeList.get(i));
+
         return mergeWorkflowsList;
     }
 
