@@ -1436,6 +1436,32 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("$[0].persistentId", is( toolPersistentId)));
     }
 
+    @Test
+    public void shouldCreateToolWithoutLineBreaksInLabel() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Test \n\rsimple \nsoftware\r");
+        tool.setDescription("Lorem ipsum");
+        tool.setAccessibleAt(Arrays.asList("http://fake.tapor.ca"));
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/tools-services")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Test simple software")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
+                .andExpect(jsonPath("informationContributor.username", is("Contributor")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("source", nullValue()));
+    }
+
 
 
 }
