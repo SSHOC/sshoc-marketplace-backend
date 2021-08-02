@@ -104,9 +104,11 @@ public class StepsTree {
 
         int stepOrd = resolveOrd(stepNo);
         StepsTree subtree = newAddedTree(step);
+
+        //Eliza
+        removePreviousStep(step);
         subTrees.add(stepOrd, subtree);
 
-        removePreviousStep(step);
     }
 
     public void replaceStep(Step step, int stepNo, Step replacedStep) {

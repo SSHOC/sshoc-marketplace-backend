@@ -1397,12 +1397,5 @@ public class ToolControllerITCase {
 
     }
 
-    @Test
-    public void shouldGetSourcesForTool()  throws Exception {
-
-
-    }
-
-
 
 }
