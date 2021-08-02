@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import eu.sshopencloud.marketplace.model.items.ItemMediaType;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
@@ -46,7 +47,7 @@ public class ItemFactory {
         if (StringUtils.isBlank(itemCore.getLabel())) {
             errors.rejectValue("label", "field.required", "Label is required.");
         } else {
-            item.setLabel(itemCore.getLabel());
+            item.setLabel(LineBreakConverter.removeLineBreaks(itemCore.getLabel()));
         }
 
         item.setVersion(itemCore.getVersion());

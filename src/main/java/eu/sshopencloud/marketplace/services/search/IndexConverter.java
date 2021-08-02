@@ -13,6 +13,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +37,11 @@ public class IndexConverter {
     public IndexItem convertItem(Item item) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
+        String labelText = LineBreakConverter.removeLineBreaks(item.getLabel());
         builder.versionId(item.getId())
                 .persistentId(item.getPersistentId())
                 .label(item.getLabel())
-                .labelText(item.getLabel())
+                .labelText(labelText)
                 .labelTextEn(item.getLabel())
                 .description(item.getDescription())
                 .descriptionText(descriptionText)
