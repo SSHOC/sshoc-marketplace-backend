@@ -12,16 +12,16 @@ databaseChangeLog:
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
-                  defaultValue: 'https://www.{id}'
+                  defaultValue: 'https://www.{source-actor-id}'
         - sql:
             sql: >
-              update actor_external_sources set url_template = 'https://www.wikidata.org/wiki/{id}' where code = 'Wikidata'
+              update actor_external_sources set url_template = 'https://www.wikidata.org/wiki/{source-actor-id}' where code = 'Wikidata'
         - sql:
             sql: >
-              update actor_external_sources set url_template = 'https://dblp.org/{pid}' where code = 'DBLP'
+              update actor_external_sources set url_template = 'https://dblp.org/{source-actor-id}' where code = 'DBLP'
         - sql:
             sql: >
-              update actor_external_sources set url_template = 'https://pub.sandbox.orcid.org/v3.0/{orcid}' where code = 'ORCID'
+              update actor_external_sources set url_template = 'https://pub.sandbox.orcid.org/v3.0/{source-actor-id}' where code = 'ORCID'
 
   - changeSet:
       id: 0048-SSHOC_80-url_template_externalId-2
@@ -36,11 +36,11 @@ databaseChangeLog:
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
-                  defaultValue: 'https://www.{id}'
+                  defaultValue: 'https://www.{source-item-id}'
         - sql:
             sql: >
-              update item_external_sources set url_template = 'https://www.wikidata.org/wiki/{id}' where code = 'Wikidata'
+              update item_external_sources set url_template = 'https://www.wikidata.org/wiki/{source-item-id}' where code = 'Wikidata'
         - sql:
             sql: >
-              update item_external_sources set url_template = 'https://github.com/{id}' where code = 'GitHub'
+              update item_external_sources set url_template = 'https://github.com/{source-item-id}' where code = 'GitHub'
 

@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.services.actors.ActorExternalIdService;
 import eu.sshopencloud.marketplace.services.actors.ActorSourceService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
@@ -60,8 +61,10 @@ public class ActorExternalIdFactory {
         return actorExternalIds;
     }
 
+    //ELiza
     public ActorExternalId create(ActorExternalIdCore externalId, Actor actor, Errors errors) {
         Optional<ActorSource> actorSource = actorSourceService.loadActorSource(externalId.getIdentifierService().getCode());
+
 
         if (actorSource.isEmpty()) {
             errors.rejectValue(
