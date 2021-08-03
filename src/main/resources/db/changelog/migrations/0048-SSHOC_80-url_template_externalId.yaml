@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0048-SSHOC_80-url_template_externalId-1
+      description: adding column with url template to actor_external_sources table
+      author: ekalata
+      changes:
+        - addColumn:
+            tableName: actor_external_sources
+            columns:
+              - column:
+                  name: url_template
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: >
+              update actor_external_sources s set url_template = (
+                select persistent_id from items i
+                  join items_items_comments ic on ic.item_id = i.id
+                  where c.id = ic.item_comment_id
+              )
+
+
+
