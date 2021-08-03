@@ -114,7 +114,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.code", is("new-property-type")))
                 .andExpect(jsonPath("$.label", is("New property type")))
                 .andExpect(jsonPath("$.type", is("concept")))
-                .andExpect(jsonPath("$.ord", is(27)))
+                .andExpect(jsonPath("$.ord", is(28)))
                 .andExpect(jsonPath("$.allowedVocabularies", hasSize(2)))
                 .andExpect(jsonPath("$.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "iana-mime-type")));
 
@@ -127,7 +127,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.code", is("new-property-type")))
                 .andExpect(jsonPath("$.label", is("New property type")))
                 .andExpect(jsonPath("$.type", is("concept")))
-                .andExpect(jsonPath("$.ord", is(27)))
+                .andExpect(jsonPath("$.ord", is(28)))
                 .andExpect(jsonPath("$.allowedVocabularies", hasSize(2)))
                 .andExpect(jsonPath("$.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "iana-mime-type")));
     }
