@@ -19,4 +19,6 @@ public class ItemSourceCore {
     private String label;
 
     private Integer ord;
+
+    private String urlTemplate;
 }
