@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0047-SSHOC_100-boolean_type_for_properties-1
+      description: updating record for property types table in dev data
+      author: ekalata
+      changes:
+        - sql:
+            sql: >
+              update property_types set group_name = 'Curation' where code = 'deprecated-at-source';
+              update property_types set hidden = true where code = 'deprecated-at-source';
+
+  - changeSet:
+      id: 0047-SSHOC_100-boolean_type_for_properties-2
+      description: updating property types type for record
+      author: ekalata
+      changes:
+        - update:
+            tableName: property_types
+            where: code = 'deprecated-at-source'
+            columns:
+              - column:
+                  name: type
+                  value: BOOLEAN
