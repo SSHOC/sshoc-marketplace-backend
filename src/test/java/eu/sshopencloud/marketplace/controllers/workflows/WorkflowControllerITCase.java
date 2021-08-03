@@ -2500,7 +2500,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldCreateSimpleWorkflowWithStepsInGivenOrder2() throws Exception {
+    public void shouldWorkflowWithStepsAndChangeItsOrder() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test simple workflow with steps");
         workflow.setDescription("Lorem ipsum");
