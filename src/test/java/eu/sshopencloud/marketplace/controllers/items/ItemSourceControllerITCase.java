@@ -82,6 +82,7 @@ public class ItemSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.test.org/{source-item-id}")))
                 .andExpect(jsonPath("label", is("Test source service")));
 
         mvc.perform(get("/api/item-sources")
@@ -116,6 +117,7 @@ public class ItemSourceControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
                 .andExpect(jsonPath("label", is("Test source service")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.test.org/{source-item-id}")))
                 .andExpect(jsonPath("ord", is(3)));
 
         mvc.perform(get("/api/item-sources")
@@ -177,6 +179,7 @@ public class ItemSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("Wikidata")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.wikidata.org/wiki/{source-item-id}")))
                 .andExpect(jsonPath("label", is("Wikidata v2")));
 
         mvc.perform(get("/api/item-sources")
@@ -206,6 +209,7 @@ public class ItemSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("Wikidata")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.wikidata.org/wiki/{source-item-id}")))
                 .andExpect(jsonPath("label", is("Wikidata test")));
 
 
@@ -337,5 +341,44 @@ public class ItemSourceControllerITCase {
                         .header("Authorization", ADMINISTRATOR_JWT)
         )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldNotCreateItemSourceWithoutUrlTemplate() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
+                .code("test")
+                .label("Test...")
+                .ord(1)
+                .build();
+
+        String payload = mapper.writeValueAsString(itemSource);
+
+        mvc.perform(
+                post("/api/item-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotCreateItemSourceWithWrongUrlTemplate() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
+                .code("test")
+                .label("Test...")
+                .urlTemplate("https://www.test.org/{item-id}")
+                .ord(1)
+                .build();
+
+        String payload = mapper.writeValueAsString(itemSource);
+
+        mvc.perform(
+                post("/api/item-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
     }
 }

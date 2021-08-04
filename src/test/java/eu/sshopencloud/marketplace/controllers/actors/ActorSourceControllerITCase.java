@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorSourceCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorSourceId;
+import eu.sshopencloud.marketplace.dto.items.ItemSourceCore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,6 +85,7 @@ public class ActorSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.test.org/{source-actor-id}")))
                 .andExpect(jsonPath("label", is("Test source service")));
 
         mvc.perform(get("/api/actor-sources")
@@ -115,8 +117,8 @@ public class ActorSourceControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
                 .andExpect(jsonPath("label", is("Test source service")))
-                .andExpect(jsonPath("ord", is(4)))
-        ;
+                .andExpect(jsonPath("urlTemplate", is("https://www.test.org/{source-actor-id}")))
+                .andExpect(jsonPath("ord", is(4)));
 
         mvc.perform(get("/api/actor-sources")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -156,6 +158,7 @@ public class ActorSourceControllerITCase {
         mvc.perform(get("/api/actor-sources/Wikidata"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("Wikidata")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
                 .andExpect(jsonPath("label", is("Wikidata")));
     }
 
@@ -178,6 +181,7 @@ public class ActorSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("Wikidata")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
                 .andExpect(jsonPath("label", is("Wikidata v2")));
 
         mvc.perform(get("/api/actor-sources")
@@ -292,5 +296,44 @@ public class ActorSourceControllerITCase {
                         .header("Authorization", ADMINISTRATOR_JWT)
         )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldNotCreateItemSourceWithoutUrlTemplate() throws Exception {
+        ActorSourceCore actorSource = ActorSourceCore.builder()
+                .code("test")
+                .label("Test...")
+                .ord(1)
+                .build();
+
+        String payload = mapper.writeValueAsString(actorSource);
+
+        mvc.perform(
+                post("/api/actor-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotCreateItemSourceWithWrongUrlTemplate() throws Exception {
+        ActorSourceCore actorSource = ActorSourceCore.builder()
+                .code("test")
+                .label("Test...")
+                .urlTemplate("https://www.test.org/{item-id}")
+                .ord(1)
+                .build();
+
+        String payload = mapper.writeValueAsString(actorSource);
+
+        mvc.perform(
+                post("/api/actor-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
     }
 }
