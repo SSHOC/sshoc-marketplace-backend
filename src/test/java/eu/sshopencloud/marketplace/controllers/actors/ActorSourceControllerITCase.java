@@ -70,6 +70,7 @@ public class ActorSourceControllerITCase {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test source service")
+                .urlTemplate("https://www.test.org/{source-actor-id}")
                 .ord(3)
                 .build();
 
@@ -100,6 +101,7 @@ public class ActorSourceControllerITCase {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test source service")
+                .urlTemplate("https://www.test.org/{source-actor-id}")
                 .build();
 
         String payload = mapper.writeValueAsString(actorSource);
@@ -162,6 +164,7 @@ public class ActorSourceControllerITCase {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("Wikidata")
                 .label("Wikidata v2")
+                .urlTemplate("https://www.wikidata.org/wiki/{source-actor-id}")
                 .ord(1)
                 .build();
 
@@ -276,6 +279,7 @@ public class ActorSourceControllerITCase {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test v2")
+                .urlTemplate("https://www.test.org/{source-actor-id}")
                 .ord(4)
                 .build();
 

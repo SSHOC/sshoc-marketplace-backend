@@ -68,6 +68,7 @@ public class ItemSourceControllerITCase {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test source service")
+                .urlTemplate("https://www.test.org/{source-item-id}")
                 .ord(2)
                 .build();
 
@@ -101,6 +102,7 @@ public class ItemSourceControllerITCase {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test source service")
+                .urlTemplate("https://www.test.org/{source-item-id}")
                 .build();
 
         String payload = mapper.writeValueAsString(itemSource);
@@ -161,6 +163,7 @@ public class ItemSourceControllerITCase {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("Wikidata")
                 .label("Wikidata v2")
+                .urlTemplate("https://www.wikidata.org/wiki/{source-item-id}")
                 .ord(2)
                 .build();
 
@@ -190,6 +193,7 @@ public class ItemSourceControllerITCase {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("Wikidata")
                 .label("Wikidata test")
+                .urlTemplate("https://www.wikidata.org/wiki/{source-item-id}")
                 .build();
 
         String payload = mapper.writeValueAsString(itemSource);
@@ -320,6 +324,7 @@ public class ItemSourceControllerITCase {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test v2")
+                .urlTemplate("https://www.test.org/{source-item-id}")
                 .ord(3)
                 .build();
 
