@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.repositories.actors.ActorSourceRepository;
 import eu.sshopencloud.marketplace.domain.common.BaseOrderableEntityService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -42,11 +43,17 @@ public class ActorSourceService extends BaseOrderableEntityService<ActorSource, 
 
     public ActorSourceDto createActorSource(ActorSourceCore actorSourceCore) {
         ActorSource actorSource = new ActorSource(
-                actorSourceCore.getCode(), actorSourceCore.getLabel()
+                actorSourceCore.getCode(), actorSourceCore.getLabel(), actorSourceCore.getUrlTemplate()
         );
 
         if (actorSource.getCode() == null)
             throw new IllegalArgumentException("Actor's source's code is required.");
+
+        if (StringUtils.isBlank(actorSource.getUrlTemplate())) {
+            throw new IllegalArgumentException("Actor's source's url template is required.");
+        } else if (!actorSource.getUrlTemplate().contains("{source-actor-id}"))
+            throw new IllegalArgumentException("Actor's source's url template has to contain {source-item-id} substring.");
+
 
         placeEntryAtPosition(actorSource, actorSourceCore.getOrd(), true);
         actorSource = actorSourceRepository.save(actorSource);
@@ -59,6 +66,7 @@ public class ActorSourceService extends BaseOrderableEntityService<ActorSource, 
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Actor source with code %s not found", code)));
 
         actorSource.setLabel(actorSourceCore.getLabel());
+        actorSource.setUrlTemplate(actorSourceCore.getUrlTemplate());
         placeEntryAtPosition(actorSource, actorSourceCore.getOrd(), false);
 
         return ActorSourceMapper.INSTANCE.toDto(actorSource);
@@ -71,8 +79,7 @@ public class ActorSourceService extends BaseOrderableEntityService<ActorSource, 
         try {
             actorSourceRepository.deleteById(code);
             removeEntryFromPosition(code);
-        }
-        catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(String.format("Actor source with code %s not found", code));
         }
     }

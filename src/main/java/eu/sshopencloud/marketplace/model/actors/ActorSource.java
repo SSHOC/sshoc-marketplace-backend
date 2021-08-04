@@ -33,6 +33,13 @@ public class ActorSource implements OrderableEntity<String> {
         this.ord = 0;
     }
 
+    public ActorSource(String code, String label, String urlTemplate) {
+        this.code = code;
+        this.label = label;
+        this.ord = 0;
+        this.urlTemplate =urlTemplate;
+    }
+
 
     @Override
     public String getId() {

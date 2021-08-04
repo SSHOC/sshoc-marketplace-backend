@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.model.items.ItemSource;
 import eu.sshopencloud.marketplace.repositories.items.ItemSourceRepository;
 import eu.sshopencloud.marketplace.domain.common.BaseOrderableEntityService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -44,10 +45,17 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
         ItemSource newItemSource = ItemSource.builder()
                 .code(itemSourceCore.getCode())
                 .label(itemSourceCore.getLabel())
+                .urlTemplate(itemSourceCore.getUrlTemplate())
                 .build();
 
         if (newItemSource.getCode() == null)
             throw new IllegalArgumentException("Item's source's code is required.");
+
+        if (StringUtils.isBlank(newItemSource.getUrlTemplate())) {
+            throw new IllegalArgumentException("Item's source's url template is required.");
+        } else if (!newItemSource.getUrlTemplate().contains("{source-item-id}"))
+            throw new IllegalArgumentException("Item's source's url template should contain {source-item-id} substring.");
+
 
         placeEntryAtPosition(newItemSource, itemSourceCore.getOrd(), true);
         newItemSource = itemSourceRepository.save(newItemSource);
@@ -60,6 +68,8 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Item source with code %s not found", code)));
 
         itemSource.setLabel(itemSourceCore.getLabel());
+        itemSource.setUrlTemplate(itemSourceCore.getUrlTemplate());
+
         placeEntryAtPosition(itemSource, itemSourceCore.getOrd(), false);
 
         return ItemSourceMapper.INSTANCE.toDto(itemSource);
@@ -72,8 +82,7 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
         try {
             itemSourceRepository.deleteById(code);
             removeEntryFromPosition(code);
-        }
-        catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(String.format("Actor role with code %s not found", code));
         }
     }

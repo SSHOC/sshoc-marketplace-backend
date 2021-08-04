@@ -61,7 +61,7 @@ public class ActorExternalIdFactory {
         return actorExternalIds;
     }
 
-    //ELiza
+
     public ActorExternalId create(ActorExternalIdCore externalId, Actor actor, Errors errors) {
         Optional<ActorSource> actorSource = actorSourceService.loadActorSource(externalId.getIdentifierService().getCode());
 
@@ -73,6 +73,12 @@ public class ActorExternalIdFactory {
             );
 
             return null;
+        }
+
+        if (StringUtils.isBlank(actorSource.get().getUrlTemplate())) {
+            errors.rejectValue("urlTemplate", "field.required", "Url template is required.");
+        } else if (!actorSource.get().getUrlTemplate().contains("{source-actor-id}")) {
+            errors.rejectValue("urlTemplate", "field.invalid", "Url template has to contain {source-actor-id} substring.");
         }
 
         Optional<ActorExternalId> actorExternalId = actorExternalIdService.loadActorExternalId(actorSource.get(), externalId.getIdentifier());
