@@ -122,6 +122,8 @@
     <field name="definition_text_en" type="text_en" indexed="true" stored="false" required="true" multiValued="false" />
     <field name="uri" type="string" indexed="false" stored="true" required="false" multiValued="false" />
     <field name="types" type="strings" indexed="true" stored="true" required="true" multiValued="true" />
+    <field name="candidate" type="boolean" indexed="true" stored="true" required="true" multiValued="false" />
+
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
     <field name="_version_" type="plong" indexed="false" stored="false"/>

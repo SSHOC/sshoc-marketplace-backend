@@ -37,7 +37,9 @@ public class SearchConceptRepository {
                         IndexConcept.NOTATION_FIELD,
                         IndexConcept.DEFINITION_FIELD,
                         IndexConcept.URI_FIELD,
-                        IndexConcept.TYPES_FIELD
+                        IndexConcept.TYPES_FIELD,
+                        //Eliza
+                        IndexConcept.CANDIDATE_FIELD
                 )
                 .setPageRequest(pageable);
 
