@@ -36,7 +36,7 @@ public enum SearchFacet {
     ),
 
     CANDIDATE(SearchFilter.CANDIDATE, IndexConcept.CANDIDATE_FIELD,
-            List.of(IndexConcept.CANDIDATE_FIELD),
+            Collections.singletonList(IndexConcept.CANDIDATE_FIELD),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 

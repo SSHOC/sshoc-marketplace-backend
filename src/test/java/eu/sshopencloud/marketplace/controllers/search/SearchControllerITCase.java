@@ -615,7 +615,7 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("concepts[0].label", is("Software")))
                 .andExpect(jsonPath("types.activity.count", is(7)))
                 .andExpect(jsonPath("types.activity.checked", is(true)))
-                .andExpect(jsonPath("facets.candidate.['false'].count", is(37)))
+                .andExpect(jsonPath("facets.candidate.['false'].count", is(7)))
                 .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));;
     }
 
@@ -640,23 +640,24 @@ public class SearchControllerITCase {
     @Test
     public void shouldReturnConceptsByCandidateFacet() throws Exception {
 
-        mvc.perform(get("/api/concept-search?q=software&candidate=true")
+        mvc.perform(get("/api/concept-search?q=new&candidate=true")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("facets.candidate.['false'].count", is(37)))
+                .andExpect(jsonPath("facets.candidate.['false'].count", is(9)))
                 .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));
 
-
-        String vocabularyCode = "tadirah-research-activity";
+        String vocabularyCode = "publication-type";
 
         ConceptCore conceptCore = ConceptCore.builder()
-                .code("New Candidate")
+                .code("new")
                 .label("New candidate concept")
+                .definition("test")
+                .notation("Test")
+                .relatedConcepts(null)
                 .build();
 
-
         mvc.perform(
-                post("/api/vocabularies/{vocabulary-code}/concepts/", vocabularyCode)
+                post("/api/vocabularies/{vocabulary-code}/concepts", vocabularyCode)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -664,18 +665,29 @@ public class SearchControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.code", is("New Candidate")))
+                .andExpect(jsonPath("$.code", is("new")))
                 .andExpect(jsonPath("$.label", is("New candidate concept")))
                 .andExpect(jsonPath("$.candidate", is(true)))
-                .andExpect(jsonPath("$.uri", is("http://tadirah.dariah.eu/researchactivity/instances/New Candidate")));
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/new")));
 
-        mvc.perform(get("/api/concept-search?q=software&d.candidate=tre")
+        mvc.perform(
+                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCore.getCode())
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is( conceptCore.getCode())))
+                .andExpect(jsonPath("$.label", is("New candidate concept")))
+                .andExpect(jsonPath("$.candidate", is(true)))
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/new")));
+
+        mvc.perform(get("/api/concept-search?q=code=new&facet.candidate=true")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 //.andExpect(jsonPath("concepts[0].code", is("83")))
                 //.andExpect(jsonPath("concepts[0].vocabulary.code", is("tadirah-activity")))
                 //.andExpect(jsonPath("concepts[0].label", is("Software")))
-                .andExpect(jsonPath("facets.candidate.['false'].count", is(1)))
-                .andExpect(jsonPath("facets.candidate.['false'].checked", is(true)));
+                .andExpect(jsonPath("facets.candidate.['true'].count", is(1)))
+                .andExpect(jsonPath("facets.candidate.['true'].checked", is(true)));
     }
 }
