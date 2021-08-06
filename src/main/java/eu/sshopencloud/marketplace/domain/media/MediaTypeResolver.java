@@ -22,6 +22,8 @@ class MediaTypeResolver {
 
     public MediaCategory resolve(MediaLocation mediaLocation) {
         URL mediaSourceUrl = mediaLocation.getSourceUrl();
+        System.out.println(mediaSourceService.getAllMediaSources());
+
         Optional<MediaSource> mediaSource = mediaSourceService.resolveMediaSource(mediaSourceUrl);
 
         if (mediaSource.isPresent())
