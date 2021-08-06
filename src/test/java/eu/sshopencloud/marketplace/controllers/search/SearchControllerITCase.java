@@ -629,4 +629,17 @@ public class SearchControllerITCase {
         )
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void shouldReturnConceptsByCandidateFacet() throws Exception {
+
+        mvc.perform(get("/api/concept-search?q=software&candidate=true")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                //.andExpect(jsonPath("concepts[0].code", is("83")))
+                //.andExpect(jsonPath("concepts[0].vocabulary.code", is("tadirah-activity")))
+                //.andExpect(jsonPath("concepts[0].label", is("Software")))
+                .andExpect(jsonPath("facets.candidate.['true'].count", is(7)))
+                .andExpect(jsonPath("facets.candidate.['true'].checked", is(true)));
+    }
 }

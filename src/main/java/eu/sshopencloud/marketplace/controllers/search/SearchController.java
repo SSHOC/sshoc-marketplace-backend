@@ -65,10 +65,17 @@ class SearchController {
                                                                   @RequestParam(value = "types", required = false) List<String> types,
                                                                   @RequestParam(value = "page", required = false) Integer page,
                                                                   @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                                  @Parameter(
+                                                                          description = "Facets parameters should be provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: "
+                                                                                  + SearchFilter.CONCEPT_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
+                                                                  @RequestParam(required = false) MultiValueMap<String, String> f,
                                                                   @RequestParam(value = "advanced", defaultValue = "false") boolean advanced)
-            throws PageTooLargeException {
 
-        return ResponseEntity.ok(searchService.searchConcepts(q, advanced, types, pageCoordsValidator.validate(page, perpage)));
+            throws PageTooLargeException, IllegalFilterException {
+
+        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(f);
+        Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
+        return ResponseEntity.ok(searchService.searchConcepts2(q, advanced, types, expressionParams, filterParams, pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping("/item-search/autocomplete")
