@@ -83,7 +83,6 @@ public class ConceptService {
         return conceptRepository.findByUri(uri);
     }
 
-    //Eliza
     public ConceptDto createConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) throws ConceptAlreadyExistsException {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
         String code = conceptFactory.resolveCode(conceptCore, vocabulary);
@@ -115,7 +114,7 @@ public class ConceptService {
         return count + 1;
     }
 
-    //Eliza
+
     public ConceptDto updateConcept(String code, ConceptCore conceptCore, String vocabularyCode) {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
         if (!conceptRepository.existsById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build())) {
@@ -138,7 +137,6 @@ public class ConceptService {
             .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));
         concept.setCandidate(false);
         concept = conceptRepository.save(concept);
-        //Eliza -> tutaj raczej reindex ??
         indexService.indexConcept(concept, concept.getVocabulary());
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);

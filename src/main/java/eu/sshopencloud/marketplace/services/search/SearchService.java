@@ -183,7 +183,6 @@ public class SearchService {
         }
     }
 
-    //Eliza
     public PaginatedSearchConcepts searchConcepts2(String q, boolean advanced, List<String> types,
                                                    @NotNull Map<String, String> expressionParams,
                                                    @NotNull Map<String, List<String>> filterParams,
@@ -200,7 +199,7 @@ public class SearchService {
         filterCriteria.add(makePropertyTypeCriteria(types));
         filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.CONCEPTS));
 
-        //Eliza
+
         FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters2(queryCriteria,expressionCriteria,  filterCriteria,pageable);
 
         Map<String, PropertyType> propertyTypes = propertyTypeService.getAllPropertyTypes();
@@ -230,7 +229,7 @@ public class SearchService {
     }
 
 
-    //Eliza
+
     public PaginatedSearchConcepts searchConcepts(String q, boolean advanced, List<String> types, PageCoords pageCoords) {
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         SearchQueryCriteria queryCriteria = new ConceptSearchQueryPhrase(q, advanced);
@@ -238,7 +237,6 @@ public class SearchService {
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         filterCriteria.add(makePropertyTypeCriteria(types));
 
-        //Eliza
         FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters(queryCriteria, filterCriteria, pageable);
 
         Map<String, PropertyType> propertyTypes = propertyTypeService.getAllPropertyTypes();

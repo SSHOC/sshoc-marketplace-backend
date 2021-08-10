@@ -65,7 +65,6 @@ public class SearchConceptRepository {
                         IndexConcept.DEFINITION_FIELD,
                         IndexConcept.URI_FIELD,
                         IndexConcept.TYPES_FIELD,
-                        //Eliza
                         IndexConcept.CANDIDATE_FIELD
                 )
                 .setPageRequest(pageable);
