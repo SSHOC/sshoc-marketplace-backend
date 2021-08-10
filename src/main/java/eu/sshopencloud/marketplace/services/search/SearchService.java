@@ -275,8 +275,6 @@ public class SearchService {
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
-
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
         FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable);
 
         PaginatedSearchActor result = PaginatedSearchActor.builder()

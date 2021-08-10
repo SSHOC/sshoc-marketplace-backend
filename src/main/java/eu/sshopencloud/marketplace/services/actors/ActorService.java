@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
+import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.validators.actors.ActorFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -25,6 +26,8 @@ public class ActorService {
     private final ActorRepository actorRepository;
 
     private final ActorFactory actorFactory;
+
+    private final IndexService indexService;
 
 
     public PaginatedActors getActors(String q, PageCoords pageCoords) {
@@ -60,6 +63,7 @@ public class ActorService {
     public ActorDto createActor(ActorCore actorCore) {
         Actor actor = actorFactory.create(actorCore, null);
         actorRepository.save(actor);
+        indexService.indexActor(actor);
         return ActorMapper.INSTANCE.toDto(actor);
     }
 
@@ -70,6 +74,7 @@ public class ActorService {
         }
         Actor actor = actorFactory.create(actorCore, id);
         actorRepository.save(actor);
+        indexService.indexActor(actor);
         return ActorMapper.INSTANCE.toDto(actor);
     }
 
