@@ -170,7 +170,6 @@ public class ConceptService {
     }
 
 
-    //Eliza
     public void removeConcept(String code, String vocabularyCode, boolean force) {
         Concept concept = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build())
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));

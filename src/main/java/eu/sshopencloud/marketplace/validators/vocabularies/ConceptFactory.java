@@ -40,7 +40,6 @@ public class ConceptFactory {
         return null;
     }
 
-    //Eliza
     public Concept create(ConceptCore conceptCore, Vocabulary vocabulary, String code) throws ValidationException {
         Concept concept = getOrCreateConcept(code, vocabulary);
 

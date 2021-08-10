@@ -78,7 +78,6 @@ public class IndexService {
         return indexConceptRepository.save(indexedConcept);
     }
 
-    //Eliza
     public void removeConcept(Concept concept, String vocabularyCode) {
         List<PropertyType> propertyTypes = propertyTypeService.getAllowedPropertyTypesForVocabulary(vocabularyCode);
         IndexConcept indexedConcept= IndexConverter.covertConcept(concept, vocabularyCode, propertyTypes);
