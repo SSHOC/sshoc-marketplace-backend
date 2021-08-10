@@ -65,7 +65,7 @@ public class IndexService {
     }
 
     public void reindexActors() {
-        clearItemIndex();
+        clearActorIndex();
         for (Actor actor : actorRepository.findAll()) {
             indexActor(actor);
         }
@@ -82,7 +82,6 @@ public class IndexService {
     public void clearItemIndex() {
         indexItemRepository.deleteAll();
     }
-
 
     public void reindexItems() {
         clearItemIndex();
