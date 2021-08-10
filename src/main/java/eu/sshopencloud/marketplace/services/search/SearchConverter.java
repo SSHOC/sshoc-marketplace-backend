@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
@@ -28,6 +29,20 @@ public class SearchConverter {
                 .status(ItemStatus.of(indexItem.getStatus()))
                 .owner(indexItem.getOwner())
                 .lastInfoUpdate(indexItem.getLastInfoUpdate())
+                .build();
+    }
+
+    //externalId + contributor + affiliation - > index in SOLR
+    public SearchActor convertIndexActor(IndexActor indexActor) {
+        return SearchActor.builder()
+                .id(Long.valueOf(indexActor.getId()))
+                .name(indexActor.getName())
+                .email(indexActor.getEmail())
+                .website(indexActor.getWebsite())
+
+                //.affiliations(indexActor.getAffiliations())
+                //.contributorTo()
+                //.externalId
                 .build();
     }
 

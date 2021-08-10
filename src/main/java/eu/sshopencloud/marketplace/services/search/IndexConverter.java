@@ -3,9 +3,12 @@ package eu.sshopencloud.marketplace.services.search;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.conf.datetime.SolrDateTimeFormatter;
 import eu.sshopencloud.marketplace.mappers.sources.SourceConverter;
+import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.model.items.ItemExternalId;
+import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
@@ -131,7 +134,7 @@ public class IndexConverter {
     }
 
 
-    public IndexConcept covertConcept(Concept concept, Vocabulary vocabulary, List<PropertyType> proopertyTypes) {
+    public IndexConcept covertConcept(Concept concept, Vocabulary vocabulary, List<PropertyType> propertyTypes) {
         IndexConcept.IndexConceptBuilder builder = IndexConcept.builder();
         builder.id(vocabulary.getCode() + "-" + concept.getCode())
                 .code(concept.getCode())
@@ -140,7 +143,32 @@ public class IndexConverter {
                 .notation(concept.getNotation())
                 .definition(concept.getDefinition() != null ? concept.getDefinition() : "") // TODO change definition to an optional field
                 .uri(concept.getUri())
-                .types(proopertyTypes.stream().map(PropertyType::getCode).collect(Collectors.toList()));
+                .types(propertyTypes.stream().map(PropertyType::getCode).collect(Collectors.toList()));
+        return builder.build();
+    }
+
+    public IndexActor covertActor(Actor actor) {
+       IndexActor.IndexActorBuilder builder = IndexActor.builder();
+
+       builder.id(actor.getId().toString())
+               .email(actor.getEmail())
+               .website(actor.getWebsite())
+               .name(actor.getName());
+
+
+        for (ItemContributor itemContributor: actor.getContributorTo()) {
+            String contributor = getItemContributorName(itemContributor);
+            builder.contributor(contributor).contributorText(contributor);
+        }
+
+        for (ActorExternalId actorExternalId: actor.getExternalIds()) {
+            builder.externalIdentifier(actorExternalId.getIdentifier());
+        }
+
+        for (ActorExternalId actorExternalId: actor.getExternalIds()) {
+            builder.affiliation(actorExternalId.getIdentifier()).affiliationText(actorExternalId.getIdentifier());
+        }
+
         return builder.build();
     }
 
