@@ -17,6 +17,8 @@ public enum SearchFilter {
 
     KEYWORD(IndexType.ITEMS, IndexItem.KEYWORD_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
+
+
     PROPERTY_TYPE(IndexType.CONCEPTS, IndexConcept.TYPES_FIELD, FilterType.VALUES_SELECTION_FILTER, true);
 
 
@@ -38,5 +40,7 @@ public enum SearchFilter {
     }
 
     public static final String ITEMS_INDEX_TYPE_FILTERS = "activity, source, keyword";
+
+    public static final String ACTORS_INDEX_TYPE_FILTERS = "name, email, website, external-identifier";
 
 }

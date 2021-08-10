@@ -6,9 +6,11 @@ import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
+import eu.sshopencloud.marketplace.repositories.search.SearchActorRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
@@ -48,7 +50,7 @@ public class SearchService {
     private final PropertyService propertyService;
     private final SearchConceptRepository searchConceptRepository;
     private final PropertyTypeService propertyTypeService;
-
+    private final SearchActorRepository searchActorRepository;
 
     public PaginatedSearchItems searchItems(String q, boolean advanced, @NotNull Map<String, String> expressionParams,
                                             List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams,
@@ -262,5 +264,37 @@ public class SearchService {
                 .phrase(searchPhrase)
                 .suggestions(suggestions)
                 .build();
+    }
+
+    public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, PageCoords pageCoords) throws IllegalFilterException {
+
+
+        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
+        SearchQueryCriteria queryCriteria = new IndexSearchQueryPhrase(q, advanced);
+
+        List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
+        List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
+
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable);
+
+        PaginatedSearchActor result = PaginatedSearchActor.builder()
+                .q(q)
+                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(facetPage.getTotalPages())
+               // .facets(facets)
+                .build();
+
+        //to do add affiliation, externalId and contributors
+        // TODO index contributors and properties directly in SOLR in nested docs (?)
+        /*
+        for (SearchItem item : result.getItems()) {
+            item.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(item.getId())));
+            item.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(item.getId())));
+        }*/
+
+        return result;
     }
 }

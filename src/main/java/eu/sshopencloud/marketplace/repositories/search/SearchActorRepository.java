@@ -34,7 +34,7 @@ public class SearchActorRepository {
     public FacetPage<IndexActor> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                        List<SearchExpressionCriteria> expressionCriteria,
                                                        List<SearchFilterCriteria> filterCriteria,
-                                                       List<SearchOrder> order, Pageable pageable) {
+                                                       Pageable pageable) {
 
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria.getQueryCriteria())
                 .addProjectionOnFields(
@@ -45,12 +45,33 @@ public class SearchActorRepository {
                         IndexActor.EXTERNAL_IDENTIFIER_FIELD
                         //Eliza
                 )
-                .addSort(Sort.by(createQueryOrder(order)))
                 .setPageRequest(pageable);
 
 
         expressionCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
         filterCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
+        facetQuery.setFacetOptions(createFacetOptions());
+
+        return solrTemplate.queryForFacetPage(IndexActor.COLLECTION_NAME, facetQuery, IndexActor.class, RequestMethod.GET);
+    }
+
+    public FacetPage<IndexActor> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
+                                                       List<SearchExpressionCriteria> expressionCriteria,
+                                                      Pageable pageable) {
+
+        SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria.getQueryCriteria())
+                .addProjectionOnFields(
+                        IndexActor.ID_FIELD,
+                        IndexActor.NAME_FIELD,
+                        IndexActor.WEBSITE_FIELD,
+                        IndexActor.EMAIL_FIELD,
+                        IndexActor.EXTERNAL_IDENTIFIER_FIELD
+                        //Eliza
+                )
+                .setPageRequest(pageable);
+
+
+        expressionCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
         facetQuery.setFacetOptions(createFacetOptions());
 
         return solrTemplate.queryForFacetPage(IndexActor.COLLECTION_NAME, facetQuery, IndexActor.class, RequestMethod.GET);
