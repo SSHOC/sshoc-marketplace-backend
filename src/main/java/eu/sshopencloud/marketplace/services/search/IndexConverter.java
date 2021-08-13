@@ -132,7 +132,6 @@ public class IndexConverter {
     }
 
 
-    //Eliza
     public IndexConcept covertConcept(Concept concept, Vocabulary vocabulary, List<PropertyType> propertyTypes) {
         IndexConcept.IndexConceptBuilder builder = IndexConcept.builder();
         builder.id(vocabulary.getCode() + "-" + concept.getCode())

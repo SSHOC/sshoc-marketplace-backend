@@ -21,25 +21,25 @@ public class IndexActor implements Serializable {
 
 
     public static final String ID_FIELD = "id";
-    public static final String NAME_FIELD = "name_s";
-    public static final String WEBSITE_FIELD = "website_s";
-    public static final String EMAIL_FIELD = "email_s";
-    public static final String EXTERNAL_IDENTIFIER_FIELD = "external_id_identifier_ss";
+    public static final String NAME_FIELD = "name";
+    public static final String WEBSITE_FIELD = "website";
+    public static final String EMAIL_FIELD = "email";
+    public static final String EXTERNAL_IDENTIFIER_FIELD = "external_identifier";
 
     @Id
-    @Indexed(ID_FIELD)
+    @Indexed(name = ID_FIELD, type = "string")
     private String id;
 
-    @Indexed(NAME_FIELD)
+    @Indexed(name = NAME_FIELD, type = "string")
     private String name;
 
-    @Indexed(WEBSITE_FIELD)
+    @Indexed(name = WEBSITE_FIELD, type = "string")
     private String website;
 
-    @Indexed(EMAIL_FIELD)
+    @Indexed(name = EMAIL_FIELD, type = "string")
     private String email;
 
-    @Indexed(EXTERNAL_IDENTIFIER_FIELD)
+    @Indexed(name = EXTERNAL_IDENTIFIER_FIELD, type = "strings")
     private List<String> externalIdentifier;
 
     /*

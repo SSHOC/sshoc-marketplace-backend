@@ -111,6 +111,11 @@
     -->
 
     <field name="id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="website" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="email" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="external_identifier" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
+
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
     <field name="_version_" type="plong" indexed="false" stored="false"/>

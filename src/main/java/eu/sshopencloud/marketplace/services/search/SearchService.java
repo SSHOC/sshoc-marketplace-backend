@@ -186,7 +186,9 @@ public class SearchService {
                 .map(entry -> SearchConverter.convertPropertyTypeFacet(entry, types, propertyTypes))
                 .collect(Collectors.toList());
 
-        PaginatedSearchConcepts result = PaginatedSearchConcepts.builder().q(q).concepts(facetPage.get().map(SearchConverter::convertIndexConcept).collect(Collectors.toList()))
+        PaginatedSearchConcepts result = PaginatedSearchConcepts.builder()
+                .q(q)
+                .concepts(facetPage.get().map(SearchConverter::convertIndexConcept).collect(Collectors.toList()))
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
@@ -268,30 +270,22 @@ public class SearchService {
 
     public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, PageCoords pageCoords) throws IllegalFilterException {
 
-
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         SearchQueryCriteria queryCriteria = new IndexSearchQueryPhrase(q, advanced);
 
-        List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
+        //List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
         FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable);
 
         PaginatedSearchActor result = PaginatedSearchActor.builder()
                 .q(q)
+                .actors(facetPage.get().map(SearchConverter::convertIndexActor).collect(Collectors.toList()))
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
-               // .facets(facets)
+                // .facets(facets)
                 .build();
-
-        //to do add affiliation, externalId and contributors
-        // TODO index contributors and properties directly in SOLR in nested docs (?)
-        /*
-        for (SearchItem item : result.getItems()) {
-            item.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(item.getId())));
-            item.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(item.getId())));
-        }*/
 
         return result;
     }
