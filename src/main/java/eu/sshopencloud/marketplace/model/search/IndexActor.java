@@ -24,7 +24,7 @@ public class IndexActor implements Serializable {
     public static final String NAME_FIELD = "name_s";
     public static final String WEBSITE_FIELD = "website_s";
     public static final String EMAIL_FIELD = "email_s";
-    public static final String EXTERNAL_IDENTIFIER_FIELD = "external_id_identifier_s\"";
+    public static final String EXTERNAL_IDENTIFIER_FIELD = "external_id_identifier_ss";
 
     @Id
     @Indexed(ID_FIELD)
@@ -40,7 +40,7 @@ public class IndexActor implements Serializable {
     private String email;
 
     @Indexed(EXTERNAL_IDENTIFIER_FIELD)
-    private String externalIdentifier;
+    private List<String> externalIdentifier;
 
     /*
     @ChildDocument

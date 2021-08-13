@@ -54,12 +54,12 @@ public class IndexConverter {
 
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
 
-        for (ItemContributor itemContributor: item.getContributors()) {
+        for (ItemContributor itemContributor : item.getContributors()) {
             String contributor = getItemContributorName(itemContributor);
             builder.contributor(contributor).contributorText(contributor);
         }
 
-        for (ItemExternalId itemExternalId: item.getExternalIds()) {
+        for (ItemExternalId itemExternalId : item.getExternalIds()) {
             builder.externalIdentifier(itemExternalId.getIdentifier());
         }
 
@@ -146,14 +146,20 @@ public class IndexConverter {
         return builder.build();
     }
 
-    //Eliza
     public IndexActor covertActor(Actor actor) {
-       IndexActor.IndexActorBuilder builder = IndexActor.builder();
+        IndexActor.IndexActorBuilder builder = IndexActor.builder();
+
+        List<String> externalIdIdentifiers = new ArrayList<>();
+
+        for (ActorExternalId actorExternalId : actor.getExternalIds()) {
+            externalIdIdentifiers.add(actorExternalId.getIdentifier());
+        }
 
         builder.id(actor.getId().toString())
                 .email(actor.getEmail())
                 .website(actor.getWebsite())
-                .name(actor.getName());
+                .name(actor.getName())
+                .externalIdentifier(externalIdIdentifiers);
 
         return builder.build();
     }
