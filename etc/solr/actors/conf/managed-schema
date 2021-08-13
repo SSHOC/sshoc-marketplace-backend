@@ -112,16 +112,15 @@
 
     <field name="id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
-
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
     <field name="_version_" type="plong" indexed="false" stored="false"/>
 
     <!-- If you don't use child/nested documents, then you should remove the next two fields:  -->
     <!-- for nested documents (minimal; points to root document) -->
 
-    <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
-     <fieldType name="_nest_path_" class="solr.NestPathField" />
-     <field name="_nest_path_" type="_nest_path_" />
+    <field name="_root_" type="string" indexed="true" stored="true" docValues="false" />
+    <!-- <fieldType name="_nest_path_" class="solr.NestPathField" />-->
+    <!-- <field name="_nest_path_" type="_nest_path_" />-->
     <!-- <field name="_nest_parent_" type="string" indexed="true" stored="true" />-->
 
     <!-- for nested documents (relationship tracking) -->

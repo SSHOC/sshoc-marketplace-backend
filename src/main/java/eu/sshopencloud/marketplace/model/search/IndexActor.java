@@ -19,61 +19,42 @@ import java.util.List;
 public class IndexActor implements Serializable {
     public static final String COLLECTION_NAME = "marketplace-actors";
 
+
     public static final String ID_FIELD = "id";
-
-    public static final String NAME_FIELD = "name";
-
-    public static final String WEBSITE_FIELD = "website";
-
-    public static final String EMAIL_FIELD = "email";
-
-    public static final String EXTERNAL_IDENTIFIER_FIELD = "external_identifiers";
-
-    //public static final String CONTRIBUTOR_FIELD = "contributor";
-    //public static final String CONTRIBUTOR_TEXT_FIELD = "contributor_text";
-
-    public static final String AFFILIATION_FIELD = "affiliation";
-    public static final String AFFILIATION_TEXT_FIELD = "affiliation_text";
-
+    public static final String NAME_FIELD = "name_s";
+    public static final String WEBSITE_FIELD = "website_s";
+    public static final String EMAIL_FIELD = "email_s";
+    public static final String EXTERNAL_IDENTIFIER_FIELD = "external_id_identifier_s\"";
 
     @Id
-    @Indexed
+    @Indexed(ID_FIELD)
     private String id;
 
-
-    @Indexed("name_s")
+    @Indexed(NAME_FIELD)
     private String name;
 
-    @Indexed("website_s")
+    @Indexed(WEBSITE_FIELD)
     private String website;
 
-    @Indexed("email_s")
+    @Indexed(EMAIL_FIELD)
     private String email;
 
-    @Indexed("external_identifier_ss")
-    private List<String> externalIdentifier;
+    @Indexed(EXTERNAL_IDENTIFIER_FIELD)
+    private String externalIdentifier;
 
+    /*
+    @ChildDocument
+    private List<IndexActorExternalId> externalIdentifier;
 
-    @Indexed("index_item_contributor")
     @ChildDocument
     private List<IndexItemContributor> indexItemContributor;
 
     @Indexed("root_b")
     private boolean root;
 
-    /*
-    @Indexed(name = CONTRIBUTOR_TEXT_FIELD, type = "text_general_rev")
-    @Singular("contributorText")
-    private List<String> contributorsText;
- */
+    @ChildDocument
+    private List<IndexActor> affiliation;
 
-    @Indexed( "affiliation_ss")
-    private List<String> affiliation;
-
-
-    @Indexed( "affiliation_text_ss")
-    private List<String> affiliationText;
-
-
+*/
 
 }

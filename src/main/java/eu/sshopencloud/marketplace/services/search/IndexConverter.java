@@ -150,52 +150,10 @@ public class IndexConverter {
     public IndexActor covertActor(Actor actor) {
        IndexActor.IndexActorBuilder builder = IndexActor.builder();
 
-       // IndexItemContributor.IndexItemContributorBuilder indexItemContributorBuilder = IndexItemContributor.builder();
-        List<IndexItemContributor> indexItemContributors = new ArrayList<>();
-
-
-        //builder.contributors(indexItemContributors);
-
-        List<String> externalIds = new ArrayList<>();
-        for (ActorExternalId actorExternalId: actor.getExternalIds()) {
-            externalIds.add(actorExternalId.getIdentifier());
-            //builder.e(actorExternalId.getIdentifier());
-        }
-        //builder.externalIdentifiers(externalIds);
-
-
-        List<String> affiliations = new ArrayList<>();
-        for (Actor actorTmp: actor.getAffiliations()) {
-            //builder.affiliation(actorExternalId.getIdentifier()).affiliationText(actorExternalId.getIdentifier());
-            affiliations.add(actorTmp.getId().toString());
-        }
-
-
         builder.id(actor.getId().toString())
-                .root(true)
                 .email(actor.getEmail())
                 .website(actor.getWebsite())
-                .name(actor.getName())
-               // .indexItemContributor(indexItemContributors)
-                .externalIdentifier(externalIds)
-                .affiliation(affiliations)
-                .affiliationText(affiliations);
-
-
-        for (ItemContributor itemContributor: actor.getContributorTo()) {
-
-            //String contributor = getItemContributorName(itemContributor);
-            IndexItemContributor indexItemContributor = new IndexItemContributor();
-            indexItemContributor.setId(itemContributor.getActor().getId() + " " + itemContributor.getItem().getPersistentId());
-            indexItemContributor.setRole(itemContributor.getRole().getCode());
-            indexItemContributor.setActor(itemContributor.getActor().getId());
-            indexItemContributor.setItem(itemContributor.getItem().getPersistentId());
-            indexItemContributor.setOrd(itemContributor.getOrd());
-
-            indexItemContributors.add( indexItemContributor);
-            // builder.contributor(contributor).contributorText(contributor);
-        }
-        builder.indexItemContributor(indexItemContributors);
+                .name(actor.getName());
 
         return builder.build();
     }

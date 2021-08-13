@@ -22,11 +22,10 @@ public class ActorController {
     private final ActorService actorService;
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedActors> getActors(@RequestParam(value = "q", required = false) String q,
-                                                     @RequestParam(value = "page", required = false) Integer page,
+    public ResponseEntity<PaginatedActors> getActors(@RequestParam(value = "page", required = false) Integer page,
                                                      @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
-        return ResponseEntity.ok(actorService.getActors(q, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(actorService.getActors(pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

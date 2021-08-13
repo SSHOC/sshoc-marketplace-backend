@@ -8,6 +8,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IndexActorRepository extends SolrCrudRepository<IndexActor, String> {
 
-    @Query(value = "root_b:true", fields = {"*", "[child parentFilter=root_b:true]"})
-    Iterable<IndexActor> findAllIndexActorWithVariants();
 }

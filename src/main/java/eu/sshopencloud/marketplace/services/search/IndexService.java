@@ -64,13 +64,6 @@ public class IndexService {
         return indexActorRepository.save(indexedActor);
     }
 
-    public void getActors() {
-        Iterable<IndexActor> a = indexActorRepository.findAllIndexActorWithVariants();
-        System.out.println( "Eliza " + a);
-       // IndexActor indexedActor = IndexConverter.covertActor(actor);
-        //return indexActorRepository.save(indexedActor);
-    }
-
 
     public void reindexActors() {
         clearActorIndex();

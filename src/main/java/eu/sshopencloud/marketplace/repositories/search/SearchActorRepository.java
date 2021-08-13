@@ -67,7 +67,6 @@ public class SearchActorRepository {
                         IndexActor.WEBSITE_FIELD,
                         IndexActor.EMAIL_FIELD,
                         IndexActor.EXTERNAL_IDENTIFIER_FIELD
-                        //Eliza
                 )
                 .setPageRequest(pageable);
 

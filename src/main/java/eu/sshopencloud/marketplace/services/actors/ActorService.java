@@ -30,19 +30,9 @@ public class ActorService {
     private final IndexService indexService;
 
 
-    public PaginatedActors getActors(String q, PageCoords pageCoords) {
-        ExampleMatcher queryActorMatcher = ExampleMatcher.matchingAny()
-                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
-                .withMatcher("website", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
-                .withMatcher("email", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+    public PaginatedActors getActors(PageCoords pageCoords) {
 
-        Actor queryActor = new Actor();
-        queryActor.setName(q);
-        queryActor.setWebsite(q);
-        queryActor.setEmail(q);
-
-        Page<Actor> actorsPage = actorRepository.findAll(Example.of(queryActor, queryActorMatcher),
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("name"))));
+        Page<Actor> actorsPage = actorRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("name"))));
 
         List<ActorDto> actors = actorsPage.stream().map(ActorMapper.INSTANCE::toDto).collect(Collectors.toList());
 
