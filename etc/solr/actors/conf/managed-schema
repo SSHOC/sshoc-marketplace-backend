@@ -110,32 +110,27 @@
          If you don't need it, consider removing it and the corresponding copyField directive.
     -->
 
-    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="name" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="website" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="email" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
-    <field name="external_identifier" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
-
-    <field name="contributor" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="contributor_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
-
-    <field name="affiliation" type="strings" indexed="true" stored="false" required="false" multiValued="true" />
-    <field name="affiliation_text" type="text_general_rev" indexed="true" stored="true" required="false" multiValued="true" />
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
     <field name="_version_" type="plong" indexed="false" stored="false"/>
 
     <!-- If you don't use child/nested documents, then you should remove the next two fields:  -->
     <!-- for nested documents (minimal; points to root document) -->
+
     <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
+     <fieldType name="_nest_path_" class="solr.NestPathField" />
+     <field name="_nest_path_" type="_nest_path_" />
+    <!-- <field name="_nest_parent_" type="string" indexed="true" stored="true" />-->
+
     <!-- for nested documents (relationship tracking) -->
-    <field name="_nest_path_" type="_nest_path_" /><fieldType name="_nest_path_" class="solr.NestPathField" />
+    <!-- <field name="_nest_path_" type="_nest_path_" /><fieldType name="_nest_path_" class="solr.NestPathField" />-->
 
     <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
-    <copyField source="affiliation" dest="affiliation_text" />
-    <copyField source="contributor" dest="contributor_text" />
+     <!--Eliza <copyField source="affiliation" dest="affiliation_text" />-->
+
 
     <!-- This can be enabled, in case the client does not know what fields may be searched. It isn't enabled by default
          because it's very expensive to index everything twice. -->
@@ -149,7 +144,7 @@
     <dynamicField name="*_i"  type="pint"    indexed="true"  stored="true"/>
     <dynamicField name="*_is" type="pints"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" />
-    <dynamicField name="*_ss" type="strings"  indexed="true"  stored="true"/>
+    <dynamicField name="*_ss" type="strings"  indexed="true"  stored="true" multiValued="true" />
     <dynamicField name="*_l"  type="plong"   indexed="true"  stored="true"/>
     <dynamicField name="*_ls" type="plongs"   indexed="true"  stored="true"/>
     <dynamicField name="*_t" type="text_general" indexed="true" stored="true" multiValued="false"/>

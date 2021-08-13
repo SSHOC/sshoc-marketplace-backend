@@ -166,7 +166,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft) {
         I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft);
         indexService.indexItem(newItem);
-
+        //Eliza
+        indexService.getActors();
 
         return newItem;
     }

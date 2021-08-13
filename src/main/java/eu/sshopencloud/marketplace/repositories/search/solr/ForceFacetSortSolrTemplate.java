@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.repositories.search.solr;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.convert.SolrJConverter;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ public class ForceFacetSortSolrTemplate extends SolrTemplate {
 
     public ForceFacetSortSolrTemplate(SolrClient solrClient) {
         super(solrClient);
+       //setSolrConverter(new SolrJConverter());
     }
 
 

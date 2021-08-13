@@ -8,9 +8,7 @@ import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.model.items.ItemExternalId;
-import eu.sshopencloud.marketplace.model.search.IndexActor;
-import eu.sshopencloud.marketplace.model.search.IndexConcept;
-import eu.sshopencloud.marketplace.model.search.IndexItem;
+import eu.sshopencloud.marketplace.model.search.*;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
@@ -134,6 +132,7 @@ public class IndexConverter {
     }
 
 
+    //Eliza
     public IndexConcept covertConcept(Concept concept, Vocabulary vocabulary, List<PropertyType> propertyTypes) {
         IndexConcept.IndexConceptBuilder builder = IndexConcept.builder();
         builder.id(vocabulary.getCode() + "-" + concept.getCode())
@@ -147,29 +146,59 @@ public class IndexConverter {
         return builder.build();
     }
 
+    //Eliza
     public IndexActor covertActor(Actor actor) {
        IndexActor.IndexActorBuilder builder = IndexActor.builder();
 
-       builder.id(actor.getId().toString())
-               .email(actor.getEmail())
-               .website(actor.getWebsite())
-               .name(actor.getName());
+       // IndexItemContributor.IndexItemContributorBuilder indexItemContributorBuilder = IndexItemContributor.builder();
+        List<IndexItemContributor> indexItemContributors = new ArrayList<>();
+
+
+        //builder.contributors(indexItemContributors);
+
+        List<String> externalIds = new ArrayList<>();
+        for (ActorExternalId actorExternalId: actor.getExternalIds()) {
+            externalIds.add(actorExternalId.getIdentifier());
+            //builder.e(actorExternalId.getIdentifier());
+        }
+        //builder.externalIdentifiers(externalIds);
+
+
+        List<String> affiliations = new ArrayList<>();
+        for (Actor actorTmp: actor.getAffiliations()) {
+            //builder.affiliation(actorExternalId.getIdentifier()).affiliationText(actorExternalId.getIdentifier());
+            affiliations.add(actorTmp.getId().toString());
+        }
+
+
+        builder.id(actor.getId().toString())
+                .root(true)
+                .email(actor.getEmail())
+                .website(actor.getWebsite())
+                .name(actor.getName())
+               // .indexItemContributor(indexItemContributors)
+                .externalIdentifier(externalIds)
+                .affiliation(affiliations)
+                .affiliationText(affiliations);
 
 
         for (ItemContributor itemContributor: actor.getContributorTo()) {
-            String contributor = getItemContributorName(itemContributor);
-            builder.contributor(contributor).contributorText(contributor);
-        }
 
-        for (ActorExternalId actorExternalId: actor.getExternalIds()) {
-            builder.externalIdentifier(actorExternalId.getIdentifier());
-        }
+            //String contributor = getItemContributorName(itemContributor);
+            IndexItemContributor indexItemContributor = new IndexItemContributor();
+            indexItemContributor.setId(itemContributor.getActor().getId() + " " + itemContributor.getItem().getPersistentId());
+            indexItemContributor.setRole(itemContributor.getRole().getCode());
+            indexItemContributor.setActor(itemContributor.getActor().getId());
+            indexItemContributor.setItem(itemContributor.getItem().getPersistentId());
+            indexItemContributor.setOrd(itemContributor.getOrd());
 
-        for (ActorExternalId actorExternalId: actor.getExternalIds()) {
-            builder.affiliation(actorExternalId.getIdentifier()).affiliationText(actorExternalId.getIdentifier());
+            indexItemContributors.add( indexItemContributor);
+            // builder.contributor(contributor).contributorText(contributor);
         }
+        builder.indexItemContributor(indexItemContributors);
 
         return builder.build();
     }
+
 
 }

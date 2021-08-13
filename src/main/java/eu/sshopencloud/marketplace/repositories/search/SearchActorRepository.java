@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.repositories.search.solr.ForceFacetSortSolrTemplate;
+import eu.sshopencloud.marketplace.repositories.search.solr.ForceNestedDocumentsSolrTemplate;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchExpressionCriteria;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;

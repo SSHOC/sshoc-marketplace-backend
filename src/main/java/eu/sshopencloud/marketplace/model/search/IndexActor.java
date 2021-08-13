@@ -1,10 +1,14 @@
 package eu.sshopencloud.marketplace.model.search;
 
 import lombok.*;
+import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.solr.core.mapping.ChildDocument;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 @SolrDocument(collection = IndexActor.COLLECTION_NAME)
@@ -12,7 +16,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class IndexActor {
+public class IndexActor implements Serializable {
     public static final String COLLECTION_NAME = "marketplace-actors";
 
     public static final String ID_FIELD = "id";
@@ -23,46 +27,53 @@ public class IndexActor {
 
     public static final String EMAIL_FIELD = "email";
 
-    public static final String EXTERNAL_IDENTIFIER_FIELD = "external_identifier";
+    public static final String EXTERNAL_IDENTIFIER_FIELD = "external_identifiers";
 
-    public static final String CONTRIBUTOR_FIELD = "contributor";
-    public static final String CONTRIBUTOR_TEXT_FIELD = "contributor_text";
+    //public static final String CONTRIBUTOR_FIELD = "contributor";
+    //public static final String CONTRIBUTOR_TEXT_FIELD = "contributor_text";
 
     public static final String AFFILIATION_FIELD = "affiliation";
     public static final String AFFILIATION_TEXT_FIELD = "affiliation_text";
 
 
     @Id
-    @Indexed(name = ID_FIELD, type = "string")
+    @Indexed
     private String id;
 
-    @Indexed(name = NAME_FIELD, type = "string")
+
+    @Indexed("name_s")
     private String name;
 
-    @Indexed(name = WEBSITE_FIELD, type = "string")
+    @Indexed("website_s")
     private String website;
 
-    @Indexed(name = EMAIL_FIELD, type = "string")
+    @Indexed("email_s")
     private String email;
 
-    @Indexed(name = EXTERNAL_IDENTIFIER_FIELD, type = "strings")
-    @Singular
-    private List<String> externalIdentifiers;
+    @Indexed("external_identifier_ss")
+    private List<String> externalIdentifier;
 
-    @Indexed(name = CONTRIBUTOR_FIELD, type = "strings")
-    @Singular
-    private List<String> contributors;
 
+    @Indexed("index_item_contributor")
+    @ChildDocument
+    private List<IndexItemContributor> indexItemContributor;
+
+    @Indexed("root_b")
+    private boolean root;
+
+    /*
     @Indexed(name = CONTRIBUTOR_TEXT_FIELD, type = "text_general_rev")
     @Singular("contributorText")
     private List<String> contributorsText;
+ */
 
-    @Indexed(name = AFFILIATION_FIELD, type = "strings")
-    @Singular
-    private List<String> affiliations;
+    @Indexed( "affiliation_ss")
+    private List<String> affiliation;
 
-    @Indexed(name = AFFILIATION_TEXT_FIELD, type = "text_general_rev")
-    @Singular("affiliationText")
-    private List<String> affiliationsText;
+
+    @Indexed( "affiliation_text_ss")
+    private List<String> affiliationText;
+
+
 
 }
