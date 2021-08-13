@@ -18,6 +18,7 @@ import eu.sshopencloud.marketplace.dto.search.SuggestedSearchPhrases;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.*;
+import eu.sshopencloud.marketplace.services.search.query.ActorSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.ConceptSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.IndexSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
@@ -271,7 +272,7 @@ public class SearchService {
     public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, PageCoords pageCoords) throws IllegalFilterException {
 
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
-        SearchQueryCriteria queryCriteria = new IndexSearchQueryPhrase(q, advanced);
+        SearchQueryCriteria queryCriteria = new ActorSearchQueryPhrase(q, advanced);
 
         //List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);

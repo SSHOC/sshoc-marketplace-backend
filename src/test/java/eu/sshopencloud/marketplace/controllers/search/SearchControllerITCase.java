@@ -634,7 +634,7 @@ public class SearchControllerITCase {
     @Test
     public void shouldReturnActorsByWebsite() throws Exception {
 
-        mvc.perform(get("/api/actor-search?q=name=CESSDA")
+        mvc.perform(get("/api/actor-search?q=CESSDA")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("concepts[0].code", is("83")))

@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.services.search.query;
 
 import eu.sshopencloud.marketplace.model.search.IndexActor;
-import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import org.springframework.data.solr.core.query.AnyCriteria;
 import org.springframework.data.solr.core.query.Criteria;
 
@@ -28,7 +27,7 @@ public class ActorSearchQueryPhrase extends SearchQueryPhrase {
                 Criteria websiteCriteria = Criteria.where(IndexActor.WEBSITE_FIELD).boost(4f).expression(queryPart.getExpression());
 
                 //Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).expression(queryPart.getExpression());
-               Criteria orCriteria;
+                Criteria orCriteria;
               /*  if (!queryPart.isQuotedPhrase()) {
                     Criteria labelTextCriteria = Criteria.where(IndexConcept.LABEL_TEXT_FIELD).boost(2f).contains(queryPart.getExpression());
                     Criteria definitionTextCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_FIELD).boost(1f).contains(queryPart.getExpression());
@@ -56,8 +55,8 @@ public class ActorSearchQueryPhrase extends SearchQueryPhrase {
             Criteria nameCriteria = Criteria.where(IndexActor.NAME_FIELD).boost(4f).expression(phrase);
             Criteria emailCriteria = Criteria.where(IndexActor.EMAIL_FIELD).boost(4f).expression(phrase);
             Criteria websiteCriteria = Criteria.where(IndexActor.WEBSITE_FIELD).boost(2f).expression(phrase);
-           // Criteria labelTextEnCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).expression(phrase);
-           // Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).expression(phrase);
+            // Criteria labelTextEnCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).expression(phrase);
+            // Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).expression(phrase);
             return idCriteria.or(externalIdentifierCriteria).or(nameCriteria).or(emailCriteria)
                     .or(websiteCriteria);
         }
