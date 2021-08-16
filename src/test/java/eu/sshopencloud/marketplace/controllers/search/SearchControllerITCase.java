@@ -639,59 +639,47 @@ public class SearchControllerITCase {
                 .andExpect(status().isOk());
     }
 
-    //Eliza
     @Test
     public void shouldReturnActorsByWebsite() throws Exception {
 
         mvc.perform(get("/api/actor-search?q=CESSDA")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("actors[0].id", is("4")))
-                .andExpect(jsonPath("actors[0].email", is("\"https://www.cessda.eu/\"")))
+                .andExpect(jsonPath("actors[0].id", is(4)))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
                 .andExpect(jsonPath("actors[0].name", is("CESSDA")))
                 .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
-                .andExpect(jsonPath("actors[0].externalIds", is("Software")))
-                .andExpect(jsonPath("types.activity.count", is(7)))
-                .andExpect(jsonPath("types.activity.checked", is(true)));
+                .andExpect(jsonPath("actors[0].externalIds", nullValue()));
     }
 
-    //Eliza
+
     @Test
     public void shouldReturnActorsByDynamicParametersEmail() throws Exception {
 
-        mvc.perform(get("/api/actor-search?d.id=1")
+        mvc.perform(get("/api/actor-search?d.email=cessda@cessda.eu")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("concepts[0].code", is("83")))
-                .andExpect(jsonPath("concepts[0].vocabulary.code", is("tadirah-activity")))
-                .andExpect(jsonPath("concepts[0].label", is("Software")))
-                .andExpect(jsonPath("types.activity.count", is(7)))
-                .andExpect(jsonPath("types.activity.checked", is(true)));
+                .andExpect(jsonPath("actors[0].id", is(4)))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")));
     }
 
     @Test
-    public void shouldReturnActorsByEmail() throws Exception {
+    public void shouldReturnActorsByEmailExpression() throws Exception {
 
-        mvc.perform(get("/api/actor-search?q=cessda@cessda.eu")
+        mvc.perform(get("/api/actor-search?d.email= (*@*)")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("hits", is(2)))
+                .andExpect(jsonPath("actors[0].id", is(4)))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
                 .andExpect(jsonPath("actors[0].name", is("CESSDA")))
                 .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
-                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")));
-    }
-
-
-    @Test
-    public void shouldReturnActorsByName() throws Exception {
-
-        mvc.perform(get("/actor-search?q=CESSDA")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("hits", is(1)))
-                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
-                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
-                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")));
+                .andExpect(jsonPath("actors[1].id", is(5)))
+                .andExpect(jsonPath("actors[1].email", is("john@example.com")))
+                .andExpect(jsonPath("actors[1].name", is("John Smith")))
+                .andExpect(jsonPath("actors[1].website", is("https://example.com/")));
     }
 
 }

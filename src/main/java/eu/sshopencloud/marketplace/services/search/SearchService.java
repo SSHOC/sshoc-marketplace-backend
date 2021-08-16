@@ -299,7 +299,7 @@ public class SearchService {
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
         FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, filterCriteria, pageable);
-        Map<String, Map<String, CheckedCount>> facets = gatherActorSearchFacets(facetPage, filterParams);
+       // Map<String, Map<String, CheckedCount>> facets = gatherActorSearchFacets(facetPage, filterParams);
 
         PaginatedSearchActor result = PaginatedSearchActor.builder()
                 .q(q)
@@ -307,7 +307,7 @@ public class SearchService {
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
-                .facets(facets)
+                //.facets(facets)
                 .build();
 
         return result;
