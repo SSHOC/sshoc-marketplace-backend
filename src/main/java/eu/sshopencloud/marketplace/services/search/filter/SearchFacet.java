@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.search.filter;
 
+import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import lombok.Getter;
@@ -32,6 +33,16 @@ public enum SearchFacet {
 
     KEYWORD(SearchFilter.KEYWORD, IndexItem.KEYWORD_FIELD,
             List.of(IndexItem.KEYWORD_FIELD),
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
+    NAME(SearchFilter.NAME, IndexActor.NAME_FIELD,
+            List.of(IndexActor.NAME_FIELD),
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
+    EMAIL(SearchFilter.EMAIL, IndexActor.EMAIL_FIELD,
+            List.of(IndexActor.EMAIL_FIELD),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 

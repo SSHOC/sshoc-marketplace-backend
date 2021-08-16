@@ -47,31 +47,10 @@ public class SearchActorRepository {
                 )
                 .setPageRequest(pageable);
 
-
         expressionCriteria.forEach(actor -> facetQuery.addFilterQuery(new SimpleFilterQuery(actor.getFilterCriteria())));
         filterCriteria.forEach(actor -> facetQuery.addFilterQuery(new SimpleFilterQuery(actor.getFilterCriteria())));
+
         facetQuery.setFacetOptions(createFacetOptions());
-
-        return solrTemplate.queryForFacetPage(IndexActor.COLLECTION_NAME, facetQuery, IndexActor.class, RequestMethod.GET);
-    }
-
-    public FacetPage<IndexActor> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
-                                                       List<SearchExpressionCriteria> expressionCriteria,
-                                                       Pageable pageable) {
-
-        SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria.getQueryCriteria())
-                .addProjectionOnFields(
-                        IndexActor.ID_FIELD,
-                        IndexActor.NAME_FIELD,
-                        IndexActor.WEBSITE_FIELD,
-                        IndexActor.EMAIL_FIELD,
-                        IndexActor.EXTERNAL_IDENTIFIER_FIELD)
-                .setPageRequest(pageable);
-
-
-        expressionCriteria.forEach(actor -> facetQuery.addFilterQuery(new SimpleFilterQuery(actor.getFilterCriteria())));
-        facetQuery.setFacetOptions(createFacetOptions());
-
         return solrTemplate.queryForFacetPage(IndexActor.COLLECTION_NAME, facetQuery, IndexActor.class, RequestMethod.GET);
     }
 

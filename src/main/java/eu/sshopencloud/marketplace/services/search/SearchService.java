@@ -150,6 +150,22 @@ public class SearchService {
                 ));
     }
 
+    private Map<String, Map<String, CheckedCount>> gatherActorSearchFacets(FacetPage<IndexActor> facetPage, Map<String, List<String>> filterParams) {
+        return facetPage.getFacetFields().stream()
+                  .map(field -> Pair.create(
+                        field.getName().replace('_', '-'),
+                        createFacetDetails(
+                                facetPage.getFacetResultPage(field.getName()).getContent(),
+                                filterParams.get(field.getName().replace('_', '-'))
+                        )
+                ))
+                .collect(Collectors.toMap(
+                        Pair::getKey, Pair::getValue,
+                        (u, v) -> u,
+                        LinkedHashMap::new
+                ));
+    }
+
     private static Map<String, CheckedCount> createFacetDetails(List<FacetFieldEntry> facetValues, List<String> checkedValues) {
         if (checkedValues != null) {
             return facetValues.stream()
@@ -171,6 +187,7 @@ public class SearchService {
     }
 
     public PaginatedSearchConcepts searchConcepts(String q, boolean advanced, List<String> types, PageCoords pageCoords) {
+
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         SearchQueryCriteria queryCriteria = new ConceptSearchQueryPhrase(q, advanced);
 
@@ -269,15 +286,20 @@ public class SearchService {
                 .build();
     }
 
-    public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, PageCoords pageCoords) throws IllegalFilterException {
+    public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, @NotNull Map<String, List<String>> filterParams, PageCoords pageCoords) throws IllegalFilterException {
 
-        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
+        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());// SOLR counts from page 0
+
+        //++
         SearchQueryCriteria queryCriteria = new ActorSearchQueryPhrase(q, advanced);
 
-        //List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
+        List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
+        filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.ACTORS));
+
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
-        FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable);
+        FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, filterCriteria, pageable);
+        Map<String, Map<String, CheckedCount>> facets = gatherActorSearchFacets(facetPage, filterParams);
 
         PaginatedSearchActor result = PaginatedSearchActor.builder()
                 .q(q)
@@ -285,7 +307,7 @@ public class SearchService {
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
-                // .facets(facets)
+                .facets(facets)
                 .build();
 
         return result;

@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.search.filter;
 
+import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,9 @@ public enum SearchFilter {
 
     KEYWORD(IndexType.ITEMS, IndexItem.KEYWORD_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
+    NAME(IndexType.ACTORS, IndexActor.NAME_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
+    EMAIL(IndexType.ACTORS, IndexActor.EMAIL_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
     PROPERTY_TYPE(IndexType.CONCEPTS, IndexConcept.TYPES_FIELD, FilterType.VALUES_SELECTION_FILTER, true);
 

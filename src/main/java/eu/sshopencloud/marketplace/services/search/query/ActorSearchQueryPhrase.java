@@ -15,10 +15,12 @@ public class ActorSearchQueryPhrase extends SearchQueryPhrase {
     @Override
     protected Criteria getPhraseQueryCriteria() {
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
+
         if (queryParts.isEmpty()) {
             return AnyCriteria.any();
         } else {
             Criteria andCriteria = AnyCriteria.any();
+
             for (QueryPart queryPart : queryParts) {
                 Criteria idCriteria = Criteria.where(IndexActor.ID_FIELD).boost(10f).is(queryPart.getExpression());
                 Criteria externalIdentifierCriteria = Criteria.where(IndexActor.EXTERNAL_IDENTIFIER_FIELD).boost(10f).expression(queryPart.getExpression());
@@ -26,18 +28,7 @@ public class ActorSearchQueryPhrase extends SearchQueryPhrase {
                 Criteria emailCriteria = Criteria.where(IndexActor.EMAIL_FIELD).boost(4f).is(queryPart.getExpression());
                 Criteria websiteCriteria = Criteria.where(IndexActor.WEBSITE_FIELD).boost(4f).expression(queryPart.getExpression());
 
-                //Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).expression(queryPart.getExpression());
-                Criteria orCriteria;
-              /*  if (!queryPart.isQuotedPhrase()) {
-                    Criteria labelTextCriteria = Criteria.where(IndexConcept.LABEL_TEXT_FIELD).boost(2f).contains(queryPart.getExpression());
-                    Criteria definitionTextCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_FIELD).boost(1f).contains(queryPart.getExpression());
-                    orCriteria = codeCriteria.or(uriCriteria).or(notationCriteria).or(labelTextCriteria)
-                            .or(definitionTextCriteria).or(labelTextEnCriteria).or(definitionTextEnCriteria);
-                } else {
-                    orCriteria = idCriteria.or(externalIdentifierCriteria).or(nameCriteria).or(emailCriteria).
-                            or(websiteCriteria);
-                }*/
-                orCriteria = idCriteria.or(externalIdentifierCriteria).or(nameCriteria).or(emailCriteria).
+                Criteria orCriteria = idCriteria.or(externalIdentifierCriteria).or(nameCriteria).or(emailCriteria).
                         or(websiteCriteria);
                 andCriteria = andCriteria.and(orCriteria);
             }
@@ -55,8 +46,6 @@ public class ActorSearchQueryPhrase extends SearchQueryPhrase {
             Criteria nameCriteria = Criteria.where(IndexActor.NAME_FIELD).boost(4f).expression(phrase);
             Criteria emailCriteria = Criteria.where(IndexActor.EMAIL_FIELD).boost(4f).expression(phrase);
             Criteria websiteCriteria = Criteria.where(IndexActor.WEBSITE_FIELD).boost(2f).expression(phrase);
-            // Criteria labelTextEnCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).expression(phrase);
-            // Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).expression(phrase);
             return idCriteria.or(externalIdentifierCriteria).or(nameCriteria).or(emailCriteria)
                     .or(websiteCriteria);
         }
