@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @Value
@@ -17,6 +18,7 @@ class WorkflowStepCore implements ItemRelationsCore {
 
     @Override
     public List<RelatedItemCore> getRelatedItems() {
+        if(Objects.isNull(stepCore.getRelatedItems()))  return null;
         return stepCore.getRelatedItems();
     }
 }
