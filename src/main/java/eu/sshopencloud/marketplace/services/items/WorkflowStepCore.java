@@ -19,7 +19,10 @@ class WorkflowStepCore implements ItemRelationsCore {
 
     @Override
     public List<RelatedItemCore> getRelatedItems() {
-        if(CollectionUtils.isAllNulls(stepCore.getRelatedItems()))  return null;
+        if (Objects.isNull(stepCore.getRelatedItems()))
+            return null;
+        if (CollectionUtils.isAllNulls(stepCore.getRelatedItems()))
+            return null;
         return stepCore.getRelatedItems();
     }
 }
