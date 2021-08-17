@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.model.items;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -16,8 +17,10 @@ import java.time.ZonedDateTime;
 public abstract class DigitalObject extends Item {
 
     @Column(nullable = true)
+    @Nullable
     private ZonedDateTime dateCreated;
 
+    @Nullable
     @Column(nullable = true)
     private ZonedDateTime dateLastUpdated;
 

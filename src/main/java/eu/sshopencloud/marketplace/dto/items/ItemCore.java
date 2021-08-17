@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -16,6 +17,7 @@ public class ItemCore implements ItemRelationsCore {
     @NotNull
     private String label;
 
+    @Nullable
     private String version;
 
     private String description;
@@ -34,7 +36,9 @@ public class ItemCore implements ItemRelationsCore {
 
     private List<String> accessibleAt;
 
+    @Nullable
     private SourceId source;
 
+    @Nullable
     private String sourceItemId;
 }

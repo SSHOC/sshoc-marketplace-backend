@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -21,6 +22,7 @@ public class PropertyTypeCore {
     private String label;
     private PropertyTypeClass type;
 
+    @Nullable
     private String groupName;
     private boolean hidden;
 

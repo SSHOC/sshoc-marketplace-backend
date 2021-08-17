@@ -46,6 +46,7 @@ public class Source {
 
     @Basic
     @Column(nullable = true)
+    @Nullable
     private ZonedDateTime lastHarvestedDate;
 
 }

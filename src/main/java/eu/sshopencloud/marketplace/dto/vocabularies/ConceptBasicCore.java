@@ -3,8 +3,7 @@ package eu.sshopencloud.marketplace.dto.vocabularies;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import javax.validation.constraints.NotNull;
+import org.springframework.lang.Nullable;
 
 @Data
 @SuperBuilder
@@ -17,6 +16,7 @@ public class ConceptBasicCore {
 
     private String notation;
 
+    @Nullable
     private String definition;
 
     private String uri;

@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.dto.vocabularies;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 
@@ -12,6 +13,7 @@ public class PropertyCore {
 
     @NotNull
     private PropertyTypeId type;
+    @Nullable
     private String value;
     private ConceptId concept;
 
