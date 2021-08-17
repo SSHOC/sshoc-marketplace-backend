@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PropertyTypeCore {
 
+    @NotNull
     private String code;
     private String label;
     private PropertyTypeClass type;

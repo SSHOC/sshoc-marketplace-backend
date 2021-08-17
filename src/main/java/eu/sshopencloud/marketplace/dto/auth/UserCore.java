@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.dto.auth;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor

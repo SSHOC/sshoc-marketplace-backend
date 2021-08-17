@@ -36,7 +36,7 @@ public class ActorController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ActorDto> createActor(@RequestBody(required = true) ActorCore newActor) {
+    public ResponseEntity<ActorDto> createActor(@RequestBody ActorCore newActor) {
         return ResponseEntity.ok(actorService.createActor(newActor));
     }
 

@@ -131,7 +131,7 @@ public class IndexConverter {
     }
 
 
-    public IndexConcept covertConcept(Concept concept, Vocabulary vocabulary, List<PropertyType> proopertyTypes) {
+    public IndexConcept covertConcept(Concept concept, Vocabulary vocabulary, List<PropertyType> propertyTypes) {
         IndexConcept.IndexConceptBuilder builder = IndexConcept.builder();
         builder.id(vocabulary.getCode() + "-" + concept.getCode())
                 .code(concept.getCode())
@@ -140,7 +140,7 @@ public class IndexConverter {
                 .notation(concept.getNotation())
                 .definition(concept.getDefinition() != null ? concept.getDefinition() : "") // TODO change definition to an optional field
                 .uri(concept.getUri())
-                .types(proopertyTypes.stream().map(PropertyType::getCode).collect(Collectors.toList()));
+                .types(propertyTypes.stream().map(PropertyType::getCode).collect(Collectors.toList()));
         return builder.build();
     }
 

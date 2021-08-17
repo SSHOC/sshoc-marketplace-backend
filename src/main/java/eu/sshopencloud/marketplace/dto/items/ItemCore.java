@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
@@ -12,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ItemCore implements ItemRelationsCore {
 
+    @NotNull
     private String label;
 
     private String version;

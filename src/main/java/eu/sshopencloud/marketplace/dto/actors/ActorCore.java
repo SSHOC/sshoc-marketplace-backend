@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.dto.actors;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 
