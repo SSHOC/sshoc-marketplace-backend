@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorDto;
 import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class ActorController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ActorDto> createActor(@RequestBody ActorCore newActor) {
+    public ResponseEntity<ActorDto> createActor(@RequestBody(required = true) ActorCore newActor) {
         return ResponseEntity.ok(actorService.createActor(newActor));
     }
 

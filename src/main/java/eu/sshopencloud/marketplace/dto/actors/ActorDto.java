@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.dto.actors;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -9,8 +10,10 @@ import java.util.List;
 @NoArgsConstructor
 public class ActorDto {
 
+    @NotNull
     private Long id;
 
+    @NotNull
     private String name;
 
     private List<ActorExternalIdDto> externalIds;
