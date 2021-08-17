@@ -1,8 +1,11 @@
 package eu.sshopencloud.marketplace.controllers.actors;
 
+import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleDto;
 import eu.sshopencloud.marketplace.services.actors.ActorRoleService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +33,19 @@ public class ActorRoleController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ActorRoleDto> createActorRole(@RequestBody ActorRoleCore actorRole) {
+    public ResponseEntity<ActorRoleDto> createActorRole(@Parameter(
+            description = "Created actor role object",
+            required = true,
+            schema = @Schema(implementation = ActorRoleCore.class)) @RequestBody ActorRoleCore actorRole) {
         return ResponseEntity.ok(actorRoleService.createActorRole(actorRole));
     }
 
     @PutMapping(path = "/{roleCode}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ActorRoleDto> updateActorRole(@PathVariable("roleCode") String code,
-                                                        @RequestBody ActorRoleCore actorRole) {
+                                                        @Parameter(
+                                                                description = "Update actor role object",
+                                                                required = true,
+                                                                schema = @Schema(implementation = ActorRoleCore.class))  @RequestBody ActorRoleCore actorRole) {
 
         return ResponseEntity.ok(actorRoleService.updateActorRole(code, actorRole));
     }

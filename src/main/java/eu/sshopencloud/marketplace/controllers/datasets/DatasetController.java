@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
@@ -9,6 +10,8 @@ import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,14 +51,21 @@ public class DatasetController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> createDataset(@RequestBody DatasetCore newDataset,
+    public ResponseEntity<DatasetDto> createDataset(@Parameter(
+            description = "Created dataset object",
+            required = true,
+            schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore newDataset,
                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(datasetService.createDataset(newDataset, draft));
     }
 
     @PutMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("persistentId") String persistentId, @RequestBody DatasetCore updatedDataset,
+    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("persistentId") String persistentId,
+                                                    @Parameter(
+                                                            description = "Update dataset object",
+                                                            required = true,
+                                                            schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore updatedDataset,
                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft));
@@ -107,7 +117,10 @@ public class DatasetController {
 
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> merge(@RequestParam List<String> with,
-                                            @RequestBody DatasetCore mergeDataset) {
+                                            @Parameter(
+                                                    description = "Merge into dataset object",
+                                                    required = true,
+                                                    schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore mergeDataset) {
         return ResponseEntity.ok(datasetService.merge(mergeDataset, with));
     }
 

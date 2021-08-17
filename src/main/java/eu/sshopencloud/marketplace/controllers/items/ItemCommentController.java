@@ -1,8 +1,11 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
+import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentCore;
 import eu.sshopencloud.marketplace.dto.items.ItemCommentDto;
 import eu.sshopencloud.marketplace.services.items.ItemCommentService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +33,10 @@ public class ItemCommentController {
 
     @PostMapping(path = "/comments", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemCommentDto> createItemComment(@PathVariable("itemId") String itemId,
-                                                            @RequestBody ItemCommentCore newItemComment) {
+                                                            @Parameter(
+                                                                    description = "Created comment",
+                                                                    required = true,
+                                                                    schema = @Schema(implementation = ItemCommentCore.class)) @RequestBody ItemCommentCore newItemComment) {
 
         return ResponseEntity.ok(itemCommentService.createItemComment(itemId, newItemComment));
     }
@@ -38,7 +44,10 @@ public class ItemCommentController {
     @PutMapping(path = "/comments/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemCommentDto> updateItemComment(@PathVariable("itemId") String itemId,
                                                             @PathVariable("id") long id,
-                                                            @RequestBody ItemCommentCore updatedItemComment) {
+                                                            @Parameter(
+                                                                    description = "Updated comment",
+                                                                    required = true,
+                                                                    schema = @Schema(implementation = ItemCommentCore.class)) @RequestBody ItemCommentCore updatedItemComment) {
 
         return ResponseEntity.ok(itemCommentService.updateItemComment(itemId, id, updatedItemComment));
     }

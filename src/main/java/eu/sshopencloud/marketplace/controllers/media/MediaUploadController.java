@@ -6,6 +6,9 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
+import eu.sshopencloud.marketplace.dto.actors.ActorCore;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -95,7 +98,10 @@ public class MediaUploadController {
     }
 
     @PostMapping(path = "/upload/import", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MediaDetails> importMedia(@RequestBody MediaLocation mediaLocation) {
+    public ResponseEntity<MediaDetails> importMedia(@Parameter(
+            description = "Media location",
+            required = true,
+            schema = @Schema(implementation = MediaLocation.class)) @RequestBody MediaLocation mediaLocation) {
         MediaDetails mediaDetails = mediaStorageService.importMedia(mediaLocation);
         return ResponseEntity.ok(mediaDetails);
     }

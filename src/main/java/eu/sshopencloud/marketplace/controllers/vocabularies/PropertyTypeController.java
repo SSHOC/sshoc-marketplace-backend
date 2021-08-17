@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedPropertyTypes;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
@@ -8,6 +9,8 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypesReordering;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.PropertyTypeAlreadyExistsException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +42,10 @@ public class PropertyTypeController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PropertyTypeDto> createPropertyType(@RequestBody PropertyTypeCore propertyTypeData)
+    public ResponseEntity<PropertyTypeDto> createPropertyType(@Parameter(
+            description = "Created property type",
+            required = true,
+            schema = @Schema(implementation = PropertyTypeCore.class)) @RequestBody PropertyTypeCore propertyTypeData)
             throws PropertyTypeAlreadyExistsException {
 
         PropertyTypeDto propertyType = propertyTypeService.createPropertyType(propertyTypeData);
@@ -48,7 +54,10 @@ public class PropertyTypeController {
 
     @PutMapping(value = "/{code}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PropertyTypeDto> updatePropertyType(@PathVariable("code") String propertyTypeCode,
-                                                              @RequestBody PropertyTypeCore propertyTypeData) {
+                                                              @Parameter(
+                                                                      description = "Updated property type",
+                                                                      required = true,
+                                                                      schema = @Schema(implementation = PropertyTypeCore.class)) @RequestBody PropertyTypeCore propertyTypeData) {
 
         PropertyTypeDto propertyType = propertyTypeService.updatePropertyType(propertyTypeCode, propertyTypeData);
         return ResponseEntity.ok(propertyType);
@@ -64,7 +73,10 @@ public class PropertyTypeController {
     }
 
     @PostMapping(value = "/reorder", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> reorderPropertyTypes(@RequestBody PropertyTypesReordering reordering) {
+    public ResponseEntity<Void> reorderPropertyTypes(@Parameter(
+            description = "Reordered property type",
+            required = true,
+            schema = @Schema(implementation = PropertyTypesReordering.class)) @RequestBody PropertyTypesReordering reordering) {
         propertyTypeService.reorderPropertyTypes(reordering);
         return ResponseEntity.ok().build();
     }

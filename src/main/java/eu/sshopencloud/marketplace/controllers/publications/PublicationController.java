@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.publications;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
@@ -9,6 +10,8 @@ import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.PublicationService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,14 +52,21 @@ public class PublicationController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> createPublication(@RequestBody PublicationCore newPublication,
+    public ResponseEntity<PublicationDto> createPublication(@Parameter(
+            description = "Created publication",
+            required = true,
+            schema = @Schema(implementation = PublicationCore.class)) @RequestBody PublicationCore newPublication,
                                                             @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(publicationService.createPublication(newPublication, draft));
     }
 
     @PutMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> updatePublication(@PathVariable("persistentId") String persistentId, @RequestBody PublicationCore updatedPublication,
+    public ResponseEntity<PublicationDto> updatePublication(@PathVariable("persistentId") String persistentId,
+                                                            @Parameter(
+                                                                    description = "Update publication",
+                                                                    required = true,
+                                                                    schema = @Schema(implementation = PublicationCore.class)) @RequestBody PublicationCore updatedPublication,
                                                             @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(publicationService.updatePublication(persistentId, updatedPublication, draft));
@@ -107,7 +117,10 @@ public class PublicationController {
 
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> merge(@RequestParam List<String> with,
-                                                @RequestBody PublicationCore mergePublication) {
+                                                @Parameter(
+                                                        description = "Merged publication",
+                                                        required = true,
+                                                        schema = @Schema(implementation =PublicationCore.class))  @RequestBody PublicationCore mergePublication) {
         return ResponseEntity.ok(publicationService.merge(mergePublication, with));
     }
 

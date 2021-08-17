@@ -1,7 +1,10 @@
 package eu.sshopencloud.marketplace.controllers.auth;
 
+import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.auth.LoginData;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +16,9 @@ public class FakeAuthController {
 
     @Operation(summary = "Sign into the system")
     @PostMapping(value = "/api/auth/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
-    void signIn(@RequestBody LoginData loginData){}
+    void signIn(@Parameter(
+            required = true,
+            schema = @Schema(implementation = LoginData.class)) @RequestBody LoginData loginData){}
 
     @Operation(summary = "Sign into the system using oauth2")
     @GetMapping(value = "/oauth2/authorize/eosc")

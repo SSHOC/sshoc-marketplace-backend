@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
@@ -9,6 +10,8 @@ import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.services.items.ToolService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,14 +51,21 @@ public class ToolController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> createTool(@RequestBody ToolCore newTool,
+    public ResponseEntity<ToolDto> createTool(@Parameter(
+            description = "Created tool",
+            required = true,
+            schema = @Schema(implementation = ToolCore.class)) @RequestBody ToolCore newTool,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(toolService.createTool(newTool, draft));
     }
 
     @PutMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ToolDto> updateTool(@PathVariable("persistentId") String persistentId, @RequestBody ToolCore updatedTool,
+    public ResponseEntity<ToolDto> updateTool(@PathVariable("persistentId") String persistentId,
+                                              @Parameter(
+                                                      description = "Update tool",
+                                                      required = true,
+                                                      schema = @Schema(implementation = ToolCore.class)) @RequestBody ToolCore updatedTool,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(toolService.updateTool(persistentId, updatedTool, draft));
@@ -105,7 +115,10 @@ public class ToolController {
 
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> merge(@RequestParam List<String> with,
-                                         @RequestBody ToolCore mergeTool) {
+                                         @Parameter(
+                                                 description = "Merged tool",
+                                                 required = true,
+                                                 schema = @Schema(implementation = ToolCore.class))  @RequestBody ToolCore mergeTool) {
         return ResponseEntity.ok(toolService.merge(mergeTool, with));
     }
 

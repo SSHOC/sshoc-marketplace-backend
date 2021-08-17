@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.workflows;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
@@ -8,6 +9,8 @@ import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.services.items.StepService;
 import eu.sshopencloud.marketplace.services.items.WorkflowService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,14 +53,20 @@ public class WorkflowController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> createWorkflow(@RequestBody WorkflowCore newWorkflow,
+    public ResponseEntity<WorkflowDto> createWorkflow(@Parameter(
+            description = "Created workflow",
+            required = true,
+            schema = @Schema(implementation =WorkflowCore.class)) @RequestBody WorkflowCore newWorkflow,
                                                       @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
         return ResponseEntity.ok(workflowService.createWorkflow(newWorkflow, draft));
     }
 
     @PutMapping(path = "/{workflowPersistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> updateWorkflow(@PathVariable("workflowPersistentId") String workflowPersistentId,
-                                                      @RequestBody WorkflowCore updatedWorkflow,
+                                                      @Parameter(
+                                                              description = "Updated workflow",
+                                                              required = true,
+                                                              schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore updatedWorkflow,
                                                       @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft));
@@ -97,7 +106,11 @@ public class WorkflowController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<StepDto> createStep(@PathVariable("workflowPersistentId") String workflowPersistentId, @RequestBody StepCore newStep,
+    public ResponseEntity<StepDto> createStep(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                              @Parameter(
+                                                      description = "Created step",
+                                                      required = true,
+                                                      schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore newStep,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(stepService.createStep(workflowPersistentId, newStep, draft));
@@ -110,7 +123,10 @@ public class WorkflowController {
     )
     public ResponseEntity<StepDto> createSubstep(@PathVariable("workflowPersistentId") String workflowPersistentId,
                                                  @PathVariable("stepPersistentId") String stepPersistentId,
-                                                 @RequestBody StepCore newStep,
+                                                 @Parameter(
+                                                         description = "Created substep",
+                                                         required = true,
+                                                         schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore newStep,
                                                  @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(stepService.createSubStep(workflowPersistentId, stepPersistentId, newStep, draft));
@@ -123,7 +139,10 @@ public class WorkflowController {
     )
     public ResponseEntity<StepDto> updateStep(@PathVariable("workflowPersistentId") String workflowPersistentId,
                                               @PathVariable("stepPersistentId") String stepPersistentId,
-                                              @RequestBody StepCore updatedStep,
+                                              @Parameter(
+                                                      description = "Updated step",
+                                                      required = true,
+                                                      schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore updatedStep,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft));
@@ -206,7 +225,10 @@ public class WorkflowController {
 
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> merge(@RequestParam List<String> with,
-                                             @RequestBody WorkflowCore mergeWorkflow) {
+                                             @Parameter(
+                                                     description = "Merged workflow",
+                                                     required = true,
+                                                     schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore mergeWorkflow) {
         return ResponseEntity.ok(workflowService.merge(mergeWorkflow, with));
     }
 
@@ -220,7 +242,10 @@ public class WorkflowController {
     @PostMapping(path = "{workflowPersistentId}/steps/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StepDto> mergeSteps(@PathVariable("workflowPersistentId") String workflowPersistentId,
                                               @RequestParam List<String> with,
-                                              @RequestBody StepCore mergeStep) {
+                                              @Parameter(
+                                                      description = "Merged step",
+                                                      required = true,
+                                                      schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore mergeStep) {
         return ResponseEntity.ok(stepService.merge(workflowPersistentId, mergeStep, with));
     }
 

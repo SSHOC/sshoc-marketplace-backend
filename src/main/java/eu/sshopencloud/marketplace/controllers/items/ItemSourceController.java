@@ -1,8 +1,11 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
+import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.items.ItemSourceCore;
 import eu.sshopencloud.marketplace.dto.items.ItemSourceDto;
 import eu.sshopencloud.marketplace.services.items.ItemSourceService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +33,19 @@ public class ItemSourceController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<ItemSourceDto> createItemSource(@RequestBody ItemSourceCore itemSourceCore) {
+    ResponseEntity<ItemSourceDto> createItemSource(@Parameter(
+            description = "Created item source",
+            required = true,
+            schema = @Schema(implementation = ItemSourceCore.class)) @RequestBody ItemSourceCore itemSourceCore) {
         return ResponseEntity.ok(itemSourceService.createItemSource(itemSourceCore));
     }
 
     @PutMapping(path = "/{sourceCode}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<ItemSourceDto> updateItemSource(@PathVariable("sourceCode") String itemSourceCode,
-                                                   @RequestBody ItemSourceCore itemSourceCore) {
+                                                   @Parameter(
+                                                           description = "Update item source",
+                                                           required = true,
+                                                           schema = @Schema(implementation = ItemSourceCore.class)) @RequestBody ItemSourceCore itemSourceCore) {
 
         return ResponseEntity.ok(itemSourceService.updateItemSource(itemSourceCode, itemSourceCore));
     }

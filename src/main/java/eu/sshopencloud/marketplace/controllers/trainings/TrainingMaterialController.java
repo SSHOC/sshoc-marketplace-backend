@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.trainings;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
@@ -9,6 +10,8 @@ import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.services.items.TrainingMaterialService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +53,10 @@ public class TrainingMaterialController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrainingMaterialDto> createTrainingMaterial(@RequestBody TrainingMaterialCore newTrainingMaterial,
+    public ResponseEntity<TrainingMaterialDto> createTrainingMaterial(@Parameter(
+            description = "Created training material",
+            required = true,
+            schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore newTrainingMaterial,
                                                                       @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(trainingMaterialService.createTrainingMaterial(newTrainingMaterial, draft));
@@ -58,7 +64,10 @@ public class TrainingMaterialController {
 
     @PutMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> updateTrainingMaterial(@PathVariable("persistentId") String persistentId,
-                                                                      @RequestBody TrainingMaterialCore updatedTrainingMaterial,
+                                                                      @Parameter(
+                                                                              description = "Updated training material",
+                                                                              required = true,
+                                                                              schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore updatedTrainingMaterial,
                                                                       @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(persistentId, updatedTrainingMaterial, draft));
@@ -112,7 +121,10 @@ public class TrainingMaterialController {
 
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> merge(@RequestParam List<String> with,
-                                                     @RequestBody TrainingMaterialCore mergeTrainingMaterial) {
+                                                     @Parameter(
+                                                             description = "Merged training material",
+                                                             required = true,
+                                                             schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore mergeTrainingMaterial) {
         return ResponseEntity.ok(trainingMaterialService.merge(mergeTrainingMaterial, with));
     }
 

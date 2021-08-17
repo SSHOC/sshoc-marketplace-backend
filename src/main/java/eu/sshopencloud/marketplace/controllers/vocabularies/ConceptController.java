@@ -1,8 +1,11 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +26,10 @@ public class ConceptController {
     }
 
     @PostMapping(path = "/{vocabulary-code}/concepts", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ConceptDto> createConcept(@RequestBody ConceptCore newConcept,
+    public ResponseEntity<ConceptDto> createConcept(@Parameter(
+            description = "Created concept",
+            required = true,
+            schema = @Schema(implementation = ConceptCore.class)) @RequestBody ConceptCore newConcept,
                                                     @PathVariable("vocabulary-code") String vocabularyCode,
                                                     @RequestParam(value = "candidate", defaultValue = "true") boolean candidate) throws ConceptAlreadyExistsException {
 
@@ -31,7 +37,10 @@ public class ConceptController {
     }
 
     @PutMapping(path = "/{vocabulary-code}/concepts/{code}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ConceptDto> updateConcept(@RequestBody ConceptCore updatedConcept,
+    public ResponseEntity<ConceptDto> updateConcept(@Parameter(
+            description = "Updated concept",
+            required = true,
+            schema = @Schema(implementation = ConceptCore.class)) @RequestBody ConceptCore updatedConcept,
                                                     @PathVariable("vocabulary-code") String vocabularyCode,
                                                     @PathVariable("code") String code) {
 

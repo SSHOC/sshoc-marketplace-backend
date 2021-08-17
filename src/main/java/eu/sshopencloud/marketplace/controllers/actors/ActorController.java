@@ -6,6 +6,8 @@ import eu.sshopencloud.marketplace.dto.actors.ActorDto;
 import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -36,12 +38,20 @@ public class ActorController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ActorDto> createActor(@RequestBody ActorCore newActor) {
+    public ResponseEntity<ActorDto> createActor(
+            @Parameter(
+            description = "Created actor object",
+            required = true,
+            schema = @Schema(implementation = ActorCore.class)) @RequestBody ActorCore newActor) {
         return ResponseEntity.ok(actorService.createActor(newActor));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ActorDto> updateActor(@PathVariable("id") long id, @RequestBody ActorCore updatedActor) {
+    public ResponseEntity<ActorDto> updateActor(@PathVariable("id") long id,
+                                                @Parameter(
+                                                        description = "Update actor object",
+                                                        required = true,
+                                                        schema = @Schema(implementation = ActorCore.class))@RequestBody ActorCore updatedActor) {
         return ResponseEntity.ok(actorService.updateActor(id, updatedActor));
     }
 
