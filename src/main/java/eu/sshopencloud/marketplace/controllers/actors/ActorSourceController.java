@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorSourceCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorSourceDto;
 import eu.sshopencloud.marketplace.services.actors.ActorSourceService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +23,13 @@ public class ActorSourceController {
     private final ActorSourceService actorSourceService;
 
 
+    @Operation(summary = "Retrieve list of all actor sources")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ActorSourceDto>> getAllActorSources() {
         return ResponseEntity.ok(actorSourceService.getAllActorSources());
     }
 
+    @Operation(summary = "Retrieve single actor sources by source code")
     @GetMapping(path = "/{sourceCode}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ActorSourceDto> getActorSource(@PathVariable("sourceCode") String code) {
         return ResponseEntity.ok(actorSourceService.getActorSource(code));
@@ -43,13 +46,14 @@ public class ActorSourceController {
     @PutMapping(path = "/{sourceCode}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ActorSourceDto> updateActorSource(@PathVariable("sourceCode") String code,
                                                             @Parameter(
-                                                                    description = "Update actor source object",
+                                                                    description = "Update actor source object for given source code",
                                                                     required = true,
                                                                     schema = @Schema(implementation = ActorSourceCore.class))@RequestBody ActorSourceCore actorSource) {
 
         return ResponseEntity.ok(actorSourceService.updateActorSource(code, actorSource));
     }
 
+    @Operation(summary = "Delete actor sources by source code")
     @DeleteMapping("/{sourceCode}")
     public ResponseEntity<Void> deleteActorSource(@PathVariable("sourceCode") String code) {
         actorSourceService.deleteActorSource(code);
