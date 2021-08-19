@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaSourceService;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceDto;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +22,19 @@ public class MediaSourceController {
     private final MediaSourceService mediaSourceService;
 
 
+    @Operation(summary = "Getting list of all media sources")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<MediaSourceDto>> getAllMediaSources() {
         return ResponseEntity.ok(mediaSourceService.getAllMediaSources());
     }
 
+    @Operation(summary = "Getting single media source for given media source code")
     @GetMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MediaSourceDto> getMediaSource(@PathVariable("code") String mediaSourceCode) {
         return ResponseEntity.ok(mediaSourceService.getMediaSource(mediaSourceCode));
     }
 
+    @Operation(summary = "Creating media source")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MediaSourceDto> createMediaSource(@Parameter(
             description = "Created media source",
@@ -39,6 +43,7 @@ public class MediaSourceController {
         return ResponseEntity.ok(mediaSourceService.registerMediaSource(mediaSourceCore));
     }
 
+    @Operation(summary = "Updating media source for given media source code")
     @PutMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MediaSourceDto> updateMediaSource(@PathVariable("code") String mediaSourceCode,
                                                             @Parameter(
@@ -49,6 +54,7 @@ public class MediaSourceController {
         return ResponseEntity.ok(mediaSourceService.updateMediaSource(mediaSourceCode, mediaSourceCore));
     }
 
+    @Operation(summary = "Deleting media source for given media source code")
     @DeleteMapping("/{code}")
     public ResponseEntity<Void> deleteMediaSource(@PathVariable("code") String mediaSourceCode) {
         mediaSourceService.removeMediaSource(mediaSourceCode);

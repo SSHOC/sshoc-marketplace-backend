@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,15 @@ public class ConceptController {
 
     private final ConceptService conceptService;
 
+
+    @Operation(summary = "Get concept for given vocabulary code and concept code")
     @GetMapping(path = "/{vocabulary-code}/concepts/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ConceptDto> getConcept(@PathVariable("vocabulary-code") String vocabularyCode,
                                                  @PathVariable("code") String code) {
         return ResponseEntity.ok(conceptService.getConcept(code, vocabularyCode));
     }
 
+    @Operation(summary = "Create concept for given vocabulary code")
     @PostMapping(path = "/{vocabulary-code}/concepts", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ConceptDto> createConcept(@Parameter(
             description = "Created concept",
@@ -36,6 +40,7 @@ public class ConceptController {
         return ResponseEntity.ok(conceptService.createConcept(newConcept, vocabularyCode, candidate));
     }
 
+    @Operation(summary = "Update concept for given vocabulary code and concept code")
     @PutMapping(path = "/{vocabulary-code}/concepts/{code}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ConceptDto> updateConcept(@Parameter(
             description = "Updated concept",
@@ -47,6 +52,7 @@ public class ConceptController {
         return ResponseEntity.ok(conceptService.updateConcept(code, updatedConcept, vocabularyCode));
     }
 
+    @Operation(summary = "Commit concept for given vocabulary code and concept code")
     @PutMapping(path = "/{vocabulary-code}/concepts/{code}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ConceptDto> commitConcept(@PathVariable("vocabulary-code") String vocabularyCode,
                                                     @PathVariable("code") String code) {
@@ -54,6 +60,7 @@ public class ConceptController {
         return ResponseEntity.ok(conceptService.commitConcept(code, vocabularyCode));
     }
 
+    @Operation(summary = "Delete concept for given vocabulary code and concept code")
     @DeleteMapping("/{vocabulary-code}/concepts/{code}")
     public ResponseEntity<Void> deleteConcept(@PathVariable("vocabulary-code") String vocabularyCode,
                                               @PathVariable("code") String code,

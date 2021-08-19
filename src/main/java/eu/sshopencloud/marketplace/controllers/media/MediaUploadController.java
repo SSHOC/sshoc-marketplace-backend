@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +30,14 @@ public class MediaUploadController {
 
     private final MediaStorageService mediaStorageService;
 
-
+    @Operation(summary = "Download media for given media id")
     @GetMapping(path = "/download/{mediaId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getMediaFile(@PathVariable("mediaId") UUID mediaId) {
         MediaDownload mediaDownload = mediaStorageService.getMediaForDownload(mediaId);
         return serveMediaFile(mediaDownload);
     }
 
+    @Operation(summary = "Get thumbnail for given media id")
     @GetMapping(path = "/thumbnail/{mediaId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getMediaThumbnail(@PathVariable("mediaId") UUID mediaId) {
         MediaDownload thumbnailDownload = mediaStorageService.getThumbnailForDownload(mediaId);
@@ -63,6 +65,7 @@ public class MediaUploadController {
                 .body(mediaDownload.getMediaFile());
     }
 
+    @Operation(summary = "Get information about given media id")
     @GetMapping(path = "/info/{mediaId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MediaDetails> getMediaInfo(@PathVariable("mediaId") UUID mediaId) {
         MediaDetails details = mediaStorageService.getMediaDetails(mediaId);
@@ -70,6 +73,7 @@ public class MediaUploadController {
     }
 
 
+    @Operation(summary = "Upload full media file")
     @PostMapping(path = "/upload/full", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MediaDetails> uploadMedia(@RequestParam("file") MultipartFile mediaFile) {
         Optional<MediaType> mediaType = MimeTypeUtils.parseMimeType(mediaFile.getContentType());
@@ -78,6 +82,7 @@ public class MediaUploadController {
     }
 
 
+    @Operation(summary = "Upload full media file chunk (part)")
     @PostMapping(path = "/upload/chunk", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MediaUploadInfo> uploadMediaChunk(@RequestParam(name = "mediaId", required = false) Optional<UUID> mediaId,
                                                             @RequestParam("no") int chunkNo,
@@ -89,6 +94,7 @@ public class MediaUploadController {
         return ResponseEntity.ok(uploadInfo);
     }
 
+    @Operation(summary = "Complete uploading chunks for media file")
     @PostMapping(path = "/upload/complete/{mediaId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MediaDetails> completeMediaUpload(@PathVariable("mediaId") UUID mediaId,
                                                             @RequestParam(value = "filename", required = false) Optional<String> filename) {
@@ -97,6 +103,7 @@ public class MediaUploadController {
         return ResponseEntity.ok(mediaDetails);
     }
 
+    @Operation(summary = "Upload media via link (import)")
     @PostMapping(path = "/upload/import", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MediaDetails> importMedia(@Parameter(
             description = "Media location",

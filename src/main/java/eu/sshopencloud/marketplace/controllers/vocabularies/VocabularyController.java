@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedVocabularies;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class VocabularyController {
     private final VocabularyService vocabularyService;
 
 
+    @Operation(summary = "Get all vocabularies in pages")
     @GetMapping(path= "", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedVocabularies> getVocabularies(@RequestParam(value = "page", required = false) Integer page,
                                                                  @RequestParam(value = "perpage", required = false) Integer perpage)
@@ -32,6 +34,7 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabularyService.getVocabularies(pageCoordsValidator.validate(page, perpage)));
     }
 
+    @Operation(summary = "Get vocabulary for given code")
     @GetMapping(path= "/{code}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VocabularyDto> getVocabulary(@PathVariable("code") String code,
                                                        @RequestParam(value = "page", required = false) Integer page,
@@ -42,6 +45,7 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabularyService.getVocabulary(code, pageCoords));
     }
 
+    @Operation(summary = "Create vocabulary from file")
     @PostMapping(path= "",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VocabularyBasicDto> createVocabulary(@RequestParam("ttl") MultipartFile vocabularyFile)
             throws IOException, VocabularyAlreadyExistsException {
@@ -50,6 +54,7 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabulary);
     }
 
+    @Operation(summary = "Update vocabulary for given code and file")
     @PutMapping(path= "/{code}",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VocabularyBasicDto> updateVocabulary(
             @PathVariable("code") String vocabularyCode,
@@ -61,6 +66,7 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabulary);
     }
 
+    @Operation(summary = "Delete vocabulary for given code")
     @DeleteMapping(path="/{code}",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteVocabulary(@PathVariable("code") String vocabularyCode,
                                                  @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) {
