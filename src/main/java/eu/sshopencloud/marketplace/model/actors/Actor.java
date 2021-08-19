@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.model.actors;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.lang.Nullable;
 
 
 import javax.persistence.*;
@@ -28,11 +29,11 @@ public class Actor {
     @OrderColumn(name = "ord", nullable = false)
     private List<ActorExternalId> externalIds;
 
-    //Eliza
-    //@Nullable
+
+    @Nullable
     private String website;
 
-    //@Nullable
+    @Nullable
     private String email;
 
     @ManyToMany(fetch = FetchType.EAGER)
