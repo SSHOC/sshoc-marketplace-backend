@@ -46,6 +46,16 @@ public enum SearchFacet {
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 
+    WEBSITE(SearchFilter.WEBSITE, IndexActor.WEBSITE_FIELD,
+            List.of(IndexActor.WEBSITE_FIELD),
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
+    EXTERNAL_IDENTIFIER(SearchFilter.EXTERNAL_IDENTIFIER, IndexActor.EXTERNAL_IDENTIFIER_FIELD,
+            List.of(IndexActor.EXTERNAL_IDENTIFIER_FIELD),
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
     PROPERTY_TYPE(SearchFilter.PROPERTY_TYPE, IndexConcept.TYPES_FIELD,
             Collections.singletonList(IndexConcept.TYPES_FIELD),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)

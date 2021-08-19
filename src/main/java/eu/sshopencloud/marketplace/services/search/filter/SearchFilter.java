@@ -22,6 +22,10 @@ public enum SearchFilter {
 
     EMAIL(IndexType.ACTORS, IndexActor.EMAIL_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
+    WEBSITE(IndexType.ACTORS, IndexActor.WEBSITE_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
+
+    EXTERNAL_IDENTIFIER(IndexType.ACTORS, IndexActor.EXTERNAL_IDENTIFIER_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
+
     PROPERTY_TYPE(IndexType.CONCEPTS, IndexConcept.TYPES_FIELD, FilterType.VALUES_SELECTION_FILTER, true);
 
 
