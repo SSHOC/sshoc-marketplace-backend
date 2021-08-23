@@ -1,23 +1,39 @@
 databaseChangeLog:
   - changeSet:
       id: 0047-SSHOC_100-boolean_type_for_properties-1
-      description: updating record for property types table in dev data
+      description: add new record for property types table in dev data
+      author: ekalata
+      context: dev, test
+      changes:
+        - insert:
+           tableName: property_types
+           columns:
+             - column:
+                 name: code
+                 value: deprecated-at-source
+             - column:
+                 name: label
+                 value: Deprecated at Source
+             - column:
+                 name: type
+                 value: BOOLEAN
+             - column:
+                 name: group_name
+                 value: Curation
+             - column:
+                 name: hidden
+                 value: true
+             - column:
+                 name: ord
+                 value: 27
+
+  - changeSet:
+      id: 0047-SSHOC_100-boolean_type_for_properties-2
+      description: updating this new record for all profiles
       author: ekalata
       changes:
         - sql:
             sql: >
-              update property_types set group_name = 'Curation' where code = 'deprecated-at-source';
-              update property_types set hidden = true where code = 'deprecated-at-source';
-
-  - changeSet:
-      id: 0047-SSHOC_100-boolean_type_for_properties-2
-      description: updating property types type for record
-      author: ekalata
-      changes:
-        - update:
-            tableName: property_types
-            where: code = 'deprecated-at-source'
-            columns:
-              - column:
-                  name: type
-                  value: BOOLEAN
+              update properties set value = 'TRUE' where LOWER(value) = 'true' and type_code = 'deprecated-at-source';
+              update properties set value = 'FALSE' where LOWER(value) = 'false' and type_code = 'deprecated-at-source';
+              update properties set value = 'NULL' where (value is null or (LOWER(value) <> 'true' and LOWER(value) <> 'false')) and type_code = 'deprecated-at-source';

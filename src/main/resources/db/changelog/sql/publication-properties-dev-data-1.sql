@@ -31,9 +31,6 @@ INSERT INTO public.property_types (code, label, ord, type) VALUES ('timestamp', 
 INSERT INTO public.property_types (code, label, ord, type) VALUES ('publication-type', 'Publication type', 25, 'CONCEPT');
 INSERT INTO public.property_types (code, label, ord, type) VALUES ('doi', 'DOI', 26, 'STRING');
 
-INSERT INTO public.property_types (code, label, ord, type) VALUES ('deprecated-at-source', 'Deprecated at Source', 27, 'BOOLEAN');
-
-
 
 --
 -- Data for Name: property_types_vocabularies; Type: TABLE DATA; Schema: public; Owner: marketplace
