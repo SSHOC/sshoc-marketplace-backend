@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0048-SSHOC_80-url_template_externalId-1
+      description: adding column with url template to actor_external_sources table
+      author: ekalata
+      changes:
+        - addColumn:
+            tableName: actor_external_sources
+            columns:
+              - column:
+                  name: url_template
+                  type: VARCHAR(255)
+        - sql:
+            sql: >
+              update actor_external_sources set url_template = 'https://www.wikidata.org/wiki/{source-actor-id}' where code = 'Wikidata'
+        - sql:
+            sql: >
+              update actor_external_sources set url_template = 'https://dblp.org/pid/{source-actor-id}.html' where code = 'DBLP'
+        - sql:
+            sql: >
+              update actor_external_sources set url_template = 'https://orcid.org/{source-actor-id}' where code = 'ORCID'
+
+  - changeSet:
+      id: 0048-SSHOC_80-url_template_externalId-2
+      description: adding column with url template to item_external_sources table
+      author: ekalata
+      changes:
+        - addColumn:
+            tableName: item_external_sources
+            columns:
+              - column:
+                  name: url_template
+                  type: VARCHAR(255)
+        - sql:
+            sql: >
+              update item_external_sources set url_template = 'https://www.wikidata.org/wiki/{source-item-id}' where code = 'Wikidata'
+        - sql:
+            sql: >
+              update item_external_sources set url_template = 'https://github.com/{source-item-id}' where code = 'GitHub'
+
