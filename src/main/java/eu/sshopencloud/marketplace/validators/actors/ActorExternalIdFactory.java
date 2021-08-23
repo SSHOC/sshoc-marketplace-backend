@@ -7,7 +7,6 @@ import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.services.actors.ActorExternalIdService;
 import eu.sshopencloud.marketplace.services.actors.ActorSourceService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
@@ -73,12 +72,6 @@ public class ActorExternalIdFactory {
             );
 
             return null;
-        }
-
-        if (StringUtils.isBlank(actorSource.get().getUrlTemplate())) {
-            errors.rejectValue("urlTemplate", "field.required", "Url template is required.");
-        } else if (!actorSource.get().getUrlTemplate().contains("{source-actor-id}")) {
-            errors.rejectValue("urlTemplate", "field.invalid", "Url template has to contain {source-actor-id} substring.");
         }
 
         Optional<ActorExternalId> actorExternalId = actorExternalIdService.loadActorExternalId(actorSource.get(), externalId.getIdentifier());

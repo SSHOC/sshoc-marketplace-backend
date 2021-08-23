@@ -25,7 +25,7 @@ public class ItemSource implements OrderableEntity<String> {
     private int ord;
 
     @Basic
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String urlTemplate;
 
     @Override

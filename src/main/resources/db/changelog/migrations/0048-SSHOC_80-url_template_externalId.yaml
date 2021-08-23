@@ -10,18 +10,15 @@ databaseChangeLog:
               - column:
                   name: url_template
                   type: VARCHAR(255)
-                  constraints:
-                    nullable: false
-                  defaultValue: 'https://www.{source-actor-id}'
         - sql:
             sql: >
               update actor_external_sources set url_template = 'https://www.wikidata.org/wiki/{source-actor-id}' where code = 'Wikidata'
         - sql:
             sql: >
-              update actor_external_sources set url_template = 'https://dblp.org/{source-actor-id}' where code = 'DBLP'
+              update actor_external_sources set url_template = 'https://dblp.org/pid/{source-actor-id}.html' where code = 'DBLP'
         - sql:
             sql: >
-              update actor_external_sources set url_template = 'https://pub.sandbox.orcid.org/v3.0/{source-actor-id}' where code = 'ORCID'
+              update actor_external_sources set url_template = 'https://orcid.org/{source-actor-id}' where code = 'ORCID'
 
   - changeSet:
       id: 0048-SSHOC_80-url_template_externalId-2
@@ -34,9 +31,6 @@ databaseChangeLog:
               - column:
                   name: url_template
                   type: VARCHAR(255)
-                  constraints:
-                    nullable: false
-                  defaultValue: 'https://www.{source-item-id}'
         - sql:
             sql: >
               update item_external_sources set url_template = 'https://www.wikidata.org/wiki/{source-item-id}' where code = 'Wikidata'

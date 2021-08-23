@@ -627,8 +627,10 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("description", is(publicationV2.getDescription())))
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("GitHub")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://github.com/{source-item-id}")))
                 .andExpect(jsonPath("externalIds[0].identifier", is(publicationV2.getExternalIds().get(0).getIdentifier())))
                 .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-item-id}")))
                 .andExpect(jsonPath("externalIds[1].identifier", is(publicationV2.getExternalIds().get(1).getIdentifier())));
     }
 

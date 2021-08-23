@@ -20,8 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.transaction.Transactional;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -299,7 +298,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemSourceWithoutUrlTemplate() throws Exception {
+    public void shouldCreateItemSourceWithoutUrlTemplate() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test...")
@@ -314,7 +313,10 @@ public class ActorSourceControllerITCase {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT)
         )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("urlTemplate", nullValue()))
+                .andExpect(jsonPath("label", is("Test...")));
     }
 
     @Test

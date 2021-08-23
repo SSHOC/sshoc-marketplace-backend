@@ -51,11 +51,10 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
         if (newItemSource.getCode() == null)
             throw new IllegalArgumentException("Item's source's code is required.");
 
-        if (StringUtils.isBlank(newItemSource.getUrlTemplate())) {
-            throw new IllegalArgumentException("Item's source's url template is required.");
-        } else if (!newItemSource.getUrlTemplate().contains("{source-item-id}"))
-            throw new IllegalArgumentException("Item's source's url template should contain {source-item-id} substring.");
-
+        if (StringUtils.isNotBlank(newItemSource.getUrlTemplate())) {
+            if (!newItemSource.getUrlTemplate().contains("{source-item-id}"))
+                throw new IllegalArgumentException("Item's source's url template has to contain {source-item-id} substring.");
+        }
 
         placeEntryAtPosition(newItemSource, itemSourceCore.getOrd(), true);
         newItemSource = itemSourceRepository.save(newItemSource);
@@ -68,6 +67,10 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Item source with code %s not found", code)));
 
         itemSource.setLabel(itemSourceCore.getLabel());
+        if (StringUtils.isNotBlank(itemSourceCore.getUrlTemplate())) {
+            if (!itemSourceCore.getUrlTemplate().contains("{source-item-id}"))
+                throw new IllegalArgumentException("Item's source's url template has to contain {source-item-id} substring.");
+        }
         itemSource.setUrlTemplate(itemSourceCore.getUrlTemplate());
 
         placeEntryAtPosition(itemSource, itemSourceCore.getOrd(), false);

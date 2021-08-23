@@ -24,7 +24,7 @@ public class ActorSource implements OrderableEntity<String> {
     private int ord;
 
     @Basic
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String urlTemplate;
 
     public ActorSource(String code, String label) {
@@ -37,7 +37,7 @@ public class ActorSource implements OrderableEntity<String> {
         this.code = code;
         this.label = label;
         this.ord = 0;
-        this.urlTemplate =urlTemplate;
+        this.urlTemplate = urlTemplate;
     }
 
 

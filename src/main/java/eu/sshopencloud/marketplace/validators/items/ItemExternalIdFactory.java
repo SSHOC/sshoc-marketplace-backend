@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.model.items.ItemExternalId;
 import eu.sshopencloud.marketplace.model.items.ItemSource;
 import eu.sshopencloud.marketplace.services.items.ItemSourceService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
@@ -68,12 +67,6 @@ public class ItemExternalIdFactory {
             );
 
             return null;
-        }
-
-        if (StringUtils.isBlank(itemSource.get().getUrlTemplate())) {
-            errors.rejectValue("urlTemplate", "field.required", "Url template is required.");
-        } else if (!itemSource.get().getUrlTemplate().contains("{source-item-id}")) {
-            errors.rejectValue("urlTemplate", "field.invalid", "Url template has to contain {source-item-id} substring.");
         }
 
         return new ItemExternalId(itemSource.get(), externalId.getIdentifier(), item);
