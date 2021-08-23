@@ -185,7 +185,7 @@ public class ActorControllerITCase {
         actor.setEmail("test@example.org");
         actor.setAffiliations(List.of(new ActorId(1L)));
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore(new ActorSourceId("DBLP"), "https://dblp.org/pers/g/Gray_0001:Jim.html")
+                new ActorExternalIdCore(new ActorSourceId("DBLP"), "Gray_0001:Jim")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -204,7 +204,8 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds", hasSize(1)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("DBLP")))
                 .andExpect(jsonPath("externalIds[0].identifierService.label", is("DBLP")))
-                .andExpect(jsonPath("externalIds[0].identifier", is("https://dblp.org/pers/g/Gray_0001:Jim.html")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://dblp.org/pid/{source-actor-id}.html")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("Gray_0001:Jim")))
                 .andExpect(jsonPath("affiliations", hasSize(1)))
                 .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
                 .andExpect(jsonPath("affiliations[0].email", blankOrNullString()))
@@ -221,7 +222,8 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds", hasSize(1)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("DBLP")))
                 .andExpect(jsonPath("externalIds[0].identifierService.label", is("DBLP")))
-                .andExpect(jsonPath("externalIds[0].identifier", is("https://dblp.org/pers/g/Gray_0001:Jim.html")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://dblp.org/pid/{source-actor-id}.html")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("Gray_0001:Jim")))
                 .andExpect(jsonPath("affiliations", hasSize(1)))
                 .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
                 .andExpect(jsonPath("affiliations[0].email", blankOrNullString()));
@@ -235,7 +237,7 @@ public class ActorControllerITCase {
         actor.setAffiliations(List.of(new ActorId(4L)));
         actor.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
-                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -254,10 +256,12 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
                 .andExpect(jsonPath("externalIds[0].identifierService.label", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://orcid.org/{source-actor-id}")))
                 .andExpect(jsonPath("externalIds[0].identifier", is("0000-0000-0000-1234")))
                 .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
                 .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
-                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")))
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("q42")))
                 .andExpect(jsonPath("affiliations", hasSize(1)))
                 .andExpect(jsonPath("affiliations[0].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[0].email", is("cessda@cessda.eu")))
@@ -274,10 +278,12 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
                 .andExpect(jsonPath("externalIds[0].identifierService.label", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://orcid.org/{source-actor-id}")))
                 .andExpect(jsonPath("externalIds[0].identifier", is("0000-0000-0000-1234")))
                 .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
                 .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
-                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("q42")))
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
                 .andExpect(jsonPath("affiliations", hasSize(1)))
                 .andExpect(jsonPath("affiliations[0].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[0].email", is("cessda@cessda.eu")));
@@ -290,8 +296,8 @@ public class ActorControllerITCase {
         actor.setEmail("test@example.org");
         actor.setAffiliations(List.of(new ActorId(2L)));
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42"),
-                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -491,7 +497,7 @@ public class ActorControllerITCase {
 
         actor.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
-                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
         ));
 
         payload = mapper.writeValueAsString(actor);
@@ -507,14 +513,16 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
                 .andExpect(jsonPath("externalIds[0].identifierService.label", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://orcid.org/{source-actor-id}")))
                 .andExpect(jsonPath("externalIds[0].identifier", is("0000-0000-0000-1234")))
                 .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
                 .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
-                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")));
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("q42")));
 
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore(new ActorSourceId("DBLP"), "https://dblp.org/pers/g/Gray_0001:Jim.html"),
-                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("DBLP"), "Gray_0001:Jim"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
         ));
 
         payload = mapper.writeValueAsString(actor);
@@ -530,10 +538,12 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("DBLP")))
                 .andExpect(jsonPath("externalIds[0].identifierService.label", is("DBLP")))
-                .andExpect(jsonPath("externalIds[0].identifier", is("https://dblp.org/pers/g/Gray_0001:Jim.html")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://dblp.org/pid/{source-actor-id}.html")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("Gray_0001:Jim")))
                 .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
                 .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
-                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")));
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("q42")));
     }
 
     @Test
@@ -592,7 +602,7 @@ public class ActorControllerITCase {
         actor.setAffiliations(affiliations);
         actor.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
-                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
         ));
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
@@ -621,7 +631,7 @@ public class ActorControllerITCase {
         actor.setAffiliations(List.of(new ActorId(4L)));
         actor.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
-                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -640,10 +650,12 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
                 .andExpect(jsonPath("externalIds[0].identifierService.label", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://orcid.org/{source-actor-id}")))
                 .andExpect(jsonPath("externalIds[0].identifier", is("0000-0000-0000-1234")))
                 .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
                 .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
-                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")))
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("q42")))
                 .andExpect(jsonPath("affiliations", hasSize(1)))
                 .andExpect(jsonPath("affiliations[0].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[0].email", is("cessda@cessda.eu")))
@@ -660,10 +672,12 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
                 .andExpect(jsonPath("externalIds[0].identifierService.label", is("ORCID")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://orcid.org/{source-actor-id}")))
                 .andExpect(jsonPath("externalIds[0].identifier", is("0000-0000-0000-1234")))
                 .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
                 .andExpect(jsonPath("externalIds[1].identifierService.label", is("Wikidata")))
-                .andExpect(jsonPath("externalIds[1].identifier", is("https://www.wikidata.org/wiki/Q42")))
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
+                .andExpect(jsonPath("externalIds[1].identifier", is("q42")))
                 .andExpect(jsonPath("affiliations", hasSize(1)))
                 .andExpect(jsonPath("affiliations[0].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[0].email", is("cessda@cessda.eu")));
@@ -673,7 +687,7 @@ public class ActorControllerITCase {
         actor2.setEmail("test2@example.org");
         actor2.setAffiliations(List.of(new ActorId(4L)));
         actor2.setExternalIds(List.of(
-                new ActorExternalIdCore(new ActorSourceId("ORCID"), "1111")
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1111")
         ));
 
         String payload2 = mapper.writeValueAsString(actor2);
@@ -692,7 +706,8 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds", hasSize(1)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
                 .andExpect(jsonPath("externalIds[0].identifierService.label", is("ORCID")))
-                .andExpect(jsonPath("externalIds[0].identifier", is("1111")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://orcid.org/{source-actor-id}")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("0000-0000-0000-1111")))
                 .andExpect(jsonPath("affiliations", hasSize(1)))
                 .andExpect(jsonPath("affiliations[0].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[0].email", is("cessda@cessda.eu")))

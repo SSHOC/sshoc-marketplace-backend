@@ -17,4 +17,6 @@ public class ActorSourceCore {
     private String label;
 
     private Integer ord;
+
+    private String urlTemplate;
 }
