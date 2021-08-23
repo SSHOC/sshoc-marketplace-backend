@@ -9,7 +9,8 @@ public enum PropertyTypeClass {
     URL("_ss"),
     INT("_ls"),
     FLOAT("_ds"),
-    DATE("_dts");
+    DATE("_dts"),
+    BOOLEAN("_bs");
 
     private String dynamicFieldIndexTypeSuffix;
 

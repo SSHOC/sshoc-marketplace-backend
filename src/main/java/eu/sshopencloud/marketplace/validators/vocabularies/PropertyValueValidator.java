@@ -34,6 +34,8 @@ public class PropertyValueValidator {
                 return validateUrl(value, errors);
             case DATE:
                 return validateDate(value, errors);
+            case BOOLEAN:
+                return validateBoolean(value, errors);
         }
 
         return false;
@@ -104,4 +106,16 @@ public class PropertyValueValidator {
 
         return true;
     }
+
+    private boolean validateBoolean(String value, Errors errors) {
+        if (!(value.equals("TRUE") || value.equals("FALSE") || value.equals("NULL"))) {
+            errors.rejectValue(
+                    "value", "field.invalid","Only TRUE or FALSE or NULL are allowed."
+            );
+            return false;
+        }
+
+        return true;
+    }
+
 }

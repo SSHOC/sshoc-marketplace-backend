@@ -219,7 +219,7 @@ PropertyType:
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        deprecated-at-source
     label:                       Deprecated at Source
-    type:                        STRING
+    type:                        BOOLEAN
     groupName:                   'Curation'
     hidden:                      true
     ord:                         28
