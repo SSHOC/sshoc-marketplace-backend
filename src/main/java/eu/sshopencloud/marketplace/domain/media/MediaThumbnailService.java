@@ -58,13 +58,17 @@ class MediaThumbnailService {
 
     private Resource generateThumbnail(InputStream mediaStream) throws ThumbnailGenerationException {
         try {
-            BufferedImage mediaImage = ImageIO.read(mediaStream);
+
+            BufferedImage mediaImageTmp = ImageIO.read(mediaStream);
+            BufferedImage newBufferedImage = new BufferedImage(mediaImageTmp.getWidth(), mediaImageTmp.getHeight(), BufferedImage.TYPE_INT_RGB);
+            newBufferedImage.createGraphics().drawImage(mediaImageTmp, 0, 0, Color.WHITE, null);
+            BufferedImage mediaImage = newBufferedImage;
+
             BufferedImage thumbImage;
 
             if (checkSize(mediaImage.getWidth(), mediaImage.getHeight()))
                 thumbImage = mediaImage;
             else thumbImage = resizeImage(mediaImage);
-
 
             ByteArrayOutputStream thumbnailBytes = new ByteArrayOutputStream();
             ImageIO.write(thumbImage, THUMBNAIL_FILE_EXTENSION, thumbnailBytes);

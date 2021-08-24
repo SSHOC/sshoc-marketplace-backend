@@ -21,6 +21,7 @@ public enum ItemCategory {
         return new ItemCategory[] {TOOL_OR_SERVICE, TRAINING_MATERIAL, PUBLICATION, DATASET, WORKFLOW};
     }
 
+    //toString()
     @JsonValue
     public String getValue() {
         return name().replace('_', '-').toLowerCase();

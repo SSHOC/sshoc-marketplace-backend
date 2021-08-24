@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -23,8 +24,10 @@ public class ItemDto extends ItemExtBasicDto {
 
     private List<String> accessibleAt;
 
+    @Nullable
     private SourceBasicDto source;
 
+    @Nullable
     private String sourceItemId;
 
     private List<RelatedItemDto> relatedItems;

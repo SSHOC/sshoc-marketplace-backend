@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.model.sources;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -12,6 +13,7 @@ import java.time.ZonedDateTime;
 @Table(name = "sources")
 @Data
 @NoArgsConstructor
+@Nullable
 public class Source {
 
     @Id
@@ -44,6 +46,7 @@ public class Source {
 
     @Basic
     @Column(nullable = true)
+    @Nullable
     private ZonedDateTime lastHarvestedDate;
 
 }
