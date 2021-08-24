@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "steps_trees")
 @Data
-@ToString(exclude = { "workflow", "step", "parent", "subTrees" })
-@EqualsAndHashCode(exclude = { "workflow", "step", "parent", "subTrees" })
+@ToString(exclude = {"workflow", "step", "parent", "subTrees"})
+@EqualsAndHashCode(exclude = {"workflow", "step", "parent", "subTrees"})
 public class StepsTree {
 
     @Id
@@ -32,7 +32,7 @@ public class StepsTree {
     @JoinColumn(name = "workflow_id")
     private Workflow workflow;
 
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "step_id")
     private Step step;
 
@@ -104,9 +104,10 @@ public class StepsTree {
 
         int stepOrd = resolveOrd(stepNo);
         StepsTree subtree = newAddedTree(step);
-        subTrees.add(stepOrd, subtree);
 
         removePreviousStep(step);
+        subTrees.add(stepOrd, subtree);
+
     }
 
     public void replaceStep(Step step, int stepNo, Step replacedStep) {
@@ -140,7 +141,7 @@ public class StepsTree {
     }
 
     public void replaceChildStep(Step step) {
-       locateSubStep(step).ifPresent(st -> st.setStep(step));
+        locateSubStep(step).ifPresent(st -> st.setStep(step));
     }
 
     private Optional<StepsTree> locateSubStep(Step step) {

@@ -118,6 +118,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(updatedStepCore, parentStepTree);
 
         Step updatedStep = updateItem(stepId, workflowStepCore, draft);
+
         addStepToTree(updatedStep, updatedStepCore.getStepNo(), parentStepTree);
 
         return prepareItemDto(updatedStep);
