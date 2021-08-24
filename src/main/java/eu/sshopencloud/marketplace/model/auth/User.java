@@ -52,6 +52,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private boolean config;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String preferences;
 
@@ -71,4 +74,9 @@ public class User {
     public boolean isSystemContributor() {
         return role.equals(UserRole.SYSTEM_CONTRIBUTOR);
     }
+
+    public boolean isSystemModerator() {
+        return role.equals(UserRole.SYSTEM_MODERATOR);
+    }
+
 }

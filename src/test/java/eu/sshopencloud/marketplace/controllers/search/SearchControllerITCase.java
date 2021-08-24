@@ -239,6 +239,30 @@ public class SearchControllerITCase {
     }
 
     @Test
+    public void shouldReturnItemsWildcardPhrase() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=(topi* OR \"Introduction to GEPHI\")&advanced=true")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(4)))
+                .andExpect(jsonPath("items[*].id", containsInAnyOrder(7, 2, 11, 8)))
+                .andExpect(jsonPath("items[*].persistentId", containsInAnyOrder("WfcKvG", "DstBL5", "dU0BZc", "JmBgWa")))
+                .andExpect(jsonPath("items[*].label", containsInAnyOrder("Introduction to GEPHI", "Stata", "Test dataset with markdown description", "Webinar on DH")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(2)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(1)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("facets.keyword.['topic modeling'].count", is(2)))
+                .andExpect(jsonPath("facets.keyword.['topic modeling'].checked", is(false)))
+                .andExpect(jsonPath("facets.keyword.['topic'].count", is(1)))
+                .andExpect(jsonPath("facets.keyword.['topic'].checked", is(false)));
+    }
+
+    @Test
     public void shouldReturnItemsByKeywordPhraseAndFilterByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=\"topic modeling\"&categories=tool-or-service,training-material")

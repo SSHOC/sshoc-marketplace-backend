@@ -102,6 +102,483 @@ public class MediaUploadControllerITCase {
                 .andExpect(header().string("Content-Type", "image/jpeg"));
     }
 
+    //With content-type in heads
+    @Test
+    public void shouldUploadBmpImageMediaFile() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "bmp_example.bmp", "image/bmp", mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("bmp_example.bmp")))
+                .andExpect(jsonPath("mimeType", is("image/bmp")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadGiffImageMediaFile() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "gif_example.gif", "image/gif", mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("gif_example.gif")))
+                .andExpect(jsonPath("mimeType", is("image/gif")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadJpegImageMediaFile() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "jpeg_example.jpeg", "image/jpeg", mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("jpeg_example.jpeg")))
+                .andExpect(jsonPath("mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadPngImageMediaFile() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "png_example.png", "image/png", mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("png_example.png")))
+                .andExpect(jsonPath("mimeType", is("image/png")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadSvgImageMediaFile() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "svg_example.svg", "image/svg+xml", mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("svg_example.svg")))
+                .andExpect(jsonPath("mimeType", is("image/svg+xml")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadTiffImageMediaFile() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "tiff_example.tiff", "image/tiff", mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("tiff_example.tiff")))
+                .andExpect(jsonPath("mimeType", is("image/tiff")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadWebpImageMediaFile() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "webp_example.webp", "image/webp", mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("webp_example.webp")))
+                .andExpect(jsonPath("mimeType", is("image/webp")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadBmpImageMediaFileWithoutContentType() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "bmp_example.bmp", null, mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("bmp_example.bmp")))
+                .andExpect(jsonPath("mimeType", is("image/bmp")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadGiffImageMediaFileWithoutContentType() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "gif_example.gif", null, mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("gif_example.gif")))
+                .andExpect(jsonPath("mimeType", is("image/gif")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadJpegImageMediaFileWithoutContentType() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "jpeg_example.jpeg", null, mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("jpeg_example.jpeg")))
+                .andExpect(jsonPath("mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadPngImageMediaFileWithoutContentType() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "png_example.png", null, mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("png_example.png")))
+                .andExpect(jsonPath("mimeType", is("image/png")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadSvgImageMediaFileWithoutContentType() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "svg_example.svg", null, mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("svg_example.svg")))
+                .andExpect(jsonPath("mimeType", is("image/svg+xml")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadTiffImageMediaFileWithoutContentType() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "tiff_example.tiff", null, mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("tiff_example.tiff")))
+                .andExpect(jsonPath("mimeType", is("image/tiff")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
+    @Test
+    public void shouldUploadWebpImageMediaFileWithoutContentType() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "webp_example.webp", null, mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("webp_example.webp")))
+                .andExpect(jsonPath("mimeType", is("image/webp")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
+
     @Test
     public void shouldUploadImageMediaFileWithoutContentType() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
@@ -241,6 +718,493 @@ public class MediaUploadControllerITCase {
         ResponseDefinitionBuilder grumpyResponse = aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "image/png")
+                .withHeader("Content-Length", String.valueOf(grumpyContent.length));
+
+        stubFor(
+                WireMock.head(urlEqualTo("/grumpy"))
+                        .willReturn(grumpyResponse)
+        );
+
+        stubFor(
+                WireMock.get(urlEqualTo("/grumpy"))
+                        .willReturn(grumpyResponse.withBody(grumpyContent))
+        );
+
+        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpy");
+        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
+
+        String payload = mapper.writeValueAsString(mediaLocation);
+
+        String response = mvc.perform(
+                post("/api/media/upload/import")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/png")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/png")))
+                .andExpect(jsonPath("hasThumbnail", is(true)));
+
+        mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isBadRequest());
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
+    }
+
+    @Test
+    public void shouldImportBmpImageMediaWithoutContentType() throws Exception {
+        InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/bmp_example.bmp");
+        byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
+
+        ResponseDefinitionBuilder grumpyResponse = aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "")
+                .withHeader("Content-Length", String.valueOf(imageContent.length));
+
+        stubFor(
+                WireMock.head(urlEqualTo("/bmp"))
+                        .willReturn(grumpyResponse)
+        );
+
+        stubFor(
+                WireMock.get(urlEqualTo("/bmp"))
+                        .willReturn(grumpyResponse.withBody(imageContent))
+        );
+
+        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/bmp");
+        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
+
+        String payload = mapper.writeValueAsString(mediaLocation);
+
+        String response = mvc.perform(
+                post("/api/media/upload/import")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/bmp")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/bmp")))
+                .andExpect(jsonPath("hasThumbnail", is(true)));
+
+        mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isBadRequest());
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
+    }
+
+    @Test
+    public void shouldImportGifImageMediaWithoutContentType() throws Exception {
+        InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/gif_example.gif");
+        byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
+
+        ResponseDefinitionBuilder grumpyResponse = aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "")
+                .withHeader("Content-Length", String.valueOf(imageContent.length));
+
+        stubFor(
+                WireMock.head(urlEqualTo("/gif"))
+                        .willReturn(grumpyResponse)
+        );
+
+        stubFor(
+                WireMock.get(urlEqualTo("/gif"))
+                        .willReturn(grumpyResponse.withBody(imageContent))
+        );
+
+        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/gif");
+        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
+
+        String payload = mapper.writeValueAsString(mediaLocation);
+
+        String response = mvc.perform(
+                post("/api/media/upload/import")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/gif")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/gif")))
+                .andExpect(jsonPath("hasThumbnail", is(true)));
+
+        mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isBadRequest());
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
+    }
+
+    @Test
+    public void shouldImportJpegImageMediaWithoutContentType() throws Exception {
+        InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/jpeg_example.jpeg");
+        byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
+
+        ResponseDefinitionBuilder grumpyResponse = aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "")
+                .withHeader("Content-Length", String.valueOf(imageContent.length));
+
+        stubFor(
+                WireMock.head(urlEqualTo("/jpeg"))
+                        .willReturn(grumpyResponse)
+        );
+
+        stubFor(
+                WireMock.get(urlEqualTo("/jpeg"))
+                        .willReturn(grumpyResponse.withBody(imageContent))
+        );
+
+        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/jpeg");
+        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
+
+        String payload = mapper.writeValueAsString(mediaLocation);
+
+        String response = mvc.perform(
+                post("/api/media/upload/import")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("hasThumbnail", is(true)));
+
+        mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isBadRequest());
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
+    }
+
+    @Test
+    public void shouldImportPngImageMediaWithoutContentType() throws Exception {
+        InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/png_example.png");
+        byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
+
+        ResponseDefinitionBuilder grumpyResponse = aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "")
+                .withHeader("Content-Length", String.valueOf(imageContent.length));
+
+        stubFor(
+                WireMock.head(urlEqualTo("/png"))
+                        .willReturn(grumpyResponse)
+        );
+
+        stubFor(
+                WireMock.get(urlEqualTo("/png"))
+                        .willReturn(grumpyResponse.withBody(imageContent))
+        );
+
+        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/png");
+        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
+
+        String payload = mapper.writeValueAsString(mediaLocation);
+
+        String response = mvc.perform(
+                post("/api/media/upload/import")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/png")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/png")))
+                .andExpect(jsonPath("hasThumbnail", is(true)));
+
+        mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isBadRequest());
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
+    }
+
+    @Test
+    public void shouldImportSvgImageMediaWithoutContentType() throws Exception {
+        InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/svg_example.svg");
+        byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
+
+        ResponseDefinitionBuilder grumpyResponse = aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "")
+                .withHeader("Content-Length", String.valueOf(imageContent.length));
+
+        stubFor(
+                WireMock.head(urlEqualTo("/svg"))
+                        .willReturn(grumpyResponse)
+        );
+
+        stubFor(
+                WireMock.get(urlEqualTo("/svg"))
+                        .willReturn(grumpyResponse.withBody(imageContent))
+        );
+
+        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/svg");
+        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
+
+        String payload = mapper.writeValueAsString(mediaLocation);
+
+        String response = mvc.perform(
+                post("/api/media/upload/import")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/svg+xml")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/svg+xml")))
+                .andExpect(jsonPath("hasThumbnail", is(true)));
+
+        mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isBadRequest());
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
+    }
+
+    @Test
+    public void shouldImportTiffImageMediaWithoutContentType() throws Exception {
+        InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/tiff_example.tiff");
+        byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
+
+        ResponseDefinitionBuilder grumpyResponse = aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "")
+                .withHeader("Content-Length", String.valueOf(imageContent.length));
+
+        stubFor(
+                WireMock.head(urlEqualTo("/tiff"))
+                        .willReturn(grumpyResponse)
+        );
+
+        stubFor(
+                WireMock.get(urlEqualTo("/tiff"))
+                        .willReturn(grumpyResponse.withBody(imageContent))
+        );
+
+        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/tiff");
+        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
+
+        String payload = mapper.writeValueAsString(mediaLocation);
+
+        String response = mvc.perform(
+                post("/api/media/upload/import")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/tiff")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/tiff")))
+                .andExpect(jsonPath("hasThumbnail", is(true)));
+
+        //mvc.perform(get("/api/media/download/{mediaId}", mediaId)).andExpect(status().isBadRequest());
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
+    }
+
+    @Test
+    public void shouldImportWebpImageMediaWithoutContentType() throws Exception {
+        InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/webp_example.webp");
+        byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
+
+        ResponseDefinitionBuilder grumpyResponse = aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "")
+                .withHeader("Content-Length", String.valueOf(imageContent.length));
+
+        stubFor(
+                WireMock.head(urlEqualTo("/webp"))
+                        .willReturn(grumpyResponse)
+        );
+
+        stubFor(
+                WireMock.get(urlEqualTo("/webp"))
+                        .willReturn(grumpyResponse.withBody(imageContent))
+        );
+
+        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/webp");
+        MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
+
+        String payload = mapper.writeValueAsString(mediaLocation);
+
+        String response = mvc.perform(
+                post("/api/media/upload/import")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/webp")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        mvc.perform(get("/api/media/info/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", is(mediaId.toString())))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("location.sourceUrl", is(imageUrl.toString())))
+                .andExpect(jsonPath("mimeType", is("image/webp")))
+                .andExpect(jsonPath("hasThumbnail", is(true)));
+
+        mvc.perform(get("/api/media/download/{mediaId}", mediaId)).andExpect(status().isBadRequest());
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
+    }
+
+
+    @Test
+    public void shouldImportImageMediaWithoutContentType() throws Exception {
+        InputStream grumpyStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/grumpycat.png");
+        byte[] grumpyContent = FileCopyUtils.copyToByteArray(grumpyStream);
+
+        ResponseDefinitionBuilder grumpyResponse = aResponse()
+                .withStatus(200)
+                //.withHeader("Content-Type", "image/png")
                 .withHeader("Content-Length", String.valueOf(grumpyContent.length));
 
         stubFor(

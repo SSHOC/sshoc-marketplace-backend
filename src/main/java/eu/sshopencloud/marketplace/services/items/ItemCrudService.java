@@ -5,14 +5,11 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
-import eu.sshopencloud.marketplace.dto.items.ItemDto;
-import eu.sshopencloud.marketplace.dto.items.ItemRelationsCore;
-import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
-import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
+import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
-import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
@@ -109,21 +106,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected D prepareItemDto(I item) {
-        return prepareItemDto(item, true);
-    }
 
-    protected D prepareItemDto(I item, boolean withHistory) {
         D dto = convertItemToDto(item);
 
         List<RelatedItemDto> relatedItems = itemRelatedItemService.getItemRelatedItems(item);
         dto.setRelatedItems(relatedItems);
 
         completeItemDto(dto, item);
-
-        if (withHistory)
-            completeHistory(dto);
-
         return dto;
+
     }
 
     protected I createItem(C itemCore, boolean draft) {
@@ -410,27 +401,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         itemRelatedItemService.commitDraftRelations(draftItem);
     }
 
-    private List<ItemBasicDto> getNewerVersionsOfItem(Long itemId) {
-        // TODO change to recursive subordinates query in ItemRepository
-        List<ItemBasicDto> versions = new ArrayList<>();
-        Item nextVersion = itemRepository.findByPrevVersionId(itemId);
-        while (nextVersion != null) {
-            versions.add(ItemConverter.convertItem(nextVersion));
-            nextVersion = itemRepository.findByPrevVersion(nextVersion);
-        }
-        return versions;
-    }
-
-    private List<ItemBasicDto> getOlderVersionsOfItem(Long itemId) {
-        // TODO change to recursive subordinates query in ItemRepository
-        List<ItemBasicDto> versions = new ArrayList<>();
-        Item prevVersion = itemRepository.getOne(itemId).getPrevVersion();
-        while (prevVersion != null) {
-            versions.add(ItemConverter.convertItem(prevVersion));
-            prevVersion = prevVersion.getPrevVersion();
-        }
-        return versions;
-    }
 
     private void completeItemDto(D dto, I item) {
         completeItemDtoProperties(dto);
@@ -458,10 +428,35 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return (!property.getType().isHidden() || (user != null && user.isModerator()));
     }
 
-    private void completeHistory(D item) {
-        item.setOlderVersions(getOlderVersionsOfItem(item.getId()));
-        item.setNewerVersions(getNewerVersionsOfItem(item.getId()));
+    protected List<ItemExtBasicDto> getItemHistory(String persistentId, Long versionId) {
+        I item = loadItemVersion(persistentId, versionId);
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!itemVisibilityService.hasAccessToVersion(item, currentUser)) {
+            throw new AccessDeniedException(
+                    String.format(
+                            "User is not authorized to access the given item version with id %s (version id: %d)",
+                            persistentId, versionId
+                    )
+            );
+        }
+        return getHistoryOfItem(item);
     }
+
+
+    private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
+        // TODO change to recursive subordinates query in ItemRepository
+        List<ItemExtBasicDto> versions = new ArrayList<>();
+        versions.add(ItemExtBasicConverter.convertItem(item));
+        Item prevVersion = itemRepository.getOne(item.getId()).getPrevVersion();
+        while (prevVersion != null) {
+            versions.add(ItemExtBasicConverter.convertItem(prevVersion));
+            prevVersion = prevVersion.getPrevVersion();
+        }
+        return versions;
+    }
+
+
 
     private I makeItemVersion(C itemCore, I prevItem) {
         return makeItem(itemCore, prevItem);
