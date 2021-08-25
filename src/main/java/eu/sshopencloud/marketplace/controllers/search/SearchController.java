@@ -1,12 +1,9 @@
 package eu.sshopencloud.marketplace.controllers.search;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.dto.search.*;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.dto.search.SuggestedSearchPhrases;
 import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
-import eu.sshopencloud.marketplace.dto.search.PaginatedSearchConcepts;
-import eu.sshopencloud.marketplace.dto.search.PaginatedSearchItems;
 import eu.sshopencloud.marketplace.services.search.SearchService;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilter;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -53,7 +50,7 @@ class SearchController {
                             + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
             @RequestParam(required = false) MultiValueMap<String, String> f) throws PageTooLargeException, IllegalFilterException {
 
-        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(f);
+        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(d);
         Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
         return ResponseEntity.ok(searchService.searchItems(q, advanced, expressionParams, categories, filterParams, order,
                 pageCoordsValidator.validate(page, perpage)));
@@ -77,4 +74,22 @@ class SearchController {
         SuggestedSearchPhrases suggestions = searchService.autocompleteItemsSearch(query);
         return ResponseEntity.ok(suggestions);
     }
+
+    @GetMapping("/actor-search")
+    @Operation(description = "Search among actors.")
+    public ResponseEntity<PaginatedSearchActor> searchActors(@RequestParam(value = "q", required = false) String q,
+                                                             @RequestParam(value = "page", required = false) Integer page,
+                                                             @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                             @Parameter(
+                                                                     description = "Dynamic property filter parameters should be provided with putting multiple d.{property}={expression} as request parameters. Allowed property codes: "
+                                                                             + " name, email, website, external-identifier .", schema = @Schema(type = "string"))
+                                                             @RequestParam(required = false) MultiValueMap<String, String> d,
+                                                             @RequestParam(value = "advanced", defaultValue = "false") boolean advanced)
+
+            throws PageTooLargeException {
+
+        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(d);
+        return ResponseEntity.ok(searchService.searchActors(q, advanced, expressionParams, pageCoordsValidator.validate(page, perpage)));
+    }
+
 }

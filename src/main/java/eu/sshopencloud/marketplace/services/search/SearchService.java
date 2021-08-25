@@ -2,20 +2,27 @@ package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.search.*;
+import eu.sshopencloud.marketplace.mappers.actors.ActorExternalIdMapper;
+import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyMapper;
+import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
+import eu.sshopencloud.marketplace.repositories.search.SearchActorRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.dto.search.SuggestedSearchPhrases;
+import eu.sshopencloud.marketplace.services.actors.ActorService;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.*;
+import eu.sshopencloud.marketplace.services.search.query.ActorSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.ConceptSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.IndexSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
@@ -32,7 +39,6 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,7 +54,8 @@ public class SearchService {
     private final PropertyService propertyService;
     private final SearchConceptRepository searchConceptRepository;
     private final PropertyTypeService propertyTypeService;
-
+    private final SearchActorRepository searchActorRepository;
+    private final ActorService actorService;
 
     public PaginatedSearchItems searchItems(String q, boolean advanced, @NotNull Map<String, String> expressionParams,
                                             List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams,
@@ -90,10 +97,11 @@ public class SearchService {
                 .facets(facets)
                 .build();
 
-        // TODO index contributors and properties directly in SOLR in nested docs (?)
-        for (SearchItem item : result.getItems()) {
-            item.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(item.getId())));
-            item.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(item.getId())));
+        // TODO index contributors and properties directly in SOLR in nested docs (?) -
+        // TODO in a similar way add external identifiers to the result
+        for (SearchItem searchItem : result.getItems()) {
+            searchItem.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(searchItem.getId())));
+            searchItem.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(searchItem.getId())));
         }
 
         return result;
@@ -147,6 +155,7 @@ public class SearchService {
                 ));
     }
 
+
     private static Map<String, CheckedCount> createFacetDetails(List<FacetFieldEntry> facetValues, List<String> checkedValues) {
         if (checkedValues != null) {
             return facetValues.stream()
@@ -168,6 +177,7 @@ public class SearchService {
     }
 
     public PaginatedSearchConcepts searchConcepts(String q, boolean advanced, List<String> types, PageCoords pageCoords) {
+
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         SearchQueryCriteria queryCriteria = new ConceptSearchQueryPhrase(q, advanced);
 
@@ -184,7 +194,9 @@ public class SearchService {
                 .map(entry -> SearchConverter.convertPropertyTypeFacet(entry, types, propertyTypes))
                 .collect(Collectors.toList());
 
-        PaginatedSearchConcepts result = PaginatedSearchConcepts.builder().q(q).concepts(facetPage.get().map(SearchConverter::convertIndexConcept).collect(Collectors.toList()))
+        PaginatedSearchConcepts result = PaginatedSearchConcepts.builder()
+                .q(q)
+                .concepts(facetPage.get().map(SearchConverter::convertIndexConcept).collect(Collectors.toList()))
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
@@ -262,5 +274,35 @@ public class SearchService {
                 .phrase(searchPhrase)
                 .suggestions(suggestions)
                 .build();
+    }
+
+    public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, PageCoords pageCoords) {
+
+        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());// SOLR counts from page 0
+
+        SearchQueryCriteria queryCriteria = new ActorSearchQueryPhrase(q, advanced);
+
+        List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
+
+        FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable);
+
+        PaginatedSearchActor result = PaginatedSearchActor.builder()
+                .q(q)
+                .actors(facetPage.get().map(SearchConverter::convertIndexActor).collect(Collectors.toList()))
+                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(facetPage.getTotalPages())
+                .build();
+
+        // TODO index affiliations directly in SOLR in nested docs (?) -
+        // TODO in a similar way add external identifiers to the result
+        for (SearchActor searchActor : result.getActors()) {
+            Actor actor = actorService.loadActor(searchActor.getId());
+            searchActor.setExternalIds(ActorExternalIdMapper.INSTANCE.toDto(actor.getExternalIds()));
+            searchActor.setAffiliations(ActorMapper.INSTANCE.toDto(actor.getAffiliations()));
+
+        }
+
+        return result;
     }
 }

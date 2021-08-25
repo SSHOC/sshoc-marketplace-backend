@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.search.filter;
 
+import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import lombok.AllArgsConstructor;
