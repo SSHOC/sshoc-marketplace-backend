@@ -18,14 +18,6 @@ public enum SearchFilter {
 
     KEYWORD(IndexType.ITEMS, IndexItem.KEYWORD_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
 
-    NAME(IndexType.ACTORS, IndexActor.NAME_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
-
-    EMAIL(IndexType.ACTORS, IndexActor.EMAIL_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
-
-    WEBSITE(IndexType.ACTORS, IndexActor.WEBSITE_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
-
-    EXTERNAL_IDENTIFIER(IndexType.ACTORS, IndexActor.EXTERNAL_IDENTIFIER_FIELD, FilterType.VALUES_SELECTION_FILTER, false),
-
     PROPERTY_TYPE(IndexType.CONCEPTS, IndexConcept.TYPES_FIELD, FilterType.VALUES_SELECTION_FILTER, true);
 
 
@@ -47,7 +39,5 @@ public enum SearchFilter {
     }
 
     public static final String ITEMS_INDEX_TYPE_FILTERS = "activity, source, keyword";
-
-    public static final String ACTORS_INDEX_TYPE_FILTERS = "name, email, website, external-identifier";
 
 }

@@ -649,7 +649,8 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
                 .andExpect(jsonPath("actors[0].name", is("CESSDA")))
                 .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
-                .andExpect(jsonPath("actors[0].externalIds", nullValue()));
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
     }
 
 
@@ -662,7 +663,9 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[0].id", is(4)))
                 .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
                 .andExpect(jsonPath("actors[0].name", is("CESSDA")))
-                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")));
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
     }
 
     @Test
@@ -676,10 +679,14 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
                 .andExpect(jsonPath("actors[0].name", is("CESSDA")))
                 .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)))
                 .andExpect(jsonPath("actors[1].id", is(5)))
                 .andExpect(jsonPath("actors[1].email", is("john@example.com")))
                 .andExpect(jsonPath("actors[1].name", is("John Smith")))
-                .andExpect(jsonPath("actors[1].website", is("https://example.com/")));
+                .andExpect(jsonPath("actors[1].website", is("https://example.com/")))
+                .andExpect(jsonPath("actors[1].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[1].affiliations", hasSize(1)));
     }
 
 }

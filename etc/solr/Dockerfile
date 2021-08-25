@@ -16,8 +16,8 @@ RUN ./bin/solr start && \
 	./bin/solr create_core -c marketplace-actors && \
 	./bin/solr stop && \
 	cp -r /var/solr/data/marketplace-items /usr/solr && \
-	cp -r /var/solr/data/marketplace-actors /usr/solr && \
-	cp -r /var/solr/data/marketplace-concepts /usr/solr
+	cp -r /var/solr/data/marketplace-concepts /usr/solr && \
+	cp -r /var/solr/data/marketplace-actors /usr/solr
 
 WORKDIR /usr/solr
 

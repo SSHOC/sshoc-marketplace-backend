@@ -76,6 +76,10 @@ public class IndexService {
         indexActorRepository.deleteAll();
     }
 
+    public void removeActor(Long actorId) {
+        indexActorRepository.deleteById(actorId.toString());
+    }
+
     public void removeItemVersions(Item item) {
         indexItemRepository.deleteByPersistentId(item.getPersistentId());
     }

@@ -21,10 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URL;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -148,17 +146,14 @@ public class IndexConverter {
     public IndexActor covertActor(Actor actor) {
         IndexActor.IndexActorBuilder builder = IndexActor.builder();
 
-        List<String> externalIdIdentifiers = new ArrayList<>();
-
-        for (ActorExternalId actorExternalId : actor.getExternalIds()) {
-            externalIdIdentifiers.add(actorExternalId.getIdentifier());
-        }
-
         builder.id(actor.getId().toString())
                 .email(actor.getEmail())
                 .website(actor.getWebsite())
-                .name(actor.getName())
-                .externalIdentifier(externalIdIdentifiers);
+                .name(actor.getName());
+
+        for (ActorExternalId actorExternalId : actor.getExternalIds()) {
+            builder.externalIdentifier(actorExternalId.getIdentifier());
+        }
 
         return builder.build();
     }

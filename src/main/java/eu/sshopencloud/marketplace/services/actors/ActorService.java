@@ -43,11 +43,14 @@ public class ActorService {
                 .build();
     }
 
-    public ActorDto getActor(Long id) {
-        return ActorMapper.INSTANCE.toDto(actorRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id)));
+    public Actor loadActor(Long id) {
+        return actorRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id));
     }
 
+    public ActorDto getActor(Long id) {
+        return ActorMapper.INSTANCE.toDto(loadActor(id));
+    }
 
 
     public ActorDto createActor(ActorCore actorCore) {
@@ -74,6 +77,7 @@ public class ActorService {
             throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id);
         }
         actorRepository.deleteById(id);
+        indexService.removeActor(id);
     }
 
 }

@@ -2,8 +2,11 @@ package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.search.*;
+import eu.sshopencloud.marketplace.mappers.actors.ActorExternalIdMapper;
+import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyMapper;
+import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
@@ -15,6 +18,7 @@ import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.dto.search.SuggestedSearchPhrases;
+import eu.sshopencloud.marketplace.services.actors.ActorService;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.*;
@@ -35,7 +39,6 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,6 +55,7 @@ public class SearchService {
     private final SearchConceptRepository searchConceptRepository;
     private final PropertyTypeService propertyTypeService;
     private final SearchActorRepository searchActorRepository;
+    private final ActorService actorService;
 
     public PaginatedSearchItems searchItems(String q, boolean advanced, @NotNull Map<String, String> expressionParams,
                                             List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams,
@@ -93,10 +97,11 @@ public class SearchService {
                 .facets(facets)
                 .build();
 
-        // TODO index contributors and properties directly in SOLR in nested docs (?)
-        for (SearchItem item : result.getItems()) {
-            item.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(item.getId())));
-            item.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(item.getId())));
+        // TODO index contributors and properties directly in SOLR in nested docs (?) -
+        // TODO in a similar way add external identifiers to the result
+        for (SearchItem searchItem : result.getItems()) {
+            searchItem.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(searchItem.getId())));
+            searchItem.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(searchItem.getId())));
         }
 
         return result;
@@ -150,21 +155,6 @@ public class SearchService {
                 ));
     }
 
-    private Map<String, Map<String, CheckedCount>> gatherActorSearchFacets(FacetPage<IndexActor> facetPage, Map<String, List<String>> filterParams) {
-        return facetPage.getFacetFields().stream()
-                  .map(field -> Pair.create(
-                        field.getName().replace('_', '-'),
-                        createFacetDetails(
-                                facetPage.getFacetResultPage(field.getName()).getContent(),
-                                filterParams.get(field.getName().replace('_', '-'))
-                        )
-                ))
-                .collect(Collectors.toMap(
-                        Pair::getKey, Pair::getValue,
-                        (u, v) -> u,
-                        LinkedHashMap::new
-                ));
-    }
 
     private static Map<String, CheckedCount> createFacetDetails(List<FacetFieldEntry> facetValues, List<String> checkedValues) {
         if (checkedValues != null) {
@@ -286,19 +276,15 @@ public class SearchService {
                 .build();
     }
 
-    public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, @NotNull Map<String, List<String>> filterParams, PageCoords pageCoords) throws IllegalFilterException {
+    public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, PageCoords pageCoords) {
 
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());// SOLR counts from page 0
 
         SearchQueryCriteria queryCriteria = new ActorSearchQueryPhrase(q, advanced);
 
-        List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
-        filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.ACTORS));
-
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
-        FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, filterCriteria, pageable);
-        Map<String, Map<String, CheckedCount>> facets = gatherActorSearchFacets(facetPage, filterParams);
+        FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable);
 
         PaginatedSearchActor result = PaginatedSearchActor.builder()
                 .q(q)
@@ -306,8 +292,16 @@ public class SearchService {
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
-                .facets(facets)
                 .build();
+
+        // TODO index affiliations directly in SOLR in nested docs (?) -
+        // TODO in a similar way add external identifiers to the result
+        for (SearchActor searchActor : result.getActors()) {
+            Actor actor = actorService.loadActor(searchActor.getId());
+            searchActor.setExternalIds(ActorExternalIdMapper.INSTANCE.toDto(actor.getExternalIds()));
+            searchActor.setAffiliations(ActorMapper.INSTANCE.toDto(actor.getAffiliations()));
+
+        }
 
         return result;
     }

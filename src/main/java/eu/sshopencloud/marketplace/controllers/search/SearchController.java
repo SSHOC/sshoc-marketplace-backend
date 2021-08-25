@@ -50,8 +50,7 @@ class SearchController {
                             + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
             @RequestParam(required = false) MultiValueMap<String, String> f) throws PageTooLargeException, IllegalFilterException {
 
-        //Eliza - check d parameter?
-        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(f);
+        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(d);
         Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
         return ResponseEntity.ok(searchService.searchItems(q, advanced, expressionParams, categories, filterParams, order,
                 pageCoordsValidator.validate(page, perpage)));
@@ -85,17 +84,12 @@ class SearchController {
                                                                      description = "Dynamic property filter parameters should be provided with putting multiple d.{property}={expression} as request parameters. Allowed property codes: "
                                                                              + " name, email, website, external-identifier .", schema = @Schema(type = "string"))
                                                              @RequestParam(required = false) MultiValueMap<String, String> d,
-                                                             @Parameter(
-                                                                     description = "Facets parameters should be provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: "
-                                                                             + SearchFilter.ACTORS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
-                                                                 @RequestParam(required = false) MultiValueMap<String, String> f,
                                                              @RequestParam(value = "advanced", defaultValue = "false") boolean advanced)
 
-            throws PageTooLargeException, IllegalFilterException {
+            throws PageTooLargeException {
 
-        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(f);
-        Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
-        return ResponseEntity.ok(searchService.searchActors(q, advanced, expressionParams, filterParams, pageCoordsValidator.validate(page, perpage)));
+        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(d);
+        return ResponseEntity.ok(searchService.searchActors(q, advanced, expressionParams, pageCoordsValidator.validate(page, perpage)));
     }
 
 }

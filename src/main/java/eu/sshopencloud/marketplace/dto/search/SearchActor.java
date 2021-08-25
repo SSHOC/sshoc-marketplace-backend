@@ -1,8 +1,7 @@
 package eu.sshopencloud.marketplace.dto.search;
 
-import eu.sshopencloud.marketplace.model.actors.Actor;
-import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
-import eu.sshopencloud.marketplace.model.items.ItemContributor;
+import eu.sshopencloud.marketplace.dto.actors.ActorDto;
+import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,11 +17,9 @@ public class SearchActor {
 
     private Long id;
     private String name;
+    private List<ActorExternalIdDto> externalIds;
     private String website;
     private String email;
-
-    private List<ActorExternalId> externalIds;
-    private List<Actor> affiliations;
-    private List<ItemContributor> contributorTo;
+    private List<ActorDto> affiliations;
 
 }

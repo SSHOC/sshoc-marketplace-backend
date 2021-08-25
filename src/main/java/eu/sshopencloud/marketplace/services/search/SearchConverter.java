@@ -32,17 +32,12 @@ public class SearchConverter {
                 .build();
     }
 
-    //externalId + contributor + affiliation - > index in SOLR
     public SearchActor convertIndexActor(IndexActor indexActor) {
         return SearchActor.builder()
                 .id(Long.valueOf(indexActor.getId()))
                 .name(indexActor.getName())
                 .email(indexActor.getEmail())
                 .website(indexActor.getWebsite())
-
-                //.affiliations(indexActor.getAffiliations())
-                //.contributorTo()
-                //.externalId
                 .build();
     }
 
