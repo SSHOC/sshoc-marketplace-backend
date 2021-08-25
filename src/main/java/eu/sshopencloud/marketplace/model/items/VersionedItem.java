@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import lombok.*;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.*;
@@ -40,6 +41,7 @@ public class VersionedItem {
 
     @OneToMany()
     @JoinColumn(name = "merged_with_id", foreignKey = @ForeignKey(name="merged_with_id_fk"))
+    @Nullable
     List<VersionedItem> mergedWith;
 
 

@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -47,6 +48,7 @@ public class User {
     private String provider;
 
     @Column(nullable = true)
+    @Nullable
     private String tokenKey;
 
     @Column(nullable = false, unique = true)

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -38,6 +39,7 @@ public abstract class Item {
     private String label;
 
     @Column
+    @Nullable
     private String version;
 
     @Column(nullable = false, length = 4096)
@@ -74,9 +76,11 @@ public abstract class Item {
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name="item_source_id_fk"))
+    @Nullable
     private Source source;
 
     @Column
+    @Nullable
     private String sourceItemId;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -108,6 +112,7 @@ public abstract class Item {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))
+    @Nullable
     private Item prevVersion;
 
 

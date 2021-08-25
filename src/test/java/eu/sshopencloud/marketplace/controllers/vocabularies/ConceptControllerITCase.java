@@ -56,6 +56,7 @@ public class ConceptControllerITCase {
         mvc.perform(
                 get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
                         .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("publication-type")))
@@ -112,6 +113,7 @@ public class ConceptControllerITCase {
         mvc.perform(
                 get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
                         .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("publication-type")))

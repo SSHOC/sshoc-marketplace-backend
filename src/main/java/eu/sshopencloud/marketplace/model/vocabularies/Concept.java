@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.conf.jpa.HashMapConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.Map;
@@ -40,10 +41,12 @@ public class Concept {
 
     @Basic
     @Column(nullable = true)
+    @Nullable
     private Integer ord;
 
     @Basic
     @Column(nullable = true, length = 4096)
+    @Nullable
     private String definition;
 
     @SuppressWarnings("JpaAttributeTypeInspection")

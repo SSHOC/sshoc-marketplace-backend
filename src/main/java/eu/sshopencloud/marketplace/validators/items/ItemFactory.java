@@ -10,7 +10,6 @@ import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
-import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;

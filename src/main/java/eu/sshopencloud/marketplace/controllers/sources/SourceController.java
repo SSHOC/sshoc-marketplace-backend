@@ -1,12 +1,15 @@
 package eu.sshopencloud.marketplace.controllers.sources;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.sources.PaginatedSources;
 import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceOrder;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,12 +39,19 @@ public class SourceController {
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SourceDto> createSource(@RequestBody SourceCore newSource) {
+    public ResponseEntity<SourceDto> createSource(@Parameter(
+            description = "Created source",
+            required = true,
+            schema = @Schema(implementation = SourceCore.class)) @RequestBody SourceCore newSource) {
         return ResponseEntity.ok(sourceService.createSource(newSource));
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SourceDto> updateSource(@PathVariable("id") long id, @RequestBody SourceCore updatedSource) {
+    public ResponseEntity<SourceDto> updateSource(@PathVariable("id") long id,
+                                                  @Parameter(
+                                                          description = "Updated source",
+                                                          required = true,
+                                                          schema = @Schema(implementation = SourceCore.class)) @RequestBody SourceCore updatedSource) {
         return ResponseEntity.ok(sourceService.updateSource(id, updatedSource));
     }
 

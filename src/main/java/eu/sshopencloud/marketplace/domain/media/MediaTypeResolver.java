@@ -70,6 +70,10 @@ class MediaTypeResolver {
         if (imageType.includes(mimeType))
             return Optional.of(MediaCategory.IMAGE);
 
+        imageType = new MediaType("video");
+        if (imageType.includes(mimeType))
+            return Optional.of(MediaCategory.VIDEO);
+
         return Optional.empty();
     }
 

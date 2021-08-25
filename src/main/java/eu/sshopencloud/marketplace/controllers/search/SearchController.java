@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +33,7 @@ class SearchController {
     private final SearchService searchService;
 
 
-    @GetMapping("/item-search")
+    @GetMapping(path="/item-search", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Search among items.")
     public ResponseEntity<PaginatedSearchItems> searchItems(
             @RequestParam(value = "q", required = false) String q,
@@ -56,7 +57,7 @@ class SearchController {
                 pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping("/concept-search")
+    @GetMapping(path="/concept-search", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Search among concepts.")
     public ResponseEntity<PaginatedSearchConcepts> searchConcepts(@RequestParam(value = "q", required = false) String q,
                                                                   @RequestParam(value = "types", required = false) List<String> types,
@@ -74,7 +75,7 @@ class SearchController {
         return ResponseEntity.ok(searchService.searchConcepts(q, advanced, types, filterParams, pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping("/item-search/autocomplete")
+    @GetMapping(path = "/item-search/autocomplete", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Autocomplete for items search.")
     public ResponseEntity<SuggestedSearchPhrases> autocompleteItems(@RequestParam("q") String query) {
         SuggestedSearchPhrases suggestions = searchService.autocompleteItemsSearch(query);
