@@ -71,10 +71,10 @@ public class IndexConcept {
     @Indexed(name = URI_FIELD, type = "string")
     private String uri;
 
-    @Indexed(name = CANDIDATE_FIELD, type = "boolean")
-    private Boolean candidate;
-
     @Indexed(name = TYPES_FIELD, type = "strings")
     private List<String> types;
+
+    @Indexed(name = CANDIDATE_FIELD, type = "boolean")
+    private Boolean candidate;
 
 }

@@ -68,10 +68,6 @@ public class ConceptService {
         return concept;
     }
 
-    public List<Concept> getConcepts(String vocabularyCode) {
-        return conceptRepository.findByVocabularyCode(vocabularyCode, Sort.by(Sort.Order.asc("ord")));
-    }
-
     public ConceptDto getConcept(String code, String vocabularyCode) {
         Concept concept = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build())
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));
@@ -99,8 +95,7 @@ public class ConceptService {
                 List<ConceptRelatedConcept> conceptRelatedConcepts = conceptFactory.createConceptRelations(concept, conceptCore.getRelatedConcepts());
         conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
 
-        //Property type - allowedPropertyTypesForVocabulary
-        indexService.indexConcept(concept,vocabulary);
+        indexService.indexConcept(concept, vocabulary);
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
@@ -127,7 +122,7 @@ public class ConceptService {
         List<ConceptRelatedConcept> conceptRelatedConcepts = conceptFactory.createConceptRelations(concept, conceptCore.getRelatedConcepts());
         conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
 
-        indexService.indexConcept(concept,vocabulary);
+        indexService.indexConcept(concept, vocabulary);
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
@@ -182,7 +177,7 @@ public class ConceptService {
                     )
             );
         }
-        indexService.removeConcept(concept,vocabularyCode);
+        indexService.removeConcept(concept, vocabularyCode);
         propertyService.removePropertiesWithConcepts(Collections.singletonList(concept));
         conceptRepository.delete(concept);
     }

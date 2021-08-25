@@ -184,7 +184,6 @@ public class SearchService {
     }
 
     public PaginatedSearchConcepts searchConcepts2(String q, boolean advanced, List<String> types,
-                                                   @NotNull Map<String, String> expressionParams,
                                                    @NotNull Map<String, List<String>> filterParams,
                                                    PageCoords pageCoords) throws IllegalFilterException  {
 
@@ -193,17 +192,16 @@ public class SearchService {
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         SearchQueryCriteria queryCriteria = new ConceptSearchQueryPhrase(q, advanced);
 
-        List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
-
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         filterCriteria.add(makePropertyTypeCriteria(types));
         filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.CONCEPTS));
 
 
-        FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters2(queryCriteria,expressionCriteria,  filterCriteria,pageable);
+        FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters(queryCriteria, filterCriteria, pageable);
 
         Map<String, PropertyType> propertyTypes = propertyTypeService.getAllPropertyTypes();
 
+        // TODO not types
         Map<String, Map<String, CheckedCount>> facets = gatherSearchConceptFacets(facetPage, filterParams);
 
         List<CountedPropertyType> countedPropertyTypes = facetPage.getFacetFields().stream()

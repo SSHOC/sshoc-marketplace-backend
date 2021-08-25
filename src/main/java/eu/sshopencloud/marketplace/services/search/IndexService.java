@@ -13,7 +13,6 @@ import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,7 @@ public class IndexService {
     private final SearchItemRepository searchItemRepository;
 
     private final PropertyTypeService propertyTypeService;
-    //private final ConceptService conceptService;
+
     private final VocabularyRepository vocabularyRepository;
 
 
@@ -79,17 +78,15 @@ public class IndexService {
     }
 
     public void removeConcept(Concept concept, String vocabularyCode) {
-        List<PropertyType> propertyTypes = propertyTypeService.getAllowedPropertyTypesForVocabulary(vocabularyCode);
-        IndexConcept indexedConcept= IndexConverter.covertConcept(concept, vocabularyCode, propertyTypes);
-        indexConceptRepository.delete(indexedConcept);
+        String conceptId = vocabularyCode + "-" + concept.getCode();
+        indexConceptRepository.deleteById(conceptId);
     }
 
     public List<IndexConcept> indexConcepts(Vocabulary vocabulary) {
         List<PropertyType> propertyTypes = propertyTypeService.getAllowedPropertyTypesForVocabulary(vocabulary);
         if (!propertyTypes.isEmpty()) {
             log.debug("indexing " + vocabulary.getCode() + " vocabulary concepts");
-            //conceptRepository.findByVocabularyCode(vocabulary.getCode(), Sort.by(Sort.Order.asc("ord")))
-            List<IndexConcept> indexConcepts =  conceptRepository.findByVocabularyCode(vocabulary.getCode(), Sort.by(Sort.Order.asc("ord")))
+            List<IndexConcept> indexConcepts =  conceptRepository.findByVocabularyCode(vocabulary.getCode())
                     .stream()
                     .map(concept -> IndexConverter.covertConcept(concept, vocabulary, propertyTypes))
                     .collect(Collectors.toList());
@@ -105,7 +102,7 @@ public class IndexService {
     }
 
     public void removeConcepts(Vocabulary vocabulary) {
-        List<IndexConcept> indexConcepts =  conceptRepository.findByVocabularyCode(vocabulary.getCode(), Sort.by(Sort.Order.asc("ord")))
+        List<IndexConcept> indexConcepts =  conceptRepository.findByVocabularyCode(vocabulary.getCode())
                 .stream()
                 .map(concept -> IndexConverter.covertConcept(concept, vocabulary, Collections.emptyList()))
                 .collect(Collectors.toList());

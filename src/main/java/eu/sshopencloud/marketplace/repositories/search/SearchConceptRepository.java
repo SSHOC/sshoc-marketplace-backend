@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.repositories.search;
 
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
-import eu.sshopencloud.marketplace.services.search.filter.SearchExpressionCriteria;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
@@ -24,33 +23,6 @@ import java.util.List;
 public class SearchConceptRepository {
 
     private final SolrTemplate solrTemplate;
-
-
-    public FacetPage<IndexConcept> findByQueryAndFilters2(SearchQueryCriteria queryCriteria,
-                                                          List<SearchExpressionCriteria> expressionCriteria,
-                                                          List<SearchFilterCriteria> filterCriteria,
-                                                          Pageable pageable) {
-
-        SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria.getQueryCriteria())
-                .addProjectionOnFields(
-                        IndexConcept.CODE_FIELD,
-                        IndexConcept.VOCABULARY_CODE_FIELD,
-                        IndexConcept.LABEL_FIELD,
-                        IndexConcept.NOTATION_FIELD,
-                        IndexConcept.DEFINITION_FIELD,
-                        IndexConcept.URI_FIELD,
-                        IndexConcept.TYPES_FIELD,
-                        IndexConcept.CANDIDATE_FIELD
-                )
-                .setPageRequest(pageable);
-
-        expressionCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
-        filterCriteria.stream().forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
-        facetQuery.setFacetOptions(createFacetOptions());
-
-        return solrTemplate.queryForFacetPage(IndexConcept.COLLECTION_NAME, facetQuery, IndexConcept.class, RequestMethod.GET);
-    }
-
 
     public FacetPage<IndexConcept> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                          List<SearchFilterCriteria> filterCriteria,

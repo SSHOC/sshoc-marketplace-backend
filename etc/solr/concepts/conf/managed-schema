@@ -117,9 +117,9 @@
     <field name="label_text" type="text_general_rev" indexed="true" stored="false" required="true" multiValued="false" />
     <field name="label_text_en" type="text_en" indexed="true" stored="false" required="true" multiValued="false" />
     <field name="notation" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="definition" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="definition_text" type="text_general_rev" indexed="true" stored="false" required="true" multiValued="false" />
-    <field name="definition_text_en" type="text_en" indexed="true" stored="false" required="true" multiValued="false" />
+    <field name="definition" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="definition_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="false" />
+    <field name="definition_text_en" type="text_en" indexed="true" stored="false" required="false" multiValued="false" />
     <field name="uri" type="string" indexed="false" stored="true" required="false" multiValued="false" />
     <field name="types" type="strings" indexed="true" stored="true" required="true" multiValued="true" />
     <field name="candidate" type="boolean" indexed="true" stored="true" required="true" multiValued="false" />
