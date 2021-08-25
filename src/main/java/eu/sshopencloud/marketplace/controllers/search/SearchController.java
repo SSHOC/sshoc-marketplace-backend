@@ -73,9 +73,8 @@ class SearchController {
 
             throws PageTooLargeException, IllegalFilterException {
 
-        Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(f);
         Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
-        return ResponseEntity.ok(searchService.searchConcepts2(q, advanced, types, expressionParams, filterParams, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(searchService.searchConcepts(q, advanced, types, filterParams, pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping("/item-search/autocomplete")

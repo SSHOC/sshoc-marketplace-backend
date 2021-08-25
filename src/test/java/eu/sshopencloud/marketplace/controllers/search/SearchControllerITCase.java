@@ -643,6 +643,7 @@ public class SearchControllerITCase {
         mvc.perform(get("/api/concept-search?q=new&f.candidate=false")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("concepts", hasSize(9)))
                 .andExpect(jsonPath("facets.candidate.['false'].count", is(9)))
                 .andExpect(jsonPath("facets.candidate.['false'].checked", is(true)));
 
