@@ -24,7 +24,6 @@ public class SearchConceptRepository {
 
     private final SolrTemplate solrTemplate;
 
-
     public FacetPage<IndexConcept> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                          List<SearchFilterCriteria> filterCriteria,
                                                          Pageable pageable) {
@@ -37,7 +36,8 @@ public class SearchConceptRepository {
                         IndexConcept.NOTATION_FIELD,
                         IndexConcept.DEFINITION_FIELD,
                         IndexConcept.URI_FIELD,
-                        IndexConcept.TYPES_FIELD
+                        IndexConcept.TYPES_FIELD,
+                        IndexConcept.CANDIDATE_FIELD
                 )
                 .setPageRequest(pageable);
 

@@ -38,6 +38,11 @@ public enum SearchFacet {
     PROPERTY_TYPE(SearchFilter.PROPERTY_TYPE, IndexConcept.TYPES_FIELD,
             Collections.singletonList(IndexConcept.TYPES_FIELD),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
+    CANDIDATE(SearchFilter.CANDIDATE, IndexConcept.CANDIDATE_FIELD,
+            Collections.singletonList(IndexConcept.CANDIDATE_FIELD),
+            new SearchFacetParameters(-1, 0, FacetOptions.FacetSort.COUNT)
     );
 
 
