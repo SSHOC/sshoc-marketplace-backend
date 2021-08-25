@@ -4,19 +4,21 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
+import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
-import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +35,12 @@ public class IndexService {
     private final IndexItemRepository indexItemRepository;
     private final ItemRepository itemRepository;
     private final IndexConceptRepository indexConceptRepository;
+    private final ConceptRepository conceptRepository;
 
     private final SearchItemRepository searchItemRepository;
 
     private final PropertyTypeService propertyTypeService;
-    private final ConceptService conceptService;
+
     private final VocabularyRepository vocabularyRepository;
 
 
@@ -68,12 +71,23 @@ public class IndexService {
         }
     }
 
+    public IndexConcept indexConcept(Concept concept, Vocabulary vocabulary) {
+        List<PropertyType> propertyTypes = propertyTypeService.getAllowedPropertyTypesForVocabulary(vocabulary);
+        IndexConcept indexedConcept= IndexConverter.covertConcept(concept, vocabulary, propertyTypes);
+        return indexConceptRepository.save(indexedConcept);
+    }
+
+    public void removeConcept(Concept concept, String vocabularyCode) {
+        String conceptId = vocabularyCode + "-" + concept.getCode();
+        indexConceptRepository.deleteById(conceptId);
+    }
 
     public List<IndexConcept> indexConcepts(Vocabulary vocabulary) {
         List<PropertyType> propertyTypes = propertyTypeService.getAllowedPropertyTypesForVocabulary(vocabulary);
         if (!propertyTypes.isEmpty()) {
             log.debug("indexing " + vocabulary.getCode() + " vocabulary concepts");
-            List<IndexConcept> indexConcepts = conceptService.getConcepts(vocabulary.getCode()).stream()
+            List<IndexConcept> indexConcepts =  conceptRepository.findByVocabularyCode(vocabulary.getCode())
+                    .stream()
                     .map(concept -> IndexConverter.covertConcept(concept, vocabulary, propertyTypes))
                     .collect(Collectors.toList());
             return (List<IndexConcept>) indexConceptRepository.saveAll(indexConcepts);
@@ -88,7 +102,8 @@ public class IndexService {
     }
 
     public void removeConcepts(Vocabulary vocabulary) {
-        List<IndexConcept> indexConcepts = conceptService.getConcepts(vocabulary.getCode()).stream()
+        List<IndexConcept> indexConcepts =  conceptRepository.findByVocabularyCode(vocabulary.getCode())
+                .stream()
                 .map(concept -> IndexConverter.covertConcept(concept, vocabulary, Collections.emptyList()))
                 .collect(Collectors.toList());
         indexConceptRepository.deleteAll(indexConcepts);

@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.search;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptCore;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -17,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -41,11 +44,13 @@ public class SearchControllerITCase {
     private SolrTemplate solrTemplate;
 
     private String CONTRIBUTOR_JWT;
+    private String MODERATOR_JWT;
 
 
     @Before
     public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        MODERATOR_JWT =  LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
     }
 
     @Test
@@ -609,7 +614,9 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("concepts[0].vocabulary.code", is("tadirah-activity")))
                 .andExpect(jsonPath("concepts[0].label", is("Software")))
                 .andExpect(jsonPath("types.activity.count", is(7)))
-                .andExpect(jsonPath("types.activity.checked", is(true)));
+                .andExpect(jsonPath("types.activity.checked", is(true)))
+                .andExpect(jsonPath("facets.candidate.['false'].count", is(7)))
+                .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));;
     }
 
     @Test
@@ -628,5 +635,17 @@ public class SearchControllerITCase {
                         .param("q", "teaching / learning")
         )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldReturnConceptsWithCandidateFacet() throws Exception {
+
+        mvc.perform(get("/api/concept-search?q=new&f.candidate=false")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("concepts", hasSize(9)))
+                .andExpect(jsonPath("facets.candidate.['false'].count", is(9)))
+                .andExpect(jsonPath("facets.candidate.['false'].checked", is(true)));
+
     }
 }

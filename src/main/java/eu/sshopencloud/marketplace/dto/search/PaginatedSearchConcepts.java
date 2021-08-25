@@ -23,6 +23,8 @@ public class PaginatedSearchConcepts extends PaginatedResult<SearchConcept> {
 
     private Map<String, CountedPropertyType> types;
 
+    private Map<String, Map<String, CheckedCount>> facets;
+
     @Override
     @JsonGetter("concepts")
     public List<SearchConcept> getResults() {

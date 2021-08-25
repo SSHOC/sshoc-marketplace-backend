@@ -10,6 +10,7 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConce
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
+import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
 import eu.sshopencloud.marketplace.validators.vocabularies.ConceptFactory;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.net.URI;
+import javax.persistence.Index;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,7 @@ public class ConceptService {
     private final ConceptRelatedConceptDetachingRepository conceptRelatedConceptDetachingRepository;
     private final ConceptRelatedConceptService conceptRelatedConceptService;
     private final PropertyService propertyService;
+    private final IndexService indexService;
 
 
     public PaginatedConcepts getConcepts(String vocabularyCode, PageCoords pageCoords) {
@@ -66,10 +68,6 @@ public class ConceptService {
         return concept;
     }
 
-    public List<Concept> getConcepts(String vocabularyCode) {
-        return conceptRepository.findByVocabularyCode(vocabularyCode, Sort.by(Sort.Order.asc("ord")));
-    }
-
     public ConceptDto getConcept(String code, String vocabularyCode) {
         Concept concept = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build())
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));
@@ -97,6 +95,7 @@ public class ConceptService {
                 List<ConceptRelatedConcept> conceptRelatedConcepts = conceptFactory.createConceptRelations(concept, conceptCore.getRelatedConcepts());
         conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
 
+        indexService.indexConcept(concept, vocabulary);
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
@@ -110,6 +109,7 @@ public class ConceptService {
         return count + 1;
     }
 
+
     public ConceptDto updateConcept(String code, ConceptCore conceptCore, String vocabularyCode) {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
         if (!conceptRepository.existsById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build())) {
@@ -122,6 +122,7 @@ public class ConceptService {
         List<ConceptRelatedConcept> conceptRelatedConcepts = conceptFactory.createConceptRelations(concept, conceptCore.getRelatedConcepts());
         conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
 
+        indexService.indexConcept(concept, vocabulary);
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
@@ -131,6 +132,7 @@ public class ConceptService {
             .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));
         concept.setCandidate(false);
         concept = conceptRepository.save(concept);
+        indexService.indexConcept(concept, concept.getVocabulary());
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
@@ -175,6 +177,7 @@ public class ConceptService {
                     )
             );
         }
+        indexService.removeConcept(concept, vocabularyCode);
         propertyService.removePropertiesWithConcepts(Collections.singletonList(concept));
         conceptRepository.delete(concept);
     }
