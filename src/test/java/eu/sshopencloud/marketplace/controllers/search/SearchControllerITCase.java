@@ -648,4 +648,63 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("facets.candidate.['false'].checked", is(true)));
 
     }
+
+    @Test
+    public void shouldReturnAllActors() throws Exception {
+
+        mvc.perform(get("/api/actor-search")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldReturnActorsByWebsite() throws Exception {
+
+        mvc.perform(get("/api/actor-search?q=CESSDA")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("actors[0].id", is(4)))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
+    }
+
+
+    @Test
+    public void shouldReturnActorsByDynamicParametersEmail() throws Exception {
+
+        mvc.perform(get("/api/actor-search?d.email=cessda@cessda.eu")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("actors[0].id", is(4)))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
+    }
+
+    @Test
+    public void shouldReturnActorsByEmailExpression() throws Exception {
+
+        mvc.perform(get("/api/actor-search?d.email= (*@*)")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(2)))
+                .andExpect(jsonPath("actors[0].id", is(4)))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)))
+                .andExpect(jsonPath("actors[1].id", is(5)))
+                .andExpect(jsonPath("actors[1].email", is("john@example.com")))
+                .andExpect(jsonPath("actors[1].name", is("John Smith")))
+                .andExpect(jsonPath("actors[1].website", is("https://example.com/")))
+                .andExpect(jsonPath("actors[1].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[1].affiliations", hasSize(1)));
+    }
+
 }

@@ -26,4 +26,9 @@ public class IndexController {
         indexService.reindexConcepts();
     }
 
+    @PutMapping(path = "/actor-reindex")
+    public void reindexActors() {
+        indexService.reindexActors();
+    }
+
 }

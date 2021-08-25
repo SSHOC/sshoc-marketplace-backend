@@ -41,7 +41,7 @@ public class SearchConceptRepository {
                 )
                 .setPageRequest(pageable);
 
-        filterCriteria.stream().forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
+        filterCriteria.stream().forEach(concept -> facetQuery.addFilterQuery(new SimpleFilterQuery(concept.getFilterCriteria())));
         facetQuery.setFacetOptions(createFacetOptions());
 
         return solrTemplate.queryForFacetPage(IndexConcept.COLLECTION_NAME, facetQuery, IndexConcept.class, RequestMethod.GET);

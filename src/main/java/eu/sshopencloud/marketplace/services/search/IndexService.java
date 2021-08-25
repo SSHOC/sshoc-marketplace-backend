@@ -1,13 +1,17 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
+import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
+import eu.sshopencloud.marketplace.repositories.search.IndexActorRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
@@ -18,7 +22,6 @@ import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChang
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +46,9 @@ public class IndexService {
 
     private final VocabularyRepository vocabularyRepository;
 
+    private final IndexActorRepository indexActorRepository;
+    private final ActorRepository actorRepository;
+
 
     public IndexItem indexItem(Item item) {
         if (item.getCategory().equals(ItemCategory.STEP) || !(item.isNewestVersion() || item.isProposedVersion()))
@@ -55,21 +61,48 @@ public class IndexService {
         return indexItemRepository.save(indexedItem);
     }
 
-    public void removeItemVersions(Item item) {
-        indexItemRepository.deleteByPersistentId(item.getPersistentId());
-    }
-
-    public void clearItemIndex() {
-        indexItemRepository.deleteAll();
-    }
-
-
     public void reindexItems() {
         clearItemIndex();
         for (Item item : itemRepository.findAll()) {
             indexItem(item);
         }
     }
+
+    public void clearItemIndex() {
+        indexItemRepository.deleteAll();
+    }
+
+    public void removeItemVersions(Item item) {
+        indexItemRepository.deleteByPersistentId(item.getPersistentId());
+    }
+
+
+    public void rebuildAutocompleteIndex() {
+        searchItemRepository.rebuildAutocompleteIndex();
+    }
+
+
+    public IndexActor indexActor(Actor actor) {
+        IndexActor indexedActor = IndexConverter.covertActor(actor);
+        return indexActorRepository.save(indexedActor);
+    }
+
+    public void reindexActors() {
+        clearActorIndex();
+        for (Actor actor : actorRepository.findAll()) {
+            indexActor(actor);
+        }
+    }
+
+    public void clearActorIndex() {
+        indexActorRepository.deleteAll();
+    }
+
+    public void removeActor(Long actorId) {
+        indexActorRepository.deleteById(actorId.toString());
+    }
+
+
 
     public IndexConcept indexConcept(Concept concept, Vocabulary vocabulary) {
         List<PropertyType> propertyTypes = propertyTypeService.getAllowedPropertyTypesForVocabulary(vocabulary);
@@ -95,10 +128,6 @@ public class IndexService {
             log.debug("vocabulary " + vocabulary.getCode() + " has no property type so no concepts are indexed");
             return Collections.emptyList();
         }
-    }
-
-    public void rebuildAutocompleteIndex() {
-        searchItemRepository.rebuildAutocompleteIndex();
     }
 
     public void removeConcepts(Vocabulary vocabulary) {

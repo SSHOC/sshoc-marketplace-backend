@@ -25,6 +25,9 @@ public class MarketplaceStartupRunner implements CommandLineRunner {
         indexService.reindexItems();
         log.debug("reindexing concepts...");
         indexService.reindexConcepts();
+        log.debug("reindexing actors...");
+        indexService.reindexActors();
+
     }
 
 }

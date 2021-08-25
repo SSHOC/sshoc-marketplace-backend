@@ -151,6 +151,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     public DatasetDto getMerge(String persistentId, List<String> mergeList) {
+
+
         return prepareMergeItems(persistentId, mergeList);
     }
 

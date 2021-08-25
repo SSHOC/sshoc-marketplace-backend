@@ -35,7 +35,6 @@ public class SearchItemRepository {
 
     private final ForceFacetSortSolrTemplate solrTemplate;
 
-
     public FacetPage<IndexItem> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                       List<SearchExpressionCriteria> expressionCriteria,
                                                       User currentUser,

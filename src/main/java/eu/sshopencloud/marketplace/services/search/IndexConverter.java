@@ -3,11 +3,12 @@ package eu.sshopencloud.marketplace.services.search;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.conf.datetime.SolrDateTimeFormatter;
 import eu.sshopencloud.marketplace.mappers.sources.SourceConverter;
+import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.model.items.ItemExternalId;
-import eu.sshopencloud.marketplace.model.search.IndexConcept;
-import eu.sshopencloud.marketplace.model.search.IndexItem;
+import eu.sshopencloud.marketplace.model.search.*;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
@@ -20,10 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URL;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,12 +52,12 @@ public class IndexConverter {
 
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
 
-        for (ItemContributor itemContributor: item.getContributors()) {
+        for (ItemContributor itemContributor : item.getContributors()) {
             String contributor = getItemContributorName(itemContributor);
             builder.contributor(contributor).contributorText(contributor);
         }
 
-        for (ItemExternalId itemExternalId: item.getExternalIds()) {
+        for (ItemExternalId itemExternalId : item.getExternalIds()) {
             builder.externalIdentifier(itemExternalId.getIdentifier());
         }
 
@@ -144,5 +143,21 @@ public class IndexConverter {
                 .types(propertyTypes.stream().map(PropertyType::getCode).collect(Collectors.toList()));
         return builder.build();
     }
+
+    public IndexActor covertActor(Actor actor) {
+        IndexActor.IndexActorBuilder builder = IndexActor.builder();
+
+        builder.id(actor.getId().toString())
+                .email(actor.getEmail())
+                .website(actor.getWebsite())
+                .name(actor.getName());
+
+        for (ActorExternalId actorExternalId : actor.getExternalIds()) {
+            builder.externalIdentifier(actorExternalId.getIdentifier());
+        }
+
+        return builder.build();
+    }
+
 
 }
