@@ -54,7 +54,7 @@ public class PropertyTypeService {
     }
 
     private Page<PropertyType> queryPropertyTypes(String q, PageCoords pageCoords) {
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        //User currentUser = LoggedInUserHolder.getLoggedInUser();
         PageRequest pageRequest = PageRequest.of(
                 pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("ord"))
         );
@@ -62,10 +62,11 @@ public class PropertyTypeService {
         if (q == null)
             return loadPropertyTypesPage(pageRequest);
 
-        if (currentUser != null && currentUser.isModerator())
-            return propertyTypeRepository.findAllByLabelContainingIgnoreCase(q, pageRequest);
+        // hidden properties have to be always rendered
+        //if (currentUser != null && currentUser.isModerator())
+        return propertyTypeRepository.findAllByLabelContainingIgnoreCase(q, pageRequest);
 
-        return propertyTypeRepository.findAllByLabelContainingIgnoreCaseAndHiddenIsFalse(q, pageRequest);
+        //return propertyTypeRepository.findAllByLabelContainingIgnoreCaseAndHiddenIsFalse(q, pageRequest);
     }
 
     public void completePropertyType(PropertyTypeDto propertyType) {
@@ -300,21 +301,23 @@ public class PropertyTypeService {
     }
 
     private List<PropertyType> loadPropertyTypes() {
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        //User currentUser = LoggedInUserHolder.getLoggedInUser();
         Sort order = Sort.by(Sort.Order.asc("ord"));
 
-        if (currentUser != null && currentUser.isModerator())
-            return propertyTypeRepository.findAll(order);
+        // hidden properties have to be always rendered
+        //if (currentUser != null && currentUser.isModerator())
+        return propertyTypeRepository.findAll(order);
 
-        return propertyTypeRepository.findAllByHiddenIsFalse(order);
+        //return propertyTypeRepository.findAllByHiddenIsFalse(order);
     }
 
     private Page<PropertyType> loadPropertyTypesPage(PageRequest pageRequest) {
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        //User currentUser = LoggedInUserHolder.getLoggedInUser();
 
-        if (currentUser != null && currentUser.isModerator())
-            return propertyTypeRepository.findAll(pageRequest);
+        // hidden properties have to be always rendered
+        //if (currentUser != null && currentUser.isModerator())
+        return propertyTypeRepository.findAll(pageRequest);
 
-        return propertyTypeRepository.findAllByHiddenIsFalse(pageRequest);
+        //return propertyTypeRepository.findAllByHiddenIsFalse(pageRequest);
     }
 }
