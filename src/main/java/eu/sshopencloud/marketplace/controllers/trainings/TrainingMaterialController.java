@@ -110,29 +110,29 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterialService.getTrainingMaterialVersions(persistentId, draft, approved));
     }
 
-    @Operation(summary = "Retrieving list of information-contributors across the whole history of training material by its persistentId")
+    @Operation(summary = "Retrieving list of information-contributors across the whole history of training material by its persistentId", operationId = "getTrainingMaterialInformationContributors")
     @GetMapping(path = "/{persistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId) {
 
         return ResponseEntity.ok(trainingMaterialService.getInformationContributors(persistentId));
     }
 
-    @Operation(summary = "Retrieving list of information-contributors to the selected version of training material by its persistentId and versionId")
+    @Operation(summary = "Retrieving list of information-contributors to the selected version of training material by its persistentId and versionId", operationId = "getTrainingMaterialVersionInformationContributors")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         return ResponseEntity.ok(trainingMaterialService.getInformationContributors(persistentId, versionId));
     }
 
 
-    @Operation(summary = "Getting body of merged version of training material")
+    @Operation(summary = "Getting body of merged version of training material", operationId = "getTrainingMaterialMerge")
     @GetMapping(path = "/{persistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> getMerge(@PathVariable("persistentId") String persistentId,
                                                         @RequestParam List<String> with) {
         return ResponseEntity.ok(trainingMaterialService.getMerge(persistentId, with));
     }
 
-    @Operation(summary = "Performing merge into training material")
+    @Operation(summary = "Performing merge into training material", operationId = "mergeTrainingMaterial")
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> merge(@RequestParam List<String> with,
                                                      @Parameter(
@@ -142,7 +142,7 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterialService.merge(mergeTrainingMaterial, with));
     }
 
-    @Operation(summary = "Getting list of sources of training material by its persistentId")
+    @Operation(summary = "Getting list of sources of training material by its persistentId", operationId = "getTrainingMaterialSources")
     @GetMapping(path = "/{persistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SourceDto>> getSources(@PathVariable("persistentId") String persistentId) {
 

@@ -106,28 +106,28 @@ public class ToolController {
         return ResponseEntity.ok(toolService.getToolVersions(persistentId, draft, approved));
     }
 
-    @Operation(summary = "Retrieving list of information-contributors across the whole history of tool by its persistentId")
+    @Operation(summary = "Retrieving list of information-contributors across the whole history of tool by its persistentId", operationId = "getToolInformationContributors")
     @GetMapping(path = "/{persistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId) {
 
         return ResponseEntity.ok(toolService.getInformationContributors(persistentId));
     }
 
-    @Operation(summary = "Retrieving list of information-contributors to the selected version of tool by its persistentId and versionId")
+    @Operation(summary = "Retrieving list of information-contributors to the selected version of tool by its persistentId and versionId", operationId = "getToolVersionInformationContributors")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         return ResponseEntity.ok(toolService.getInformationContributors(persistentId, versionId));
     }
 
-    @Operation(summary = "Getting body of merged version of tool")
+    @Operation(summary = "Getting body of merged version of tool", operationId = "getToolMerge")
     @GetMapping(path = "/{persistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> getMerge(@PathVariable("persistentId") String persistentId,
                                             @RequestParam List<String> with) {
         return ResponseEntity.ok(toolService.getMerge(persistentId, with));
     }
 
-    @Operation(summary = "Performing merge into tool")
+    @Operation(summary = "Performing merge into tool", operationId = "mergeTool")
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> merge(@RequestParam List<String> with,
                                          @Parameter(
@@ -137,7 +137,7 @@ public class ToolController {
         return ResponseEntity.ok(toolService.merge(mergeTool, with));
     }
 
-    @Operation(summary = "Getting list of sources of tool by its persistentId")
+    @Operation(summary = "Getting list of sources of tool by its persistentId", operationId = "getToolSources")
     @GetMapping(path = "/{persistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SourceDto>> getSources(@PathVariable("persistentId") String persistentId) {
 

@@ -107,28 +107,28 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.getPublicationVersions(persistentId, draft, approved));
     }
 
-    @Operation(summary = "Retrieving list of information-contributors across the whole history of publication by its persistentId")
+    @Operation(summary = "Retrieving list of information-contributors across the whole history of publication by its persistentId", operationId = "getPublicationInformationContributors")
     @GetMapping(path = "/{persistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId) {
 
         return ResponseEntity.ok(publicationService.getInformationContributors(persistentId));
     }
 
-    @Operation(summary = "Retrieving list of information-contributors to the selected version of publication by its persistentId and versionId")
+    @Operation(summary = "Retrieving list of information-contributors to the selected version of publication by its persistentId and versionId", operationId = "getPublicationVersionInformationContributors")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         return ResponseEntity.ok(publicationService.getInformationContributors(persistentId, versionId));
     }
 
-    @Operation(summary = "Getting body of merged version of publication")
+    @Operation(summary = "Getting body of merged version of publication", operationId = "getPublicationMerge")
     @GetMapping(path = "/{persistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> getMerge(@PathVariable("persistentId") String persistentId,
                                                    @RequestParam List<String> with) {
         return ResponseEntity.ok(publicationService.getMerge(persistentId, with));
     }
 
-    @Operation(summary = "Performing merged into publication")
+    @Operation(summary = "Performing merged into publication", operationId = "mergePublication")
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> merge(@RequestParam List<String> with,
                                                 @Parameter(
@@ -138,7 +138,7 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.merge(mergePublication, with));
     }
 
-    @Operation(summary = "Getting list of sources of publication by its persistentId")
+    @Operation(summary = "Getting list of sources of publication by its persistentId", operationId = "getPublicationSources")
     @GetMapping(path = "/{persistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SourceDto>> getSources(@PathVariable("persistentId") String persistentId) {
 
