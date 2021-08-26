@@ -289,11 +289,11 @@ MediaSource:
   - !!eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore
     code:                        youtube
     serviceUrl:                  https://www.youtube.com/watch
-    mediaCategory:               VIDEO
+    mediaCategory:               EMBED
     ord:                         1
 
   - !!eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore
     code:                        vimeo
     serviceUrl:                  https://vimeo.com/watch
-    mediaCategory:               VIDEO
+    mediaCategory:               EMBED
     ord:                         2
