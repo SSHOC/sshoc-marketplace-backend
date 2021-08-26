@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeReorder;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypesReordering;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class PropertyTypeControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.hits", is(26)))
+                .andExpect(jsonPath("$.hits", is(27)))
                 .andExpect(jsonPath("$.count", is(10)))
                 .andExpect(jsonPath("$.page", is(1)))
                 .andExpect(jsonPath("$.perpage", is(10)))
@@ -82,14 +83,14 @@ public class PropertyTypeControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.hits", is(26)))
-                .andExpect(jsonPath("$.count", is(6)))
+                .andExpect(jsonPath("$.hits", is(27)))
+                .andExpect(jsonPath("$.count", is(7)))
                 .andExpect(jsonPath("$.page", is(3)))
                 .andExpect(jsonPath("$.perpage", is(10)))
                 .andExpect(jsonPath("$.pages", is(3)))
-                .andExpect(jsonPath("$.propertyTypes", hasSize(6)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(7)))
                 .andExpect(jsonPath("$.propertyTypes[*].code", contains(
-                        "issue", "pages", "year", "timestamp", "publication-type", "doi"
+                        "issue", "pages", "year", "timestamp", "publication-type", "doi", "deprecated-at-source"
                 )));
     }
 
@@ -338,6 +339,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
+    @Ignore(value = "hidden properties have to be always rendered")
     @Test
     public void shouldRetrieveHiddenPropertyForModeratorsOnly() throws Exception {
         String code = "http-status";
