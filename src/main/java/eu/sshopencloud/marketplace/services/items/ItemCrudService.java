@@ -470,7 +470,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     private boolean shouldRenderProperty(PropertyDto property, User user) {
-        return (!property.getType().isHidden() || (user != null && user.isModerator()));
+        // hidden properties have to be always rendered
+        //return (!property.getType().isHidden() || (user != null && user.isModerator()));
+        return true;
     }
 
     protected List<ItemExtBasicDto> getItemHistory(String persistentId, Long versionId) {

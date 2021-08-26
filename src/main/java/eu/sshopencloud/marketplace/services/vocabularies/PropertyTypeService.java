@@ -95,20 +95,22 @@ public class PropertyTypeService {
         PropertyType propertyType = propertyTypeRepository.findById(propertyTypeCode)
                 .orElseThrow(() -> new EntityNotFoundException(notFoundMessage));
 
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
-        if (propertyType.isHidden() && (currentUser == null || !currentUser.isModerator()))
-            throw new EntityNotFoundException(notFoundMessage);
+        // hidden properties have to be always rendered
+        //User currentUser = LoggedInUserHolder.getLoggedInUser();
+        //if (propertyType.isHidden() && (currentUser == null || !currentUser.isModerator()))
+        //    throw new EntityNotFoundException(notFoundMessage);
 
         return propertyType;
     }
 
     public PropertyType loadPropertyTypeOrNull(String propertyTypeCode) {
         PropertyType propertyType = propertyTypeRepository.findById(propertyTypeCode).orElse(null);
-        if (propertyType != null) {
-            User currentUser = LoggedInUserHolder.getLoggedInUser();
-            if (propertyType.isHidden() && (currentUser == null || !currentUser.isModerator()))
-                return null;
-        }
+        // hidden properties have to be always rendered
+        //if (propertyType != null) {
+        //    User currentUser = LoggedInUserHolder.getLoggedInUser();
+        //    if (propertyType.isHidden() && (currentUser == null || !currentUser.isModerator()))
+        //        return null;
+        //}
         return propertyType;
     }
 
