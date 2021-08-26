@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0041-SSHOC_83-item_media_thumb_enum-1
+      author: ekalata
+      description: Add column to items media table
+      changes:
+        - addColumn:
+            tableName: items_media
+            columns:
+              name: item_media_thumbnail
+              type: VARCHAR(255)
+              constraints:
+                nullable: false
+              defaultValue: MEDIA
+
+  - changeSet:
+      id: 0041-SSHOC_83-item_media_thumb_enum-2
+      author: ekalata
+      description: Set the status depending on item thumbnail flag
+      changes:
+        - sql:
+            sql: >
+              update items_media set item_media_thumbnail = 'THUMBNAIL' where item_thumbnail = true
+        - sql:
+            sql: >
+              update items_media set item_media_thumbnail = 'MEDIA' where item_thumbnail = false
+
+  - changeSet:
+      id: 0041-SSHOC_83-item_media_thumb_enum-3
+      author: ekalata
+      description: Delete item thumbnail flag column
+      changes:
+        - dropColumn:
+            tableName: items_media
+            columnName: item_thumbnail

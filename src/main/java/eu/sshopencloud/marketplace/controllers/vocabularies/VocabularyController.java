@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyBasicDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedVocabularies;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
-import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyDoesNotExistException;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +54,7 @@ public class VocabularyController {
             @PathVariable("code") String vocabularyCode,
             @RequestParam("ttl") MultipartFile vocabularyFile,
             @RequestParam(value = "force", required = false, defaultValue = "false") boolean force)
-            throws IOException, VocabularyDoesNotExistException {
+            throws IOException {
 
         VocabularyBasicDto vocabulary = vocabularyService.updateUploadedVocabulary(vocabularyCode, vocabularyFile, force);
         return ResponseEntity.ok(vocabulary);
@@ -63,8 +62,7 @@ public class VocabularyController {
 
     @DeleteMapping("/{code}")
     public ResponseEntity<Void> deleteVocabulary(@PathVariable("code") String vocabularyCode,
-                                                 @RequestParam(value = "force", required = false, defaultValue = "false") boolean force)
-            throws VocabularyDoesNotExistException {
+                                                 @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) {
 
         vocabularyService.removeVocabulary(vocabularyCode, force);
         return ResponseEntity.ok().build();

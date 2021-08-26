@@ -1,10 +1,12 @@
 package eu.sshopencloud.marketplace.controllers.publications;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.PublicationService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
@@ -33,17 +35,17 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.getPublications(pageCoordsValidator.validate(page, perpage), approved));
     }
 
-    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> getPublication(@PathVariable("id") String id,
+    @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> getPublication(@PathVariable("persistentId") String persistentId,
                                                          @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                          @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(publicationService.getLatestPublication(id, draft, approved));
+        return ResponseEntity.ok(publicationService.getLatestPublication(persistentId, draft, approved));
     }
 
-    @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> getPublicationVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
-        return ResponseEntity.ok(publicationService.getPublicationVersion(id, versionId));
+    @GetMapping(path = "/{persistentId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> getPublicationVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(publicationService.getPublicationVersion(persistentId, versionId));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,37 +55,66 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.createPublication(newPublication, draft));
     }
 
-    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> updatePublication(@PathVariable("id") String id, @RequestBody PublicationCore updatedPublication,
+    @PutMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> updatePublication(@PathVariable("persistentId") String persistentId, @RequestBody PublicationCore updatedPublication,
                                                             @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(publicationService.updatePublication(id, updatedPublication, draft));
+        return ResponseEntity.ok(publicationService.updatePublication(persistentId, updatedPublication, draft));
     }
 
-    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> revertPublication(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
-        return ResponseEntity.ok(publicationService.revertPublication(id, versionId));
+    @PutMapping(path = "/{persistentId}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> revertPublication(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(publicationService.revertPublication(persistentId, versionId));
     }
 
-    @DeleteMapping(path = "/{id}")
-    public void deletePublication(@PathVariable("id") String id,
+    @DeleteMapping(path = "/{persistentId}")
+    public void deletePublication(@PathVariable("persistentId") String persistentId,
                                   @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
 
-        publicationService.deletePublication(id, draft);
+        publicationService.deletePublication(persistentId, draft);
     }
 
-    @PostMapping(path = "/{publicationId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PublicationDto> publishPublication(@PathVariable("publicationId") String publicationId) {
-        PublicationDto publication = publicationService.commitDraftPublication(publicationId);
+    @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> publishPublication(@PathVariable("persistentId") String persistentId) {
+        PublicationDto publication = publicationService.commitDraftPublication(persistentId);
         return ResponseEntity.ok(publication);
     }
 
-    @GetMapping(path = "/{publicationId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemExtBasicDto>> getPublicationHistory(@PathVariable("publicationId") String id,
+    @GetMapping(path = "/{persistentId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemExtBasicDto>> getPublicationHistory(@PathVariable("persistentId") String persistentId,
                                                                        @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                        @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
-        return ResponseEntity.ok(publicationService.getPublicationVersions(id, draft, approved));
+        return ResponseEntity.ok(publicationService.getPublicationVersions(persistentId, draft, approved));
     }
 
+    @GetMapping(path = "/{persistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId) {
+
+        return ResponseEntity.ok(publicationService.getInformationContributors(persistentId));
+    }
+
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(publicationService.getInformationContributors(persistentId, versionId));
+    }
+
+    @GetMapping(path = "/{persistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> getMerge(@PathVariable("persistentId") String persistentId,
+                                                   @RequestParam List<String> with) {
+        return ResponseEntity.ok(publicationService.getMerge(persistentId, with));
+    }
+
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> merge(@RequestParam List<String> with,
+                                                @RequestBody PublicationCore mergePublication) {
+        return ResponseEntity.ok(publicationService.merge(mergePublication, with));
+    }
+
+    @GetMapping(path = "/{persistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("persistentId") String persistentId) {
+
+        return ResponseEntity.ok(publicationService.getSources(persistentId));
+    }
 
 }

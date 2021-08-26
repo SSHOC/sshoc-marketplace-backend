@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.dto.items;
 
-import eu.sshopencloud.marketplace.dto.licenses.LicenseDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceBasicDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import lombok.Data;
@@ -15,8 +14,6 @@ import java.util.List;
 public class ItemDto extends ItemExtBasicDto {
 
     private String description;
-
-    private List<LicenseDto> licenses;
 
     private List<ItemContributorDto> contributors;
 
@@ -34,6 +31,6 @@ public class ItemDto extends ItemExtBasicDto {
 
     private List<ItemMediaDto> media;
 
-    private ItemThumbnailId thumbnail;
+    private ItemMediaDto thumbnail;
 
 }

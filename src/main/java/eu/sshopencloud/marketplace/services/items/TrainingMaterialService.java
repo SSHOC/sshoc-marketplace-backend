@@ -2,15 +2,19 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.trainings.TrainingMaterialFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -37,11 +41,11 @@ public class TrainingMaterialService
                                    ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<TrainingMaterial> itemUpgradeRegistry,
                                    DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                                    PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                                   MediaStorageService mediaStorageService) {
+                                   MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.trainingMaterialRepository = trainingMaterialRepository;
@@ -129,12 +133,40 @@ public class TrainingMaterialService
     }
 
     @Override
+    protected TrainingMaterialDto convertToDto(Item item) {
+        return TrainingMaterialMapper.INSTANCE.toDto(item);
+    }
+
+    @Override
     protected String getItemTypeName() {
         return TrainingMaterial.class.getName();
     }
 
     public List<ItemExtBasicDto> getTrainingMaterialVersions(String persistentId, boolean draft, boolean approved) {
-        return getItemHistory(persistentId, getLatestTrainingMaterial( persistentId, draft, approved).getId());
+        return getItemHistory(persistentId, getLatestTrainingMaterial(persistentId, draft, approved).getId());
+    }
+
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
+    }
+
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
+    }
+
+    public TrainingMaterialDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public TrainingMaterialDto merge(TrainingMaterialCore mergeTrainingMaterial, List<String> mergeList) {
+
+        TrainingMaterial trainingMaterial = createItem(mergeTrainingMaterial, false);
+        trainingMaterial = mergeItem(trainingMaterial.getPersistentId(), mergeList);
+        return prepareItemDto(trainingMaterial);
+    }
+
+    public List<SourceDto> getSources(String id) {
+        return getAllSources(id);
     }
 
 }

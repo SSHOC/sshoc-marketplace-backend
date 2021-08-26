@@ -5,8 +5,8 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.*;
-import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
@@ -83,7 +83,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("id", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Gephi")))
-                .andExpect(jsonPath("licenses[0].label", is("Common Development and Distribution License 1.0")))
                 .andExpect(jsonPath("informationContributor.id", is(2)));
     }
 
@@ -127,11 +126,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("apache-2.0");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        tool.setLicenses(licenses);
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
         actor.setId(3l);
@@ -174,7 +168,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("licenses[0].label", is("Apache License 2.0")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
@@ -200,33 +193,6 @@ public class ToolControllerITCase {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("label")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-
-    @Test
-    public void shouldNotCreateToolWhenLicenseIsUnknown() throws Exception {
-        ToolCore tool = new ToolCore();
-        tool.setLabel("Test Software");
-        tool.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("qwerty1");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        tool.setLicenses(licenses);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        tool.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/tools-services")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
@@ -517,7 +483,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://example.com")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("source", nullValue()));
@@ -531,11 +496,6 @@ public class ToolControllerITCase {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("mit");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        tool.setLicenses(licenses);
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
         actor.setId(3l);
@@ -579,8 +539,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Test complex software")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("licenses", hasSize(1)))
-                .andExpect(jsonPath("licenses[0].label", is("MIT License")))
                 .andExpect(jsonPath("contributors", hasSize(1)))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
@@ -619,10 +577,6 @@ public class ToolControllerITCase {
         tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
         tool.setAccessibleAt(Arrays.asList("https://gephi.org/"));
 
-        LicenseId license1 = new LicenseId("cddl-1.0");
-        LicenseId license2 = new LicenseId("gpl-3.0");
-        tool.setLicenses(List.of(license1, license2));
-
         ItemContributorId contributor1 = new ItemContributorId(new ActorId(5L), new ActorRoleId("author"));
         ItemContributorId contributor2 = new ItemContributorId(new ActorId(4L), new ActorRoleId("funder"));
         tool.setContributors(List.of(contributor1, contributor2));
@@ -650,7 +604,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
-                .andExpect(jsonPath("licenses", hasSize(2)))
                 .andExpect(jsonPath("contributors", hasSize(2)))
                 .andExpect(jsonPath("properties", hasSize(4)));
     }
@@ -674,34 +627,6 @@ public class ToolControllerITCase {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("label")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-    @Test
-    public void shouldNotUpdateToolWhenLicenseIsUnknown() throws Exception {
-        String toolPersistentId = "Xgufde";
-
-        ToolCore tool = new ToolCore();
-        tool.setLabel("Test Software");
-        tool.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("qwerty1");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        tool.setLicenses(licenses);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        tool.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
@@ -1003,10 +928,6 @@ public class ToolControllerITCase {
         tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
         tool.setAccessibleAt(List.of("https://gephi.org/"));
 
-        LicenseId license1 = new LicenseId("cddl-1.0");
-        LicenseId license2 = new LicenseId("gpl-3.0");
-        tool.setLicenses(List.of(license1, license2));
-
         ItemContributorId contributor1 = new ItemContributorId(new ActorId(5L), new ActorRoleId("author"));
         ItemContributorId contributor2 = new ItemContributorId(new ActorId(4L), new ActorRoleId("funder"));
         tool.setContributors(List.of(contributor1, contributor2));
@@ -1037,7 +958,6 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
-                .andExpect(jsonPath("licenses", hasSize(2)))
                 .andExpect(jsonPath("contributors", hasSize(2)))
                 .andExpect(jsonPath("properties", hasSize(6)));
     }
@@ -1283,4 +1203,265 @@ public class ToolControllerITCase {
         )
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void shouldReturnToolInformationContributors() throws Exception {
+
+        String toolPersistentId = "n21Kfc";
+
+        mvc.perform(get("/api/tools-services/{id}/information-contributors", toolPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].username", is("Moderator")))
+                .andExpect(jsonPath("$[0].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("moderator")))
+                .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+    }
+
+    @Test
+    public void shouldReturnToolInformationContributorsForVersion() throws Exception {
+
+        String toolPersistentId = "n21Kfc";
+
+        ToolCore draftTool = new ToolCore();
+        draftTool.setLabel("WebSty v2");
+        draftTool.setDescription("WebSty version 2. draft");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(draftTool);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+
+        Long versionId = TestJsonMapper.serializingObjectMapper()
+                .readValue(jsonResponse, DatasetDto.class).getId();
+
+        log.debug("datasetId: " + versionId);
+
+        mvc.perform(get("/api/tools-services/{id}/versions/{versionId}/information-contributors", toolPersistentId, versionId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[0].displayName", is("Administrator")))
+                .andExpect(jsonPath("$[1].id", is(2)))
+                .andExpect(jsonPath("$[1].username", is("Moderator")))
+                .andExpect(jsonPath("$[1].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[1].status", is("enabled")))
+                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].role", is("moderator")))
+                .andExpect(jsonPath("$[1].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[1].config", is(true)));
+    }
+
+
+    @Test
+    public void shouldGetMergeForTool() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        String response = mvc.perform(
+                get("/api/tools-services/{id}/merge", toolId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with",  datasetId, workflowId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
+
+    }
+
+    @Test
+    public void shouldMergeIntoTool() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        String response = mvc.perform(
+                get("/api/tools-services/{id}/merge", toolId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with",  datasetId, workflowId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                post("/api/tools-services/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", toolId, datasetId, workflowId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(toolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")));
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    public void shouldGetHistoryForMergedTool() throws Exception {
+
+        String datasetId = "OdKfPc";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        String response = mvc.perform(
+                get("/api/tools-services/{id}/merge", toolId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with",  datasetId, workflowId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse = mvc.perform(
+                post("/api/tools-services/merge")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", toolId, datasetId, workflowId)
+                        .content(response)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(toolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
+
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+        String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, ToolDto.class).getPersistentId();
+
+        String mergedLabel = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, ToolDto.class).getLabel();
+
+
+        mvc.perform(
+                get("/api/tools-services/{id}/history", mergedPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is(mergedLabel)))
+                .andExpect(jsonPath("$[0].persistentId", is(mergedPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(workflowId)))
+                .andExpect(jsonPath("$[1].category", is("workflow")))
+                .andExpect(jsonPath("$[2].persistentId", is(datasetId)))
+                .andExpect(jsonPath("$[2].category", is("dataset")))
+                .andExpect(jsonPath("$[3].persistentId", is(toolId)))
+                .andExpect(jsonPath("$[3].category", is("tool-or-service")));
+
+    }
+
+    @Test
+    public void shouldUpdateToolWithoutLineBreakInLabel() throws Exception {
+        String toolPersistentId = "Xgufde";
+        Integer toolCurrentId = 3;
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Test \n\rsimple \nsoftware\r");
+        tool.setDescription("Lorem ipsum");
+        tool.setAccessibleAt(Arrays.asList("http://example.com"));
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Test simple software")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("http://example.com")))
+                .andExpect(jsonPath("contributors", hasSize(0)))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("source", nullValue()));
+
+        mvc.perform(get("/api/tools-services/{id}/history", toolPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Test simple software")))
+                .andExpect(jsonPath("$[0].persistentId", is( toolPersistentId)));
+    }
+
+    @Test
+    public void shouldCreateToolWithoutLineBreaksInLabel() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Test \n\rsimple \nsoftware\r");
+        tool.setDescription("Lorem ipsum");
+        tool.setAccessibleAt(Arrays.asList("http://fake.tapor.ca"));
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/tools-services")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Test simple software")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
+                .andExpect(jsonPath("informationContributor.username", is("Contributor")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("source", nullValue()));
+    }
+
+
+
 }

@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.services.auth;
 import eu.sshopencloud.marketplace.conf.auth.ImplicitGrantTokenProvider;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.*;
+import eu.sshopencloud.marketplace.dto.sources.SourceOrder;
 import eu.sshopencloud.marketplace.mappers.auth.UserMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
@@ -36,14 +37,16 @@ public class UserService {
     private final ImplicitGrantTokenProvider implicitGrantTokenProvider;
 
 
-    public PaginatedUsers getUsers(String q, PageCoords pageCoords) {
+    public PaginatedUsers getUsers(UserOrder order, String q, PageCoords pageCoords) {
+        if (order == null) order = UserOrder.USERNAME;
+
         Page<User> usersPage;
         if (StringUtils.isBlank(q)) {
             usersPage = userRepository.findAll(
-                    PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("username"))));
+                    PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByUserOrder(order))));
         } else {
             usersPage = userRepository.findLikeUsernameOrDisplayNameOrEmail(q,
-                    PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("username"))));
+                    PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByUserOrder(order))));
         }
 
         List<UserDto> users = usersPage.stream().map(UserMapper.INSTANCE::toDto).collect(Collectors.toList());
@@ -133,6 +136,31 @@ public class UserService {
         return UserMapper.INSTANCE.toDto(user);
     }
 
+    public List<UserDto> getInformationContributors(String itemId) {
+        return UserMapper.INSTANCE.toDto(userRepository.findInformationContributors(itemId));
+    }
 
+    public List<UserDto> getInformationContributors(String itemId, Long versionId) {
+        return UserMapper.INSTANCE.toDto(userRepository.findInformationContributors(itemId,versionId));
+    }
+
+    private Sort.Order getSortOrderByUserOrder(UserOrder userOrder) {
+        switch (userOrder) {
+            case USERNAME:
+                if (userOrder.isAsc()) {
+                    return Sort.Order.asc("username");
+                } else {
+                    return Sort.Order.desc("username");
+                }
+            case DATE:
+                if (userOrder.isAsc()) {
+                    return Sort.Order.asc("registrationDate");
+                } else {
+                    return Sort.Order.desc("registrationDate");
+                }
+            default:
+                return Sort.Order.desc("registrationDate");
+        }
+    }
 
 }

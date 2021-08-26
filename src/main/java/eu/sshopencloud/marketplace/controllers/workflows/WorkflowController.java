@@ -1,12 +1,10 @@
 package eu.sshopencloud.marketplace.controllers.workflows;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.workflows.StepCore;
-import eu.sshopencloud.marketplace.dto.workflows.StepDto;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
-import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
+import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.services.items.StepService;
 import eu.sshopencloud.marketplace.services.items.WorkflowService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -36,19 +34,19 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.getWorkflows(pageCoordsValidator.validate(page, perpage), approved));
     }
 
-    @GetMapping(path = "/{workflowId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> getWorkflow(@PathVariable("workflowId") String workflowId,
+    @GetMapping(path = "/{workflowPersistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> getWorkflow(@PathVariable("workflowPersistentId") String workflowPersistentId,
                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowId, draft, approved));
+        return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowPersistentId, draft, approved));
     }
 
-    @GetMapping(path = "/{workflowId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> getWorkflowVersion(@PathVariable("workflowId") String workflowId,
+    @GetMapping(path = "/{workflowPersistentId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> getWorkflowVersion(@PathVariable("workflowPersistentId") String workflowPersistentId,
                                                           @PathVariable("versionId") long versionId) {
 
-        return ResponseEntity.ok(workflowService.getWorkflowVersion(workflowId, versionId));
+        return ResponseEntity.ok(workflowService.getWorkflowVersion(workflowPersistentId, versionId));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,117 +55,185 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.createWorkflow(newWorkflow, draft));
     }
 
-    @PutMapping(path = "/{workflowId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> updateWorkflow(@PathVariable("workflowId") String workflowId,
+    @PutMapping(path = "/{workflowPersistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> updateWorkflow(@PathVariable("workflowPersistentId") String workflowPersistentId,
                                                       @RequestBody WorkflowCore updatedWorkflow,
                                                       @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(workflowService.updateWorkflow(workflowId, updatedWorkflow, draft));
+        return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft));
     }
 
-    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> revertWorkflow(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
-        return ResponseEntity.ok(workflowService.revertWorkflow(id, versionId));
+    @PutMapping(path = "/{workflowPersistentId}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> revertWorkflow(@PathVariable("workflowPersistentId") String workflowPersistentId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(workflowService.revertWorkflow(workflowPersistentId, versionId));
     }
 
-    @DeleteMapping(path = "/{workflowId}")
-    public void deleteWorkflow(@PathVariable("workflowId") String workflowId,
+    @DeleteMapping(path = "/{workflowPersistentId}")
+    public void deleteWorkflow(@PathVariable("workflowPersistentId") String workflowPersistentId,
                                @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        workflowService.deleteWorkflow(workflowId, draft);
+        workflowService.deleteWorkflow(workflowPersistentId, draft);
     }
 
-    @GetMapping(path = "/{workflowId}/steps/{stepId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StepDto> getStep(@PathVariable("workflowId") String workflowId,
-                                           @PathVariable("stepId") String stepId,
+    @GetMapping(path = "/{workflowPersistentId}/steps/{stepPersistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StepDto> getStep(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                           @PathVariable("stepPersistentId") String stepPersistentId,
                                            @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                            @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(stepService.getLatestStep(workflowId, stepId, draft, approved));
+        return ResponseEntity.ok(stepService.getLatestStep(workflowPersistentId, stepPersistentId, draft, approved));
     }
 
-    @GetMapping(path = "/{workflowId}/steps/{stepId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StepDto> getStepVersion(@PathVariable("workflowId") String workflowId,
-                                                  @PathVariable("stepId") String stepId,
-                                                  @PathVariable("versionId") long versionId) {
+    @GetMapping(path = "/{workflowPersistentId}/steps/{stepPersistentId}/versions/{stepVersionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StepDto> getStepVersion(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                                  @PathVariable("stepPersistentId") String stepPersistentId,
+                                                  @PathVariable("stepVersionId") long stepVersionId) {
 
-        return ResponseEntity.ok(stepService.getStepVersion(workflowId, stepId, versionId));
+        return ResponseEntity.ok(stepService.getStepVersion(workflowPersistentId, stepPersistentId, stepVersionId));
     }
 
     @PostMapping(
-            path = "/{workflowId}/steps",
+            path = "/{workflowPersistentId}/steps",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<StepDto> createStep(@PathVariable("workflowId") String workflowId, @RequestBody StepCore newStep,
+    public ResponseEntity<StepDto> createStep(@PathVariable("workflowPersistentId") String workflowPersistentId, @RequestBody StepCore newStep,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(stepService.createStep(workflowId, newStep, draft));
+        return ResponseEntity.ok(stepService.createStep(workflowPersistentId, newStep, draft));
     }
 
     @PostMapping(
-            path = "/{workflowId}/steps/{stepId}/steps",
+            path = "/{workflowPersistentId}/steps/{stepPersistentId}/steps",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<StepDto> createSubstep(@PathVariable("workflowId") String workflowId,
-                                                 @PathVariable("stepId") String stepId,
+    public ResponseEntity<StepDto> createSubstep(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                                 @PathVariable("stepPersistentId") String stepPersistentId,
                                                  @RequestBody StepCore newStep,
                                                  @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(stepService.createSubStep(workflowId, stepId, newStep, draft));
+        return ResponseEntity.ok(stepService.createSubStep(workflowPersistentId, stepPersistentId, newStep, draft));
     }
 
     @PutMapping(
-            path = "/{workflowId}/steps/{stepId}",
+            path = "/{workflowPersistentId}/steps/{stepPersistentId}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<StepDto> updateStep(@PathVariable("workflowId") String workflowId,
-                                              @PathVariable("stepId") String stepId,
+    public ResponseEntity<StepDto> updateStep(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                              @PathVariable("stepPersistentId") String stepPersistentId,
                                               @RequestBody StepCore updatedStep,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(stepService.updateStep(workflowId, stepId, updatedStep, draft));
+        return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft));
     }
 
     @PutMapping(
-            path = "/{workflowId}/steps/{stepId}/versions/{versionId}/revert",
+            path = "/{workflowPersistentId}/steps/{stepPersistentId}/versions/{stepVersionId}/revert",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<StepDto> revertStep(@PathVariable("workflowId") String workflowId,
-                                              @PathVariable("stepId") String stepId,
-                                              @PathVariable long versionId) {
+    public ResponseEntity<StepDto> revertStep(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                              @PathVariable("stepPersistentId") String stepPersistentId,
+                                              @PathVariable("stepVersionId") long stepVersionId) {
 
-        return ResponseEntity.ok(stepService.revertStep(workflowId, stepId, versionId));
+        return ResponseEntity.ok(stepService.revertStep(workflowPersistentId, stepPersistentId, stepVersionId));
     }
 
-    @DeleteMapping("/{workflowId}/steps/{stepId}")
-    public void deleteStep(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId,
+    @DeleteMapping("/{workflowPersistentId}/steps/{stepPersistentId}")
+    public void deleteStep(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                           @PathVariable("stepPersistentId") String stepPersistentId,
                            @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        stepService.deleteStep(workflowId, stepId, draft);
+        stepService.deleteStep(workflowPersistentId, stepPersistentId, draft);
     }
 
-    @PostMapping(path = "/{workflowId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WorkflowDto> publishWorkflow(@PathVariable("workflowId") String workflowId) {
-        WorkflowDto workflow = workflowService.commitDraftWorkflow(workflowId);
+    @PostMapping(path = "/{workflowPersistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> publishWorkflow(@PathVariable("workflowPersistentId") String workflowPersistentId) {
+        WorkflowDto workflow = workflowService.commitDraftWorkflow(workflowPersistentId);
         return ResponseEntity.ok(workflow);
     }
 
-    @GetMapping(path = "/{workflowId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemExtBasicDto>> getWorkflowHistory(@PathVariable("workflowId") String id,
+    @GetMapping(path = "/{workflowPersistentId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemExtBasicDto>> getWorkflowHistory(@PathVariable("workflowPersistentId") String workflowPersistentId,
                                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                     @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
-        return ResponseEntity.ok(workflowService.getWorkflowVersions(id, draft, approved));
+        return ResponseEntity.ok(workflowService.getWorkflowVersions(workflowPersistentId, draft, approved));
     }
 
-    @GetMapping(path = "/{workflowId}/steps/{stepId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemExtBasicDto>> getStepHistory(@PathVariable("workflowId") String workflowId, @PathVariable("stepId") String stepId,
+    @GetMapping(path = "/{workflowPersistentId}/steps/{stepPersistentId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemExtBasicDto>> getStepHistory(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                                                @PathVariable("stepPersistentId") String stepPersistentId,
                                                                 @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
-        return ResponseEntity.ok(stepService.getStepVersions(workflowId, stepId, draft, approved));
+        return ResponseEntity.ok(stepService.getStepVersions(workflowPersistentId, stepPersistentId, draft, approved));
+    }
+
+    @GetMapping(path = "/{workflowPersistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("workflowPersistentId") String workflowPersistentId) {
+
+        return ResponseEntity.ok(workflowService.getInformationContributors(workflowPersistentId));
+    }
+
+    @GetMapping(path = "/{workflowPersistentId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributorsForVersion(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                                                              @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(workflowService.getInformationContributors(workflowPersistentId, versionId));
+    }
+
+    @GetMapping(path = "/{workflowPersistentId}/steps/{stepPersistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getStepInformationContributors(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                                                        @PathVariable("stepPersistentId") String stepPersistentId) {
+
+        return ResponseEntity.ok(stepService.getInformationContributors(workflowPersistentId, stepPersistentId));
+    }
+
+    @GetMapping(path = "/{workflowPersistentId}/steps/{stepPersistentId}/versions/{stepVersionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getStepInformationContributorsForVersion(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                                                                  @PathVariable("stepPersistentId") String stepPersistentId,
+                                                                                  @PathVariable("stepVersionId") long stepVersionId) {
+
+        return ResponseEntity.ok(stepService.getInformationContributors(workflowPersistentId, stepPersistentId, stepVersionId));
+    }
+
+    @GetMapping(path = "/{workflowPersistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> getMerge(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                                @RequestParam List<String> with) {
+        return ResponseEntity.ok(workflowService.getMerge(workflowPersistentId, with));
+    }
+
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> merge(@RequestParam List<String> with,
+                                             @RequestBody WorkflowCore mergeWorkflow) {
+        return ResponseEntity.ok(workflowService.merge(mergeWorkflow, with));
+    }
+
+    @GetMapping(path = "{workflowPersistentId}/steps/{stepPersistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StepDto> getMergeSteps(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                                 @PathVariable("stepPersistentId") String stepPersistentId,
+                                                 @RequestParam List<String> with) {
+        return ResponseEntity.ok(stepService.getMerge(stepPersistentId, with));
+    }
+
+    @PostMapping(path = "{workflowPersistentId}/steps/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StepDto> mergeSteps(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                              @RequestParam List<String> with,
+                                              @RequestBody StepCore mergeStep) {
+        return ResponseEntity.ok(stepService.merge(workflowPersistentId, mergeStep, with));
+    }
+
+    @GetMapping(path = "/{workflowPersistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("workflowPersistentId") String workflowPersistentId) {
+
+        return ResponseEntity.ok(workflowService.getSources(workflowPersistentId));
+    }
+
+    @GetMapping(path = "/{workflowPersistentId}/steps/{stepPersistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getStepSources(@PathVariable("workflowPersistentId") String workflowPersistentId,
+                                                          @PathVariable("stepPersistentId") String stepPersistentId) {
+        return ResponseEntity.ok(stepService.getSources(workflowPersistentId, stepPersistentId));
     }
 
 }

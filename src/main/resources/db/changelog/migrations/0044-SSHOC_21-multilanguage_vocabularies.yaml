@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0044-SSHOC_21-multilanguage-vocabularies-1
+      author: mkozak
+      description: Add columns for i18n labels and descriptions
+      changes:
+        - addColumn:
+            tableName: vocabularies
+            columns:
+              - column:
+                  name: labels
+                  type: VARCHAR(2048)
+              - column:
+                  name: titles
+                  type: VARCHAR(2048)
+              - column:
+                  name: comments
+                  type: VARCHAR(16384)
+              - column:
+                  name: descriptions
+                  type: VARCHAR(16384)
+
+  - changeSet:
+      id: 0044-SSHOC_21-multilanguage-vocabularies-2
+      author: mkozak
+      description: Make description nullable
+      changes:
+        - dropNotNullConstraint:
+            tableName: vocabularies
+            columnName: description
+
+  - changeSet:
+      id: 0044-SSHOC_21-multilanguage-vocabularies-3
+      author: mkozak
+      description: Update current i18n labels and descriptions
+      changes:
+        - sql:
+            sql: >
+                update vocabularies set labels = '{"en":"' || replace(label, '"', '\"') || '"}'
+        - sql:
+            sql: >
+                update vocabularies set description = null where description = ''
+        - sql:
+            sql: >
+                update vocabularies set comments = '{"en":"' || replace(description, '"', '\"') || '"}' where description is not null
+        - sql:
+            sql: >
+                update vocabularies set comments = '{}' where description is null
+        - sql:
+            sql: >
+                update vocabularies set titles = '{}'
+        - sql:
+            sql: >
+                update vocabularies set descriptions = '{}'
+
+  - changeSet:
+      id: 0044-SSHOC_21-multilanguage-vocabularies-4
+      author: mkozak
+      description: Make labels not nullable
+      changes:
+        - addNotNullConstraint:
+            tableName: vocabularies
+            columnName: labels
+        - addNotNullConstraint:
+            tableName: vocabularies
+            columnName: titles
+        - addNotNullConstraint:
+            tableName: vocabularies
+            columnName: comments
+        - addNotNullConstraint:
+            tableName: vocabularies
+            columnName: descriptions

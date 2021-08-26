@@ -112,6 +112,7 @@ public class MediaSourceService extends BaseOrderableEntityService<MediaSource, 
                 .code(mediaSource.getCode())
                 .serviceUrl(mediaSource.getServiceUrl().toString())
                 .mediaCategory(mediaSource.getMediaCategory())
+                .ord(mediaSource.getOrd())
                 .build();
     }
 

@@ -51,6 +51,8 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
     )
     Optional<T> findLatestItem(@Param("persistentId") String persistentId);
 
+
+
     @Query(
             "select v from #{#entityName} v " +
                     "join VersionedItem i on i.currentVersion = v " +
@@ -58,6 +60,7 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
                     "and i.active = true"
     )
     Optional<T> findCurrentVersion(@Param("persistentId") String persistentId);
+
 
     @Query(
             "select v from #{#entityName} v " +
@@ -68,4 +71,6 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
     Optional<T> findDraftVersion(@Param("persistentId") String persistentId, @Param("draftOwner") User draftOwner);
 
     Optional<T> findByVersionedItemPersistentIdAndId(String persistentId, long id);
+
+
 }

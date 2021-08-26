@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0040-SSHOC_87-remove_licence_entity-1
+      author: ekalata
+      description: Removing licence entity
+      changes:
+        -dropTable:
+          cascadeConstraints: true
+          tableName: licence_types
+
+  - changeSet:
+      id: 0040-SSHOC_87-remove_licence_entity-2
+      author: ekalata
+      description: Removing licence entity
+      changes:
+        -dropTable:
+          cascadeConstraints:  true
+          tableName:  licences

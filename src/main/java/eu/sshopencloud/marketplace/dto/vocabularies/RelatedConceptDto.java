@@ -21,4 +21,6 @@ public class RelatedConceptDto {
 
     private ConceptRelationDto relation;
 
+    private boolean candidate;
+
 }

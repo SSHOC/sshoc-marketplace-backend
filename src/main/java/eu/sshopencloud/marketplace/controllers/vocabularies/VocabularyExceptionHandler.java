@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import eu.sshopencloud.marketplace.controllers.ErrorResponse;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.PropertyTypeAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.rio.RDFParseException;
@@ -21,6 +23,8 @@ import java.time.LocalDateTime;
 public class VocabularyExceptionHandler {
 
     @ExceptionHandler(value = {
+            PropertyTypeAlreadyExistsException.class,
+            ConceptAlreadyExistsException.class,
             VocabularyAlreadyExistsException.class,
             RDFParseException.class,
             UnsupportedRDFormatException.class
@@ -30,4 +34,5 @@ public class VocabularyExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();
         return ResponseEntity.badRequest().body(errorResponse);
     }
+
 }

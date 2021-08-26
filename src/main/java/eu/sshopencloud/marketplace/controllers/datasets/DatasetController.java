@@ -1,11 +1,13 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
+import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -32,17 +34,17 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.getDatasets(pageCoordsValidator.validate(page, perpage), approved));
     }
 
-    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") String id,
+    @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getDataset(@PathVariable("persistentId") String persistentId,
                                                  @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                  @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(datasetService.getLatestDataset(id, draft, approved));
+        return ResponseEntity.ok(datasetService.getLatestDataset(persistentId, draft, approved));
     }
 
-    @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getDatasetVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
-        return ResponseEntity.ok(datasetService.getDatasetVersion(id, versionId));
+    @GetMapping(path = "/{persistentId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getDatasetVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(datasetService.getDatasetVersion(persistentId, versionId));
     }
 
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -52,38 +54,67 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.createDataset(newDataset, draft));
     }
 
-    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("id") String id, @RequestBody DatasetCore updatedDataset,
+    @PutMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("persistentId") String persistentId, @RequestBody DatasetCore updatedDataset,
                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        return ResponseEntity.ok(datasetService.updateDataset(id, updatedDataset, draft));
+        return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft));
     }
 
-    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> revertDataset(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
-        return ResponseEntity.ok(datasetService.revertDataset(id, versionId));
+    @PutMapping(path = "/{persistentId}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> revertDataset(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(datasetService.revertDataset(persistentId, versionId));
     }
 
-    @DeleteMapping(path = "/{id}")
-    public void deleteDataset(@PathVariable("id") String id,
+    @DeleteMapping(path = "/{persistentId}")
+    public void deleteDataset(@PathVariable("persistentId") String persistentId,
                               @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        datasetService.deleteDataset(id, draft);
+        datasetService.deleteDataset(persistentId, draft);
     }
 
-    @PostMapping(path = "/{datasetId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> publishDataset(@PathVariable("datasetId") String datasetId) {
-        DatasetDto dataset = datasetService.commitDraftDataset(datasetId);
+    @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> publishDataset(@PathVariable("persistentId") String persistentId) {
+        DatasetDto dataset = datasetService.commitDraftDataset(persistentId);
         return ResponseEntity.ok(dataset);
     }
 
-    @GetMapping(path = "/{datasetId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemExtBasicDto>> getDatasetHistory(@PathVariable("datasetId") String id,
+    @GetMapping(path = "/{persistentId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemExtBasicDto>> getDatasetHistory(@PathVariable("persistentId") String persistentId,
                                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
-
-        return ResponseEntity.ok(datasetService.getDatasetVersions(id, draft, approved));
+        return ResponseEntity.ok(datasetService.getDatasetVersions(persistentId, draft, approved));
     }
 
+    @GetMapping(path = "/{persistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId) {
+
+        return ResponseEntity.ok(datasetService.getInformationContributors(persistentId));
+    }
+
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(datasetService.getInformationContributors(persistentId, versionId));
+    }
+
+
+    @GetMapping(path = "/{persistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getMerge(@PathVariable("persistentId") String persistentId,
+                                               @RequestParam List<String> with) {
+        return ResponseEntity.ok(datasetService.getMerge(persistentId, with));
+    }
+
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> merge(@RequestParam List<String> with,
+                                            @RequestBody DatasetCore mergeDataset) {
+        return ResponseEntity.ok(datasetService.merge(mergeDataset, with));
+    }
+
+    @GetMapping(path = "/{persistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("persistentId") String persistentId) {
+
+        return ResponseEntity.ok(datasetService.getSources(persistentId));
+    }
 
 }
