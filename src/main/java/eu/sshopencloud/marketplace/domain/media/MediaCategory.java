@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum MediaCategory {
     IMAGE,
     VIDEO,
+    EMBED,
     OBJECT,
     THUMBNAIL;
 

@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0049-SSHOC_81-media_category_embed
+      description: changing VIDEO media category to EMBED for youtube adn vimeo
+      author: mkozak
+      changes:
+        - sql:
+            sql: >
+              update media_sources set media_category = 'EMBED' where code = 'youtube' or code = 'vimeo'

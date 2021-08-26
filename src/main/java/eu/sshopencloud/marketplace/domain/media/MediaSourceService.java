@@ -73,9 +73,10 @@ public class MediaSourceService extends BaseOrderableEntityService<MediaSource, 
         URL serviceUrl = parseServiceUrl(mediaSourceCore.getServiceUrl());
 
         mediaSource.setServiceUrl(serviceUrl);
-        mediaSource.setMediaCategory(mediaSource.getMediaCategory());
+        mediaSource.setMediaCategory(mediaSourceCore.getMediaCategory());
 
         placeEntryAtPosition(mediaSource, mediaSourceCore.getOrd(), false);
+        mediaSource = mediaSourceRepository.save(mediaSource);
 
         return toMediaSourceDetails(mediaSource);
     }
