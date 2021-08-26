@@ -19,6 +19,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -1531,6 +1532,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(status().isForbidden());
     }
 
+    @Ignore(value = "hidden properties have to be always rendered")
     @Test
     public void shouldNotRenderHiddenProperty() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
