@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
@@ -106,28 +105,28 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.getDatasetVersions(persistentId, draft, approved));
     }
 
-    @Operation(summary = "Retrieving list of information-contributors across the whole history of dataset by its persistentId", operationId = "getDatabaseInformationContributors")
+    @Operation(summary = "Retrieving list of information-contributors across the whole history of dataset by its persistentId", operationId = "getDatasetInformationContributors")
     @GetMapping(path = "/{persistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId) {
 
         return ResponseEntity.ok(datasetService.getInformationContributors(persistentId));
     }
 
-    @Operation(summary = "Retrieving list of information-contributors to the selected version of dataset by its persistentId and versionId", operationId = "getDatabaseVersionInformationContributors")
+    @Operation(summary = "Retrieving list of information-contributors to the selected version of dataset by its persistentId and versionId", operationId = "getDatasetVersionInformationContributors")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         return ResponseEntity.ok(datasetService.getInformationContributors(persistentId, versionId));
     }
 
-    @Operation(summary = "Getting body of merged version of dataset", operationId = "getDatabaseMerge")
+    @Operation(summary = "Getting body of merged version of dataset", operationId = "getDatasetMerge")
     @GetMapping(path = "/{persistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> getMerge(@PathVariable("persistentId") String persistentId,
                                                @RequestParam List<String> with) {
         return ResponseEntity.ok(datasetService.getMerge(persistentId, with));
     }
 
-    @Operation(summary = "Performing merge into dataset", operationId = "mergeDatabase")
+    @Operation(summary = "Performing merge into dataset", operationId = "mergeDataset")
     @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> merge(@RequestParam List<String> with,
                                             @Parameter(
@@ -137,7 +136,7 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.merge(mergeDataset, with));
     }
 
-    @Operation(summary = "Getting list of sources of dataset by its persistentId", operationId = "getDatabaseSources")
+    @Operation(summary = "Getting list of sources of dataset by its persistentId", operationId = "getDatasetSources")
     @GetMapping(path = "/{persistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SourceDto>> getSources(@PathVariable("persistentId") String persistentId) {
 
