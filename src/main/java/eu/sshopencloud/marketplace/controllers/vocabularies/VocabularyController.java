@@ -46,7 +46,7 @@ public class VocabularyController {
     }
 
     @Operation(summary = "Create vocabulary from file")
-    @PostMapping(path= "",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path= "",produces = MediaType.APPLICATION_JSON_VALUE,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<VocabularyBasicDto> createVocabulary(@RequestParam("ttl") MultipartFile vocabularyFile)
             throws IOException, VocabularyAlreadyExistsException {
 
@@ -55,7 +55,7 @@ public class VocabularyController {
     }
 
     @Operation(summary = "Update vocabulary for given code and file")
-    @PutMapping(path= "/{code}",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path= "/{code}",produces = MediaType.APPLICATION_JSON_VALUE,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<VocabularyBasicDto> updateVocabulary(
             @PathVariable("code") String vocabularyCode,
             @RequestParam("ttl") MultipartFile vocabularyFile,
