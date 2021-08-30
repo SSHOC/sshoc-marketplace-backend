@@ -97,7 +97,7 @@ public class VocabularyControllerITCase {
         mvc.perform(
                 vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
                         .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isOk())
@@ -136,7 +136,7 @@ public class VocabularyControllerITCase {
         mvc.perform(
                 vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
                         .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isOk())
@@ -176,7 +176,7 @@ public class VocabularyControllerITCase {
         mvc.perform(
                 vocabularyUpload(HttpMethod.POST, newVocabulary, "/api/vocabularies")
                         .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .header("Authorization", moderatorJwt)
         )
                 .andExpect(status().isOk())
@@ -193,7 +193,7 @@ public class VocabularyControllerITCase {
 
         mvc.perform(
                 vocabularyUpload(HttpMethod.PUT, updatedVocabulary, "/api/vocabularies/{code}", "iana-mime-type-test")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", moderatorJwt)
         )
@@ -238,7 +238,7 @@ public class VocabularyControllerITCase {
 
         mvc.perform(
                 vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "non-existent-code")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", moderatorJwt)
         )
@@ -256,7 +256,7 @@ public class VocabularyControllerITCase {
 
         mvc.perform(
                 vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "iso-639-3")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", moderatorJwt)
         )
@@ -287,7 +287,7 @@ public class VocabularyControllerITCase {
 
         mvc.perform(
                 vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "iso-639-3")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .accept(MediaType.APPLICATION_JSON)
                         .param("force", "true")
                         .header("Authorization", moderatorJwt)
@@ -317,7 +317,7 @@ public class VocabularyControllerITCase {
 
         mvc.perform(
                 vocabularyUpload(HttpMethod.POST, newVocabulary, "/api/vocabularies")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", moderatorJwt)
         )
@@ -334,7 +334,7 @@ public class VocabularyControllerITCase {
 
         mvc.perform(
                 vocabularyUpload(HttpMethod.PUT, updatedVocabulary, "/api/vocabularies/iana-mime-type-test")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", moderatorJwt)
         )

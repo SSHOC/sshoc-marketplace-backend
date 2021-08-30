@@ -23,11 +23,10 @@ public class ActorSearchQueryPhrase extends SearchQueryPhrase {
 
             for (QueryPart queryPart : queryParts) {
                 Criteria idCriteria = Criteria.where(IndexActor.ID_FIELD).boost(10f).is(queryPart.getExpression());
-                Criteria externalIdentifierCriteria = Criteria.where(IndexActor.EXTERNAL_IDENTIFIER_FIELD).boost(10f).expression(queryPart.getExpression());
-                Criteria nameCriteria = Criteria.where(IndexActor.NAME_FIELD).boost(4f).is(queryPart.getExpression());
-                Criteria emailCriteria = Criteria.where(IndexActor.EMAIL_FIELD).boost(4f).is(queryPart.getExpression());
-                Criteria websiteCriteria = Criteria.where(IndexActor.WEBSITE_FIELD).boost(4f).expression(queryPart.getExpression());
-
+                Criteria externalIdentifierCriteria = Criteria.where(IndexActor.EXTERNAL_IDENTIFIER_FIELD).boost(10f).is(queryPart.getExpression());
+                Criteria nameCriteria = Criteria.where(IndexActor.NAME_FIELD).boost(4f).contains(queryPart.getExpression());
+                Criteria emailCriteria = Criteria.where(IndexActor.EMAIL_FIELD).boost(4f).contains(queryPart.getExpression());
+                Criteria websiteCriteria = Criteria.where(IndexActor.WEBSITE_FIELD).boost(4f).contains(queryPart.getExpression());
                 Criteria orCriteria = idCriteria.or(externalIdentifierCriteria).or(nameCriteria).or(emailCriteria).
                         or(websiteCriteria);
                 andCriteria = andCriteria.and(orCriteria);
