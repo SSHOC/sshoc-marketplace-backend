@@ -23,8 +23,8 @@ public class ConceptSearchQueryPhrase extends SearchQueryPhrase {
                 Criteria codeCriteria = Criteria.where(IndexConcept.CODE_FIELD).boost(10f).is(queryPart.getExpression());
                 Criteria uriCriteria = Criteria.where(IndexConcept.URI_FIELD).boost(10f).is(queryPart.getExpression());
                 Criteria notationCriteria = Criteria.where(IndexConcept.NOTATION_FIELD).boost(4f).is(queryPart.getExpression());
-                Criteria labelTextEnCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).expression(queryPart.getExpression());
-                Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).expression(queryPart.getExpression());
+                Criteria labelTextEnCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).is(queryPart.getExpression());
+                Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
                 Criteria orCriteria;
                 if (!queryPart.isQuotedPhrase()) {
                     Criteria labelTextCriteria = Criteria.where(IndexConcept.LABEL_TEXT_FIELD).boost(2f).contains(queryPart.getExpression());

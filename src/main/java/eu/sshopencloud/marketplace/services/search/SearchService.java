@@ -24,7 +24,7 @@ import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.*;
 import eu.sshopencloud.marketplace.services.search.query.ActorSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.ConceptSearchQueryPhrase;
-import eu.sshopencloud.marketplace.services.search.query.IndexSearchQueryPhrase;
+import eu.sshopencloud.marketplace.services.search.query.ItemSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -63,7 +63,7 @@ public class SearchService {
 
         log.debug("filterParams " + filterParams.toString());
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
-        SearchQueryCriteria queryCriteria = new IndexSearchQueryPhrase(q, advanced);
+        SearchQueryCriteria queryCriteria = new ItemSearchQueryPhrase(q, advanced);
 
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
         filterCriteria.add(makeCategoryCriteria(categories));

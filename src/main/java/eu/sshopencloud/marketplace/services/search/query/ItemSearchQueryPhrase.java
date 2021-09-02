@@ -8,9 +8,9 @@ import org.springframework.data.solr.core.query.Criteria;
 import java.util.List;
 
 @Slf4j
-public class IndexSearchQueryPhrase extends SearchQueryPhrase {
+public class ItemSearchQueryPhrase extends SearchQueryPhrase {
 
-    public IndexSearchQueryPhrase(String phrase, boolean advanced) {
+    public ItemSearchQueryPhrase(String phrase, boolean advanced) {
         super(phrase, advanced);
     }
 
