@@ -117,8 +117,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
                 .andExpect(jsonPath("informationContributor.username", is("Contributor")))
-                .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("source", nullValue()));
+                .andExpect(jsonPath("properties", hasSize(0)));
     }
 
     @Test
@@ -484,8 +483,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://example.com")))
                 .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("source", nullValue()));
+                .andExpect(jsonPath("properties", hasSize(0)));
     }
 
     @Test
@@ -898,8 +896,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("accessibleAt[1]", is("http://fake.tapor.com")))
                 .andExpect(jsonPath("accessibleAt[2]", is("http://fake.tapor.org")))
                 .andExpect(jsonPath("informationContributor.username", is("Contributor")))
-                .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("source", nullValue()));
+                .andExpect(jsonPath("properties", hasSize(0)));
     }
 
     @Test
@@ -1423,8 +1420,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://example.com")))
                 .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("source", nullValue()));
+                .andExpect(jsonPath("properties", hasSize(0)));
 
         mvc.perform(get("/api/tools-services/{id}/history", toolPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1458,8 +1454,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("http://fake.tapor.ca")))
                 .andExpect(jsonPath("informationContributor.username", is("Contributor")))
-                .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("source", nullValue()));
+                .andExpect(jsonPath("properties", hasSize(0)));
     }
 
 

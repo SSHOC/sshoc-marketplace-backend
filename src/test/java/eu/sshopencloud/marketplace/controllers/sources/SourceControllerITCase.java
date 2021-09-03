@@ -233,8 +233,7 @@ public class SourceControllerITCase {
                 .andExpect(jsonPath("id", is(sourceId.intValue())))
                 .andExpect(jsonPath("label", is("Test another source")))
                 .andExpect(jsonPath("url", is("http://other.example.com")))
-                .andExpect(jsonPath("urlTemplate", is("http://other.example.com/{source-item-id}")))
-                .andExpect(jsonPath("lastHarvestedDate", nullValue()));
+                .andExpect(jsonPath("urlTemplate", is("http://other.example.com/{source-item-id}")));
 
         mvc.perform(delete("/api/sources/{id}", sourceId)
                 .contentType(MediaType.APPLICATION_JSON)

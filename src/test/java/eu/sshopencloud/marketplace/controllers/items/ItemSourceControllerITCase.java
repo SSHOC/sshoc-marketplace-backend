@@ -361,7 +361,6 @@ public class ItemSourceControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
                 .andExpect(jsonPath("label", is("Test...")))
-                .andExpect(jsonPath("urlTemplate", nullValue()))
                 .andExpect(jsonPath("ord", is(1)));
     }
 

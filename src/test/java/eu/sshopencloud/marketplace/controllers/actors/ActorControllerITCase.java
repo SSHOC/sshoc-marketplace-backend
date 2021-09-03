@@ -76,8 +76,7 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("affiliations", hasSize(1)))
                 .andExpect(jsonPath("affiliations[0].id", is(3)))
                 .andExpect(jsonPath("affiliations[0].name", is("SSHOC project consortium")))
-                .andExpect(jsonPath("affiliations[0].website", is("https://sshopencloud.eu/")))
-                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()));
+                .andExpect(jsonPath("affiliations[0].website", is("https://sshopencloud.eu/")));
     }
 
     @Test
@@ -133,11 +132,9 @@ public class ActorControllerITCase {
                 .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("affiliations", hasSize(2)))
                 .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
-                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()))
                 .andExpect(jsonPath("affiliations[1].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[1].email", is("cessda@cessda.eu")));
     }
@@ -163,7 +160,6 @@ public class ActorControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", notNullValue()))
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("externalIds", hasSize(1)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("DBLP")))
@@ -172,7 +168,6 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds[0].identifier", is("Gray_0001:Jim")))
                 .andExpect(jsonPath("affiliations", hasSize(1)))
                 .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
-                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()))
                 .andReturn().getResponse().getContentAsString();
 
         ActorDto actorDto = mapper.readValue(actorJson, ActorDto.class);
@@ -181,7 +176,6 @@ public class ActorControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(actorDto.getId().intValue())))
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("externalIds", hasSize(1)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("DBLP")))
@@ -189,8 +183,7 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://dblp.org/pid/{source-actor-id}.html")))
                 .andExpect(jsonPath("externalIds[0].identifier", is("Gray_0001:Jim")))
                 .andExpect(jsonPath("affiliations", hasSize(1)))
-                .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
-                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()));
+                .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")));
     }
 
     @Test
@@ -215,7 +208,6 @@ public class ActorControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", notNullValue()))
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
@@ -237,7 +229,6 @@ public class ActorControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(actorDto.getId().intValue())))
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
@@ -398,11 +389,9 @@ public class ActorControllerITCase {
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("affiliations", hasSize(2)))
                 .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
-                .andExpect(jsonPath("affiliations[0].email", blankOrNullString()))
                 .andExpect(jsonPath("affiliations[1].name", is("CESSDA")))
                 .andExpect(jsonPath("affiliations[1].email", is("cessda@cessda.eu")));
     }
@@ -609,7 +598,6 @@ public class ActorControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", notNullValue()))
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
@@ -631,7 +619,6 @@ public class ActorControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(actorDto.getId().intValue())))
                 .andExpect(jsonPath("name", is("Test actor")))
-                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is("test@example.org")))
                 .andExpect(jsonPath("externalIds", hasSize(2)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
@@ -665,7 +652,6 @@ public class ActorControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", notNullValue()))
                 .andExpect(jsonPath("name", is(actor2.getName())))
-                .andExpect(jsonPath("website", blankOrNullString()))
                 .andExpect(jsonPath("email", is(actor2.getEmail())))
                 .andExpect(jsonPath("externalIds", hasSize(1)))
                 .andExpect(jsonPath("externalIds[0].identifierService.code", is("ORCID")))
