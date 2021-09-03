@@ -78,6 +78,7 @@ public class DatasetControllerITCase {
     private String IMPORTER_JWT;
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
+    private String SYSTEM_MODERATOR_JWT;
 
     @Before
     public void init()
@@ -86,6 +87,7 @@ public class DatasetControllerITCase {
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
+        SYSTEM_MODERATOR_JWT = LogInTestClient.getJwt(mvc, "System Moderator", "q1w2e3r4t5");
     }
 
     @Test
@@ -556,7 +558,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldUpdateDatsetWithRelations() throws Exception {
+    public void shouldUpdateDatasetWithRelations() throws Exception {
         String datasetPersistentId = "dmbq4v";
         Integer datasetCurrentId = 9;
 
@@ -638,6 +640,50 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[1].status", is("deprecated")))
                 .andExpect(jsonPath("$[1].informationContributor.id", is(3)));
 
+    }
+
+    //Eliza
+    @Test
+    public void shouldUpdateDatasetWithApprovedFalseForSystemModerator() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetCurrentId = 9;
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test simple dataset");
+        dataset.setDescription("Lorem ipsum");
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("license");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("MIT");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("software-license");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        properties.add(property1);
+        dataset.setProperties(properties);
+
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
+                        .content(payload)
+                        .param("approved", "false")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", SYSTEM_MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test simple dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("informationContributor.username", is("System Moderator")))
+                .andExpect(jsonPath("contributors", hasSize(0)))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].concept.label", is("MIT License")));
     }
 
     @Test
