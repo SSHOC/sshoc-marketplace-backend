@@ -1285,7 +1285,7 @@ public class ItemRelationControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(publicationDto.getPersistentId())))
                 .andExpect(jsonPath("id", not(is(publicationDto.getId()))))
-                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("publication")))
                 .andExpect(jsonPath("label", is(publication.getLabel())))
                 .andExpect(jsonPath("description", is(publication.getDescription())))

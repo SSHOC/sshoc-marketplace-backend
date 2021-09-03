@@ -23,7 +23,6 @@ class ItemVisibilityService {
     private final UserService userService;
 
 
-    //Eliza
     public void setupItemVersionVisibility(Item version, VersionedItem versionedItem, boolean changeStatus, boolean approved) {
         User currentUser = userService.loadLoggedInUser();
         if (currentUser == null || !currentUser.isContributor())
@@ -36,7 +35,6 @@ class ItemVisibilityService {
         version.setProposedVersion(proposed);
     }
 
-    //Eliza
     private void assignItemVersionStatus(Item version, VersionedItem versionedItem, User currentUser, boolean changeStatus, boolean approved) {
         if (!versionedItem.isActive()) {
             throw new IllegalArgumentException(
@@ -49,34 +47,33 @@ class ItemVisibilityService {
             return;
         }
 
-        //ELiza
-        if(currentUser.isSystemModerator()) {
-            if(!approved){
+
+        if (currentUser.isSystemModerator()) {
+            if (!approved) {
                 version.setStatus(SUGGESTED);
                 versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
 
-            }else {
+            } else {
                 version.setStatus(ItemStatus.APPROVED);
                 versionedItem.setStatus(VersionedItemStatus.REVIEWED);
             }
-        }
-        // The order of these role checks does matter as, for example, a moderator is a contributor as well
-        else if (currentUser.isModerator()) {
+        } else if (currentUser.isModerator()) {
             version.setStatus(ItemStatus.APPROVED);
             versionedItem.setStatus(VersionedItemStatus.REVIEWED);
         }
+        // The order of these role checks does matter as, for example, a moderator is a contributor as well
         else if (currentUser.isSystemContributor()) {
             version.setStatus(ItemStatus.INGESTED);
 
             if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
                 versionedItem.setStatus(VersionedItemStatus.INGESTED);
-        }
-        else if (currentUser.isContributor()) {
+        } else if (currentUser.isContributor()) {
             version.setStatus(ItemStatus.SUGGESTED);
 
             if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
                 versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
         }
+
     }
 
 

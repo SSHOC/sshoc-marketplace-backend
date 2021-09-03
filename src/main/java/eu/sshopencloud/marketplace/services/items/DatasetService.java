@@ -71,7 +71,6 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return prepareItemDto(dataset);
     }
 
-    //Eliza
     public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft,boolean approved) {
         Dataset dataset = updateItem(persistentId, datasetCore, draft, approved);
         return prepareItemDto(dataset);

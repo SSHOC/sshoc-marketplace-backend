@@ -155,13 +155,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return currItem.getCategory().equals(ItemCategory.WORKFLOW);
     }
 
-    //Eliza
     protected I updateItem(String persistentId, C itemCore, boolean draft,boolean approved) {
         I item = loadItemForCurrentUser(persistentId);
         return createOrUpdateItemVersion(itemCore, item, draft, approved);
     }
 
-    //Eliza
     private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
         I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft, approved);
         indexService.indexItem(newItem);
@@ -169,7 +167,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    //ELiza
     private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
@@ -218,9 +215,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         // If not a draft
         if (!draft) {
 
-            //Eliza
             itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus,approved);
-
 
             if (version.getStatus() == ItemStatus.APPROVED)
                 deprecatePrevApprovedVersion(versionedItem);
@@ -313,7 +308,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        //Eliza
+
         itemVisibilityService.setupItemVersionVisibility(version, versionedItem, true, true);
 
         if (version.getStatus() == ItemStatus.APPROVED)
@@ -347,7 +342,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return id;
     }
 
-    //Eliza
     protected I revertItemVersion(String persistentId, long versionId) {
         I item = loadItemVersion(persistentId, versionId);
         I currentVersion = loadCurrentItem(persistentId);
