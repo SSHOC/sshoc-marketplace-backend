@@ -87,7 +87,7 @@ public class DatasetControllerITCase {
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
-        SYSTEM_MODERATOR_JWT = LogInTestClient.getJwt(mvc, "System Moderator", "q1w2e3r4t5");
+        SYSTEM_MODERATOR_JWT = LogInTestClient.getJwt(mvc, "System moderator", "q1w2e3r4t5");
     }
 
     @Test
@@ -680,7 +680,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("label", is("Test simple dataset")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("informationContributor.username", is("System Moderator")))
+                .andExpect(jsonPath("informationContributor.username", is("System moderator")))
                 .andExpect(jsonPath("contributors", hasSize(0)))
                 .andExpect(jsonPath("properties", hasSize(1)))
                 .andExpect(jsonPath("properties[0].concept.label", is("MIT License")));
