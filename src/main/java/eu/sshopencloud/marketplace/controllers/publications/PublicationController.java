@@ -73,9 +73,10 @@ public class PublicationController {
                                                                     description = "Updated publication object",
                                                                     required = true,
                                                                     schema = @Schema(implementation = PublicationCore.class)) @RequestBody PublicationCore updatedPublication,
-                                                            @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                                            @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft,
+                                                            @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(publicationService.updatePublication(persistentId, updatedPublication, draft));
+        return ResponseEntity.ok(publicationService.updatePublication(persistentId, updatedPublication, draft, approved));
     }
 
     @Operation(summary = "Revert publication to target version by its persistentId and versionId that is reverted to")

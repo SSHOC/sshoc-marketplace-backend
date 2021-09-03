@@ -120,7 +120,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected I createItem(C itemCore, boolean draft) {
-        return createOrUpdateItemVersion(itemCore, null, draft);
+        return createOrUpdateItemVersion(itemCore, null, draft, true);
     }
 
     protected I mergeItem(String persistentId, List<String> mergedCores) {
@@ -128,9 +128,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I mergedItem = loadCurrentItem(persistentId);
         mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
-        for (int i = 0; i < mergedCores.size(); i++) {
-
-            VersionedItem versionedItem = versionedItemRepository.getOne(mergedCores.get(i));
+        for (String mergedCore : mergedCores) {
+            VersionedItem versionedItem = versionedItemRepository.getOne(mergedCore);
             I prevItem = (I) versionedItem.getCurrentVersion();
             prevItem.setStatus(ItemStatus.DEPRECATED);
             mergedItem.getVersionedItem().addMergedWith(versionedItem);
@@ -147,30 +146,31 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     protected boolean checkIfStep(String itemPersistentId) {
         VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
         I currItem = (I) versionedItem.getCurrentVersion();
-        if (currItem.getCategory().equals(ItemCategory.STEP)) return true;
-        else return false;
+        return currItem.getCategory().equals(ItemCategory.STEP);
     }
 
     protected boolean checkIfWorkflow(String itemPersistentId) {
         VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
         I currItem = (I) versionedItem.getCurrentVersion();
-        if (currItem.getCategory().equals(ItemCategory.WORKFLOW)) return true;
-        else return false;
+        return currItem.getCategory().equals(ItemCategory.WORKFLOW);
     }
 
-    protected I updateItem(String persistentId, C itemCore, boolean draft) {
+    //Eliza
+    protected I updateItem(String persistentId, C itemCore, boolean draft,boolean approved) {
         I item = loadItemForCurrentUser(persistentId);
-        return createOrUpdateItemVersion(itemCore, item, draft);
+        return createOrUpdateItemVersion(itemCore, item, draft, approved);
     }
 
-    private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft) {
-        I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft);
+    //Eliza
+    private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
+        I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft, approved);
         indexService.indexItem(newItem);
         return newItem;
     }
 
 
-    private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft) {
+    //ELiza
+    private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
             I version = modifyItem(itemCore, prevVersion);
@@ -185,7 +185,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         I version = makeItemVersion(itemCore, prevVersion);
 
-        version = saveVersionInHistory(version, prevVersion, draft);
+        version = saveVersionInHistory(version, prevVersion, draft, approved);
 
         itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), version, prevVersion, draft);
 
@@ -193,13 +193,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
-        return saveVersionInHistory(version, prevVersion, draft, true);
+    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean approved) {
+        return saveVersionInHistory(version, prevVersion, draft, true, approved);
     }
 
 
     // Warning: important method! Do not change unless you know what you are doing!
-    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean changeStatus) {
+    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean changeStatus, boolean approved) {
         VersionedItem versionedItem =
                 (prevVersion == null) ? createNewVersionedItem() : prevVersion.getVersionedItem();
 
@@ -217,7 +217,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         // If not a draft
         if (!draft) {
-            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus);
+
+            //Eliza
+            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus,approved);
+
 
             if (version.getStatus() == ItemStatus.APPROVED)
                 deprecatePrevApprovedVersion(versionedItem);
@@ -310,7 +313,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        itemVisibilityService.setupItemVersionVisibility(version, versionedItem, true);
+        //Eliza
+        itemVisibilityService.setupItemVersionVisibility(version, versionedItem, true, true);
 
         if (version.getStatus() == ItemStatus.APPROVED)
             deprecatePrevApprovedVersion(versionedItem);
@@ -343,12 +347,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return id;
     }
 
+    //Eliza
     protected I revertItemVersion(String persistentId, long versionId) {
         I item = loadItemVersion(persistentId, versionId);
         I currentVersion = loadCurrentItem(persistentId);
         I targetVersion = makeItemVersionCopy(item);
 
-        targetVersion = saveVersionInHistory(targetVersion, currentVersion, false);
+        targetVersion = saveVersionInHistory(targetVersion, currentVersion, false, true);
         copyVersionRelations(targetVersion, item);
 
         indexService.indexItem(targetVersion);
@@ -509,7 +514,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected D prepareMergeItems(String persistentId, List<String> mergeList) {
 
-        List<D> itemDtoList = new ArrayList<D>();
+        List<D> itemDtoList = new ArrayList<>();
 
         I finalItem = loadLatestItem(persistentId);
         D finalDto = convertItemToDto(finalItem);

@@ -72,9 +72,10 @@ public class WorkflowController {
                                                               description = "Updated workflow",
                                                               required = true,
                                                               schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore updatedWorkflow,
-                                                      @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
+                                                      @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft));
+        return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft, approved));
     }
 
     @Operation(summary = "Revert workflow to target version by its persistentId and versionId that is reverted to")
@@ -143,9 +144,10 @@ public class WorkflowController {
                                                       description = "Updated step",
                                                       required = true,
                                                       schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore updatedStep,
-                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
+                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft));
+        return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft, approved));
     }
 
     @Operation(summary = "Revert step to target version by its persistentId and versionId that is reverted to")
