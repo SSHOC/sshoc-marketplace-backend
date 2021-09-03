@@ -315,7 +315,6 @@ public class ActorSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
-                .andExpect(jsonPath("urlTemplate", nullValue()))
                 .andExpect(jsonPath("label", is("Test...")));
     }
 
