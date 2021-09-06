@@ -47,8 +47,8 @@ class ItemVisibilityService {
             return;
         }
 
-
-        if (currentUser.isSystemModerator()) {
+        // The order of these role checks does matter as, for example, a moderator is a contributor as well
+        if (currentUser.isSystemModerator() || currentUser.isModerator()) {
             if (!approved) {
                 version.setStatus(SUGGESTED);
                 versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
@@ -57,11 +57,7 @@ class ItemVisibilityService {
                 version.setStatus(ItemStatus.APPROVED);
                 versionedItem.setStatus(VersionedItemStatus.REVIEWED);
             }
-        } else if (currentUser.isModerator()) {
-            version.setStatus(ItemStatus.APPROVED);
-            versionedItem.setStatus(VersionedItemStatus.REVIEWED);
         }
-        // The order of these role checks does matter as, for example, a moderator is a contributor as well
         else if (currentUser.isSystemContributor()) {
             version.setStatus(ItemStatus.INGESTED);
 

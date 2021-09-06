@@ -373,7 +373,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I item = loadCurrentItem(persistentId);
         I newItem = makeItemVersionCopy(item);
 
-        newItem = saveVersionInHistory(newItem, item, draft, modifyStatus);
+        //ELiza
+        newItem = saveVersionInHistory(newItem, item, draft, modifyStatus, true);
         copyVersionRelations(newItem, item);
 
         itemUpgradeRegistry.registerUpgradedVersion(newItem);
