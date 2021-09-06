@@ -704,4 +704,17 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[1].affiliations", hasSize(1)));
     }
 
+    @Test
+    public void shouldReturnAutocompleteSuggestionForItems() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=gep")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("phrase", is("gep")))
+                .andExpect(jsonPath("suggestions", hasSize(3)))
+                .andExpect(jsonPath("suggestions[0]", is("gephi")))
+                .andExpect(jsonPath("suggestions[1]", is("gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("suggestions[2]", is("introduction to gephi")));
+    }
+
 }

@@ -322,6 +322,7 @@ public class SearchService {
         return result;
     }
 
+    //Eliza
     public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase) {
         if (StringUtils.isBlank(searchPhrase))
             throw new IllegalArgumentException("Search phrase must not be empty nor contain only whitespace");

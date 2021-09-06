@@ -103,6 +103,7 @@ public class SearchItemRepository {
         return facetOptions;
     }
 
+    //Eliza
     public List<String> autocompleteSearchQuery(String searchQuery) {
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
