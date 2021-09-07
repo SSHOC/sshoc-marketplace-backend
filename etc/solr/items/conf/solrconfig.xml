@@ -953,6 +953,7 @@
       <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
       <str name="dictionaryImpl">DocumentDictionaryFactory</str>
       <str name="field">suggestions</str>
+      <str name="payloadField">persistent_id</str>
       <str name="suggestAnalyzerFieldType">text_suggest</str>
       <str name="queryAnalyzerFieldType">query_suggest</str>
       <str name="highlight">false</str>

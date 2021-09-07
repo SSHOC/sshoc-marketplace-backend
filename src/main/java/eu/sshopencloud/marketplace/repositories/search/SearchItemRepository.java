@@ -114,10 +114,10 @@ public class SearchItemRepository {
             SuggesterResponse response = solrTemplate.getSolrClient()
                     .query(params).getSuggesterResponse();
 
-            System.out.println(response.getSuggestions());
+            //System.out.println(response.getSuggestions());
             List<String> rawSuggestions = response.getSuggestedTerms().get("itemSearch");
 
-            System.out.println("Eliza " + response.getSuggestions().values());
+            //System.out.println("Eliza " + response.getSuggestions().values());
             return prepareSuggestions(rawSuggestions, 10);
         }
         catch (SolrServerException | IOException e) {
