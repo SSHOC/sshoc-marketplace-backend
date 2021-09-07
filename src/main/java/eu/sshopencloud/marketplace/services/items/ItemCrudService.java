@@ -155,7 +155,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return currItem.getCategory().equals(ItemCategory.WORKFLOW);
     }
 
-    protected I updateItem(String persistentId, C itemCore, boolean draft,boolean approved) {
+    protected I updateItem(String persistentId, C itemCore, boolean draft, boolean approved) {
         I item = loadItemForCurrentUser(persistentId);
         return createOrUpdateItemVersion(itemCore, item, draft, approved);
     }
@@ -215,7 +215,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         // If not a draft
         if (!draft) {
 
-            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus,approved);
+            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus, approved);
 
             if (version.getStatus() == ItemStatus.APPROVED)
                 deprecatePrevApprovedVersion(versionedItem);
@@ -373,7 +373,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I item = loadCurrentItem(persistentId);
         I newItem = makeItemVersionCopy(item);
 
-        //ELiza
         newItem = saveVersionInHistory(newItem, item, draft, modifyStatus, true);
         copyVersionRelations(newItem, item);
 

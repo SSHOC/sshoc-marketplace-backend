@@ -642,7 +642,6 @@ public class DatasetControllerITCase {
 
     }
 
-    //Eliza
     @Test
     public void shouldUpdateDatasetWithApprovedFalseForSystemModerator() throws Exception {
         String datasetPersistentId = "dmbq4v";
