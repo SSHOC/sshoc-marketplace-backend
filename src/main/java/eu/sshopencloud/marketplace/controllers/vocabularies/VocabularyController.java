@@ -27,7 +27,7 @@ public class VocabularyController {
 
 
     @Operation(summary = "Get all vocabularies in pages")
-    @GetMapping(path= "", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path= "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedVocabularies> getVocabularies(@RequestParam(value = "page", required = false) Integer page,
                                                                  @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
@@ -35,7 +35,7 @@ public class VocabularyController {
     }
 
     @Operation(summary = "Get vocabulary for given code")
-    @GetMapping(path= "/{code}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path= "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VocabularyDto> getVocabulary(@PathVariable("code") String code,
                                                        @RequestParam(value = "page", required = false) Integer page,
                                                        @RequestParam(value = "perpage", required = false) Integer perPage)
@@ -67,7 +67,7 @@ public class VocabularyController {
     }
 
     @Operation(summary = "Delete vocabulary for given code")
-    @DeleteMapping(path="/{code}",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path="/{code}")
     public ResponseEntity<Void> deleteVocabulary(@PathVariable("code") String vocabularyCode,
                                                  @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) {
 
