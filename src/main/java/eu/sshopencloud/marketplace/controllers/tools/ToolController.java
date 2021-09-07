@@ -73,9 +73,10 @@ public class ToolController {
                                                       description = "Updated tool",
                                                       required = true,
                                                       schema = @Schema(implementation = ToolCore.class)) @RequestBody ToolCore updatedTool,
-                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
+                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(toolService.updateTool(persistentId, updatedTool, draft));
+        return ResponseEntity.ok(toolService.updateTool(persistentId, updatedTool, draft, approved));
     }
 
     @Operation(summary = "Revert tool to target version by its persistentId and versionId that is reverted to")
