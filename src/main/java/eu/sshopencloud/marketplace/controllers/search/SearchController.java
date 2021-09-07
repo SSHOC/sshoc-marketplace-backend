@@ -82,7 +82,7 @@ class SearchController {
         return ResponseEntity.ok(suggestions);
     }
 
-    @GetMapping("/actor-search")
+    @GetMapping(path = "/actor-search", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Search among actors.")
     public ResponseEntity<PaginatedSearchActor> searchActors(@RequestParam(value = "q", required = false) String q,
                                                              @RequestParam(value = "page", required = false) Integer page,
