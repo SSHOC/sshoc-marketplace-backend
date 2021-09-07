@@ -72,9 +72,9 @@ public class TrainingMaterialService
 
     public TrainingMaterialDto updateTrainingMaterial(String persistentId,
                                                       TrainingMaterialCore trainingMaterialCore,
-                                                      boolean draft) {
+                                                      boolean draft, boolean approved) {
 
-        TrainingMaterial trainingMaterial = updateItem(persistentId, trainingMaterialCore, draft);
+        TrainingMaterial trainingMaterial = updateItem(persistentId, trainingMaterialCore, draft, approved);
         return prepareItemDto(trainingMaterial);
     }
 

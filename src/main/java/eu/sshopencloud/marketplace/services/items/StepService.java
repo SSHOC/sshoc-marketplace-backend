@@ -106,7 +106,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return prepareItemDto(step);
     }
 
-    public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft) {
+    public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft, boolean approved) {
         validateCurrentWorkflowAndStepConsistency(workflowId, stepId, draft);
 
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
@@ -117,7 +117,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(updatedStepCore, parentStepTree);
 
-        Step updatedStep = updateItem(stepId, workflowStepCore, draft);
+        Step updatedStep = updateItem(stepId, workflowStepCore, draft, approved);
 
         addStepToTree(updatedStep, updatedStepCore.getStepNo(), parentStepTree);
 

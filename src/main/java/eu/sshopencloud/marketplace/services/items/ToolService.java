@@ -68,8 +68,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareItemDto(tool);
     }
 
-    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft) {
-        Tool tool = updateItem(persistentId, toolCore, draft);
+    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft, boolean approved) {
+        Tool tool = updateItem(persistentId, toolCore, draft, approved);
         return prepareItemDto(tool);
     }
 

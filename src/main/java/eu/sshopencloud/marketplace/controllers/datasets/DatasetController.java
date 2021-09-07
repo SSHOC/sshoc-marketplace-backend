@@ -71,9 +71,10 @@ public class DatasetController {
                                                             description = "Updated dataset",
                                                             required = true,
                                                             schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore updatedDataset,
-                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
+                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft));
+        return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft, approved));
     }
 
     @Operation(summary = "Revert dataset to target version by its persistentId and versionId that is reverted to")
