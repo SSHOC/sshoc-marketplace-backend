@@ -74,9 +74,10 @@ public class TrainingMaterialController {
                                                                               description = "Updated training material",
                                                                               required = true,
                                                                               schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore updatedTrainingMaterial,
-                                                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft) {
+                                                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft,
+                                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
 
-        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(persistentId, updatedTrainingMaterial, draft));
+        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(persistentId, updatedTrainingMaterial, draft, approved));
     }
 
     @Operation(summary = "Revert training material to target version by its persistentId and versionId that is reverted to")

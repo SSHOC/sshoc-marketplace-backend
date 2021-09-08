@@ -107,8 +107,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return prepareItemDto(workflow);
     }
 
-    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft) {
-        Workflow workflow = updateItem(persistentId, workflowCore, draft);
+    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) {
+        Workflow workflow = updateItem(persistentId, workflowCore, draft, approved);
 
         if (!draft)
             commitSteps(workflow.getStepsTree());

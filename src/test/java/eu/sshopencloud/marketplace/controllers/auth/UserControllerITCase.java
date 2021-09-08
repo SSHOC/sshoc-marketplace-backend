@@ -182,11 +182,12 @@ public class UserControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("hits", is(4)))
+                .andExpect(jsonPath("hits", is(5)))
                 .andExpect(jsonPath("users[0].username", is("Administrator")))
                 .andExpect(jsonPath("users[1].username", is("Contributor")))
                 .andExpect(jsonPath("users[2].username", is("Moderator")))
-                .andExpect(jsonPath("users[3].username", is("System importer")));
+                .andExpect(jsonPath("users[3].username", is("System importer")))
+                .andExpect(jsonPath("users[4].username", is("System moderator")));
     }
 
     @Test
@@ -196,15 +197,17 @@ public class UserControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("hits", is(4)))
-                .andExpect(jsonPath("users[0].username", is("System importer")))
-                .andExpect(jsonPath("users[0].registrationDate", is("2020-08-04T12:29:00+0200")))
-                .andExpect(jsonPath("users[1].username", is("Contributor")))
+                .andExpect(jsonPath("hits", is(5)))
+                .andExpect(jsonPath("users[0].username", is("System moderator")))
+                .andExpect(jsonPath("users[0].registrationDate", is("2021-09-03T13:37:00+0200")))
+                .andExpect(jsonPath("users[1].username", is("System importer")))
                 .andExpect(jsonPath("users[1].registrationDate", is("2020-08-04T12:29:00+0200")))
-                .andExpect(jsonPath("users[2].username", is("Moderator")))
+                .andExpect(jsonPath("users[2].username", is("Contributor")))
                 .andExpect(jsonPath("users[2].registrationDate", is("2020-08-04T12:29:00+0200")))
-                .andExpect(jsonPath("users[3].username", is("Administrator")))
-                .andExpect(jsonPath("users[3].registrationDate", is("2020-08-04T12:29:00+0200")));
+                .andExpect(jsonPath("users[3].username", is("Moderator")))
+                .andExpect(jsonPath("users[3].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("users[4].username", is("Administrator")))
+                .andExpect(jsonPath("users[4].registrationDate", is("2020-08-04T12:29:00+0200")));
     }
 
 }
