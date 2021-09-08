@@ -130,8 +130,12 @@
     <field name="keyword" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="keyword_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
     <field name="suggestions" type="text_suggest" indexed="true" stored="true" multiValued="true" />
+    <field name="context" type="text_suggest" indexed="true" stored="true" multiValued="true" />
+     <field name="contextId" type="text_suggest" indexed="true" stored="true" multiValued="true" />
 
+    <copyField source="id" dest="contextId"/>
     <copyField source="label_text" dest="suggestions"/>
+    <copyField source="category" dest="context"/>
 <!--    <copyField source="description_text" dest="suggestions"/>-->
     <copyField source="keyword_text" dest="suggestions"/>
 

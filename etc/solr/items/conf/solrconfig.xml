@@ -953,9 +953,13 @@
       <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
       <str name="dictionaryImpl">DocumentDictionaryFactory</str>
       <str name="field">suggestions</str>
-      <str name="payloadField">persistent_id</str>
+      <str name="payloadField">category</str>
+      <str name="weightField">contextId</str>
+      <str name="contextField">context</str>
       <str name="suggestAnalyzerFieldType">text_suggest</str>
       <str name="queryAnalyzerFieldType">query_suggest</str>
+      <str name="buildOnStartup">true</str>
+      <str name="buildOnCommit">true</str>
       <str name="highlight">false</str>
     </lst>
   </searchComponent>

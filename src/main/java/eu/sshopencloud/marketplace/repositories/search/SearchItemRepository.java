@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.repositories.search;
 
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.repositories.search.solr.ForceFacetSortSolrTemplate;
@@ -12,6 +13,7 @@ import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.ClusteringResponse;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.data.domain.Pageable;
@@ -105,19 +107,36 @@ public class SearchItemRepository {
 
     //Eliza
     public List<String> autocompleteSearchQuery(String searchQuery) {
+        String category = ItemCategory.TRAINING_MATERIAL.getValue();
+        System.out.println(category);
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
         params.set("q", searchQuery);
+        params.set("cfq",  category);
         params.set("suggest.count", 50);
+        System.out.println("Params 1" + params);
+
+
+        ModifiableSolrParams params2 = new ModifiableSolrParams();
+        params2.set("qt", "/marketplace-items/suggest");
+        params2.set("q", searchQuery);
+        params2.set("suggest.cfq",  category);
+        params2.set("suggest.count", 50);
+        System.out.println("Params 2" + params2);
 
         try {
             SuggesterResponse response = solrTemplate.getSolrClient()
                     .query(params).getSuggesterResponse();
 
-            //System.out.println(response.getSuggestions());
-            List<String> rawSuggestions = response.getSuggestedTerms().get("itemSearch");
 
-            //System.out.println("Eliza " + response.getSuggestions().values());
+           SuggesterResponse response2 = solrTemplate.getSolrClient().query(params2).getSuggesterResponse();
+
+
+            List<String> rawSuggestions = response.getSuggestedTerms().get("itemSearch");
+          List<String> rawSuggestions2 = response2.getSuggestedTerms().get("itemSearch");
+            System.out.println("Eliza " + rawSuggestions);
+            System.out.println("Eliza 2 " + rawSuggestions2);
+
             return prepareSuggestions(rawSuggestions, 10);
         }
         catch (SolrServerException | IOException e) {
