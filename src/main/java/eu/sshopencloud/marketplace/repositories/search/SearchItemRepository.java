@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.repositories.search;
 
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.dto.search.SuggestedObject;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.ClusteringResponse;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
+import org.apache.solr.client.solrj.response.Suggestion;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
@@ -106,59 +108,48 @@ public class SearchItemRepository {
     }
 
     //Eliza
-    public List<String> autocompleteSearchQuery(String searchQuery) {
+    public List<SuggestedObject> autocompleteSearchQuery(String searchQuery) {
         String category = ItemCategory.TRAINING_MATERIAL.getValue();
-        System.out.println(category);
+
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
+        params.set("dictionary", "itemSearch");
         params.set("q", searchQuery);
-        params.set("cfq",  category);
+        //params.set("cfq",  category);
         params.set("suggest.count", 50);
         System.out.println("Params 1" + params);
 
-
-        ModifiableSolrParams params2 = new ModifiableSolrParams();
-        params2.set("qt", "/marketplace-items/suggest");
-        params2.set("q", searchQuery);
-        params2.set("suggest.cfq",  category);
-        params2.set("suggest.count", 50);
-        System.out.println("Params 2" + params2);
-
         try {
-            SuggesterResponse response = solrTemplate.getSolrClient()
-                    .query(params).getSuggesterResponse();
 
+            SuggesterResponse response = solrTemplate.getSolrClient().query(params).getSuggesterResponse();
 
-           SuggesterResponse response2 = solrTemplate.getSolrClient().query(params2).getSuggesterResponse();
+            List<Suggestion> rawPayload = response.getSuggestions().get("itemSearch");
+            return prepareSuggestions(rawPayload, 10);
 
-
-            List<String> rawSuggestions = response.getSuggestedTerms().get("itemSearch");
-          List<String> rawSuggestions2 = response2.getSuggestedTerms().get("itemSearch");
-            System.out.println("Eliza " + rawSuggestions);
-            System.out.println("Eliza 2 " + rawSuggestions2);
-
-            return prepareSuggestions(rawSuggestions, 10);
-        }
-        catch (SolrServerException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Search engine instance connection error", e);
         }
     }
 
-    private List<String> prepareSuggestions(List<String> suggestions, int limit) {
+
+    private List<SuggestedObject> prepareSuggestions(List<Suggestion> rawPayload, int limit) {
         Set<String> uniqueSuggestions = new HashSet<>();
+        List<SuggestedObject> suggestedObjects = new LinkedList<>();
 
-        return suggestions.stream()
-                .map(String::toLowerCase)
+        rawPayload.stream()
                 .filter(suggestion -> {
-                    if (uniqueSuggestions.contains(suggestion))
+                    if (uniqueSuggestions.contains(suggestion.getTerm()))
                         return false;
-                    else
-                        uniqueSuggestions.add(suggestion);
-
+                    else {
+                        uniqueSuggestions.add(suggestion.getTerm());
+                        suggestedObjects.add(new SuggestedObject(suggestion.getTerm(), suggestion.getPayload()));
+                    }
                     return true;
                 })
                 .limit(limit)
                 .collect(Collectors.toList());
+
+        return suggestedObjects;
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -168,8 +159,7 @@ public class SearchItemRepository {
 
         try {
             solrTemplate.getSolrClient().query(params);
-        }
-        catch (SolrServerException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Failed to rebuild index for autocomplete");
         }
     }

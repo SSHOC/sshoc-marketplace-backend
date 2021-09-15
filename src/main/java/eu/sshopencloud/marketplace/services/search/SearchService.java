@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
+import org.apache.solr.client.solrj.response.Suggestion;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
@@ -322,12 +323,12 @@ public class SearchService {
         return result;
     }
 
-    //Eliza
+
     public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase) {
         if (StringUtils.isBlank(searchPhrase))
             throw new IllegalArgumentException("Search phrase must not be empty nor contain only whitespace");
 
-        List<String> suggestions = searchItemRepository.autocompleteSearchQuery(searchPhrase);
+        List<SuggestedObject> suggestions = searchItemRepository.autocompleteSearchQuery(searchPhrase);
 
         return SuggestedSearchPhrases.builder()
                 .phrase(searchPhrase)

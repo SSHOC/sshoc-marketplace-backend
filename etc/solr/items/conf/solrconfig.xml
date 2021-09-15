@@ -953,9 +953,8 @@
       <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
       <str name="dictionaryImpl">DocumentDictionaryFactory</str>
       <str name="field">suggestions</str>
-      <str name="payloadField">category</str>
-      <str name="weightField">contextId</str>
-      <str name="contextField">context</str>
+      <str name="payloadField">persistent_id</str>
+      <str name="contextField">category</str>
       <str name="suggestAnalyzerFieldType">text_suggest</str>
       <str name="queryAnalyzerFieldType">query_suggest</str>
       <str name="buildOnStartup">true</str>
@@ -964,33 +963,33 @@
     </lst>
   </searchComponent>
 
-  <requestHandler name="/suggest" class="solr.SearchHandler">
-    <lst name="defaults">
-      <str name="suggest">true</str>
-      <str name="suggest.count">10</str>
-      <str name="suggest.dictionary">itemSearch</str>
-    </lst>
-    <arr name="components">
-      <str>suggest</str>
-    </arr>
-  </requestHandler>
+<requestHandler name="/suggest" class="solr.SearchHandler">
+<lst name="defaults">
+  <str name="suggest">true</str>
+  <str name="suggest.count">10</str>
+  <str name="suggest.dictionary">itemSearch</str>
+</lst>
+<arr name="components">
+  <str>suggest</str>
+</arr>
+</requestHandler>
 
-  <requestHandler name="/suggest/rebuild" class="solr.SearchHandler" startup="lazy">
-    <lst name="defaults">
-      <str name="suggest">true</str>
-      <str name="suggest.build">true</str>
-      <str name="suggest.dictionary">itemSearch</str>
-    </lst>
-    <arr name="components">
-      <str>suggest</str>
-    </arr>
-  </requestHandler>
+<requestHandler name="/suggest/rebuild" class="solr.SearchHandler" startup="lazy">
+<lst name="defaults">
+  <str name="suggest">true</str>
+  <str name="suggest.build">true</str>
+  <str name="suggest.dictionary">itemSearch</str>
+</lst>
+<arr name="components">
+  <str>suggest</str>
+</arr>
+</requestHandler>
 
 
-  <!-- Term Vector Component
+<!-- Term Vector Component
 
-       http://wiki.apache.org/solr/TermVectorComponent
-    -->
+   http://wiki.apache.org/solr/TermVectorComponent
+-->
   <searchComponent name="tvComponent" class="solr.TermVectorComponent"/>
 
   <!-- A request handler for demonstrating the term vector component
