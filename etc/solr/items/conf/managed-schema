@@ -130,9 +130,10 @@
     <field name="keyword" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="keyword_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
     <field name="suggestions" type="text_suggest" indexed="true" stored="true" multiValued="true" />
+    <field name="context" type="text_suggest" indexed="true" stored="true" multiValued="false" />
 
     <copyField source="label_text" dest="suggestions"/>
-<!--    <copyField source="description_text" dest="suggestions"/>-->
+    <copyField source="category" dest="context"/>
     <copyField source="keyword_text" dest="suggestions"/>
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
@@ -333,6 +334,7 @@
         <analyzer>
             <tokenizer class="solr.StandardTokenizerFactory" />
             <filter class="solr.LowerCaseFilterFactory" />
+            <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1" preserveOriginal="1" />
             <filter class="solr.ASCIIFoldingFilterFactory" />
         </analyzer>
     </fieldType>
@@ -341,9 +343,25 @@
             <tokenizer class="solr.KeywordTokenizerFactory" />
             <filter class="solr.LowerCaseFilterFactory" />
             <filter class="solr.ASCIIFoldingFilterFactory" />
+            <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1" preserveOriginal="1" />
             <filter class="solr.TrimFilterFactory" />
         </analyzer>
     </fieldType>
+
+     <!--  Field types for context purposes  -->
+    <fieldType name="text_context" class="solr.TextField" positionIncrementGap="100" multiValued="true">
+     <analyzer type="index">
+       <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="1" catenateWords="0" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1" preserveOriginal="1" />
+             <filter class="solr.LowerCaseFilterFactory"/>
+     </analyzer>
+
+     <analyzer type="query">
+       <tokenizer class="solr.StandardTokenizerFactory"/>
+           <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1" preserveOriginal="1" />
+           <filter class="solr.LowerCaseFilterFactory"/>
+     </analyzer>
+   </fieldType>
 
     
     <!-- SortableTextField generaly functions exactly like TextField,

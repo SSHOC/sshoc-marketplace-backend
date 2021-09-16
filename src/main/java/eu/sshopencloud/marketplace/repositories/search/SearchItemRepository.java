@@ -115,9 +115,9 @@ public class SearchItemRepository {
         params.set("qt", "/marketplace-items/suggest");
         params.set("dictionary", "itemSearch");
         params.set("q", searchQuery);
-        //params.set("cfq",  category);
+        params.set("suggest.cfq","training-material");
         params.set("suggest.count", 50);
-        System.out.println("Params 1" + params);
+        System.out.println(params);
 
         try {
 
