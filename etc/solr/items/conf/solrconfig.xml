@@ -956,7 +956,7 @@
       <str name="payloadField">persistent_id</str>
       <str name="contextField">context</str>
       <str name="suggestAnalyzerFieldType">text_suggest</str>
-      <str name="queryAnalyzerFieldType">query_suggest</str>
+      <str name="queryAnalyzerFieldType">text_suggest</str>
       <str name="buildOnStartup">true</str>
       <str name="buildOnCommit">true</str>
       <str name="highlight">false</str>

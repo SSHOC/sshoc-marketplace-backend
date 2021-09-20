@@ -37,6 +37,7 @@ public class IndexItem {
 
     public static final String CATEGORY_FIELD = "category";
     public static final String STATUS_FIELD = "status";
+    public static final String CONTEXT_FIELD = "context";
 
     public static final String OWNER_FIELD = "owner";
 
@@ -89,6 +90,9 @@ public class IndexItem {
 
     @Indexed(name = CATEGORY_FIELD, type = "string")
     private String category;
+
+    @Indexed(name = CONTEXT_FIELD, type = "text_context")
+    private String context;
 
     @Indexed(name = STATUS_FIELD, type = "string")
     private String status;

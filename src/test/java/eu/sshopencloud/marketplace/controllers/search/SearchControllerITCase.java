@@ -720,4 +720,18 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("suggestions[2].persistentId", is("WfcKvG")));
     }
 
+    @Test
+    public void shouldReturnAutocompleteSuggestionWithCategoryForItems() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=gep&category=TRAINING_MATERIAL")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("phrase", is("gep")))
+                .andExpect(jsonPath("suggestions", hasSize(2)))
+                .andExpect(jsonPath("suggestions[0].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("suggestions[1].phrase", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("suggestions[1].persistentId", is("WfcKvG")));
+    }
+
 }

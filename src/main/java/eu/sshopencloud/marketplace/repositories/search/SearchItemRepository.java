@@ -28,6 +28,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -107,17 +109,21 @@ public class SearchItemRepository {
         return facetOptions;
     }
 
-    //Eliza
-    public List<SuggestedObject> autocompleteSearchQuery(String searchQuery) {
-        String category = ItemCategory.TRAINING_MATERIAL.getValue();
+    public List<SuggestedObject> autocompleteSearchQuery(String searchQuery, String context) {
+        String categoryContext = "";
+
+        if (!context.isEmpty())
+            categoryContext = ItemCategory.valueOf(context).toString().split("-")[0];
+
 
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
         params.set("dictionary", "itemSearch");
         params.set("q", searchQuery);
-        params.set("suggest.cfq","training-material");
+        params.set("suggest.cfq", categoryContext);
         params.set("suggest.count", 50);
         System.out.println(params);
+
 
         try {
 

@@ -324,11 +324,11 @@ public class SearchService {
     }
 
 
-    public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase) {
+    public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase, String context) {
         if (StringUtils.isBlank(searchPhrase))
             throw new IllegalArgumentException("Search phrase must not be empty nor contain only whitespace");
 
-        List<SuggestedObject> suggestions = searchItemRepository.autocompleteSearchQuery(searchPhrase);
+        List<SuggestedObject> suggestions = searchItemRepository.autocompleteSearchQuery(searchPhrase, context);
 
         return SuggestedSearchPhrases.builder()
                 .phrase(searchPhrase)
