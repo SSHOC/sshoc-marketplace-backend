@@ -17,7 +17,10 @@ RUN ./bin/solr start && \
 	./bin/solr stop && \
 	cp -r /var/solr/data/marketplace-items /usr/solr && \
 	cp -r /var/solr/data/marketplace-concepts /usr/solr && \
-	cp -r /var/solr/data/marketplace-actors /usr/solr
+	cp -r /var/solr/data/marketplace-actors /usr/solr && \
+	rm -r /var/solr/data/marketplace-items && \
+	rm -r /var/solr/data/marketplace-concepts && \
+	rm -r /var/solr/data/marketplace-actors
 
 WORKDIR /usr/solr
 
