@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SearchOrder {
 
+    RELATED_ITEMS(false),
+
     SCORE(false),
 
     LABEL(true),

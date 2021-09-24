@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
@@ -17,6 +18,7 @@ import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
+import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,7 +52,10 @@ public class IndexService {
     private final IndexActorRepository indexActorRepository;
     private final ActorRepository actorRepository;
 
+    private final ItemRelatedItemService itemRelatedItemService;
 
+
+    //Eliza - czy external Ids dodatkowo ?
     public IndexItem indexItem(Item item) {
         if (item.getCategory().equals(ItemCategory.STEP) || !(item.isNewestVersion() || item.isProposedVersion()))
             return null;
@@ -57,7 +63,13 @@ public class IndexService {
         if (item.isNewestVersion())
             removeItemVersions(item);
 
-        IndexItem indexedItem = IndexConverter.convertItem(item);
+        int relatedItems = 0;
+
+        if(itemRelatedItemService.getItemRelatedItemsCount(item) >0)
+            relatedItems = itemRelatedItemService.getItemRelatedItemsCount(item);
+
+        IndexItem indexedItem = IndexConverter.convertItem2(item, relatedItems);
+        //IndexItem indexedItem = IndexConverter.convertItem(item);
         return indexItemRepository.save(indexedItem);
     }
 

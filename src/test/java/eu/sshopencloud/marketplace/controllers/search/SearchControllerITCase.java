@@ -704,4 +704,61 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[1].affiliations", hasSize(1)));
     }
 
+    @Test
+    public void shouldReturnItemsByWordAndSortedByNumberOfRelatedItems() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=gephi")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(3)))
+                .andExpect(jsonPath("items[0].id", is(1)))
+                .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
+                .andExpect(jsonPath("items[0].label", is("Gephi")))
+                .andExpect(jsonPath("items[1].id", is(7)))
+                .andExpect(jsonPath("items[1].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("items[1].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("items[2].id", is(4)))
+                .andExpect(jsonPath("items[2].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("items[2].label", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(2)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(0)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("facets.keyword.graph.count", is(1)))
+                .andExpect(jsonPath("facets.keyword.graph.checked", is(false)))
+                .andExpect(jsonPath("facets.keyword.['social network analysis'].count", is(1)))
+                .andExpect(jsonPath("facets.keyword.['social network analysis'].checked", is(false)));
+
+        mvc.perform(get("/api/item-search?q=gephi&order=related_items")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(3)))
+                .andExpect(jsonPath("items[0].id", is(1)))
+                .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
+                .andExpect(jsonPath("items[0].label", is("Gephi")))
+                .andExpect(jsonPath("items[1].id", is(4)))
+                .andExpect(jsonPath("items[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("items[1].label", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("items[2].id", is(7)))
+                .andExpect(jsonPath("items[2].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("items[2].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(2)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(0)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("facets.keyword.graph.count", is(1)))
+                .andExpect(jsonPath("facets.keyword.graph.checked", is(false)))
+                .andExpect(jsonPath("facets.keyword.['social network analysis'].count", is(1)))
+                .andExpect(jsonPath("facets.keyword.['social network analysis'].checked", is(false)));
+    }
+
+
 }

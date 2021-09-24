@@ -36,6 +36,35 @@ public class ItemRelatedItemService {
     private final VersionedItemRepository versionedItemRepository;
     private final RelatedItemsConverter relatedItemsConverter;
 
+    //ELiza - może dać tylko count - ??
+
+    public int getItemRelatedItemsCount(Item item) {
+        long itemId = item.getId();
+
+        List<RelatedItemDto> relatedItems = getRelatedItemsForIndexing(itemId);
+        relatedItems.sort(new RelatedItemDtoComparator());
+
+        return relatedItems.size();
+    }
+
+    private List<RelatedItemDto> getRelatedItemsForIndexing(long itemId) {
+        List<RelatedItemDto> relatedItems = new ArrayList<>();
+
+        List<RelatedItemDto> subjectRelations = itemRelatedItemRepository.findAllBySubjectId(itemId).stream()
+               //.filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getObject()))
+                .map(relatedItemsConverter::convertRelatedItemFromSubject)
+                .collect(Collectors.toList());
+
+        List<RelatedItemDto> objectRelations = itemRelatedItemRepository.findAllByObjectId(itemId).stream()
+               // .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getSubject()))
+                .map(relatedItemsConverter::convertRelatedItemFromObject)
+                .collect(Collectors.toList());
+
+        relatedItems.addAll(subjectRelations);
+        relatedItems.addAll(objectRelations);
+
+        return relatedItems;
+    }
 
     public List<RelatedItemDto> getItemRelatedItems(Item item) {
         long itemId = item.getId();

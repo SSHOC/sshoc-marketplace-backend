@@ -33,6 +33,55 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexConverter {
 
+    //Eliza
+    public IndexItem convertItem2(Item item, int relatedItems) {
+        IndexItem.IndexItemBuilder builder = IndexItem.builder();
+        String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
+        String labelText = LineBreakConverter.removeLineBreaks(item.getLabel());
+        builder.versionId(item.getId())
+                .persistentId(item.getPersistentId())
+                .label(item.getLabel())
+                .labelText(labelText)
+                .labelTextEn(item.getLabel())
+                .description(item.getDescription())
+                .descriptionText(descriptionText)
+                .descriptionTextEn(descriptionText)
+                .category(ItemCategoryConverter.convertCategory(item.getCategory()))
+                .status(item.getStatus().getValue())
+                .owner(item.getInformationContributor().getUsername())
+                .relatedItems(relatedItems)
+                .source(SourceConverter.convertSource(item.getSource()));
+
+
+        builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
+
+        for (ItemContributor itemContributor : item.getContributors()) {
+            String contributor = getItemContributorName(itemContributor);
+            builder.contributor(contributor).contributorText(contributor);
+        }
+
+        for (ItemExternalId itemExternalId : item.getExternalIds()) {
+            builder.externalIdentifier(itemExternalId.getIdentifier());
+        }
+
+        for (Property property : item.getProperties()) {
+            switch (property.getType().getCode()) {
+                case "activity":
+                    builder.activity(getPropertyValue(property));
+                    break;
+                case "keyword":
+                    String keyword = getPropertyValue(property);
+                    builder.keyword(keyword).keywordText(keyword);
+                    break;
+            }
+        }
+
+        builder.dynamicProperties(constructDynamicProperties(item.getProperties()));
+
+        return builder.build();
+    }
+
+
     public IndexItem convertItem(Item item) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
@@ -49,6 +98,7 @@ public class IndexConverter {
                 .status(item.getStatus().getValue())
                 .owner(item.getInformationContributor().getUsername())
                 .source(SourceConverter.convertSource(item.getSource()));
+
 
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
 

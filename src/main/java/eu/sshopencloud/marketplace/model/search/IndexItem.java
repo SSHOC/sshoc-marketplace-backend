@@ -49,6 +49,8 @@ public class IndexItem {
     public static final String KEYWORD_FIELD = "keyword";
     public static final String KEYWORD_TEXT_FIELD = "keyword_text";
 
+    public static final String RELATED_ITEMS_FIELD = "related_items";
+
 
     @Id
     @Indexed(name = ID_FIELD, type = "string")
@@ -112,7 +114,10 @@ public class IndexItem {
 
     @Indexed(name = KEYWORD_TEXT_FIELD, type = "text_general_rev")
     @Singular("keywordText")
-    private  List<String> keywordsTexts;
+    private List<String> keywordsTexts;
+
+    @Indexed(name = RELATED_ITEMS_FIELD, type = "pint")
+    private int relatedItems;
 
     @Dynamic
     @Field("dynamic_property_*")

@@ -131,6 +131,8 @@
     <field name="keyword_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
     <field name="suggestions" type="text_suggest" indexed="true" stored="true" multiValued="true" />
 
+    <field name="related_items" type="pint" indexed="true" stored="false" required="false" multiValued="false" />
+
     <copyField source="label_text" dest="suggestions"/>
 <!--    <copyField source="description_text" dest="suggestions"/>-->
     <copyField source="keyword_text" dest="suggestions"/>
