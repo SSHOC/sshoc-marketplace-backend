@@ -686,7 +686,7 @@ public class SearchControllerITCase {
     @Test
     public void shouldReturnActorsByEmailExpression() throws Exception {
 
-        mvc.perform(get("/api/actor-search?d.email= (*@*)")
+        mvc.perform(get("/api/actor-search?d.email=(*@*)")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(2)))
@@ -702,6 +702,30 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[1].website", is("https://example.com/")))
                 .andExpect(jsonPath("actors[1].externalIds", hasSize(0)))
                 .andExpect(jsonPath("actors[1].affiliations", hasSize(1)));
+    }
+
+    @Test
+    public void shouldReturnActorsByWordsCaseInsensitive() throws Exception {
+
+        mvc.perform(get("/api/actor-search?q=project")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("actors[0].id", is(3)))
+                .andExpect(jsonPath("actors[0].name", is("SSHOC project consortium")))
+                .andExpect(jsonPath("actors[0].website", is("https://sshopencloud.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
+
+        mvc.perform(get("/api/actor-search?q=ProJecT")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("actors[0].id", is(3)))
+                .andExpect(jsonPath("actors[0].name", is("SSHOC project consortium")))
+                .andExpect(jsonPath("actors[0].website", is("https://sshopencloud.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
     }
 
 }

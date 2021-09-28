@@ -111,11 +111,11 @@
     -->
 
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="name" type="text_general" indexed="true" stored="true" required="false" multiValued="false" />
 
-    <field name="website" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="email" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="external_identifier" type="strings" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="website" type="text_general" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="email" type="text_general_email" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="external_identifier" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
@@ -133,8 +133,6 @@
     <!-- <field name="_nest_path_" type="_nest_path_" /><fieldType name="_nest_path_" class="solr.NestPathField" />-->
 
     <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
-
-     <!--Eliza <copyField source="affiliation" dest="affiliation_text" />-->
 
 
     <!-- This can be enabled, in case the client does not know what fields may be searched. It isn't enabled by default
@@ -317,6 +315,17 @@
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
+
+     <fieldType name="text_general_email" class="solr.TextField" positionIncrementGap="100" multiValued="true">
+          <analyzer type="index">
+            <tokenizer class="solr.ClassicTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+          </analyzer>
+          <analyzer type="query">
+            <tokenizer class="solr.ClassicTokenizerFactory"/>
+             <filter class="solr.LowerCaseFilterFactory"/>
+          </analyzer>
+        </fieldType>
 
     
     <!-- SortableTextField generaly functions exactly like TextField,

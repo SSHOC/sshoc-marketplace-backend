@@ -28,16 +28,16 @@ public class IndexActor implements Serializable {
     @Indexed(name = ID_FIELD, type = "string")
     private String id;
 
-    @Indexed(name = NAME_FIELD, type = "string")
+    @Indexed(name = NAME_FIELD, type = "text_general")
     private String name;
 
-    @Indexed(name = WEBSITE_FIELD, type = "string")
+    @Indexed(name = WEBSITE_FIELD, type = "text_general")
     private String website;
 
-    @Indexed(name = EMAIL_FIELD, type = "string")
+    @Indexed(name = EMAIL_FIELD, type = "text_general")
     private String email;
 
-    @Indexed(name = EXTERNAL_IDENTIFIER_FIELD, type = "strings")
+    @Indexed(name = EXTERNAL_IDENTIFIER_FIELD, type = "text_general")
     @Singular
     private List<String> externalIdentifiers;
 
