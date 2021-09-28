@@ -55,7 +55,6 @@ public class IndexService {
     private final ItemRelatedItemService itemRelatedItemService;
 
 
-    //Eliza - czy external Ids dodatkowo ?
     public IndexItem indexItem(Item item) {
         if (item.getCategory().equals(ItemCategory.STEP) || !(item.isNewestVersion() || item.isProposedVersion()))
             return null;

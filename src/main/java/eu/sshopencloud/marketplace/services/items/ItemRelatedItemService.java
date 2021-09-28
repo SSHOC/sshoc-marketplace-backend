@@ -36,8 +36,6 @@ public class ItemRelatedItemService {
     private final VersionedItemRepository versionedItemRepository;
     private final RelatedItemsConverter relatedItemsConverter;
 
-    //ELiza - może dać tylko count - ??
-
     public int getItemRelatedItemsCount(Item item) {
         long itemId = item.getId();
 

@@ -32,8 +32,7 @@ class SearchController {
 
     private final SearchService searchService;
 
-
-    @GetMapping(path="/item-search", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/item-search", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Search among items.")
     public ResponseEntity<PaginatedSearchItems> searchItems(
             @RequestParam(value = "q", required = false) String q,
@@ -57,7 +56,7 @@ class SearchController {
                 pageCoordsValidator.validate(page, perpage)));
     }
 
-    @GetMapping(path="/concept-search", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/concept-search", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Search among concepts.")
     public ResponseEntity<PaginatedSearchConcepts> searchConcepts(@RequestParam(value = "q", required = false) String q,
                                                                   @RequestParam(value = "types", required = false) List<String> types,

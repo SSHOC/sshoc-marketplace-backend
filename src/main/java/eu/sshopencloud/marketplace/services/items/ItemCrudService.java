@@ -107,7 +107,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
-    //Eliza
+
     protected D prepareItemDto(I item) {
 
         D dto = convertItemToDto(item);

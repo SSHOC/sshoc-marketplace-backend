@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexConverter {
 
-    //Eliza
     public IndexItem convertItem2(Item item, int relatedItems) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
