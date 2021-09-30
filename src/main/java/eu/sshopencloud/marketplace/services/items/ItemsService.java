@@ -5,9 +5,11 @@ import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.DraftItem;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
@@ -15,11 +17,15 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -94,6 +100,77 @@ public class ItemsService extends ItemVersionService<Item> {
     public List<ItemBasicDto> getItems(Long sourceId, String sourceItemId) {
         List<Item> items = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);
         return items.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
+    }
+
+    //ELiza - GOOD
+    public PaginatedItemsBasic getItemsBySourceAndSourceItem(Long sourceId, String sourceItemId, PageCoords pageCoords, boolean approved) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        List<Item> itemsList = new ArrayList<>();
+
+        if (currentUser.isModerator()) {
+            //ALL
+            itemsList = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);
+        } else {
+
+            if (approved || currentUser == null || !currentUser.isContributor()) {
+                //ONLY APPROVED
+                itemsList = itemRepository.findApprovedItemsBySourceIdAndSourceItemId(sourceId, sourceItemId);
+            } else {
+                //Page<Item> itemsPage = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId,  PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
+                //List<Item> allItemsList = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);
+
+                //FOR LOGGED USER -> If has access
+                List<Item> finalItemsList = itemsList;
+                itemsList.stream().forEach(i -> {
+                    if (!super.checkItemVisibility(i, currentUser)) finalItemsList.remove(i);
+                });
+            }
+        }
+
+        Page<Item> itemsPage = new PageImpl<Item>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
+        List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
+
+
+        return PaginatedItemsBasic.builder()
+                .items(items)
+                .count(itemsPage.getContent().size()).hits(itemsPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(itemsPage.getTotalPages())
+                .build();
+    }
+
+    public PaginatedItemsBasic getItemsBySource(Long sourceId, PageCoords pageCoords, boolean approved) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        List<Item> itemsList = new ArrayList<>();
+
+        if (currentUser.isModerator()) {
+            //ALL
+            itemsList = itemRepository.findBySourceId(sourceId);
+        } else {
+
+            if (approved || currentUser == null || !currentUser.isContributor()) {
+                //ONLY APPROVED
+                itemsList = itemRepository.findApprovedItemsBySourceId(sourceId);
+            } else {
+
+                //FOR LOGGED USER -> If has access
+                List<Item> finalItemsList = itemsList;
+                itemsList.stream().forEach(i -> {
+                    if (!super.checkItemVisibility(i, currentUser)) finalItemsList.remove(i);
+                });
+            }
+        }
+
+        Page<Item> itemsPage = new PageImpl<>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
+        List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
+
+
+        return PaginatedItemsBasic.builder()
+                .items(items)
+                .count(itemsPage.getContent().size()).hits(itemsPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(itemsPage.getTotalPages())
+                .build();
     }
 
 

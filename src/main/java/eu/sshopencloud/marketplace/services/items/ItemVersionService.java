@@ -25,6 +25,7 @@ abstract class ItemVersionService<I extends Item> {
     private final ItemVisibilityService itemVisibilityService;
 
 
+    //Eliza
     protected Page<I> loadLatestItems(PageCoords pageCoords, User user, boolean approved) {
         PageRequest pageRequest = PageRequest.of(
                 pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
@@ -104,6 +105,10 @@ abstract class ItemVersionService<I extends Item> {
         throw new EntityNotFoundException(
                 String.format("Unable to find latest %s with id %s", getItemTypeName(), persistentId)
         );
+    }
+
+    protected boolean checkItemVisibility(Item item, User currentUser){
+        return itemVisibilityService.hasAccessToVersion(item, currentUser);
     }
 
     protected Optional<I> loadItemDraft(String persistentId, @NonNull User draftOwner) {

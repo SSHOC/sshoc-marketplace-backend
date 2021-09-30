@@ -26,6 +26,14 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
     @Query(
             "select v from #{#entityName} v " +
                     "join v.versionedItem i " +
+                    "where v.status = 'APPROVED' " +
+                    "and i.active = true "
+    )
+    Page<T> findAllLatestApprovedItemsForSource(Pageable page, Long sourceId, String sourceItemId);
+
+    @Query(
+            "select v from #{#entityName} v " +
+                    "join v.versionedItem i " +
                     "where i.active = true " +
                     "and (v.status = 'APPROVED' or v.proposedVersion = true)"
     )

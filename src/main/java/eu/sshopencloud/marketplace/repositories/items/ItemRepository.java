@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
 import eu.sshopencloud.marketplace.model.items.Item;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -16,7 +18,37 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
 
     List<Item> findBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
 
+    List<Item> findBySourceId(Long sourceId);
+
+    @Query(value =
+                    "SELECT i.id, i.category, i.description, i.label, i.last_info_update, " +
+                            "i.last_info_update AS date_last_updated," +
+                    " i.source_item_id, i.status, i.version, i.prev_version_id, i.source_id," +
+                    " i.persistent_id, i.proposed_version, i.info_contributor_id, i.last_info_update AS date_created " +
+                    " FROM items i"
+                            +" INNER JOIN versioned_items v" +
+                    " ON i.persistent_id = v.id" +
+                    " where v.status = 'APPROVED' " +
+                            " AND i.source_id = :sourceId and i.source_item_id = :sourceItemId ", nativeQuery = true
+    )
+    List<Item> findApprovedItemsBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
+
+    @Query(value =
+            "SELECT i.id, i.category, i.description, i.label, i.last_info_update, " +
+                    "i.last_info_update AS date_last_updated," +
+                    " i.source_item_id, i.status, i.version, i.prev_version_id, i.source_id," +
+                    " i.persistent_id, i.proposed_version, i.info_contributor_id, i.last_info_update AS date_created " +
+                    " FROM items i"
+                    +" INNER JOIN versioned_items v" +
+                    " ON i.persistent_id = v.id" +
+                    " where v.status = 'APPROVED' " +
+                    " AND i.source_id = :sourceId ", nativeQuery = true
+    )
+    List<Item> findApprovedItemsBySourceId(Long sourceId);
+
     List<Item> findByVersionedItemMergedWith(String persistentId);
+
+    Page<Item> findBySourceIdAndSourceItemId( Long sourceId, String sourceItemId, Pageable page);
 
     @Deprecated
     @Query(value =

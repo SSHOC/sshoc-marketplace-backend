@@ -75,6 +75,7 @@ public class SearchService {
             order = Collections.singletonList(SearchOrder.SCORE);
         }
 
+        //Eliza
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(queryCriteria, expressionCriteria,
                 currentUser, filterCriteria, order, pageable);
@@ -91,7 +92,8 @@ public class SearchService {
                                 .collect(Collectors.toList())
                 )
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
-                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .page(pageCoords.getPage())
+                .perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
                 .categories(categoryFacet)
                 .facets(facets)
