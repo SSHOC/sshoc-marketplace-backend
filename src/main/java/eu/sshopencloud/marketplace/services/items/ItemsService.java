@@ -100,8 +100,7 @@ public class ItemsService extends ItemVersionService<Item> {
         return items.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
     }
 
-    public PaginatedItemsBasic getItemsBySourceAndSourceItem(Long sourceId, String sourceItemId, ItemOrder order, PageCoords pageCoords, boolean approved) {
-        if (order == null) order = ItemOrder.LABEL;
+    public PaginatedItemsBasic getItemsBySourceAndSourceItem(Long sourceId, String sourceItemId, PageCoords pageCoords, boolean approved) {
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         List<Item> itemsList;
@@ -126,8 +125,11 @@ public class ItemsService extends ItemVersionService<Item> {
             }
         }
 
-        Page<Item> itemsPage = new PageImpl<Item>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), itemsList.size());
+        Page<Item> itemsPage = new PageImpl<Item>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
+
+        ItemComparator comparator = new ItemComparator();
+        Collections.sort(items, comparator);
 
         return PaginatedItemsBasic.builder()
                 .items(items)
@@ -137,8 +139,8 @@ public class ItemsService extends ItemVersionService<Item> {
                 .build();
     }
 
-    public PaginatedItemsBasic getItemsBySource(Long sourceId, ItemOrder order, PageCoords pageCoords, boolean approved) {
-        if (order == null) order = ItemOrder.LABEL;
+    public PaginatedItemsBasic getItemsBySource(Long sourceId, PageCoords pageCoords, boolean approved) {
+
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         List<Item> itemsList;
 
@@ -162,9 +164,11 @@ public class ItemsService extends ItemVersionService<Item> {
             }
         }
 
-        Page<Item> itemsPage = new PageImpl<>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), itemsList.size());
+        Page<Item> itemsPage = new PageImpl<>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
 
+        ItemComparator comparator = new ItemComparator();
+        Collections.sort(items, comparator);
 
         return PaginatedItemsBasic.builder()
                 .items(items)
@@ -219,6 +223,14 @@ public class ItemsService extends ItemVersionService<Item> {
     @Override
     protected String getItemTypeName() {
         return Item.class.getName();
+    }
+
+    public class ItemComparator implements Comparator<ItemBasicDto> {
+
+        public int compare(ItemBasicDto obj1, ItemBasicDto obj2) {
+            return obj1.getLabel().compareTo(obj2.getLabel());
+        }
+
     }
 
 }
