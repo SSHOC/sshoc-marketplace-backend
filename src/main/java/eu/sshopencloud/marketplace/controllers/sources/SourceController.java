@@ -1,13 +1,15 @@
 package eu.sshopencloud.marketplace.controllers.sources;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
+import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.dto.sources.PaginatedSources;
 import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceOrder;
+import eu.sshopencloud.marketplace.services.items.ItemsService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +26,15 @@ public class SourceController {
 
     private final SourceService sourceService;
 
+    private final ItemsService itemService;
+
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedSources> getSources(@RequestParam(value = "order", required = false) SourceOrder order,
                                                        @RequestParam(value = "q", required = false) String q,
                                                        @RequestParam(value = "page", required = false) Integer page,
                                                        @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
-        return ResponseEntity.ok(sourceService.getSources(order,q, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(sourceService.getSources(order, q, pageCoordsValidator.validate(page, perpage)));
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -58,6 +62,30 @@ public class SourceController {
     @DeleteMapping(path = "/{id}")
     public void deleteSource(@PathVariable("id") long id) {
         sourceService.deleteSource(id);
+    }
+
+    @Operation(summary = "Get list of all items for given sourceId and sourceItemId")
+    @GetMapping(path = "/{sourceId}/items/{sourceItemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedItemsBasic> getItemSource(@PathVariable("sourceId") Long sourceId,
+                                                             @PathVariable("sourceItemId") String sourceItemId,
+                                                             @RequestParam(value = "page", required = false) Integer page,
+                                                             @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                             @RequestParam(value = "approved", defaultValue = "true") boolean approved)
+            throws PageTooLargeException {
+
+        return ResponseEntity.ok(itemService.getItemsBySourceAndSourceItem(sourceId, sourceItemId, pageCoordsValidator.validate(page, perpage), approved));
+    }
+
+
+    @Operation(summary = "Get list of all items for given sourceId and sourceItemId")
+    @GetMapping(path = "/{sourceId}/items", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedItemsBasic> getItemsForSource(@PathVariable("sourceId") Long sourceId,
+                                                                 @RequestParam(value = "page", required = false) Integer page,
+                                                                 @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved)
+            throws PageTooLargeException {
+
+        return ResponseEntity.ok(itemService.getItemsBySource(sourceId, pageCoordsValidator.validate(page, perpage), approved));
     }
 
 }
