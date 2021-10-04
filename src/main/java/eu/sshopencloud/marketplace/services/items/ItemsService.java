@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.conf.converters.ItemBasicDtoComparator;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
@@ -128,7 +129,7 @@ public class ItemsService extends ItemVersionService<Item> {
         Page<Item> itemsPage = new PageImpl<Item>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
 
-        ItemComparator comparator = new ItemComparator();
+        ItemBasicDtoComparator comparator = new ItemBasicDtoComparator();
         Collections.sort(items, comparator);
 
         return PaginatedItemsBasic.builder()
@@ -167,7 +168,7 @@ public class ItemsService extends ItemVersionService<Item> {
         Page<Item> itemsPage = new PageImpl<>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
 
-        ItemComparator comparator = new ItemComparator();
+        ItemBasicDtoComparator comparator = new ItemBasicDtoComparator();
         Collections.sort(items, comparator);
 
         return PaginatedItemsBasic.builder()
@@ -223,14 +224,6 @@ public class ItemsService extends ItemVersionService<Item> {
     @Override
     protected String getItemTypeName() {
         return Item.class.getName();
-    }
-
-    public class ItemComparator implements Comparator<ItemBasicDto> {
-
-        public int compare(ItemBasicDto obj1, ItemBasicDto obj2) {
-            return obj1.getLabel().compareTo(obj2.getLabel());
-        }
-
     }
 
 }
