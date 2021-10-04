@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -21,34 +22,17 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     List<Item> findBySourceId(Long sourceId);
 
     @Query(value =
-                    "SELECT i.id, i.category, i.description, i.label, i.last_info_update, " +
-                            "i.last_info_update AS date_last_updated," +
-                    " i.source_item_id, i.status, i.version, i.prev_version_id, i.source_id," +
-                    " i.persistent_id, i.proposed_version, i.info_contributor_id, i.last_info_update AS date_created " +
-                    " FROM items i"
-                            +" INNER JOIN versioned_items v" +
-                    " ON i.persistent_id = v.id" +
-                    " where v.status = 'APPROVED' " +
-                            " AND i.source_id = :sourceId and i.source_item_id = :sourceItemId ", nativeQuery = true
-    )
-    List<Item> findApprovedItemsBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
-
-    @Query(value =
             "SELECT i.id, i.category, i.description, i.label, i.last_info_update, " +
                     "i.last_info_update AS date_last_updated," +
                     " i.source_item_id, i.status, i.version, i.prev_version_id, i.source_id," +
                     " i.persistent_id, i.proposed_version, i.info_contributor_id, i.last_info_update AS date_created " +
-                    " FROM items i"
-                    +" INNER JOIN versioned_items v" +
-                    " ON i.persistent_id = v.id" +
-                    " where v.status = 'APPROVED' " +
-                    " AND i.source_id = :sourceId ", nativeQuery = true
+                    " FROM items i" +
+                    " where i.status = 'APPROVED' " +
+                    " AND i.source_id = :sourceId and i.source_item_id = :sourceItemId ", nativeQuery = true
     )
-    List<Item> findApprovedItemsBySourceId(Long sourceId);
+    List<Item> findApprovedItemsBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
 
-    List<Item> findByVersionedItemMergedWith(String persistentId);
-
-    Page<Item> findBySourceIdAndSourceItemId( Long sourceId, String sourceItemId, Pageable page);
+    List<Item> findBySourceIdAndStatus(Long sourceId, ItemStatus status);
 
     @Deprecated
     @Query(value =
@@ -75,7 +59,7 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
                     "    s.persistent_id, s.proposed_version, s.info_contributor_id, s.last_info_update AS date_created, s.clazz_" +
                     "    FROM sub_tree s", nativeQuery = true
     )
-    List<Item> findItemHistoryImproved(@Param("versionId" ) Long versionId);
+    List<Item> findItemHistoryImproved(@Param("versionId") Long versionId);
 
 
     @Query(value =
@@ -104,6 +88,6 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
                     " FROM items i1 INNER JOIN sub_item si" +
                     " ON i1.persistent_id = si.persistent_id AND si.id = i1.id", nativeQuery = true
     )
-    List<Item> findMergedItemsHistory(@Param("persistentId" ) String persistentId, @Param("versionId") Long versionId );
+    List<Item> findMergedItemsHistory(@Param("persistentId") String persistentId, @Param("versionId") Long versionId);
 
 }

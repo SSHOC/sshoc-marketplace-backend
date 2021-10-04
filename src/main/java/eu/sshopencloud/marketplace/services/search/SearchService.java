@@ -75,7 +75,6 @@ public class SearchService {
             order = Collections.singletonList(SearchOrder.SCORE);
         }
 
-        //Eliza
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(queryCriteria, expressionCriteria,
                 currentUser, filterCriteria, order, pageable);

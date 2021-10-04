@@ -45,7 +45,6 @@ public class ItemControllerITCase {
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
-
     }
 
     @Test
@@ -55,7 +54,7 @@ public class ItemControllerITCase {
         tool.setVersion("5.1");
         tool.setDescription("Lorem ipsum");
         SourceId source = new SourceId();
-        source.setId(1l);
+        source.setId(1L);
         tool.setSource(source);
         tool.setSourceItemId("000000");
 
@@ -63,9 +62,9 @@ public class ItemControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/tools-services?draft=true")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Tool to test search by source")))
@@ -80,7 +79,7 @@ public class ItemControllerITCase {
         tool2.setVersion("10.0");
         tool2.setDescription("Lorem ipsum");
         SourceId source2 = new SourceId();
-        source2.setId(2l);
+        source2.setId(2L);
         tool2.setSource(source2);
         tool2.setSourceItemId("000000");
 
@@ -89,9 +88,9 @@ public class ItemControllerITCase {
 
 
         mvc.perform(post("/api/tools-services?draft=true")
-                .content(payload2)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload2)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is(tool2.getLabel())))
@@ -102,8 +101,8 @@ public class ItemControllerITCase {
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")));
 
         mvc.perform(get("/api/draft-items")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(2)))
                 .andExpect(jsonPath("items[0].label", is(tool2.getLabel())))
@@ -112,24 +111,26 @@ public class ItemControllerITCase {
                 .andExpect(jsonPath("items[1].lastInfoUpdate", notNullValue()));
     }
 
+
     @Test
-    public void shouldCreateToolWithSourceAndFindIt() throws Exception {
+    public void shouldCreateToolAnsSearchBySourceIdAndSourceItemId() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Tool to test search by source");
         tool.setVersion("5.1");
         tool.setDescription("Lorem ipsum");
         SourceId source = new SourceId();
-        source.setId(1l);
+        source.setId(1L);
         tool.setSource(source);
         tool.setSourceItemId("000000");
+
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/tools-services")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Tool to test search by source")))
@@ -139,14 +140,145 @@ public class ItemControllerITCase {
                 .andExpect(jsonPath("source.label", is("TAPoR")))
                 .andExpect(jsonPath("source.url", is("http://tapor.ca")));
 
-        mvc.perform(get("/api/items?sourceId={souceId}&sourceItemId={sourceItemId}", 1, "000000")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+
+        mvc.perform(get("/api/sources/1/items/000000")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[0].label", is("Tool to test search by source")))
-                .andExpect(jsonPath("$[0].version", is("5.1")));
+                .andExpect(jsonPath("items", hasSize(1)))
+                .andExpect(jsonPath("items[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("items[0].label", is("Tool to test search by source")))
+                .andExpect(jsonPath("items[0].version", is("5.1")));
+
+    }
+
+
+    @Test
+    public void shouldCreateToolAndSearchBySourceId() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Tool to test search by source");
+        tool.setVersion("5.1");
+        tool.setDescription("Lorem ipsum");
+        SourceId source = new SourceId();
+        source.setId(1L);
+        tool.setSource(source);
+        tool.setSourceItemId("000000");
+
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(get("/api/sources/1/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(1)))
+                .andExpect(jsonPath("items[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("items[0].label", is("WebSty")));
+
+        mvc.perform(post("/api/tools-services")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Tool to test search by source")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(1)))
+                .andExpect(jsonPath("source.label", is("TAPoR")))
+                .andExpect(jsonPath("source.url", is("http://tapor.ca")));
+
+
+        mvc.perform(get("/api/sources/1/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(2)))
+                .andExpect(jsonPath("items[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("items[0].label", is("Tool to test search by source")))
+                .andExpect(jsonPath("items[0].version", is("5.1")))
+                .andExpect(jsonPath("items[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("items[1].label", is("WebSty")));
+
+    }
+
+    @Test
+    public void shouldCreateToolWithSourceAndFindOnlyApproved() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Tool to test search by source");
+        tool.setVersion("5.1");
+        tool.setDescription("Lorem ipsum");
+        SourceId source = new SourceId();
+        source.setId(1L);
+        tool.setSource(source);
+        tool.setSourceItemId("000000");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/tools-services")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Tool to test search by source")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(1)))
+                .andExpect(jsonPath("source.label", is("TAPoR")))
+                .andExpect(jsonPath("source.url", is("http://tapor.ca")));
+
+        ToolCore tool2 = new ToolCore();
+        tool2.setLabel("Tool to test search by source for approved (not draft)");
+        tool2.setVersion("6.1");
+        tool2.setDescription("Lorem ipsum");
+        SourceId source2 = new SourceId();
+        source2.setId(1L);
+        tool2.setSource(source);
+        tool2.setSourceItemId("000000");
+
+        String payload2 = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool2);
+        log.debug("JSON: " + payload2);
+
+        mvc.perform(post("/api/tools-services")
+                        .content(payload2)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is(tool2.getLabel())))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("source.id", is(1)))
+                .andExpect(jsonPath("source.label", is("TAPoR")))
+                .andExpect(jsonPath("source.url", is("http://tapor.ca")));
+
+        mvc.perform(get("/api/sources/1/items/000000")
+                        .param("approved", "true")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(1)))
+                .andExpect(jsonPath("items[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("items[0].label", is("Tool to test search by source")))
+                .andExpect(jsonPath("items[0].version", is("5.1")));
+
+        mvc.perform(get("/api/sources/1/items/000000")
+                        .param("approved", "false")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(2)))
+                .andExpect(jsonPath("items[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("items[0].label", is("Tool to test search by source")))
+                .andExpect(jsonPath("items[0].version", is("5.1")))
+                .andExpect(jsonPath("items[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("items[1].label", is("Tool to test search by source for approved (not draft)")))
+                .andExpect(jsonPath("items[1].version", is("6.1")));
+
     }
 
 }

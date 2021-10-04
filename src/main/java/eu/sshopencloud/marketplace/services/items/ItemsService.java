@@ -24,9 +24,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -102,34 +100,34 @@ public class ItemsService extends ItemVersionService<Item> {
         return items.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
     }
 
-    //ELiza - GOOD
-    public PaginatedItemsBasic getItemsBySourceAndSourceItem(Long sourceId, String sourceItemId, PageCoords pageCoords, boolean approved) {
+    public PaginatedItemsBasic getItemsBySourceAndSourceItem(Long sourceId, String sourceItemId, ItemOrder order, PageCoords pageCoords, boolean approved) {
+        if (order == null) order = ItemOrder.LABEL;
+
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        List<Item> itemsList = new ArrayList<>();
+        List<Item> itemsList;
 
-        if (currentUser.isModerator()) {
-            //ALL
-            itemsList = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);
+        if (currentUser.isModerator() && !approved) {
+            itemsList = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);  // - all items
         } else {
+            if (approved || !currentUser.isContributor()) {
+                itemsList = itemRepository.findApprovedItemsBySourceIdAndSourceItemId(sourceId, sourceItemId);  // - only items approved
 
-            if (approved || currentUser == null || !currentUser.isContributor()) {
-                //ONLY APPROVED
-                itemsList = itemRepository.findApprovedItemsBySourceIdAndSourceItemId(sourceId, sourceItemId);
             } else {
-                //Page<Item> itemsPage = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId,  PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
-                //List<Item> allItemsList = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);
 
-                //FOR LOGGED USER -> If has access
-                List<Item> finalItemsList = itemsList;
-                itemsList.stream().forEach(i -> {
-                    if (!super.checkItemVisibility(i, currentUser)) finalItemsList.remove(i);
+                itemsList = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);  // - only items that logged user has access to
+                List<Item> finalItemsList = new ArrayList<>();
+
+                itemsList.forEach(i -> {
+                    if (super.checkItemVisibility(i, currentUser))
+                        finalItemsList.add(i);
                 });
+
+                itemsList = finalItemsList;
             }
         }
 
-        Page<Item> itemsPage = new PageImpl<Item>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
+        Page<Item> itemsPage = new PageImpl<Item>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), itemsList.size());
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
-
 
         return PaginatedItemsBasic.builder()
                 .items(items)
@@ -139,29 +137,32 @@ public class ItemsService extends ItemVersionService<Item> {
                 .build();
     }
 
-    public PaginatedItemsBasic getItemsBySource(Long sourceId, PageCoords pageCoords, boolean approved) {
+    public PaginatedItemsBasic getItemsBySource(Long sourceId, ItemOrder order, PageCoords pageCoords, boolean approved) {
+        if (order == null) order = ItemOrder.LABEL;
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        List<Item> itemsList = new ArrayList<>();
+        List<Item> itemsList;
 
-        if (currentUser.isModerator()) {
-            //ALL
-            itemsList = itemRepository.findBySourceId(sourceId);
+        if (currentUser.isModerator() && !approved) {
+
+            itemsList = itemRepository.findBySourceId(sourceId);  //ALL
         } else {
 
-            if (approved || currentUser == null || !currentUser.isContributor()) {
-                //ONLY APPROVED
-                itemsList = itemRepository.findApprovedItemsBySourceId(sourceId);
+            if (approved || !currentUser.isContributor()) {
+                itemsList = itemRepository.findBySourceIdAndStatus(sourceId, ItemStatus.APPROVED);  //ONLY APPROVED
             } else {
+                itemsList = itemRepository.findBySourceId(sourceId);
+                List<Item> finalItemsList = new ArrayList<>();
 
-                //FOR LOGGED USER -> If has access
-                List<Item> finalItemsList = itemsList;
-                itemsList.stream().forEach(i -> {
-                    if (!super.checkItemVisibility(i, currentUser)) finalItemsList.remove(i);
+                itemsList.forEach(i -> {
+                    if (super.checkItemVisibility(i, currentUser))
+                        finalItemsList.add(i);
                 });
+
+                itemsList = finalItemsList;
             }
         }
 
-        Page<Item> itemsPage = new PageImpl<>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
+        Page<Item> itemsPage = new PageImpl<>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), itemsList.size());
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
 
 
@@ -219,4 +220,5 @@ public class ItemsService extends ItemVersionService<Item> {
     protected String getItemTypeName() {
         return Item.class.getName();
     }
+
 }

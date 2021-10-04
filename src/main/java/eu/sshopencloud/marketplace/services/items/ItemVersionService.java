@@ -24,8 +24,6 @@ abstract class ItemVersionService<I extends Item> {
     private final VersionedItemRepository versionedItemRepository;
     private final ItemVisibilityService itemVisibilityService;
 
-
-    //Eliza
     protected Page<I> loadLatestItems(PageCoords pageCoords, User user, boolean approved) {
         PageRequest pageRequest = PageRequest.of(
                 pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
