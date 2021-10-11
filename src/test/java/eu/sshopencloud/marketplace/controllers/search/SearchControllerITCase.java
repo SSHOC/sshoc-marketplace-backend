@@ -723,7 +723,7 @@ public class SearchControllerITCase {
     @Test
     public void shouldReturnAutocompleteSuggestionWithCategoryForItems() throws Exception {
 
-        mvc.perform(get("/api/item-search/autocomplete?q=gep&category=TRAINING_MATERIAL")
+        mvc.perform(get("/api/item-search/autocomplete?q=gep&category=training-material")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("phrase", is("gep")))

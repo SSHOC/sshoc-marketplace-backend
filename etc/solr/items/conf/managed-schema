@@ -133,7 +133,7 @@
     <field name="context" type="text_context" indexed="true" stored="true" multiValued="false" />
 
     <copyField source="label_text" dest="suggestions"/>
-    <copyField source="keyword_text" dest="suggestions"/>
+    <!-- <copyField source="keyword_text" dest="suggestions"/> -->
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
     <field name="_version_" type="plong" indexed="false" stored="false"/>
@@ -329,30 +329,29 @@
 
 
     <!--  Field types for suggestion purposes  -->
-       <fieldType name="text_suggest" class="solr.TextField">
-           <analyzer>
-               <tokenizer class="solr.StandardTokenizerFactory" />
-               <filter class="solr.LowerCaseFilterFactory" />
-               <filter class="solr.EnglishMinimalStemFilterFactory"/>
-               <filter class="solr.ASCIIFoldingFilterFactory" />
-           </analyzer>
-       </fieldType>
-       <fieldType name="query_suggest" class="solr.TextField">
-           <analyzer>
-               <tokenizer class="solr.KeywordTokenizerFactory" />
-               <filter class="solr.LowerCaseFilterFactory" />
-               <filter class="solr.ASCIIFoldingFilterFactory" />
-               <filter class="solr.TrimFilterFactory" />
-           </analyzer>
-       </fieldType>
+    <fieldType name="text_suggest" class="solr.TextField">
+      <analyzer>
+        <tokenizer class="solr.StandardTokenizerFactory" />
+        <filter class="solr.LowerCaseFilterFactory" />
+        <filter class="solr.EnglishMinimalStemFilterFactory"/>
+        <filter class="solr.ASCIIFoldingFilterFactory" />
+      </analyzer>
+    </fieldType>
+    <fieldType name="query_suggest" class="solr.TextField">
+      <analyzer>
+        <tokenizer class="solr.KeywordTokenizerFactory" />
+        <filter class="solr.LowerCaseFilterFactory" />
+        <filter class="solr.ASCIIFoldingFilterFactory" />
+        <filter class="solr.TrimFilterFactory" />
+      </analyzer>
+    </fieldType>
 
-
-     <!--  Field types for context purposes  -->
+    <!--  Field types for context purposes  -->
     <fieldType name="text_context" class="solr.TextField" positionIncrementGap="100" multiValued="true">
-         <analyzer>
-             <tokenizer class="solr.LetterTokenizerFactory"/>
-         </analyzer>
-   </fieldType>
+      <analyzer>
+        <tokenizer class="solr.LetterTokenizerFactory"/>
+      </analyzer>
+    </fieldType>
 
     
     <!-- SortableTextField generaly functions exactly like TextField,

@@ -78,7 +78,7 @@ class SearchController {
     @GetMapping(path = "/item-search/autocomplete", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Autocomplete for items search.")
     public ResponseEntity<SuggestedSearchPhrases> autocompleteItems(@RequestParam("q") String query,
-                                                                    @RequestParam(value = "category", required = false, defaultValue = "") String context) {
+                                                                    @RequestParam(value = "category", required = false) ItemCategory context) {
         SuggestedSearchPhrases suggestions = searchService.autocompleteItemsSearch(query, context);
         return ResponseEntity.ok(suggestions);
     }

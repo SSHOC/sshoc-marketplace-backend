@@ -324,7 +324,7 @@ public class SearchService {
     }
 
 
-    public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase, String context) {
+    public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase, ItemCategory context) {
         if (StringUtils.isBlank(searchPhrase))
             throw new IllegalArgumentException("Search phrase must not be empty nor contain only whitespace");
 

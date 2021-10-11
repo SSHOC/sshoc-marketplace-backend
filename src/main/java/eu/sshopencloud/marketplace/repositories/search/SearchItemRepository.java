@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.repositories.search;
 
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.dto.search.SuggestedObject;
+import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
@@ -13,8 +14,8 @@ import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.ClusteringResponse;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
 import org.apache.solr.client.solrj.response.Suggestion;
 import org.apache.solr.common.params.ModifiableSolrParams;
@@ -28,8 +29,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -109,12 +108,12 @@ public class SearchItemRepository {
         return facetOptions;
     }
 
-    public List<SuggestedObject> autocompleteSearchQuery(String searchQuery, String context) {
-        String categoryContext = "";
+    public List<SuggestedObject> autocompleteSearchQuery(String searchQuery, ItemCategory context) {
+        String categoryContext = null;
 
-        if (!context.isEmpty())
-            categoryContext = ItemCategory.valueOf(context).toString().split("-")[0];
-
+        if (context != null) {
+            categoryContext = ItemCategoryConverter.convertCategoryForAutocompleteContext(context);
+        }
 
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
@@ -122,8 +121,6 @@ public class SearchItemRepository {
         params.set("q", searchQuery);
         params.set("suggest.cfq", categoryContext);
         params.set("suggest.count", 50);
-        System.out.println(params);
-
 
         try {
 
@@ -139,23 +136,9 @@ public class SearchItemRepository {
 
 
     private List<SuggestedObject> prepareSuggestions(List<Suggestion> rawPayload, int limit) {
-        Set<String> uniqueSuggestions = new HashSet<>();
-        List<SuggestedObject> suggestedObjects = new LinkedList<>();
-
-        rawPayload.stream()
-                .filter(suggestion -> {
-                    if (uniqueSuggestions.contains(suggestion.getTerm()))
-                        return false;
-                    else {
-                        uniqueSuggestions.add(suggestion.getTerm());
-                        suggestedObjects.add(new SuggestedObject(suggestion.getTerm(), suggestion.getPayload()));
-                    }
-                    return true;
-                })
-                .limit(limit)
+        return rawPayload.stream().map(s -> new SuggestedObject(s.getTerm(), s.getPayload()))
+                .distinct().limit(10)
                 .collect(Collectors.toList());
-
-        return suggestedObjects;
     }
 
     @Scheduled(cron = "0 0 0 * * *")

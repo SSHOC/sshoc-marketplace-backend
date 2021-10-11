@@ -19,6 +19,10 @@ public class ItemCategoryConverter {
         return category.getValue();
     }
 
+    public String convertCategoryForAutocompleteContext(ItemCategory category) {
+        return convertCategory(category).replace('-', '_');
+    }
+
     public List<String> convertCategories(List<ItemCategory> categories) {
         if (categories == null) {
             return Collections.emptyList();
