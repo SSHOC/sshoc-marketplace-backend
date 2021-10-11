@@ -111,11 +111,10 @@
     -->
 
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="name" type="text_general" indexed="true" stored="true" required="false" multiValued="false" />
-
-    <field name="website" type="text_general" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="email" type="text_general_email" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="external_identifier" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="name" type="text_lower_case" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="website" type="text_lower_case" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="email" type="text_lower_case" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="external_identifier" type="text_lower_case" indexed="true" stored="true" required="false" multiValued="true" />
 
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
@@ -316,18 +315,17 @@
       </analyzer>
     </fieldType>
 
-     <fieldType name="text_general_email" class="solr.TextField" positionIncrementGap="100" multiValued="true">
-          <analyzer type="index">
-            <tokenizer class="solr.ClassicTokenizerFactory"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-          </analyzer>
-          <analyzer type="query">
-            <tokenizer class="solr.ClassicTokenizerFactory"/>
-             <filter class="solr.LowerCaseFilterFactory"/>
-          </analyzer>
-        </fieldType>
+    <fieldType name="text_lower_case" class="solr.TextField" positionIncrementGap="100" multiValued="true">
+      <analyzer type="index">
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
 
-    
     <!-- SortableTextField generaly functions exactly like TextField,
          except that it supports, and by default uses, docValues for sorting (or faceting)
          on the first 1024 characters of the original field values (which is configurable).
