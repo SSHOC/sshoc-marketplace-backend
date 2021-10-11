@@ -704,4 +704,34 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[1].affiliations", hasSize(1)));
     }
 
+    @Test
+    public void shouldReturnAutocompleteSuggestionForItems() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=gep")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("phrase", is("gep")))
+                .andExpect(jsonPath("suggestions", hasSize(3)))
+                .andExpect(jsonPath("suggestions[0].phrase", is("Gephi")))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("n21Kfc")))
+                .andExpect(jsonPath("suggestions[1].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("suggestions[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("suggestions[2].phrase", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("suggestions[2].persistentId", is("WfcKvG")));
+    }
+
+    @Test
+    public void shouldReturnAutocompleteSuggestionWithCategoryForItems() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=gep&category=training-material")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("phrase", is("gep")))
+                .andExpect(jsonPath("suggestions", hasSize(2)))
+                .andExpect(jsonPath("suggestions[0].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("suggestions[1].phrase", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("suggestions[1].persistentId", is("WfcKvG")));
+    }
+
 }

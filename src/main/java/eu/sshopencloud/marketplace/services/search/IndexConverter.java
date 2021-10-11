@@ -46,6 +46,7 @@ public class IndexConverter {
                 .descriptionText(descriptionText)
                 .descriptionTextEn(descriptionText)
                 .category(ItemCategoryConverter.convertCategory(item.getCategory()))
+                .context(ItemCategoryConverter.convertCategoryForAutocompleteContext(item.getCategory()))
                 .status(item.getStatus().getValue())
                 .owner(item.getInformationContributor().getUsername())
                 .source(SourceConverter.convertSource(item.getSource()));
