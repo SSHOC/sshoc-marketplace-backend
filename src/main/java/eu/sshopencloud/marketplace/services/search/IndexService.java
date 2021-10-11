@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.services.search;
 
-import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
@@ -29,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,13 +60,7 @@ public class IndexService {
         if (item.isNewestVersion())
             removeItemVersions(item);
 
-        int relatedItems = 0;
-
-        if(itemRelatedItemService.getItemRelatedItemsCount(item) >0)
-            relatedItems = itemRelatedItemService.getItemRelatedItemsCount(item);
-
-        IndexItem indexedItem = IndexConverter.convertItem2(item, relatedItems);
-        //IndexItem indexedItem = IndexConverter.convertItem(item);
+        IndexItem indexedItem = IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item));
         return indexItemRepository.save(indexedItem);
     }
 
