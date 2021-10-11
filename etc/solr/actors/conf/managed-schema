@@ -134,9 +134,6 @@
 
     <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
-     <!--Eliza <copyField source="affiliation" dest="affiliation_text" />-->
-
-
     <!-- This can be enabled, in case the client does not know what fields may be searched. It isn't enabled by default
          because it's very expensive to index everything twice. -->
     <!-- <copyField source="*" dest="_text_"/> -->

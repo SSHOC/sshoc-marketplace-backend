@@ -1919,4 +1919,34 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[0].persistentId", is(mergedThirdPersistentId)));
     }
 
+    @Test
+    public void shouldCreateDatasetWithContributorMultipleRoles() throws Exception {
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test simple dataset");
+        dataset.setDescription("Lorem ipsum");
+
+        ItemContributorId contributor1 = new ItemContributorId(new ActorId(2L), new ActorRoleId("author"));
+        ItemContributorId contributor3 = new ItemContributorId(new ActorId(2L), new ActorRoleId("provider"));
+        ItemContributorId contributor2 = new ItemContributorId(new ActorId(3L), new ActorRoleId("provider"));
+        dataset.setContributors(List.of(contributor1, contributor2, contributor3));
+
+        String payload = mapper.writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/datasets")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test simple dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(2)))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[1].role.code", is("provider")))
+                .andExpect(jsonPath("properties", hasSize(0)));
+    }
+
 }

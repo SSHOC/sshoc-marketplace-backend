@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
-public class SuggestedSearchPhrases {
+public class SuggestedObject {
     private String phrase;
-    private List<SuggestedObject> suggestions;
+    private String persistentId;
+
 }
