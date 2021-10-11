@@ -64,6 +64,7 @@ public class SearchService {
 
         log.debug("filterParams " + filterParams.toString());
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
+
         SearchQueryCriteria queryCriteria = new ItemSearchQueryPhrase(q, advanced);
 
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
@@ -77,6 +78,7 @@ public class SearchService {
         }
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
+
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(queryCriteria, expressionCriteria,
                 currentUser, filterCriteria, order, pageable);
 
@@ -179,7 +181,7 @@ public class SearchService {
 
     public PaginatedSearchConcepts searchConcepts(String q, boolean advanced, List<String> types,
                                                   @NotNull Map<String, List<String>> filterParams,
-                                                  PageCoords pageCoords) throws IllegalFilterException  {
+                                                  PageCoords pageCoords) throws IllegalFilterException {
 
         log.debug("filterParams " + filterParams.toString());
 

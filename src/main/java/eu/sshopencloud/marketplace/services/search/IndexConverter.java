@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexConverter {
 
-    public IndexItem convertItem(Item item) {
+    public IndexItem convertItem(Item item, int relatedItems) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
         String labelText = LineBreakConverter.removeLineBreaks(item.getLabel());
@@ -49,7 +49,9 @@ public class IndexConverter {
                 .context(ItemCategoryConverter.convertCategoryForAutocompleteContext(item.getCategory()))
                 .status(item.getStatus().getValue())
                 .owner(item.getInformationContributor().getUsername())
-                .source(SourceConverter.convertSource(item.getSource()));
+                .source(SourceConverter.convertSource(item.getSource()))
+                .relatedItems(relatedItems);
+
 
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
 

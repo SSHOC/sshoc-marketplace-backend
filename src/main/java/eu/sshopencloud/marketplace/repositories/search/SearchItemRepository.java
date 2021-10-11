@@ -14,7 +14,6 @@ import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
 import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
 import org.apache.solr.client.solrj.response.Suggestion;
@@ -40,6 +39,7 @@ public class SearchItemRepository {
 
     private final ForceFacetSortSolrTemplate solrTemplate;
 
+
     public FacetPage<IndexItem> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                       List<SearchExpressionCriteria> expressionCriteria,
                                                       User currentUser,
@@ -63,8 +63,10 @@ public class SearchItemRepository {
         if (currentUser == null || !currentUser.isModerator()) {
             facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
         }
+
         expressionCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
         filterCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
+
         facetQuery.setFacetOptions(createFacetOptions());
 
         return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
@@ -123,12 +125,10 @@ public class SearchItemRepository {
         params.set("suggest.count", 50);
 
         try {
-
             SuggesterResponse response = solrTemplate.getSolrClient().query(params).getSuggesterResponse();
 
             List<Suggestion> rawPayload = response.getSuggestions().get("itemSearch");
             return prepareSuggestions(rawPayload, 10);
-
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Search engine instance connection error", e);
         }
