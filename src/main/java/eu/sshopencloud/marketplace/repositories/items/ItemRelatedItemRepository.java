@@ -11,9 +11,11 @@ import java.util.List;
 @Repository
 public interface ItemRelatedItemRepository extends JpaRepository<ItemRelatedItem, ItemRelatedItemId> {
 
+    int countAllBySubjectId(long subjectId);
     List<ItemRelatedItem> findAllBySubjectId(long subjectId);
     List<ItemRelatedItem> findBySubjectIdAndObjectStatus(long subjectId, ItemStatus status);
 
+    int countAllByObjectId(long subjectId);
     List<ItemRelatedItem> findAllByObjectId(long objectId);
     List<ItemRelatedItem> findByObjectIdAndSubjectStatus(long objectId, ItemStatus status);
 

@@ -35,6 +35,7 @@ public class SearchItemRepository {
 
     private final ForceFacetSortSolrTemplate solrTemplate;
 
+
     public FacetPage<IndexItem> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                       List<SearchExpressionCriteria> expressionCriteria,
                                                       User currentUser,
@@ -58,8 +59,10 @@ public class SearchItemRepository {
         if (currentUser == null || !currentUser.isModerator()) {
             facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
         }
+
         expressionCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
         filterCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
+
         facetQuery.setFacetOptions(createFacetOptions());
 
         return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
@@ -103,6 +106,7 @@ public class SearchItemRepository {
         return facetOptions;
     }
 
+
     public List<String> autocompleteSearchQuery(String searchQuery) {
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
@@ -115,8 +119,7 @@ public class SearchItemRepository {
 
             List<String> rawSuggestions = response.getSuggestedTerms().get("itemSearch");
             return prepareSuggestions(rawSuggestions, 10);
-        }
-        catch (SolrServerException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Search engine instance connection error", e);
         }
     }
@@ -145,8 +148,7 @@ public class SearchItemRepository {
 
         try {
             solrTemplate.getSolrClient().query(params);
-        }
-        catch (SolrServerException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Failed to rebuild index for autocomplete");
         }
     }
