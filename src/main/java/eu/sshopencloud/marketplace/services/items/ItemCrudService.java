@@ -255,6 +255,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 throw new IllegalStateException("Media not available unexpectedly");
             }
         }
+
+        if (Objects.nonNull(version.getThumbnail()) && version.getThumbnail().getItemMediaThumbnail().equals(ItemMediaType.THUMBNAIL_ONLY)) {
+            ItemMedia mediaThumbnail = version.getThumbnail();
+            try {
+                mediaStorageService.linkToMedia(mediaThumbnail.getMediaId());
+            } catch (MediaNotAvailableException e) {
+                throw new IllegalStateException("Media not available unexpectedly");
+            }
+        }
     }
 
     private void deprecatePrevApprovedVersion(VersionedItem versionedItem) {
@@ -492,7 +501,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item, Long versionId) {
 
-        List<ItemExtBasicDto> mergedItemHistoryList = new ArrayList<>(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId(),versionId)));
+        List<ItemExtBasicDto> mergedItemHistoryList = new ArrayList<>(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId(), versionId)));
         mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
 
         return mergedItemHistoryList;
