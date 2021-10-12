@@ -54,7 +54,7 @@ public class ActorController {
                                                 @Parameter(
                                                         description = "Update actor object with given id",
                                                         required = true,
-                                                        schema = @Schema(implementation = ActorCore.class))@RequestBody ActorCore updatedActor) {
+                                                        schema = @Schema(implementation = ActorCore.class)) @RequestBody ActorCore updatedActor) {
         return ResponseEntity.ok(actorService.updateActor(id, updatedActor));
     }
 
