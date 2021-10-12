@@ -10,7 +10,6 @@ import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
-import eu.sshopencloud.marketplace.validators.CollectionUtils;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;
@@ -105,7 +104,6 @@ public class ItemFactory {
         }
         item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
 
-        //if (!itemCore.getMedia().isEmpty())
         item.addMedia(itemMediaFactory.create(itemCore.getMedia(), item, errors));
 
 

@@ -246,7 +246,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return version;
     }
 
-    //Eliza - linking
     private void linkItemMedia(I version) {
         for (ItemMedia media : version.getMedia()) {
             try {
@@ -256,7 +255,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             }
         }
 
-        if ( !Objects.isNull(version.getThumbnail()) && version.getThumbnail().getItemMediaThumbnail().equals(ItemMediaType.THUMBNAIL_ONLY)) {
+        if (Objects.nonNull(version.getThumbnail()) && version.getThumbnail().getItemMediaThumbnail().equals(ItemMediaType.THUMBNAIL_ONLY)) {
             ItemMedia mediaThumbnail = version.getThumbnail();
             try {
                 mediaStorageService.linkToMedia(mediaThumbnail.getMediaId());
@@ -264,7 +263,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 throw new IllegalStateException("Media not available unexpectedly");
             }
         }
-
     }
 
     private void deprecatePrevApprovedVersion(VersionedItem versionedItem) {
