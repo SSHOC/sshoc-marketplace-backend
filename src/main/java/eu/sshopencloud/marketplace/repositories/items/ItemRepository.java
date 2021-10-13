@@ -20,6 +20,9 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     List<Item> findBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
 
     List<Item> findBySourceId(Long sourceId);
+    Page<Item> findBySourceId(Long sourceId, Pageable page);
+
+    Page<Item> findBySourceIdAndSourceItemId(Long sourceId, String sourceItemId, Pageable page);
 
     @Query(value =
             "SELECT i.id, i.category, i.description, i.label, i.last_info_update, " +
@@ -32,7 +35,12 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     )
     List<Item> findApprovedItemsBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
 
+    Page<Item> findByStatusAndSourceIdAndSourceItemId(ItemStatus status, Long sourceId, String sourceItemId, Pageable pageable);
+
     List<Item> findBySourceIdAndStatus(Long sourceId, ItemStatus status);
+
+    Page<Item> findByStatusAndSourceId(ItemStatus status, Long sourceId, Pageable pageable);
+
 
     @Deprecated
     @Query(value =

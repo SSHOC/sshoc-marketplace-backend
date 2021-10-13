@@ -101,36 +101,38 @@ public class ItemsService extends ItemVersionService<Item> {
         return items.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
     }
 
+    //Eliza - Sortować w bazie
     public PaginatedItemsBasic getItemsBySourceAndSourceItem(Long sourceId, String sourceItemId, PageCoords pageCoords, boolean approved) {
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        List<Item> itemsList;
+        Page<Item> itemsPage;
 
         if (currentUser.isModerator() && !approved) {
-            itemsList = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);  // - all items
+            itemsPage = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
         } else {
             if (approved || !currentUser.isContributor()) {
-                itemsList = itemRepository.findApprovedItemsBySourceIdAndSourceItemId(sourceId, sourceItemId);  // - only items approved
+                itemsPage = itemRepository.findByStatusAndSourceIdAndSourceItemId(ItemStatus.APPROVED, sourceId, sourceItemId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
 
             } else {
 
-                itemsList = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);  // - only items that logged user has access to
+                itemsPage = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
+
                 List<Item> finalItemsList = new ArrayList<>();
 
-                itemsList.forEach(i -> {
+                itemsPage.forEach(i -> {
                     if (super.checkItemVisibility(i, currentUser))
                         finalItemsList.add(i);
                 });
 
-                itemsList = finalItemsList;
+                itemsPage = new PageImpl<>(finalItemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), finalItemsList.size());
+
             }
         }
 
-        Page<Item> itemsPage = new PageImpl<Item>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
 
-        ItemBasicDtoComparator comparator = new ItemBasicDtoComparator();
-        Collections.sort(items, comparator);
+        //  ItemBasicDtoComparator comparator = new ItemBasicDtoComparator();
+        // Collections.sort(items, comparator);
 
         return PaginatedItemsBasic.builder()
                 .items(items)
@@ -143,33 +145,29 @@ public class ItemsService extends ItemVersionService<Item> {
     public PaginatedItemsBasic getItemsBySource(Long sourceId, PageCoords pageCoords, boolean approved) {
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        List<Item> itemsList;
+        Page<Item> itemsPage;
 
         if (currentUser.isModerator() && !approved) {
-
-            itemsList = itemRepository.findBySourceId(sourceId);  //ALL
+            itemsPage = itemRepository.findBySourceId(sourceId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
         } else {
 
             if (approved || !currentUser.isContributor()) {
-                itemsList = itemRepository.findBySourceIdAndStatus(sourceId, ItemStatus.APPROVED);  //ONLY APPROVED
+                itemsPage = itemRepository.findByStatusAndSourceId(ItemStatus.APPROVED, sourceId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
+
             } else {
-                itemsList = itemRepository.findBySourceId(sourceId);
+                itemsPage = itemRepository.findBySourceId(sourceId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
                 List<Item> finalItemsList = new ArrayList<>();
 
-                itemsList.forEach(i -> {
+                itemsPage.forEach(i -> {
                     if (super.checkItemVisibility(i, currentUser))
                         finalItemsList.add(i);
                 });
 
-                itemsList = finalItemsList;
+                itemsPage = new PageImpl<Item>(finalItemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), finalItemsList.size());
             }
         }
 
-        Page<Item> itemsPage = new PageImpl<>(itemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), itemsList.size());
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
-
-        ItemBasicDtoComparator comparator = new ItemBasicDtoComparator();
-        Collections.sort(items, comparator);
 
         return PaginatedItemsBasic.builder()
                 .items(items)
