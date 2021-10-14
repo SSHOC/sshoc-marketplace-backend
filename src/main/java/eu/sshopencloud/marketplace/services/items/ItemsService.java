@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.services.items;
 
-import eu.sshopencloud.marketplace.conf.converters.ItemBasicDtoComparator;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
@@ -21,11 +20,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -108,14 +107,14 @@ public class ItemsService extends ItemVersionService<Item> {
         Page<Item> itemsPage;
 
         if (currentUser.isModerator() && !approved) {
-            itemsPage = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
+            itemsPage = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
         } else {
             if (approved || !currentUser.isContributor()) {
-                itemsPage = itemRepository.findByStatusAndSourceIdAndSourceItemId(ItemStatus.APPROVED, sourceId, sourceItemId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
+                itemsPage = itemRepository.findByStatusAndSourceIdAndSourceItemId(ItemStatus.APPROVED, sourceId, sourceItemId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
 
             } else {
 
-                itemsPage = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
+                itemsPage = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
 
                 List<Item> finalItemsList = new ArrayList<>();
 
@@ -124,14 +123,14 @@ public class ItemsService extends ItemVersionService<Item> {
                         finalItemsList.add(i);
                 });
 
-                itemsPage = new PageImpl<>(finalItemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()), finalItemsList.size());
+                itemsPage = new PageImpl<>(finalItemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))), finalItemsList.size());
 
             }
         }
 
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
 
-        //  ItemBasicDtoComparator comparator = new ItemBasicDtoComparator();
+        //ItemBasicDtoComparator comparator = new ItemBasicDtoComparator();
         // Collections.sort(items, comparator);
 
         return PaginatedItemsBasic.builder()
@@ -148,14 +147,14 @@ public class ItemsService extends ItemVersionService<Item> {
         Page<Item> itemsPage;
 
         if (currentUser.isModerator() && !approved) {
-            itemsPage = itemRepository.findBySourceId(sourceId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
+            itemsPage = itemRepository.findBySourceId(sourceId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
         } else {
 
             if (approved || !currentUser.isContributor()) {
-                itemsPage = itemRepository.findByStatusAndSourceId(ItemStatus.APPROVED, sourceId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
+                itemsPage = itemRepository.findByStatusAndSourceId(ItemStatus.APPROVED, sourceId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
 
             } else {
-                itemsPage = itemRepository.findBySourceId(sourceId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()));
+                itemsPage = itemRepository.findBySourceId(sourceId, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
                 List<Item> finalItemsList = new ArrayList<>();
 
                 itemsPage.forEach(i -> {
