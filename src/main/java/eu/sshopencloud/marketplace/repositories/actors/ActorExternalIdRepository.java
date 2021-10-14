@@ -12,4 +12,6 @@ public interface ActorExternalIdRepository extends JpaRepository<ActorExternalId
 
     Optional<ActorExternalId> findByIdentifierServiceAndIdentifier(ActorSource identifierService, String identifier);
 
+    Optional<ActorExternalId>  findByIdentifierServiceAndIdentifierAndActor_Id(ActorSource identifierService, String identifier, Long Actor_id);
+
 }

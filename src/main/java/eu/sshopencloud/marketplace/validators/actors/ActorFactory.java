@@ -28,7 +28,6 @@ public class ActorFactory {
     private final ActorRepository actorRepository;
     private final ActorExternalIdFactory actorExternalIdFactory;
 
-
     public Actor create(ActorCore actorCore, Long actorId) throws ValidationException {
         Actor actor = getOrCreateActor(actorId);
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(actorCore, "Actor");
@@ -44,8 +43,7 @@ public class ActorFactory {
         if (StringUtils.isNotBlank(actorCore.getWebsite())) {
             try {
                 actor.setWebsite(new URL(actorCore.getWebsite()).toURI().toString());
-            }
-            catch (MalformedURLException | URISyntaxException e) {
+            } catch (MalformedURLException | URISyntaxException e) {
                 errors.rejectValue("website", "field.invalid", "Website is malformed URL.");
             }
         }
@@ -100,8 +98,10 @@ public class ActorFactory {
 
 
     private Actor getOrCreateActor(Long actorId) {
-        if (actorId != null)
-            return actorRepository.getOne(actorId);
+
+        if (actorId != null) {
+            return actorRepository.findById(actorId).orElse(new Actor());
+        }
 
         return new Actor();
     }
