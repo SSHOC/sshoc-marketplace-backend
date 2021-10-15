@@ -100,7 +100,6 @@ public class ItemsService extends ItemVersionService<Item> {
         return items.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
     }
 
-    //Eliza - Sortować w bazie
     public PaginatedItemsBasic getItemsBySourceAndSourceItem(Long sourceId, String sourceItemId, PageCoords pageCoords, boolean approved) {
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
@@ -129,9 +128,6 @@ public class ItemsService extends ItemVersionService<Item> {
         }
 
         List<ItemBasicDto> items = itemsPage.stream().map(item -> ItemConverter.convertItem(item)).collect(Collectors.toList());
-
-        //ItemBasicDtoComparator comparator = new ItemBasicDtoComparator();
-        // Collections.sort(items, comparator);
 
         return PaginatedItemsBasic.builder()
                 .items(items)
