@@ -74,7 +74,9 @@ public class ActorExternalIdFactory {
             return null;
         }
 
-        return new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor);
+        return actorExternalIdService.loadActorExternalId(actorSource.get(), externalId.getIdentifier(), actor)
+                .orElse(new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor));
+
     }
 
 }
