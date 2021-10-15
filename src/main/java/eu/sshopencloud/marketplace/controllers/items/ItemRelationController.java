@@ -1,9 +1,12 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.items.ItemRelatedItemDto;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationCore;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemRelationService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
@@ -25,11 +28,48 @@ public class ItemRelationController {
     private final ItemRelationService itemRelationService;
     private final ItemRelatedItemService itemRelatedItemService;
 
+    //Eliza
     @Operation(summary = "Get list of all itemRelations")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemRelationDto>> getAllItemRelations() {
         return ResponseEntity.ok(itemRelationService.getAllItemRelations());
     }
+
+    @Operation(summary = "Get single itemRelation by its code")
+    @GetMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemRelationDto> getItemRelation(@PathVariable("code") String code) {
+        return ResponseEntity.ok(itemRelationService.getItemRelation(code));
+    }
+
+    @Operation(summary = "Create itemRelation")
+    @PostMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemRelationDto> createItemRelation(@Parameter(
+            description = "Created itemRelation",
+            required = true,
+            schema = @Schema(implementation = ItemRelationCore.class)) @RequestBody ItemRelationCore itemRelationCore,
+                                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
+        return ResponseEntity.ok(itemRelationService.createItemRelation(itemRelationCore));
+    }
+
+    @Operation(summary = "Update itemRelation")
+    @PutMapping(path = "/code", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemRelationDto> updateItemRelation(@PathVariable("code") String code) {
+        return null;
+       // ResponseEntity.ok();
+    }
+
+    @Operation(summary = "Delete itemRelation by its code")
+    @DeleteMapping( path = "/code", produces = MediaType.APPLICATION_JSON_VALUE)
+    public void deleteItemRelation(@PathVariable("code") String code){
+        return;
+    }
+
+    //PUT
+
+    //POST
+
+    //DELETE - with flag force as property type
+
 
     @Operation(summary = "Create item related item object for given subjectId and objectId relation ")
     @PostMapping(path = "/{subjectId}/{objectId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

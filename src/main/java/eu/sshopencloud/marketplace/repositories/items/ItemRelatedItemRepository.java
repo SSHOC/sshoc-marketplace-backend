@@ -15,6 +15,9 @@ public interface ItemRelatedItemRepository extends JpaRepository<ItemRelatedItem
     List<ItemRelatedItem> findAllBySubjectId(long subjectId);
     List<ItemRelatedItem> findBySubjectIdAndObjectStatus(long subjectId, ItemStatus status);
 
+    ItemRelatedItem findBySubjectIdAndObjectId(long subjectId, long objectId);
+
+
     int countAllByObjectId(long subjectId);
     List<ItemRelatedItem> findAllByObjectId(long objectId);
     List<ItemRelatedItem> findByObjectIdAndSubjectStatus(long objectId, ItemStatus status);

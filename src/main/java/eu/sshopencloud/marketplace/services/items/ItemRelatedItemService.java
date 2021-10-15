@@ -218,6 +218,7 @@ public class ItemRelatedItemService {
         });
     }
 
+
     public ItemRelatedItemDto createItemRelatedItem(String subjectId, String objectId,
                                                     ItemRelationId itemRelationId, boolean draft)
             throws ItemsRelationAlreadyExistsException {
