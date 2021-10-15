@@ -98,11 +98,10 @@ public class ActorFactory {
 
 
     private Actor getOrCreateActor(Long actorId) {
-
         if (actorId != null) {
-            return actorRepository.findById(actorId).orElse(new Actor());
+            return actorRepository.getOne(actorId);
         }
-
         return new Actor();
     }
+
 }

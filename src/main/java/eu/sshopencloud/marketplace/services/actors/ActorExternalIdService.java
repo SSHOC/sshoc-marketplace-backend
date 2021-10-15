@@ -17,12 +17,8 @@ public class ActorExternalIdService {
 
     private final ActorExternalIdRepository actorExternalIdRepository;
 
-    public Optional<ActorExternalId> loadActorExternalId(ActorSource identifierService, String identifier) {
-        return actorExternalIdRepository.findByIdentifierServiceAndIdentifier(identifierService, identifier);
-    }
-
     public Optional<ActorExternalId> loadActorExternalId(ActorSource identifierService, String identifier, Actor actor){
-        return actorExternalIdRepository.findByIdentifierServiceAndIdentifierAndActor_Id(identifierService, identifier, actor.getId());
+        return actorExternalIdRepository.findByIdentifierServiceAndIdentifierAndActorId(identifierService, identifier, actor.getId());
     }
 
 }
