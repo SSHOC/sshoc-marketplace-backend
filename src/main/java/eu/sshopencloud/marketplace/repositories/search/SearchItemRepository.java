@@ -1,7 +1,10 @@
 package eu.sshopencloud.marketplace.repositories.search;
 
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.dto.search.SuggestedObject;
+import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.repositories.search.solr.ForceFacetSortSolrTemplate;
@@ -13,6 +16,7 @@ import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
+import org.apache.solr.client.solrj.response.Suggestion;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +38,7 @@ import java.util.stream.Collectors;
 public class SearchItemRepository {
 
     private final ForceFacetSortSolrTemplate solrTemplate;
+
 
     public FacetPage<IndexItem> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                       List<SearchExpressionCriteria> expressionCriteria,
@@ -58,8 +63,10 @@ public class SearchItemRepository {
         if (currentUser == null || !currentUser.isModerator()) {
             facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
         }
+
         expressionCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
         filterCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
+
         facetQuery.setFacetOptions(createFacetOptions());
 
         return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
@@ -103,38 +110,34 @@ public class SearchItemRepository {
         return facetOptions;
     }
 
-    public List<String> autocompleteSearchQuery(String searchQuery) {
+    public List<SuggestedObject> autocompleteSearchQuery(String searchQuery, ItemCategory context) {
+        String categoryContext = null;
+
+        if (context != null) {
+            categoryContext = ItemCategoryConverter.convertCategoryForAutocompleteContext(context);
+        }
+
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
+        params.set("dictionary", "itemSearch");
         params.set("q", searchQuery);
+        params.set("suggest.cfq", categoryContext);
         params.set("suggest.count", 50);
 
         try {
-            SuggesterResponse response = solrTemplate.getSolrClient()
-                    .query(params).getSuggesterResponse();
+            SuggesterResponse response = solrTemplate.getSolrClient().query(params).getSuggesterResponse();
 
-            List<String> rawSuggestions = response.getSuggestedTerms().get("itemSearch");
-            return prepareSuggestions(rawSuggestions, 10);
-        }
-        catch (SolrServerException | IOException e) {
+            List<Suggestion> rawPayload = response.getSuggestions().get("itemSearch");
+            return prepareSuggestions(rawPayload, 10);
+        } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Search engine instance connection error", e);
         }
     }
 
-    private List<String> prepareSuggestions(List<String> suggestions, int limit) {
-        Set<String> uniqueSuggestions = new HashSet<>();
 
-        return suggestions.stream()
-                .map(String::toLowerCase)
-                .filter(suggestion -> {
-                    if (uniqueSuggestions.contains(suggestion))
-                        return false;
-                    else
-                        uniqueSuggestions.add(suggestion);
-
-                    return true;
-                })
-                .limit(limit)
+    private List<SuggestedObject> prepareSuggestions(List<Suggestion> rawPayload, int limit) {
+        return rawPayload.stream().map(s -> new SuggestedObject(s.getTerm(), s.getPayload()))
+                .distinct().limit(10)
                 .collect(Collectors.toList());
     }
 
@@ -145,8 +148,7 @@ public class SearchItemRepository {
 
         try {
             solrTemplate.getSolrClient().query(params);
-        }
-        catch (SolrServerException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Failed to rebuild index for autocomplete");
         }
     }

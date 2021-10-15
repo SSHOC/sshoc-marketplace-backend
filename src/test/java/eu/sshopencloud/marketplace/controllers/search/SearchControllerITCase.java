@@ -72,12 +72,12 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items[0].lastInfoUpdate", is("Tue Aug 04 12:29:00 CEST 2020")))
                 .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
                 .andExpect(jsonPath("items[0].label", is("Gephi")))
-                .andExpect(jsonPath("items[1].id", is(7)))
-                .andExpect(jsonPath("items[1].persistentId", is("WfcKvG")))
-                .andExpect(jsonPath("items[1].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("items[2].id", is(4)))
-                .andExpect(jsonPath("items[2].persistentId", is("heBAGQ")))
-                .andExpect(jsonPath("items[2].label", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("items[1].id", is(4)))
+                .andExpect(jsonPath("items[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("items[1].label", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("items[2].id", is(7)))
+                .andExpect(jsonPath("items[2].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("items[2].label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
                 .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
                 .andExpect(jsonPath("categories.training-material.count", is(2)))
@@ -686,7 +686,7 @@ public class SearchControllerITCase {
     @Test
     public void shouldReturnActorsByEmailExpression() throws Exception {
 
-        mvc.perform(get("/api/actor-search?d.email= (*@*)")
+        mvc.perform(get("/api/actor-search?d.email=(*@*)")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(2)))
@@ -702,6 +702,59 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[1].website", is("https://example.com/")))
                 .andExpect(jsonPath("actors[1].externalIds", hasSize(0)))
                 .andExpect(jsonPath("actors[1].affiliations", hasSize(1)));
+    }
+
+    @Test
+    public void shouldReturnAutocompleteSuggestionForItems() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=gep")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("phrase", is("gep")))
+                .andExpect(jsonPath("suggestions", hasSize(3)))
+                .andExpect(jsonPath("suggestions[0].phrase", is("Gephi")))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("n21Kfc")))
+                .andExpect(jsonPath("suggestions[1].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("suggestions[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("suggestions[2].phrase", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("suggestions[2].persistentId", is("WfcKvG")));
+    }
+
+    @Test
+    public void shouldReturnAutocompleteSuggestionWithCategoryForItems() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=gep&category=training-material")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("phrase", is("gep")))
+                .andExpect(jsonPath("suggestions", hasSize(2)))
+                .andExpect(jsonPath("suggestions[0].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("suggestions[1].phrase", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("suggestions[1].persistentId", is("WfcKvG")));
+    }
+
+    public void shouldReturnActorsByWordsCaseInsensitive() throws Exception {
+
+        mvc.perform(get("/api/actor-search?q=project")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("actors[0].id", is(3)))
+                .andExpect(jsonPath("actors[0].name", is("SSHOC project consortium")))
+                .andExpect(jsonPath("actors[0].website", is("https://sshopencloud.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
+
+        mvc.perform(get("/api/actor-search?q=ProJecT")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("actors[0].id", is(3)))
+                .andExpect(jsonPath("actors[0].name", is("SSHOC project consortium")))
+                .andExpect(jsonPath("actors[0].website", is("https://sshopencloud.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
     }
 
 }

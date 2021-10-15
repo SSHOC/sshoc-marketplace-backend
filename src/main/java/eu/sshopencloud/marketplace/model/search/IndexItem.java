@@ -37,6 +37,7 @@ public class IndexItem {
 
     public static final String CATEGORY_FIELD = "category";
     public static final String STATUS_FIELD = "status";
+    public static final String CONTEXT_FIELD = "context";
 
     public static final String OWNER_FIELD = "owner";
 
@@ -48,6 +49,8 @@ public class IndexItem {
 
     public static final String KEYWORD_FIELD = "keyword";
     public static final String KEYWORD_TEXT_FIELD = "keyword_text";
+
+    public static final String RELATED_ITEMS_FIELD = "related_items";
 
 
     @Id
@@ -90,6 +93,9 @@ public class IndexItem {
     @Indexed(name = CATEGORY_FIELD, type = "string")
     private String category;
 
+    @Indexed(name = CONTEXT_FIELD, type = "text_context")
+    private String context;
+
     @Indexed(name = STATUS_FIELD, type = "string")
     private String status;
 
@@ -112,7 +118,10 @@ public class IndexItem {
 
     @Indexed(name = KEYWORD_TEXT_FIELD, type = "text_general_rev")
     @Singular("keywordText")
-    private  List<String> keywordsTexts;
+    private List<String> keywordsTexts;
+
+    @Indexed(name = RELATED_ITEMS_FIELD, type = "pint")
+    private int relatedItems;
 
     @Dynamic
     @Field("dynamic_property_*")

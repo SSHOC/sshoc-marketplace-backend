@@ -36,6 +36,9 @@ public class ItemRelatedItemService {
     private final VersionedItemRepository versionedItemRepository;
     private final RelatedItemsConverter relatedItemsConverter;
 
+    public int countAllRelatedItems(Item item) {
+        return itemRelatedItemRepository.countAllBySubjectId(item.getId()) + itemRelatedItemRepository.countAllByObjectId(item.getId());
+    }
 
     public List<RelatedItemDto> getItemRelatedItems(Item item) {
         long itemId = item.getId();

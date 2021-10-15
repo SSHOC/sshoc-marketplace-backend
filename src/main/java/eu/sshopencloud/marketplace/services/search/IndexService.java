@@ -17,6 +17,7 @@ import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
+import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,8 @@ public class IndexService {
     private final IndexActorRepository indexActorRepository;
     private final ActorRepository actorRepository;
 
+    private final ItemRelatedItemService itemRelatedItemService;
+
 
     public IndexItem indexItem(Item item) {
         if (item.getCategory().equals(ItemCategory.STEP) || !(item.isNewestVersion() || item.isProposedVersion()))
@@ -57,7 +60,7 @@ public class IndexService {
         if (item.isNewestVersion())
             removeItemVersions(item);
 
-        IndexItem indexedItem = IndexConverter.convertItem(item);
+        IndexItem indexedItem = IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item));
         return indexItemRepository.save(indexedItem);
     }
 

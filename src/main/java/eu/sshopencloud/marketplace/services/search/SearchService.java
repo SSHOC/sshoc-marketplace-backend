@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
+import org.apache.solr.client.solrj.response.Suggestion;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
@@ -63,6 +64,7 @@ public class SearchService {
 
         log.debug("filterParams " + filterParams.toString());
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
+
         SearchQueryCriteria queryCriteria = new ItemSearchQueryPhrase(q, advanced);
 
         List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
@@ -76,6 +78,7 @@ public class SearchService {
         }
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
+
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(queryCriteria, expressionCriteria,
                 currentUser, filterCriteria, order, pageable);
 
@@ -179,7 +182,7 @@ public class SearchService {
 
     public PaginatedSearchConcepts searchConcepts(String q, boolean advanced, List<String> types,
                                                   @NotNull Map<String, List<String>> filterParams,
-                                                  PageCoords pageCoords) throws IllegalFilterException  {
+                                                  PageCoords pageCoords) throws IllegalFilterException {
 
         log.debug("filterParams " + filterParams.toString());
 
@@ -323,11 +326,12 @@ public class SearchService {
         return result;
     }
 
-    public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase) {
+
+    public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase, ItemCategory context) {
         if (StringUtils.isBlank(searchPhrase))
             throw new IllegalArgumentException("Search phrase must not be empty nor contain only whitespace");
 
-        List<String> suggestions = searchItemRepository.autocompleteSearchQuery(searchPhrase);
+        List<SuggestedObject> suggestions = searchItemRepository.autocompleteSearchQuery(searchPhrase, context);
 
         return SuggestedSearchPhrases.builder()
                 .phrase(searchPhrase)
