@@ -13,6 +13,7 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
 import eu.sshopencloud.marketplace.validators.CollectionUtils;
 import eu.sshopencloud.marketplace.validators.items.ItemRelationFactory;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -342,6 +343,14 @@ public class ItemRelatedItemService {
         if (itemRelatedItemRepository.existsById(relationId)) {
             itemRelatedItemRepository.deleteById(relationId);
         }
+    }
+
+    public boolean existByRelation(@NonNull ItemRelation itemRelation) {
+        return itemRelatedItemRepository.existsByRelation(itemRelation);
+    }
+
+    public void removeItemRelatedItemByRelation(@NonNull ItemRelation itemRelation) {
+        itemRelatedItemRepository.deleteItemRelatedItemsByOfRelation(itemRelation);
     }
 
 }

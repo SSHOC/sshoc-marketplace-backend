@@ -1,15 +1,12 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
-import eu.sshopencloud.marketplace.dto.actors.ActorCore;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
-import eu.sshopencloud.marketplace.dto.items.ItemRelatedItemDto;
-import eu.sshopencloud.marketplace.dto.items.ItemRelationCore;
-import eu.sshopencloud.marketplace.dto.items.ItemRelationDto;
-import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
-import eu.sshopencloud.marketplace.model.items.Item;
+
+import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.ItemRelationService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
+import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,49 +24,61 @@ public class ItemRelationController {
 
     private final ItemRelationService itemRelationService;
     private final ItemRelatedItemService itemRelatedItemService;
+    private final PageCoordsValidator pageCoordsValidator;
 
-    //Eliza
+
+    @Operation(summary = "Retrieve all itemRelations in pages")
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedItemRelation> getItemRelations(@RequestParam(value = "page", required = false) Integer page,
+                                                                  @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
+
+        return ResponseEntity.ok(itemRelationService.getItemRelations(pageCoordsValidator.validate(page, perpage)));
+    }
+
+/*
     @Operation(summary = "Get list of all itemRelations")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemRelationDto>> getAllItemRelations() {
         return ResponseEntity.ok(itemRelationService.getAllItemRelations());
     }
+*/
 
+    //Good - czy nie potrzeba order i inverse of w ItemRelationDto ??
     @Operation(summary = "Get single itemRelation by its code")
     @GetMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemRelationDto> getItemRelation(@PathVariable("code") String code) {
         return ResponseEntity.ok(itemRelationService.getItemRelation(code));
     }
 
+    //Eliza
     @Operation(summary = "Create itemRelation")
     @PostMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemRelationDto> createItemRelation(@Parameter(
             description = "Created itemRelation",
             required = true,
-            schema = @Schema(implementation = ItemRelationCore.class)) @RequestBody ItemRelationCore itemRelationCore,
-                                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
+            schema = @Schema(implementation = ItemRelationCore.class)) @RequestBody ItemRelationCore itemRelationCore) {
+
         return ResponseEntity.ok(itemRelationService.createItemRelation(itemRelationCore));
     }
 
     @Operation(summary = "Update itemRelation")
-    @PutMapping(path = "/code", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemRelationDto> updateItemRelation(@PathVariable("code") String code) {
-        return null;
-       // ResponseEntity.ok();
+    @PutMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemRelationDto> updateItemRelation(@PathVariable("code") String code,
+                                                              @Parameter(
+                                                                      description = "Updated itemRelation",
+                                                                      required = true,
+                                                                      schema = @Schema(implementation = ItemRelationCore.class)) @RequestBody ItemRelationCore itemRelationCore) {
+
+        return ResponseEntity.ok(itemRelationService.updateItemRelation(code, itemRelationCore));
     }
 
     @Operation(summary = "Delete itemRelation by its code")
-    @DeleteMapping( path = "/code", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void deleteItemRelation(@PathVariable("code") String code){
-        return;
+    @DeleteMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public void deleteItemRelation(@PathVariable("code") String code,
+                                   @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) {
+        itemRelationService.deleteItemRelation(code, force);
     }
-
-    //PUT
-
-    //POST
-
-    //DELETE - with flag force as property type
-
 
     @Operation(summary = "Create item related item object for given subjectId and objectId relation ")
     @PostMapping(path = "/{subjectId}/{objectId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

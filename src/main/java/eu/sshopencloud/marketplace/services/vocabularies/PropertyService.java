@@ -1,11 +1,13 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyRepository;
+import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,6 @@ public class PropertyService {
 
     private final PropertyRepository propertyRepository;
     private final ItemRepository itemRepository;
-
 
     public List<Property> getItemProperties(Long itemId) {
         Item item = itemRepository.findById(itemId)
