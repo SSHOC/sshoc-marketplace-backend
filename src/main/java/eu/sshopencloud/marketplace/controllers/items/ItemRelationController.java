@@ -15,8 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/items-relations")
 @RequiredArgsConstructor
@@ -36,22 +34,12 @@ public class ItemRelationController {
         return ResponseEntity.ok(itemRelationService.getItemRelations(pageCoordsValidator.validate(page, perpage)));
     }
 
-/*
-    @Operation(summary = "Get list of all itemRelations")
-    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ItemRelationDto>> getAllItemRelations() {
-        return ResponseEntity.ok(itemRelationService.getAllItemRelations());
-    }
-*/
-
-    //Good - czy nie potrzeba order i inverse of w ItemRelationDto ??
     @Operation(summary = "Get single itemRelation by its code")
     @GetMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemRelationDto> getItemRelation(@PathVariable("code") String code) {
         return ResponseEntity.ok(itemRelationService.getItemRelation(code));
     }
 
-    //Eliza
     @Operation(summary = "Create itemRelation")
     @PostMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemRelationDto> createItemRelation(@Parameter(

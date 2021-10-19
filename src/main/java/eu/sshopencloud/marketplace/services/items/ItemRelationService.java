@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.mappers.items.ItemRelationMapper;
 import eu.sshopencloud.marketplace.model.items.ItemRelation;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelationRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
-import eu.sshopencloud.marketplace.validators.items.ItemRelationFactory;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -18,7 +17,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 @Service
@@ -28,13 +26,7 @@ public class ItemRelationService {
 
     private final ItemRelationRepository itemRelationRepository;
 
-    private final ItemRelationFactory itemRelationFactory;
-
     private final ItemRelatedItemService itemRelatedItemService;
-
-    public List<ItemRelationDto> getAllItemRelations() {
-        return ItemRelationMapper.INSTANCE.toDto(itemRelationRepository.findAll(Sort.by(Sort.Order.asc("ord"))));
-    }
 
     public PaginatedItemRelation getItemRelations(PageCoords pageCoords) {
 
@@ -67,9 +59,8 @@ public class ItemRelationService {
         if (ord == null)
             itemRelationCore.setOrd(getMaxOrdForItemRelation());
 
-        ItemRelation itemRelation = create(itemRelationCore);
 
-        return ItemRelationMapper.INSTANCE.toDto(itemRelation);
+        return ItemRelationMapper.INSTANCE.toDto(create(itemRelationCore));
     }
 
     public ItemRelationDto updateItemRelation(String relationCode, ItemRelationCore itemRelationCore) {
@@ -85,18 +76,12 @@ public class ItemRelationService {
         }
 
         if (!Objects.isNull(itemRelationCore.getInverseOf()) && !itemRelationCore.getInverseOf().isEmpty()) {
-            if (Objects.isNull(itemRelation.getInverseOf()) || itemRelation.getInverseOf().getCode().equals(itemRelationCore.getInverseOf())) {
-                ItemRelation inverseItemRelation = itemRelationRepository.getItemRelationByCode(itemRelationCore.getInverseOf());
-                if (!Objects.isNull(inverseItemRelation)) {
-                    itemRelation.setInverseOf(inverseItemRelation);
-                    if (Objects.isNull(inverseItemRelation.getInverseOf())) {
-                        inverseItemRelation.setInverseOf(itemRelation);
-                        itemRelationRepository.save(inverseItemRelation);
-                    }
-                }
+            ItemRelation inverseItemRelation = itemRelationRepository.getItemRelationByCode(itemRelationCore.getInverseOf());
+            if (!Objects.isNull(inverseItemRelation)) {
+                itemRelation.setInverseOf(inverseItemRelation);
+                inverseItemRelation.setInverseOf(itemRelation);
+                itemRelationRepository.save(inverseItemRelation);
             }
-        } else {
-            itemRelation.setInverseOf(null);
         }
 
         itemRelationRepository.save(itemRelation);
@@ -118,11 +103,14 @@ public class ItemRelationService {
                         )
                 );
             } else {
+
                 itemRelatedItemService.removeItemRelatedItemByRelation(itemRelation);
             }
         }
 
         itemRelationRepository.delete(itemRelation);
+
+        //ELiza - jak usunać te które sa fk ??
         reorderItemRelations(relationCode, null);
     }
 
@@ -225,33 +213,34 @@ public class ItemRelationService {
             errors.rejectValue("ord", "field.required", "Item ord not present in creation");
         } else itemRelation.setOrd(itemRelationCore.getOrd());
 
-        ItemRelation inverseOfItemRelation = new ItemRelation();
+        itemRelationRepository.save(itemRelation);
 
-        if (!Objects.isNull(itemRelationCore.getInverseOf()) && !itemRelationCore.getInverseOf().isEmpty()) {
-            inverseOfItemRelation.setOrd(itemRelationCore.getOrd() + 1);
-            //inverseOfItemRelation.setInverseOf(itemRelation);
-            inverseOfItemRelation.setLabel(StringUtils.capitalize(itemRelationCore.getInverseOf().replaceAll("-", " ")));
-            inverseOfItemRelation.setCode(itemRelationCore.getInverseOf());
+        if (Objects.isNull(itemRelationCore.getInverseOf()) || itemRelationCore.getInverseOf().isEmpty()) {
 
+            itemRelation.setInverseOf(null);
 
-            itemRelationRepository.save(inverseOfItemRelation);
-            reorderItemRelations(inverseOfItemRelation.getCode(), inverseOfItemRelation.getOrd());
-            itemRelation.setInverseOf(inverseOfItemRelation);
-            //save this instance
+        } else {
+            ItemRelation inverseOfItemRelation = itemRelationRepository.getItemRelationByCode(itemRelationCore.getInverseOf());
 
-        } else errors.rejectValue("inverseOf", "field.notExist", "Item relation inverse of does not exist.");
+            if (!Objects.isNull(inverseOfItemRelation) && Objects.isNull(inverseOfItemRelation.getInverseOf())) {
 
+                if (!Objects.isNull(inverseOfItemRelation.getInverseOf()))
+                    errors.rejectValue("inverseOf", "field.isAlreadyInUse", "Item relation with inverse of already is assigned.");
+                else {
+                    itemRelation.setInverseOf(inverseOfItemRelation);
+                    inverseOfItemRelation.setInverseOf(itemRelation);
+                    itemRelationRepository.save(inverseOfItemRelation);
+                }
+
+            } else
+                errors.rejectValue("inverseOf", "field.notExist", "Item relation inverse of with given code does not exist or is already assigned.");
+        }
 
         if (errors.hasErrors())
             throw new ValidationException(errors);
 
         itemRelationRepository.save(itemRelation);
-        inverseOfItemRelation.setInverseOf(itemRelation);
-        itemRelationRepository.save(inverseOfItemRelation);
-
         reorderItemRelations(itemRelation.getCode(), itemRelation.getOrd());
-
-        //reorderItemRelations(itemRelation.getInverseOf().getCode(), itemRelation.getInverseOf().getOrd());
 
         return itemRelation;
     }
