@@ -9,4 +9,7 @@ public interface ItemRelationRepository extends JpaRepository<ItemRelation, Stri
 
     ItemRelation getItemRelationByCode(String code);
 
+    ItemRelation getItemRelationByInverseOfCode(String inverseOfCode);
+
+
 }

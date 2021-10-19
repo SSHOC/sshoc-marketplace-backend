@@ -108,6 +108,18 @@ public class ItemRelationService {
             }
         }
 
+        /*
+        if(!Objects.isNull(itemRelation.getInverseOf())){
+            ItemRelation inverseOfItemRelation = itemRelationRepository.getItemRelationByInverseOfCode(itemRelation.getCode());
+            inverseOfItemRelation.setInverseOf(null);
+            if(forceRemoval) {
+                itemRelation.setInverseOf(null);
+                itemRelationRepository.delete(inverseOfItemRelation);
+                if (itemRelatedItemService.existByRelation(inverseOfItemRelation))
+                    itemRelatedItemService.removeItemRelatedItemByRelation(inverseOfItemRelation);
+            }else itemRelationRepository.save(inverseOfItemRelation);
+        }
+*/
         itemRelationRepository.delete(itemRelation);
 
         //ELiza - jak usunać te które sa fk ??
@@ -147,48 +159,6 @@ public class ItemRelationService {
     private List<ItemRelation> loadItemRelation() {
         Sort order = Sort.by(Sort.Order.asc("ord"));
         return itemRelationRepository.findAll(order);
-
-    }
-
-    public void reorderItemRelations(ItemRelationReordering reordering) {
-        int maxOrd = getMaxOrdForItemRelation();
-
-        reordering.getShifts().forEach(shift -> {
-            int targetOrd = shift.getOrd();
-
-            if (targetOrd < 1 || targetOrd > maxOrd)
-                throw new IllegalArgumentException(String.format("Invalid shift ord value: %d", targetOrd));
-        });
-
-        List<ItemRelation> itemRelations = loadItemRelation();
-        reordering.getShifts().forEach(shift -> shiftItemRelation(itemRelations, shift));
-
-        renumberItemRelations(itemRelations);
-    }
-
-    private void shiftItemRelation(List<ItemRelation> itemRelations, ItemRelationReorder shift) {
-        ItemRelation itemRelation = itemRelations.stream()
-                .filter(itemRel -> itemRel.getCode().equals(shift.getCode()))
-                .findFirst()
-                .orElseThrow(() ->
-                        new EntityNotFoundException(
-                                String.format("Item relation with code '%s' does not exist", shift.getCode())
-                        )
-                );
-
-        itemRelations.remove(itemRelation);
-        itemRelations.add(shift.getOrd() - 1, itemRelation);
-    }
-
-    private void renumberItemRelations(List<ItemRelation> itemRelations) {
-        int ord = 1;
-
-        for (ItemRelation itemRelation : itemRelations) {
-            if (ord != itemRelation.getOrd())
-                itemRelation.setOrd(ord);
-
-            ord += 1;
-        }
     }
 
     private int getMaxOrdForItemRelation() {
