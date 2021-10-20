@@ -103,12 +103,11 @@ public class ItemRelationService {
                         )
                 );
             } else {
-
                 itemRelatedItemService.removeItemRelatedItemByRelation(itemRelation);
             }
         }
 
-        /*
+
         if(!Objects.isNull(itemRelation.getInverseOf())){
             ItemRelation inverseOfItemRelation = itemRelationRepository.getItemRelationByInverseOfCode(itemRelation.getCode());
             inverseOfItemRelation.setInverseOf(null);
@@ -119,10 +118,9 @@ public class ItemRelationService {
                     itemRelatedItemService.removeItemRelatedItemByRelation(inverseOfItemRelation);
             }else itemRelationRepository.save(inverseOfItemRelation);
         }
-*/
+
         itemRelationRepository.delete(itemRelation);
 
-        //ELiza - jak usunać te które sa fk ??
         reorderItemRelations(relationCode, null);
     }
 

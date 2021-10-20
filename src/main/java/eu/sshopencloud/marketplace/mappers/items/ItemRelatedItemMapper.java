@@ -15,7 +15,8 @@ public interface ItemRelatedItemMapper {
 
     @Mappings({
             @Mapping(source = "subject.versionedItem.persistentId", target = "subject.persistentId"),
-            @Mapping(source = "object.versionedItem.persistentId", target = "object.persistentId")
+            @Mapping(source = "object.versionedItem.persistentId", target = "object.persistentId"),
+            @Mapping(source ="relation.inverseOf.code", target = "relation.inverseOf")
     })
     ItemRelatedItemDto toDto(ItemRelatedItem itemRelatedItem);
 
