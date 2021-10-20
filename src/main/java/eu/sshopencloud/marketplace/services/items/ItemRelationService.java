@@ -113,9 +113,10 @@ public class ItemRelationService {
             inverseOfItemRelation.setInverseOf(null);
             if(forceRemoval) {
                 itemRelation.setInverseOf(null);
-                itemRelationRepository.delete(inverseOfItemRelation);
                 if (itemRelatedItemService.existByRelation(inverseOfItemRelation))
                     itemRelatedItemService.removeItemRelatedItemByRelation(inverseOfItemRelation);
+                itemRelationRepository.delete(inverseOfItemRelation);
+
             }else itemRelationRepository.save(inverseOfItemRelation);
         }
 
