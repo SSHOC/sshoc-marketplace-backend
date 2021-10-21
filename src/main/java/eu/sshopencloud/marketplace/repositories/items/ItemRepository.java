@@ -1,7 +1,8 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.model.sources.Source;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -13,33 +14,65 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends ItemVersionRepository<Item> {
 
-    Item findByPrevVersionId(Long itemId);
-
-    Item findByPrevVersion(Item item);
-
-    List<Item> findBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
-
-    List<Item> findBySourceId(Long sourceId);
-    Page<Item> findBySourceId(Long sourceId, Pageable page);
-
-    Page<Item> findBySourceIdAndSourceItemId(Long sourceId, String sourceItemId, Pageable page);
-
-    @Query(value =
-            "SELECT i.id, i.category, i.description, i.label, i.last_info_update, " +
-                    "i.last_info_update AS date_last_updated," +
-                    " i.source_item_id, i.status, i.version, i.prev_version_id, i.source_id," +
-                    " i.persistent_id, i.proposed_version, i.info_contributor_id, i.last_info_update AS date_created " +
-                    " FROM items i" +
-                    " where i.status = 'APPROVED' " +
-                    " AND i.source_id = :sourceId and i.source_item_id = :sourceItemId ", nativeQuery = true
+    @Query(
+            "select v from Item v " +
+                    "join v.versionedItem i " +
+                    "where v.status = 'APPROVED' " +
+                    "and i.active = true " +
+                    "and v.source = :source "
     )
-    List<Item> findApprovedItemsBySourceIdAndSourceItemId(Long sourceId, String sourceItemId);
+    Page<Item> findAllLatestApprovedItemsForSource(@Param("source") Source source, Pageable page);
 
-    Page<Item> findByStatusAndSourceIdAndSourceItemId(ItemStatus status, Long sourceId, String sourceItemId, Pageable pageable);
+    @Query(
+            "select v from Item v " +
+                    "join v.versionedItem i " +
+                    "where v.status = 'APPROVED' " +
+                    "and i.active = true " +
+                    "and v.source = :source and v.sourceItemId = :sourceItemId"
+    )
+    Page<Item> findAllLatestApprovedItemsForSource(@Param("source") Source source, @Param("sourceItemId") String sourceItemId, Pageable page);
 
-    List<Item> findBySourceIdAndStatus(Long sourceId, ItemStatus status);
+    @Query(
+            "select v from Item v " +
+                    "join v.versionedItem i " +
+                    "where i.active = true " +
+                    "and (v.status = 'APPROVED' or v.proposedVersion = true)" +
+                    "and v.source = :source "
+    )
+    Page<Item> findAllLatestItemsForSource(@Param("source") Source source, Pageable page);
 
-    Page<Item> findByStatusAndSourceId(ItemStatus status, Long sourceId, Pageable pageable);
+    @Query(
+            "select v from Item v " +
+                    "join v.versionedItem i " +
+                    "where i.active = true " +
+                    "and (v.status = 'APPROVED' or v.proposedVersion = true)" +
+                    "and v.source = :source and v.sourceItemId = :sourceItemId"
+    )
+    Page<Item> findAllLatestItemsForSource(@Param("source") Source source, @Param("sourceItemId") String sourceItemId, Pageable page);
+
+    @Query(
+            "select v from Item v " +
+                    "join v.versionedItem i " +
+                    "where i.active = true " +
+                    "and (" +
+                    "v.status = 'APPROVED' " +
+                    "or (v.proposedVersion = true and v.informationContributor = :owner)" +
+                    ")" +
+                    "and v.source = :source "
+    )
+    Page<Item> findUserLatestItemsForSource(@Param("source") Source source, @Param("owner") User user, Pageable page);
+
+    @Query(
+            "select v from Item v " +
+                    "join v.versionedItem i " +
+                    "where i.active = true " +
+                    "and (" +
+                    "v.status = 'APPROVED' " +
+                    "or (v.proposedVersion = true and v.informationContributor = :owner)" +
+                    ")" +
+                    "and v.source = :source and v.sourceItemId = :sourceItemId"
+    )
+    Page<Item> findUserLatestItemsForSource(@Param("source") Source source, @Param("sourceItemId") String sourceItemId, @Param("owner") User user, Pageable page);
 
 
     @Deprecated

@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.repositories.items;
 
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.sources.Source;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,14 +23,6 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
                     "and i.active = true"
     )
     Page<T> findAllLatestApprovedItems(Pageable page);
-
-    @Query(
-            "select v from #{#entityName} v " +
-                    "join v.versionedItem i " +
-                    "where v.status = 'APPROVED' " +
-                    "and i.active = true "
-    )
-    Page<T> findAllLatestApprovedItemsForSource(Pageable page, Long sourceId, String sourceItemId);
 
     @Query(
             "select v from #{#entityName} v " +
