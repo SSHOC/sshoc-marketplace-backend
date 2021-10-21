@@ -5,21 +5,29 @@ import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
+import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.DraftItem;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +39,8 @@ public class ItemsService extends ItemVersionService<Item> {
     private final ItemRepository itemRepository;
     private final DraftItemRepository draftItemRepository;
 
+    private final SourceRepository sourceRepository;
+
     private final ToolService toolService;
     private final TrainingMaterialService trainingMaterialService;
     private final PublicationService publicationService;
@@ -41,6 +51,7 @@ public class ItemsService extends ItemVersionService<Item> {
 
     public ItemsService(ItemRepository itemRepository, DraftItemRepository draftItemRepository, VersionedItemRepository versionedItemRepository,
                         ItemVisibilityService itemVisibilityService,
+                        SourceRepository sourceRepository,
                         @Lazy ToolService toolService, @Lazy TrainingMaterialService trainingMaterialService,
                         @Lazy PublicationService publicationService, @Lazy DatasetService datasetService,
                         @Lazy WorkflowService workflowService, @Lazy StepService stepService) {
@@ -49,6 +60,7 @@ public class ItemsService extends ItemVersionService<Item> {
 
         this.itemRepository = itemRepository;
         this.draftItemRepository = draftItemRepository;
+        this.sourceRepository = sourceRepository;
         this.toolService = toolService;
         this.trainingMaterialService = trainingMaterialService;
         this.publicationService = publicationService;
@@ -91,10 +103,56 @@ public class ItemsService extends ItemVersionService<Item> {
         }
     }
 
-    public List<ItemBasicDto> getItems(Long sourceId, String sourceItemId) {
-        List<Item> items = itemRepository.findBySourceIdAndSourceItemId(sourceId, sourceItemId);
-        return items.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
+
+    public PaginatedItemsBasic getItemsBySource(Long sourceId, boolean approved, PageCoords pageCoords) {
+        return getItemsBySource(sourceId, null, approved, pageCoords);
     }
+
+    public PaginatedItemsBasic getItemsBySource(Long sourceId, String sourceItemId, boolean approved, PageCoords pageCoords) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        Source source = sourceRepository.findById(sourceId)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + sourceId));
+
+        Page<Item> itemsPage = loadLatestItemsForSource(pageCoords, source, sourceItemId, currentUser, approved);
+
+        List<ItemBasicDto> items = itemsPage.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
+
+        return PaginatedItemsBasic.builder()
+                .items(items)
+                .count(itemsPage.getContent().size()).hits(itemsPage.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(itemsPage.getTotalPages())
+                .build();
+    }
+
+    private Page<Item> loadLatestItemsForSource(PageCoords pageCoords, Source source, String sourceItemId, User user, boolean approved) {
+        PageRequest pageRequest = PageRequest.of(
+                pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
+        );
+
+        if (approved || user == null) {
+            if (sourceItemId == null) {
+                return itemRepository.findAllLatestApprovedItemsForSource(source, pageRequest);
+            } else {
+                return itemRepository.findAllLatestApprovedItemsForSource(source, sourceItemId, pageRequest);
+            }
+        }
+
+        if (user.isModerator()) {
+            if (sourceItemId == null) {
+                return itemRepository.findAllLatestItemsForSource(source, pageRequest);
+            } else {
+                return itemRepository.findAllLatestItemsForSource(source, sourceItemId, pageRequest);
+            }
+        }
+
+        if (sourceItemId == null) {
+            return itemRepository.findUserLatestItemsForSource(source, user, pageRequest);
+        } else {
+            return itemRepository.findUserLatestItemsForSource(source, sourceItemId, user, pageRequest);
+        }
+    }
+
 
 
     public Item liftItemVersion(String persistentId, boolean draft, boolean changeStatus) {
@@ -142,4 +200,5 @@ public class ItemsService extends ItemVersionService<Item> {
     protected String getItemTypeName() {
         return Item.class.getName();
     }
+
 }
