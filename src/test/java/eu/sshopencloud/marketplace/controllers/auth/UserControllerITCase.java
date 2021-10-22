@@ -6,8 +6,6 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.auth.NewPasswordData;
 import eu.sshopencloud.marketplace.dto.auth.UserCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -154,6 +152,30 @@ public class UserControllerITCase {
 
         jwt = LogInTestClient.getJwt(mvc, username, newPassword);
         assertThat(jwt, not(blankOrNullString()));
+    }
+
+    @Test
+    public void shouldCreateConfigContributorUserWhenRoleNotSpecified() throws Exception {
+        UserCore user = new UserCore();
+        user.setUsername("New Config");
+        user.setDisplayName("New Config User");
+        user.setEmail("test@example.com");
+        user.setPassword("qwerty");
+
+        String payload = mapper.writeValueAsString(user);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/users")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username", is(user.getUsername())))
+                .andExpect(jsonPath("displayName", is(user.getDisplayName())))
+                .andExpect(jsonPath("email", is(user.getEmail())))
+                .andExpect(jsonPath("config", is(true)))
+                .andExpect(jsonPath("status", is("enabled")))
+                .andExpect(jsonPath("role", is("contributor")));
     }
 
     @Test
