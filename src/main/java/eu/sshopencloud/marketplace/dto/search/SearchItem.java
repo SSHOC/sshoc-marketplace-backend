@@ -38,5 +38,4 @@ public class SearchItem {
 
     private String lastInfoUpdate;
 
-    private String context;
 }
