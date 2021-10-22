@@ -107,17 +107,25 @@ public class ItemRelationService {
             }
         }
 
-
-        if(!Objects.isNull(itemRelation.getInverseOf())){
+        if (!Objects.isNull(itemRelation.getInverseOf())) {
             ItemRelation inverseOfItemRelation = itemRelationRepository.getItemRelationByInverseOfCode(itemRelation.getCode());
-            inverseOfItemRelation.setInverseOf(null);
-            if(forceRemoval) {
-                itemRelation.setInverseOf(null);
-                if (itemRelatedItemService.existByRelation(inverseOfItemRelation))
+            if (itemRelatedItemService.existByRelation(inverseOfItemRelation)) {
+                if (!forceRemoval) throw new IllegalArgumentException(
+                        String.format(
+                                "Cannot remove inverse item relation '%s' since there already exist items with this inverse relation to other item. " +
+                                        "Use force=true parameter to remove the inverse item relation and the associated properties as well.",
+                                inverseOfItemRelation.getCode()
+                        )
+                );
+                else {
+                    inverseOfItemRelation.setInverseOf(null);
                     itemRelatedItemService.removeItemRelatedItemByRelation(inverseOfItemRelation);
+                    itemRelationRepository.delete(inverseOfItemRelation);
+                }
+            } else {
+                inverseOfItemRelation.setInverseOf(null);
                 itemRelationRepository.delete(inverseOfItemRelation);
-
-            }else itemRelationRepository.save(inverseOfItemRelation);
+            }
         }
 
         itemRelationRepository.delete(itemRelation);
