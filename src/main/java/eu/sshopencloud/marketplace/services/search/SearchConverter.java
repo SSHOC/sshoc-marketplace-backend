@@ -26,7 +26,6 @@ public class SearchConverter {
                 .label(indexItem.getLabel())
                 .description(indexItem.getDescription())
                 .category(ItemCategoryConverter.convertCategory(indexItem.getCategory()))
-                .context(ItemCategoryConverter.convertCategory(indexItem.getCategory()).toString().split("-")[0])
                 .status(ItemStatus.of(indexItem.getStatus()))
                 .owner(indexItem.getOwner())
                 .lastInfoUpdate(indexItem.getLastInfoUpdate())
