@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.search.*;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.actors.ActorExternalIdMapper;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
@@ -106,6 +107,7 @@ public class SearchService {
         for (SearchItem searchItem : result.getItems()) {
             searchItem.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(searchItem.getId())));
             searchItem.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(searchItem.getId())));
+            searchItem.getProperties().stream().map(PropertyDto::getType).forEach(propertyTypeService::completePropertyType);
         }
 
         return result;
