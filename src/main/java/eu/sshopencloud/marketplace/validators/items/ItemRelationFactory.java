@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.validators.items;
 
-import eu.sshopencloud.marketplace.dto.items.ItemRelationCore;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.model.items.ItemRelation;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelationRepository;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Service

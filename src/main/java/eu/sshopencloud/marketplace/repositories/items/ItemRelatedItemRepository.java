@@ -3,8 +3,6 @@ package eu.sshopencloud.marketplace.repositories.items;
 import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
 import eu.sshopencloud.marketplace.model.items.ItemRelatedItemId;
 import eu.sshopencloud.marketplace.model.items.ItemRelation;
-import eu.sshopencloud.marketplace.model.items.ItemStatus;
-import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,16 +18,9 @@ public interface ItemRelatedItemRepository extends JpaRepository<ItemRelatedItem
 
     List<ItemRelatedItem> findAllBySubjectId(long subjectId);
 
-    List<ItemRelatedItem> findBySubjectIdAndObjectStatus(long subjectId, ItemStatus status);
-
-    ItemRelatedItem findBySubjectIdAndObjectId(long subjectId, long objectId);
-
-
     int countAllByObjectId(long subjectId);
 
     List<ItemRelatedItem> findAllByObjectId(long objectId);
-
-    List<ItemRelatedItem> findByObjectIdAndSubjectStatus(long objectId, ItemStatus status);
 
     boolean existsByRelation(ItemRelation itemRelation);
 

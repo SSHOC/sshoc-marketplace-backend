@@ -149,6 +149,13 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Test")))
                 .andExpect(jsonPath("inverseOf", is("test-2")));
 
+        mvc.perform(get("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations[0].code", is("test-2")))
+                .andExpect(jsonPath("itemRelations[1].code", is("test")));
+
     }
 
     @Test

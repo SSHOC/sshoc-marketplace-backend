@@ -11,10 +11,8 @@ public interface ItemRelationRepository extends JpaRepository<ItemRelation, Stri
 
     ItemRelation getItemRelationByCode(String code);
 
-    ItemRelation getItemRelationByInverseOfCode(String inverseOfCode);
-
     @Modifying
-    @Query("DELETE FROM ItemRelation  rel WHERE rel.code = :relationCode or rel.inverseOf.code = :relationCode")
+    @Query("DELETE FROM ItemRelation rel WHERE rel.code = :relationCode or rel.inverseOf.code = :relationCode")
     void deleteItemRelations(String relationCode);
 
 
