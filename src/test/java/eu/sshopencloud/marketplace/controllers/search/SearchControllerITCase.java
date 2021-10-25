@@ -282,6 +282,7 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items[0].id", is(2)))
                 .andExpect(jsonPath("items[0].persistentId", is("DstBL5")))
                 .andExpect(jsonPath("items[0].label", is("Stata")))
+                .andExpect(jsonPath("items[0].properties[*].type.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "tadirah-activity")))
                 .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
                 .andExpect(jsonPath("categories.tool-or-service.checked", is(true)))
                 .andExpect(jsonPath("categories.training-material.count", is(0)))
