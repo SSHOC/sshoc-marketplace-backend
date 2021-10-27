@@ -66,12 +66,9 @@ public class IndexConverter {
 
         for (Property property : item.getProperties()) {
             switch (property.getType().getCode()) {
-                case "activity":
-                    builder.activity(getPropertyValue(property));
-                    break;
                 case "keyword":
                     String keyword = getPropertyValue(property);
-                    builder.keyword(keyword).keywordText(keyword);
+                    builder.keywordText(keyword);
                     break;
             }
         }

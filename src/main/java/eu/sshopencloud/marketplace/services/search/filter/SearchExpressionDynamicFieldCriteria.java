@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 
 public class SearchExpressionDynamicFieldCriteria extends SearchExpressionCriteria {
 
-    private static final String DYNAMIC_FIELD_PREFIX = "dynamic_property_";
+    public static final String DYNAMIC_FIELD_PREFIX = "dynamic_property_";
 
     private PropertyTypeClass propertyTypeClass;
 
