@@ -33,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
-import org.apache.solr.client.solrj.response.Suggestion;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
@@ -147,13 +146,7 @@ public class SearchService {
     private Map<String, Map<String, CheckedCount>> gatherSearchItemFacets(FacetPage<IndexItem> facetPage, Map<String, List<String>> filterParams) {
         return facetPage.getFacetFields().stream()
                 .filter(field -> !field.getName().equals(IndexItem.CATEGORY_FIELD))
-                .map(field -> Pair.create(
-                        field.getName().replace('_', '-'),
-                        createFacetDetails(
-                                facetPage.getFacetResultPage(field.getName()).getContent(),
-                                filterParams.get(field.getName().replace('_', '-'))
-                        )
-                ))
+                .map(field -> createFacetsDetails(field.getName(), facetPage, filterParams))
                 .collect(Collectors.toMap(
                         Pair::getKey, Pair::getValue,
                         (u, v) -> u,
@@ -161,6 +154,22 @@ public class SearchService {
                 ));
     }
 
+
+    private static Pair<String, Map<String, CheckedCount>> createFacetsDetails(String fieldName, FacetPage<IndexItem> facetPage, Map<String, List<String>> filterParams) {
+        String facetName;
+        if (fieldName.startsWith(SearchExpressionDynamicFieldCriteria.DYNAMIC_FIELD_PREFIX)) {
+            facetName = fieldName.replace(SearchExpressionDynamicFieldCriteria.DYNAMIC_FIELD_PREFIX, "");
+            facetName = facetName.substring(0, facetName.lastIndexOf("_"));
+        } else {
+            facetName = fieldName.replace('_', '-');
+        }
+        return Pair.create(
+                facetName,
+                createFacetDetails(
+                        facetPage.getFacetResultPage(fieldName).getContent(),
+                        filterParams.get(facetName)
+                ));
+    }
 
     private static Map<String, CheckedCount> createFacetDetails(List<FacetFieldEntry> facetValues, List<String> checkedValues) {
         if (checkedValues != null) {
