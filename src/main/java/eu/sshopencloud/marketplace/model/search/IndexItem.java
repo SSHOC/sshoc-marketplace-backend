@@ -10,6 +10,8 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Map.entry;
+
 
 @SolrDocument(collection = IndexItem.COLLECTION_NAME)
 @Data
@@ -43,14 +45,19 @@ public class IndexItem {
 
     public static final String LAST_INFO_UPDATE_FIELD = "modified_on";
 
-    public static final String ACTIVITY_FIELD = "activity";
-
     public static final String SOURCE_FIELD = "source";
 
-    public static final String KEYWORD_FIELD = "keyword";
     public static final String KEYWORD_TEXT_FIELD = "keyword_text";
 
     public static final String RELATED_ITEMS_FIELD = "related_items";
+
+    public static final String FACETING_DYNAMIC_PROPERTY_KEYWORD_TAG = "keyword";
+    public static final String FACETING_DYNAMIC_PROPERTY_ACTIVITY_TAG = "activity";
+    public static final String FACETING_DYNAMIC_PROPERTY_LANGUAGE_TAG = "language";
+    public static final Map<String, String> DYNAMIC_PROPERTIES_FACET_FIELDS = Map.ofEntries(
+            entry(FACETING_DYNAMIC_PROPERTY_KEYWORD_TAG, "dynamic_property_keyword_ss"),
+            entry(FACETING_DYNAMIC_PROPERTY_ACTIVITY_TAG, "dynamic_property_activity_ss"),
+            entry(FACETING_DYNAMIC_PROPERTY_LANGUAGE_TAG, "dynamic_property_language_ss"));
 
 
     @Id
@@ -105,16 +112,8 @@ public class IndexItem {
     @Indexed(name = LAST_INFO_UPDATE_FIELD, type = "pdate")
     private String lastInfoUpdate;
 
-    @Indexed(name = ACTIVITY_FIELD, type = "strings")
-    @Singular
-    private List<String> activities;
-
     @Indexed(name = SOURCE_FIELD, type = "string")
     private String source;
-
-    @Indexed(name = KEYWORD_FIELD, type = "strings")
-    @Singular
-    private List<String> keywords;
 
     @Indexed(name = KEYWORD_TEXT_FIELD, type = "text_general_rev")
     @Singular("keywordText")
