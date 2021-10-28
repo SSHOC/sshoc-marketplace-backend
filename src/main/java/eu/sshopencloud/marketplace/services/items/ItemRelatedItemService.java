@@ -297,7 +297,7 @@ public class ItemRelatedItemService {
                 .map(rel ->
                         RelatedItemCore.builder()
                                 .persistentId(rel.getObject().getPersistentId())
-                                .relation(rel.getRelation().getId())
+                                .relation(rel.getRelation().getItemRelationId())
                                 .build()
                 )
                 .collect(Collectors.toList());
