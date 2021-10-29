@@ -225,7 +225,7 @@ public class ItemRelationControllerITCase {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("itemRelations", hasSize(8)));
+                .andExpect(jsonPath("itemRelations", hasSize(9)));
 
     }
 
