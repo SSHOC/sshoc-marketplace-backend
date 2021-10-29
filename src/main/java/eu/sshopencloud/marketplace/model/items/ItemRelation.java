@@ -1,10 +1,8 @@
 package eu.sshopencloud.marketplace.model.items;
 
+import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -14,7 +12,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(exclude = "inverseOf")
 @ToString(exclude = "inverseOf")
 @NoArgsConstructor
-public class ItemRelation {
+public class ItemRelation implements OrderableEntity<String> {
 
     @Id
     private String code;
@@ -27,12 +25,28 @@ public class ItemRelation {
     @Column(nullable = false)
     private String label;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE }, orphanRemoval = true)
-    @JoinColumn(foreignKey = @ForeignKey(name="item_relation_inverse_of_code_fk"))
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(foreignKey = @ForeignKey(name = "item_relation_inverse_of_code_fk"))
     private ItemRelation inverseOf;
 
 
-    public ItemRelationId getId() {
+    public ItemRelationId getItemRelationId() {
         return new ItemRelationId(code);
     }
+
+    @Override
+    public String getId() {
+        return code;
+    }
+
+    @Override
+    public void setOrd(int ord) {
+        this.ord = ord;
+    }
+
+    public int getOrd(){
+        return ord.intValue();
+    }
+
+
 }

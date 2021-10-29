@@ -1,11 +1,15 @@
 package eu.sshopencloud.marketplace.dto.items;
 
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 @Data
 @NoArgsConstructor
-public class ItemRelationDto {
+@AllArgsConstructor
+public class ItemRelationCore {
 
     private String code;
 
@@ -13,4 +17,6 @@ public class ItemRelationDto {
 
     private String inverseOf;
 
+    @Nullable
+    private Integer ord;
 }
