@@ -289,12 +289,28 @@ PropertyType:
     ord:                         36
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        curation-flag-coverage
+    label:                       Curate coverage
+    type:                        BOOLEAN
+    groupName:                   'Curation'
+    hidden:                      true
+    ord:                         37
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        curation-flag-relations
+    label:                       Curate relations
+    type:                        BOOLEAN
+    groupName:                   'Curation'
+    hidden:                      true
+    ord:                         38
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        life-cycle-status
     label:                       Life Cycle Status
     type:                        CONCEPT
     groupName:                   'Technical'
     hidden:                      false
-    ord:                         37
+    ord:                         39
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        technology-readiness-level
@@ -302,7 +318,7 @@ PropertyType:
     type:                        STRING
     groupName:                   'Technical'
     hidden:                      false
-    ord:                         38
+    ord:                         40
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        version
@@ -310,7 +326,7 @@ PropertyType:
     type:                        STRING
     groupName:                   'Technical'
     hidden:                      false
-    ord:                         39
+    ord:                         41
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        source-last-update
@@ -318,7 +334,7 @@ PropertyType:
     type:                        STRING
     groupName:                   ''
     hidden:                      false
-    ord:                         40
+    ord:                         42
 
 
 # Ignored, since the vocabularies are not loaded during startup
