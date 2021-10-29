@@ -55,7 +55,6 @@ public class ItemRelationService extends BaseOrderableEntityService<ItemRelation
         return ItemRelationMapper.INSTANCE.toDto(itemRelation);
     }
 
-    //done
     public ItemRelationDto createItemRelation(ItemRelationCore itemRelationCore) {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(itemRelationCore, "ItemRelation");
 
@@ -77,19 +76,12 @@ public class ItemRelationService extends BaseOrderableEntityService<ItemRelation
         return ItemRelationMapper.INSTANCE.toDto(itemRelation);
     }
 
-    //Eliza
     public ItemRelationDto updateItemRelation(String relationCode, ItemRelationCore itemRelationCore) {
         ItemRelation itemRelation = itemRelationRepository.getItemRelationByCode(relationCode);
 
         itemRelation.setLabel(itemRelationCore.getLabel());
-        Integer ord = itemRelationCore.getOrd();
 
-        if (ord != null) {
-            validateItemRelationPosition(itemRelationCore.getOrd());
-            itemRelation.setOrd(itemRelationCore.getOrd());
-            placeEntryAtPosition(itemRelation, itemRelation.getOrd(), false);
-            // reorderItemRelations(itemRelationCore.getCode(), itemRelationCore.getOrd());
-        }
+        placeEntryAtPosition(itemRelation, itemRelationCore.getOrd(), false);
 
         if (!Objects.isNull(itemRelationCore.getInverseOf()) && !itemRelationCore.getInverseOf().isEmpty()) {
             ItemRelation inverseItemRelation = itemRelationRepository.getItemRelationByCode(itemRelationCore.getInverseOf());
@@ -105,7 +97,9 @@ public class ItemRelationService extends BaseOrderableEntityService<ItemRelation
     }
 
     public void deleteItemRelation(String relationCode, boolean forceRemoval) {
+
         ItemRelation itemRelation = itemRelationRepository.getItemRelationByCode(relationCode);
+
         if (Objects.isNull(itemRelation))
             throw new EntityNotFoundException(String.format("Item relation with code = '%s' not found", relationCode));
 
@@ -132,18 +126,6 @@ public class ItemRelationService extends BaseOrderableEntityService<ItemRelation
 
         itemRelationRepository.deleteItemRelations(itemRelation.getCode());
         removeEntryFromPosition(itemRelation.getCode());
-    }
-
-    private void validateItemRelationPosition(Integer ord) {
-        if (ord == null)
-            return;
-
-        long itemRelationsCount = itemRelationRepository.count();
-        if (ord < 1 || ord > itemRelationsCount + 1) {
-            throw new IllegalArgumentException(
-                    String.format("Invalid position index: %d (maximum possible: %d)", ord, itemRelationsCount + 1)
-            );
-        }
     }
 
     @Override
