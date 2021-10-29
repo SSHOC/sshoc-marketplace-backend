@@ -25,7 +25,7 @@ public class ItemRelation implements OrderableEntity<String> {
     @Column(nullable = false)
     private String label;
 
-    @OneToOne(fetch = FetchType.EAGER , cascade = { CascadeType.REMOVE })
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(foreignKey = @ForeignKey(name = "item_relation_inverse_of_code_fk"))
     private ItemRelation inverseOf;
 

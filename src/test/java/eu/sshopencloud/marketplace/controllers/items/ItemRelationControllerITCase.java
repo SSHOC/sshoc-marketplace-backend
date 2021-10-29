@@ -8,7 +8,6 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationCore;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
-import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
@@ -83,7 +82,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemRelationWithNullInverseOf() throws Exception {
+    public void shouldCreateItemRelationWithoutInverseOf() throws Exception {
 
         ItemRelationCore itemRelationCore = new ItemRelationCore();
         itemRelationCore.setCode("test");
@@ -123,22 +122,21 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("code", is("test")))
                 .andExpect(jsonPath("label", is("Test")));
 
-        ItemRelationCore itemRelationCore2 = new ItemRelationCore();
-        itemRelationCore2.setCode("test-2");
-        itemRelationCore2.setOrd(1);
-        itemRelationCore2.setLabel("Test 2");
-        itemRelationCore2.setInverseOf("test");
+        ItemRelationCore itemRelationInverseCore = new ItemRelationCore();
+        itemRelationInverseCore.setCode("test-inverse");
+        itemRelationInverseCore.setLabel("Test inverse");
+        itemRelationInverseCore.setInverseOf("test");
 
-        String payload2 = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore2);
-        log.debug("JSON: " + payload2);
+        String payloadInverse = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationInverseCore);
+        log.debug("JSON: " + payloadInverse);
 
         mvc.perform(post("/api/items-relations")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload2)
+                        .content(payloadInverse)
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("code", is("test-2")))
-                .andExpect(jsonPath("label", is("Test 2")))
+                .andExpect(jsonPath("code", is("test-inverse")))
+                .andExpect(jsonPath("label", is("Test inverse")))
                 .andExpect(jsonPath("inverseOf", is("test")));
 
         mvc.perform(get("/api/items-relations/test")
@@ -147,15 +145,322 @@ public class ItemRelationControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
                 .andExpect(jsonPath("label", is("Test")))
-                .andExpect(jsonPath("inverseOf", is("test-2")));
+                .andExpect(jsonPath("inverseOf", is("test-inverse")));
 
         mvc.perform(get("/api/items-relations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("itemRelations[0].code", is("test-2")))
-                .andExpect(jsonPath("itemRelations[1].code", is("test")));
+                .andExpect(jsonPath("itemRelations[0].code", is("test")))
+                .andExpect(jsonPath("itemRelations[9].code", is("test-inverse")));
 
+    }
+
+    @Test
+    public void shouldUpdateItemRelationWithoutInverseOf() throws Exception {
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("test");
+        itemRelationCore.setLabel("Test");
+        itemRelationCore.setInverseOf(null);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test")));
+
+        mvc.perform(get("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations", hasSize(9)))
+                .andExpect(jsonPath("itemRelations[0].code", is("relates-to")))
+                .andExpect(jsonPath("itemRelations[1].code", is("is-related-to")))
+                .andExpect(jsonPath("itemRelations[2].code", is("documents")))
+                .andExpect(jsonPath("itemRelations[3].code", is("is-documented-by")))
+                .andExpect(jsonPath("itemRelations[4].code", is("mentions")))
+                .andExpect(jsonPath("itemRelations[5].code", is("is-mentioned-in")))
+                .andExpect(jsonPath("itemRelations[6].code", is("extends")))
+                .andExpect(jsonPath("itemRelations[7].code", is("is-extended-by")))
+                .andExpect(jsonPath("itemRelations[8].code", is("test")));
+
+        itemRelationCore.setLabel("Changed label");
+        itemRelationCore.setOrd(5);
+
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Changed label")));
+
+        mvc.perform(get("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Changed label")));
+
+        mvc.perform(get("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations", hasSize(9)))
+                .andExpect(jsonPath("itemRelations[0].code", is("relates-to")))
+                .andExpect(jsonPath("itemRelations[1].code", is("is-related-to")))
+                .andExpect(jsonPath("itemRelations[2].code", is("documents")))
+                .andExpect(jsonPath("itemRelations[3].code", is("is-documented-by")))
+                .andExpect(jsonPath("itemRelations[4].code", is("test")))
+                .andExpect(jsonPath("itemRelations[5].code", is("mentions")))
+                .andExpect(jsonPath("itemRelations[6].code", is("is-mentioned-in")))
+                .andExpect(jsonPath("itemRelations[7].code", is("extends")))
+                .andExpect(jsonPath("itemRelations[8].code", is("is-extended-by")));
+
+        ItemRelationCore secondItemRelationCore = new ItemRelationCore();
+        secondItemRelationCore.setCode("second");
+        secondItemRelationCore.setLabel("Second");
+
+        String secondPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(secondItemRelationCore);
+        log.debug("JSON: " + secondPayload);
+
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(secondPayload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("second")))
+                .andExpect(jsonPath("label", is("Second")));
+
+        itemRelationCore.setInverseOf("second");
+
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Changed label")))
+                .andExpect(jsonPath("inverseOf", is("second")));
+
+    }
+
+
+    @Test
+    public void shouldUpdateItemRelationWithInverseOf() throws Exception {
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("test");
+        itemRelationCore.setLabel("Test");
+        itemRelationCore.setInverseOf(null);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test")));
+
+        ItemRelationCore itemRelationInverseCore = new ItemRelationCore();
+        itemRelationInverseCore.setCode("test-inverse");
+        itemRelationInverseCore.setLabel("Test inverse");
+        itemRelationInverseCore.setInverseOf("test");
+
+        String payloadInverse = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationInverseCore);
+        log.debug("JSON: " + payloadInverse);
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payloadInverse)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")))
+                .andExpect(jsonPath("label", is("Test inverse")))
+                .andExpect(jsonPath("inverseOf", is("test")));
+
+        ItemRelationCore secondItemRelationCore = new ItemRelationCore();
+        secondItemRelationCore.setCode("second");
+        secondItemRelationCore.setLabel("Second");
+
+        String secondPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(secondItemRelationCore);
+        log.debug("JSON: " + secondPayload);
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(secondPayload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("second")))
+                .andExpect(jsonPath("label", is("Second")));
+
+        mvc.perform(get("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations", hasSize(11)))
+                .andExpect(jsonPath("itemRelations[0].code", is("relates-to")))
+                .andExpect(jsonPath("itemRelations[1].code", is("is-related-to")))
+                .andExpect(jsonPath("itemRelations[2].code", is("documents")))
+                .andExpect(jsonPath("itemRelations[3].code", is("is-documented-by")))
+                .andExpect(jsonPath("itemRelations[4].code", is("mentions")))
+                .andExpect(jsonPath("itemRelations[5].code", is("is-mentioned-in")))
+                .andExpect(jsonPath("itemRelations[6].code", is("extends")))
+                .andExpect(jsonPath("itemRelations[7].code", is("is-extended-by")))
+                .andExpect(jsonPath("itemRelations[8].code", is("test")))
+                .andExpect(jsonPath("itemRelations[9].code", is("test-inverse")))
+                .andExpect(jsonPath("itemRelations[10].code", is("second")));
+
+        itemRelationCore.setInverseOf("second");
+
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("inverseOf", is("second")));
+
+        mvc.perform(get("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("inverseOf", is("second")));
+
+        mvc.perform(get("/api/items-relations/test-inverse")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")));
+
+        mvc.perform(get("/api/items-relations/second")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("second")))
+                .andExpect(jsonPath("inverseOf", is("test")));
+
+        itemRelationCore.setInverseOf(null);
+
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")));
+
+        mvc.perform(get("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")));
+
+        mvc.perform(get("/api/items-relations/test-inverse")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")));
+
+        mvc.perform(get("/api/items-relations/second")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("second")));
+    }
+
+    @Test
+    public void shouldNotUpdateItemRelationLeavingInverseUntouched() throws Exception {
+        mvc.perform(get("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("Mentions")))
+                .andExpect(jsonPath("inverseOf", is("is-mentioned-in")));
+
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("is-mentioned-in")))
+                .andExpect(jsonPath("label", is("Is mentioned in")))
+                .andExpect(jsonPath("inverseOf", is("mentions")));
+
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("mentions");
+        itemRelationCore.setLabel("New label");
+        itemRelationCore.setInverseOf("is-mentioned-in");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("New label")))
+                .andExpect(jsonPath("inverseOf", is("is-mentioned-in")));
+
+        mvc.perform(get("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("New label")))
+                .andExpect(jsonPath("inverseOf", is("is-mentioned-in")));
+
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("is-mentioned-in")))
+                .andExpect(jsonPath("label", is("Is mentioned in")))
+                .andExpect(jsonPath("inverseOf", is("mentions")));
+    }
+
+
+    @Test
+    public void shouldNotUpdateItemRelationWhenInverseRelationHasAnInverse() throws Exception {
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("mentions");
+        itemRelationCore.setLabel("Mentions");
+        itemRelationCore.setInverseOf("is-documented-by");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(1)))
+                .andExpect(jsonPath("errors[0].field", is("inverseOf")))
+                .andExpect(jsonPath("errors[0].code", is("field.isAlreadyInUse")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
     @Test
@@ -183,50 +488,107 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("code", is("test")))
                 .andExpect(jsonPath("label", is("Test")));
 
-        ItemRelationCore itemRelationCore2 = new ItemRelationCore();
-        itemRelationCore2.setCode("test-2");
-        itemRelationCore2.setOrd(1);
-        itemRelationCore2.setLabel("Test 2");
-        itemRelationCore2.setInverseOf("test");
+        ItemRelationCore itemRelationInverseCore = new ItemRelationCore();
+        itemRelationInverseCore.setCode("test-inverse");
+        itemRelationInverseCore.setLabel("Test inverse");
+        itemRelationInverseCore.setInverseOf("test");
 
-        String payload2 = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore2);
-        log.debug("JSON: " + payload2);
+        String payloadInverse = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationInverseCore);
+        log.debug("JSON: " + payloadInverse);
 
         mvc.perform(post("/api/items-relations")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload2)
-                        .header("Authorization", MODERATOR_JWT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payloadInverse)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("code", is("test-2")))
-                .andExpect(jsonPath("label", is("Test 2")))
+                .andExpect(jsonPath("code", is("test-inverse")))
+                .andExpect(jsonPath("label", is("Test inverse")))
                 .andExpect(jsonPath("inverseOf", is("test")));
 
         mvc.perform(get("/api/items-relations/test")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
                 .andExpect(jsonPath("label", is("Test")))
-                .andExpect(jsonPath("inverseOf", is("test-2")));
+                .andExpect(jsonPath("inverseOf", is("test-inverse")));
 
         mvc.perform(get("/api/items-relations")
-                        .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("itemRelations", hasSize(10)));
-
+                .andExpect(jsonPath("itemRelations[0].code", is("test")))
+                .andExpect(jsonPath("itemRelations[9].code", is("test-inverse")));
 
         mvc.perform(delete("/api/items-relations/test")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT)
-                        .param("force", "true"))
+                        .param("force", "false"))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/api/items-relations")
+        mvc.perform(get("/api/items-relations/test")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("itemRelations", hasSize(9)));
+                .andExpect(status().isNotFound());
 
+        mvc.perform(get("/api/items-relations/test-inverse")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")))
+                .andExpect(jsonPath("label", is("Test inverse")));
+
+    }
+
+    @Test
+    public void shouldNotDeleteItemRelationInUse() throws Exception {
+        mvc.perform(delete("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT)
+                .param("force", "false"))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldDeleteItemRelationInUse() throws Exception {
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("is-mentioned-in")))
+                .andExpect(jsonPath("label", is("Is mentioned in")))
+                .andExpect(jsonPath("inverseOf", is("mentions")));
+
+        mvc.perform(get("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("Mentions")))
+                .andExpect(jsonPath("inverseOf", is("is-mentioned-in")));
+
+        mvc.perform(delete("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT)
+                .param("force", "true"))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("Mentions")));
+
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
     }
 
 

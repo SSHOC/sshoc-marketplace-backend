@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -44,44 +43,39 @@ public class ItemRelationFactory {
         return itemRelation;
     }
 
-    public ItemRelation create(ItemRelationCore itemRelationCore, ItemRelation itemRelation, Errors errors) throws ValidationException {
+    public ItemRelation create(ItemRelationCore itemRelationCore, String code) throws ValidationException {
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(itemRelationCore, "ItemRelation");
 
+        ItemRelation itemRelation = getOrCreateItemRelation(code);
+
+        if (code != null) {
+            itemRelationCore.setCode(code);
+        }
         if (StringUtils.isBlank(itemRelationCore.getCode())) {
-            errors.pushNestedPath("code");
             errors.rejectValue("code", "field.required", "Item relation code is required.");
-            errors.popNestedPath();
-        } else itemRelation.setCode(itemRelationCore.getCode());
-
-        if (StringUtils.isBlank(itemRelationCore.getLabel())) {
-            errors.pushNestedPath("label");
-            errors.rejectValue("label", "field.required", "Item relation label is required.");
-            errors.popNestedPath();
-        } else itemRelation.setLabel(itemRelationCore.getLabel());
-
-        if (Objects.isNull(itemRelationCore.getOrd())) {
-            errors.pushNestedPath("ord");
-            errors.rejectValue("ord", "field.required", "Item ord not present in creation");
-            errors.popNestedPath();
+        } else {
+            itemRelation.setCode(itemRelationCore.getCode());
         }
 
-        if (Objects.isNull(itemRelationCore.getInverseOf()) || itemRelationCore.getInverseOf().isEmpty()) {
+        if (StringUtils.isBlank(itemRelationCore.getLabel())) {
+            errors.rejectValue("label", "field.required", "Item relation label is required.");
+        } else {
+            itemRelation.setLabel(itemRelationCore.getLabel());
+        }
+
+        if (StringUtils.isBlank(itemRelationCore.getInverseOf())) {
             itemRelation.setInverseOf(null);
         } else {
             ItemRelation inverseOfItemRelation = itemRelationRepository.getItemRelationByCode(itemRelationCore.getInverseOf());
 
-            if (!Objects.isNull(inverseOfItemRelation) && Objects.isNull(inverseOfItemRelation.getInverseOf())) {
-
-                if (!Objects.isNull(inverseOfItemRelation.getInverseOf())) {
-                    errors.pushNestedPath("inverseOf");
-                    errors.rejectValue("inverseOf", "field.isAlreadyInUse", "Item relation with inverse of already is assigned.");
-                    errors.popNestedPath();
+            if (Objects.isNull(inverseOfItemRelation)) {
+                errors.rejectValue("inverseOf", "field.notExist", "Item relation inverse of with given code does not exist.");
+            } else {
+                if (!Objects.isNull(inverseOfItemRelation.getInverseOf()) && !inverseOfItemRelation.getInverseOf().getCode().equals(itemRelation.getCode())) {
+                    errors.rejectValue("inverseOf", "field.isAlreadyInUse", "Item relation with inverse of is already assigned.");
                 } else {
                     itemRelation.setInverseOf(inverseOfItemRelation);
                 }
-            } else {
-                errors.pushNestedPath("inverseOf");
-                errors.rejectValue("inverseOf", "field.notExist", "Item relation inverse of with given code does not exist or is already assigned.");
-                errors.popNestedPath();
             }
         }
 
@@ -89,6 +83,13 @@ public class ItemRelationFactory {
             throw new ValidationException(errors);
 
         return itemRelation;
+    }
+
+    private ItemRelation getOrCreateItemRelation(String code) {
+        if (code != null) {
+            return itemRelationRepository.getOne(code);
+        }
+        return new ItemRelation();
     }
 
 }
