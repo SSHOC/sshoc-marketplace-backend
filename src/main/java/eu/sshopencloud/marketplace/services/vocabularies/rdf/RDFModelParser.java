@@ -6,6 +6,13 @@ import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.RIOT;
+import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.RDFS;
+import org.apache.jena.vocabulary.SKOS;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Statement;
@@ -289,7 +296,7 @@ public class RDFModelParser {
 
     public List<ConceptRelatedConcept> createConceptRelatedConcepts(Map<String, Concept> conceptMap, Model rdfModel) {
         List<ConceptRelatedConcept> result = new ArrayList<ConceptRelatedConcept>();
-        for (String subjectUri: conceptMap.keySet()) {
+        for (String subjectUri : conceptMap.keySet()) {
             Concept concept = conceptMap.get(subjectUri);
             List<ConceptRelatedConcept> conceptRelatedConcepts = rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(subjectUri))
@@ -300,5 +307,83 @@ public class RDFModelParser {
         }
         return result;
     }
+
+
+    //ELiza
+    /*
+    <https://vocabs.dariah.eu/sshoc-audience/schemaAudience> csw:hierarchyRoot true;
+      a skos:ConceptScheme;
+      skos:prefLabel "Intended audience"@en; V
+      dcterms:title "Intended audience"@en;V
+      skos:definition "Intended audience of an item."@en;V
+      skos:note "Used in the SSHOC projects SSH Open Marketplace and SSH Training Discovery Toolkit."@en;
+      skos:hasTopConcept <https://vocabs.dariah.eu/sshoc-audience/dataCreator> .
+    * */
+    public org.apache.jena.rdf.model.Model createRDFModel(Vocabulary vocabulary) {
+
+        RDFResources resources = new RDFResources(vocabulary.getNamespace());
+
+        org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel();
+        resources.generateNamespacePrefixes(vocabulary.getNamespace());
+        model.setNsPrefixes(resources.getNamespacePrefixes());
+
+        Resource vocabularySchema = model.createResource(vocabulary.getNamespace() + "Schema");
+
+        Property propertyCSWHierarchyRoot = model.createProperty(resources.PREFIX_CSW + "hierarchyRoot");
+        Property propertyCSWHierarchyRootType = model.createProperty(resources.PREFIX_CSW + "hierarchyRootType");
+
+        vocabularySchema.addLiteral(propertyCSWHierarchyRoot, true)
+                .addProperty(propertyCSWHierarchyRootType, SKOS.ConceptScheme)
+                .addProperty(SKOS.prefLabel, vocabulary.getLabel(), "en");
+
+
+        if (!vocabulary.getDescription().isEmpty() || !Objects.isNull(vocabulary.getDescription()))
+            vocabularySchema.addProperty(DCTerms.description, vocabulary.getDescription());
+
+        if (!vocabulary.getTitles().isEmpty()) {
+            vocabulary.getTitles().forEach(
+                    (key, value) -> {
+                        vocabularySchema.addProperty(DCTerms.title, value, key);
+                    }
+            );
+        }
+
+        if (!vocabulary.getComments().isEmpty()) {
+            vocabulary.getComments().forEach(
+                    (key, value) -> {
+                        vocabularySchema.addProperty(RDFS.comment, value, key);
+                    }
+            );
+        }
+
+        if (!vocabulary.getComments().isEmpty()) {
+            vocabulary.getComments().forEach(
+                    (key, value) -> {
+                        vocabularySchema.addProperty(RDFS.label, value, key);
+                    }
+            );
+        }
+
+        //  model.add(vocabularySchema);
+        /*
+        vocabulary.getDescriptions().forEach(description ->
+        {
+            resources.getModel().getResource(vocabulary.getNamespace()+"Schema")
+                   // .addProperty(DCTerms.description)
+        });
+
+*/
+        org.apache.jena.riot.RDFWriter.create()
+                .set(RIOT.symTurtleDirectiveStyle, "at")
+                // .set(RIOT.symTurtleOmitBase, true)
+                .lang(org.apache.jena.riot.Lang.TTL)
+                .source(model)
+                .output(System.out);
+
+
+        return model;
+
+    }
+
 
 }

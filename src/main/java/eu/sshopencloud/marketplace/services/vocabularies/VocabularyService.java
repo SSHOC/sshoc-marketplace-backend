@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
@@ -31,8 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -200,5 +201,29 @@ public class VocabularyService {
         conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
 
         return vocabulary;
+    }
+
+    //ELiza
+    public MultipartFile exportVocabulary(String vocabularyCode) {
+        Vocabulary vocabulary = loadVocabulary(vocabularyCode);
+
+        org.apache.jena.rdf.model.Model model= RDFModelParser.createRDFModel(vocabulary);
+
+        List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);
+
+        concepts.forEach(concept -> {
+            model.createResource(concept.getUri());
+        });
+
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream("output-model.ttl");
+            RDFDataMgr.write(out, model, Lang.TURTLE);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
     }
 }

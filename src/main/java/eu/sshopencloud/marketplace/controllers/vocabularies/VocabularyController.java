@@ -74,4 +74,24 @@ public class VocabularyController {
         vocabularyService.removeVocabulary(vocabularyCode, force);
         return ResponseEntity.ok().build();
     }
+
+    //Reimport
+    @Operation(summary = "Create vocabulary from file")
+    @PutMapping(path = "/reimport/{code}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<VocabularyBasicDto> recreateVocabulary(@PathVariable("code") String vocabularyCode,
+                                                                 @RequestParam("ttl") MultipartFile vocabularyFile)
+            throws IOException, VocabularyAlreadyExistsException {
+
+        VocabularyBasicDto vocabulary = vocabularyService.createUploadedVocabulary(vocabularyFile);
+        return ResponseEntity.ok(vocabulary);
+    }
+
+    //Export
+    @Operation(summary = "Get vocabulary SKOS format with given filename")
+    @GetMapping(path = "export/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MultipartFile> exportVocabularyFile(@PathVariable("code") String vocabularyCode) {
+
+        vocabularyService.exportVocabulary(vocabularyCode);
+        return null;
+    }
 }
