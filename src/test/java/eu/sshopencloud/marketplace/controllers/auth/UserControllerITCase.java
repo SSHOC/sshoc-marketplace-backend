@@ -6,8 +6,6 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.auth.NewPasswordData;
 import eu.sshopencloud.marketplace.dto.auth.UserCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -157,6 +155,30 @@ public class UserControllerITCase {
     }
 
     @Test
+    public void shouldCreateConfigContributorUserWhenRoleNotSpecified() throws Exception {
+        UserCore user = new UserCore();
+        user.setUsername("New Config");
+        user.setDisplayName("New Config User");
+        user.setEmail("test@example.com");
+        user.setPassword("qwerty");
+
+        String payload = mapper.writeValueAsString(user);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/users")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username", is(user.getUsername())))
+                .andExpect(jsonPath("displayName", is(user.getDisplayName())))
+                .andExpect(jsonPath("email", is(user.getEmail())))
+                .andExpect(jsonPath("config", is(true)))
+                .andExpect(jsonPath("status", is("enabled")))
+                .andExpect(jsonPath("role", is("contributor")));
+    }
+
+    @Test
     public void shouldNotCreateConfigUserForModerator() throws Exception {
         UserCore user = new UserCore();
         user.setUsername("New Config");
@@ -182,11 +204,12 @@ public class UserControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("hits", is(4)))
+                .andExpect(jsonPath("hits", is(5)))
                 .andExpect(jsonPath("users[0].username", is("Administrator")))
                 .andExpect(jsonPath("users[1].username", is("Contributor")))
                 .andExpect(jsonPath("users[2].username", is("Moderator")))
-                .andExpect(jsonPath("users[3].username", is("System importer")));
+                .andExpect(jsonPath("users[3].username", is("System importer")))
+                .andExpect(jsonPath("users[4].username", is("System moderator")));
     }
 
     @Test
@@ -196,15 +219,17 @@ public class UserControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("hits", is(4)))
-                .andExpect(jsonPath("users[0].username", is("System importer")))
-                .andExpect(jsonPath("users[0].registrationDate", is("2020-08-04T12:29:00+0200")))
-                .andExpect(jsonPath("users[1].username", is("Contributor")))
+                .andExpect(jsonPath("hits", is(5)))
+                .andExpect(jsonPath("users[0].username", is("System moderator")))
+                .andExpect(jsonPath("users[0].registrationDate", is("2021-09-03T13:37:00+0200")))
+                .andExpect(jsonPath("users[1].username", is("System importer")))
                 .andExpect(jsonPath("users[1].registrationDate", is("2020-08-04T12:29:00+0200")))
-                .andExpect(jsonPath("users[2].username", is("Moderator")))
+                .andExpect(jsonPath("users[2].username", is("Contributor")))
                 .andExpect(jsonPath("users[2].registrationDate", is("2020-08-04T12:29:00+0200")))
-                .andExpect(jsonPath("users[3].username", is("Administrator")))
-                .andExpect(jsonPath("users[3].registrationDate", is("2020-08-04T12:29:00+0200")));
+                .andExpect(jsonPath("users[3].username", is("Moderator")))
+                .andExpect(jsonPath("users[3].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("users[4].username", is("Administrator")))
+                .andExpect(jsonPath("users[4].registrationDate", is("2020-08-04T12:29:00+0200")));
     }
 
 }

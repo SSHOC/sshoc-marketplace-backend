@@ -15,10 +15,10 @@ public interface ConceptRepository extends JpaRepository<Concept, ConceptId> {
 
     Concept findByUri(String uri);
 
-    Concept findByCodeAndVocabularyCode(String code, String vocabularyCode);
-
     Page<Concept> findByVocabularyCode(String vocabularyCode, Pageable pageable);
 
     List<Concept> findByVocabularyCode(String vocabularyCode, Sort sort);
+
+    List<Concept> findByVocabularyCode(String vocabularyCode);
 
 }

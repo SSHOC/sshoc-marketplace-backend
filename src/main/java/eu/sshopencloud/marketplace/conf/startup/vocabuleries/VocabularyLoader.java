@@ -24,7 +24,7 @@ public class VocabularyLoader {
     private final VocabularyService vocabularyService;
     private final VocabularyRepository vocabularyRepository;
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
-    private  final IndexService indexService;
+    private final IndexService indexService;
 
 
     @Deprecated

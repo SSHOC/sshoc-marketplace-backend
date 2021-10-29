@@ -953,8 +953,12 @@
       <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
       <str name="dictionaryImpl">DocumentDictionaryFactory</str>
       <str name="field">suggestions</str>
+      <str name="payloadField">persistent_id</str>
+      <str name="contextField">context</str>
       <str name="suggestAnalyzerFieldType">text_suggest</str>
       <str name="queryAnalyzerFieldType">query_suggest</str>
+      <str name="buildOnStartup">false</str>
+      <str name="buildOnCommit">false</str>
       <str name="highlight">false</str>
     </lst>
   </searchComponent>
@@ -982,10 +986,10 @@
   </requestHandler>
 
 
-  <!-- Term Vector Component
+<!-- Term Vector Component
 
-       http://wiki.apache.org/solr/TermVectorComponent
-    -->
+   http://wiki.apache.org/solr/TermVectorComponent
+-->
   <searchComponent name="tvComponent" class="solr.TermVectorComponent"/>
 
   <!-- A request handler for demonstrating the term vector component

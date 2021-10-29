@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.repositories.sources;
 
-import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

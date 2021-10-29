@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.List;
@@ -36,6 +37,7 @@ public class Vocabulary {
     private Map<String, String> titles;
 
     @Column(nullable = true, length = 4096)
+    @Nullable
     private String description;
 
     @SuppressWarnings("JpaAttributeTypeInspection")
@@ -49,6 +51,7 @@ public class Vocabulary {
     private Map<String, String> descriptions;
 
     @Column
+    @Nullable
     private String accessibleAt;
 
     @Column(nullable = false)

@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0050-SSHOC_81-system_moderator
+      description: adding system moderator role to database
+      author: ekalata
+      changes:
+        - sql:
+            sql: >
+              insert into users  (id, display_name, email, password, preferences, provider, registration_date, role, token_key, username, status, config) VALUES  (5, 'System Moderator', 'systemmoderator@example.com', '$2a$10$Qod4TYLHVIqmaPwIlCXTp.InDzTEM4QBV4AUWc2FNoDom4OjZwChC', '{}', NULL, '2021-09-03 13:37:00.60272', 'SYSTEM_MODERATOR', NULL, 'System moderator', 'ENABLED', true) on conflict do nothing;

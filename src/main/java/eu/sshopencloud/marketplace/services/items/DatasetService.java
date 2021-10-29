@@ -71,8 +71,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return prepareItemDto(dataset);
     }
 
-    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft) {
-        Dataset dataset = updateItem(persistentId, datasetCore, draft);
+    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft,boolean approved) {
+        Dataset dataset = updateItem(persistentId, datasetCore, draft, approved);
         return prepareItemDto(dataset);
     }
 
@@ -151,6 +151,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     public DatasetDto getMerge(String persistentId, List<String> mergeList) {
+
+
         return prepareMergeItems(persistentId, mergeList);
     }
 

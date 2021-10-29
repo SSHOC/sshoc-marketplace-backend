@@ -10,7 +10,6 @@ import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
-import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,6 @@ public class ItemFactory {
     private final ItemMediaFactory itemMediaFactory;
 
     private final UserRepository userRepository;
-
 
     public <T extends Item> T initializeItem(ItemCore itemCore, T item, ItemCategory category, Errors errors) {
         item.setCategory(category);
@@ -85,8 +83,7 @@ public class ItemFactory {
                             "field.requiredInCase",
                             "Source item id is required if Source is provided."
                     );
-                }
-                else {
+                } else {
                     errors.rejectValue(
                             "sourceItemId",
                             "field.requiredInCase",
@@ -105,10 +102,9 @@ public class ItemFactory {
                     "Source is required if Source item id is provided."
             );
         }
-
         item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
-        item.addMedia(itemMediaFactory.create(itemCore.getMedia(), item, errors));
 
+        item.addMedia(itemMediaFactory.create(itemCore.getMedia(), item, errors));
 
 
         if (itemCore.getThumbnail() != null && itemCore.getThumbnail().getInfo() != null) {
@@ -148,8 +144,7 @@ public class ItemFactory {
                     try {
                         if (StringUtils.isNotBlank(url))
                             return new URL(url).toURI();
-                    }
-                    catch (MalformedURLException | URISyntaxException e) {
+                    } catch (MalformedURLException | URISyntaxException e) {
                         errors.rejectValue("accessibleAt", "field.invalid", "Accessible at is malformed URL.");
                     }
 

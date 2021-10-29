@@ -107,6 +107,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
+
     protected D prepareItemDto(I item) {
 
         D dto = convertItemToDto(item);
@@ -120,7 +121,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected I createItem(C itemCore, boolean draft) {
-        return createOrUpdateItemVersion(itemCore, null, draft);
+        return createOrUpdateItemVersion(itemCore, null, draft, true);
     }
 
     protected I mergeItem(String persistentId, List<String> mergedCores) {
@@ -128,9 +129,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I mergedItem = loadCurrentItem(persistentId);
         mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
-        for (int i = 0; i < mergedCores.size(); i++) {
-
-            VersionedItem versionedItem = versionedItemRepository.getOne(mergedCores.get(i));
+        for (String mergedCore : mergedCores) {
+            VersionedItem versionedItem = versionedItemRepository.getOne(mergedCore);
             I prevItem = (I) versionedItem.getCurrentVersion();
             prevItem.setStatus(ItemStatus.DEPRECATED);
             mergedItem.getVersionedItem().addMergedWith(versionedItem);
@@ -147,32 +147,28 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     protected boolean checkIfStep(String itemPersistentId) {
         VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
         I currItem = (I) versionedItem.getCurrentVersion();
-        if (currItem.getCategory().equals(ItemCategory.STEP)) return true;
-        else return false;
+        return currItem.getCategory().equals(ItemCategory.STEP);
     }
 
     protected boolean checkIfWorkflow(String itemPersistentId) {
         VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
         I currItem = (I) versionedItem.getCurrentVersion();
-        if (currItem.getCategory().equals(ItemCategory.WORKFLOW)) return true;
-        else return false;
+        return currItem.getCategory().equals(ItemCategory.WORKFLOW);
     }
 
-    protected I updateItem(String persistentId, C itemCore, boolean draft) {
+    protected I updateItem(String persistentId, C itemCore, boolean draft, boolean approved) {
         I item = loadItemForCurrentUser(persistentId);
-        return createOrUpdateItemVersion(itemCore, item, draft);
+        return createOrUpdateItemVersion(itemCore, item, draft, approved);
     }
 
-    private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft) {
-        I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft);
+    private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
+        I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft, approved);
         indexService.indexItem(newItem);
-
-
         return newItem;
     }
 
 
-    private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft) {
+    private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
             I version = modifyItem(itemCore, prevVersion);
@@ -187,7 +183,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         I version = makeItemVersion(itemCore, prevVersion);
 
-        version = saveVersionInHistory(version, prevVersion, draft);
+        version = saveVersionInHistory(version, prevVersion, draft, approved);
 
         itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), version, prevVersion, draft);
 
@@ -195,13 +191,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
-        return saveVersionInHistory(version, prevVersion, draft, true);
+    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean approved) {
+        return saveVersionInHistory(version, prevVersion, draft, true, approved);
     }
 
 
     // Warning: important method! Do not change unless you know what you are doing!
-    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean changeStatus) {
+    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean changeStatus, boolean approved) {
         VersionedItem versionedItem =
                 (prevVersion == null) ? createNewVersionedItem() : prevVersion.getVersionedItem();
 
@@ -219,7 +215,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         // If not a draft
         if (!draft) {
-            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus);
+
+            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus, approved);
 
             if (version.getStatus() == ItemStatus.APPROVED)
                 deprecatePrevApprovedVersion(versionedItem);
@@ -254,6 +251,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         for (ItemMedia media : version.getMedia()) {
             try {
                 mediaStorageService.linkToMedia(media.getMediaId());
+            } catch (MediaNotAvailableException e) {
+                throw new IllegalStateException("Media not available unexpectedly");
+            }
+        }
+
+        if (Objects.nonNull(version.getThumbnail()) && version.getThumbnail().getItemMediaThumbnail().equals(ItemMediaType.THUMBNAIL_ONLY)) {
+            ItemMedia mediaThumbnail = version.getThumbnail();
+            try {
+                mediaStorageService.linkToMedia(mediaThumbnail.getMediaId());
             } catch (MediaNotAvailableException e) {
                 throw new IllegalStateException("Media not available unexpectedly");
             }
@@ -312,7 +318,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        itemVisibilityService.setupItemVersionVisibility(version, versionedItem, true);
+
+        itemVisibilityService.setupItemVersionVisibility(version, versionedItem, true, true);
 
         if (version.getStatus() == ItemStatus.APPROVED)
             deprecatePrevApprovedVersion(versionedItem);
@@ -350,7 +357,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I currentVersion = loadCurrentItem(persistentId);
         I targetVersion = makeItemVersionCopy(item);
 
-        targetVersion = saveVersionInHistory(targetVersion, currentVersion, false);
+        targetVersion = saveVersionInHistory(targetVersion, currentVersion, false, true);
         copyVersionRelations(targetVersion, item);
 
         indexService.indexItem(targetVersion);
@@ -376,7 +383,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I item = loadCurrentItem(persistentId);
         I newItem = makeItemVersionCopy(item);
 
-        newItem = saveVersionInHistory(newItem, item, draft, modifyStatus);
+        newItem = saveVersionInHistory(newItem, item, draft, modifyStatus, true);
         copyVersionRelations(newItem, item);
 
         itemUpgradeRegistry.registerUpgradedVersion(newItem);
@@ -472,7 +479,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     private boolean shouldRenderProperty(PropertyDto property, User user) {
-        return (!property.getType().isHidden() || (user != null && user.isModerator()));
+        // hidden properties have to be always rendered
+        //return (!property.getType().isHidden() || (user != null && user.isModerator()));
+        return true;
     }
 
     protected List<ItemExtBasicDto> getItemHistory(String persistentId, Long versionId) {
@@ -492,7 +501,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item, Long versionId) {
 
-        List<ItemExtBasicDto> mergedItemHistoryList = new ArrayList<>(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId(),versionId)));
+        List<ItemExtBasicDto> mergedItemHistoryList = new ArrayList<>(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId(), versionId)));
         mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
 
         return mergedItemHistoryList;
@@ -509,7 +518,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected D prepareMergeItems(String persistentId, List<String> mergeList) {
 
-        List<D> itemDtoList = new ArrayList<D>();
+        List<D> itemDtoList = new ArrayList<>();
 
         I finalItem = loadLatestItem(persistentId);
         D finalDto = convertItemToDto(finalItem);

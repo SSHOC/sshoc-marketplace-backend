@@ -51,44 +51,45 @@ public class ConceptControllerITCase {
 
     @Test
     public void shouldCreateNewCandidateConcept() throws Exception {
-        String vocabularyCode = "tadirah-research-activity";
+        String vocabularyCode = "publication-type";
 
         mvc.perform(
                 get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
                         .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code", is("tadirah-research-activity")))
-                .andExpect(jsonPath("$.conceptResults.hits", is(7)))
-                .andExpect(jsonPath("$.conceptResults.count", is(7)))
-                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(7)))
+                .andExpect(jsonPath("$.code", is("publication-type")))
+                .andExpect(jsonPath("$.conceptResults.hits", is(5)))
+                .andExpect(jsonPath("$.conceptResults.count", is(5)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(5)))
                 .andExpect(
                         jsonPath(
                                 "$.conceptResults.concepts[*].code",
-                                containsInRelativeOrder("Capture", "Creation", "Enrichment", "Analysis", "Interpretation", "Storage", "Dissemination")
+                                containsInRelativeOrder("Journal", "Book", "Conference", "Article", "Pre-Print")
                         )
                 );
 
-        RelatedConceptCore relatedConceptCreation = RelatedConceptCore.builder()
-                .code("Creation")
+        RelatedConceptCore relatedConceptJournal = RelatedConceptCore.builder()
+                .code("Journal")
                 .vocabulary(new VocabularyId(vocabularyCode))
-                .uri("http://tadirah.dariah.eu/researchactivity/instances/Creation")
+                .uri("http://purl.org/ontology/bibo/Journal")
                 .relation(new ConceptRelationId("narrower"))
                 .build();
-        RelatedConceptCore relatedConceptEnrichment = RelatedConceptCore.builder()
-                .code("Enrichment")
+        RelatedConceptCore relatedConceptBook = RelatedConceptCore.builder()
+                .code("Book")
                 .vocabulary(new VocabularyId(vocabularyCode))
                 .relation(new ConceptRelationId("related"))
                 .build();
-        RelatedConceptCore relatedConceptAnalysis = RelatedConceptCore.builder()
-                .uri("http://tadirah.dariah.eu/researchactivity/instances/Analysis")
+        RelatedConceptCore relatedConceptConference = RelatedConceptCore.builder()
+                .uri("http://purl.org/ontology/bibo/Conference")
                 .relation(new ConceptRelationId("sameAs"))
                 .build();
 
         ConceptCore conceptCore = ConceptCore.builder()
                 .code("New Candidate")
                 .label("New candidate concept")
-                .relatedConcepts(List.of(relatedConceptCreation, relatedConceptEnrichment, relatedConceptAnalysis))
+                .relatedConcepts(List.of(relatedConceptJournal, relatedConceptBook, relatedConceptConference))
                 .build();
 
         mvc.perform(
@@ -103,29 +104,30 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.code", is("New Candidate")))
                 .andExpect(jsonPath("$.label", is("New candidate concept")))
                 .andExpect(jsonPath("$.candidate", is(true)))
-                .andExpect(jsonPath("$.uri", is("http://tadirah.dariah.eu/researchactivity/instances/New Candidate")))
-                .andExpect(jsonPath("$.relatedConcepts[0].code", is("Creation")))
-                .andExpect(jsonPath("$.relatedConcepts[1].code", is("Enrichment")))
-                .andExpect(jsonPath("$.relatedConcepts[2].code", is("Analysis")));
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New Candidate")))
+                .andExpect(jsonPath("$.relatedConcepts[0].code", is("Journal")))
+                .andExpect(jsonPath("$.relatedConcepts[1].code", is("Book")))
+                .andExpect(jsonPath("$.relatedConcepts[2].code", is("Conference")));
 
 
         mvc.perform(
                 get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
                         .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code", is("tadirah-research-activity")))
-                .andExpect(jsonPath("$.conceptResults.hits", is(8)))
-                .andExpect(jsonPath("$.conceptResults.count", is(8)))
-                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(8)))
+                .andExpect(jsonPath("$.code", is("publication-type")))
+                .andExpect(jsonPath("$.conceptResults.hits", is(6)))
+                .andExpect(jsonPath("$.conceptResults.count", is(6)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(6)))
                 .andExpect(
                         jsonPath(
                                 "$.conceptResults.concepts[*].code",
-                                containsInRelativeOrder("Capture", "Creation", "Enrichment", "Analysis", "Interpretation", "Storage", "Dissemination", "New Candidate")
+                                containsInRelativeOrder("Journal", "Book", "Conference", "Article", "Pre-Print", "New Candidate")
                         )
                 )
-                .andExpect(jsonPath("$.conceptResults.concepts[6].candidate", is(false)))
-                .andExpect(jsonPath("$.conceptResults.concepts[7].candidate", is(true)));
+                .andExpect(jsonPath("$.conceptResults.concepts[4].candidate", is(false)))
+                .andExpect(jsonPath("$.conceptResults.concepts[5].candidate", is(true)));
 
     }
 
@@ -269,16 +271,19 @@ public class ConceptControllerITCase {
 
     @Test
     public void shouldCommitCandidateConcept() throws Exception {
-        String vocabularyCode = "tadirah-research-activity";
+        String vocabularyCode = "publication-type";
         String conceptCode = "New";
 
         ConceptCore conceptCore = ConceptCore.builder()
                 .code(conceptCode)
                 .label("New candidate concept")
+                .definition("test")
+                .notation("Test")
+                .relatedConcepts(null)
                 .build();
 
         mvc.perform(
-                post("/api/vocabularies/{vocabulary-code}/concepts/", vocabularyCode)
+                post("/api/vocabularies/{vocabulary-code}/concepts", vocabularyCode)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", moderatorJwt)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -289,7 +294,7 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.code", is(conceptCode)))
                 .andExpect(jsonPath("$.label", is("New candidate concept")))
                 .andExpect(jsonPath("$.candidate", is(true)))
-                .andExpect(jsonPath("$.uri", is("http://tadirah.dariah.eu/researchactivity/instances/New")));
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New")));
 
         mvc.perform(
                 put("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}/commit", vocabularyCode, conceptCode)
@@ -301,7 +306,7 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.code", is(conceptCode)))
                 .andExpect(jsonPath("$.label", is("New candidate concept")))
                 .andExpect(jsonPath("$.candidate", is(false)))
-                .andExpect(jsonPath("$.uri", is("http://tadirah.dariah.eu/researchactivity/instances/New")));
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New")));
 
         mvc.perform(
                 get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
@@ -312,14 +317,14 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.code", is(conceptCode)))
                 .andExpect(jsonPath("$.label", is("New candidate concept")))
                 .andExpect(jsonPath("$.candidate", is(false)))
-                .andExpect(jsonPath("$.uri", is("http://tadirah.dariah.eu/researchactivity/instances/New")));
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New")));
 
     }
 
     @Test
     public void shouldDeleteConcept() throws Exception {
-        String vocabularyCode = "tadirah-research-activity";
-        String conceptCode = "Enrichment";
+        String vocabularyCode = "publication-type";
+        String conceptCode = "Book";
 
         mvc.perform(
                 get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
@@ -328,9 +333,9 @@ public class ConceptControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
-                .andExpect(jsonPath("$.label", is("3 Enrichment")))
+                .andExpect(jsonPath("$.label", is("Book")))
                 .andExpect(jsonPath("$.candidate", is(false)))
-                .andExpect(jsonPath("$.uri", is("http://tadirah.dariah.eu/researchactivity/instances/Enrichment")));
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/Book")));
 
         mvc.perform(
                 delete("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)

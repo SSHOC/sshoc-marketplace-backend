@@ -119,7 +119,7 @@ public class MediaSourceControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("vimeo")))
                 .andExpect(jsonPath("serviceUrl", is("https://vimeo.com/watch")))
-                .andExpect(jsonPath("mediaCategory", is("video")));
+                .andExpect(jsonPath("mediaCategory", is("embed")));
     }
 
     @Test

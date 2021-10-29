@@ -20,8 +20,8 @@ public enum SearchFacet {
             new SearchFacetParameters(4, 0, FacetOptions.FacetSort.INDEX)
     ),
 
-    ACTIVITY(SearchFilter.ACTIVITY, IndexItem.ACTIVITY_FIELD,
-            List.of(IndexItem.ACTIVITY_FIELD),
+    ACTIVITY(SearchFilter.ACTIVITY, IndexItem.FACETING_DYNAMIC_PROPERTY_ACTIVITY_TAG,
+            List.of(IndexItem.FACETING_DYNAMIC_PROPERTY_ACTIVITY_TAG),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 
@@ -30,14 +30,24 @@ public enum SearchFacet {
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 
-    KEYWORD(SearchFilter.KEYWORD, IndexItem.KEYWORD_FIELD,
-            List.of(IndexItem.KEYWORD_FIELD),
+    KEYWORD(SearchFilter.KEYWORD, IndexItem.FACETING_DYNAMIC_PROPERTY_KEYWORD_TAG,
+            List.of(IndexItem.FACETING_DYNAMIC_PROPERTY_KEYWORD_TAG),
+            new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
+    LANGUAGE(SearchFilter.LANGUAGE, IndexItem.FACETING_DYNAMIC_PROPERTY_LANGUAGE_TAG,
+            List.of(IndexItem.FACETING_DYNAMIC_PROPERTY_LANGUAGE_TAG),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
     ),
 
     PROPERTY_TYPE(SearchFilter.PROPERTY_TYPE, IndexConcept.TYPES_FIELD,
             Collections.singletonList(IndexConcept.TYPES_FIELD),
             new SearchFacetParameters(-1, 1, FacetOptions.FacetSort.COUNT)
+    ),
+
+    CANDIDATE(SearchFilter.CANDIDATE, IndexConcept.CANDIDATE_FIELD,
+            Collections.singletonList(IndexConcept.CANDIDATE_FIELD),
+            new SearchFacetParameters(-1, 0, FacetOptions.FacetSort.COUNT)
     );
 
 

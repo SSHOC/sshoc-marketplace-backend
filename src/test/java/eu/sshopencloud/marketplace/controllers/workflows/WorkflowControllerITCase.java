@@ -2498,4 +2498,152 @@ public class WorkflowControllerITCase {
 
 
     }
+
+    @Test
+    public void shouldWorkflowWithStepsAndChangeItsOrder() throws Exception {
+        WorkflowCore workflow = new WorkflowCore();
+        workflow.setLabel("Test simple workflow with steps");
+        workflow.setDescription("Lorem ipsum");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(workflow);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/workflows")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String workflowPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, WorkflowDto.class).getPersistentId();
+
+        StepCore step3 = new StepCore();
+        step3.setLabel("Test simple step 3");
+        step3.setDescription("Lorem ipsum");
+        step3.setStepNo(1);
+        step3.setSource(null);
+
+        String payload3 = TestJsonMapper.serializingObjectMapper().writeValueAsString(step3);
+        log.debug("JSON: " + payload3);
+
+        String responseStep3 = mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
+                .content(payload3)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("label", is("Test simple step 3")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+
+        String responseStep3persistentId = mapper.readValue(responseStep3, StepDto.class).getPersistentId();
+
+        StepCore step2 = new StepCore();
+        step2.setLabel("Test simple step 2");
+        step2.setDescription("Lorem ipsum");
+        step2.setStepNo(1);
+
+        String payload2 = TestJsonMapper.serializingObjectMapper().writeValueAsString(step2);
+        log.debug("JSON: " + payload2);
+
+        String responseStep2 = mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
+                .content(payload2)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("label", is("Test simple step 2")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        String responseStep2persistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(responseStep2, StepDto.class).getPersistentId();
+
+        StepCore step1 = new StepCore();
+        step1.setLabel("Test simple step 1");
+        step1.setDescription("Lorem ipsum");
+        step1.setStepNo(1);
+
+        String payload1 = TestJsonMapper.serializingObjectMapper().writeValueAsString(step1);
+        log.debug("JSON: " + payload1);
+
+        String responseStep1 = mvc.perform(post("/api/workflows/{workflowId}/steps", workflowPersistentId)
+                .content(payload1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("label", is("Test simple step 1")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        String responseStep1persistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(responseStep1, StepDto.class).getPersistentId();
+
+        mvc.perform(get("/api/workflows/{workflowId}", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Test simple workflow with steps")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].label", is("Test simple step 1")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is(responseStep1persistentId)))
+                .andExpect(jsonPath("composedOf[1].label", is("Test simple step 2")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].persistentId", is(responseStep2persistentId)))
+                .andExpect(jsonPath("composedOf[2].label", is("Test simple step 3")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[2].persistentId", is(responseStep3persistentId)));
+
+
+        step3.setStepNo(1);
+
+        String payloadPut = TestJsonMapper.serializingObjectMapper().writeValueAsString(step3);
+        log.debug("JSON: " + payloadPut);
+
+        mvc.perform(put("/api/workflows/{workflowId}/steps/{stepPersistentId}", workflowPersistentId, responseStep3persistentId)
+                .content(payloadPut)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("step")))
+                .andExpect(jsonPath("label", is("Test simple step 3")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(0)));
+
+
+
+        mvc.perform(get("/api/workflows/{workflowId}", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Test simple workflow with steps")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].label", is("Test simple step 3")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is(responseStep3persistentId)))
+                .andExpect(jsonPath("composedOf[1].label", is("Test simple step 1")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].persistentId", is(responseStep1persistentId)))
+                .andExpect(jsonPath("composedOf[2].label", is("Test simple step 2")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[2].persistentId", is(responseStep2persistentId)));
+    }
 }

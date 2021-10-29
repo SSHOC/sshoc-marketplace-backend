@@ -36,6 +36,17 @@ public class MimeTypeByFilenameUtils {
                 return Optional.of(new MediaType("image", "svg+xml"));
             case "webp":
                 return Optional.of(new MediaType("image", "webp"));
+            case "mp4":
+                return Optional.of(new MediaType("video", "mp4"));
+            case "mov":
+            case "qt":
+                return Optional.of(new MediaType("video", "quicktime"));
+            case "wmv":
+                return Optional.of(new MediaType("video", "x-ms-wmv"));
+            case "avi":
+                return Optional.of(new MediaType("video", "x-msvideo"));
+            case "flv":
+                return Optional.of(new MediaType("video", "x-flv"));
         }
 
         return Optional.empty();

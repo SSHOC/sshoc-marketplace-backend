@@ -22,6 +22,7 @@ class MediaTypeResolver {
 
     public MediaCategory resolve(MediaLocation mediaLocation) {
         URL mediaSourceUrl = mediaLocation.getSourceUrl();
+
         Optional<MediaSource> mediaSource = mediaSourceService.resolveMediaSource(mediaSourceUrl);
 
         if (mediaSource.isPresent())
@@ -68,6 +69,10 @@ class MediaTypeResolver {
 
         if (imageType.includes(mimeType))
             return Optional.of(MediaCategory.IMAGE);
+
+        imageType = new MediaType("video");
+        if (imageType.includes(mimeType))
+            return Optional.of(MediaCategory.VIDEO);
 
         return Optional.empty();
     }

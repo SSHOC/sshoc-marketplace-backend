@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 
@@ -25,6 +26,7 @@ public class Property {
     private PropertyType type;
 
     @Column(nullable = true, length = 2048)
+    @Nullable
     private String value;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER)

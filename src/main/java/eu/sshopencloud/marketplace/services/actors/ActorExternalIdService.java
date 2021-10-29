@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.actors;
 
+import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.actors.ActorSource;
 import eu.sshopencloud.marketplace.repositories.actors.ActorExternalIdRepository;
@@ -16,8 +17,8 @@ public class ActorExternalIdService {
 
     private final ActorExternalIdRepository actorExternalIdRepository;
 
-    public Optional<ActorExternalId> loadActorExternalId(ActorSource identifierService, String identifier) {
-        return actorExternalIdRepository.findByIdentifierServiceAndIdentifier(identifierService, identifier);
+    public Optional<ActorExternalId> loadActorExternalId(ActorSource identifierService, String identifier, Actor actor){
+        return actorExternalIdRepository.findByIdentifierServiceAndIdentifierAndActorId(identifierService, identifier, actor.getId());
     }
 
 }
