@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ItemRelationRepository extends JpaRepository<ItemRelation, String> {
 
+    ItemRelation getItemRelationByCode(String code);
+
 }
