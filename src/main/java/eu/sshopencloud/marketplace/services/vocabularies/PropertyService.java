@@ -24,7 +24,6 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final ItemRepository itemRepository;
 
-
     public List<Property> getItemProperties(Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Item with given id = %d not found", itemId)));
