@@ -38,7 +38,7 @@ class SearchController {
             @RequestParam(value = "q", required = false) String q,
             @Parameter(
                     description = "Dynamic property filter parameters should be provided with putting multiple d.{property}={expression} as request parameters. Allowed property codes: "
-                            + "contributor, external-identifier and those codes returned by GET /api/property-types .", schema = @Schema(type = "string"))
+                            + SearchFilter.ITEMS_INDEX_TYPE_PROPERTIES + " and those codes returned by GET /api/property-types .", schema = @Schema(type = "string"))
             @RequestParam(required = false) MultiValueMap<String, String> d,
             @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
             @RequestParam(value = "order", required = false) List<SearchOrder> order,

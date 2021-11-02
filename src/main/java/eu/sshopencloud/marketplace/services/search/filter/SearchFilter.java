@@ -51,6 +51,8 @@ public enum SearchFilter {
 
     public static final String ITEMS_INDEX_TYPE_FILTERS = "activity, source, keyword, language";
 
+    public static final String ITEMS_INDEX_TYPE_PROPERTIES = "status, owner, source, contributor, external-identifier";
+
     public static final String CONCEPT_INDEX_TYPE_FILTERS = "candidate";
 
 }
