@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0051-SSHOC_96-shared_email_for_many_accounts
+      description: drop unique consraint from users emails
+      author: mkozak
+      changes:
+        - dropUniqueConstraint:
+            tableName: users
+            constraintName: uk_6dotkott2kjsp8vw4d0m25fb7
+  - changeSet:
+      id: 0051-SSHOC_96-many_idp_providers_for_users
+      description: new table for many providers for one user
+      author: mkozak
+      changes:
+        - createTable:
+            tableName: user_providers
+            columns:
+              - column:
+                  name: provider
+                  type: varchar(256)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: providers
+                  type: VARCHAR(255)
+                  constraints:
+                    foreignKeyName: users_user_providers_fk
+                    references: user_providers(provider)
