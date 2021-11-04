@@ -12,7 +12,9 @@ import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.util.UrlPathHelper;
 
 
 @Configuration
@@ -31,4 +33,12 @@ public class WebConvertersConfig implements WebMvcConfigurer {
         registry.addFormatterForFieldType(SourceOrder.class, new SourceOrderFormatter());
         registry.addFormatterForFieldType(UserOrder.class, new UserOrderFormatter());
     }
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        UrlPathHelper urlPathHelper = new UrlPathHelper();
+        urlPathHelper.setUrlDecode(false);
+        configurer.setUrlPathHelper(urlPathHelper);
+    }
+
 }
