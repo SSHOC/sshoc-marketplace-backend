@@ -7,9 +7,11 @@ import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
+import eu.sshopencloud.marketplace.services.actors.event.ActorChangedEvent;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.validators.actors.ActorFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ public class ActorService {
 
     private final IndexService indexService;
 
+    private final ApplicationEventPublisher eventPublisher;
 
     public PaginatedActors getActors(PageCoords pageCoords) {
 
@@ -68,6 +71,9 @@ public class ActorService {
         Actor actor = actorFactory.create(actorCore, id);
         actorRepository.save(actor);
         indexService.indexActor(actor);
+
+        eventPublisher.publishEvent(new ActorChangedEvent(id, false));
+
         return ActorMapper.INSTANCE.toDto(actor);
     }
 
@@ -78,6 +84,8 @@ public class ActorService {
         }
         actorRepository.deleteById(id);
         indexService.removeActor(id);
+
+        eventPublisher.publishEvent(new ActorChangedEvent(id, true));
     }
 
 }
