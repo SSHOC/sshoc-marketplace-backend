@@ -131,4 +131,10 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     )
     List<Item> findMergedItemsHistory(@Param("persistentId") String persistentId, @Param("versionId") Long versionId);
 
+
+    List<Item> findBySourceId(Long sourceId);
+
+    @Query("select v from Item v join v.contributors c where c.actor.id = :actorId ")
+    List<Item> findByContributorActorId(@Param("actorId") Long actorId);
+
 }

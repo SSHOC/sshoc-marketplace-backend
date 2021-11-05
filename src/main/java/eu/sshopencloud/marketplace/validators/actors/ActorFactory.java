@@ -46,6 +46,8 @@ public class ActorFactory {
             } catch (MalformedURLException | URISyntaxException e) {
                 errors.rejectValue("website", "field.invalid", "Website is malformed URL.");
             }
+        } else {
+            actor.setWebsite(null);
         }
 
         if (StringUtils.isNotBlank(actorCore.getEmail())) {
@@ -54,6 +56,8 @@ public class ActorFactory {
             } else {
                 errors.rejectValue("email", "field.invalid", "Email is malformed.");
             }
+        } else {
+            actor.setEmail(null);
         }
 
         actor.getAffiliations().addAll(prepareAffiliations(actorCore.getAffiliations(), actor, errors, "affiliations"));
