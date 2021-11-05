@@ -17,14 +17,19 @@ import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
+import eu.sshopencloud.marketplace.services.actors.event.ActorChangedEvent;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
+import eu.sshopencloud.marketplace.services.sources.event.SourceChangedEvent;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.Collections;
 import java.util.List;
@@ -74,6 +79,7 @@ public class IndexService {
     public void clearItemIndex() {
         indexItemRepository.deleteAll();
     }
+
 
     public void removeItemVersions(Item item) {
         indexItemRepository.deleteByPersistentId(item.getPersistentId());
@@ -160,4 +166,29 @@ public class IndexService {
             indexConcepts(vocabulary);
         });
     }
+
+    @Async
+    @TransactionalEventListener(classes = {SourceChangedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
+    public void handleChangedSource(SourceChangedEvent event) {
+        if (event.isDeleted()) {
+            reindexItems();
+        } else {
+            for (Item item : itemRepository.findBySourceId(event.getId())) {
+                indexItem(item);
+            }
+        }
+    }
+
+    @Async
+    @TransactionalEventListener(classes = {ActorChangedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
+    public void handleChangedActor(ActorChangedEvent event) {
+        if (event.isDeleted()) {
+            reindexItems();
+        } else {
+            for (Item item : itemRepository.findByContributorActorId(event.getId())) {
+                indexItem(item);
+            }
+        }
+    }
+
 }
