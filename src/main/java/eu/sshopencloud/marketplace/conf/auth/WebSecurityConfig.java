@@ -111,6 +111,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/datasets/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/datasets/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/datasets/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name());
@@ -118,6 +119,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/tools-services/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/tools-services/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/tools-services/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/tools-services/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/tools-services/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/tools-services/**").hasAuthority(Authority.CONTRIBUTOR.name());
@@ -125,6 +127,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/training-materials/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/training-materials/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/training-materials/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name());
@@ -132,6 +135,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/publications/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/publications/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/publications/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/publications/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/publications/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/publications/**").hasAuthority(Authority.MODERATOR.name());
@@ -139,8 +143,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/workflows/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/workflows/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/workflows/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.GET, "/api/workflows/*/steps/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/workflows/*/steps/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/workflows/*/steps/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name());
