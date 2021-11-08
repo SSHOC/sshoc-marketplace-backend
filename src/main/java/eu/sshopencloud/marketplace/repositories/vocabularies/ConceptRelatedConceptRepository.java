@@ -20,6 +20,8 @@ public interface ConceptRelatedConceptRepository extends JpaRepository<ConceptRe
     List<ConceptRelatedConcept> findBySubjectAndRelation(Concept subject, ConceptRelation relation);
     List<ConceptRelatedConcept> findByObjectAndRelation(Concept object, ConceptRelation relation);
 
+
+    List<ConceptRelatedConcept> findByObjectAndRelationCodeAndObjectVocabularyCode(Concept object,  String relationCode,  String objectVocabularyCode);
     @Modifying
     @Query("delete from ConceptRelatedConcept rel where rel.object.code = :code or rel.subject.code = :code")
     void deleteConceptRelations(@Param("code") String conceptCode);

@@ -4,19 +4,18 @@ import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
+import eu.sshopencloud.marketplace.services.vocabularies.ConceptComparator;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.riot.RIOT;
-import org.apache.jena.vocabulary.DCTerms;
-import org.apache.jena.vocabulary.RDFS;
-import org.apache.jena.vocabulary.SKOS;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleLiteral;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -117,7 +116,7 @@ public class RDFModelParser {
     public Vocabulary createVocabulary(String vocabularyCode, Model rdfModel) {
         Vocabulary vocabulary = new Vocabulary();
         vocabulary.setCode(vocabularyCode);
-        vocabulary.setLabel("");
+        vocabulary.setLabel("" );
         vocabulary.setLabels(new HashMap<>());
         vocabulary.setTitles(new HashMap<>());
         vocabulary.setComments(new HashMap<>());
@@ -131,11 +130,11 @@ public class RDFModelParser {
             rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(scheme))
                     .forEach(statement -> completeVocabulary(vocabulary, statement));
-            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getLabels().containsKey("en")) {
-                vocabulary.setLabel(vocabulary.getLabels().get("en"));
+            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getLabels().containsKey("en" )) {
+                vocabulary.setLabel(vocabulary.getLabels().get("en" ));
             }
-            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getTitles().containsKey("en")) {
-                vocabulary.setLabel(vocabulary.getTitles().get("en"));
+            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getTitles().containsKey("en" )) {
+                vocabulary.setLabel(vocabulary.getTitles().get("en" ));
             }
             if (StringUtils.isBlank(vocabulary.getLabel()) && !vocabulary.getLabels().isEmpty()) {
                 vocabulary.setLabel(vocabulary.getLabels().values().iterator().next());
@@ -143,11 +142,11 @@ public class RDFModelParser {
             if (StringUtils.isBlank(vocabulary.getLabel()) && !vocabulary.getTitles().isEmpty()) {
                 vocabulary.setLabel(vocabulary.getTitles().values().iterator().next());
             }
-            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getComments().containsKey("en")) {
-                vocabulary.setDescription(vocabulary.getComments().get("en"));
+            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getComments().containsKey("en" )) {
+                vocabulary.setDescription(vocabulary.getComments().get("en" ));
             }
-            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getDescriptions().containsKey("en")) {
-                vocabulary.setDescription(vocabulary.getDescriptions().get("en"));
+            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getDescriptions().containsKey("en" )) {
+                vocabulary.setDescription(vocabulary.getDescriptions().get("en" ));
             }
             if (StringUtils.isBlank(vocabulary.getDescription()) && !vocabulary.getComments().isEmpty()) {
                 vocabulary.setDescription(vocabulary.getComments().values().iterator().next());
@@ -177,7 +176,7 @@ public class RDFModelParser {
             }
         }
         if (StringUtils.isBlank(namespaceUri)) {
-            Optional<Namespace> mainNamespace = rdfModel.getNamespace("");
+            Optional<Namespace> mainNamespace = rdfModel.getNamespace("" );
             if (mainNamespace.isPresent()) {
                 namespaceUri = mainNamespace.get().getName();
             }
@@ -192,9 +191,9 @@ public class RDFModelParser {
         Concept result = new Concept();
         result.setCode(conceptCode);
         result.setVocabulary(vocabulary);
-        result.setLabel("");
+        result.setLabel("" );
         result.setLabels(new LinkedHashMap<>());
-        result.setNotation("");
+        result.setNotation("" );
         result.setDefinitions(new LinkedHashMap<>());
         result.setUri(conceptUri);
         result.setCandidate(false);
@@ -235,14 +234,14 @@ public class RDFModelParser {
             completeConcept(conceptMap.get(subjectUri), statement);
         });
         for (Concept concept : conceptMap.values()) {
-            if (StringUtils.isBlank(concept.getLabel()) && concept.getLabels().containsKey("en")) {
-                concept.setLabel(concept.getLabels().get("en"));
+            if (StringUtils.isBlank(concept.getLabel()) && concept.getLabels().containsKey("en" )) {
+                concept.setLabel(concept.getLabels().get("en" ));
             }
             if (StringUtils.isBlank(concept.getLabel()) && !concept.getLabels().isEmpty()) {
                 concept.setLabel(concept.getLabels().values().iterator().next());
             }
-            if (StringUtils.isBlank(concept.getDefinition()) && concept.getDefinitions().containsKey("en")) {
-                concept.setDefinition(concept.getDefinitions().get("en"));
+            if (StringUtils.isBlank(concept.getDefinition()) && concept.getDefinitions().containsKey("en" )) {
+                concept.setDefinition(concept.getDefinitions().get("en" ));
             }
             if (StringUtils.isBlank(concept.getDefinition()) && !concept.getDefinitions().isEmpty()) {
                 concept.setDefinition(concept.getDefinitions().values().iterator().next());
@@ -279,7 +278,7 @@ public class RDFModelParser {
     private ConceptRelatedConcept createConceptRelatedConcept(Concept concept, Statement statement, Map<String, Concept> conceptMap) {
         String predicateUri = statement.getPredicate().stringValue();
         if (predicateUri.equals(SKOS_BROADER) || predicateUri.equals(SKOS_NARROWER)) {
-            String relationCode = predicateUri.substring(predicateUri.indexOf("#") + 1);
+            String relationCode = predicateUri.substring(predicateUri.indexOf("#" ) + 1);
             String objectUri = statement.getObject().stringValue();
             if (conceptMap.containsKey(objectUri)) {
                 ConceptRelatedConcept conceptRelatedConcept = new ConceptRelatedConcept();
@@ -295,7 +294,7 @@ public class RDFModelParser {
     }
 
     public List<ConceptRelatedConcept> createConceptRelatedConcepts(Map<String, Concept> conceptMap, Model rdfModel) {
-        List<ConceptRelatedConcept> result = new ArrayList<ConceptRelatedConcept>();
+        List<ConceptRelatedConcept> result = new ArrayList<>();
         for (String subjectUri : conceptMap.keySet()) {
             Concept concept = conceptMap.get(subjectUri);
             List<ConceptRelatedConcept> conceptRelatedConcepts = rdfModel.stream()
@@ -309,81 +308,164 @@ public class RDFModelParser {
     }
 
 
-    //ELiza
-    /*
-    <https://vocabs.dariah.eu/sshoc-audience/schemaAudience> csw:hierarchyRoot true;
-      a skos:ConceptScheme;
-      skos:prefLabel "Intended audience"@en; V
-      dcterms:title "Intended audience"@en;V
-      skos:definition "Intended audience of an item."@en;V
-      skos:note "Used in the SSHOC projects SSH Open Marketplace and SSH Training Discovery Toolkit."@en;
-      skos:hasTopConcept <https://vocabs.dariah.eu/sshoc-audience/dataCreator> .
-    * */
-    public org.apache.jena.rdf.model.Model createRDFModel(Vocabulary vocabulary) {
+    public void addConceptToModel(Model model, String mainResource, Concept concept) {
 
-        RDFResources resources = new RDFResources(vocabulary.getNamespace());
+        ModelBuilder builder = new ModelBuilder(modelGlobal);
+        ValueFactory factory = SimpleValueFactory.getInstance();
 
-        org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel();
-        resources.generateNamespacePrefixes(vocabulary.getNamespace());
-        model.setNsPrefixes(resources.getNamespacePrefixes());
+        builder.defaultGraph()
+                .subject(concept.getUri())
+                .add(org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, org.eclipse.rdf4j.model.vocabulary.SKOS.CONCEPT);
 
-        Resource vocabularySchema = model.createResource(vocabulary.getNamespace() + "Schema");
+        if (!concept.getNotation().isBlank()) {
+            builder.subject(concept.getUri()).add(org.eclipse.rdf4j.model.vocabulary.SKOS.NOTATION,
+                    factory.createLiteral(concept.getNotation()));
+        }
 
-        Property propertyCSWHierarchyRoot = model.createProperty(resources.PREFIX_CSW + "hierarchyRoot");
-        Property propertyCSWHierarchyRootType = model.createProperty(resources.PREFIX_CSW + "hierarchyRootType");
-
-        vocabularySchema.addLiteral(propertyCSWHierarchyRoot, true)
-                .addProperty(propertyCSWHierarchyRootType, SKOS.ConceptScheme)
-                .addProperty(SKOS.prefLabel, vocabulary.getLabel(), "en");
-
-
-        if (!vocabulary.getDescription().isEmpty() || !Objects.isNull(vocabulary.getDescription()))
-            vocabularySchema.addProperty(DCTerms.description, vocabulary.getDescription());
-
-        if (!vocabulary.getTitles().isEmpty()) {
-            vocabulary.getTitles().forEach(
-                    (key, value) -> {
-                        vocabularySchema.addProperty(DCTerms.title, value, key);
-                    }
+        if (!concept.getDefinitions().isEmpty()) {
+            concept.getDefinitions().forEach(
+                    (key, value) ->
+                            builder.subject(concept.getUri())
+                                    .add(org.eclipse.rdf4j.model.vocabulary.SKOS.DEFINITION,
+                                            factory.createLiteral(value, key))
             );
         }
 
-        if (!vocabulary.getComments().isEmpty()) {
-            vocabulary.getComments().forEach(
-                    (key, value) -> {
-                        vocabularySchema.addProperty(RDFS.comment, value, key);
-                    }
+        builder.subject(concept.getUri())
+                .add(org.eclipse.rdf4j.model.vocabulary.SKOS.IN_SCHEME, mainResource);
+
+        if (!concept.getLabels().isEmpty()) {
+            concept.getLabels().forEach(
+                    (key, value) ->
+                            builder.subject(concept.getUri())
+                                    .add(org.eclipse.rdf4j.model.vocabulary.SKOS.PREF_LABEL,
+                                            factory.createLiteral(value, key))
             );
         }
 
-        if (!vocabulary.getComments().isEmpty()) {
-            vocabulary.getComments().forEach(
-                    (key, value) -> {
-                        vocabularySchema.addProperty(RDFS.label, value, key);
-                    }
-            );
-        }
-
-        //  model.add(vocabularySchema);
-        /*
-        vocabulary.getDescriptions().forEach(description ->
-        {
-            resources.getModel().getResource(vocabulary.getNamespace()+"Schema")
-                   // .addProperty(DCTerms.description)
-        });
-
-*/
-        org.apache.jena.riot.RDFWriter.create()
-                .set(RIOT.symTurtleDirectiveStyle, "at")
-                // .set(RIOT.symTurtleOmitBase, true)
-                .lang(org.apache.jena.riot.Lang.TTL)
-                .source(model)
-                .output(System.out);
-
-
-        return model;
+        modelGlobal = builder.build();
+        //  return builder.build();
 
     }
 
+
+    public Model modelGlobal;
+
+    //Eliza
+    public Model generateConcepts(Model model, String mainResource, List<Concept> concepts) {
+
+        modelGlobal = model;
+
+        ValueFactory factory = SimpleValueFactory.getInstance();
+        Collections.sort(concepts, new ConceptComparator());
+
+        concepts.forEach(
+                c -> {
+                    addConceptToModel(model, mainResource, c);
+                }
+        );
+
+        concepts.forEach(
+                c -> {
+                    model.add(Values.iri(mainResource.replace("Schema", "" ), c.getCode()), SKOS.BROADER, factory.createLiteral("aaa" ));
+                }
+        );
+
+        return modelGlobal;
+    }
+
+    public Model createRDFModelR(Vocabulary vocabulary) {
+
+        ModelBuilder builder = new ModelBuilder();
+        ValueFactory factory = SimpleValueFactory.getInstance();
+        String mainResource = vocabulary.getNamespace() + "Schema";
+
+        builder.setNamespace(RDF.NS)
+                .setNamespace(RDFS.NS)
+                .setNamespace(org.eclipse.rdf4j.model.vocabulary.SKOS.NS)
+                .setNamespace(org.eclipse.rdf4j.model.vocabulary.SKOSXL.NS)
+                .setNamespace(org.eclipse.rdf4j.model.vocabulary.OWL.NS)
+                .setNamespace(org.eclipse.rdf4j.model.vocabulary.DC.NS)
+                .setNamespace(org.eclipse.rdf4j.model.vocabulary.DCTERMS.NS)
+                .setNamespace(org.eclipse.rdf4j.model.vocabulary.XSD.NS)
+                .setNamespace(org.eclipse.rdf4j.model.vocabulary.FOAF.NS)
+                .setNamespace("tags", RDFResources.PREFIX_TAGS)
+                .setNamespace("cycAnnot", RDFResources.PREFIX_CYCANNOT)
+                .setNamespace("csw", RDFResources.PREFIX_CSW)
+                .setNamespace("dbpedia", RDFResources.PREFIX_DBPEDIA)
+                .setNamespace("freebase", RDFResources.PREFIX_FREEBASE)
+                .setNamespace("opencyc", RDFResources.PREFIX_OPENCYC)
+                .setNamespace("cyc", RDFResources.PREFIX_CYC)
+                .setNamespace("ctag", RDFResources.PREFIX_CTAG);
+
+
+        builder.defaultGraph()
+                .subject(mainResource)
+                .add(factory.createIRI(RDFResources.PREFIX_CSW + "hierarchyRoot" ), true)
+                .add(factory.createIRI(RDFResources.PREFIX_CSW + "hierarchyRootType" ), org.eclipse.rdf4j.model.vocabulary.SKOS.CONCEPT_SCHEME);
+
+        builder
+                .subject(mainResource)
+                .add(org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, org.eclipse.rdf4j.model.vocabulary.SKOS.CONCEPT_SCHEME);
+
+
+        for (Map.Entry<String, String> entry : vocabulary.getLabels().entrySet()) {
+            if (entry.getValue().equals(vocabulary.getLabel())) {
+                builder
+                        .subject(mainResource)
+                        .add(org.eclipse.rdf4j.model.vocabulary.SKOS.PREF_LABEL,
+                                factory.createLiteral(vocabulary.getLabel(), entry.getKey()));
+            }
+        }
+
+        if (!StringUtils.isBlank(vocabulary.getDescription())) {
+            for (Map.Entry<String, String> entry : vocabulary.getDescriptions().entrySet()) {
+                if (entry.getValue().equals(vocabulary.getDescription())) {
+                    builder
+                            .subject(mainResource)
+                            .add(DC_DESCRIPTION,
+                                    factory.createLiteral(vocabulary.getDescription(), entry.getKey()));
+                }
+            }
+        }
+
+        if (!vocabulary.getTitles().isEmpty()) {
+            vocabulary.getTitles().forEach(
+                    (key, value) ->
+                            builder.subject(mainResource)
+                                    .add(DCTERMS.TITLE,
+                                            factory.createLiteral(value, key))
+            );
+        }
+
+        if (!vocabulary.getComments().isEmpty()) {
+            vocabulary.getComments().forEach(
+                    (key, value) ->
+                            builder.subject(mainResource)
+                                    .add(org.eclipse.rdf4j.model.vocabulary.RDFS.COMMENT,
+                                            factory.createLiteral(value, key))
+            );
+        }
+
+        if (!vocabulary.getLabels().isEmpty()) {
+            vocabulary.getLabels().forEach(
+                    (key, value) ->
+                            builder.subject(mainResource)
+                                    .add(org.eclipse.rdf4j.model.vocabulary.RDFS.LABEL,
+                                            factory.createLiteral(value, key))
+            );
+        }
+
+        if (!vocabulary.getDescriptions().isEmpty()) {
+            vocabulary.getDescriptions().forEach(
+                    (key, value) ->
+                            builder.subject(mainResource)
+                                    .add(org.eclipse.rdf4j.model.vocabulary.DC.DESCRIPTION,
+                                            factory.createLiteral(value, key))
+            );
+        }
+
+        return builder.build();
+    }
 
 }

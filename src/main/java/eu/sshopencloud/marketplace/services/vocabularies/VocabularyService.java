@@ -1,14 +1,12 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
-import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedVocabularies;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyBasicDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
+import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
@@ -18,13 +16,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFParseException;
-import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
+import org.eclipse.rdf4j.rio.*;
+import org.eclipse.rdf4j.rio.helpers.StatementCollector;
+import org.hibernate.boot.archive.scan.internal.StandardScanOptions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -34,6 +29,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.*;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,10 +49,12 @@ public class VocabularyService {
     private final PropertyService propertyService;
     private final PropertyTypeService propertyTypeService;
 
+    private final ConceptRelationService conceptRelationService;
+
 
     public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
         Page<VocabularyBasicView> vocabulariesPage = vocabularyRepository.findAllVocabulariesBasicBy(
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label")))
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label" )))
         );
 
         List<VocabularyBasicDto> vocabularies = vocabulariesPage.stream()
@@ -87,13 +87,12 @@ public class VocabularyService {
         String vocabularyCode = FilenameUtils.getBaseName(vocabularyFile.getOriginalFilename());
 
         if (StringUtils.isBlank(vocabularyCode))
-            throw new IllegalArgumentException("Invalid vocabulary code: file must contain name");
+            throw new IllegalArgumentException("Invalid vocabulary code: file must contain name" );
 
         try {
             Vocabulary newVocabulary = createVocabulary(vocabularyCode, vocabularyFile.getInputStream());
             return VocabularyBasicMapper.INSTANCE.toDto(newVocabulary);
-        }
-        catch (RDFParseException | UnsupportedRDFormatException e) {
+        } catch (RDFParseException | UnsupportedRDFormatException e) {
             throw new IllegalArgumentException(String.format("Invalid vocabulary file contents: %s", e.getMessage()), e);
         }
     }
@@ -104,13 +103,12 @@ public class VocabularyService {
         String fileVocabularyCode = FilenameUtils.getBaseName(vocabularyFile.getOriginalFilename());
 
         if (!vocabularyCode.equals(fileVocabularyCode))
-            throw new IllegalArgumentException("Vocabulary code and file name does not match");
+            throw new IllegalArgumentException("Vocabulary code and file name does not match" );
 
         try {
             Vocabulary vocabulary = updateVocabulary(vocabularyCode, vocabularyFile.getInputStream(), forceUpdate);
             return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
-        }
-        catch (RDFParseException | UnsupportedRDFormatException e) {
+        } catch (RDFParseException | UnsupportedRDFormatException e) {
             throw new IllegalArgumentException(String.format("Invalid vocabulary file contents: %s", e.getMessage()), e);
         }
     }
@@ -203,27 +201,48 @@ public class VocabularyService {
         return vocabulary;
     }
 
-    //ELiza
-    public MultipartFile exportVocabulary(String vocabularyCode) {
+
+    public String exportVocabulary(String vocabularyCode) throws IOException {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
-
-        org.apache.jena.rdf.model.Model model= RDFModelParser.createRDFModel(vocabulary);
-
         List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);
 
-        concepts.forEach(concept -> {
-            model.createResource(concept.getUri());
-        });
+        List<ConceptRelation> conceptRelations = conceptRelationService.getConceptRelations();
 
-        OutputStream out = null;
+     //   List<ConceptRelatedConcept> conceptRelatedConcepts = conceptRelatedConceptService.getRelatedConcepts();
+        String mainSchema = vocabulary.getNamespace() + "Schema";
+
+        Model model = RDFModelParser.createRDFModelR(vocabulary);
+        model = RDFModelParser.generateConcepts(model, mainSchema, concepts);
+
+
+        FileOutputStream out = new FileOutputStream("outputTutrle2.ttl" );
         try {
-            out = new FileOutputStream("output-model.ttl");
-            RDFDataMgr.write(out, model, Lang.TURTLE);
-        } catch (FileNotFoundException e) {
+            Rio.write(model, out, RDFFormat.TURTLE);
+        } finally {
+            out.close();
+        }
+
+        try {
+            insertStringInFile("@prefix : <" + vocabulary.getNamespace() + ">" );
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
 
     }
+
+    public void insertStringInFile(String lineToBeInserted)
+            throws Exception {
+
+        ArrayList<String> list = (ArrayList<String>) Files.readAllLines(new File("C:\\Users\\109-DBCiPW-elik\\IdeaProjects\\SSHOC\\sshoc-marketplace-backend\\outputTutrle2.ttl" ).toPath(), Charset.defaultCharset());
+
+        list.add(0, lineToBeInserted);
+
+        Path write = Paths.get("C:\\Users\\109-DBCiPW-elik\\IdeaProjects\\SSHOC\\sshoc-marketplace-backend", "outputTutrle2.ttl" );
+
+        Files.write(write, list, Charset.defaultCharset(), StandardOpenOption.WRITE);
+
+    }
+
 }

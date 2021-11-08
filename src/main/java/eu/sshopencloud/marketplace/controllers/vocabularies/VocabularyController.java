@@ -86,12 +86,15 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabulary);
     }
 
+    //Eliza how to send file ??
     //Export
     @Operation(summary = "Get vocabulary SKOS format with given filename")
     @GetMapping(path = "export/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MultipartFile> exportVocabularyFile(@PathVariable("code") String vocabularyCode) {
+    public ResponseEntity<String> exportVocabularyFile(@PathVariable("code") String vocabularyCode)
+            throws IOException {
 
         vocabularyService.exportVocabulary(vocabularyCode);
-        return null;
+
+        return ResponseEntity.ok().build();
     }
 }

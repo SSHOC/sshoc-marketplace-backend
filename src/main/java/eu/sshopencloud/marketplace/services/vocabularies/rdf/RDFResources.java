@@ -1,11 +1,11 @@
 package eu.sshopencloud.marketplace.services.vocabularies.rdf;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
+
 
 public class RDFResources {
     //prefixes
-    public static final String PREFIX_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    public static final String PREFIX_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns";
 
     public static final String PREFIX_RDFS = "http://www.w3.org/2000/01/rdf-schema#";
 
@@ -39,22 +39,18 @@ public class RDFResources {
 
     public static final String PREFIX_CTAG = "http://commontag.org/ns#";
 
-    Map<String, String> namespacePrefixes;
+    LinkedHashMap<String, String> namespacePrefixes;
 
     public String uri;
 
-    public String getURI() {
-        return uri;
-    }
-
     public RDFResources(String uri) {
-        namespacePrefixes = new HashMap<>();
+        namespacePrefixes = new LinkedHashMap<>();
         this.uri = uri;
 
     }
 
     public void generateNamespacePrefixes(String uri) {
-        namespacePrefixes.put("", uri);
+        namespacePrefixes.put("b", uri);
         namespacePrefixes.put("rdf", PREFIX_RDF);
         namespacePrefixes.put("rdfs", PREFIX_RDFS);
         namespacePrefixes.put("skos", PREFIX_SKOS);
@@ -75,15 +71,15 @@ public class RDFResources {
     }
 
 
-    public void setNamespacePrefix(String prefix) {
-        namespacePrefixes.put("", prefix);
+    public void setNamespacePrefix(String prefix, String tag) {
+        namespacePrefixes.put(tag, prefix);
     }
 
-    public Map<String, String> getNamespacePrefixes() {
+    public LinkedHashMap<String, String> getNamespacePrefixes() {
         return namespacePrefixes;
     }
 
-    public void setNamespacePrefixes(Map<String, String> namespacePrefixes) {
+    public void setNamespacePrefixes(LinkedHashMap<String, String> namespacePrefixes) {
         this.namespacePrefixes = namespacePrefixes;
     }
 
