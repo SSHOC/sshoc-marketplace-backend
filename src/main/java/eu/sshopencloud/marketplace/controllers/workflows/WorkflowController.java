@@ -92,6 +92,14 @@ public class WorkflowController {
         workflowService.deleteWorkflow(workflowPersistentId, draft);
     }
 
+    @Operation(summary = "Delete workflow by its persistentId and versionId")
+    @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
+    public void deleteWorkflow(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        workflowService.deleteWorkflow(persistentId, versionId);
+    }
+
+
     @Operation(summary = "Get single step by its persistentId and workflow persistentId")
     @GetMapping(path = "/{persistentId}/steps/{stepPersistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StepDto> getStep(@PathVariable("persistentId") String workflowPersistentId,
@@ -166,6 +174,14 @@ public class WorkflowController {
                            @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         stepService.deleteStep(workflowPersistentId, stepPersistentId, draft);
+    }
+
+    @Operation(summary = "Delete step by its persistentId, versionId and workflow persistentId")
+    @DeleteMapping(path = "/{persistentId}/steps/{stepPersistentId}/versions/{stepVersionId}")
+    public void deleteWorkflow(@PathVariable("persistentId") String workflowPersistentId,
+                               @PathVariable("stepPersistentId") String stepPersistentId, @PathVariable("stepVersionId") long stepVersionId) {
+
+        stepService.deleteStep(workflowPersistentId, stepPersistentId, stepVersionId);
     }
 
     @Operation(summary = "Committing draft of workflow by its persistentId")

@@ -91,6 +91,14 @@ public class DatasetController {
         datasetService.deleteDataset(persistentId, draft);
     }
 
+    @Operation(summary = "Delete dataset by its persistentId and versionId")
+    @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
+    public void deleteDataset(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        datasetService.deleteDataset(persistentId, versionId);
+    }
+
+
     @Operation(summary = "Committing draft of dataset by its persistentId")
     @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> publishDataset(@PathVariable("persistentId") String persistentId) {

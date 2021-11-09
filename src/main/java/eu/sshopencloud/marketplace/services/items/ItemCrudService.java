@@ -393,31 +393,63 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected void deleteItem(String persistentId, boolean draft) {
+        if (draft) {
+            deleteItemDraft(persistentId);
+        } else {
+            deleteItem(persistentId, null);
+        }
+    }
+
+    protected void deleteItem(String persistentId, long versionId) {
+        I item = loadItemVersion(persistentId, versionId);
+        if (item.getStatus() == ItemStatus.DRAFT) {
+            User currentUser = LoggedInUserHolder.getLoggedInUser();
+            if (currentUser.equals(item.getInformationContributor())) {
+                deleteItemDraft(persistentId);
+            } else {
+                throw new AccessDeniedException(
+                        String.format(
+                                "User is not authorized to access the given draft version with id %s (version id: %d)",
+                                persistentId, versionId
+                        )
+                );
+            }
+        } else {
+            deleteItem(persistentId, versionId);
+        }
+    }
+
+    protected void deleteItem(String persistentId, Long versionId) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        if (!draft && !currentUser.isModerator())
+        if (!currentUser.isModerator())
             throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
 
-        if (draft) {
-            I draftItem = loadItemDraftForCurrentUser(persistentId);
-            cleanupDraft(draftItem);
+        I currentItem = loadCurrentItem(persistentId);
+        I item = (versionId != null) ? loadItemVersion(persistentId, versionId) : currentItem;
 
-            return;
-        }
-
-        I item = loadCurrentItem(persistentId);
         VersionedItem versionedItem = item.getVersionedItem();
 
-        if (versionedItem.getStatus() == VersionedItemStatus.INGESTED
-                || versionedItem.getStatus() == VersionedItemStatus.SUGGESTED) {
-
-            versionedItem.setStatus(VersionedItemStatus.REFUSED);
-            item.setStatus(ItemStatus.DISAPPROVED);
+        if (item.getId().equals(currentItem.getId())) {
+            if (versionedItem.getStatus() == VersionedItemStatus.INGESTED
+                    || versionedItem.getStatus() == VersionedItemStatus.SUGGESTED) {
+                versionedItem.setStatus(VersionedItemStatus.REFUSED);
+                item.setStatus(ItemStatus.DISAPPROVED);
+            } else {
+                versionedItem.setStatus(VersionedItemStatus.DELETED);
+                versionedItem.setActive(false);
+            }
         } else {
-            versionedItem.setStatus(VersionedItemStatus.DELETED);
-            versionedItem.setActive(false);
+            item.setStatus(ItemStatus.DISAPPROVED);
         }
 
-        indexService.removeItemVersions(item);
+        if (item.getId().equals(currentItem.getId())) {
+            indexService.removeItemVersions(item);
+        }
+    }
+
+    private void deleteItemDraft(String persistentId) {
+        I draftItem = loadItemDraftForCurrentUser(persistentId);
+        cleanupDraft(draftItem);
     }
 
     private void cleanupDraft(I draftItem) {

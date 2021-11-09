@@ -54,22 +54,16 @@ class ItemVisibilityService {
                 versionedItem.setStatus(VersionedItemStatus.REVIEWED);
             } else {
                 version.setStatus(SUGGESTED);
-                if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
-                    versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
+                versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
             }
         }
         else if (currentUser.isSystemContributor()) {
             version.setStatus(ItemStatus.INGESTED);
-
-            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
-                versionedItem.setStatus(VersionedItemStatus.INGESTED);
+            versionedItem.setStatus(VersionedItemStatus.INGESTED);
         } else if (currentUser.isContributor()) {
             version.setStatus(ItemStatus.SUGGESTED);
-
-            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
-                versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
+            versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
         }
-
     }
 
 
