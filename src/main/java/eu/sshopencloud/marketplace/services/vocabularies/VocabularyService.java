@@ -18,8 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.*;
-import org.eclipse.rdf4j.rio.helpers.StatementCollector;
-import org.hibernate.boot.archive.scan.internal.StandardScanOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.*;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.util.*;
@@ -37,7 +35,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Throwable.class)
-@RequiredArgsConstructor
 @Slf4j
 public class VocabularyService {
 
@@ -51,10 +48,29 @@ public class VocabularyService {
 
     private final ConceptRelationService conceptRelationService;
 
+    private final Path exportedFilesPath;
+
+    public VocabularyService(VocabularyRepository vocabularyRepository,
+                             ConceptService conceptService,
+                             ConceptRelatedConceptService conceptRelatedConceptService,
+                             PropertyService propertyService,
+                             PropertyTypeService propertyTypeService,
+                             ConceptRelationService conceptRelationService,
+                             @Value("${marketplace.vocabulary.files.path}") Path exportedFilesPath)
+            throws IOException {
+
+        this.vocabularyRepository = vocabularyRepository;
+        this.conceptService = conceptService;
+        this.conceptRelatedConceptService = conceptRelatedConceptService;
+        this.propertyService = propertyService;
+        this.propertyTypeService = propertyTypeService;
+        this.conceptRelationService = conceptRelationService;
+        this.exportedFilesPath = Files.createDirectories(Path.of(exportedFilesPath.toString(), "exported"));
+    }
 
     public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
         Page<VocabularyBasicView> vocabulariesPage = vocabularyRepository.findAllVocabulariesBasicBy(
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label" )))
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label")))
         );
 
         List<VocabularyBasicDto> vocabularies = vocabulariesPage.stream()
@@ -87,7 +103,7 @@ public class VocabularyService {
         String vocabularyCode = FilenameUtils.getBaseName(vocabularyFile.getOriginalFilename());
 
         if (StringUtils.isBlank(vocabularyCode))
-            throw new IllegalArgumentException("Invalid vocabulary code: file must contain name" );
+            throw new IllegalArgumentException("Invalid vocabulary code: file must contain name");
 
         try {
             Vocabulary newVocabulary = createVocabulary(vocabularyCode, vocabularyFile.getInputStream());
@@ -103,7 +119,7 @@ public class VocabularyService {
         String fileVocabularyCode = FilenameUtils.getBaseName(vocabularyFile.getOriginalFilename());
 
         if (!vocabularyCode.equals(fileVocabularyCode))
-            throw new IllegalArgumentException("Vocabulary code and file name does not match" );
+            throw new IllegalArgumentException("Vocabulary code and file name does not match");
 
         try {
             Vocabulary vocabulary = updateVocabulary(vocabularyCode, vocabularyFile.getInputStream(), forceUpdate);
@@ -203,19 +219,33 @@ public class VocabularyService {
 
 
     public String exportVocabulary(String vocabularyCode) throws IOException {
-        Vocabulary vocabulary = loadVocabulary(vocabularyCode);
-        List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);
 
+        Vocabulary vocabulary = loadVocabulary(vocabularyCode);
+        String mainSchema = vocabulary.getNamespace() + "Schema";
+        List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);
         List<ConceptRelation> conceptRelations = conceptRelationService.getConceptRelations();
 
-     //   List<ConceptRelatedConcept> conceptRelatedConcepts = conceptRelatedConceptService.getRelatedConcepts();
-        String mainSchema = vocabulary.getNamespace() + "Schema";
+        Model model = RDFModelParser.createRDFModel(vocabulary);
 
-        Model model = RDFModelParser.createRDFModelR(vocabulary);
-        model = RDFModelParser.generateConcepts(model, mainSchema, concepts);
+        Collections.sort(concepts, new ConceptComparator());
 
+        RDFModelParser.beforeConceptGenerations(model);
 
-        FileOutputStream out = new FileOutputStream("outputTutrle2.ttl" );
+        concepts.forEach(
+                concept -> {
+                    RDFModelParser.addConceptToModel(mainSchema, concept, conceptRelations, conceptRelatedConceptService.getConceptRelatedConcept(concept.getCode(), vocabularyCode));
+                }
+        );
+
+        model = RDFModelParser.afterConceptGenerations();
+
+        Path exportedPath = Path.of(exportedFilesPath.toString(), vocabularyCode + "_exported.ttl");
+
+        if (!Files.exists(exportedPath))
+            Files.createFile(exportedPath);
+
+        FileOutputStream out = new FileOutputStream(exportedPath.toFile());
+
         try {
             Rio.write(model, out, RDFFormat.TURTLE);
         } finally {
@@ -223,25 +253,22 @@ public class VocabularyService {
         }
 
         try {
-            insertStringInFile("@prefix : <" + vocabulary.getNamespace() + ">" );
+            insertStringInFile("@prefix : <" + vocabulary.getNamespace() + ">", exportedPath);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IOException("Error while trying to update file");
         }
 
-        return null;
+        return exportedPath.toString();
 
     }
 
-    public void insertStringInFile(String lineToBeInserted)
-            throws Exception {
+    public void insertStringInFile(String lineToBeInserted, Path filename) throws Exception {
 
-        ArrayList<String> list = (ArrayList<String>) Files.readAllLines(new File("C:\\Users\\109-DBCiPW-elik\\IdeaProjects\\SSHOC\\sshoc-marketplace-backend\\outputTutrle2.ttl" ).toPath(), Charset.defaultCharset());
+        ArrayList<String> list = (ArrayList<String>) Files.readAllLines(filename, Charset.defaultCharset());
 
         list.add(0, lineToBeInserted);
 
-        Path write = Paths.get("C:\\Users\\109-DBCiPW-elik\\IdeaProjects\\SSHOC\\sshoc-marketplace-backend", "outputTutrle2.ttl" );
-
-        Files.write(write, list, Charset.defaultCharset(), StandardOpenOption.WRITE);
+        Files.write(filename, list, Charset.defaultCharset(), StandardOpenOption.WRITE);
 
     }
 

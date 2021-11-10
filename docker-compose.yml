@@ -19,6 +19,7 @@ services:
       recaptcha_secret_key: ${recaptcha_secret_key}
       marketplace_log_dir: /tmp
       marketplace_media_dir: /var/sshoc/media
+      marketplace_export_dir: /var/sshoc/skos
     volumes:
       - media-data:/var/sshoc/media
 

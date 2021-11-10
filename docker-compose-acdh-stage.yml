@@ -31,6 +31,7 @@ services:
       recaptcha_secret_key: ${recaptcha_secret_key}
       marketplace_log_dir: /log
       marketplace_media_dir: /var/sshoc/media
+      marketplace_export_dir: /var/sshoc/skos
     labels:
       - traefik.backend=marketplace-api-stage
       - traefik.frontend.rule=Host:marketplace-api-stage.sisyphos.arz.oeaw.ac.at,sshoc-marketplace-api-stage.acdh-dev.oeaw.ac.at

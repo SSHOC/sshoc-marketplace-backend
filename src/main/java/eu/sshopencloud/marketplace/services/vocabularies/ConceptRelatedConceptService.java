@@ -49,6 +49,26 @@ public class ConceptRelatedConceptService {
         return relatedConcepts;
     }
 
+    public List<ConceptRelatedConcept> getConceptRelatedConcept(String conceptCode, String vocabularyCode) {
+
+        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectCodeAndSubjectVocabularyCode(conceptCode, vocabularyCode);
+
+        for (ConceptRelatedConcept subjectRelatedConcept : subjectRelatedConcepts) {
+            conceptRelatedConceptDetachingRepository.detach(subjectRelatedConcept);
+        }
+
+        List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findByObjectCodeAndObjectVocabularyCode(conceptCode, vocabularyCode);
+        for (ConceptRelatedConcept objectRelatedConcept : objectRelatedConcepts) {
+            conceptRelatedConceptDetachingRepository.detach(objectRelatedConcept);
+        }
+
+        subjectRelatedConcepts.addAll(objectRelatedConcepts);
+
+        validateVocabulary(subjectRelatedConcepts);
+
+        return subjectRelatedConcepts;
+    }
+
     private VocabularyBasicDto getRelatedVocabularyForConcept(String vocabularyCode) {
         Vocabulary vocabulary = vocabularyRepository.getOne(vocabularyCode);
         return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
@@ -56,7 +76,7 @@ public class ConceptRelatedConceptService {
 
     public List<ConceptRelatedConcept> validateReflexivityAndSave(List<ConceptRelatedConcept> newConceptRelatedConcepts) {
         List<ConceptRelatedConcept> conceptRelatedConcepts = new ArrayList<ConceptRelatedConcept>();
-        for (ConceptRelatedConcept newConceptRelatedConcept: newConceptRelatedConcepts) {
+        for (ConceptRelatedConcept newConceptRelatedConcept : newConceptRelatedConcepts) {
             ConceptRelatedConcept conceptRelatedConcept = validateReflexivityAndSave(newConceptRelatedConcept);
             if (conceptRelatedConcept != null) {
                 conceptRelatedConcepts.add(conceptRelatedConcept);
@@ -85,58 +105,16 @@ public class ConceptRelatedConceptService {
         return conceptRelatedConcept;
     }
 
-    public List<RelatedConceptDto> getOnlyRelatedBroaderObjectsConcepts(String conceptCode, String vocabularyCode){
-        List<RelatedConceptDto> relatedConcepts = new ArrayList();
+    public void validateVocabulary(List<ConceptRelatedConcept> objectRelatedConcepts) {
+        objectRelatedConcepts.forEach(
+                o -> {
+                    if (!o.getObject().getVocabulary().getCode().equals(o.getSubject().getVocabulary().getCode()))
+                        throw new IllegalArgumentException(
+                                String.format("Can't have concept relation with different vocabulary code %s and %s",
+                                        o.getObject().getVocabulary(), o.getSubject().getVocabulary()));
+                }
+        );
 
-        List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findByObjectCodeAndObjectVocabularyCode(conceptCode, vocabularyCode);
-        for (ConceptRelatedConcept objectRelatedConcept : objectRelatedConcepts) {
-            conceptRelatedConceptDetachingRepository.detach(objectRelatedConcept);
-            VocabularyBasicDto subjectVocabulary = getRelatedVocabularyForConcept(objectRelatedConcept.getSubject().getVocabulary().getCode());
-            RelatedConceptDto relatedConcept = ConceptConverter.convertRelatedConceptFromObject(objectRelatedConcept, subjectVocabulary);
-            if(relatedConcept.getRelation().getCode().equals("broader")) relatedConcepts.add(relatedConcept);
-        }
-
-        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectCodeAndSubjectVocabularyCode(conceptCode, vocabularyCode);
-        for (ConceptRelatedConcept subjectRelatedConcept : subjectRelatedConcepts) {
-            conceptRelatedConceptDetachingRepository.detach(subjectRelatedConcept);
-            VocabularyBasicDto objectVocabulary = getRelatedVocabularyForConcept(subjectRelatedConcept.getObject().getVocabulary().getCode());
-            RelatedConceptDto relatedConcept = ConceptConverter.convertRelatedConceptFromSubject(subjectRelatedConcept, objectVocabulary);
-
-            if(relatedConcept.getRelation().getCode().equals("broader"))  relatedConcepts.removeIf(
-                    c -> (c.getCode() == relatedConcept.getCode())
-            );
-        }
-
-        return relatedConcepts;
-    }
-
-
-    //Eliza
-    //Chodzi o to by w relacji SUBJECT - PREDICATE - OBJECT
-    //dany resource był tylko jako A - NARROWER - XYZ
-    //nie może być w relacji XYZ - NARROWER - A
-    // wtedy dodaje relacje Schema hasTopConcept A
-    //oraz                  A topConceptOf Schema
-
-    public List<RelatedConceptDto> getRelatedBroaderObjectsConcepts(String vocabularyCode){
-        List<RelatedConceptDto> relatedConcepts = new ArrayList();
-
-
-
-        return null;
-    }
-
-    public boolean isTopConcept(String vocabularyCode,String conceptCode ){
-
-        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectCodeAndSubjectVocabularyCode(conceptCode, vocabularyCode);
-        boolean q = true;
-
-        subjectRelatedConcepts.forEach(
-                c -> {
-                  //  if( c.getRelation().getCode().equals("broader")) =false;
-                });
-
-        return q;
     }
 
 }
