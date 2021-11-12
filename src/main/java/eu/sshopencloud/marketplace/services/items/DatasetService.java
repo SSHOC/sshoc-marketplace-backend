@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
@@ -20,12 +21,16 @@ import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.datasets.DatasetFactory;
+import liquibase.pro.packaged.S;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -71,7 +76,7 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return prepareItemDto(dataset);
     }
 
-    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft,boolean approved) {
+    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft, boolean approved) {
         Dataset dataset = updateItem(persistentId, datasetCore, draft, approved);
         return prepareItemDto(dataset);
     }
@@ -152,7 +157,6 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
     public DatasetDto getMerge(String persistentId, List<String> mergeList) {
 
-
         return prepareMergeItems(persistentId, mergeList);
     }
 
@@ -166,5 +170,15 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     public List<SourceDto> getSources(String id) {
         return getAllSources(id);
     }
+
+    public ItemsDifferenceDto getDifference(String datasetPersistentId, Long datasetVersionId,
+                                String otherPersistentId, Long otherVersionId) {
+
+        ItemsDifferenceDto itemsDifferenceDto = differentiateItems(datasetPersistentId, datasetVersionId,
+                otherPersistentId, otherVersionId);
+
+        return itemsDifferenceDto;
+    }
+
 
 }

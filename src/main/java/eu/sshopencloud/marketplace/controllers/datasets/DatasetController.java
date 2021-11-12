@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -143,5 +144,26 @@ public class DatasetController {
 
         return ResponseEntity.ok(datasetService.getSources(persistentId));
     }
+
+    @Operation(summary = "Getting differences between dataset and target version of item", operationId = "getDatasetAndVersionedItemDifference")
+    @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferenceDto> getDatasetVersionedItemDifference(@PathVariable("persistentId") String persistentId,
+                                                                                @RequestParam String with,
+                                                                                @RequestParam Long otherVersionId) {
+
+        return ResponseEntity.ok(datasetService.getDifference(persistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of dataset and target version of item", operationId = "getVersionedDatasetAndVersionedItemDifference")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferenceDto> getVersionedDatasetVersionedItemDifference(@PathVariable("persistentId") String persistentId,
+                                                                                         @PathVariable("versionId") long versionId,
+                                                                                         @RequestParam String with,
+                                                                                         @RequestParam Long otherVersionId) {
+
+        return ResponseEntity.ok(datasetService.getDifference(persistentId, versionId, with, otherVersionId));
+    }
+
 
 }
