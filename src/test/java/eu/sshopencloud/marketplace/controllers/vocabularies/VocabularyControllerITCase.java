@@ -474,4 +474,118 @@ public class VocabularyControllerITCase {
                     return request;
                 });
     }
+
+    /*
+
+    Eliza
+    @Test
+    public void shouldExportVocabulary() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/sshoc-keyword-test.ttl");
+
+        MockMultipartFile uploadedVocabulary = new MockMultipartFile(
+                "ttl", "sshoc-keyword-test.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                        vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")));
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", "sshoc-keyword-test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")))
+                .andExpect(jsonPath("$.description", notNullValue()))
+                .andExpect(jsonPath("$.conceptResults.hits", is(4)))
+                .andExpect(jsonPath("$.conceptResults.count", is(4)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(4)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInAnyOrder("1-grams", "18th-century", "18th-century-literature", "zip")
+                        )
+                );
+
+        mvc.perform(
+                get( "/api/vocabularies/export/{code}","sshoc-keyword-test.ttl" )
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")));
+
+    }
+
+    @Test
+    public void shouldReimportVocabulary() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/sshoc-keyword-test.ttl");
+
+        MockMultipartFile uploadedVocabulary = new MockMultipartFile(
+                "ttl", "sshoc-keyword-test.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                        vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")));
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", "sshoc-keyword-test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")))
+                .andExpect(jsonPath("$.description", notNullValue()))
+                .andExpect(jsonPath("$.conceptResults.hits", is(4)))
+                .andExpect(jsonPath("$.conceptResults.count", is(4)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(4)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInAnyOrder("1-grams", "18th-century", "18th-century-literature", "zip")
+                        )
+                );
+
+        mvc.perform(
+                        get( "/api/vocabularies/export/{code}","sshoc-keyword-test.ttl" )
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")));
+
+
+        mvc.perform(
+                        put( "/api/vocabularies/export/{code}","sshoc-keyword-test.ttl" )
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")));
+
+    }*/
 }

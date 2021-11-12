@@ -46,6 +46,25 @@ public class RDFModelParser {
 
     private static final String SKOS_NARROWER = "http://www.w3.org/2004/02/skos/core#narrower";
 
+    public static final String PREFIX_CSW = "http://semantic-web.at/ontologies/csw.owl#";
+
+    public static final String PREFIX_CYCANNOT = "http://sw.cyc.com/CycAnnotations_v1#";
+
+    public static final String PREFIX_TAGS = "http://www.holygoat.co.uk/owl/redwood/0.1/tags/";
+
+    public static final String PREFIX_DBPEDIA = "http://dbpedia.org/resource/";
+
+    public static final String PREFIX_FREEBASE = "http://rdf.freebase.com/ns/";
+
+    public static final String PREFIX_OPENCYC = "http://sw.opencyc.org/concept/";
+
+    public static final String PREFIX_CYC = "http://sw.cyc.com/concept/";
+
+    public static final String PREFIX_CTAG = "http://commontag.org/ns#";
+
+    public Model modelGlobal;
+
+    public List<Statement> inverseStatements;
 
     private void completeWithStatement(Statement statement, Map<String, String> values,
                                        Function<Void, String> checkFunction, Function<String, Void> setFunction) {
@@ -303,13 +322,11 @@ public class RDFModelParser {
     }
 
 
-    //Eliza
-    public void addConceptToModel(String mainResource, Concept concept, List<ConceptRelation> conceptRelations,
+    public void addConceptToModel(String mainResource, Concept concept,
                                   List<ConceptRelatedConcept> conceptRelatedConcepts) {
 
         ModelBuilder builder = new ModelBuilder(modelGlobal);
         ValueFactory factory = SimpleValueFactory.getInstance();
-
         boolean isTopConcept = isConceptTopObject(conceptRelatedConcepts, concept);
 
         if (isTopConcept) builder.subject(mainResource).add(SKOS.HAS_TOP_CONCEPT, concept.getUri());
@@ -334,7 +351,6 @@ public class RDFModelParser {
 
         if (isTopConcept) builder.subject(concept.getUri()).add(SKOS.TOP_CONCEPT_OF, mainResource);
 
-
         builder.subject(concept.getUri())
                 .add(SKOS.IN_SCHEME, mainResource);
 
@@ -347,22 +363,15 @@ public class RDFModelParser {
             );
         }
 
-
         conceptRelatedConcepts.forEach(
-
                 conceptRelated -> {
-
-                    ConceptRelation relation = conceptRelations.stream().filter(
-                            customer -> conceptRelated.getRelation().getCode().equals(customer.getCode())
-                    ).findFirst().orElse(null);
-
                     builder.subject(concept.getUri())
-                            .add(relation.getUri(), conceptRelated.getObject().getUri());
+                            .add(conceptRelated.getRelation().getUri(), conceptRelated.getObject().getUri());
 
                     inverseStatements.add(
                             factory.createStatement(
                                     factory.createIRI(conceptRelated.getObject().getUri()),
-                                    factory.createIRI(relation.getInverseOf().getUri()),
+                                    factory.createIRI(conceptRelated.getRelation().getInverseOf().getUri()),
                                     factory.createIRI(concept.getUri())));
                 }
         );
@@ -370,28 +379,17 @@ public class RDFModelParser {
         modelGlobal = builder.build();
     }
 
-    public Model modelGlobal;
-
-    public List<Statement> inverseStatements;
-
-    public void beforeConceptGenerations(Model model) {
-        modelGlobal = model;
-        inverseStatements = new LinkedList<>();
-    }
-
-    public Model afterConceptGenerations() {
+    public Model generateInverseStatements() {
         inverseStatements.forEach(
                 statement -> modelGlobal.add(statement));
 
         return modelGlobal;
     }
 
-
-    public Model createRDFModel(Vocabulary vocabulary) {
+    public Model createModel(Vocabulary vocabulary, String mainResource) {
 
         ModelBuilder builder = new ModelBuilder();
         ValueFactory factory = SimpleValueFactory.getInstance();
-        String mainResource = vocabulary.getNamespace() + "Schema";
 
         builder.setNamespace(RDF.NS)
                 .setNamespace(RDFS.NS)
@@ -402,20 +400,20 @@ public class RDFModelParser {
                 .setNamespace(DCTERMS.NS)
                 .setNamespace(XSD.NS)
                 .setNamespace(FOAF.NS)
-                .setNamespace("tags", RDFResources.PREFIX_TAGS)
-                .setNamespace("cycAnnot", RDFResources.PREFIX_CYCANNOT)
-                .setNamespace("csw", RDFResources.PREFIX_CSW)
-                .setNamespace("dbpedia", RDFResources.PREFIX_DBPEDIA)
-                .setNamespace("freebase", RDFResources.PREFIX_FREEBASE)
-                .setNamespace("opencyc", RDFResources.PREFIX_OPENCYC)
-                .setNamespace("cyc", RDFResources.PREFIX_CYC)
-                .setNamespace("ctag", RDFResources.PREFIX_CTAG);
+                .setNamespace("tags", PREFIX_TAGS)
+                .setNamespace("cycAnnot", PREFIX_CYCANNOT)
+                .setNamespace("csw", PREFIX_CSW)
+                .setNamespace("dbpedia", PREFIX_DBPEDIA)
+                .setNamespace("freebase", PREFIX_FREEBASE)
+                .setNamespace("opencyc", PREFIX_OPENCYC)
+                .setNamespace("cyc", PREFIX_CYC)
+                .setNamespace("ctag", PREFIX_CTAG);
 
 
         builder.defaultGraph()
                 .subject(mainResource)
-                .add(factory.createIRI(RDFResources.PREFIX_CSW + "hierarchyRoot"), true)
-                .add(factory.createIRI(RDFResources.PREFIX_CSW + "hierarchyRootType"), SKOS.CONCEPT_SCHEME);
+                .add(factory.createIRI(PREFIX_CSW + "hierarchyRoot"), true)
+                .add(factory.createIRI(PREFIX_CSW + "hierarchyRootType"), SKOS.CONCEPT_SCHEME);
 
         builder
                 .subject(mainResource)
@@ -472,7 +470,12 @@ public class RDFModelParser {
             );
         }
 
-        return builder.build();
+        Model model = builder.build();
+
+        modelGlobal = model;
+        inverseStatements = new LinkedList<>();
+
+        return model;
     }
 
     public boolean isConceptTopObject(List<ConceptRelatedConcept> conceptRelatedConcepts, Concept concept) {
@@ -481,7 +484,7 @@ public class RDFModelParser {
                         c -> (c.getSubject().equals(concept) && !c.getObject().equals(concept) && c.getRelation().getUri().equals(SKOS_NARROWER)))
                 .collect(Collectors.toList());
 
-        //To samo odwrotnie dla broader
+        //ELiza
         List<ConceptRelatedConcept> broader = conceptRelatedConcepts.stream().filter(
                         c -> (!c.getSubject().equals(concept) && c.getObject().equals(concept)
                                 && c.getRelation().getUri().equals(SKOS_BROADER)))
@@ -490,5 +493,50 @@ public class RDFModelParser {
 
         if (tmp.size() == conceptRelatedConcepts.size()) return true;
         else return false;
+    }
+
+    public Vocabulary recreateVocabulary(String vocabularyCode, Model rdfModel, Vocabulary vocabulary) {
+        vocabulary.setCode(vocabularyCode);
+        vocabulary.setLabel("");
+        vocabulary.setLabels(new HashMap<>());
+        vocabulary.setTitles(new HashMap<>());
+        vocabulary.setComments(new HashMap<>());
+        vocabulary.setDescriptions(new HashMap<>());
+        Optional<Statement> schemeStatement = rdfModel.stream()
+                .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
+                .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT_SCHEME))
+                .findFirst();
+        String scheme = schemeStatement.map(value -> value.getSubject().stringValue()).orElse(null);
+        if (scheme != null) {
+            rdfModel.stream()
+                    .filter(statement -> statement.getSubject().stringValue().equals(scheme))
+                    .forEach(statement -> completeVocabulary(vocabulary, statement));
+            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getLabels().containsKey("en")) {
+                vocabulary.setLabel(vocabulary.getLabels().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getTitles().containsKey("en")) {
+                vocabulary.setLabel(vocabulary.getTitles().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getLabel()) && !vocabulary.getLabels().isEmpty()) {
+                vocabulary.setLabel(vocabulary.getLabels().values().iterator().next());
+            }
+            if (StringUtils.isBlank(vocabulary.getLabel()) && !vocabulary.getTitles().isEmpty()) {
+                vocabulary.setLabel(vocabulary.getTitles().values().iterator().next());
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getComments().containsKey("en")) {
+                vocabulary.setDescription(vocabulary.getComments().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getDescriptions().containsKey("en")) {
+                vocabulary.setDescription(vocabulary.getDescriptions().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && !vocabulary.getComments().isEmpty()) {
+                vocabulary.setDescription(vocabulary.getComments().values().iterator().next());
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && !vocabulary.getDescriptions().isEmpty()) {
+                vocabulary.setDescription(vocabulary.getDescriptions().values().iterator().next());
+            }
+        }
+        vocabulary.setNamespace(extractNamespaceUri(rdfModel));
+        return vocabulary;
     }
 }

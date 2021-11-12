@@ -6,13 +6,11 @@ import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
-import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelParser;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,8 +44,6 @@ public class VocabularyService {
     private final PropertyService propertyService;
     private final PropertyTypeService propertyTypeService;
 
-    private final ConceptRelationService conceptRelationService;
-
     private final Path exportedFilesPath;
 
     public VocabularyService(VocabularyRepository vocabularyRepository,
@@ -55,7 +51,6 @@ public class VocabularyService {
                              ConceptRelatedConceptService conceptRelatedConceptService,
                              PropertyService propertyService,
                              PropertyTypeService propertyTypeService,
-                             ConceptRelationService conceptRelationService,
                              @Value("${marketplace.vocabulary.files.path}") Path exportedFilesPath)
             throws IOException {
 
@@ -64,7 +59,6 @@ public class VocabularyService {
         this.conceptRelatedConceptService = conceptRelatedConceptService;
         this.propertyService = propertyService;
         this.propertyTypeService = propertyTypeService;
-        this.conceptRelationService = conceptRelationService;
         this.exportedFilesPath = Files.createDirectories(Path.of(exportedFilesPath.toString(), "exported"));
     }
 
@@ -218,26 +212,22 @@ public class VocabularyService {
     }
 
 
-    public String exportVocabulary(String vocabularyCode) throws IOException {
+    public Path exportVocabulary(String vocabularyCode) throws IOException {
 
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
-        String mainSchema = vocabulary.getNamespace() + "Schema";
         List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);
-        List<ConceptRelation> conceptRelations = conceptRelationService.getConceptRelations();
+        String mainResources = vocabulary.getNamespace() + "Schema";
 
-        Model model = RDFModelParser.createRDFModel(vocabulary);
-
+        Model model = RDFModelParser.createModel(vocabulary, mainResources);
         Collections.sort(concepts, new ConceptComparator());
-
-        RDFModelParser.beforeConceptGenerations(model);
 
         concepts.forEach(
                 concept -> {
-                    RDFModelParser.addConceptToModel(mainSchema, concept, conceptRelations, conceptRelatedConceptService.getConceptRelatedConcept(concept.getCode(), vocabularyCode));
+                    RDFModelParser.addConceptToModel(mainResources, concept, conceptRelatedConceptService.getConceptRelatedConcept(concept.getCode(), vocabularyCode));
                 }
         );
 
-        model = RDFModelParser.afterConceptGenerations();
+        model = RDFModelParser.generateInverseStatements();
 
         Path exportedPath = Path.of(exportedFilesPath.toString(), vocabularyCode + "_exported.ttl");
 
@@ -253,16 +243,16 @@ public class VocabularyService {
         }
 
         try {
-            insertStringInFile("@prefix : <" + vocabulary.getNamespace() + ">", exportedPath);
+            insertPrefixInFile("@prefix : <" + vocabulary.getNamespace() + "> . ", exportedPath);
         } catch (Exception e) {
             throw new IOException("Error while trying to update file");
         }
 
-        return exportedPath.toString();
+        return exportedPath;
 
     }
 
-    public void insertStringInFile(String lineToBeInserted, Path filename) throws Exception {
+    public void insertPrefixInFile(String lineToBeInserted, Path filename) throws Exception {
 
         ArrayList<String> list = (ArrayList<String>) Files.readAllLines(filename, Charset.defaultCharset());
 
@@ -272,4 +262,26 @@ public class VocabularyService {
 
     }
 
+    public VocabularyBasicDto reimportVocabulary(String vocabularyCode, MultipartFile vocabularyFile) throws IOException {
+
+        Vocabulary vocabulary = reconstructVocabularyAndSave(vocabularyCode, vocabularyFile.getInputStream());
+        return VocabularyMapper.INSTANCE.toDto(vocabulary);
+    }
+
+    private Vocabulary reconstructVocabularyAndSave(String vocabularyCode, InputStream turtleInputStream)
+            throws IOException, RDFParseException, UnsupportedRDFormatException {
+
+        Model rdfModel = Rio.parse(turtleInputStream, "", RDFFormat.TURTLE);
+        Vocabulary reimportedVocabulary = RDFModelParser.recreateVocabulary(vocabularyCode, rdfModel, loadVocabulary(vocabularyCode));
+
+        Map<String, Concept> conceptMap = RDFModelParser.createConcepts(rdfModel, reimportedVocabulary);
+        reimportedVocabulary.setConcepts(new ArrayList<>(conceptMap.values()));
+
+        vocabularyRepository.save(reimportedVocabulary);
+
+        List<ConceptRelatedConcept> conceptRelatedConcepts = RDFModelParser.createConceptRelatedConcepts(conceptMap, rdfModel);
+        conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
+
+        return reimportedVocabulary;
+    }
 }
