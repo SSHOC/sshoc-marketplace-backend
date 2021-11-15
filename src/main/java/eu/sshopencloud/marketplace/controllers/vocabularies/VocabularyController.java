@@ -10,13 +10,15 @@ import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -92,24 +94,24 @@ public class VocabularyController {
     //Eliza
     @Operation(summary = "Get vocabulary SKOS format with given filename")
     @GetMapping(path = "export/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FileSystemResource>  exportVocabularyFile(@PathVariable("code") String vocabularyCode)
+    public ResponseEntity<Object> exportVocabularyFile(@PathVariable("code") String vocabularyCode)
             throws IOException {
 
+        Path path = vocabularyService.exportVocabulary(vocabularyCode);
+        File file = path.toFile();
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(path.toString()));
+
         HttpHeaders header = new HttpHeaders();
-        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + vocabularyCode + "_exported.ttl");
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
         header.add("Cache-Control", "no-cache, no-store, must-revalidate");
         header.add("Pragma", "no-cache");
         header.add("Expires", "0");
 
-        Path path = vocabularyService.exportVocabulary(vocabularyCode);
-
         return ResponseEntity.ok()
                 .headers(header)
                 .contentLength(path.toFile().length())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(new FileSystemResource(path.getFileName()));
-
-        // return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/txt"))
+                .body(resource);
 
     }
 }
