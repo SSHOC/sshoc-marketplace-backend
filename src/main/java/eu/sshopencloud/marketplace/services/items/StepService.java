@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
@@ -435,5 +436,13 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public List<SourceDto> getSources(String workflowId, String stepId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
         return super.getAllSources(stepId);
+    }
+
+    //Eliza
+    public ItemsDifferenceDto getDifference(String workflowPersistentId, String stepPersistentId, Long stepVersionId,
+                                            String otherPersistentId, Long otherVersionId) {
+
+        return differentiateItems(stepPersistentId, stepVersionId,
+                otherPersistentId, otherVersionId);
     }
 }

@@ -12,7 +12,6 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
-import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
@@ -618,12 +617,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         AtomicBoolean equal = new AtomicBoolean(true);
 
         I finalItem;
-        if (Objects.isNull(null))
+        if (Objects.isNull(versionId)  || versionId.toString().isBlank())
             finalItem = loadLatestItem(persistentId);
         else finalItem = loadItemVersion(persistentId, versionId);
 
         I finalOtherItem;
-        if (Objects.isNull(null))
+        if (Objects.isNull(otherVersionId) || otherVersionId.toString().isBlank())
             finalOtherItem = loadLatestItem(otherPersistentId);
         else finalOtherItem = loadItemVersion(otherPersistentId, otherVersionId);
 

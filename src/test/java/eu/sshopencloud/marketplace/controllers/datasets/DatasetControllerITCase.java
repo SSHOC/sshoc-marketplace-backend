@@ -94,7 +94,7 @@ public class DatasetControllerITCase {
     public void shouldReturnDatasets() throws Exception {
 
         mvc.perform(get("/api/datasets")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -104,7 +104,7 @@ public class DatasetControllerITCase {
         Integer datasetId = 9;
 
         mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("id", is(datasetId)))
@@ -121,7 +121,7 @@ public class DatasetControllerITCase {
         Integer datasetId = 9;
 
         mvc.perform(get("/api/datasets/{id}/history", datasetPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(datasetId)))
@@ -139,7 +139,7 @@ public class DatasetControllerITCase {
         String datasetPersistentId = "dmbq4v";
 
         mvc.perform(get("/api/datasets/{id}/information-contributors", datasetPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(3)))
@@ -179,9 +179,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         String jsonResponse = mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -201,7 +201,7 @@ public class DatasetControllerITCase {
         log.debug("Dataset version Id: " + versionId);
 
         mvc.perform(get("/api/datasets/{id}/versions/{versionId}/information-contributors", datasetPersistentId, versionId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
@@ -222,8 +222,8 @@ public class DatasetControllerITCase {
         String datasetPersistentId = "xxxxxx7";
 
         mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
@@ -241,9 +241,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -270,9 +270,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -312,9 +312,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -345,9 +345,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("accessibleAt")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
@@ -376,9 +376,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -414,9 +414,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -446,9 +446,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("source.id")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -470,9 +470,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(1)))
                 .andExpect(jsonPath("errors[0].field", is("contributors[2]")))
@@ -496,9 +496,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("status", is("approved")))
@@ -542,9 +542,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -603,9 +603,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -623,7 +623,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
 
         mvc.perform(get("/api/datasets/{id}/history", datasetPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
@@ -700,9 +700,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(1)))
                 .andExpect(jsonPath("errors[0].field", is("sourceItemId")))
@@ -723,9 +723,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(1)))
                 .andExpect(jsonPath("errors[0].field", is("source")))
@@ -749,9 +749,9 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(1)))
                 .andExpect(jsonPath("errors[0].field", is("source.id")))
@@ -799,17 +799,17 @@ public class DatasetControllerITCase {
         log.debug("JSON: " + payload);
 
         String jsonResponse = mvc.perform(post("/api/datasets")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
         String datasetPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, DatasetDto.class).getPersistentId();
 
         mvc.perform(delete("/api/datasets/{id}", datasetPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
     }
 
@@ -826,11 +826,11 @@ public class DatasetControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         mvc.perform(
-                post("/api/datasets")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", ADMINISTRATOR_JWT)
-        )
+                        post("/api/datasets")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
@@ -849,11 +849,11 @@ public class DatasetControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         mvc.perform(
-                put("/api/datasets/{id}", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        put("/api/datasets/{id}", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("id", not(is(datasetVersionId))))
@@ -861,10 +861,10 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/datasets/{id}", datasetId)
-                        .param("approved", "false")
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        get("/api/datasets/{id}", datasetId)
+                                .param("approved", "false")
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("id", not(is(datasetVersionId))))
@@ -872,10 +872,10 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/datasets/{id}", datasetId)
-                        .param("approved", "false")
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/datasets/{id}", datasetId)
+                                .param("approved", "false")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("id", is(datasetVersionId)))
@@ -902,11 +902,11 @@ public class DatasetControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         String datasetResponse = mvc.perform(
-                put("/api/datasets/{id}", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        put("/api/datasets/{id}", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("id", not(is(datasetVersionId))))
@@ -918,9 +918,9 @@ public class DatasetControllerITCase {
         int newDatasetVersionId = datasetDto.getId().intValue();
 
         mvc.perform(
-                get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("id", not(is(datasetVersionId))))
@@ -928,9 +928,9 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
-                        .header("Authorization", ADMINISTRATOR_JWT)
-        )
+                        get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("id", not(is(datasetVersionId))))
@@ -938,9 +938,9 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("id", not(is(datasetVersionId))))
@@ -948,9 +948,9 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isForbidden());
 
         mvc.perform(get("/api/datasets/{id}/versions/{verId}", datasetId, newDatasetVersionId))
@@ -978,11 +978,11 @@ public class DatasetControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         mvc.perform(
-                post("/api/datasets")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        post("/api/datasets")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("thumbnail.info.mediaId", is(grumpycatId.toString())))
@@ -1031,11 +1031,11 @@ public class DatasetControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         mvc.perform(
-                put("/api/datasets/{id}", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        put("/api/datasets/{id}", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("thumbnail.info.mediaId", is(seriouscatId.toString())))
@@ -1084,11 +1084,11 @@ public class DatasetControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         mvc.perform(
-                post("/api/datasets")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        post("/api/datasets")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(3)))
                 .andExpect(jsonPath("errors[0].field", is("media[0].info.mediaId")))
@@ -1126,11 +1126,11 @@ public class DatasetControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         mvc.perform(
-                post("/api/datasets")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        post("/api/datasets")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("thumbnail.info.mediaId", is(backgoundId.toString())))
@@ -1176,11 +1176,11 @@ public class DatasetControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         mvc.perform(
-                post("/api/datasets")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        post("/api/datasets")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("media", hasSize(1)))
@@ -1215,11 +1215,11 @@ public class DatasetControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         mvc.perform(
-                post("/api/datasets")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        post("/api/datasets")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("media", hasSize(1)))
@@ -1242,11 +1242,11 @@ public class DatasetControllerITCase {
         String toolId = "n21Kfc";
 
         mvc.perform(
-                get("/api/datasets/{id}/merge", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowId, toolId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowId, toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1263,11 +1263,11 @@ public class DatasetControllerITCase {
         String toolId = "n21Kfc";
 
         String response = mvc.perform(
-                get("/api/datasets/{id}/merge", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowId, toolId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowId, toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1276,12 +1276,12 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", datasetId, workflowId, toolId)
-                        .content(response)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", datasetId, workflowId, toolId)
+                                .content(response)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1290,10 +1290,10 @@ public class DatasetControllerITCase {
 
 
         mvc.perform(
-                get("/api/datasets/{id}?approved=false", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}?approved=false", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1308,11 +1308,11 @@ public class DatasetControllerITCase {
         String toolId = "n21Kfc";
 
         String response = mvc.perform(
-                get("/api/datasets/{id}/merge", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowId, toolId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowId, toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1321,12 +1321,12 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", datasetId, workflowId, toolId)
-                        .content(response)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", datasetId, workflowId, toolId)
+                                .content(response)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1335,10 +1335,10 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
-                get("/api/datasets/{id}", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isNotFound());
 
 
@@ -1349,10 +1349,10 @@ public class DatasetControllerITCase {
                 .readValue(mergedResponse, DatasetDto.class).getLabel();
 
         mvc.perform(
-                get("/api/datasets/{id}/history", mergedPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/history", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
@@ -1375,11 +1375,11 @@ public class DatasetControllerITCase {
         String trainingMaterialId = "WfcKvG";
 
         String response = mvc.perform(
-                get("/api/datasets/{id}/merge", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowId, trainingMaterialId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowId, trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1388,12 +1388,12 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", datasetId, workflowId, trainingMaterialId)
-                        .content(response)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", datasetId, workflowId, trainingMaterialId)
+                                .content(response)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1402,10 +1402,10 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
-                get("/api/training-materials/{id}", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isNotFound());
 
 
@@ -1416,10 +1416,10 @@ public class DatasetControllerITCase {
                 .readValue(mergedResponse, DatasetDto.class).getLabel();
 
         mvc.perform(
-                get("/api/datasets/{id}/history", mergedPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/history", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(6)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
@@ -1451,38 +1451,38 @@ public class DatasetControllerITCase {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(
-                get("/api/datasets/{id}/information-contributors", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/information-contributors", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")));
 
         mvc.perform(
-                get("/api/datasets/{id}/information-contributors", workflowId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/information-contributors", workflowId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].username", is("Contributor")));
 
         mvc.perform(
-                get("/api/datasets/{id}/information-contributors", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/information-contributors", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")));
 
         String response = mvc.perform(
-                get("/api/datasets/{id}/merge", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowId, trainingMaterialId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowId, trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1491,12 +1491,12 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", datasetId, workflowId, trainingMaterialId)
-                        .content(response)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", datasetId, workflowId, trainingMaterialId)
+                                .content(response)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1505,10 +1505,10 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
-                get("/api/training-materials/{id}", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isNotFound());
 
 
@@ -1519,10 +1519,10 @@ public class DatasetControllerITCase {
                 .readValue(mergedResponse, DatasetDto.class).getLabel();
 
         mvc.perform(
-                get("/api/datasets/{id}/history", mergedPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/history", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(6)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
@@ -1540,10 +1540,10 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[5].category", is("training-material")));
 
         mvc.perform(
-                get("/api/datasets/{id}/information-contributors", mergedPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/information-contributors", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
@@ -1561,16 +1561,16 @@ public class DatasetControllerITCase {
         String trainingMaterialId = "WfcKvG";
 
         String toolId = "Xgufde";
-        String datasetSecondId =  "dmbq4v";
+        String datasetSecondId = "dmbq4v";
 
         String workflowSecondId = "vHQEhe";
 
         String response = mvc.perform(
-                get("/api/datasets/{id}/merge", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowId, trainingMaterialId)
-                        .header("Authorization", ADMINISTRATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowId, trainingMaterialId)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1579,12 +1579,12 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", datasetId, workflowId, trainingMaterialId)
-                        .content(response)
-                        .header("Authorization", ADMINISTRATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", datasetId, workflowId, trainingMaterialId)
+                                .content(response)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1596,50 +1596,50 @@ public class DatasetControllerITCase {
                 .readValue(mergedResponse, DatasetDto.class).getPersistentId();
 
         mvc.perform(
-                get("/api/datasets/{id}/information-contributors", mergedPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", ADMINISTRATOR_JWT)
-        )
+                        get("/api/datasets/{id}/information-contributors", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[1].username", is("Contributor")));
 
         String response2 = mvc.perform(
-                get("/api/datasets/{id}/merge", mergedPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", toolId, datasetSecondId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", toolId, datasetSecondId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data" )))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data")))
                 .andReturn().getResponse().getContentAsString();
 
 
         String mergedResponse2 = mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", mergedPersistentId, toolId, datasetSecondId)
-                        .content(response2)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", mergedPersistentId, toolId, datasetSecondId)
+                                .content(response2)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data" ))) .andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data"))).andReturn().getResponse().getContentAsString();
 
         String mergedSecondPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse2, DatasetDto.class).getPersistentId();
 
         mvc.perform(
-                get("/api/datasets/{id}/information-contributors", mergedSecondPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/information-contributors", mergedSecondPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
@@ -1647,11 +1647,11 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[2].username", is("Contributor")));
 
         String response3 = mvc.perform(
-                get("/api/datasets/{id}/merge", mergedSecondPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowSecondId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", mergedSecondPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowSecondId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1660,12 +1660,12 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse3 = mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", mergedSecondPersistentId, workflowSecondId)
-                        .content(response3)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", mergedSecondPersistentId, workflowSecondId)
+                                .content(response3)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1678,10 +1678,10 @@ public class DatasetControllerITCase {
 
 
         mvc.perform(
-                get("/api/datasets/{id}/information-contributors", mergedThirdPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/information-contributors", mergedThirdPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
@@ -1703,17 +1703,17 @@ public class DatasetControllerITCase {
 
         String toolPersistentId = "Xgufde";
         int toolId = 3;
-        String datasetSecondPersistentId =  "dmbq4v";
+        String datasetSecondPersistentId = "dmbq4v";
         int datasetSecondId = 103;
 
         String workflowSecondPersistentId = "vHQEhe";
         int workflowSecondId = 21;
 
         mvc.perform(
-                get("/api/datasets/{id}/history", datasetPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/history", datasetPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].persistentId", is(datasetPersistentId)))
@@ -1721,20 +1721,20 @@ public class DatasetControllerITCase {
 
 
         mvc.perform(
-                get("/api/workflows/{id}/history", workflowPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/workflows/{id}/history", workflowPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("$[0].id", is(workflowId)));
 
         mvc.perform(
-                get("/api/training-materials/{id}/history", trainingMaterialPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}/history", trainingMaterialPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialPersistentId)))
@@ -1745,11 +1745,11 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[2].id", is(5)));
 
         String response = mvc.perform(
-                get("/api/datasets/{id}/merge", datasetPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowPersistentId, trainingMaterialPersistentId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", datasetPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowPersistentId, trainingMaterialPersistentId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1758,12 +1758,12 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", datasetPersistentId, workflowPersistentId, trainingMaterialPersistentId)
-                        .content(response)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", datasetPersistentId, workflowPersistentId, trainingMaterialPersistentId)
+                                .content(response)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(datasetPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1774,17 +1774,17 @@ public class DatasetControllerITCase {
         String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse, DatasetDto.class).getPersistentId();
 
-        int mergedId  = TestJsonMapper.serializingObjectMapper()
+        int mergedId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse, DatasetDto.class).getId().intValue();
 
         String mergedLabel = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse, DatasetDto.class).getLabel();
 
         mvc.perform(
-                get("/api/datasets/{id}/history", mergedPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/history", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(6)))
                 .andExpect(jsonPath("$[0].persistentId", is(mergedPersistentId)))
@@ -1802,10 +1802,10 @@ public class DatasetControllerITCase {
 
 
         mvc.perform(
-                get("/api/tools-services/{id}/history", toolPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/tools-services/{id}/history", toolPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].persistentId", is(toolPersistentId)))
@@ -1813,10 +1813,10 @@ public class DatasetControllerITCase {
 
 
         mvc.perform(
-                get("/api/datasets/{id}/history", datasetSecondPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/history", datasetSecondPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].persistentId", is(datasetSecondPersistentId)))
@@ -1824,36 +1824,36 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("$[1].id", is(9)));
 
         String response2 = mvc.perform(
-                get("/api/datasets/{id}/merge", mergedPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", toolPersistentId, datasetSecondPersistentId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", toolPersistentId, datasetSecondPersistentId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data" )))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data")))
                 .andReturn().getResponse().getContentAsString();
 
 
         String mergedResponse2 = mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", mergedPersistentId, toolPersistentId, datasetSecondPersistentId)
-                        .content(response2)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", mergedPersistentId, toolPersistentId, datasetSecondPersistentId)
+                                .content(response2)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data" ))) .andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data"))).andReturn().getResponse().getContentAsString();
 
         String mergedSecondPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse2, DatasetDto.class).getPersistentId();
 
-        int mergedSecondId  = TestJsonMapper.serializingObjectMapper()
+        int mergedSecondId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse2, DatasetDto.class).getId().intValue();
 
         String mergedSecondLabel = TestJsonMapper.serializingObjectMapper()
@@ -1861,29 +1861,29 @@ public class DatasetControllerITCase {
 
 
         mvc.perform(
-                get("/api/datasets/{id}/history", mergedSecondPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/history", mergedSecondPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(12)));
 
         mvc.perform(
-                get("/api/workflows/{id}/history", workflowSecondPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/workflows/{id}/history", workflowSecondPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].persistentId", is(workflowSecondPersistentId)))
                 .andExpect(jsonPath("$[0].id", is(workflowSecondId)));
 
         String response3 = mvc.perform(
-                get("/api/datasets/{id}/merge", mergedSecondPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", workflowSecondPersistentId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/merge", mergedSecondPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowSecondPersistentId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1892,12 +1892,12 @@ public class DatasetControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse3 = mvc.perform(
-                post("/api/datasets/merge")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", mergedSecondPersistentId, workflowSecondPersistentId)
-                        .content(response3)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", mergedSecondPersistentId, workflowSecondPersistentId)
+                                .content(response3)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -1910,10 +1910,10 @@ public class DatasetControllerITCase {
 
 
         mvc.perform(
-                get("/api/datasets/{id}/history", mergedThirdPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/datasets/{id}/history", mergedThirdPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(14)))
                 .andExpect(jsonPath("$[0].persistentId", is(mergedThirdPersistentId)));
@@ -1947,6 +1947,145 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("contributors[1].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[1].role.code", is("provider")))
                 .andExpect(jsonPath("properties", hasSize(0)));
+    }
+
+
+    @Test
+    public void shouldReturnDifferenceBetweenDatasets() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+        String otherDatasetPersistentId = "OdKfPc";
+        Integer otherDatasetId = 10;
+
+        mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with",otherDatasetPersistentId)
+                        .param("otherVersionId", "")
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("item.id", is(datasetId)))
+                .andExpect(jsonPath("item.category", is("dataset")))
+                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
+                .andExpect(jsonPath("item.informationContributor.id", is(3)))
+                .andExpect(jsonPath("equal", is(false)))
+                .andExpect(jsonPath("otherItem.persistentId", is(otherDatasetPersistentId)))
+                .andExpect(jsonPath("otherItem.id", is(otherDatasetId)))
+                .andExpect(jsonPath("otherItem.category", is("dataset")))
+                .andExpect(jsonPath("otherItem.label", is("Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("otherItem.informationContributor.id", is(1)));
+    }
+
+    @Test
+    public void shouldReturnNoDifferenceBetweenDatasets() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+        String otherDatasetPersistentId = "dmbq4v";
+
+        mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with",otherDatasetPersistentId)
+                        .param("otherVersionId", "")
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("item.id", is(datasetId)))
+                .andExpect(jsonPath("item.category", is("dataset")))
+                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
+                .andExpect(jsonPath("item.informationContributor.id", is(3)))
+                .andExpect(jsonPath("equal", is(true)))
+                .andExpect(jsonPath("otherItem.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("otherItem.id", is(datasetId)))
+                .andExpect(jsonPath("otherItem.category", is("dataset")))
+                .andExpect(jsonPath("otherItem.relatedItems[0]", nullValue() ));
+    }
+
+    //ELiza
+    @Test
+    public void shouldReturnDifferenceBetweenDatasetsAndVersions() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+
+
+        String otherDatasetPersistentId = "WfcKvG";
+        Integer otherDatasetId = 10;
+        Long otherDatasetVersionId = 5L;
+
+        mvc.perform(get("/api/datasets/{persistentId}/versions/{versionId}/diff", datasetPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with",otherDatasetPersistentId)
+                        .param("otherVersionId", "")
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("item.id", is(datasetId)))
+                .andExpect(jsonPath("item.category", is("dataset")))
+                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
+                .andExpect(jsonPath("item.informationContributor.id", is(3)))
+                .andExpect(jsonPath("equal", is(true)))
+                .andExpect(jsonPath("otherItem.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("otherItem.id", is(datasetId)))
+                .andExpect(jsonPath("otherItem.category", is("dataset")))
+                .andExpect(jsonPath("otherItem.relatedItems[0]", nullValue() ));
+    }
+
+    @Test
+    public void shouldReturnDifferenceBetweenDatasetAndWorkflow() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+        Long datasetVersionId = 7L;
+
+        String otherDatasetPersistentId = "WfcKvG";
+        Integer otherDatasetId = 10;
+        Long otherDatasetVersionId = 5L;
+
+        mvc.perform(get("/api/datasets/{persistentId}/versions/{versionId}/diff", datasetPersistentId,datasetVersionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with",otherDatasetPersistentId)
+                        .param("otherVersionId", String.valueOf(otherDatasetVersionId))
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("item.id", is(datasetId)))
+                .andExpect(jsonPath("item.category", is("dataset")))
+                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
+                .andExpect(jsonPath("item.informationContributor.id", is(3)))
+                .andExpect(jsonPath("equal", is(false)))
+                .andExpect(jsonPath("otherItem.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("otherItem.id", is(datasetId)))
+                .andExpect(jsonPath("otherItem.category", is("training-materials")))
+                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
+                .andExpect(jsonPath("otherItem.relatedItems[0]", nullValue() ));
+    }
+
+    @Test
+    public void shouldReturnDifferenceBetweenDatasetVersionAndWorkflow() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+
+        mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("id", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Austin Crime Data")))
+                .andExpect(jsonPath("informationContributor.id", is(3)));
+    }
+
+    @Test
+    public void shouldReturnDifferenceBetweenDatasetVersionAndWorkflowVersion() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+
+        mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("id", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Austin Crime Data")))
+                .andExpect(jsonPath("informationContributor.id", is(3)));
     }
 
 }

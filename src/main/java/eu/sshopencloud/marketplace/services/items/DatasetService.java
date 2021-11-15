@@ -21,16 +21,12 @@ import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.datasets.DatasetFactory;
-import liquibase.pro.packaged.S;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 
 @Service
@@ -172,12 +168,10 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     public ItemsDifferenceDto getDifference(String datasetPersistentId, Long datasetVersionId,
-                                String otherPersistentId, Long otherVersionId) {
+                                            String otherPersistentId, Long otherVersionId) {
 
-        ItemsDifferenceDto itemsDifferenceDto = differentiateItems(datasetPersistentId, datasetVersionId,
+        return differentiateItems(datasetPersistentId, datasetVersionId,
                 otherPersistentId, otherVersionId);
-
-        return itemsDifferenceDto;
     }
 
 

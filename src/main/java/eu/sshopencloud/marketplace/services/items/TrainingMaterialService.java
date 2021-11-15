@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
@@ -169,4 +170,10 @@ public class TrainingMaterialService
         return getAllSources(id);
     }
 
+    public ItemsDifferenceDto getDifference(String trainingMaterialPersistentId, Long trainingMaterialVersionId,
+                                            String otherPersistentId, Long otherVersionId) {
+
+        return differentiateItems(trainingMaterialPersistentId, trainingMaterialVersionId,
+                otherPersistentId, otherVersionId);
+    }
 }

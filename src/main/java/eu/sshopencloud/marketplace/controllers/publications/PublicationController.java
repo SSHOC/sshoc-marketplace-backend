@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.publications;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
@@ -134,7 +135,7 @@ public class PublicationController {
                                                 @Parameter(
                                                         description = "Merged publication",
                                                         required = true,
-                                                        schema = @Schema(implementation =PublicationCore.class))  @RequestBody PublicationCore mergePublication) {
+                                                        schema = @Schema(implementation = PublicationCore.class)) @RequestBody PublicationCore mergePublication) {
         return ResponseEntity.ok(publicationService.merge(mergePublication, with));
     }
 
@@ -144,5 +145,27 @@ public class PublicationController {
 
         return ResponseEntity.ok(publicationService.getSources(persistentId));
     }
+
+
+    @Operation(summary = "Getting differences between publication and target version of item", operationId = "getPublicationAndVersionedItemDifference")
+    @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferenceDto> getPublicationVersionedItemDifference(@PathVariable("persistentId") String persistentId,
+                                                                                    @RequestParam String with,
+                                                                                    @RequestParam Long otherVersionId) {
+
+        return ResponseEntity.ok(publicationService.getDifference(persistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of publication and target version of item", operationId = "getVersionedPublicationAndVersionedItemDifference")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferenceDto> getVersionedPublicationVersionedItemDifference(@PathVariable("persistentId") String persistentId,
+                                                                                             @PathVariable("versionId") long versionId,
+                                                                                             @RequestParam String with,
+                                                                                             @RequestParam Long otherVersionId) {
+
+        return ResponseEntity.ok(publicationService.getDifference(persistentId, versionId, with, otherVersionId));
+    }
+
 
 }
