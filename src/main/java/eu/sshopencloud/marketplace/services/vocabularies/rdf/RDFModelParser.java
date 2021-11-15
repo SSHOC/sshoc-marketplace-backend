@@ -380,8 +380,7 @@ public class RDFModelParser {
     }
 
     public Model generateInverseStatements() {
-        inverseStatements.forEach(
-                statement -> modelGlobal.add(statement));
+        modelGlobal.addAll(inverseStatements);
 
         return modelGlobal;
     }
@@ -484,15 +483,13 @@ public class RDFModelParser {
                         c -> (c.getSubject().equals(concept) && !c.getObject().equals(concept) && c.getRelation().getUri().equals(SKOS_NARROWER)))
                 .collect(Collectors.toList());
 
-        //ELiza
         List<ConceptRelatedConcept> broader = conceptRelatedConcepts.stream().filter(
-                        c -> (!c.getSubject().equals(concept) && c.getObject().equals(concept)
-                                && c.getRelation().getUri().equals(SKOS_BROADER)))
+                        c -> (!c.getSubject().equals(concept) && c.getObject().equals(concept) && c.getRelation().getUri().equals(SKOS_BROADER)))
                 .collect(Collectors.toList());
 
+        tmp.addAll(broader);
 
-        if (tmp.size() == conceptRelatedConcepts.size()) return true;
-        else return false;
+        return tmp.size() == conceptRelatedConcepts.size();
     }
 
     public Vocabulary recreateVocabulary(String vocabularyCode, Model rdfModel, Vocabulary vocabulary) {

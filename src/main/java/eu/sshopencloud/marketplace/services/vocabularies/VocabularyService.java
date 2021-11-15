@@ -219,12 +219,10 @@ public class VocabularyService {
         String mainResources = vocabulary.getNamespace() + "Schema";
 
         Model model = RDFModelParser.createModel(vocabulary, mainResources);
-        Collections.sort(concepts, new ConceptComparator());
+        concepts.sort(new ConceptComparator());
 
         concepts.forEach(
-                concept -> {
-                    RDFModelParser.addConceptToModel(mainResources, concept, conceptRelatedConceptService.getConceptRelatedConcept(concept.getCode(), vocabularyCode));
-                }
+                concept -> RDFModelParser.addConceptToModel(mainResources, concept, conceptRelatedConceptService.getConceptRelatedConcept(concept.getCode(), vocabularyCode))
         );
 
         model = RDFModelParser.generateInverseStatements();
@@ -234,12 +232,8 @@ public class VocabularyService {
         if (!Files.exists(exportedPath))
             Files.createFile(exportedPath);
 
-        FileOutputStream out = new FileOutputStream(exportedPath.toFile());
-
-        try {
+        try (FileOutputStream out = new FileOutputStream(exportedPath.toFile())) {
             Rio.write(model, out, RDFFormat.TURTLE);
-        } finally {
-            out.close();
         }
 
         try {
