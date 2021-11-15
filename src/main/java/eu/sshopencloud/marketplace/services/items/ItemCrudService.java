@@ -762,9 +762,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         );
         finalOtherItemDto.setRelatedItems(relatedItems);
 
+        //LastInfoUpdate
+        if (finalItemDto.getLastInfoUpdate().equals(finalOtherItemDto.getLastInfoUpdate()))
+            finalOtherItemDto.setLastInfoUpdate(null);
 
-        finalOtherItemDto.getInformationContributor();
-        //W ktorym momencie zmapować to ?
+        if (finalItemDto.getInformationContributor().equals(finalOtherItemDto.getInformationContributor()))
+            finalOtherItemDto.setInformationContributor(null);
 
         difference.setEqual(equal.get());
         difference.setOtherItem(finalOtherItemDto);
