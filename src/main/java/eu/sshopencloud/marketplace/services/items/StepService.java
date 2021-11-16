@@ -24,15 +24,11 @@ import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
-import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -195,8 +191,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public void removeStepsFromTree(String workflowId, List<String> removedStepsId) {
         Workflow workflow = workflowService.loadLatestItem(workflowId);
 
-        for (int i = 0; i < removedStepsId.size(); i++) {
-            StepsTree stepTree = loadStepTreeInWorkflow(workflow, removedStepsId.get(i));
+        for (String s : removedStepsId) {
+            StepsTree stepTree = loadStepTreeInWorkflow(workflow, s);
             StepsTree parentStepTree = stepTree.getParent();
             parentStepTree.removeStep(stepTree.getStep());
         }

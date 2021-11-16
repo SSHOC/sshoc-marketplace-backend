@@ -617,57 +617,64 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         AtomicBoolean equal = new AtomicBoolean(true);
 
         I finalItem;
-        if (Objects.isNull(versionId)  || versionId.toString().isBlank())
+        if (Objects.isNull(versionId) || versionId.toString().isBlank())
             finalItem = loadLatestItem(persistentId);
         else finalItem = loadItemVersion(persistentId, versionId);
 
-        I finalOtherItem;
-        if (Objects.isNull(otherVersionId) || otherVersionId.toString().isBlank())
-            finalOtherItem = loadLatestItem(otherPersistentId);
-        else finalOtherItem = loadItemVersion(otherPersistentId, otherVersionId);
+        I finalOtherItem = (I) versionedItemRepository.getOne(otherPersistentId).getCurrentVersion();
+
+        if (!Objects.isNull(otherVersionId) && !otherVersionId.toString().isBlank()) {
+            while (!Objects.isNull(finalOtherItem.getPrevVersion()) && !finalOtherItem.getId().equals(otherVersionId)) {
+                finalOtherItem = (I) finalOtherItem.getPrevVersion();
+            }
+        }
 
         D finalItemDto = prepareItemDto(finalItem);
-        D finalOtherItemDto = prepareItemDto(finalOtherItem);
+
+        D finalOtherItemDto = convertToDto(finalOtherItem);
+        finalOtherItemDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalOtherItem));
+        completeItemDto(finalOtherItemDto, finalOtherItem);
+
 
         ItemsDifferenceDto difference = new ItemsDifferenceDto();
         difference.setItem(finalItemDto);
 
-        //Category
+
         if (!finalItemDto.getCategory().equals(finalOtherItemDto.getCategory())) equal.set(false);
 
-        //label
+
         if (finalItemDto.getLabel().equals(finalOtherItemDto.getLabel()))
             finalOtherItemDto.setLabel(null);
         else equal.set(false);
 
-        //description
+
         if (finalItemDto.getDescription().equals(finalOtherItemDto.getDescription()))
             finalOtherItemDto.setDescription(null);
         else equal.set(false);
 
-        //source  -V
+
         if ((!Objects.isNull(finalItemDto.getSource()) && !Objects.isNull(finalOtherItemDto.getSource()) && finalItemDto.getSource().equals(finalOtherItemDto.getSource()))
                 || (Objects.isNull(finalItemDto.getSource()) && Objects.isNull(finalOtherItemDto.getSource())))
             finalOtherItemDto.setSource(null);
         else equal.set(false);
 
-        //sourceItemId
+
         if (StringUtils.isNotBlank(finalItemDto.getSourceItemId()) && StringUtils.isNotBlank(finalOtherItemDto.getSourceItemId()) && finalItemDto.getSourceItemId().equals(finalOtherItemDto.getSourceItemId())
                 || (StringUtils.isBlank(finalItemDto.getSourceItemId()) && StringUtils.isBlank(finalOtherItemDto.getSourceItemId())))
             finalOtherItemDto.setSourceItemId(null);
         else equal.set(false);
 
-        //Thumbnail V
+
         if ((!Objects.isNull(finalItemDto.getThumbnail()) && !Objects.isNull(finalOtherItemDto.getThumbnail()) && finalItemDto.getThumbnail().equals(finalOtherItemDto.getThumbnail()))
                 || (Objects.isNull(finalItemDto.getThumbnail()) && Objects.isNull(finalOtherItemDto.getThumbnail())))
             finalOtherItemDto.setThumbnail(null);
         else equal.set(false);
 
-        //contributors
+
         List<ItemContributorDto> itemContributors = new ArrayList<>();
         finalOtherItemDto.getContributors().forEach(
                 itemContributor -> {
-                    if (finalOtherItemDto.getContributors().indexOf(itemContributor) <= finalItemDto.getContributors().size() &&
+                    if (finalOtherItemDto.getContributors().indexOf(itemContributor) < finalItemDto.getContributors().size() &&
                             itemContributor.equals(finalItemDto.getContributors().get(finalOtherItemDto.getContributors().indexOf(itemContributor)))
                     ) {
                         itemContributors.add(null);
@@ -679,11 +686,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         );
         finalOtherItemDto.setContributors(itemContributors);
 
-        //properties - tutaj się zmienia
+
         List<PropertyDto> itemProperties = new ArrayList<>();
         finalOtherItemDto.getProperties().forEach(
                 itemProperty -> {
-                    if (finalOtherItemDto.getProperties().indexOf(itemProperty) <= finalItemDto.getProperties().size() &&
+                    if (finalOtherItemDto.getProperties().indexOf(itemProperty) < finalItemDto.getProperties().size() &&
                             itemProperty.equals(finalItemDto.getProperties().get(finalOtherItemDto.getProperties().indexOf(itemProperty)))
                     ) {
                         itemProperties.add(null);
@@ -695,11 +702,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         );
         finalOtherItemDto.setProperties(itemProperties);
 
-        //accessibleAt
+
         List<String> accessibleAtList = new ArrayList<>();
         finalOtherItemDto.getAccessibleAt().forEach(
                 accessibleAt -> {
-                    if (finalOtherItemDto.getAccessibleAt().indexOf(accessibleAt) <= finalItemDto.getAccessibleAt().size() &&
+                    if (finalOtherItemDto.getAccessibleAt().indexOf(accessibleAt) < finalItemDto.getAccessibleAt().size() &&
                             accessibleAt.equals(finalItemDto.getAccessibleAt().get(finalOtherItemDto.getAccessibleAt().indexOf(accessibleAt)))
                     ) {
                         accessibleAtList.add(null);
@@ -711,11 +718,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         );
         finalOtherItemDto.setAccessibleAt(accessibleAtList);
 
-        //externalIds
         List<ItemExternalIdDto> itemExternalIds = new ArrayList<>();
         finalOtherItemDto.getExternalIds().forEach(
                 externalId -> {
-                    if (finalOtherItemDto.getExternalIds().indexOf(externalId) <= finalItemDto.getExternalIds().size() &&
+                    if (finalOtherItemDto.getExternalIds().indexOf(externalId) < finalItemDto.getExternalIds().size() &&
                             externalId.equals(finalItemDto.getExternalIds().get(finalOtherItemDto.getExternalIds().indexOf(externalId)))
                     ) {
                         itemExternalIds.add(null);
@@ -727,12 +733,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         );
         finalOtherItemDto.setExternalIds(itemExternalIds);
 
-        //media
+
         List<ItemMediaDto> mediaList = new ArrayList<>();
         finalOtherItemDto.getMedia().forEach(
                 media -> {
                     if (
-                            finalOtherItemDto.getMedia().indexOf(media) <= finalItemDto.getMedia().size() &&
+                            finalOtherItemDto.getMedia().indexOf(media) < finalItemDto.getMedia().size() &&
                                     media.equals(finalItemDto.getMedia().get(finalOtherItemDto.getMedia().indexOf(media)))
                     ) {
                         mediaList.add(null);
@@ -745,13 +751,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         finalOtherItemDto.setMedia(mediaList);
 
 
-        //relatedItems
         List<RelatedItemDto> relatedItems = new ArrayList<>();
         finalOtherItemDto.getRelatedItems().forEach(
                 relatedItem -> {
-                    if (relatedItem.equals(finalItemDto.getRelatedItems().get(
-                            finalOtherItemDto.getRelatedItems().indexOf(relatedItem))
-                    )) {
+                    if (finalOtherItemDto.getRelatedItems().indexOf(relatedItem) < finalItemDto.getRelatedItems().size() &&
+                            relatedItem.equals(finalItemDto.getRelatedItems().get(finalOtherItemDto.getRelatedItems().indexOf(relatedItem)))
+                    ) {
                         relatedItems.add(null);
                     } else {
                         relatedItems.add(relatedItem);
@@ -761,7 +766,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         );
         finalOtherItemDto.setRelatedItems(relatedItems);
 
-        //LastInfoUpdate
+
         if (finalItemDto.getLastInfoUpdate().equals(finalOtherItemDto.getLastInfoUpdate()))
             finalOtherItemDto.setLastInfoUpdate(null);
 

@@ -262,7 +262,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
         SourceId source = new SourceId();
-        source.setId(2l);
+        source.setId(2L);
         dataset.setSource(source);
         dataset.setSourceItemId("testSourceItemId");
 
@@ -360,7 +360,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
         SourceId source = new SourceId();
-        source.setId(2l);
+        source.setId(2L);
         dataset.setSource(source);
         dataset.setSourceItemId("testSourceItemId");
 
@@ -439,7 +439,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
         SourceId source = new SourceId();
-        source.setId(-1l);
+        source.setId(-1L);
         dataset.setSource(source);
 
         String payload = mapper.writeValueAsString(dataset);
@@ -518,7 +518,6 @@ public class DatasetControllerITCase {
     @Test
     public void shouldUpdateDatasetWithoutRelation() throws Exception {
         String datasetPersistentId = "dmbq4v";
-        Integer datasetCurrentId = 9;
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
@@ -693,7 +692,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
         SourceId source = new SourceId();
-        source.setId(2l);
+        source.setId(2L);
         dataset.setSource(source);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
@@ -742,7 +741,7 @@ public class DatasetControllerITCase {
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
         SourceId source = new SourceId();
-        source.setId(-1l);
+        source.setId(-1L);
         dataset.setSource(source);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
@@ -766,7 +765,7 @@ public class DatasetControllerITCase {
         dataset.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(3l);
+        actor.setId(3L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
@@ -1777,9 +1776,6 @@ public class DatasetControllerITCase {
         int mergedId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse, DatasetDto.class).getId().intValue();
 
-        String mergedLabel = TestJsonMapper.serializingObjectMapper()
-                .readValue(mergedResponse, DatasetDto.class).getLabel();
-
         mvc.perform(
                         get("/api/datasets/{id}/history", mergedPersistentId)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -1855,9 +1851,6 @@ public class DatasetControllerITCase {
 
         int mergedSecondId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse2, DatasetDto.class).getId().intValue();
-
-        String mergedSecondLabel = TestJsonMapper.serializingObjectMapper()
-                .readValue(mergedResponse2, DatasetDto.class).getLabel();
 
 
         mvc.perform(
@@ -1959,7 +1952,7 @@ public class DatasetControllerITCase {
 
         mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with",otherDatasetPersistentId)
+                        .param("with", otherDatasetPersistentId)
                         .param("otherVersionId", "")
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
@@ -1984,7 +1977,7 @@ public class DatasetControllerITCase {
 
         mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with",otherDatasetPersistentId)
+                        .param("with", otherDatasetPersistentId)
                         .param("otherVersionId", "")
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
@@ -1997,52 +1990,22 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("otherItem.persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("otherItem.id", is(datasetId)))
                 .andExpect(jsonPath("otherItem.category", is("dataset")))
-                .andExpect(jsonPath("otherItem.relatedItems[0]", nullValue() ));
+                .andExpect(jsonPath("otherItem.relatedItems[0]", nullValue()));
     }
 
-    //ELiza
+
     @Test
-    public void shouldReturnDifferenceBetweenDatasetsAndVersions() throws Exception {
+    public void shouldReturnDifferenceBetweenDatasetAndTrainingMaterial() throws Exception {
         String datasetPersistentId = "dmbq4v";
         Integer datasetId = 9;
 
+        String otherTrainingMaterialPersistentId = "WfcKvG";
+        Long otherTrainingMaterialVersionId = 6L;
 
-        String otherDatasetPersistentId = "WfcKvG";
-        Integer otherDatasetId = 10;
-        Long otherDatasetVersionId = 5L;
-
-        mvc.perform(get("/api/datasets/{persistentId}/versions/{versionId}/diff", datasetPersistentId)
+        mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("with",otherDatasetPersistentId)
-                        .param("otherVersionId", "")
-                        .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("item.id", is(datasetId)))
-                .andExpect(jsonPath("item.category", is("dataset")))
-                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
-                .andExpect(jsonPath("item.informationContributor.id", is(3)))
-                .andExpect(jsonPath("equal", is(true)))
-                .andExpect(jsonPath("otherItem.persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("otherItem.id", is(datasetId)))
-                .andExpect(jsonPath("otherItem.category", is("dataset")))
-                .andExpect(jsonPath("otherItem.relatedItems[0]", nullValue() ));
-    }
-
-    @Test
-    public void shouldReturnDifferenceBetweenDatasetAndWorkflow() throws Exception {
-        String datasetPersistentId = "dmbq4v";
-        Integer datasetId = 9;
-        Long datasetVersionId = 7L;
-
-        String otherDatasetPersistentId = "WfcKvG";
-        Integer otherDatasetId = 10;
-        Long otherDatasetVersionId = 5L;
-
-        mvc.perform(get("/api/datasets/{persistentId}/versions/{versionId}/diff", datasetPersistentId,datasetVersionId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with",otherDatasetPersistentId)
-                        .param("otherVersionId", String.valueOf(otherDatasetVersionId))
+                        .param("with", otherTrainingMaterialPersistentId)
+                        .param("otherVersionId", otherTrainingMaterialVersionId.toString())
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
@@ -2051,41 +2014,25 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("item.label", is("Austin Crime Data")))
                 .andExpect(jsonPath("item.informationContributor.id", is(3)))
                 .andExpect(jsonPath("equal", is(false)))
-                .andExpect(jsonPath("otherItem.persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("otherItem.id", is(datasetId)))
-                .andExpect(jsonPath("otherItem.category", is("training-materials")))
-                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
-                .andExpect(jsonPath("otherItem.relatedItems[0]", nullValue() ));
+                .andExpect(jsonPath("otherItem.persistentId", is(otherTrainingMaterialPersistentId)))
+                .andExpect(jsonPath("otherItem.id", is(otherTrainingMaterialVersionId.intValue())))
+                .andExpect(jsonPath("otherItem.category", is("training-material")))
+                .andExpect(jsonPath("otherItem.label", is("Introduction to GEPHI")));
     }
 
-    @Test
-    public void shouldReturnDifferenceBetweenDatasetVersionAndWorkflow() throws Exception {
-        String datasetPersistentId = "dmbq4v";
-        Integer datasetId = 9;
-
-        mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("id", is(datasetId)))
-                .andExpect(jsonPath("category", is("dataset")))
-                .andExpect(jsonPath("label", is("Austin Crime Data")))
-                .andExpect(jsonPath("informationContributor.id", is(3)));
-    }
 
     @Test
-    public void shouldReturnDifferenceBetweenDatasetVersionAndWorkflowVersion() throws Exception {
-        String datasetPersistentId = "dmbq4v";
-        Integer datasetId = 9;
+    public void shouldNotReturnDifferenceBetweenTrainingMaterialAndDataset() throws Exception {
+        String trainingMaterialPersistentId = "WfcKvG";
 
-        mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("id", is(datasetId)))
-                .andExpect(jsonPath("category", is("dataset")))
-                .andExpect(jsonPath("label", is("Austin Crime Data")))
-                .andExpect(jsonPath("informationContributor.id", is(3)));
+        String otherDatasetPersistentId = "dmbq4v";
+
+        mvc.perform(get("/api/datasets/{persistentId}/diff", trainingMaterialPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", otherDatasetPersistentId)
+                        .param("otherVersionId", "")
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
     }
 
 }
