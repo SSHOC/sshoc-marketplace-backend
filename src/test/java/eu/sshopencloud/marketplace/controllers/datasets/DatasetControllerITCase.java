@@ -811,6 +811,14 @@ public class DatasetControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
+
+        mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
+                        .param("approved", "false")
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("disapproved")));
     }
 
     @Test

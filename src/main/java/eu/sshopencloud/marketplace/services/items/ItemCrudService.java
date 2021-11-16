@@ -396,7 +396,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         if (draft) {
             deleteItemDraft(persistentId);
         } else {
-            deleteItem(persistentId, null);
+            setDeleteItem(persistentId, null);
         }
     }
 
@@ -415,11 +415,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 );
             }
         } else {
-            deleteItem(persistentId, versionId);
+            setDeleteItem(persistentId, versionId);
         }
     }
 
-    protected void deleteItem(String persistentId, Long versionId) {
+    protected void setDeleteItem(String persistentId, Long versionId) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         if (!currentUser.isModerator())
             throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
@@ -439,7 +439,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 versionedItem.setActive(false);
             }
         } else {
-            item.setStatus(ItemStatus.DISAPPROVED);
+            if (item.getStatus() == ItemStatus.INGESTED || item.getStatus() == ItemStatus.SUGGESTED) {
+                item.setStatus(ItemStatus.DISAPPROVED);
+            }
+            else if (item.getStatus() == ItemStatus.APPROVED) {
+                item.setStatus(ItemStatus.DEPRECATED);
+            }
         }
 
         if (item.getId().equals(currentItem.getId())) {
@@ -447,7 +452,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
     }
 
-    private void deleteItemDraft(String persistentId) {
+    protected void deleteItemDraft(String persistentId) {
         I draftItem = loadItemDraftForCurrentUser(persistentId);
         cleanupDraft(draftItem);
     }

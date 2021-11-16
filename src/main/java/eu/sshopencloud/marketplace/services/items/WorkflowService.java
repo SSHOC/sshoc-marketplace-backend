@@ -10,6 +10,7 @@ import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
@@ -21,6 +22,7 @@ import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
@@ -29,6 +31,7 @@ import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -140,12 +143,46 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public void deleteWorkflow(String persistentId, boolean draft) {
-        Workflow workflow = loadLatestItem(persistentId);
+        if (draft) {
+            deleteWorkflowDraft(persistentId);
+        } else {
+            deleteWorkflowVersion(persistentId, null);
+        }
+    }
+
+    public void deleteWorkflow(String persistentId, long versionId) {
+        Workflow workflow = loadItemVersion(persistentId, versionId);
+        if (workflow.getStatus() == ItemStatus.DRAFT) {
+            User currentUser = LoggedInUserHolder.getLoggedInUser();
+            if (currentUser.equals(workflow.getInformationContributor())) {
+                deleteWorkflowDraft(persistentId);
+            } else {
+                throw new AccessDeniedException(
+                        String.format(
+                                "User is not authorized to access the given draft version with id %s (version id: %d)",
+                                persistentId, versionId
+                        )
+                );
+            }
+        } else {
+            deleteWorkflowVersion(persistentId, versionId);
+        }
+    }
+
+    public void deleteWorkflowVersion(String persistentId, Long versionId) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!currentUser.isModerator())
+            throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
+
+        Workflow currentWorkflow = loadCurrentItem(persistentId);
+        Workflow workflow = (versionId != null) ? loadItemVersion(persistentId, versionId) : currentWorkflow;
+
+
         workflow.getStepsTree().visit(new StepsTreeVisitor() {
             @Override
             public void onNextStep(StepsTree stepTree) {
                 Step step = stepTree.getStep();
-                stepService.deleteStepOnly(step, draft);
+                stepService.deleteStepOnly(step, false);
             }
 
             @Override
@@ -153,7 +190,25 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             }
         });
 
-        deleteItem(persistentId, draft);
+        setDeleteItem(persistentId, versionId);
+    }
+
+
+    private void deleteWorkflowDraft(String persistentId) {
+        Workflow workflow = loadLatestItem(persistentId);
+        workflow.getStepsTree().visit(new StepsTreeVisitor() {
+            @Override
+            public void onNextStep(StepsTree stepTree) {
+                Step step = stepTree.getStep();
+                stepService.deleteStepOnly(step, true);
+            }
+
+            @Override
+            public void onBackToParent() {
+            }
+        });
+
+        deleteItemDraft(persistentId);
     }
 
     Workflow liftWorkflowForNewStep(String persistentId, boolean draft) {
@@ -162,7 +217,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         if (!draft && workflowDraft.isPresent()) {
             throw new IllegalArgumentException(
                     String.format(
-                            "%s with id %s is in draft state for current user, so a non-draft step cannot be added",
+                            "%s with id %s is in draft state for current user, so a non-draft step cannot be added, changed and removed",
                             getItemTypeName(), persistentId
                     )
             );
@@ -171,7 +226,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         if (draft && workflowDraft.isEmpty()) {
             throw new IllegalArgumentException(
                     String.format(
-                            "No draft %s with id %s is found for current user, so a draft step cannot be added",
+                            "No draft %s with id %s is found for current user, so a draft step cannot be added, changed and removed",
                             getItemTypeName(), persistentId
                     )
             );
