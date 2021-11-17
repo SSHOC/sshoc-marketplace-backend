@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
@@ -23,15 +24,11 @@ import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
-import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -194,8 +191,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public void removeStepsFromTree(String workflowId, List<String> removedStepsId) {
         Workflow workflow = workflowService.loadLatestItem(workflowId);
 
-        for (int i = 0; i < removedStepsId.size(); i++) {
-            StepsTree stepTree = loadStepTreeInWorkflow(workflow, removedStepsId.get(i));
+        for (String s : removedStepsId) {
+            StepsTree stepTree = loadStepTreeInWorkflow(workflow, s);
             StepsTree parentStepTree = stepTree.getParent();
             parentStepTree.removeStep(stepTree.getStep());
         }
@@ -335,7 +332,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
     @Override
     protected PaginatedResult<StepDto> wrapPage(Page<Step> stepsPage, List<StepDto> steps) {
-        throw new UnsupportedOperationException("Steps pagination is not supported" );
+        throw new UnsupportedOperationException("Steps pagination is not supported");
     }
 
     @Override
@@ -374,7 +371,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
         if (!checkMergeStepConsistency(tmpMergingList))
-            throw new IllegalArgumentException("Steps to merge are from different workflows!" );
+            throw new IllegalArgumentException("Steps to merge are from different workflows!");
 
         return prepareMergeItems(persistentId, mergeList);
     }
@@ -384,7 +381,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         StepDto stepDto;
 
         if (!checkMergeStepConsistency(mergeList))
-            throw new IllegalArgumentException("Steps to merge are from different workflows!" );
+            throw new IllegalArgumentException("Steps to merge are from different workflows!");
 
         String stepId = findStep(mergeList);
         List<String> stepList = findAllStep(mergeList);
@@ -435,5 +432,12 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     public List<SourceDto> getSources(String workflowId, String stepId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId, getLatestStep(workflowId, stepId, false, true).getId());
         return super.getAllSources(stepId);
+    }
+
+    public ItemsDifferenceDto getDifference(String workflowPersistentId, String stepPersistentId, Long stepVersionId,
+                                            String otherPersistentId, Long otherVersionId) {
+
+        return differentiateItems(stepPersistentId, stepVersionId,
+                otherPersistentId, otherVersionId);
     }
 }

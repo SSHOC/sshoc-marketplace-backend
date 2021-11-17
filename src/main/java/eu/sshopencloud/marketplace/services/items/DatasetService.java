@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
@@ -71,7 +72,7 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return prepareItemDto(dataset);
     }
 
-    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft,boolean approved) {
+    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft, boolean approved) {
         Dataset dataset = updateItem(persistentId, datasetCore, draft, approved);
         return prepareItemDto(dataset);
     }
@@ -152,7 +153,6 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
     public DatasetDto getMerge(String persistentId, List<String> mergeList) {
 
-
         return prepareMergeItems(persistentId, mergeList);
     }
 
@@ -166,5 +166,13 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     public List<SourceDto> getSources(String id) {
         return getAllSources(id);
     }
+
+    public ItemsDifferenceDto getDifference(String datasetPersistentId, Long datasetVersionId,
+                                            String otherPersistentId, Long otherVersionId) {
+
+        return differentiateItems(datasetPersistentId, datasetVersionId,
+                otherPersistentId, otherVersionId);
+    }
+
 
 }

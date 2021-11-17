@@ -21,11 +21,13 @@ import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 
@@ -106,7 +108,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I item = approved ? loadLatestItem(persistentId) : loadLatestItemForCurrentUser(persistentId, true);
         return prepareItemDto(item);
     }
-
 
     protected D prepareItemDto(I item) {
 
@@ -607,6 +608,176 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected I saveItemVersion(I item) {
         return getItemRepository().save(item);
+    }
+
+
+    protected ItemsDifferenceDto differentiateItems(String persistentId, Long versionId,
+                                                    String otherPersistentId, Long otherVersionId) {
+
+        AtomicBoolean equal = new AtomicBoolean(true);
+
+        I finalItem;
+        if (Objects.isNull(versionId) || versionId.toString().isBlank())
+            finalItem = loadLatestItem(persistentId);
+        else finalItem = loadItemVersion(persistentId, versionId);
+
+        I finalOtherItem = (I) versionedItemRepository.getOne(otherPersistentId).getCurrentVersion();
+
+        if (!Objects.isNull(otherVersionId) && !otherVersionId.toString().isBlank()) {
+            while (!Objects.isNull(finalOtherItem.getPrevVersion()) && !finalOtherItem.getId().equals(otherVersionId)) {
+                finalOtherItem = (I) finalOtherItem.getPrevVersion();
+            }
+        }
+
+        D finalItemDto = prepareItemDto(finalItem);
+
+        D finalOtherItemDto = convertToDto(finalOtherItem);
+        finalOtherItemDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalOtherItem));
+        completeItemDto(finalOtherItemDto, finalOtherItem);
+
+
+        ItemsDifferenceDto difference = new ItemsDifferenceDto();
+        difference.setItem(finalItemDto);
+
+
+        if (!finalItemDto.getCategory().equals(finalOtherItemDto.getCategory())) equal.set(false);
+
+
+        if (finalItemDto.getLabel().equals(finalOtherItemDto.getLabel()))
+            finalOtherItemDto.setLabel(null);
+        else equal.set(false);
+
+
+        if (finalItemDto.getDescription().equals(finalOtherItemDto.getDescription()))
+            finalOtherItemDto.setDescription(null);
+        else equal.set(false);
+
+
+        if ((!Objects.isNull(finalItemDto.getSource()) && !Objects.isNull(finalOtherItemDto.getSource()) && finalItemDto.getSource().equals(finalOtherItemDto.getSource()))
+                || (Objects.isNull(finalItemDto.getSource()) && Objects.isNull(finalOtherItemDto.getSource())))
+            finalOtherItemDto.setSource(null);
+        else equal.set(false);
+
+
+        if (StringUtils.isNotBlank(finalItemDto.getSourceItemId()) && StringUtils.isNotBlank(finalOtherItemDto.getSourceItemId()) && finalItemDto.getSourceItemId().equals(finalOtherItemDto.getSourceItemId())
+                || (StringUtils.isBlank(finalItemDto.getSourceItemId()) && StringUtils.isBlank(finalOtherItemDto.getSourceItemId())))
+            finalOtherItemDto.setSourceItemId(null);
+        else equal.set(false);
+
+
+        if ((!Objects.isNull(finalItemDto.getThumbnail()) && !Objects.isNull(finalOtherItemDto.getThumbnail()) && finalItemDto.getThumbnail().equals(finalOtherItemDto.getThumbnail()))
+                || (Objects.isNull(finalItemDto.getThumbnail()) && Objects.isNull(finalOtherItemDto.getThumbnail())))
+            finalOtherItemDto.setThumbnail(null);
+        else equal.set(false);
+
+
+        List<ItemContributorDto> itemContributors = new ArrayList<>();
+        finalOtherItemDto.getContributors().forEach(
+                itemContributor -> {
+                    if (finalOtherItemDto.getContributors().indexOf(itemContributor) < finalItemDto.getContributors().size() &&
+                            itemContributor.equals(finalItemDto.getContributors().get(finalOtherItemDto.getContributors().indexOf(itemContributor)))
+                    ) {
+                        itemContributors.add(null);
+                    } else {
+                        itemContributors.add(itemContributor);
+                        equal.set(false);
+                    }
+                }
+        );
+        finalOtherItemDto.setContributors(itemContributors);
+
+
+        List<PropertyDto> itemProperties = new ArrayList<>();
+        finalOtherItemDto.getProperties().forEach(
+                itemProperty -> {
+                    if (finalOtherItemDto.getProperties().indexOf(itemProperty) < finalItemDto.getProperties().size() &&
+                            itemProperty.equals(finalItemDto.getProperties().get(finalOtherItemDto.getProperties().indexOf(itemProperty)))
+                    ) {
+                        itemProperties.add(null);
+                    } else {
+                        itemProperties.add(itemProperty);
+                        equal.set(false);
+                    }
+                }
+        );
+        finalOtherItemDto.setProperties(itemProperties);
+
+
+        List<String> accessibleAtList = new ArrayList<>();
+        finalOtherItemDto.getAccessibleAt().forEach(
+                accessibleAt -> {
+                    if (finalOtherItemDto.getAccessibleAt().indexOf(accessibleAt) < finalItemDto.getAccessibleAt().size() &&
+                            accessibleAt.equals(finalItemDto.getAccessibleAt().get(finalOtherItemDto.getAccessibleAt().indexOf(accessibleAt)))
+                    ) {
+                        accessibleAtList.add(null);
+                    } else {
+                        accessibleAtList.add(accessibleAt);
+                        equal.set(false);
+                    }
+                }
+        );
+        finalOtherItemDto.setAccessibleAt(accessibleAtList);
+
+        List<ItemExternalIdDto> itemExternalIds = new ArrayList<>();
+        finalOtherItemDto.getExternalIds().forEach(
+                externalId -> {
+                    if (finalOtherItemDto.getExternalIds().indexOf(externalId) < finalItemDto.getExternalIds().size() &&
+                            externalId.equals(finalItemDto.getExternalIds().get(finalOtherItemDto.getExternalIds().indexOf(externalId)))
+                    ) {
+                        itemExternalIds.add(null);
+                    } else {
+                        itemExternalIds.add(externalId);
+                        equal.set(false);
+                    }
+                }
+        );
+        finalOtherItemDto.setExternalIds(itemExternalIds);
+
+
+        List<ItemMediaDto> mediaList = new ArrayList<>();
+        finalOtherItemDto.getMedia().forEach(
+                media -> {
+                    if (
+                            finalOtherItemDto.getMedia().indexOf(media) < finalItemDto.getMedia().size() &&
+                                    media.equals(finalItemDto.getMedia().get(finalOtherItemDto.getMedia().indexOf(media)))
+                    ) {
+                        mediaList.add(null);
+                    } else {
+                        mediaList.add(media);
+                        equal.set(false);
+                    }
+                }
+        );
+        finalOtherItemDto.setMedia(mediaList);
+
+
+        List<RelatedItemDto> relatedItems = new ArrayList<>();
+        finalOtherItemDto.getRelatedItems().forEach(
+                relatedItem -> {
+                    if (finalOtherItemDto.getRelatedItems().indexOf(relatedItem) < finalItemDto.getRelatedItems().size() &&
+                            relatedItem.equals(finalItemDto.getRelatedItems().get(finalOtherItemDto.getRelatedItems().indexOf(relatedItem)))
+                    ) {
+                        relatedItems.add(null);
+                    } else {
+                        relatedItems.add(relatedItem);
+                        equal.set(false);
+                    }
+                }
+        );
+        finalOtherItemDto.setRelatedItems(relatedItems);
+
+
+        if (finalItemDto.getLastInfoUpdate().equals(finalOtherItemDto.getLastInfoUpdate()))
+            finalOtherItemDto.setLastInfoUpdate(null);
+
+        if (finalItemDto.getInformationContributor().equals(finalOtherItemDto.getInformationContributor()))
+            finalOtherItemDto.setInformationContributor(null);
+
+        difference.setEqual(equal.get());
+        difference.setOtherItem(finalOtherItemDto);
+
+        return difference;
+
     }
 
 

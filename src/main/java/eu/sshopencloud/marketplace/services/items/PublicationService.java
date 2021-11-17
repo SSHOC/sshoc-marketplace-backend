@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
@@ -161,6 +162,13 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     public List<SourceDto> getSources(String id) {
         return getAllSources(id);
+    }
+
+    public ItemsDifferenceDto getDifference(String publicationPersistentId, Long publicationVersionId,
+                                            String otherPersistentId, Long otherVersionId) {
+
+        return differentiateItems(publicationPersistentId, publicationVersionId,
+                otherPersistentId, otherVersionId);
     }
 
 }

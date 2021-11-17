@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.trainings;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
@@ -148,5 +149,26 @@ public class TrainingMaterialController {
 
         return ResponseEntity.ok(trainingMaterialService.getSources(persistentId));
     }
+
+    @Operation(summary = "Getting differences between training material and target version of item", operationId = "getTrainingMaterialAndVersionedItemDifference")
+    @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferenceDto> getTrainingMaterialVersionedItemDifference(@PathVariable("persistentId") String persistentId,
+                                                                                         @RequestParam String with,
+                                                                                         @RequestParam Long otherVersionId) {
+
+        return ResponseEntity.ok(trainingMaterialService.getDifference(persistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of training material and target version of item", operationId = "getVersionedTrainingMaterialAndVersionedItemDifference")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferenceDto> getVersionedTrainingMaterialVersionedItemDifference(@PathVariable("persistentId") String persistentId,
+                                                                                                  @PathVariable("versionId") long versionId,
+                                                                                                  @RequestParam String with,
+                                                                                                  @RequestParam Long otherVersionId) {
+
+        return ResponseEntity.ok(trainingMaterialService.getDifference(persistentId, versionId, with, otherVersionId));
+    }
+
 
 }
