@@ -2041,8 +2041,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[1].url", is("https://programminghistorian.org")));
 
     }
-
-    //ELiza
+    
     @Test
     public void shouldReturnDifferenceBetweenVersionsOfTrainingMaterials() throws Exception {
         String trainingMaterialPersistentId = "WfcKvG";

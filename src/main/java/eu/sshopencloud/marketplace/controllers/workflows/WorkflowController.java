@@ -296,7 +296,6 @@ public class WorkflowController {
     }
 
 
-    //Eliza
     @Operation(summary = "Getting differences between step and target version of item", operationId = "getStepAndVersionedItemDifference")
     @GetMapping(path = "/{persistentId}/steps/{stepPersistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferenceDto> getStepVersionedItemDifference(@PathVariable("persistentId") String persistentId,

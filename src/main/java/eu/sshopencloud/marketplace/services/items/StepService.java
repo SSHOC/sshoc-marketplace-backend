@@ -332,7 +332,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
     @Override
     protected PaginatedResult<StepDto> wrapPage(Page<Step> stepsPage, List<StepDto> steps) {
-        throw new UnsupportedOperationException("Steps pagination is not supported" );
+        throw new UnsupportedOperationException("Steps pagination is not supported");
     }
 
     @Override
@@ -371,7 +371,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
         if (!checkMergeStepConsistency(tmpMergingList))
-            throw new IllegalArgumentException("Steps to merge are from different workflows!" );
+            throw new IllegalArgumentException("Steps to merge are from different workflows!");
 
         return prepareMergeItems(persistentId, mergeList);
     }
@@ -381,7 +381,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         StepDto stepDto;
 
         if (!checkMergeStepConsistency(mergeList))
-            throw new IllegalArgumentException("Steps to merge are from different workflows!" );
+            throw new IllegalArgumentException("Steps to merge are from different workflows!");
 
         String stepId = findStep(mergeList);
         List<String> stepList = findAllStep(mergeList);
@@ -434,7 +434,6 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return super.getAllSources(stepId);
     }
 
-    //Eliza
     public ItemsDifferenceDto getDifference(String workflowPersistentId, String stepPersistentId, Long stepVersionId,
                                             String otherPersistentId, Long otherVersionId) {
 

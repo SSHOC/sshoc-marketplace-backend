@@ -1993,9 +1993,34 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("otherItem.relatedItems[0]", nullValue()));
     }
 
-
     @Test
     public void shouldReturnDifferenceBetweenDatasetAndTrainingMaterial() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+
+        String otherTrainingMaterialPersistentId = "WfcKvG";
+
+        mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", otherTrainingMaterialPersistentId)
+                        .param("otherVersionId", "")
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("item.id", is(datasetId)))
+                .andExpect(jsonPath("item.category", is("dataset")))
+                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
+                .andExpect(jsonPath("item.informationContributor.id", is(3)))
+                .andExpect(jsonPath("equal", is(false)))
+                .andExpect(jsonPath("otherItem.persistentId", is(otherTrainingMaterialPersistentId)))
+                .andExpect(jsonPath("otherItem.id", is(7)))
+                .andExpect(jsonPath("otherItem.category", is("training-material")))
+                .andExpect(jsonPath("otherItem.label", is("Introduction to GEPHI")));
+    }
+
+
+    @Test
+    public void shouldReturnDifferenceBetweenDatasetAndVersionOfTrainingMaterial() throws Exception {
         String datasetPersistentId = "dmbq4v";
         Integer datasetId = 9;
 
