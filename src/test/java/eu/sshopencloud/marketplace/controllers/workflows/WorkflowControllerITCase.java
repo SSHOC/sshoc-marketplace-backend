@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static eu.sshopencloud.marketplace.util.MatcherUtils.*;
@@ -1686,12 +1687,204 @@ public class WorkflowControllerITCase {
         String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
-        mvc.perform(delete("/api/workflows/{id}", workflowPersistentId)
+        mvc.perform(get("/api/workflows/{persistentId}", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("composedOf[0].id", is(22)))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")));
+
+
+        mvc.perform(delete("/api/workflows/{persistentId}", workflowPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
 
-        //TODO more tests for workflows
+        mvc.perform(get("/api/workflows/{persistentId}", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/workflows/{persistentId}", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/workflows/{persistentId}/versions/{id}", workflowPersistentId, workflowId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("composedOf[0].id", is(22)))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")));
+
+    }
+
+
+    @Test
+    public void shouldDeletePreviousWorkflow() throws Exception {
+        String workflowPersistentId = "vHQEhe";
+        Integer workflowId = 21;
+
+        WorkflowCore workflow = new WorkflowCore();
+        workflow.setLabel("New label of the workflow");
+        workflow.setDescription("New description of the workflow");
+        PropertyCore property = new PropertyCore();
+        property.setType(new PropertyTypeId("keyword"));
+        property.setValue("aaa");
+        workflow.setProperties(Collections.singletonList(property));
+
+        String workflowPayload = mapper.writeValueAsString(workflow);
+
+        String workflowJson = mvc.perform(
+                put("/api/workflows/{workflowId}", workflowPersistentId)
+                        .content(workflowPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", not(is(workflowId))))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("New label of the workflow")))
+                .andExpect(jsonPath("description", is("New description of the workflow")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].value", is("aaa")))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].label", is("Selection of textual works relevant for the research question")))
+                .andExpect(jsonPath("composedOf[0].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[1].label", is("Run an inflectional analyzer")))
+                .andExpect(jsonPath("composedOf[1].composedOf", hasSize(0)))
+                .andExpect(jsonPath("composedOf[2].label", is("Interpret results")))
+                .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        WorkflowDto newWorkflow = mapper.readValue(workflowJson, WorkflowDto.class);
+        Long newWorkflowId = newWorkflow.getId();
+
+        mvc.perform(get("/api/workflows/{persistentId}/versions/{id}", workflowPersistentId, newWorkflowId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", is(newWorkflowId.intValue())))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("New label of the workflow")))
+                .andExpect(jsonPath("description", is("New description of the workflow")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].value", is("aaa")))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("composedOf[0].id", is(22)))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")));
+
+        mvc.perform(get("/api/workflows/{persistentId}/versions/{id}", workflowPersistentId, newWorkflowId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", is(newWorkflowId.intValue())))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("New label of the workflow")))
+                .andExpect(jsonPath("description", is("New description of the workflow")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].value", is("aaa")))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("composedOf[0].id", is(22)))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")));
+
+        mvc.perform(get("/api/workflows/{persistentId}/versions/{id}", workflowPersistentId, workflowId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+
+        mvc.perform(get("/api/workflows/{persistentId}/versions/{id}", workflowPersistentId, workflowId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("status", is("deprecated")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("composedOf[0].id", is(22)))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")));
+
+
+        mvc.perform(delete("/api/workflows/{persistentId}/versions/{id}", workflowPersistentId, workflowId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/workflows/{persistentId}", workflowPersistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", is(newWorkflowId.intValue())))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("New label of the workflow")))
+                .andExpect(jsonPath("description", is("New description of the workflow")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].value", is("aaa")))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("composedOf[0].id", is(22)))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")));
+
+        mvc.perform(get("/api/workflows/{persistentId}/versions/{id}", workflowPersistentId, workflowId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", is(workflowId)))
+                .andExpect(jsonPath("status", is("deprecated")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("description", is("Evaluation of an inflectional analyzer...")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("composedOf[0].id", is(22)))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")));
+
+        mvc.perform(get("/api/workflows/{persistentId}/versions/{id}", workflowPersistentId, newWorkflowId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("id", is(newWorkflowId.intValue())))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("label", is("New label of the workflow")))
+                .andExpect(jsonPath("description", is("New description of the workflow")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].value", is("aaa")))
+                .andExpect(jsonPath("composedOf", hasSize(3)))
+                .andExpect(jsonPath("composedOf[0].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("composedOf[0].id", is(22)))
+                .andExpect(jsonPath("composedOf[0].status", is("approved")));
+
     }
 
     @Test
