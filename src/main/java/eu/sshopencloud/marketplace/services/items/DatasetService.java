@@ -71,7 +71,7 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return prepareItemDto(dataset);
     }
 
-    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft,boolean approved) {
+    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft, boolean approved) {
         Dataset dataset = updateItem(persistentId, datasetCore, draft, approved);
         return prepareItemDto(dataset);
     }
@@ -87,7 +87,11 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     public void deleteDataset(String persistentId, boolean draft) {
-        super.deleteItem(persistentId, draft);
+        deleteItem(persistentId, draft);
+    }
+
+    public void deleteDataset(String persistentId, long versionId) {
+        deleteItem(persistentId, versionId);
     }
 
 

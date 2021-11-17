@@ -286,6 +286,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", is(versionId)))
                 .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")))
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("version", is("1.0")))
                 .andExpect(jsonPath("informationContributor.id", is(1)));
@@ -1353,26 +1354,49 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        String trainingMaterialId = TestJsonMapper.serializingObjectMapper()
+        String trainingMaterialPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(jsonResponse, TrainingMaterialDto.class).getPersistentId();
+        Long trainingMaterialVersionId = TestJsonMapper.serializingObjectMapper()
+                .readValue(jsonResponse, TrainingMaterialDto.class).getId();
 
-        mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
+        mvc.perform(delete("/api/training-materials/{persistentId}/versions/{id}", trainingMaterialPersistentId, trainingMaterialVersionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/api/training-materials/{id}", trainingMaterialId))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void shouldNotDeleteTrainingMaterialWhenNotExist() throws Exception {
-        String trainingMaterialId = "noting";
-
-        mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
+        mvc.perform(get("/api/training-materials/{persistentId}?approved=false", trainingMaterialPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/training-materials/{persistentId}/versions/{id}", trainingMaterialPersistentId, trainingMaterialVersionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId.intValue())))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")));
+    }
+
+    @Test
+    public void shouldDeleteTrainingMaterialHistoricalVersion() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+        int versionId = 5;
+
+        mvc.perform(delete("/api/training-materials/{persistentId}/versions/{id}", trainingMaterialId, versionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/training-materials/{persistentId}/versions/{id}", trainingMaterialId, versionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(versionId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")));
     }
 
     @Test

@@ -91,6 +91,14 @@ public class ToolController {
         toolService.deleteTool(persistentId, draft);
     }
 
+    @Operation(summary = "Delete tool by its persistentId and versionId")
+    @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
+    public void deleteTool(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        toolService.deleteTool(persistentId, versionId);
+    }
+
+
     @Operation(summary = "Committing draft of tool by its persistentId")
     @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> publishTool(@PathVariable("persistentId") String persistentId) {

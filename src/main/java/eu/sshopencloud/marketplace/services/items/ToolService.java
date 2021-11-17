@@ -87,6 +87,10 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         deleteItem(persistentId, draft);
     }
 
+    public void deleteTool(String persistentId, long versionId) {
+        deleteItem(persistentId, versionId);
+    }
+
 
     @Override
     protected ItemVersionRepository<Tool> getItemRepository() {

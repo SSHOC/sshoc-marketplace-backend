@@ -845,15 +845,25 @@ public class ToolControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         String toolPersistentId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ToolDto.class).getPersistentId();
+        Long toolVersionId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ToolDto.class).getId();
 
-        mvc.perform(delete("/api/tools-services/{id}", toolPersistentId)
+        mvc.perform(delete("/api/tools-services/{persistentId}/versions/{id}", toolPersistentId, toolVersionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/api/tools-services/{id}", toolPersistentId)
+        mvc.perform(get("/api/tools-services/{persistentId}", toolPersistentId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/tools-services/{persistentId}/versions/{id}", toolPersistentId, toolVersionId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("id", is(toolVersionId.intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Tool to delete")))
+                .andExpect(jsonPath("status", is("approved")));
     }
 
     @Test

@@ -92,6 +92,13 @@ public class PublicationController {
         publicationService.deletePublication(persistentId, draft);
     }
 
+    @Operation(summary = "Delete publication by its persistentId and versionId")
+    @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
+    public void deletePublication(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        publicationService.deletePublication(persistentId, versionId);
+    }
+
     @Operation(summary = "Committing draft of publication by its persistentId")
     @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> publishPublication(@PathVariable("persistentId") String persistentId) {

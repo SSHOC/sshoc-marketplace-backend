@@ -87,6 +87,10 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         deleteItem(persistentId, draft);
     }
 
+    public void deletePublication(String persistentId, long versionId) {
+        deleteItem(persistentId, versionId);
+    }
+
 
     @Override
     protected ItemVersionRepository<Publication> getItemRepository() {
