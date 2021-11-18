@@ -92,6 +92,10 @@ public class TrainingMaterialService
         deleteItem(persistentId, draft);
     }
 
+    public void deleteTrainingMaterial(String persistentId, long versionId) {
+        deleteItem(persistentId, versionId);
+    }
+
 
     @Override
     protected ItemVersionRepository<TrainingMaterial> getItemRepository() {

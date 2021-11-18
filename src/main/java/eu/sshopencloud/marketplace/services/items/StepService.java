@@ -9,7 +9,9 @@ import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
@@ -19,19 +21,17 @@ import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepsTreeRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
-import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -172,10 +172,70 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return prepareItemDto(revStep);
     }
 
+
     public void deleteStep(String workflowId, String stepId, boolean draft) {
         validateCurrentWorkflowAndStepConsistency(workflowId, stepId, draft);
 
-        Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
+        if (draft) {
+            deleteStepDraft(workflowId, stepId);
+        } else {
+            deleteStepVersion(workflowId, stepId, null);
+        }
+    }
+
+    public void deleteStep(String workflowId, String stepId, long stepVersionId) {
+        validateWorkflowAndStepVersionConsistency(workflowId, stepId, stepVersionId);
+
+        Step step = loadItemVersion(stepId, stepVersionId);
+        if (step.getStatus() == ItemStatus.DRAFT) {
+            User currentUser = LoggedInUserHolder.getLoggedInUser();
+            if (currentUser.equals(step.getInformationContributor())) {
+                deleteStepDraft(workflowId, stepId);
+            } else {
+                throw new AccessDeniedException(
+                        String.format(
+                                "User is not authorized to access the given draft version with id %s (version id: %d)",
+                                stepId, stepVersionId
+                        )
+                );
+            }
+        } else {
+            deleteStepVersion(workflowId, stepId, stepVersionId);
+        }
+    }
+
+
+    private void deleteStepVersion(String workflowId, String stepId, Long stepVersionId) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!currentUser.isModerator())
+            throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
+
+        Step currentStep = loadCurrentItem(stepId);
+        Step step = (stepVersionId != null) ? loadItemVersion(stepId, stepVersionId) : currentStep;
+
+        Workflow workflow;
+        if (step.getId().equals(currentStep.getId())) {
+            Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, false);
+            workflow = newWorkflow;
+        } else {
+            workflow = workflowService.loadLatestItem(workflowId);
+        }
+        StepsTree stepTree = loadStepTreeInWorkflow(workflow, stepId);
+        step = stepTree.getStep();
+        //        Step step = draft ? loadItemDraftForCurrentUser(stepId) : loadCurrentItem(stepId);
+        //        StepsTree stepTree = stepsTreeRepository.findByWorkflowIdAndStepId(newWorkflow.getId(), step.getId()).get();
+        StepsTree parentStepTree = stepTree.getParent();
+
+        parentStepTree.removeStep(step);
+
+        // A draft workflow can contain non draft steps if they were derived from base non-draft version
+        // In a draft workflow we remove the part of the tree associated with the step only (if the step is not a draft)
+        // If the step is a draft it should be physically deleted
+        super.setDeleteItem(stepId, step.getId());
+    }
+
+    private void deleteStepDraft(String workflowId, String stepId) {
+        Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, true);
         StepsTree stepTree = loadStepTreeInWorkflow(newWorkflow, stepId);
         Step step = stepTree.getStep();
 //        Step step = draft ? loadItemDraftForCurrentUser(stepId) : loadCurrentItem(stepId);
@@ -187,9 +247,10 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         // A draft workflow can contain non draft steps if they were derived from base non-draft version
         // In a draft workflow we remove the part of the tree associated with the step only (if the step is not a draft)
         // If the step is a draft it should be physically deleted
-        if (!draft || step.isDraft())
-            deleteItem(stepId, draft);
+        if (step.isDraft())
+            deleteItem(stepId, true);
     }
+
 
     public void removeStepsFromTree(String workflowId, List<String> removedStepsId) {
         Workflow workflow = workflowService.loadLatestItem(workflowId);
@@ -222,7 +283,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
     void deleteStepOnly(Step step, boolean draft) {
-        deleteItem(step.getVersionedItem().getPersistentId(), draft);
+        if (draft) {
+            deleteItemDraft(step.getPersistentId());
+        } else {
+            setDeleteItem(step.getPersistentId(), step.getId());
+        }
     }
 
 

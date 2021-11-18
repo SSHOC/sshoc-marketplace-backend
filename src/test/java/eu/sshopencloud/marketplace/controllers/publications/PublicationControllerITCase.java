@@ -485,6 +485,11 @@ public class PublicationControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk());
+
+        mvc.perform(get("/api/publications/{id}", publicationPersistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
     }
 
     @Test

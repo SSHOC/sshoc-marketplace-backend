@@ -95,6 +95,13 @@ public class TrainingMaterialController {
         trainingMaterialService.deleteTrainingMaterial(persistentId, draft);
     }
 
+    @Operation(summary = "Delete training material by its persistentId and versionId")
+    @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
+    public void deleteTrainingMaterial(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        trainingMaterialService.deleteTrainingMaterial(persistentId, versionId);
+    }
+
     @Operation(summary = "Committing draft of training material by its persistentId")
     @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> publishTrainingMaterial(@PathVariable("persistentId") String persistentId) {
