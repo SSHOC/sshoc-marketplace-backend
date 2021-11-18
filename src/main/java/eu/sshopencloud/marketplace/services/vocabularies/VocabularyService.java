@@ -212,7 +212,7 @@ public class VocabularyService {
     }
 
 
-    public Path exportVocabulary(String vocabularyCode) throws IOException {
+    public InputStream exportVocabulary(String vocabularyCode) throws IOException {
 
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
         List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);
@@ -236,17 +236,16 @@ public class VocabularyService {
             Rio.write(model, out, RDFFormat.TURTLE);
         }
 
+
         try {
-            insertPrefixInFile("@prefix : <" + vocabulary.getNamespace() + "> . ", exportedPath);
+            return insertPrefixInFile("@prefix : <" + vocabulary.getNamespace() + "> . ", exportedPath);
         } catch (Exception e) {
             throw new IOException("Error while trying to update file");
         }
 
-        return exportedPath;
-
     }
 
-    public void insertPrefixInFile(String lineToBeInserted, Path filename) throws Exception {
+    public InputStream insertPrefixInFile(String lineToBeInserted, Path filename) throws Exception {
 
         ArrayList<String> list = (ArrayList<String>) Files.readAllLines(filename, Charset.defaultCharset());
 
@@ -254,28 +253,17 @@ public class VocabularyService {
 
         Files.write(filename, list, Charset.defaultCharset(), StandardOpenOption.WRITE);
 
+        InputStream in = Files.newInputStream(filename);
+
+        if (filename.toFile().delete()) {
+            log.debug("Temporary SKOS file deleted successfully");
+        } else {
+            log.debug("Temporary SKOS file failed to be deleted");
+        }
+
+        return in;
+
     }
 
-    public VocabularyBasicDto reimportVocabulary(String vocabularyCode, MultipartFile vocabularyFile) throws IOException {
 
-        Vocabulary vocabulary = reconstructVocabularyAndSave(vocabularyCode, vocabularyFile.getInputStream());
-        return VocabularyMapper.INSTANCE.toDto(vocabulary);
-    }
-
-    private Vocabulary reconstructVocabularyAndSave(String vocabularyCode, InputStream turtleInputStream)
-            throws IOException, RDFParseException, UnsupportedRDFormatException {
-
-        Model rdfModel = Rio.parse(turtleInputStream, "", RDFFormat.TURTLE);
-        Vocabulary reimportedVocabulary = RDFModelParser.recreateVocabulary(vocabularyCode, rdfModel, loadVocabulary(vocabularyCode));
-
-        Map<String, Concept> conceptMap = RDFModelParser.createConcepts(rdfModel, reimportedVocabulary);
-        reimportedVocabulary.setConcepts(new ArrayList<>(conceptMap.values()));
-
-        vocabularyRepository.save(reimportedVocabulary);
-
-        List<ConceptRelatedConcept> conceptRelatedConcepts = RDFModelParser.createConceptRelatedConcepts(conceptMap, rdfModel);
-        conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
-
-        return reimportedVocabulary;
-    }
 }

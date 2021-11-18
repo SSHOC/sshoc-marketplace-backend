@@ -521,7 +521,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldReimportVocabulary() throws Exception {
+    public void shouldUpdateExportedVocabulary() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/sshoc-keyword-test.ttl");
 
@@ -629,11 +629,11 @@ public class VocabularyControllerITCase {
 
 
         InputStream e = new ByteArrayInputStream(response.getBytes());
-        MockMultipartFile exportedFile = new MockMultipartFile("ttl", "sshoc-keyword-test_exported.ttl", null, e);
+        MockMultipartFile exportedFile = new MockMultipartFile("ttl", "sshoc-keyword-test.ttl", null, e);
 
         mvc.perform(
                         vocabularyUpload(HttpMethod.PUT, exportedFile,
-                                "/api/vocabularies/reimport/{code}", "sshoc-keyword-test")
+                                "/api/vocabularies/{code}", "sshoc-keyword-test")
                                 .accept(MediaType.APPLICATION_JSON)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                                 .header("Authorization", moderatorJwt)

@@ -17,9 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
+
 
 @RestController
 @RequestMapping("/api/vocabularies")
@@ -80,34 +79,22 @@ public class VocabularyController {
     }
 
 
-    @Operation(summary = "Create vocabulary from file")
-    @PutMapping(path = "/reimport/{code}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<VocabularyBasicDto> recreateVocabulary(@PathVariable("code") String vocabularyCode,
-                                                                 @RequestParam("ttl") MultipartFile vocabularyFile)
-            throws IOException {
-
-        VocabularyBasicDto vocabulary = vocabularyService.reimportVocabulary(vocabularyCode, vocabularyFile);
-        return ResponseEntity.ok(vocabulary);
-    }
-
-
     @Operation(summary = "Get vocabulary SKOS format with given filename")
     @GetMapping(path = "export/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> exportVocabularyFile(@PathVariable("code") String vocabularyCode)
             throws IOException {
 
-        Path path = vocabularyService.exportVocabulary(vocabularyCode);
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(path.toString()));
+        InputStreamResource resource = new InputStreamResource(vocabularyService.exportVocabulary(vocabularyCode));
 
         HttpHeaders header = new HttpHeaders();
-        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + path.getFileName());
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + vocabularyCode + "_exported.ttl");
         header.add("Cache-Control", "no-cache, no-store, must-revalidate");
         header.add("Pragma", "no-cache");
         header.add("Expires", "0");
 
+
         return ResponseEntity.ok()
                 .headers(header)
-                .contentLength(path.toFile().length())
                 .contentType(MediaType.parseMediaType("application/txt"))
                 .body(resource);
 
