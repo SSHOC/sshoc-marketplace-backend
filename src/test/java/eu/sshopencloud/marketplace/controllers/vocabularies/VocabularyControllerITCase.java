@@ -474,4 +474,83 @@ public class VocabularyControllerITCase {
                     return request;
                 });
     }
+
+    @Test
+    public void shouldNotCreateNewVocabularyUnauthorized() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
+
+        MockMultipartFile vocabularyFile = new MockMultipartFile("ttl", "iana-mime-type-test.ttl", null, vocabularyStream);
+
+        mvc.perform(
+                        vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isForbidden());
+
+        mvc.perform(
+                        vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", contributorJwt)
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void shouldCloseVocabulary() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
+
+        MockMultipartFile uploadedVocabulary = new MockMultipartFile(
+                "ttl", "iana-mime-type-test.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                        vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
+                .andExpect(jsonPath("$.label", is("IANA mime/type")));
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", "iana-mime-type-test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
+                .andExpect(jsonPath("$.label", is("IANA mime/type")))
+                .andExpect(jsonPath("$.description", notNullValue()))
+                .andExpect(jsonPath("$.openness", is(true)))
+                .andExpect(jsonPath("$.conceptResults.hits", is(3)))
+                .andExpect(jsonPath("$.conceptResults.count", is(3)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(3)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInAnyOrder("image/tif", "application/pdff", "video/mpeg4")
+                        )
+                );
+
+        mvc.perform(
+                        put("/api/vocabularies/close/{code}", "iana-mime-type-test")
+                                .param("openness", "false")
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
+                .andExpect(jsonPath("$.label", is("IANA mime/type")))
+                .andExpect(jsonPath("$.openness", is(false)));
+
+
+    }
 }

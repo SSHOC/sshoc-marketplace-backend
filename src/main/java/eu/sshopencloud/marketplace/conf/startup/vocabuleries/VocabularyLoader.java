@@ -38,9 +38,9 @@ public class VocabularyLoader {
             try (InputStream turtleInputStream = vocabularySources.get(vocabularyCode).getInputStream()) {
                 Vocabulary vocabulary;
                 if (vocabularyRepository.existsById(vocabularyCode)) {
-                    vocabulary = vocabularyService.updateVocabulary(vocabularyCode, turtleInputStream, false);
+                    vocabulary = vocabularyService.updateVocabulary(vocabularyCode, turtleInputStream, false, true);
                 } else {
-                    vocabulary = vocabularyService.createVocabulary(vocabularyCode, turtleInputStream);
+                    vocabulary = vocabularyService.createVocabulary(vocabularyCode, turtleInputStream, true);
                 }
                 log.debug("The vocabulary '" + vocabulary.getLabel() + "' from '" + vocabulary.getCode()  + ".ttl' file loaded successfully");
                 log.debug("The vocabulary '" + vocabulary.getLabel() + "' consists of " + vocabulary.getConcepts().size() + " concepts");
