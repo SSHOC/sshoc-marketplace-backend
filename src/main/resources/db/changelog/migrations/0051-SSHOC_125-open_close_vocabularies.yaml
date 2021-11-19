@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0051-SSHOC_125-open_close_vocabularies_1
+      description: adding field openness to the table vocabularies
+      author: ekalata
+      changes:
+        changes:
+          - addColumn:
+              tableName: vocabularies
+              columns:
+                - column:
+                    name: openness
+                    type: BOOLEAN
+  - changeSet:
+      id: 0051-SSHOC_125-open_close_vocabularies_2
+      description: updating value of openness field in table vocabularies
+      author: ekalata
+      changes:
+         - update:
+              tableName: vocabularies
+              columns:
+                - column:
+                    name: openness
+                    value: true

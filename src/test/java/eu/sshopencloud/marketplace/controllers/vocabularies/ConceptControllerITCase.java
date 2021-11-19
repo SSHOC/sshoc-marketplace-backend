@@ -13,11 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -54,10 +58,10 @@ public class ConceptControllerITCase {
         String vocabularyCode = "publication-type";
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("publication-type")))
                 .andExpect(jsonPath("$.conceptResults.hits", is(5)))
@@ -93,12 +97,12 @@ public class ConceptControllerITCase {
                 .build();
 
         mvc.perform(
-                post("/api/vocabularies/{vocabulary-code}/concepts/", vocabularyCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(conceptCore))
-        )
+                        post("/api/vocabularies/{vocabulary-code}/concepts/", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(conceptCore))
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is("New Candidate")))
@@ -111,10 +115,10 @@ public class ConceptControllerITCase {
 
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("publication-type")))
                 .andExpect(jsonPath("$.conceptResults.hits", is(6)))
@@ -137,10 +141,10 @@ public class ConceptControllerITCase {
         String conceptCode = "ActivityType-Printing";
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -178,12 +182,12 @@ public class ConceptControllerITCase {
                 .build();
 
         mvc.perform(
-                put("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(conceptCore))
-        )
+                        put("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(conceptCore))
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -200,10 +204,10 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.relatedConcepts[2].relation.code", is("related")));
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -228,10 +232,10 @@ public class ConceptControllerITCase {
         String conceptCode = "ActivityType-Printing";
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -254,12 +258,12 @@ public class ConceptControllerITCase {
                 .build();
 
         mvc.perform(
-                put("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(conceptCore))
-        )
+                        put("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(conceptCore))
+                )
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("errors[0].field", is("uri")))
@@ -283,12 +287,12 @@ public class ConceptControllerITCase {
                 .build();
 
         mvc.perform(
-                post("/api/vocabularies/{vocabulary-code}/concepts", vocabularyCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(conceptCore))
-        )
+                        post("/api/vocabularies/{vocabulary-code}/concepts", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(conceptCore))
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -297,10 +301,10 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New")));
 
         mvc.perform(
-                put("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}/commit", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-        )
+                        put("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}/commit", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -309,9 +313,9 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New")));
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -327,9 +331,9 @@ public class ConceptControllerITCase {
         String conceptCode = "Book";
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -338,14 +342,14 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/Book")));
 
         mvc.perform(
-                delete("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .header("Authorization", moderatorJwt)
-        )
+                        delete("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isOk());
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                )
                 .andExpect(status().isNotFound());
     }
 
@@ -356,9 +360,9 @@ public class ConceptControllerITCase {
         String conceptCode = "25";
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -367,15 +371,15 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.uri", is("https://sshoc.poolparty.biz/Vocabularies/tadirah-activities/25")));
 
         mvc.perform(
-                delete("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .header("Authorization", moderatorJwt)
-        )
+                        delete("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isBadRequest());
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -390,9 +394,9 @@ public class ConceptControllerITCase {
         String conceptCode = "25";
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is(conceptCode)))
@@ -401,16 +405,118 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.uri", is("https://sshoc.poolparty.biz/Vocabularies/tadirah-activities/25")));
 
         mvc.perform(
-                delete("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-                        .param("force", "true")
-                        .header("Authorization", moderatorJwt)
-        )
+                        delete("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                                .param("force", "true")
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isOk());
 
         mvc.perform(
-                get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
-        )
+                        get("/api/vocabularies/{vocabulary-code}/concepts/{concept-code}", vocabularyCode, conceptCode)
+                )
                 .andExpect(status().isNotFound());
+
+    }
+
+    private MockHttpServletRequestBuilder vocabularyUpload(HttpMethod method, MockMultipartFile vocabularyFile,
+                                                           String urlTemplate, Object... urlVars) {
+
+        return multipart(urlTemplate, urlVars)
+                .file(vocabularyFile)
+                .with(request -> {
+                    request.setMethod(method.toString());
+                    return request;
+                });
+    }
+
+
+    @Test
+    public void shouldNotCreateNewCandidateConceptForClosedVocabulary() throws Exception {
+
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
+
+        MockMultipartFile uploadedVocabulary = new MockMultipartFile(
+                "ttl", "iana-mime-type-test.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                        vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
+                .andExpect(jsonPath("$.label", is("IANA mime/type")));
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", "iana-mime-type-test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
+                .andExpect(jsonPath("$.label", is("IANA mime/type")))
+                .andExpect(jsonPath("$.description", notNullValue()))
+                .andExpect(jsonPath("$.openness", is(true)))
+                .andExpect(jsonPath("$.conceptResults.hits", is(3)))
+                .andExpect(jsonPath("$.conceptResults.count", is(3)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(3)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInAnyOrder("image/tif", "application/pdff", "video/mpeg4")
+                        )
+                );
+
+        mvc.perform(
+                        put("/api/vocabularies/close/{code}", "iana-mime-type-test")
+                                .param("openness", "false")
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
+                .andExpect(jsonPath("$.label", is("IANA mime/type")))
+                .andExpect(jsonPath("$.openness", is(false)));
+
+
+        String vocabularyCode = "iana-mime-type-test";
+
+        RelatedConceptCore relatedConceptJournal = RelatedConceptCore.builder()
+                .code("Journal")
+                .vocabulary(new VocabularyId(vocabularyCode))
+                .uri("http://purl.org/ontology/bibo/Journal")
+                .relation(new ConceptRelationId("narrower"))
+                .build();
+        RelatedConceptCore relatedConceptBook = RelatedConceptCore.builder()
+                .code("Book")
+                .vocabulary(new VocabularyId(vocabularyCode))
+                .relation(new ConceptRelationId("related"))
+                .build();
+        RelatedConceptCore relatedConceptConference = RelatedConceptCore.builder()
+                .uri("http://purl.org/ontology/bibo/Conference")
+                .relation(new ConceptRelationId("sameAs"))
+                .build();
+
+        ConceptCore conceptCore = ConceptCore.builder()
+                .code("New Candidate")
+                .label("New candidate concept")
+                .relatedConcepts(List.of(relatedConceptJournal, relatedConceptBook, relatedConceptConference))
+                .build();
+
+        mvc.perform(
+                        post("/api/vocabularies/{vocabulary-code}/concepts/", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(conceptCore))
+                )
+                .andExpect(status().is5xxServerError());
 
     }
 

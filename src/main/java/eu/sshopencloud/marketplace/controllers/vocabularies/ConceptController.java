@@ -1,9 +1,9 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyIsClosedException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,7 +35,7 @@ public class ConceptController {
             required = true,
             schema = @Schema(implementation = ConceptCore.class)) @RequestBody ConceptCore newConcept,
                                                     @PathVariable("vocabulary-code") String vocabularyCode,
-                                                    @RequestParam(value = "candidate", defaultValue = "true") boolean candidate) throws ConceptAlreadyExistsException {
+                                                    @RequestParam(value = "candidate", defaultValue = "true") boolean candidate) throws ConceptAlreadyExistsException, VocabularyIsClosedException {
 
         return ResponseEntity.ok(conceptService.createConcept(newConcept, vocabularyCode, candidate));
     }
