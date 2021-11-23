@@ -17,7 +17,7 @@ public enum SearchFacet {
 
     CATEGORY(SearchFilter.CATEGORY, IndexItem.CATEGORY_FIELD,
             List.of(IndexItem.CATEGORY_FIELD),
-            new SearchFacetParameters(4, 0, FacetOptions.FacetSort.INDEX)
+            new SearchFacetParameters(5, 0, FacetOptions.FacetSort.INDEX)
     ),
 
     ACTIVITY(SearchFilter.ACTIVITY, IndexItem.FACETING_DYNAMIC_PROPERTY_ACTIVITY_TAG,

@@ -86,6 +86,8 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("categories.publication.checked", is(false)))
                 .andExpect(jsonPath("categories.dataset.count", is(0)))
                 .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.step.count", is(0)))
+                .andExpect(jsonPath("categories.step.checked", is(false)))
                 .andExpect(jsonPath("facets.keyword.graph.count", is(1)))
                 .andExpect(jsonPath("facets.keyword.graph.checked", is(false)))
                 .andExpect(jsonPath("facets.keyword.['social network analysis'].count", is(1)))
@@ -758,4 +760,55 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
     }
 
+    @Test
+    public void shouldReturnItemsWithStepsIncluded() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=model&includeSteps=true")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(2)))
+                .andExpect(jsonPath("items[0].id", is(13)))
+                .andExpect(jsonPath("items[0].persistentId", is("prblMo")))
+                .andExpect(jsonPath("items[0].label", is("Build the model of the dictionary")))
+                .andExpect(jsonPath("items[0].category", is("step")))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", notNullValue()))
+                .andExpect(jsonPath("items[1].id", is(2)))
+                .andExpect(jsonPath("items[1].persistentId", is("DstBL5")))
+                .andExpect(jsonPath("items[1].label", is("Stata")))
+                .andExpect(jsonPath("items[1].lastInfoUpdate", notNullValue()))
+                .andExpect(jsonPath("items[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(0)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(0)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.step.count", is(1)))
+                .andExpect(jsonPath("categories.step.checked", is(false)));
+    }
+
+    @Test
+    public void shouldReturnItemsWithStepsIncludedAndFilterByCategories() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=&includeSteps=true&categories=step")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(11)))
+                .andExpect(jsonPath("items[0].id", is(16)))
+                .andExpect(jsonPath("items[0].persistentId", is("EPax9f")))
+                .andExpect(jsonPath("items[0].label", is("Linguistic annotation")))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", notNullValue()))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(3)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(3)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(3)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.step.count", is(11)))
+                .andExpect(jsonPath("categories.step.checked", is(true)));
+    }
 }

@@ -39,10 +39,10 @@ public class SearchItemRepository {
 
     private final ForceFacetSortSolrTemplate solrTemplate;
 
-
+    //Eliza
     public FacetPage<IndexItem> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                       List<SearchExpressionCriteria> expressionCriteria,
-                                                      User currentUser,
+                                                      User currentUser, boolean includeSteps,
                                                       List<SearchFilterCriteria> filterCriteria,
                                                       List<SearchOrder> order, Pageable pageable) {
 
@@ -59,6 +59,9 @@ public class SearchItemRepository {
                 )
                 .addSort(Sort.by(createQueryOrder(order)))
                 .setPageRequest(pageable);
+
+        if (!includeSteps)
+            facetQuery.addFilterQuery(createStepFilter());
 
         if (currentUser == null || !currentUser.isModerator()) {
             facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
@@ -152,4 +155,9 @@ public class SearchItemRepository {
             throw new RuntimeException("Failed to rebuild index for autocomplete");
         }
     }
+
+    private FilterQuery createStepFilter() {
+        return new SimpleFilterQuery(new Criteria(IndexItem.CATEGORY_FIELD).is(ItemCategory.STEP).not());
+    }
+
 }

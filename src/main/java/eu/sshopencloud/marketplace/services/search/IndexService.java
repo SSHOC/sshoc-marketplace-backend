@@ -59,7 +59,8 @@ public class IndexService {
 
 
     public IndexItem indexItem(Item item) {
-        if (item.getCategory().equals(ItemCategory.STEP) || !(item.isNewestVersion() || item.isProposedVersion()))
+        if (// item.getCategory().equals(ItemCategory.STEP) ||
+                        !(item.isNewestVersion() || item.isProposedVersion()))
             return null;
 
         if (item.isNewestVersion())
