@@ -16,8 +16,10 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.Optional;
@@ -50,6 +52,11 @@ class MediaExternalClient {
     @Cacheable(cacheNames = "mediaMetadata", sync = true)
     public MediaInfo resolveMediaInfo(MediaLocation mediaLocation) throws MediaServiceUnavailableException {
         try {
+
+            if (mediaLocation.getSourceUrl().toURI().toString().startsWith("http://"))
+                mediaLocation.setSourceUrl(new URL(mediaLocation.getSourceUrl().toURI().toString().replace("http://", "https://")));
+
+
             ClientResponse response = headClient.head()
                     .uri(mediaLocation.getSourceUrl().toURI())
                     .exchange()
@@ -78,13 +85,15 @@ class MediaExternalClient {
                         .filename(Optional.ofNullable(filename))
                         .contentLength(headers.contentLength())
                         .build();
-            } else
+            } else {
                 return MediaInfo.builder()
                         .mimeType(headers.contentType())
                         .filename(Optional.ofNullable(filename))
                         .contentLength(headers.contentLength())
                         .build();
-        } catch (URISyntaxException e) {
+            }
+        } catch (URISyntaxException | MalformedURLException
+                e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
         }
     }
