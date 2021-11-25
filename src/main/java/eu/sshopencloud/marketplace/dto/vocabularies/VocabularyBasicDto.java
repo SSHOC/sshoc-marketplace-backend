@@ -10,6 +10,8 @@ public class VocabularyBasicDto {
 
     private String code;
 
+    private String scheme;
+
     private String label;
 
     @Nullable

@@ -144,6 +144,7 @@ public class RDFModelParser {
             rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(scheme))
                     .forEach(statement -> completeVocabulary(vocabulary, statement));
+            vocabulary.setScheme(scheme);
             if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getLabels().containsKey("en")) {
                 vocabulary.setLabel(vocabulary.getLabels().get("en"));
             }
@@ -169,8 +170,17 @@ public class RDFModelParser {
                 vocabulary.setDescription(vocabulary.getDescriptions().values().iterator().next());
             }
         }
+        vocabulary.setNamespaces(getNamespaces(rdfModel));
         vocabulary.setNamespace(extractNamespaceUri(rdfModel));
         return vocabulary;
+    }
+
+    private Map<String, String> getNamespaces(Model rdfModel) {
+        Map<String, String> namespaces = new LinkedHashMap<>();
+        for (Namespace namespace : rdfModel.getNamespaces()) {
+            namespaces.put(namespace.getPrefix(), namespace.getName());
+        }
+        return namespaces;
     }
 
     private String extractNamespaceUri(Model rdfModel) {

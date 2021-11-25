@@ -16,7 +16,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,8 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,22 +42,18 @@ public class VocabularyService {
     private final PropertyService propertyService;
     private final PropertyTypeService propertyTypeService;
 
-    private final Path exportedFilesPath;
 
     public VocabularyService(VocabularyRepository vocabularyRepository,
                              ConceptService conceptService,
                              ConceptRelatedConceptService conceptRelatedConceptService,
                              PropertyService propertyService,
-                             PropertyTypeService propertyTypeService,
-                             @Value("${marketplace.vocabulary.files.path}") Path exportedFilesPath)
-            throws IOException {
+                             PropertyTypeService propertyTypeService) {
 
         this.vocabularyRepository = vocabularyRepository;
         this.conceptService = conceptService;
         this.conceptRelatedConceptService = conceptRelatedConceptService;
         this.propertyService = propertyService;
         this.propertyTypeService = propertyTypeService;
-        this.exportedFilesPath = Files.createDirectories(Path.of(exportedFilesPath.toString(), "exported"));
     }
 
     public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
@@ -126,7 +120,7 @@ public class VocabularyService {
     public Vocabulary createVocabulary(String vocabularyCode, InputStream turtleInputStream)
             throws VocabularyAlreadyExistsException, IOException, RDFParseException, UnsupportedRDFormatException {
 
-        if (vocabularyRepository.existsById(vocabularyCode))
+        if (vocabularyRepository.findById(vocabularyCode).isPresent())
             throw new VocabularyAlreadyExistsException(vocabularyCode);
 
         return constructVocabularyAndSave(vocabularyCode, turtleInputStream);
@@ -211,9 +205,7 @@ public class VocabularyService {
         return vocabulary;
     }
 
-
-    public InputStream exportVocabulary(String vocabularyCode) throws IOException {
-
+    public void exportVocabulary(String vocabularyCode, OutputStream outputStream) throws IOException {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
         List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);
         String mainResources = vocabulary.getNamespace() + "Schema";
@@ -227,43 +219,10 @@ public class VocabularyService {
 
         model = RDFModelParser.generateInverseStatements();
 
-        Path exportedPath = Path.of(exportedFilesPath.toString(), vocabularyCode + "_exported.ttl");
+        String namespacePrefix = "@prefix : <" + vocabulary.getNamespace() + "> .\n";
+        outputStream.write(namespacePrefix.getBytes(StandardCharsets.UTF_8));
 
-        if (!Files.exists(exportedPath))
-            Files.createFile(exportedPath);
-
-        try (FileOutputStream out = new FileOutputStream(exportedPath.toFile())) {
-            Rio.write(model, out, RDFFormat.TURTLE);
-        }
-
-
-        try {
-            return insertPrefixInFile("@prefix : <" + vocabulary.getNamespace() + "> . ", exportedPath);
-        } catch (Exception e) {
-            throw new IOException("Error while trying to update file");
-        }
-
+        Rio.write(model, outputStream, RDFFormat.TURTLE);
     }
-
-    public InputStream insertPrefixInFile(String lineToBeInserted, Path filename) throws Exception {
-
-        ArrayList<String> list = (ArrayList<String>) Files.readAllLines(filename, Charset.defaultCharset());
-
-        list.add(0, lineToBeInserted);
-
-        Files.write(filename, list, Charset.defaultCharset(), StandardOpenOption.WRITE);
-
-        InputStream in = Files.newInputStream(filename);
-
-        if (filename.toFile().delete()) {
-            log.debug("Temporary SKOS file deleted successfully");
-        } else {
-            log.debug("Temporary SKOS file failed to be deleted");
-        }
-
-        return in;
-
-    }
-
 
 }

@@ -15,12 +15,14 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -479,187 +481,37 @@ public class VocabularyControllerITCase {
 
     @Test
     public void shouldExportVocabulary() throws Exception {
-        InputStream vocabularyStream = VocabularyControllerITCase.class
-                .getResourceAsStream("/initial-data/vocabularies/discipline.ttl");
-
-        MockMultipartFile uploadedVocabulary = new MockMultipartFile(
-                "ttl", "discipline.ttl", null, vocabularyStream
-        );
+        String code = "nemo-activity-type";
+        String namespace = "http://dcu.gr/ontologies/scholarlyontology/";
 
         mvc.perform(
-                        vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
+                        get("/api/vocabularies/{code}", code)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .header("Authorization", moderatorJwt)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code", is("discipline")))
-                .andExpect(jsonPath("$.label", is("ÖFOS 2012. Austrian Fields of Science and Technology Classification 2012")));
-
-        mvc.perform(
-                        get("/api/vocabularies/{code}", "discipline")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code", is("discipline")))
-                .andExpect(jsonPath("$.label", is("ÖFOS 2012. Austrian Fields of Science and Technology Classification 2012")))
-                .andExpect(jsonPath("$.description", notNullValue()))
-                .andExpect(jsonPath("$.conceptResults.hits", is(1449)))
+                .andExpect(jsonPath("$.code", is(code)))
+                .andExpect(jsonPath("$.label", is("NeMO Concept Scheme")))
+                .andExpect(jsonPath("$.conceptResults.hits", is(164)))
                 .andExpect(jsonPath("$.conceptResults.count", is(20)))
-                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(20)));
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(20)))
+                .andExpect(jsonPath("$.conceptResults.concepts[0].uri", startsWith(namespace)));
 
-        mvc.perform(
-                        get("/api/vocabularies/export/{code}", "discipline")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .header("Authorization", moderatorJwt)
+
+        MvcResult resultInit = mvc.perform(
+                        get("/api/vocabularies/{code}/export", code)
+                        .accept("text/turtle;charset=UTF-8")
                 )
+                .andExpect(request().asyncStarted())
+                .andDo(MockMvcResultHandlers.log())
+                .andReturn();
+
+        String ttlContent = mvc.perform(asyncDispatch(resultInit))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("https://vocabs.acdh.oeaw.ac.at/oefosdisciplines/")))
-                .andExpect(content().string(containsString("<https://vocabs.acdh.oeaw.ac.at/oefosdisciplines/Schema> a skos:ConceptScheme;")));
-    }
-
-    @Test
-    public void shouldUpdateExportedVocabulary() throws Exception {
-        InputStream vocabularyStream = VocabularyControllerITCase.class
-                .getResourceAsStream("/initial-data/vocabularies/sshoc-keyword-test.ttl");
-
-        MockMultipartFile uploadedVocabulary = new MockMultipartFile(
-                "ttl", "sshoc-keyword-test.ttl", null, vocabularyStream
-        );
-
-        mvc.perform(
-                        vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .header("Authorization", moderatorJwt)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
-                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")));
-
-        mvc.perform(
-                        get("/api/vocabularies/{code}", "sshoc-keyword-test")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
-                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")))
-                .andExpect(jsonPath("$.description", notNullValue()))
-                .andExpect(jsonPath("$.conceptResults.hits", is(4)))
-                .andExpect(jsonPath("$.conceptResults.count", is(4)))
-                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(4)))
-                .andExpect(
-                        jsonPath(
-                                "$.conceptResults.concepts[*].code",
-                                containsInAnyOrder("1-grams", "18th-century", "18th-century-literature", "zip")
-                        )
-                );
-
-
-        String response = mvc.perform(
-                        get("/api/vocabularies/export/{code}", "sshoc-keyword-test")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .header("Authorization", moderatorJwt)
-                )
-                .andExpect(status().isOk())
-                .andExpect(content().string("@prefix : <https://vocabs.dariah.eu/sshoc-keyword-test/> . \r\n" +
-                        "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n" +
-                        "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n" +
-                        "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\r\n" +
-                        "@prefix skosxl: <http://www.w3.org/2008/05/skos-xl#> .\r\n" +
-                        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\r\n" +
-                        "@prefix dc: <http://purl.org/dc/elements/1.1/> .\r\n" +
-                        "@prefix dcterms: <http://purl.org/dc/terms/> .\r\n" +
-                        "@prefix foaf: <http://xmlns.com/foaf/0.1/> .\r\n" +
-                        "@prefix tags: <http://www.holygoat.co.uk/owl/redwood/0.1/tags/> .\r\n" +
-                        "@prefix cycAnnot: <http://sw.cyc.com/CycAnnotations_v1#> .\r\n" +
-                        "@prefix csw: <http://semantic-web.at/ontologies/csw.owl#> .\r\n" +
-                        "@prefix dbpedia: <http://dbpedia.org/resource/> .\r\n" +
-                        "@prefix freebase: <http://rdf.freebase.com/ns/> .\r\n" +
-                        "@prefix opencyc: <http://sw.opencyc.org/concept/> .\r\n" +
-                        "@prefix cyc: <http://sw.cyc.com/concept/> .\r\n" +
-                        "@prefix ctag: <http://commontag.org/ns#> .\r\n" +
-                        "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n" +
-                        "\r\n" +
-                        "<https://vocabs.dariah.eu/sshoc-keyword-test/Schema> a skos:ConceptScheme;\r\n" +
-                        "  csw:hierarchyRoot true;\r\n" +
-                        "  csw:hierarchyRootType skos:ConceptScheme;\r\n" +
-                        "  skos:prefLabel \"Keywords from SSHOC MP\"@en;\r\n" +
-                        "  dc:description \"All the keywords used in the SSHOC Marketplace: coming from various sources.\"@en,\r\n" +
-                        "    \"Alle Keywords, die im SSHOC Marketplace verwendet werden: Sie stammen aus verschiedenen Quellen.\"@de,\r\n" +
-                        "    \"Tous les mots-clÃ©s utilisÃ©s sur la place de marchÃ© du SSHOC : provenant de diverses sources.\"@fr;\r\n" +
-                        "  dcterms:title \"StichwÃ¶rter aus SSHOC MP\"@de, \"Keywords from SSHOC MP\"@en, \"Mots clÃ©s de la SSHOC MP\"@fr;\r\n" +
-                        "  rdfs:comment \"All the keywords used in the SSHOC Marketplace: coming from various sources.\"@en;\r\n" +
-                        "  rdfs:label \"StichwÃ¶rter aus SSHOC MP\"@de, \"Keywords from SSHOC MP\"@en, \"Mots clÃ©s de la SSHOC MP\"@fr;\r\n" +
-                        "  skos:hasTopConcept \"https://vocabs.dariah.eu/sshoc-keyword-test/1-grams\", \"https://vocabs.dariah.eu/sshoc-keyword-test/18th-century\",\r\n" +
-                        "    \"https://vocabs.dariah.eu/sshoc-keyword-test/18th-century-literature\", \"https://vocabs.dariah.eu/sshoc-keyword-test/zip\" .\r\n" +
-                        "\r\n" +
-                        "<https://vocabs.dariah.eu/sshoc-keyword-test/1-grams> a skos:Concept;\r\n" +
-                        "  skos:topConceptOf \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                        "  skos:inScheme \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                        "  skos:prefLabel \"1-grams\"@de, \"1-grams\"@fr, \"1-grams\"@en .\r\n" +
-                        "\r\n" +
-                        "<https://vocabs.dariah.eu/sshoc-keyword-test/18th-century> a skos:Concept;\r\n" +
-                        "  skos:topConceptOf \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                        "  skos:inScheme \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                        "  skos:prefLabel \"18. Jh.\"@de, \"18Ã¨me siÃ¨cle\"@fr, \"18th-century\"@en .\r\n" +
-                        "\r\n" +
-                        "<https://vocabs.dariah.eu/sshoc-keyword-test/18th-century-literature> a skos:Concept;\r\n" +
-                        "  skos:topConceptOf \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                        "  skos:inScheme \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                        "  skos:prefLabel \"18. Jahrhundert lietarture\"@de, \"Lietarture du 18e siÃ¨cle\"@fr, \"18th-century-literature\"@en .\r\n" +
-                        "\r\n" +
-                        "<https://vocabs.dariah.eu/sshoc-keyword-test/zip> a skos:Concept;\r\n" +
-                        "  skos:topConceptOf \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                        "  skos:inScheme \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                        "  skos:prefLabel \"zip\"@de, \"zip\"@fr, \"zip\"@en .\r\n"
-                ))
                 .andReturn().getResponse().getContentAsString();
 
-        response = response + "\r\n"
-                + "<https://vocabs.dariah.eu/sshoc-keyword-test/19th-century-test> a skos:Concept;\r\n" +
-                "  skos:topConceptOf \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                "  skos:inScheme \"https://vocabs.dariah.eu/sshoc-keyword-test/Schema\";\r\n" +
-                "  skos:prefLabel \"19. Jh.\"@de, \"19Ã¨me siÃ¨cle\"@fr, \"19th-century-test\"@en .\r\n" +
-                "\r\n";
-
-
-        InputStream e = new ByteArrayInputStream(response.getBytes());
-        MockMultipartFile exportedFile = new MockMultipartFile("ttl", "sshoc-keyword-test.ttl", null, e);
-
-        mvc.perform(
-                        vocabularyUpload(HttpMethod.PUT, exportedFile,
-                                "/api/vocabularies/{code}", "sshoc-keyword-test")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.MULTIPART_FORM_DATA)
-                                .header("Authorization", moderatorJwt)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
-                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")));
-
-        mvc.perform(
-                        get("/api/vocabularies/{code}", "sshoc-keyword-test")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
-                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")))
-                .andExpect(jsonPath("$.description", notNullValue()))
-                .andExpect(jsonPath("$.conceptResults.hits", is(5)))
-                .andExpect(jsonPath("$.conceptResults.count", is(5)))
-                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(5)))
-                .andExpect(
-                        jsonPath(
-                                "$.conceptResults.concepts[*].code",
-                                containsInAnyOrder("1-grams", "18th-century", "18th-century-literature", "zip", "19th-century-test")
-                        )
-                );
-
+        assertThat(ttlContent, startsWith("@prefix : <" + namespace + "> ."));
+        assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/scheme/> a skos:ConceptScheme;"));
+        assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/instances/ActivityType-Printing> a skos:Concept;"));
     }
+
 }

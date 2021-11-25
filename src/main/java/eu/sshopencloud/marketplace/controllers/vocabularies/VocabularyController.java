@@ -10,12 +10,12 @@ import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
 
@@ -79,24 +79,19 @@ public class VocabularyController {
     }
 
 
-    @Operation(summary = "Get vocabulary SKOS format with given filename")
-    @GetMapping(path = "export/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> exportVocabularyFile(@PathVariable("code") String vocabularyCode)
-            throws IOException {
+    @Operation(summary = "Get vocabulary for given code in SKOS TURTLE format")
+    @GetMapping(path = "/{code}/export", produces = "text/turtle;charset=UTF-8")
+    public ResponseEntity<StreamingResponseBody> exportVocabulary(@PathVariable("code") String vocabularyCode) {
 
-        InputStreamResource resource = new InputStreamResource(vocabularyService.exportVocabulary(vocabularyCode));
+        StreamingResponseBody stream = out -> vocabularyService.exportVocabulary(vocabularyCode, out);
 
-        HttpHeaders header = new HttpHeaders();
-        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + vocabularyCode + "_exported.ttl");
-        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        header.add("Pragma", "no-cache");
-        header.add("Expires", "0");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + vocabularyCode + ".ttl");
+        headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+        headers.add(HttpHeaders.PRAGMA, "no-cache");
+        headers.add(HttpHeaders.EXPIRES, "0");
 
-
-        return ResponseEntity.ok()
-                .headers(header)
-                .contentType(MediaType.parseMediaType("application/txt"))
-                .body(resource);
-
+        return ResponseEntity.ok().headers(headers).body(stream);
     }
+
 }

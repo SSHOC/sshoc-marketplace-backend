@@ -98,9 +98,6 @@ marketplace:
             implicit-grant-token-expiration-msec: 30000
     logging:
         path: ${marketplace_log_dir:/tmp}
-    vocabulary:
-        files:
-            path: ${marketplace_export_dir:/var/sshoc/skos}
     media:
         files:
             path: ${marketplace_media_dir:/var/sshoc/media}
