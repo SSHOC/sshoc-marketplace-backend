@@ -53,7 +53,7 @@ class MediaExternalClient {
     public MediaInfo resolveMediaInfo(MediaLocation mediaLocation) throws MediaServiceUnavailableException {
         try {
 
-            if (mediaLocation.getSourceUrl().toURI().toString().startsWith("http://"))
+            if (mediaLocation.getSourceUrl().toURI().toString().startsWith("http://") && !mediaLocation.getSourceUrl().toURI().toString().contains("localhost"))
                 mediaLocation.setSourceUrl(new URL(mediaLocation.getSourceUrl().toURI().toString().replace("http://", "https://")));
 
 
@@ -92,8 +92,7 @@ class MediaExternalClient {
                         .contentLength(headers.contentLength())
                         .build();
             }
-        } catch (URISyntaxException | MalformedURLException
-                e) {
+        } catch (URISyntaxException | MalformedURLException e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
         }
     }
