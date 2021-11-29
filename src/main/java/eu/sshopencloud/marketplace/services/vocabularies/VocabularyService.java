@@ -44,6 +44,9 @@ public class VocabularyService {
     private final PropertyService propertyService;
     private final PropertyTypeService propertyTypeService;
 
+    @Resource(name = "requestScopedBean")
+    RDFModelPrinter rdfModelPrinter;
+
     public VocabularyService(VocabularyRepository vocabularyRepository,
                              ConceptService conceptService,
                              ConceptRelatedConceptService conceptRelatedConceptService,
@@ -205,9 +208,6 @@ public class VocabularyService {
 
         return vocabulary;
     }
-
-    @Resource(name = "requestScopedBean")
-    RDFModelPrinter rdfModelPrinter;
 
     public void exportVocabulary(String vocabularyCode, OutputStream outputStream) throws IOException {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);

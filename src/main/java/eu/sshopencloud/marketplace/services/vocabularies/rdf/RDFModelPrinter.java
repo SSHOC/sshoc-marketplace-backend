@@ -30,7 +30,6 @@ public class RDFModelPrinter {
 
     public static final String PREFIX_CSW = "http://semantic-web.at/ontologies/csw.owl#";
 
-
     Model model;
 
     List<Statement> inverseStatements;
