@@ -91,21 +91,21 @@ public class VocabularyService {
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + vocabularyCode));
     }
 
-    public VocabularyBasicDto createUploadedVocabulary(MultipartFile vocabularyFile) throws IOException, VocabularyAlreadyExistsException {
+    public VocabularyBasicDto createUploadedVocabulary(MultipartFile vocabularyFile, boolean closed) throws IOException, VocabularyAlreadyExistsException {
         String vocabularyCode = FilenameUtils.getBaseName(vocabularyFile.getOriginalFilename());
 
         if (StringUtils.isBlank(vocabularyCode))
             throw new IllegalArgumentException("Invalid vocabulary code: file must contain name");
 
         try {
-            Vocabulary newVocabulary = createVocabulary(vocabularyCode, vocabularyFile.getInputStream());
+            Vocabulary newVocabulary = createVocabulary(vocabularyCode, vocabularyFile.getInputStream(), closed);
             return VocabularyBasicMapper.INSTANCE.toDto(newVocabulary);
         } catch (RDFParseException | UnsupportedRDFormatException e) {
             throw new IllegalArgumentException(String.format("Invalid vocabulary file contents: %s", e.getMessage()), e);
         }
     }
 
-    public VocabularyBasicDto updateUploadedVocabulary(String vocabularyCode, MultipartFile vocabularyFile, boolean forceUpdate)
+    public VocabularyBasicDto updateUploadedVocabulary(String vocabularyCode, MultipartFile vocabularyFile, boolean forceUpdate, boolean closed)
             throws IOException {
 
         String fileVocabularyCode = FilenameUtils.getBaseName(vocabularyFile.getOriginalFilename());
@@ -114,30 +114,30 @@ public class VocabularyService {
             throw new IllegalArgumentException("Vocabulary code and file name does not match");
 
         try {
-            Vocabulary vocabulary = updateVocabulary(vocabularyCode, vocabularyFile.getInputStream(), forceUpdate);
+            Vocabulary vocabulary = updateVocabulary(vocabularyCode, vocabularyFile.getInputStream(), forceUpdate, closed);
             return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
         } catch (RDFParseException | UnsupportedRDFormatException e) {
             throw new IllegalArgumentException(String.format("Invalid vocabulary file contents: %s", e.getMessage()), e);
         }
     }
 
-    public Vocabulary createVocabulary(String vocabularyCode, InputStream turtleInputStream)
+    public Vocabulary createVocabulary(String vocabularyCode, InputStream turtleInputStream, boolean closed)
             throws VocabularyAlreadyExistsException, IOException, RDFParseException, UnsupportedRDFormatException {
 
         if (vocabularyRepository.findById(vocabularyCode).isPresent())
             throw new VocabularyAlreadyExistsException(vocabularyCode);
 
-        return constructVocabularyAndSave(vocabularyCode, turtleInputStream);
+        return constructVocabularyAndSave(vocabularyCode, turtleInputStream, closed);
     }
 
-    public Vocabulary updateVocabulary(String vocabularyCode, InputStream turtleInputStream, boolean forceUpdate)
+    public Vocabulary updateVocabulary(String vocabularyCode, InputStream turtleInputStream, boolean forceUpdate, boolean closed)
             throws IOException, RDFParseException, UnsupportedRDFormatException {
 
         Vocabulary oldVocabulary = vocabularyRepository.findById(vocabularyCode)
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + vocabularyCode));
 
         List<Concept> oldConcepts = new ArrayList<>(oldVocabulary.getConcepts());
-        Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream);
+        Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream, closed);
 
         List<Concept> conceptsToRemove = missingConcepts(oldConcepts, updatedVocabulary.getConcepts());
 
@@ -190,7 +190,7 @@ public class VocabularyService {
         conceptService.removeConcepts(concepts);
     }
 
-    private Vocabulary constructVocabularyAndSave(String vocabularyCode, InputStream turtleInputStream)
+    private Vocabulary constructVocabularyAndSave(String vocabularyCode, InputStream turtleInputStream, boolean closed)
             throws IOException, RDFParseException, UnsupportedRDFormatException {
 
         Model rdfModel = Rio.parse(turtleInputStream, "", RDFFormat.TURTLE);         // TODO own exceptions
@@ -200,6 +200,7 @@ public class VocabularyService {
         // TODO change possible candidate concepts and relations to the proper one
         Map<String, Concept> conceptMap = RDFModelParser.createConcepts(rdfModel, vocabulary);
         vocabulary.setConcepts(new ArrayList<>(conceptMap.values()));
+        vocabulary.setClosed(closed);
 
         vocabularyRepository.save(vocabulary);
 
@@ -232,6 +233,14 @@ public class VocabularyService {
         outputStream.write(namespacePrefix.getBytes(StandardCharsets.UTF_8));
 
         Rio.write(rdfModelPrinter.getModel(), outputStream, RDFFormat.TURTLE);
+    }
+
+    public VocabularyBasicDto changeClosedFlag(String vocabularyCode, boolean closed) {
+        Vocabulary vocabulary = vocabularyRepository.findById(vocabularyCode)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + vocabularyCode));
+        vocabulary.setClosed(closed);
+        vocabularyRepository.save(vocabulary);
+        return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
     }
 
 }

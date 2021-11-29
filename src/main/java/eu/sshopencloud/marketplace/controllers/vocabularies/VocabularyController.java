@@ -50,10 +50,11 @@ public class VocabularyController {
 
     @Operation(summary = "Create vocabulary from file")
     @PostMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<VocabularyBasicDto> createVocabulary(@RequestParam("ttl") MultipartFile vocabularyFile)
+    public ResponseEntity<VocabularyBasicDto> createVocabulary(@RequestParam("ttl") MultipartFile vocabularyFile,
+                                                               @RequestParam(value = "closed", required = false, defaultValue = "false") boolean closed)
             throws IOException, VocabularyAlreadyExistsException {
 
-        VocabularyBasicDto vocabulary = vocabularyService.createUploadedVocabulary(vocabularyFile);
+        VocabularyBasicDto vocabulary = vocabularyService.createUploadedVocabulary(vocabularyFile, closed);
         return ResponseEntity.ok(vocabulary);
     }
 
@@ -62,10 +63,11 @@ public class VocabularyController {
     public ResponseEntity<VocabularyBasicDto> updateVocabulary(
             @PathVariable("code") String vocabularyCode,
             @RequestParam("ttl") MultipartFile vocabularyFile,
-            @RequestParam(value = "force", required = false, defaultValue = "false") boolean force)
+            @RequestParam(value = "force", required = false, defaultValue = "false") boolean force,
+            @RequestParam(value = "closed", required = false, defaultValue = "false") boolean closed)
             throws IOException {
 
-        VocabularyBasicDto vocabulary = vocabularyService.updateUploadedVocabulary(vocabularyCode, vocabularyFile, force);
+        VocabularyBasicDto vocabulary = vocabularyService.updateUploadedVocabulary(vocabularyCode, vocabularyFile, force, closed);
         return ResponseEntity.ok(vocabulary);
     }
 
@@ -92,6 +94,22 @@ public class VocabularyController {
         headers.add(HttpHeaders.EXPIRES, "0");
 
         return ResponseEntity.ok().headers(headers).body(stream);
+    }
+
+    @Operation(summary = "Close the given vocabulary to new concepts")
+    @PutMapping(path= "/{code}/close", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<VocabularyBasicDto> closeVocabulary(
+            @PathVariable("code") String vocabularyCode) {
+        VocabularyBasicDto vocabulary = vocabularyService.changeClosedFlag(vocabularyCode, true);
+        return ResponseEntity.ok(vocabulary);
+    }
+
+    @Operation(summary = "Open the given vocabulary to new concepts")
+    @PutMapping(path= "/{code}/open", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<VocabularyBasicDto> openVocabulary(
+            @PathVariable("code") String vocabularyCode) {
+        VocabularyBasicDto vocabulary = vocabularyService.changeClosedFlag(vocabularyCode, false);
+        return ResponseEntity.ok(vocabulary);
     }
 
 }

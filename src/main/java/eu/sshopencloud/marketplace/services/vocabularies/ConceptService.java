@@ -12,6 +12,7 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyIsClosedException;
 import eu.sshopencloud.marketplace.validators.vocabularies.ConceptFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.Index;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,8 +79,10 @@ public class ConceptService {
         return conceptRepository.findByUri(uri);
     }
 
-    public ConceptDto createConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) throws ConceptAlreadyExistsException {
+    public ConceptDto createConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) throws ConceptAlreadyExistsException, VocabularyIsClosedException {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
+        if (vocabulary.getClosed())
+            throw new VocabularyIsClosedException(vocabularyCode);
         String code = conceptFactory.resolveCode(conceptCore, vocabulary);
         Optional<Concept> conceptHolder = conceptRepository.findById(
                 eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode).build());

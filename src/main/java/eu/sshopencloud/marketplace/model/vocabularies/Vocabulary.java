@@ -70,4 +70,7 @@ public class Vocabulary {
     @OrderBy("ord")
     private List<Concept> concepts;
 
+    @Column(nullable = false)
+    private Boolean closed;
+
 }

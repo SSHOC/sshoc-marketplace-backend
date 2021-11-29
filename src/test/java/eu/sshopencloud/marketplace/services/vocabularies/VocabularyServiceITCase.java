@@ -45,7 +45,7 @@ public class VocabularyServiceITCase {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/discipline.ttl");
 
-        Vocabulary vocabulary = vocabularyService.createVocabulary(vocabularyCode, vocabularyStream);
+        Vocabulary vocabulary = vocabularyService.createVocabulary(vocabularyCode, vocabularyStream, false);
 
         checkDisciplineVocabulary(vocabulary);
 
@@ -59,7 +59,7 @@ public class VocabularyServiceITCase {
 
         InputStream exportedVocabularyStream = new ByteArrayInputStream(vocabularySkosTtl.getBytes(StandardCharsets.UTF_8));
 
-        Vocabulary recreatedVocabulary = vocabularyService.createVocabulary(vocabularyCode, exportedVocabularyStream);
+        Vocabulary recreatedVocabulary = vocabularyService.createVocabulary(vocabularyCode, exportedVocabularyStream, false);
 
         checkDisciplineVocabulary(recreatedVocabulary);
 
