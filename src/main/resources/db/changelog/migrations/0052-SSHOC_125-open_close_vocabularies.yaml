@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0051-SSHOC_125-open_close_vocabularies_1
+      description: adding field openness to the table vocabularies
+      author: ekalata
+      changes:
+        changes:
+          - addColumn:
+              tableName: vocabularies
+              columns:
+                - column:
+                    name: closed
+                    type: BOOLEAN
+                    defaultValueBoolean: false
+                    constraints:
+                      nullable: false
+

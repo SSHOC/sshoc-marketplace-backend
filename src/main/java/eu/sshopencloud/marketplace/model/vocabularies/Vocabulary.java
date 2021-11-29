@@ -62,6 +62,6 @@ public class Vocabulary {
     private List<Concept> concepts;
 
     @Column(nullable = false)
-    private Boolean openness;
+    private Boolean closed;
 
 }

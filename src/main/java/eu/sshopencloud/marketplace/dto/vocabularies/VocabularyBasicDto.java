@@ -15,7 +15,6 @@ public class VocabularyBasicDto {
     @Nullable
     private String accessibleAt;
 
-    private boolean openness;
-
+    private boolean closed;
 
 }

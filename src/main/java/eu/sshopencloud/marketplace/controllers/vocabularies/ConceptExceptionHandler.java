@@ -18,16 +18,14 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
 
-@ControllerAdvice(assignableTypes = {VocabularyController.class})
+@ControllerAdvice(assignableTypes = {ConceptController.class})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
-public class VocabularyExceptionHandler {
+public class ConceptExceptionHandler {
 
     @ExceptionHandler(value = {
-            PropertyTypeAlreadyExistsException.class,
-            VocabularyAlreadyExistsException.class,
-            RDFParseException.class,
-            UnsupportedRDFormatException.class
+            ConceptAlreadyExistsException.class,
+            VocabularyIsClosedException.class
     })
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         log.error("Exception", ex);

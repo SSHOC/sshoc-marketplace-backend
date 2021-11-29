@@ -35,7 +35,8 @@ public class ConceptController {
             required = true,
             schema = @Schema(implementation = ConceptCore.class)) @RequestBody ConceptCore newConcept,
                                                     @PathVariable("vocabulary-code") String vocabularyCode,
-                                                    @RequestParam(value = "candidate", defaultValue = "true") boolean candidate) throws ConceptAlreadyExistsException, VocabularyIsClosedException {
+                                                    @RequestParam(value = "candidate", defaultValue = "true") boolean candidate)
+            throws ConceptAlreadyExistsException, VocabularyIsClosedException {
 
         return ResponseEntity.ok(conceptService.createConcept(newConcept, vocabularyCode, candidate));
     }

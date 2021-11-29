@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptRelationId;
 import eu.sshopencloud.marketplace.dto.vocabularies.RelatedConceptCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.util.VocabularyTestUploadUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -418,17 +419,6 @@ public class ConceptControllerITCase {
 
     }
 
-    private MockHttpServletRequestBuilder vocabularyUpload(HttpMethod method, MockMultipartFile vocabularyFile,
-                                                           String urlTemplate, Object... urlVars) {
-
-        return multipart(urlTemplate, urlVars)
-                .file(vocabularyFile)
-                .with(request -> {
-                    request.setMethod(method.toString());
-                    return request;
-                });
-    }
-
 
     @Test
     public void shouldNotCreateNewCandidateConceptForClosedVocabulary() throws Exception {
@@ -441,14 +431,15 @@ public class ConceptControllerITCase {
         );
 
         mvc.perform(
-                        vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
                                 .accept(MediaType.APPLICATION_JSON)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                                 .header("Authorization", moderatorJwt)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
-                .andExpect(jsonPath("$.label", is("IANA mime/type")));
+                .andExpect(jsonPath("$.label", is("IANA mime/type")))
+                .andExpect(jsonPath("$.closed", is(false)));
 
         mvc.perform(
                         get("/api/vocabularies/{code}", "iana-mime-type-test")
@@ -460,7 +451,7 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
                 .andExpect(jsonPath("$.label", is("IANA mime/type")))
                 .andExpect(jsonPath("$.description", notNullValue()))
-                .andExpect(jsonPath("$.openness", is(true)))
+                .andExpect(jsonPath("$.closed", is(false)))
                 .andExpect(jsonPath("$.conceptResults.hits", is(3)))
                 .andExpect(jsonPath("$.conceptResults.count", is(3)))
                 .andExpect(jsonPath("$.conceptResults.concepts", hasSize(3)))
@@ -472,8 +463,7 @@ public class ConceptControllerITCase {
                 );
 
         mvc.perform(
-                        put("/api/vocabularies/close/{code}", "iana-mime-type-test")
-                                .param("openness", "false")
+                        put("/api/vocabularies/{code}/close", "iana-mime-type-test")
                                 .header("Authorization", moderatorJwt)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -482,7 +472,7 @@ public class ConceptControllerITCase {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
                 .andExpect(jsonPath("$.label", is("IANA mime/type")))
-                .andExpect(jsonPath("$.openness", is(false)));
+                .andExpect(jsonPath("$.closed", is(true)));
 
 
         String vocabularyCode = "iana-mime-type-test";
@@ -516,7 +506,7 @@ public class ConceptControllerITCase {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(conceptCore))
                 )
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isBadRequest());
 
     }
 
