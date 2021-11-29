@@ -191,4 +191,9 @@ public class ConceptService {
         conceptRelatedConceptRepository.deleteConceptRelations(concept.getCode());
     }
 
+    public List<Concept> getConceptsList(String vocabularyCode){
+        return conceptRepository.findByVocabularyCode(vocabularyCode);
+    }
+
+
 }
