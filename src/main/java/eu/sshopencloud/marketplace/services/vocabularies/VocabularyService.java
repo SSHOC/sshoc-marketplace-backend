@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import javax.persistence.EntityNotFoundException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -44,20 +43,21 @@ public class VocabularyService {
     private final PropertyService propertyService;
     private final PropertyTypeService propertyTypeService;
 
-    @Resource(name = "requestScopedBean")
-    RDFModelPrinter rdfModelPrinter;
+    private final RDFModelPrinter rdfModelPrinter;
 
     public VocabularyService(VocabularyRepository vocabularyRepository,
                              ConceptService conceptService,
                              ConceptRelatedConceptService conceptRelatedConceptService,
                              PropertyService propertyService,
-                             PropertyTypeService propertyTypeService) {
+                             PropertyTypeService propertyTypeService,
+                             RDFModelPrinter rdfModelPrinter) {
 
         this.vocabularyRepository = vocabularyRepository;
         this.conceptService = conceptService;
         this.conceptRelatedConceptService = conceptRelatedConceptService;
         this.propertyService = propertyService;
         this.propertyTypeService = propertyTypeService;
+        this.rdfModelPrinter = rdfModelPrinter;
     }
 
     public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
@@ -209,6 +209,7 @@ public class VocabularyService {
         return vocabulary;
     }
 
+    @Transactional(readOnly = true)
     public void exportVocabulary(String vocabularyCode, OutputStream outputStream) throws IOException {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
         List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);

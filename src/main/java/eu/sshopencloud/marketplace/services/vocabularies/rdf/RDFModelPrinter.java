@@ -10,7 +10,6 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.*;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -20,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
+@RequestScope
 public class RDFModelPrinter {
 
     private static final String DC_DESCRIPTION = "http://purl.org/dc/elements/1.1/description";
@@ -30,33 +30,18 @@ public class RDFModelPrinter {
 
     public static final String PREFIX_CSW = "http://semantic-web.at/ontologies/csw.owl#";
 
-    Model model;
+    private Model model;
 
-    List<Statement> inverseStatements;
+    private List<Statement> inverseStatements;
 
     public Model getModel() {
         return model;
     }
 
-    @Bean
-    @RequestScope
-    public RDFModelPrinter requestScopedBean() {
-        return new RDFModelPrinter();
-    }
-
-    public List<Statement> getInverseStatements() {
-        return inverseStatements;
-    }
-
-    public void setInverseStatements(List<Statement> inverseStatements) {
-        this.inverseStatements = inverseStatements;
-    }
-
     public void createModel(Vocabulary vocabulary) {
-
         ModelBuilder builder = new ModelBuilder();
         ValueFactory factory = SimpleValueFactory.getInstance();
-        setInverseStatements(new LinkedList<>());
+        inverseStatements = new LinkedList<>();
 
         vocabulary.getNamespaces()
                 .forEach((key, value) -> {
