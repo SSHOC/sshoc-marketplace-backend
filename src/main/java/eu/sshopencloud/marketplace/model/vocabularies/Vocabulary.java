@@ -54,8 +54,17 @@ public class Vocabulary {
     @Nullable
     private String accessibleAt;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String namespace;
+
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @Convert(converter = HashMapConverter.class)
+    @Column(nullable = false, length = 16384)
+    private Map<String, String> namespaces;
+
+    @Column(nullable = false, unique = true)
+    private String scheme;
+
 
     @OneToMany(mappedBy = "vocabulary", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
     @OrderBy("ord")

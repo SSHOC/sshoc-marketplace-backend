@@ -1,10 +1,7 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
-import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedVocabularies;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyBasicDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
@@ -14,15 +11,12 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepositor
 import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelParser;
-import lombok.RequiredArgsConstructor;
+import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelPrinter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFParseException;
-import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
+import org.eclipse.rdf4j.rio.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,14 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Throwable.class)
-@RequiredArgsConstructor
 @Slf4j
 public class VocabularyService {
 
@@ -50,6 +43,22 @@ public class VocabularyService {
     private final PropertyService propertyService;
     private final PropertyTypeService propertyTypeService;
 
+    private final RDFModelPrinter rdfModelPrinter;
+
+    public VocabularyService(VocabularyRepository vocabularyRepository,
+                             ConceptService conceptService,
+                             ConceptRelatedConceptService conceptRelatedConceptService,
+                             PropertyService propertyService,
+                             PropertyTypeService propertyTypeService,
+                             RDFModelPrinter rdfModelPrinter) {
+
+        this.vocabularyRepository = vocabularyRepository;
+        this.conceptService = conceptService;
+        this.conceptRelatedConceptService = conceptRelatedConceptService;
+        this.propertyService = propertyService;
+        this.propertyTypeService = propertyTypeService;
+        this.rdfModelPrinter = rdfModelPrinter;
+    }
 
     public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
         Page<VocabularyBasicView> vocabulariesPage = vocabularyRepository.findAllVocabulariesBasicBy(
@@ -91,8 +100,7 @@ public class VocabularyService {
         try {
             Vocabulary newVocabulary = createVocabulary(vocabularyCode, vocabularyFile.getInputStream());
             return VocabularyBasicMapper.INSTANCE.toDto(newVocabulary);
-        }
-        catch (RDFParseException | UnsupportedRDFormatException e) {
+        } catch (RDFParseException | UnsupportedRDFormatException e) {
             throw new IllegalArgumentException(String.format("Invalid vocabulary file contents: %s", e.getMessage()), e);
         }
     }
@@ -108,8 +116,7 @@ public class VocabularyService {
         try {
             Vocabulary vocabulary = updateVocabulary(vocabularyCode, vocabularyFile.getInputStream(), forceUpdate);
             return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
-        }
-        catch (RDFParseException | UnsupportedRDFormatException e) {
+        } catch (RDFParseException | UnsupportedRDFormatException e) {
             throw new IllegalArgumentException(String.format("Invalid vocabulary file contents: %s", e.getMessage()), e);
         }
     }
@@ -117,7 +124,7 @@ public class VocabularyService {
     public Vocabulary createVocabulary(String vocabularyCode, InputStream turtleInputStream)
             throws VocabularyAlreadyExistsException, IOException, RDFParseException, UnsupportedRDFormatException {
 
-        if (vocabularyRepository.existsById(vocabularyCode))
+        if (vocabularyRepository.findById(vocabularyCode).isPresent())
             throw new VocabularyAlreadyExistsException(vocabularyCode);
 
         return constructVocabularyAndSave(vocabularyCode, turtleInputStream);
@@ -201,4 +208,30 @@ public class VocabularyService {
 
         return vocabulary;
     }
+
+    @Transactional(readOnly = true)
+    public void exportVocabulary(String vocabularyCode, OutputStream outputStream) throws IOException {
+        Vocabulary vocabulary = loadVocabulary(vocabularyCode);
+        List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);
+        concepts.sort(new ConceptComparator());
+
+        rdfModelPrinter.createModel(vocabulary);
+
+        concepts.forEach(
+                concept -> rdfModelPrinter.addConceptToModel(vocabulary.getScheme(), concept, conceptRelatedConceptService.getConceptRelatedConcept(concept.getCode(), vocabularyCode))
+        );
+
+        rdfModelPrinter.generateInverseStatements();
+
+        String namespacePrefix;
+        if (vocabulary.getNamespaces().containsKey(""))
+            namespacePrefix = "@prefix : <" + vocabulary.getNamespaces().get("") + "> .\n";
+        else
+            namespacePrefix = "@prefix : <" + vocabulary.getNamespace() + "> .\n";
+
+        outputStream.write(namespacePrefix.getBytes(StandardCharsets.UTF_8));
+
+        Rio.write(rdfModelPrinter.getModel(), outputStream, RDFFormat.TURTLE);
+    }
+
 }

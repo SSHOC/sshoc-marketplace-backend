@@ -15,11 +15,14 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -474,4 +477,41 @@ public class VocabularyControllerITCase {
                     return request;
                 });
     }
+
+
+    @Test
+    public void shouldExportVocabulary() throws Exception {
+        String code = "nemo-activity-type";
+        String namespace = "http://dcu.gr/ontologies/scholarlyontology/";
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", code)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(code)))
+                .andExpect(jsonPath("$.label", is("NeMO Concept Scheme")))
+                .andExpect(jsonPath("$.conceptResults.hits", is(164)))
+                .andExpect(jsonPath("$.conceptResults.count", is(20)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(20)))
+                .andExpect(jsonPath("$.conceptResults.concepts[0].uri", startsWith(namespace)));
+
+
+        MvcResult resultInit = mvc.perform(
+                        get("/api/vocabularies/{code}/export", code)
+                        .accept("text/turtle;charset=UTF-8")
+                )
+                .andExpect(request().asyncStarted())
+                .andDo(MockMvcResultHandlers.log())
+                .andReturn();
+
+        String ttlContent = mvc.perform(asyncDispatch(resultInit))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        assertThat(ttlContent, startsWith("@prefix : <" + namespace + "> ."));
+        assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/scheme> a skos:ConceptScheme;"));
+        assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/instances/ActivityType-Printing> a skos:Concept;"));
+    }
+
 }

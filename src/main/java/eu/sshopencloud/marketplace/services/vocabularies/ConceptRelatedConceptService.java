@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConce
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptDetachingRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ConceptRelatedConceptService {
 
     private final ConceptRelatedConceptRepository conceptRelatedConceptRepository;
@@ -49,15 +51,34 @@ public class ConceptRelatedConceptService {
         return relatedConcepts;
     }
 
+    public List<ConceptRelatedConcept> getConceptRelatedConcept(String conceptCode, String vocabularyCode) {
+
+        List<ConceptRelatedConcept> subjectRelatedConcepts = conceptRelatedConceptRepository.findBySubjectCodeAndSubjectVocabularyCode(conceptCode, vocabularyCode);
+
+        for (ConceptRelatedConcept subjectRelatedConcept : subjectRelatedConcepts) {
+            conceptRelatedConceptDetachingRepository.detach(subjectRelatedConcept);
+        }
+
+        List<ConceptRelatedConcept> objectRelatedConcepts = conceptRelatedConceptRepository.findByObjectCodeAndObjectVocabularyCode(conceptCode, vocabularyCode);
+        for (ConceptRelatedConcept objectRelatedConcept : objectRelatedConcepts) {
+            conceptRelatedConceptDetachingRepository.detach(objectRelatedConcept);
+        }
+
+        subjectRelatedConcepts.addAll(objectRelatedConcepts);
+
+        validateVocabulary(subjectRelatedConcepts);
+
+        return subjectRelatedConcepts;
+    }
+
     private VocabularyBasicDto getRelatedVocabularyForConcept(String vocabularyCode) {
         Vocabulary vocabulary = vocabularyRepository.getOne(vocabularyCode);
         return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
     }
 
-
     public List<ConceptRelatedConcept> validateReflexivityAndSave(List<ConceptRelatedConcept> newConceptRelatedConcepts) {
         List<ConceptRelatedConcept> conceptRelatedConcepts = new ArrayList<ConceptRelatedConcept>();
-        for (ConceptRelatedConcept newConceptRelatedConcept: newConceptRelatedConcepts) {
+        for (ConceptRelatedConcept newConceptRelatedConcept : newConceptRelatedConcepts) {
             ConceptRelatedConcept conceptRelatedConcept = validateReflexivityAndSave(newConceptRelatedConcept);
             if (conceptRelatedConcept != null) {
                 conceptRelatedConcepts.add(conceptRelatedConcept);
@@ -86,6 +107,16 @@ public class ConceptRelatedConceptService {
         return conceptRelatedConcept;
     }
 
+    public void validateVocabulary(List<ConceptRelatedConcept> objectRelatedConcepts) {
+        objectRelatedConcepts.forEach(
+                o -> {
+                    if (!o.getObject().getVocabulary().getCode().equals(o.getSubject().getVocabulary().getCode()))
+                        throw new IllegalArgumentException(
+                                String.format("Can't have concept relation with different vocabulary code %s and %s",
+                                        o.getObject().getVocabulary(), o.getSubject().getVocabulary()));
+                }
+        );
 
+    }
 
 }
