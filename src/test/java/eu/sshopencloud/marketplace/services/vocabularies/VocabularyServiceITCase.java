@@ -59,7 +59,7 @@ public class VocabularyServiceITCase {
         // It make problems with recreating vocabulary!
         checkDisciplineSkosTtl(vocabularySkosTtl);
 
-        vocabularyService.removeVocabulary(vocabularyCode, false);
+        vocabularyService.removeVocabulary(vocabularyCode, true);
 
         InputStream exportedVocabularyStream = new ByteArrayInputStream(vocabularySkosTtl.getBytes(StandardCharsets.UTF_8));
 

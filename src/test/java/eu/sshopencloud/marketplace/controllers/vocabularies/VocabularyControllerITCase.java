@@ -510,7 +510,7 @@ public class VocabularyControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
         assertThat(ttlContent, startsWith("@prefix : <" + namespace + "> ."));
-        assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/scheme/> a skos:ConceptScheme;"));
+        assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/scheme> a skos:ConceptScheme;"));
         assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/instances/ActivityType-Printing> a skos:Concept;"));
     }
 

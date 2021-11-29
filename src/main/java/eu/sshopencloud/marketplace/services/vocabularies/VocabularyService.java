@@ -11,6 +11,7 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepositor
 import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelParser;
+import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelPrinter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityNotFoundException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -41,7 +43,6 @@ public class VocabularyService {
 
     private final PropertyService propertyService;
     private final PropertyTypeService propertyTypeService;
-
 
     public VocabularyService(VocabularyRepository vocabularyRepository,
                              ConceptService conceptService,
@@ -205,24 +206,31 @@ public class VocabularyService {
         return vocabulary;
     }
 
+    @Resource(name = "requestScopedBean")
+    RDFModelPrinter rdfModelPrinter;
+
     public void exportVocabulary(String vocabularyCode, OutputStream outputStream) throws IOException {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
         List<Concept> concepts = conceptService.getConceptsList(vocabularyCode);
-        String mainResources = vocabulary.getNamespace() + "Schema";
-
-        Model model = RDFModelParser.createModel(vocabulary, mainResources);
         concepts.sort(new ConceptComparator());
 
+        rdfModelPrinter.createModel(vocabulary);
+
         concepts.forEach(
-                concept -> RDFModelParser.addConceptToModel(mainResources, concept, conceptRelatedConceptService.getConceptRelatedConcept(concept.getCode(), vocabularyCode))
+                concept -> rdfModelPrinter.addConceptToModel(vocabulary.getScheme(), concept, conceptRelatedConceptService.getConceptRelatedConcept(concept.getCode(), vocabularyCode))
         );
 
-        model = RDFModelParser.generateInverseStatements();
+        rdfModelPrinter.generateInverseStatements();
 
-        String namespacePrefix = "@prefix : <" + vocabulary.getNamespace() + "> .\n";
+        String namespacePrefix;
+        if (vocabulary.getNamespaces().containsKey(""))
+            namespacePrefix = "@prefix : <" + vocabulary.getNamespaces().get("") + "> .\n";
+        else
+            namespacePrefix = "@prefix : <" + vocabulary.getNamespace() + "> .\n";
+
         outputStream.write(namespacePrefix.getBytes(StandardCharsets.UTF_8));
 
-        Rio.write(model, outputStream, RDFFormat.TURTLE);
+        Rio.write(rdfModelPrinter.getModel(), outputStream, RDFFormat.TURTLE);
     }
 
 }
