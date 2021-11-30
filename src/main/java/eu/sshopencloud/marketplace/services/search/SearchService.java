@@ -58,7 +58,8 @@ public class SearchService {
     private final SearchActorRepository searchActorRepository;
     private final ActorService actorService;
 
-    public PaginatedSearchItems searchItems(String q, boolean advanced, @NotNull Map<String, String> expressionParams,
+    public PaginatedSearchItems searchItems(String q, boolean advanced, boolean includeSteps,
+                                            @NotNull Map<String, String> expressionParams,
                                             List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams,
                                             List<SearchOrder> order, PageCoords pageCoords) throws IllegalFilterException {
 
@@ -80,7 +81,7 @@ public class SearchService {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
 
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(queryCriteria, expressionCriteria,
-                currentUser, filterCriteria, order, pageable);
+                currentUser, includeSteps, filterCriteria, order, pageable);
 
         Map<ItemCategory, LabeledCheckedCount> categoryFacet = gatherCategoryFacet(facetPage, categories);
         Map<String, Map<String, CheckedCount>> facets = gatherSearchItemFacets(facetPage, filterParams);
