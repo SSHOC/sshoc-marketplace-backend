@@ -45,6 +45,7 @@ class SearchController {
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "perpage", required = false) Integer perpage,
             @RequestParam(value = "advanced", defaultValue = "false") boolean advanced,
+            @RequestParam(value = "includeSteps", defaultValue = "false") boolean includeSteps,
             @Parameter(
                     description = "Facets parameters should be provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: "
                             + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
@@ -52,7 +53,7 @@ class SearchController {
 
         Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(d);
         Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
-        return ResponseEntity.ok(searchService.searchItems(q, advanced, expressionParams, categories, filterParams, order,
+        return ResponseEntity.ok(searchService.searchItems(q, advanced, includeSteps, expressionParams, categories, filterParams, order,
                 pageCoordsValidator.validate(page, perpage)));
     }
 

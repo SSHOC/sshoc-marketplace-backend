@@ -86,6 +86,10 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("categories.publication.checked", is(false)))
                 .andExpect(jsonPath("categories.dataset.count", is(0)))
                 .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.workflow.count", is(0)))
+                .andExpect(jsonPath("categories.workflow.checked", is(false)))
+                .andExpect(jsonPath("categories.step.count", is(0)))
+                .andExpect(jsonPath("categories.step.checked", is(false)))
                 .andExpect(jsonPath("facets.keyword.graph.count", is(1)))
                 .andExpect(jsonPath("facets.keyword.graph.checked", is(false)))
                 .andExpect(jsonPath("facets.keyword.['social network analysis'].count", is(1)))
@@ -758,4 +762,48 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
     }
 
+    @Test
+    public void shouldReturnItemsWithStepsIncluded() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=model&includeSteps=true")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(2)))
+                .andExpect(jsonPath("items[0].category", is("step")))
+                .andExpect(jsonPath("items[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(0)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(0)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.workflow.count", is(0)))
+                .andExpect(jsonPath("categories.workflow.checked", is(false)))
+                .andExpect(jsonPath("categories.step.count", is(1)))
+                .andExpect(jsonPath("categories.step.checked", is(false)));
+    }
+
+    @Test
+    public void shouldReturnItemsWithStepsIncludedAndFilterByCategories() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=&includeSteps=true&categories=step")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(11)))
+                .andExpect(jsonPath("items[0].category", is("step")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(3)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(3)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(3)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.workflow.count", is(2)))
+                .andExpect(jsonPath("categories.workflow.checked", is(false)))
+                .andExpect(jsonPath("categories.step.count", is(11)))
+                .andExpect(jsonPath("categories.step.checked", is(true)));
+    }
 }
