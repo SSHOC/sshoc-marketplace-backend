@@ -39,12 +39,14 @@ public class ConceptControllerITCase {
     private ObjectMapper mapper;
 
     private String contributorJwt;
+    private String systemImporterJwt;
     private String moderatorJwt;
     private String administratorJwt;
 
     @Before
     public void init() throws Exception {
         contributorJwt = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        systemImporterJwt = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         moderatorJwt = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         administratorJwt = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
     }
@@ -93,9 +95,9 @@ public class ConceptControllerITCase {
                 .build();
 
         mvc.perform(
-                post("/api/vocabularies/{vocabulary-code}/concepts/", vocabularyCode)
+                post("/api/vocabularies/{vocabulary-code}/concepts", vocabularyCode)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
+                        .header("Authorization", systemImporterJwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(conceptCore))
         )
