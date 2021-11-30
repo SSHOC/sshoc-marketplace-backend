@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
@@ -59,8 +58,7 @@ public class IndexService {
 
 
     public IndexItem indexItem(Item item) {
-        if (// item.getCategory().equals(ItemCategory.STEP) ||
-                        !(item.isNewestVersion() || item.isProposedVersion()))
+        if (!(item.isNewestVersion() || item.isProposedVersion()))
             return null;
 
         if (item.isNewestVersion())
