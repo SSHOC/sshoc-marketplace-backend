@@ -6,7 +6,7 @@ public enum ItemOrder {
 
     LABEL(true),
 
-    MODIFIED_ON(true);
+    MODIFIED_ON(false);
 
     private boolean asc;
 

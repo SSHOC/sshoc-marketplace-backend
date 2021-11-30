@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.search;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptCore;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -17,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -41,11 +44,13 @@ public class SearchControllerITCase {
     private SolrTemplate solrTemplate;
 
     private String CONTRIBUTOR_JWT;
+    private String MODERATOR_JWT;
 
 
     @Before
     public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        MODERATOR_JWT =  LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
     }
 
     @Test
@@ -64,14 +69,15 @@ public class SearchControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
                 .andExpect(jsonPath("items[0].id", is(1)))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", is("Tue Aug 04 12:29:00 CEST 2020")))
                 .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
                 .andExpect(jsonPath("items[0].label", is("Gephi")))
-                .andExpect(jsonPath("items[1].id", is(7)))
-                .andExpect(jsonPath("items[1].persistentId", is("WfcKvG")))
-                .andExpect(jsonPath("items[1].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("items[2].id", is(4)))
-                .andExpect(jsonPath("items[2].persistentId", is("heBAGQ")))
-                .andExpect(jsonPath("items[2].label", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("items[1].id", is(4)))
+                .andExpect(jsonPath("items[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("items[1].label", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("items[2].id", is(7)))
+                .andExpect(jsonPath("items[2].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("items[2].label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
                 .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
                 .andExpect(jsonPath("categories.training-material.count", is(2)))
@@ -80,6 +86,10 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("categories.publication.checked", is(false)))
                 .andExpect(jsonPath("categories.dataset.count", is(0)))
                 .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.workflow.count", is(0)))
+                .andExpect(jsonPath("categories.workflow.checked", is(false)))
+                .andExpect(jsonPath("categories.step.count", is(0)))
+                .andExpect(jsonPath("categories.step.checked", is(false)))
                 .andExpect(jsonPath("facets.keyword.graph.count", is(1)))
                 .andExpect(jsonPath("facets.keyword.graph.checked", is(false)))
                 .andExpect(jsonPath("facets.keyword.['social network analysis'].count", is(1)))
@@ -125,6 +135,7 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items[0].status", is("suggested")))
                 .andExpect(jsonPath("items[0].owner", is("Contributor")))
                 .andExpect(jsonPath("items[0].label", is(dataset.getLabel())))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", notNullValue()))
                 .andExpect(jsonPath("items[0].description", is(dataset.getDescription())))
                 .andExpect(jsonPath("items[1].id", is(datasetVersionId)))
                 .andExpect(jsonPath("items[1].persistentId", is(datasetId)))
@@ -152,6 +163,7 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items[0].id", is(7)))
                 .andExpect(jsonPath("items[0].persistentId", is("WfcKvG")))
                 .andExpect(jsonPath("items[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", notNullValue()))
                 .andExpect(jsonPath("categories.tool-or-service.count", is(0)))
                 .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
                 .andExpect(jsonPath("categories.training-material.count", is(1)))
@@ -173,6 +185,7 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items[0].id", is(2)))
                 .andExpect(jsonPath("items[0].persistentId", is("DstBL5")))
                 .andExpect(jsonPath("items[0].label", is("Stata")))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", notNullValue()))
                 .andExpect(jsonPath("items[1].id", is(11)))
                 .andExpect(jsonPath("items[1].persistentId", is("dU0BZc")))
                 .andExpect(jsonPath("items[1].label", is("Test dataset with markdown description")))
@@ -200,6 +213,7 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items[0].id", is(2)))
                 .andExpect(jsonPath("items[0].persistentId", is("DstBL5")))
                 .andExpect(jsonPath("items[0].label", is("Stata")))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", notNullValue()))
                 .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
                 .andExpect(jsonPath("categories.tool-or-service.checked", is(true)))
                 .andExpect(jsonPath("categories.training-material.count", is(0)))
@@ -272,6 +286,7 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items[0].id", is(2)))
                 .andExpect(jsonPath("items[0].persistentId", is("DstBL5")))
                 .andExpect(jsonPath("items[0].label", is("Stata")))
+                .andExpect(jsonPath("items[0].properties[*].type.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "tadirah-activity")))
                 .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
                 .andExpect(jsonPath("categories.tool-or-service.checked", is(true)))
                 .andExpect(jsonPath("categories.training-material.count", is(0)))
@@ -325,9 +340,11 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items[0].id", is(8)))
                 .andExpect(jsonPath("items[0].persistentId", is("JmBgWa")))
                 .andExpect(jsonPath("items[0].label", is("Webinar on DH")))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", notNullValue()))
                 .andExpect(jsonPath("items[1].id", is(2)))
                 .andExpect(jsonPath("items[1].persistentId", is("DstBL5")))
                 .andExpect(jsonPath("items[1].label", is("Stata")))
+                .andExpect(jsonPath("items[1].lastInfoUpdate", notNullValue()))
                 .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
                 .andExpect(jsonPath("categories.tool-or-service.checked", is(true)))
                 .andExpect(jsonPath("categories.training-material.count", is(1)))
@@ -599,7 +616,9 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("concepts[0].vocabulary.code", is("tadirah-activity")))
                 .andExpect(jsonPath("concepts[0].label", is("Software")))
                 .andExpect(jsonPath("types.activity.count", is(7)))
-                .andExpect(jsonPath("types.activity.checked", is(true)));
+                .andExpect(jsonPath("types.activity.checked", is(true)))
+                .andExpect(jsonPath("facets.candidate.['false'].count", is(7)))
+                .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));;
     }
 
     @Test
@@ -618,5 +637,173 @@ public class SearchControllerITCase {
                         .param("q", "teaching / learning")
         )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldReturnConceptsWithCandidateFacet() throws Exception {
+
+        mvc.perform(get("/api/concept-search?q=new&f.candidate=false")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("concepts", hasSize(9)))
+                .andExpect(jsonPath("facets.candidate.['false'].count", is(9)))
+                .andExpect(jsonPath("facets.candidate.['false'].checked", is(true)));
+
+    }
+
+    @Test
+    public void shouldReturnAllActors() throws Exception {
+
+        mvc.perform(get("/api/actor-search")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldReturnActorsByWebsite() throws Exception {
+
+        mvc.perform(get("/api/actor-search?q=CESSDA")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("actors[0].id", is(4)))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
+    }
+
+
+    @Test
+    public void shouldReturnActorsByDynamicParametersEmail() throws Exception {
+
+        mvc.perform(get("/api/actor-search?d.email=cessda@cessda.eu")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("actors[0].id", is(4)))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
+    }
+
+    @Test
+    public void shouldReturnActorsByEmailExpression() throws Exception {
+
+        mvc.perform(get("/api/actor-search?d.email=(*@*)")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(2)))
+                .andExpect(jsonPath("actors[0].id", is(4)))
+                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
+                .andExpect(jsonPath("actors[0].name", is("CESSDA")))
+                .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)))
+                .andExpect(jsonPath("actors[1].id", is(5)))
+                .andExpect(jsonPath("actors[1].email", is("john@example.com")))
+                .andExpect(jsonPath("actors[1].name", is("John Smith")))
+                .andExpect(jsonPath("actors[1].website", is("https://example.com/")))
+                .andExpect(jsonPath("actors[1].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[1].affiliations", hasSize(1)));
+    }
+
+    @Test
+    public void shouldReturnAutocompleteSuggestionForItems() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=gep")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("phrase", is("gep")))
+                .andExpect(jsonPath("suggestions", hasSize(3)))
+                .andExpect(jsonPath("suggestions[0].phrase", is("Gephi")))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("n21Kfc")))
+                .andExpect(jsonPath("suggestions[1].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("suggestions[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("suggestions[2].phrase", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("suggestions[2].persistentId", is("WfcKvG")));
+    }
+
+    @Test
+    public void shouldReturnAutocompleteSuggestionWithCategoryForItems() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=gep&category=training-material")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("phrase", is("gep")))
+                .andExpect(jsonPath("suggestions", hasSize(2)))
+                .andExpect(jsonPath("suggestions[0].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("suggestions[1].phrase", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("suggestions[1].persistentId", is("WfcKvG")));
+    }
+
+    public void shouldReturnActorsByWordsCaseInsensitive() throws Exception {
+
+        mvc.perform(get("/api/actor-search?q=project")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("actors[0].id", is(3)))
+                .andExpect(jsonPath("actors[0].name", is("SSHOC project consortium")))
+                .andExpect(jsonPath("actors[0].website", is("https://sshopencloud.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
+
+        mvc.perform(get("/api/actor-search?q=ProJecT")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(jsonPath("actors[0].id", is(3)))
+                .andExpect(jsonPath("actors[0].name", is("SSHOC project consortium")))
+                .andExpect(jsonPath("actors[0].website", is("https://sshopencloud.eu/")))
+                .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
+                .andExpect(jsonPath("actors[0].affiliations", hasSize(0)));
+    }
+
+    @Test
+    public void shouldReturnItemsWithStepsIncluded() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=model&includeSteps=true")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(2)))
+                .andExpect(jsonPath("items[0].category", is("step")))
+                .andExpect(jsonPath("items[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(1)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(0)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(0)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.workflow.count", is(0)))
+                .andExpect(jsonPath("categories.workflow.checked", is(false)))
+                .andExpect(jsonPath("categories.step.count", is(1)))
+                .andExpect(jsonPath("categories.step.checked", is(false)));
+    }
+
+    @Test
+    public void shouldReturnItemsWithStepsIncludedAndFilterByCategories() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=&includeSteps=true&categories=step")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(11)))
+                .andExpect(jsonPath("items[0].category", is("step")))
+                .andExpect(jsonPath("categories.tool-or-service.count", is(3)))
+                .andExpect(jsonPath("categories.tool-or-service.checked", is(false)))
+                .andExpect(jsonPath("categories.training-material.count", is(3)))
+                .andExpect(jsonPath("categories.training-material.checked", is(false)))
+                .andExpect(jsonPath("categories.publication.count", is(0)))
+                .andExpect(jsonPath("categories.publication.checked", is(false)))
+                .andExpect(jsonPath("categories.dataset.count", is(3)))
+                .andExpect(jsonPath("categories.dataset.checked", is(false)))
+                .andExpect(jsonPath("categories.workflow.count", is(2)))
+                .andExpect(jsonPath("categories.workflow.checked", is(false)))
+                .andExpect(jsonPath("categories.step.count", is(11)))
+                .andExpect(jsonPath("categories.step.checked", is(true)));
     }
 }

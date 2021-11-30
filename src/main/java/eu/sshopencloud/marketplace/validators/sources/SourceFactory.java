@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -70,7 +71,7 @@ public class SourceFactory {
         // explicit source has priority
         if (sourceId != null) {
             if (sourceId.getId() == null) {
-                errors.rejectValue("code", "field.required", "Source id is required.");
+                errors.rejectValue("id", "field.required", "Source id is required.");
                 return null;
             }
             Optional<Source> sourceHolder = sourceRepository.findById(sourceId.getId());
@@ -81,7 +82,7 @@ public class SourceFactory {
                 return sourceHolder.get();
             }
         }
-        if (accessibleAtUri != null) {
+        if (!Objects.isNull(accessibleAtUri)) {
             return sourceRepository.findByDomain(accessibleAtUri.getHost());
         }
         return null;
@@ -89,7 +90,7 @@ public class SourceFactory {
 
 
     private Source getOrCreateSource(Long sourceId) {
-        if (sourceId != null) {
+        if (!Objects.isNull(sourceId)) {
             return sourceRepository.getOne(sourceId);
         } else {
             return new Source();

@@ -6,11 +6,12 @@ import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleLiteral;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -22,7 +23,13 @@ public class RDFModelParser {
 
     private static final String RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label";
 
+    private static final String DC_TITLE = "http://purl.org/dc/elements/1.1/title";
+
+    private static final String DCT_TITLE = "http://purl.org/dc/terms/title";
+
     private static final String RDFS_COMMENT = "http://www.w3.org/2000/01/rdf-schema#comment";
+
+    private static final String DC_DESCRIPTION = "http://purl.org/dc/elements/1.1/description";
 
     private static final String SKOS_CONCEPT = "http://www.w3.org/2004/02/skos/core#Concept";
 
@@ -36,75 +43,172 @@ public class RDFModelParser {
 
     private static final String SKOS_NARROWER = "http://www.w3.org/2004/02/skos/core#narrower";
 
+    private void completeWithStatement(Statement statement, Map<String, String> values,
+                                       Function<Void, String> checkFunction, Function<String, Void> setFunction) {
+        if (statement.getObject() instanceof SimpleLiteral) {
+            SimpleLiteral object = (SimpleLiteral) statement.getObject();
+            if (object.getLanguage().isPresent()) {
+                if (!values.containsKey(object.getLanguage().get())) {
+                    values.put(object.getLanguage().get(), object.getLabel());
+                }
+            } else {
+                if (StringUtils.isBlank(checkFunction.apply(null))) {
+                    setFunction.apply(object.getLabel());
+                }
+            }
+        } else {
+            if (StringUtils.isBlank(checkFunction.apply(null))) {
+                setFunction.apply(statement.getObject().stringValue());
+            }
+        }
+    }
 
 
     private void completeVocabulary(Vocabulary vocabulary, Statement statement) {
-        if (statement.getPredicate().stringValue().equals(RDFS_LABEL)) {
-            if (StringUtils.isBlank(vocabulary.getLabel())) {
-                String label = statement.getObject().stringValue();
-                if (label.endsWith(".")) {
-                    vocabulary.setLabel(label.substring(0, label.length() - 1));
-                } else {
-                    vocabulary.setLabel(label);
-                }
-            }
-        }
-        if (statement.getPredicate().stringValue().equals(RDFS_COMMENT)) {
-            if (StringUtils.isBlank(vocabulary.getDescription())) {
-                vocabulary.setDescription(statement.getObject().stringValue());
-            }
+        switch (statement.getPredicate().stringValue()) {
+            case RDFS_LABEL:
+                completeWithStatement(statement, vocabulary.getLabels(),
+                        v -> vocabulary.getLabel(),
+                        s -> {
+                            vocabulary.setLabel(s);
+                            return null;
+                        });
+                break;
+            case DC_TITLE:
+            case DCT_TITLE:
+                completeWithStatement(statement, vocabulary.getTitles(),
+                        v -> vocabulary.getLabel(),
+                        s -> {
+                            vocabulary.setLabel(s);
+                            return null;
+                        });
+                break;
+            case RDFS_COMMENT:
+                completeWithStatement(statement, vocabulary.getComments(),
+                        v -> vocabulary.getDescription(),
+                        s -> {
+                            vocabulary.setDescription(s);
+                            return null;
+                        });
+                break;
+            case DC_DESCRIPTION:
+                completeWithStatement(statement, vocabulary.getDescriptions(),
+                        v -> vocabulary.getDescription(),
+                        s -> {
+                            vocabulary.setDescription(s);
+                            return null;
+                        });
+                break;
         }
         // TODO accessibleAt
     }
+
 
     public Vocabulary createVocabulary(String vocabularyCode, Model rdfModel) {
         Vocabulary vocabulary = new Vocabulary();
         vocabulary.setCode(vocabularyCode);
         vocabulary.setLabel("");
-        vocabulary.setDescription("");
+        vocabulary.setLabels(new HashMap<>());
+        vocabulary.setTitles(new HashMap<>());
+        vocabulary.setComments(new HashMap<>());
+        vocabulary.setDescriptions(new HashMap<>());
         Optional<Statement> schemeStatement = rdfModel.stream()
                 .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
                 .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT_SCHEME))
                 .findFirst();
-        String scheme = schemeStatement.isPresent() ? schemeStatement.get().getSubject().stringValue() : null;
+        String scheme = schemeStatement.map(value -> value.getSubject().stringValue()).orElse(null);
         if (scheme != null) {
             rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(scheme))
                     .forEach(statement -> completeVocabulary(vocabulary, statement));
+            vocabulary.setScheme(scheme);
+            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getLabels().containsKey("en")) {
+                vocabulary.setLabel(vocabulary.getLabels().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getTitles().containsKey("en")) {
+                vocabulary.setLabel(vocabulary.getTitles().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getLabel()) && !vocabulary.getLabels().isEmpty()) {
+                vocabulary.setLabel(vocabulary.getLabels().values().iterator().next());
+            }
+            if (StringUtils.isBlank(vocabulary.getLabel()) && !vocabulary.getTitles().isEmpty()) {
+                vocabulary.setLabel(vocabulary.getTitles().values().iterator().next());
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getComments().containsKey("en")) {
+                vocabulary.setDescription(vocabulary.getComments().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && vocabulary.getDescriptions().containsKey("en")) {
+                vocabulary.setDescription(vocabulary.getDescriptions().get("en"));
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && !vocabulary.getComments().isEmpty()) {
+                vocabulary.setDescription(vocabulary.getComments().values().iterator().next());
+            }
+            if (StringUtils.isBlank(vocabulary.getDescription()) && !vocabulary.getDescriptions().isEmpty()) {
+                vocabulary.setDescription(vocabulary.getDescriptions().values().iterator().next());
+            }
         }
+        vocabulary.setNamespaces(getNamespaces(rdfModel));
+        vocabulary.setNamespace(extractNamespaceUri(rdfModel));
         return vocabulary;
     }
 
-    private Concept createConcept(Statement statement, Vocabulary vocabulary, Set<Namespace> namespaces) {
-        String conceptUri = statement.getSubject().stringValue();
+    private Map<String, String> getNamespaces(Model rdfModel) {
+        Map<String, String> namespaces = new LinkedHashMap<>();
+        for (Namespace namespace : rdfModel.getNamespaces()) {
+            namespaces.put(namespace.getPrefix(), namespace.getName());
+        }
+        return namespaces;
+    }
+
+    private String extractNamespaceUri(Model rdfModel) {
         String namespaceUri = "";
-        for (Namespace namespace: namespaces) {
-            if (conceptUri.startsWith(namespace.getName())) {
-                if (namespace.getName().startsWith(namespaceUri)) {
-                    namespaceUri = namespace.getName();
+        Optional<Statement> conceptStatement = rdfModel.stream()
+                .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
+                .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT))
+                .findFirst();
+        String conceptUri = conceptStatement.map(value -> value.getSubject().stringValue()).orElse(null);
+        if (conceptUri != null) {
+            for (Namespace namespace : rdfModel.getNamespaces()) {
+                if (conceptUri.startsWith(namespace.getName())) {
+                    if (namespace.getName().startsWith(namespaceUri)) {
+                        namespaceUri = namespace.getName();
+                    }
                 }
             }
         }
+        if (StringUtils.isBlank(namespaceUri)) {
+            Optional<Namespace> mainNamespace = rdfModel.getNamespace("");
+            if (mainNamespace.isPresent()) {
+                namespaceUri = mainNamespace.get().getName();
+            }
+        }
+        return namespaceUri;
+    }
+
+    private Concept createConcept(Statement statement, Vocabulary vocabulary) {
+        String conceptUri = statement.getSubject().stringValue();
+        String namespaceUri = vocabulary.getNamespace();
         String conceptCode = conceptUri.substring(namespaceUri.length());
         Concept result = new Concept();
         result.setCode(conceptCode);
         result.setVocabulary(vocabulary);
         result.setLabel("");
-        result.setDefinition("");
+        result.setLabels(new LinkedHashMap<>());
         result.setNotation("");
+        result.setDefinitions(new LinkedHashMap<>());
         result.setUri(conceptUri);
+        result.setCandidate(false);
         return result;
     }
 
     public Map<String, Concept> createConcepts(Model rdfModel, Vocabulary vocabulary) {
-        Set<Namespace> namespaces = rdfModel.getNamespaces();
         Map<String, Concept> concepts = rdfModel.stream()
                 .filter(statement -> statement.getPredicate().stringValue().equals(SKOS_TYPE))
                 .filter(statement -> statement.getObject().stringValue().equals(SKOS_CONCEPT))
                 .collect(
                         Collectors.toMap(
                                 statement -> statement.getSubject().stringValue(),
-                                statement -> createConcept(statement, vocabulary, namespaces),
+                                statement -> createConcept(statement, vocabulary),
                                 (u, v) -> u,
                                 LinkedHashMap::new
                         )
@@ -117,7 +221,7 @@ public class RDFModelParser {
     }
 
     private void numberConcepts(Collection<Concept> concepts) {
-        int ord = 0;
+        int ord = 1;
         for (Concept concept : concepts)
             concept.setOrd(ord++);
     }
@@ -130,23 +234,45 @@ public class RDFModelParser {
 
             completeConcept(conceptMap.get(subjectUri), statement);
         });
+        for (Concept concept : conceptMap.values()) {
+            if (StringUtils.isBlank(concept.getLabel()) && concept.getLabels().containsKey("en")) {
+                concept.setLabel(concept.getLabels().get("en"));
+            }
+            if (StringUtils.isBlank(concept.getLabel()) && !concept.getLabels().isEmpty()) {
+                concept.setLabel(concept.getLabels().values().iterator().next());
+            }
+            if (StringUtils.isBlank(concept.getDefinition()) && concept.getDefinitions().containsKey("en")) {
+                concept.setDefinition(concept.getDefinitions().get("en"));
+            }
+            if (StringUtils.isBlank(concept.getDefinition()) && !concept.getDefinitions().isEmpty()) {
+                concept.setDefinition(concept.getDefinitions().values().iterator().next());
+            }
+        }
     }
 
-    private void completeConcept(Concept concept, Statement statement) {
-        if (statement.getPredicate().stringValue().equals(SKOS_LABEL)) {
-            if (StringUtils.isBlank(concept.getLabel())) {
-                concept.setLabel(statement.getObject().stringValue());
-            }
-        }
-        if (statement.getPredicate().stringValue().equals(SKOS_NOTATION)) {
-            if (StringUtils.isBlank(concept.getNotation())) {
-                concept.setNotation(statement.getObject().stringValue());
-            }
-        }
-        if (statement.getPredicate().stringValue().equals(SKOS_DEFINITION)) {
-            if (StringUtils.isBlank(concept.getDefinition())) {
-                concept.setDefinition(statement.getObject().stringValue());
-            }
+    private void completeConcept(Concept concept, @NotNull Statement statement) {
+        switch (statement.getPredicate().stringValue()) {
+            case SKOS_LABEL:
+                completeWithStatement(statement, concept.getLabels(),
+                        v -> concept.getLabel(),
+                        s -> {
+                            concept.setLabel(s);
+                            return null;
+                        });
+                break;
+            case SKOS_NOTATION:
+                if (StringUtils.isBlank(concept.getNotation())) {
+                    concept.setNotation(statement.getObject().stringValue());
+                }
+                break;
+            case SKOS_DEFINITION:
+                completeWithStatement(statement, concept.getDefinitions(),
+                        v -> concept.getDefinition(),
+                        s -> {
+                            concept.setDefinition(s);
+                            return null;
+                        });
+                break;
         }
     }
 
@@ -169,8 +295,8 @@ public class RDFModelParser {
     }
 
     public List<ConceptRelatedConcept> createConceptRelatedConcepts(Map<String, Concept> conceptMap, Model rdfModel) {
-        List<ConceptRelatedConcept> result = new ArrayList<ConceptRelatedConcept>();
-        for (String subjectUri: conceptMap.keySet()) {
+        List<ConceptRelatedConcept> result = new ArrayList<>();
+        for (String subjectUri : conceptMap.keySet()) {
             Concept concept = conceptMap.get(subjectUri);
             List<ConceptRelatedConcept> conceptRelatedConcepts = rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(subjectUri))

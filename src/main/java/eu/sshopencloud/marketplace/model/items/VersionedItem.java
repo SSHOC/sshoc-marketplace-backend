@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import lombok.*;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.*;
@@ -10,8 +11,8 @@ import java.util.*;
 @Table(name = "versioned_items")
 @Data
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-@ToString(exclude = "comments")
-@EqualsAndHashCode(exclude = "comments")
+@ToString(exclude = "comments, merged_with_id" )
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class VersionedItem {
 
     @Id
@@ -37,6 +38,18 @@ public class VersionedItem {
     @OrderBy("dateCreated DESC")
     private List<ItemComment> comments;
 
+
+    @OneToMany()
+    @JoinColumn(name = "merged_with_id", foreignKey = @ForeignKey(name="merged_with_id_fk"))
+    @Nullable
+    List<VersionedItem> mergedWith;
+
+
+    public void addMergedWith(VersionedItem versionedItem) {
+        if (Objects.isNull(mergedWith)) mergedWith = new ArrayList<>();
+        versionedItem.setStatus(VersionedItemStatus.MERGED);
+        mergedWith.add(0, versionedItem);
+    }
 
     public VersionedItem(String persistentId) {
         this.persistentId = persistentId;

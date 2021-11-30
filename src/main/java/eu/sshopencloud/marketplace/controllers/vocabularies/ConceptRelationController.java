@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptRelationDto;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptRelationService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ public class ConceptRelationController {
 
     private final ConceptRelationService conceptRelationService;
 
+    @Operation(summary = "Get list of all concepts relations")
     @GetMapping(path = "/concept-relations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ConceptRelationDto>> getAllConceptRelations() {
         return ResponseEntity.ok(conceptRelationService.getAllConceptRelations());

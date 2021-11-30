@@ -6,11 +6,10 @@ import lombok.Data;
 
 import java.util.List;
 
-
 @Data
 @Builder
 @AllArgsConstructor
 public class SuggestedSearchPhrases {
     private String phrase;
-    private List<String> suggestions;
+    private List<SuggestedObject> suggestions;
 }

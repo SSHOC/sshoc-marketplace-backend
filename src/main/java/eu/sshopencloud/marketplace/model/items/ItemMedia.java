@@ -1,6 +1,10 @@
 package eu.sshopencloud.marketplace.model.items;
 
-import lombok.*;
+import eu.sshopencloud.marketplace.model.vocabularies.Concept;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -25,19 +29,38 @@ public class ItemMedia {
 
     private String caption;
 
-    private boolean itemThumbnail;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ItemMediaType itemMediaThumbnail;
 
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @JoinColumns(
+            value = { @JoinColumn(name = "code"), @JoinColumn(name = "vocabulary_code") },
+            foreignKey = @ForeignKey(name="item_media_concept_fk")
+    )
+    private Concept concept;
 
     public ItemMedia(Item item, UUID mediaId, String caption) {
         this.id = null;
         this.item = item;
         this.mediaId = mediaId;
         this.caption = caption;
-        this.itemThumbnail = false;
+        this.itemMediaThumbnail = ItemMediaType.MEDIA;
+        this.concept = null;
     }
 
-    public ItemMedia(Item item, UUID mediaId, String caption, boolean itemThumbnail) {
+    public ItemMedia(Item item, UUID mediaId, String caption, ItemMediaType itemThumbnail) {
         this(item, mediaId, caption);
-        this.itemThumbnail = itemThumbnail;
+        this.itemMediaThumbnail = itemThumbnail;
+    }
+
+    public ItemMedia(Item item, UUID mediaId, String caption, ItemMediaType itemThumbnail, Concept concept) {
+        this(item, mediaId, caption, itemThumbnail);
+        this.concept = concept;
+    }
+
+    public ItemMedia(Item item, UUID mediaId, String caption, Concept concept) {
+        this(item, mediaId, caption);
+        this.concept = concept;
     }
 }

@@ -5,10 +5,11 @@ import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
+import eu.sshopencloud.marketplace.model.items.ItemMediaType;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
-import eu.sshopencloud.marketplace.validators.licenses.LicenseFactory;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemFactory {
 
-    private final LicenseFactory licenseFactory;
     private final ItemContributorFactory itemContributorFactory;
     private final ItemExternalIdFactory itemExternalIdFactory;
     private final PropertyFactory propertyFactory;
@@ -40,13 +40,12 @@ public class ItemFactory {
 
     private final UserRepository userRepository;
 
-
     public <T extends Item> T initializeItem(ItemCore itemCore, T item, ItemCategory category, Errors errors) {
         item.setCategory(category);
         if (StringUtils.isBlank(itemCore.getLabel())) {
             errors.rejectValue("label", "field.required", "Label is required.");
         } else {
-            item.setLabel(itemCore.getLabel());
+            item.setLabel(LineBreakConverter.removeLineBreaks(itemCore.getLabel()));
         }
 
         item.setVersion(itemCore.getVersion());
@@ -57,9 +56,8 @@ public class ItemFactory {
             item.setDescription(MarkdownConverter.convertHtmlToMarkdown(itemCore.getDescription()));
         }
 
-        item.setLicenses(licenseFactory.create(itemCore.getLicenses(), item, errors, "licenses"));
         item.setContributors(itemContributorFactory.create(itemCore.getContributors(), item, errors, "contributors"));
-        item.setProperties(propertyFactory.create(category, itemCore.getProperties(), item, errors, "properties"));
+        item.setProperties(propertyFactory.create(itemCore.getProperties(), item, errors, "properties"));
 
         List<URI> urls = parseAccessibleAtLinks(itemCore, errors);
         List<String> accessibleAtLinks = urls.stream()
@@ -85,8 +83,7 @@ public class ItemFactory {
                             "field.requiredInCase",
                             "Source item id is required if Source is provided."
                     );
-                }
-                else {
+                } else {
                     errors.rejectValue(
                             "sourceItemId",
                             "field.requiredInCase",
@@ -105,26 +102,24 @@ public class ItemFactory {
                     "Source is required if Source item id is provided."
             );
         }
-
         item.addExternalIds(itemExternalIdFactory.create(itemCore.getExternalIds(), item, errors));
+
         item.addMedia(itemMediaFactory.create(itemCore.getMedia(), item, errors));
 
-        if (itemCore.getThumbnail() != null) {
-            UUID thumbnailId = itemCore.getThumbnail().getMediaId();
+
+        if (itemCore.getThumbnail() != null && itemCore.getThumbnail().getInfo() != null) {
+            UUID thumbnailId = itemCore.getThumbnail().getInfo().getMediaId();
             Optional<ItemMedia> itemThumbnail = item.getMedia().stream()
                     .filter(media -> media.getMediaId().equals(thumbnailId))
                     .findFirst();
 
             if (itemThumbnail.isPresent()) {
-                itemThumbnail.get().setItemThumbnail(true);
-            }
-            else {
-                errors.rejectValue(
-                        "thumbnail", "field.notExist",
-                        String.format("Thumbnail media %s not present in item's media", thumbnailId)
-                );
+                itemThumbnail.get().setItemMediaThumbnail(ItemMediaType.THUMBNAIL);
+            } else {
+                item.addMedia(itemMediaFactory.create(itemCore.getThumbnail().getInfo().getMediaId(), item, errors, ItemMediaType.THUMBNAIL_ONLY, itemCore.getThumbnail().getCaption(), itemCore.getThumbnail().getConcept()));
             }
         }
+
 
         setInfoDates(item, true);
         updateInformationContributor(item);
@@ -149,8 +144,7 @@ public class ItemFactory {
                     try {
                         if (StringUtils.isNotBlank(url))
                             return new URL(url).toURI();
-                    }
-                    catch (MalformedURLException | URISyntaxException e) {
+                    } catch (MalformedURLException | URISyntaxException e) {
                         errors.rejectValue("accessibleAt", "field.invalid", "Accessible at is malformed URL.");
                     }
 

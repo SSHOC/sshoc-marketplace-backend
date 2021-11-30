@@ -19,4 +19,6 @@ public interface ConceptRepository extends JpaRepository<Concept, ConceptId> {
 
     List<Concept> findByVocabularyCode(String vocabularyCode, Sort sort);
 
+    List<Concept> findByVocabularyCode(String vocabularyCode);
+
 }

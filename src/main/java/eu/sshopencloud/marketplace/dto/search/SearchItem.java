@@ -19,6 +19,7 @@ import java.util.List;
 public class SearchItem {
 
     private Long id;
+
     private String persistentId;
 
     private String label;
@@ -34,4 +35,7 @@ public class SearchItem {
     private ItemStatus status;
 
     private String owner;
+
+    private String lastInfoUpdate;
+
 }

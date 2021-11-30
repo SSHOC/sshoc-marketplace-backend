@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,31 +38,33 @@ public class ItemControllerITCase {
     private MockMvc mvc;
 
     private String CONTRIBUTOR_JWT;
+    private String ADMINISTRATOR_JWT;
 
     @Before
     public void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
+        ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
     }
 
     @Test
-    public void shouldCreateToolWithSourceAndFindIt() throws Exception {
+    public void shouldGetDraftsInTimeDescendingOrder() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Tool to test search by source");
         tool.setVersion("5.1");
         tool.setDescription("Lorem ipsum");
         SourceId source = new SourceId();
-        source.setId(1l);
+        source.setId(1L);
         tool.setSource(source);
         tool.setSourceItemId("000000");
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
         log.debug("JSON: " + payload);
 
-        mvc.perform(post("/api/tools-services")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+        mvc.perform(post("/api/tools-services?draft=true")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("label", is("Tool to test search by source")))
@@ -71,14 +74,41 @@ public class ItemControllerITCase {
                 .andExpect(jsonPath("source.label", is("TAPoR")))
                 .andExpect(jsonPath("source.url", is("http://tapor.ca")));
 
-        mvc.perform(get("/api/items?sourceId={souceId}&sourceItemId={sourceItemId}", 1, "000000")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+        ToolCore tool2 = new ToolCore();
+        tool2.setLabel("Tool second");
+        tool2.setVersion("10.0");
+        tool2.setDescription("Lorem ipsum");
+        SourceId source2 = new SourceId();
+        source2.setId(2L);
+        tool2.setSource(source2);
+        tool2.setSourceItemId("000000");
+
+        String payload2 = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool2);
+        log.debug("JSON: " + payload2);
+
+
+        mvc.perform(post("/api/tools-services?draft=true")
+                        .content(payload2)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[0].label", is("Tool to test search by source")))
-                .andExpect(jsonPath("$[0].version", is("5.1")));
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is(tool2.getLabel())))
+                .andExpect(jsonPath("description", is(tool2.getDescription())))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")));
+
+        mvc.perform(get("/api/draft-items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(2)))
+                .andExpect(jsonPath("items[0].label", is(tool2.getLabel())))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", notNullValue()))
+                .andExpect(jsonPath("items[1].label", is(tool.getLabel())))
+                .andExpect(jsonPath("items[1].lastInfoUpdate", notNullValue()));
     }
 
 }

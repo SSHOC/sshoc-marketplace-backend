@@ -24,7 +24,7 @@ public class VocabularyLoader {
     private final VocabularyService vocabularyService;
     private final VocabularyRepository vocabularyRepository;
     private final PropertyTypeVocabularyRepository propertyTypeVocabularyRepository;
-    private  final IndexService indexService;
+    private final IndexService indexService;
 
 
     @Deprecated
@@ -38,9 +38,9 @@ public class VocabularyLoader {
             try (InputStream turtleInputStream = vocabularySources.get(vocabularyCode).getInputStream()) {
                 Vocabulary vocabulary;
                 if (vocabularyRepository.existsById(vocabularyCode)) {
-                    vocabulary = vocabularyService.updateVocabulary(vocabularyCode, turtleInputStream, false);
+                    vocabulary = vocabularyService.updateVocabulary(vocabularyCode, turtleInputStream, false, false);
                 } else {
-                    vocabulary = vocabularyService.createVocabulary(vocabularyCode, turtleInputStream);
+                    vocabulary = vocabularyService.createVocabulary(vocabularyCode, turtleInputStream, false);
                 }
                 log.debug("The vocabulary '" + vocabulary.getLabel() + "' from '" + vocabulary.getCode()  + ".ttl' file loaded successfully");
                 log.debug("The vocabulary '" + vocabulary.getLabel() + "' consists of " + vocabulary.getConcepts().size() + " concepts");

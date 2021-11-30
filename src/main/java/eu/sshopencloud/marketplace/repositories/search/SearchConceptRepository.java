@@ -24,7 +24,6 @@ public class SearchConceptRepository {
 
     private final SolrTemplate solrTemplate;
 
-
     public FacetPage<IndexConcept> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                          List<SearchFilterCriteria> filterCriteria,
                                                          Pageable pageable) {
@@ -37,11 +36,12 @@ public class SearchConceptRepository {
                         IndexConcept.NOTATION_FIELD,
                         IndexConcept.DEFINITION_FIELD,
                         IndexConcept.URI_FIELD,
-                        IndexConcept.TYPES_FIELD
+                        IndexConcept.TYPES_FIELD,
+                        IndexConcept.CANDIDATE_FIELD
                 )
                 .setPageRequest(pageable);
 
-        filterCriteria.stream().forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
+        filterCriteria.stream().forEach(concept -> facetQuery.addFilterQuery(new SimpleFilterQuery(concept.getFilterCriteria())));
         facetQuery.setFacetOptions(createFacetOptions());
 
         return solrTemplate.queryForFacetPage(IndexConcept.COLLECTION_NAME, facetQuery, IndexConcept.class, RequestMethod.GET);

@@ -11,4 +11,6 @@ public class ItemRelationDto {
 
     private String label;
 
+    private String inverseOf;
+
 }

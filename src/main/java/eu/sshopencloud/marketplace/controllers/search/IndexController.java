@@ -11,13 +11,10 @@ public class IndexController {
 
     private final IndexService indexService;
 
-
     @PutMapping(path = "/item-reindex")
     public void reindexItems() {
         indexService.reindexItems();
     }
-
-
 
     @PutMapping(path = "/item-autocomplete-rebuild")
     public void rebuildAutocompleteIndex() {
@@ -27,6 +24,11 @@ public class IndexController {
     @PutMapping(path = "/concept-reindex")
     public void reindexConcepts() {
         indexService.reindexConcepts();
+    }
+
+    @PutMapping(path = "/actor-reindex")
+    public void reindexActors() {
+        indexService.reindexActors();
     }
 
 }

@@ -2,18 +2,22 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.repositories.items.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.datasets.DatasetFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +42,11 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
                           ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                          MediaStorageService mediaStorageService) {
+                          MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.datasetRepository = datasetRepository;
@@ -67,8 +71,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return prepareItemDto(dataset);
     }
 
-    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft) {
-        Dataset dataset = updateItem(persistentId, datasetCore, draft);
+    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft, boolean approved) {
+        Dataset dataset = updateItem(persistentId, datasetCore, draft, approved);
         return prepareItemDto(dataset);
     }
 
@@ -83,7 +87,11 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     public void deleteDataset(String persistentId, boolean draft) {
-        super.deleteItem(persistentId, draft);
+        deleteItem(persistentId, draft);
+    }
+
+    public void deleteDataset(String persistentId, long versionId) {
+        deleteItem(persistentId, versionId);
     }
 
 
@@ -124,12 +132,43 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
     @Override
+    public DatasetDto convertToDto(Item dataset) {
+        return DatasetMapper.INSTANCE.toDto(dataset);
+    }
+
+
+    @Override
     protected String getItemTypeName() {
         return Dataset.class.getName();
     }
 
     public List<ItemExtBasicDto> getDatasetVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
+    }
+
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
+    }
+
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
+    }
+
+    public DatasetDto getMerge(String persistentId, List<String> mergeList) {
+
+
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public DatasetDto merge(DatasetCore mergeDataset, List<String> mergeList) {
+
+        Dataset dataset = createItem(mergeDataset, false);
+        dataset = mergeItem(dataset.getPersistentId(), mergeList);
+        return prepareItemDto(dataset);
+    }
+
+    public List<SourceDto> getSources(String id) {
+        return getAllSources(id);
     }
 
 }

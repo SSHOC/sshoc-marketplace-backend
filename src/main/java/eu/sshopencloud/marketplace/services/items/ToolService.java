@@ -2,15 +2,19 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.tools.ToolFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +39,11 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
                        ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Tool> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                        PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                       MediaStorageService mediaStorageService) {
+                       MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.toolRepository = toolRepository;
@@ -64,8 +68,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareItemDto(tool);
     }
 
-    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft) {
-        Tool tool = updateItem(persistentId, toolCore, draft);
+    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft, boolean approved) {
+        Tool tool = updateItem(persistentId, toolCore, draft, approved);
         return prepareItemDto(tool);
     }
 
@@ -81,6 +85,10 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
     public void deleteTool(String persistentId, boolean draft) {
         deleteItem(persistentId, draft);
+    }
+
+    public void deleteTool(String persistentId, long versionId) {
+        deleteItem(persistentId, versionId);
     }
 
 
@@ -121,12 +129,40 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     @Override
+    protected ToolDto convertToDto(Item item) {
+        return ToolMapper.INSTANCE.toDto(item);
+    }
+
+    @Override
     protected String getItemTypeName() {
         return Tool.class.getName();
     }
 
     public List<ItemExtBasicDto> getToolVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestTool(persistentId, draft, approved).getId());
+    }
+
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
+    }
+
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
+    }
+
+    public ToolDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public ToolDto merge(ToolCore mergeTool, List<String> mergeList) {
+
+        Tool tool = createItem(mergeTool, false);
+        tool = mergeItem(tool.getPersistentId(), mergeList);
+        return prepareItemDto(tool);
+    }
+
+    public List<SourceDto> getSources(String id) {
+        return getAllSources(id);
     }
 
 }

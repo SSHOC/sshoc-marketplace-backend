@@ -1,15 +1,20 @@
 package eu.sshopencloud.marketplace.model.items;
 
 import eu.sshopencloud.marketplace.model.auth.User;
-import eu.sshopencloud.marketplace.model.licenses.License;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -34,23 +39,11 @@ public abstract class Item {
     private String label;
 
     @Column
+    @Nullable
     private String version;
 
     @Column(nullable = false, length = 4096)
     private String description;
-
-    @ManyToMany
-    @JoinTable(
-            name = "items_licenses",
-            joinColumns = @JoinColumn(
-                    name = "item_id", referencedColumnName = "id", foreignKey = @ForeignKey(name="item_license_item_id_fk")
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "license_code", referencedColumnName = "code", foreignKey = @ForeignKey(name="item_license_license_code_fk")
-            )
-    )
-    @OrderColumn(name = "ord")
-    private List<License> licenses;
 
     @OneToMany(mappedBy = "item", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true)
     @OrderColumn(name = "ord")
@@ -83,9 +76,11 @@ public abstract class Item {
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name="item_source_id_fk"))
+    @Nullable
     private Source source;
 
     @Column
+    @Nullable
     private String sourceItemId;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -117,6 +112,7 @@ public abstract class Item {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name="item_prev_version_item_id_fk"))
+    @Nullable
     private Item prevVersion;
 
 
@@ -124,7 +120,6 @@ public abstract class Item {
         this.id = null;
         this.accessibleAt = new ArrayList<>();
         this.properties = new ArrayList<>();
-        this.licenses = new ArrayList<>();
         this.contributors = new ArrayList<>();
         this.externalIds = new ArrayList<>();
         this.media = new ArrayList<>();
@@ -137,7 +132,6 @@ public abstract class Item {
         this.label = baseItem.getLabel();
         this.version = baseItem.getVersion();
         this.description = baseItem.getDescription();
-        this.licenses = new ArrayList<>(baseItem.getLicenses());
 
         this.contributors = baseItem.getContributors().stream()
                 .map(baseContributor -> new ItemContributor(this, baseContributor))
@@ -155,7 +149,7 @@ public abstract class Item {
                 .collect(Collectors.toList());
 
         this.media = baseItem.getMedia().stream()
-                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption(), media.isItemThumbnail()))
+                .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption(), media.getItemMediaThumbnail()))
                 .collect(Collectors.toList());
     }
 
@@ -203,12 +197,19 @@ public abstract class Item {
         this.media.addAll(media);
     }
 
-    public List<ItemMedia> getMedia() {
-        return Collections.unmodifiableList(media);
+
+    public void addMedia(ItemMedia media) {
+        this.media.add(media);
     }
 
+
+    public List<ItemMedia> getMedia() {
+        return media.stream().filter(m -> m.getItemMediaThumbnail() != ItemMediaType.THUMBNAIL_ONLY).collect(Collectors.toUnmodifiableList());
+    }
+
+
     public ItemMedia getThumbnail() {
-        return media.stream().filter(ItemMedia::isItemThumbnail).findFirst().orElse(null);
+        return media.stream().filter(m -> m.getItemMediaThumbnail() != ItemMediaType.MEDIA).findFirst().orElse(null);
     }
 
     public boolean isOwner(User user) {

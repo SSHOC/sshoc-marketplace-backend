@@ -32,6 +32,8 @@ spring:
     jackson:
         serialization:
             fail-on-empty-beans: false
+
+        default-property-inclusion: non_null
     data:
         solr:
             host: "http://localhost:8983/solr"
@@ -96,7 +98,6 @@ marketplace:
             implicit-grant-token-expiration-msec: 30000
     logging:
         path: ${marketplace_log_dir:/tmp}
-
     media:
         files:
             path: ${marketplace_media_dir:/var/sshoc/media}

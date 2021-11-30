@@ -60,8 +60,10 @@ public class ActorExternalIdFactory {
         return actorExternalIds;
     }
 
+
     public ActorExternalId create(ActorExternalIdCore externalId, Actor actor, Errors errors) {
         Optional<ActorSource> actorSource = actorSourceService.loadActorSource(externalId.getIdentifierService().getCode());
+
 
         if (actorSource.isEmpty()) {
             errors.rejectValue(
@@ -72,8 +74,9 @@ public class ActorExternalIdFactory {
             return null;
         }
 
-        Optional<ActorExternalId> actorExternalId = actorExternalIdService.loadActorExternalId(actorSource.get(), externalId.getIdentifier());
-        return actorExternalId.orElseGet(() -> new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor));
+        return actorExternalIdService.loadActorExternalId(actorSource.get(), externalId.getIdentifier(), actor)
+                .orElse(new ActorExternalId(actorSource.get(), externalId.getIdentifier(), actor));
+
     }
 
 }

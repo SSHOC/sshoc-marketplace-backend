@@ -7,8 +7,11 @@ import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
+import eu.sshopencloud.marketplace.services.actors.event.ActorChangedEvent;
+import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.validators.actors.ActorFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,20 +29,13 @@ public class ActorService {
 
     private final ActorFactory actorFactory;
 
+    private final IndexService indexService;
 
-    public PaginatedActors getActors(String q, PageCoords pageCoords) {
-        ExampleMatcher queryActorMatcher = ExampleMatcher.matchingAny()
-                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
-                .withMatcher("website", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
-                .withMatcher("email", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+    private final ApplicationEventPublisher eventPublisher;
 
-        Actor queryActor = new Actor();
-        queryActor.setName(q);
-        queryActor.setWebsite(q);
-        queryActor.setEmail(q);
+    public PaginatedActors getActors(PageCoords pageCoords) {
 
-        Page<Actor> actorsPage = actorRepository.findAll(Example.of(queryActor, queryActorMatcher),
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("name"))));
+        Page<Actor> actorsPage = actorRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("name"))));
 
         List<ActorDto> actors = actorsPage.stream().map(ActorMapper.INSTANCE::toDto).collect(Collectors.toList());
 
@@ -50,16 +46,20 @@ public class ActorService {
                 .build();
     }
 
-    public ActorDto getActor(Long id) {
-        return ActorMapper.INSTANCE.toDto(actorRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id)));
+    public Actor loadActor(Long id) {
+        return actorRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id));
     }
 
+    public ActorDto getActor(Long id) {
+        return ActorMapper.INSTANCE.toDto(loadActor(id));
+    }
 
 
     public ActorDto createActor(ActorCore actorCore) {
         Actor actor = actorFactory.create(actorCore, null);
         actorRepository.save(actor);
+        indexService.indexActor(actor);
         return ActorMapper.INSTANCE.toDto(actor);
     }
 
@@ -70,6 +70,10 @@ public class ActorService {
         }
         Actor actor = actorFactory.create(actorCore, id);
         actorRepository.save(actor);
+        indexService.indexActor(actor);
+
+        eventPublisher.publishEvent(new ActorChangedEvent(id, false));
+
         return ActorMapper.INSTANCE.toDto(actor);
     }
 
@@ -79,6 +83,9 @@ public class ActorService {
             throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id);
         }
         actorRepository.deleteById(id);
+        indexService.removeActor(id);
+
+        eventPublisher.publishEvent(new ActorChangedEvent(id, true));
     }
 
 }

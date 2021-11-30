@@ -3,26 +3,26 @@ package eu.sshopencloud.marketplace.services.search;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.conf.datetime.SolrDateTimeFormatter;
 import eu.sshopencloud.marketplace.mappers.sources.SourceConverter;
+import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.model.items.ItemExternalId;
-import eu.sshopencloud.marketplace.model.search.IndexConcept;
-import eu.sshopencloud.marketplace.model.search.IndexItem;
+import eu.sshopencloud.marketplace.model.search.*;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URL;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,41 +33,42 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexConverter {
 
-    public IndexItem convertItem(Item item) {
+    public IndexItem convertItem(Item item, int relatedItems) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
+        String labelText = LineBreakConverter.removeLineBreaks(item.getLabel());
         builder.versionId(item.getId())
                 .persistentId(item.getPersistentId())
                 .label(item.getLabel())
-                .labelText(item.getLabel())
+                .labelText(labelText)
                 .labelTextEn(item.getLabel())
                 .description(item.getDescription())
                 .descriptionText(descriptionText)
                 .descriptionTextEn(descriptionText)
                 .category(ItemCategoryConverter.convertCategory(item.getCategory()))
+                .context(ItemCategoryConverter.convertCategoryForAutocompleteContext(item.getCategory()))
                 .status(item.getStatus().getValue())
                 .owner(item.getInformationContributor().getUsername())
-                .source(SourceConverter.convertSource(item.getSource()));
+                .source(SourceConverter.convertSource(item.getSource()))
+                .relatedItems(relatedItems);
+
 
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
 
-        for (ItemContributor itemContributor: item.getContributors()) {
+        for (ItemContributor itemContributor : item.getContributors()) {
             String contributor = getItemContributorName(itemContributor);
             builder.contributor(contributor).contributorText(contributor);
         }
 
-        for (ItemExternalId itemExternalId: item.getExternalIds()) {
+        for (ItemExternalId itemExternalId : item.getExternalIds()) {
             builder.externalIdentifier(itemExternalId.getIdentifier());
         }
 
         for (Property property : item.getProperties()) {
             switch (property.getType().getCode()) {
-                case "activity":
-                    builder.activity(getPropertyValue(property));
-                    break;
                 case "keyword":
                     String keyword = getPropertyValue(property);
-                    builder.keyword(keyword).keywordText(keyword);
+                    builder.keywordText(keyword);
                     break;
             }
         }
@@ -129,7 +130,7 @@ public class IndexConverter {
     }
 
 
-    public IndexConcept covertConcept(Concept concept, Vocabulary vocabulary, List<PropertyType> proopertyTypes) {
+    public IndexConcept covertConcept(Concept concept, Vocabulary vocabulary, List<PropertyType> propertyTypes) {
         IndexConcept.IndexConceptBuilder builder = IndexConcept.builder();
         builder.id(vocabulary.getCode() + "-" + concept.getCode())
                 .code(concept.getCode())
@@ -138,8 +139,25 @@ public class IndexConverter {
                 .notation(concept.getNotation())
                 .definition(concept.getDefinition())
                 .uri(concept.getUri())
-                .types(proopertyTypes.stream().map(PropertyType::getCode).collect(Collectors.toList()));
+                .candidate(concept.isCandidate())
+                .types(propertyTypes.stream().map(PropertyType::getCode).collect(Collectors.toList()));
         return builder.build();
     }
+
+    public IndexActor covertActor(Actor actor) {
+        IndexActor.IndexActorBuilder builder = IndexActor.builder();
+
+        builder.id(actor.getId().toString())
+                .email(actor.getEmail())
+                .website(actor.getWebsite())
+                .name(actor.getName());
+
+        for (ActorExternalId actorExternalId : actor.getExternalIds()) {
+            builder.externalIdentifier(actorExternalId.getIdentifier());
+        }
+
+        return builder.build();
+    }
+
 
 }

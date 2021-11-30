@@ -18,7 +18,7 @@ public enum ItemCategory {
 
 
     public static ItemCategory[] indexedCategories() {
-        return new ItemCategory[] {TOOL_OR_SERVICE, TRAINING_MATERIAL, PUBLICATION, DATASET, WORKFLOW};
+        return new ItemCategory[] {TOOL_OR_SERVICE, TRAINING_MATERIAL, PUBLICATION, DATASET, WORKFLOW, STEP};
     }
 
     @JsonValue

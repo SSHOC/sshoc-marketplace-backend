@@ -5,6 +5,9 @@ import eu.sshopencloud.marketplace.mappers.auth.UserMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import lombok.experimental.UtilityClass;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @UtilityClass
 public class ItemExtBasicConverter {
 
@@ -21,6 +24,10 @@ public class ItemExtBasicConverter {
         historyPosition.setInformationContributor(UserMapper.INSTANCE.toDto(item.getInformationContributor()));
 
         return historyPosition;
+    }
+
+    public List<ItemExtBasicDto> convertItems(List<Item> items) {
+        return items.stream().map(ItemExtBasicConverter::convertItem).collect(Collectors.toList());
     }
 
 }

@@ -13,4 +13,5 @@ public class MediaSourceDto {
     private String code;
     private String serviceUrl;
     private MediaCategory mediaCategory;
+    private int ord;
 }

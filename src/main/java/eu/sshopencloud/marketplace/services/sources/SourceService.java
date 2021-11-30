@@ -4,14 +4,18 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.sources.PaginatedSources;
 import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceOrder;
 import eu.sshopencloud.marketplace.mappers.sources.SourceMapper;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
+import eu.sshopencloud.marketplace.services.sources.event.SourceChangedEvent;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
@@ -28,8 +32,11 @@ public class SourceService {
 
     private final SourceFactory sourceFactory;
 
+    private final ApplicationEventPublisher eventPublisher;
 
-    public PaginatedSources getSources(String q, PageCoords pageCoords) {
+    public PaginatedSources getSources(SourceOrder order, String q, PageCoords pageCoords) {
+        if (order == null) order = SourceOrder.NAME;
+
         ExampleMatcher querySourceMatcher = ExampleMatcher.matchingAny()
                 .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase())
                 .withMatcher("url", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
@@ -38,7 +45,7 @@ public class SourceService {
         querySource.setUrl(q);
 
         Page<Source> sourcesPage = sourceRepository.findAll(Example.of(querySource, querySourceMatcher),
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))));
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderBySourceOrder(order))));
 
         List<SourceDto> sources = sourcesPage.stream().map(SourceMapper.INSTANCE::toDto).collect(Collectors.toList());
 
@@ -47,6 +54,10 @@ public class SourceService {
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(sourcesPage.getTotalPages())
                 .build();
+    }
+
+    public List<SourceDto> getAllSources(String itemId) {
+        return SourceMapper.INSTANCE.toDto(sourceRepository.findSources(itemId));
     }
 
     public SourceDto getSource(Long id) {
@@ -67,6 +78,9 @@ public class SourceService {
         }
         Source source = sourceFactory.create(sourceCore, id);
         source = sourceRepository.save(source);
+
+        eventPublisher.publishEvent(new SourceChangedEvent(id, false));
+
         return SourceMapper.INSTANCE.toDto(source);
     }
 
@@ -75,6 +89,27 @@ public class SourceService {
             throw new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + id);
         }
         sourceRepository.deleteById(id);
+
+        eventPublisher.publishEvent(new SourceChangedEvent(id, true));
+    }
+
+    private Sort.Order getSortOrderBySourceOrder(SourceOrder sourceOrder) {
+        switch (sourceOrder) {
+            case NAME:
+                if (sourceOrder.isAsc()) {
+                    return Sort.Order.asc("label");
+                } else {
+                    return Sort.Order.desc("label");
+                }
+            case DATE:
+                if (sourceOrder.isAsc()) {
+                    return Sort.Order.asc("lastHarvestedDate");
+                } else {
+                    return Sort.Order.desc("lastHarvestedDate");
+                }
+            default:
+                return Sort.Order.desc("lastHarvestedDate");
+        }
     }
 
 }

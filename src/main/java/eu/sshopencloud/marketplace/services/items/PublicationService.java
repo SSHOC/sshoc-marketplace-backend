@@ -2,15 +2,19 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.publications.PublicationFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +39,11 @@ public class PublicationService extends ItemCrudService<Publication, Publication
                               ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                               PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                              MediaStorageService mediaStorageService) {
+                              MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.publicationRepository = publicationRepository;
@@ -64,8 +68,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareItemDto(publication);
     }
 
-    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore, boolean draft) {
-        Publication publication = updateItem(persistentId, publicationCore, draft);
+    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore, boolean draft, boolean approved) {
+        Publication publication = updateItem(persistentId, publicationCore, draft, approved);
         return prepareItemDto(publication);
     }
 
@@ -81,6 +85,10 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     public void deletePublication(String persistentId, boolean draft) {
         deleteItem(persistentId, draft);
+    }
+
+    public void deletePublication(String persistentId, long versionId) {
+        deleteItem(persistentId, versionId);
     }
 
 
@@ -122,12 +130,41 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     @Override
+    protected PublicationDto convertToDto(Item item) {
+        return PublicationMapper.INSTANCE.toDto(item);
+    }
+
+    @Override
     protected String getItemTypeName() {
         return Publication.class.getName();
     }
 
     public List<ItemExtBasicDto> getPublicationVersions(String persistentId, boolean draft, boolean approved) {
         return getItemHistory(persistentId, getLatestPublication(persistentId, draft, approved).getId());
+    }
+
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
+    }
+
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
+    }
+
+    public PublicationDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public PublicationDto merge(PublicationCore mergePublication, List<String> mergeList) {
+
+        Publication publication = createItem(mergePublication, false);
+        publication = mergeItem(publication.getPersistentId(), mergeList);
+
+        return prepareItemDto(publication);
+    }
+
+    public List<SourceDto> getSources(String id) {
+        return getAllSources(id);
     }
 
 }

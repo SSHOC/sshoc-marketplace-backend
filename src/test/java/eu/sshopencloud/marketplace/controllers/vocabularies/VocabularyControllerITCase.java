@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.util.VocabularyTestUploadUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,11 +16,14 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -40,6 +45,9 @@ public class VocabularyControllerITCase {
     private String contributorJwt;
     private String moderatorJwt;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     @Before
     public void init() throws Exception {
         contributorJwt = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
@@ -50,7 +58,7 @@ public class VocabularyControllerITCase {
     public void shouldReturnVocabularies() throws Exception {
 
         mvc.perform(get("/api/vocabularies")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.hits", is(9)))
@@ -74,6 +82,14 @@ public class VocabularyControllerITCase {
     }
 
     @Test
+    public void shouldNotReturnNonexistentVocabulary() throws Exception {
+
+        mvc.perform(get("/api/vocabularies/non-existent-code")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void shouldCreateNewVocabulary() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
@@ -83,18 +99,20 @@ public class VocabularyControllerITCase {
         );
 
         mvc.perform(
-                vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
                 .andExpect(jsonPath("$.label", is("IANA mime/type")));
 
         mvc.perform(
-                get("/api/vocabularies/{code}", "iana-mime-type-test")
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{code}", "iana-mime-type-test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
                 .andExpect(jsonPath("$.label", is("IANA mime/type")))
@@ -111,6 +129,45 @@ public class VocabularyControllerITCase {
     }
 
     @Test
+    public void shouldCreateNewMultilingualVocabulary() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/sshoc-keyword-test.ttl");
+
+        MockMultipartFile uploadedVocabulary = new MockMultipartFile(
+                "ttl", "sshoc-keyword-test.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")));
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", "sshoc-keyword-test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("sshoc-keyword-test")))
+                .andExpect(jsonPath("$.label", is("Keywords from SSHOC MP")))
+                .andExpect(jsonPath("$.description", notNullValue()))
+                .andExpect(jsonPath("$.conceptResults.hits", is(4)))
+                .andExpect(jsonPath("$.conceptResults.count", is(4)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(4)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInAnyOrder("1-grams", "18th-century", "18th-century-literature", "zip")
+                        )
+                );
+    }
+
+    @Test
     public void shouldUpdateVocabularyWithNoAssociatedProperties() throws Exception {
         InputStream newVocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
@@ -119,11 +176,13 @@ public class VocabularyControllerITCase {
                 "ttl", "iana-mime-type-test.ttl", null, newVocabularyStream
         );
 
+
         mvc.perform(
-                vocabularyUpload(HttpMethod.POST, newVocabulary, "/api/vocabularies")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, newVocabulary, "/api/vocabularies")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
                 .andExpect(jsonPath("$.label", is("IANA mime/type")));
@@ -135,19 +194,22 @@ public class VocabularyControllerITCase {
                 "ttl", "iana-mime-type-test.ttl", null, updateVocabularyStream
         );
 
+
         mvc.perform(
-                vocabularyUpload(HttpMethod.PUT, updatedVocabulary, "/api/vocabularies/{code}", "iana-mime-type-test")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.PUT, updatedVocabulary, "/api/vocabularies/{code}", "iana-mime-type-test")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
                 .andExpect(jsonPath("$.label", is("IANA mime/type v2")));
 
         mvc.perform(
-                get("/api/vocabularies/{code}", "iana-mime-type-test")
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{code}", "iana-mime-type-test")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
                 .andExpect(jsonPath("$.label", is("IANA mime/type v2")))
@@ -170,6 +232,24 @@ public class VocabularyControllerITCase {
     }
 
     @Test
+    public void shouldNotUpdateNonexistentVocabulary() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/non-existent-code.ttl");
+
+        MockMultipartFile newVocabulary = new MockMultipartFile(
+                "ttl", "non-existent-code.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "non-existent-code")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void shouldNotUpdateVocabularyWithRemovalOfPropertiesInUse() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iso-639-3-test-missing-eng.ttl");
@@ -179,13 +259,15 @@ public class VocabularyControllerITCase {
         );
 
         mvc.perform(
-                vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "iso-639-3")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "iso-639-3")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isBadRequest());
 
-        mvc.perform(get("/api/vocabularies/{code}", "iso-639-3"))
+        mvc.perform(get("/api/vocabularies/{code}", "iso-639-3")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iso-639-3")));
     }
@@ -199,7 +281,8 @@ public class VocabularyControllerITCase {
                 "ttl", "iso-639-3.ttl", null, vocabularyStream
         );
 
-        mvc.perform(get("/api/training-materials/{id}", "heBAGQ"))
+        mvc.perform(get("/api/training-materials/{id}", "heBAGQ")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.properties[?(@.concept.code == \"eng\")]").exists());
@@ -207,18 +290,21 @@ public class VocabularyControllerITCase {
         entityManager.clear();
 
         mvc.perform(
-                vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "iso-639-3")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .param("force", "true")
-                        .header("Authorization", moderatorJwt)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.PUT, newVocabulary, "/api/vocabularies/{code}", "iso-639-3")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .param("force", "true")
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/api/vocabularies/{code}", "iso-639-3"))
+        mvc.perform(get("/api/vocabularies/{code}", "iso-639-3")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("iso-639-3")));
 
-        mvc.perform(get("/api/training-materials/{id}", "heBAGQ"))
+        mvc.perform(get("/api/training-materials/{id}", "heBAGQ")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.properties[?(@.concept.code == \"eng\")]").doesNotExist());
@@ -234,10 +320,11 @@ public class VocabularyControllerITCase {
         );
 
         mvc.perform(
-                vocabularyUpload(HttpMethod.POST, newVocabulary, "/api/vocabularies")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, newVocabulary, "/api/vocabularies")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
                 .andExpect(jsonPath("$.label", is("IANA mime/type")));
@@ -250,32 +337,37 @@ public class VocabularyControllerITCase {
         );
 
         mvc.perform(
-                vocabularyUpload(HttpMethod.PUT, updatedVocabulary, "/api/vocabularies/iana-mime-type-test")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", moderatorJwt)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.PUT, updatedVocabulary, "/api/vocabularies/iana-mime-type-test")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void shouldRemoveVocabularyAndConceptsWithAssociatedPropertiesWithForce() throws Exception {
         mvc.perform(
-                delete("/api/vocabularies/{code}", "iana-mime-type")
-                        .param("force", "true")
-                        .header("Authorization", moderatorJwt)
-        )
+                        delete("/api/vocabularies/{code}", "iana-mime-type")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .param("force", "true")
+                                .header("Authorization", moderatorJwt)
+                )
                 .andExpect(status().isOk());
 
         mvc.perform(
-                get("/api/vocabularies/{code}", "iana-mime-type")
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{code}", "iana-mime-type")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isNotFound());
 
         mvc.perform(
-                get("/api/training-materials/{id}", "WfcKvG")
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/training-materials/{id}", "WfcKvG")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.properties[?(@.concept.code == \"video/mp4\")]").doesNotExist());
@@ -284,21 +376,24 @@ public class VocabularyControllerITCase {
     @Test
     public void shouldNotRemoveVocabularyWithPropertiesInUse() throws Exception {
         mvc.perform(
-                delete("/api/vocabularies/{code}", "iana-mime-type")
-                        .header("Authorization", moderatorJwt)
-        )
+                        delete("/api/vocabularies/{code}", "iana-mime-type")
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isBadRequest());
 
         mvc.perform(
-                get("/api/vocabularies/{code}", "iana-mime-type")
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/vocabularies/{code}", "iana-mime-type")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk());
 
         mvc.perform(
-                get("/api/training-materials/{id}", "WfcKvG")
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/training-materials/{id}", "WfcKvG")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.properties[?(@.concept.code == \"video/mp4\")]").exists());
@@ -312,16 +407,18 @@ public class VocabularyControllerITCase {
         MockMultipartFile vocabularyFile = new MockMultipartFile("ttl", "iana-mime-type-test.ttl", null, vocabularyStream);
 
         mvc.perform(
-                vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isForbidden());
 
         mvc.perform(
-                vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", contributorJwt)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", contributorJwt)
+                )
                 .andExpect(status().isForbidden());
     }
 
@@ -333,39 +430,158 @@ public class VocabularyControllerITCase {
         MockMultipartFile vocabularyFile = new MockMultipartFile("ttl", "iana-mime-type.ttl", null, vocabularyStream);
 
         mvc.perform(
-                vocabularyUpload(HttpMethod.PUT, vocabularyFile, "/api/vocabularies/{code}", "iana-mime-type")
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.PUT, vocabularyFile, "/api/vocabularies/{code}", "iana-mime-type")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isForbidden());
 
         mvc.perform(
-                vocabularyUpload(HttpMethod.PUT, vocabularyFile, "/api/vocabularies/{code}", "iana-mime-type")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", contributorJwt)
-        )
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.PUT, vocabularyFile, "/api/vocabularies/{code}", "iana-mime-type")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", contributorJwt)
+                )
                 .andExpect(status().isForbidden());
     }
 
     @Test
     public void shouldNotDeleteVocabularyUnauthorized() throws Exception {
-        mvc.perform(delete("/api/vocabularies/iana-mime-type"))
+        mvc.perform(delete("/api/vocabularies/iana-mime-type")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
 
         mvc.perform(
-                delete("/api/vocabularies/iana-mime-type")
-                        .header("Authorization", contributorJwt)
-        )
+                        delete("/api/vocabularies/iana-mime-type")
+                                .header("Authorization", contributorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isForbidden());
     }
 
-    private MockHttpServletRequestBuilder vocabularyUpload(HttpMethod method, MockMultipartFile vocabularyFile,
-                                                           String urlTemplate, Object... urlVars) {
 
-        return multipart(urlTemplate, urlVars)
-                .file(vocabularyFile)
-                .with(request -> {
-                    request.setMethod(method.toString());
-                    return request;
-                });
+    @Test
+    public void shouldNotDeleteNonexistentVocabulary() throws Exception {
+        mvc.perform(delete("/api/vocabularies/non-existent-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", moderatorJwt))
+                .andExpect(status().isNotFound());
     }
+
+
+    @Test
+    public void shouldNotCreateNewVocabularyUnauthorized() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
+
+        MockMultipartFile vocabularyFile = new MockMultipartFile("ttl", "iana-mime-type-test.ttl", null, vocabularyStream);
+
+        mvc.perform(
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isForbidden());
+
+        mvc.perform(
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, vocabularyFile, "/api/vocabularies")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", contributorJwt)
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void shouldOpenClosedVocabulary() throws Exception {
+        InputStream vocabularyStream = VocabularyControllerITCase.class
+                .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
+
+        MockMultipartFile uploadedVocabulary = new MockMultipartFile(
+                "ttl", "iana-mime-type-test.ttl", null, vocabularyStream
+        );
+
+        mvc.perform(
+                VocabularyTestUploadUtils.vocabularyUpload(HttpMethod.POST, uploadedVocabulary, "/api/vocabularies?closed=true")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
+                .andExpect(jsonPath("$.label", is("IANA mime/type")))
+                .andExpect(jsonPath("$.closed", is(true)));
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", "iana-mime-type-test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
+                .andExpect(jsonPath("$.label", is("IANA mime/type")))
+                .andExpect(jsonPath("$.description", notNullValue()))
+                .andExpect(jsonPath("$.closed", is(true)))
+                .andExpect(jsonPath("$.conceptResults.hits", is(3)))
+                .andExpect(jsonPath("$.conceptResults.count", is(3)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(3)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInAnyOrder("image/tif", "application/pdff", "video/mpeg4")
+                        )
+                );
+
+        mvc.perform(
+                        put("/api/vocabularies/{code}/open", "iana-mime-type-test")
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("iana-mime-type-test")))
+                .andExpect(jsonPath("$.label", is("IANA mime/type")))
+                .andExpect(jsonPath("$.closed", is(false)));
+
+
+    }
+
+
+    @Test
+    public void shouldExportVocabulary() throws Exception {
+        String code = "nemo-activity-type";
+        String namespace = "http://dcu.gr/ontologies/scholarlyontology/";
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", code)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(code)))
+                .andExpect(jsonPath("$.label", is("NeMO Concept Scheme")))
+                .andExpect(jsonPath("$.conceptResults.hits", is(164)))
+                .andExpect(jsonPath("$.conceptResults.count", is(20)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(20)))
+                .andExpect(jsonPath("$.conceptResults.concepts[0].uri", startsWith(namespace)));
+
+
+        MvcResult resultInit = mvc.perform(
+                        get("/api/vocabularies/{code}/export", code)
+                        .accept("text/turtle;charset=UTF-8")
+                )
+                .andExpect(request().asyncStarted())
+                .andDo(MockMvcResultHandlers.log())
+                .andReturn();
+
+        String ttlContent = mvc.perform(asyncDispatch(resultInit))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        assertThat(ttlContent, startsWith("@prefix : <" + namespace + "> ."));
+        assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/scheme> a skos:ConceptScheme;"));
+        assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/instances/ActivityType-Printing> a skos:Concept;"));
+    }
+
 }

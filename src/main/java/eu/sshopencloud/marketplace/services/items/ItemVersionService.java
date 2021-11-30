@@ -24,7 +24,6 @@ abstract class ItemVersionService<I extends Item> {
     private final VersionedItemRepository versionedItemRepository;
     private final ItemVisibilityService itemVisibilityService;
 
-
     protected Page<I> loadLatestItems(PageCoords pageCoords, User user, boolean approved) {
         PageRequest pageRequest = PageRequest.of(
                 pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
@@ -32,13 +31,13 @@ abstract class ItemVersionService<I extends Item> {
 
         ItemVersionRepository<I> itemRepository = getItemRepository();
 
-        if (approved || user == null || !user.isContributor())
+        if (approved || user == null)
             return itemRepository.findAllLatestApprovedItems(pageRequest);
 
         if (user.isModerator())
             return itemRepository.findAllLatestItems(pageRequest);
 
-        return getItemRepository().findUserLatestItems(user, pageRequest);
+        return itemRepository.findUserLatestItems(user, pageRequest);
     }
 
     /**
@@ -78,6 +77,7 @@ abstract class ItemVersionService<I extends Item> {
                         )
                 );
     }
+
 
     protected I loadLatestItemForCurrentUser(String persistentId, boolean authorize) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
@@ -139,6 +139,7 @@ abstract class ItemVersionService<I extends Item> {
         return resolveItemDraftForCurrentUser(persistentId)
                 .orElseGet(() -> loadCurrentItem(persistentId));
     }
+
 
     protected I loadDraftOrLatestItemForCurrentUser(String persistentId) {
         return resolveItemDraftForCurrentUser(persistentId)

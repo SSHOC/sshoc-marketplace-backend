@@ -5,7 +5,9 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.*;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -16,15 +18,14 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -43,13 +44,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final IndexService indexService;
     private final UserService userService;
     private final MediaStorageService mediaStorageService;
-
+    private final SourceService sourceService;
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                           MediaStorageService mediaStorageService) {
+                           MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -65,6 +66,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         this.userService = userService;
 
         this.mediaStorageService = mediaStorageService;
+        this.sourceService = sourceService;
     }
 
 
@@ -105,6 +107,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return prepareItemDto(item);
     }
 
+
     protected D prepareItemDto(I item) {
 
         D dto = convertItemToDto(item);
@@ -118,22 +121,54 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected I createItem(C itemCore, boolean draft) {
-        return createOrUpdateItemVersion(itemCore, null, draft);
+        return createOrUpdateItemVersion(itemCore, null, draft, true);
     }
 
-    protected I updateItem(String persistentId, C itemCore, boolean draft) {
+    protected I mergeItem(String persistentId, List<String> mergedCores) {
+
+        I mergedItem = loadCurrentItem(persistentId);
+        mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
+
+        for (String mergedCore : mergedCores) {
+            VersionedItem versionedItem = versionedItemRepository.getOne(mergedCore);
+            I prevItem = (I) versionedItem.getCurrentVersion();
+            prevItem.setStatus(ItemStatus.DEPRECATED);
+            mergedItem.getVersionedItem().addMergedWith(versionedItem);
+            itemRepository.save(prevItem);
+            versionedItemRepository.save(versionedItem);
+        }
+
+        versionedItemRepository.save(mergedItem.getVersionedItem());
+        itemRepository.save(mergedItem);
+        return mergedItem;
+
+    }
+
+    protected boolean checkIfStep(String itemPersistentId) {
+        VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
+        I currItem = (I) versionedItem.getCurrentVersion();
+        return currItem.getCategory().equals(ItemCategory.STEP);
+    }
+
+    protected boolean checkIfWorkflow(String itemPersistentId) {
+        VersionedItem versionedItem = versionedItemRepository.getOne(itemPersistentId);
+        I currItem = (I) versionedItem.getCurrentVersion();
+        return currItem.getCategory().equals(ItemCategory.WORKFLOW);
+    }
+
+    protected I updateItem(String persistentId, C itemCore, boolean draft, boolean approved) {
         I item = loadItemForCurrentUser(persistentId);
-        return createOrUpdateItemVersion(itemCore, item, draft);
+        return createOrUpdateItemVersion(itemCore, item, draft, approved);
     }
 
-    private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft) {
-        I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft);
+    private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
+        I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft, approved);
         indexService.indexItem(newItem);
-
         return newItem;
     }
 
-    private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft) {
+
+    private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
             I version = modifyItem(itemCore, prevVersion);
@@ -145,20 +180,24 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             return version;
         }
 
+
         I version = makeItemVersion(itemCore, prevVersion);
-        version = saveVersionInHistory(version, prevVersion, draft);
+
+        version = saveVersionInHistory(version, prevVersion, draft, approved);
 
         itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), version, prevVersion, draft);
 
         return version;
     }
 
-    private I saveVersionInHistory(I version, I prevVersion, boolean draft) {
-        return saveVersionInHistory(version ,prevVersion, draft, true);
+
+    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean approved) {
+        return saveVersionInHistory(version, prevVersion, draft, true, approved);
     }
 
+
     // Warning: important method! Do not change unless you know what you are doing!
-    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean changeStatus) {
+    private I saveVersionInHistory(I version, I prevVersion, boolean draft, boolean changeStatus, boolean approved) {
         VersionedItem versionedItem =
                 (prevVersion == null) ? createNewVersionedItem() : prevVersion.getVersionedItem();
 
@@ -173,9 +212,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         version.setPrevVersion(prevVersion);
 
+
         // If not a draft
         if (!draft) {
-            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus);
+
+            itemVisibilityService.setupItemVersionVisibility(version, versionedItem, changeStatus, approved);
 
             if (version.getStatus() == ItemStatus.APPROVED)
                 deprecatePrevApprovedVersion(versionedItem);
@@ -210,8 +251,16 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         for (ItemMedia media : version.getMedia()) {
             try {
                 mediaStorageService.linkToMedia(media.getMediaId());
+            } catch (MediaNotAvailableException e) {
+                throw new IllegalStateException("Media not available unexpectedly");
             }
-            catch (MediaNotAvailableException e) {
+        }
+
+        if (Objects.nonNull(version.getThumbnail()) && version.getThumbnail().getItemMediaThumbnail().equals(ItemMediaType.THUMBNAIL_ONLY)) {
+            ItemMedia mediaThumbnail = version.getThumbnail();
+            try {
+                mediaStorageService.linkToMedia(mediaThumbnail.getMediaId());
+            } catch (MediaNotAvailableException e) {
                 throw new IllegalStateException("Media not available unexpectedly");
             }
         }
@@ -269,7 +318,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             );
         }
 
-        itemVisibilityService.setupItemVersionVisibility(version, versionedItem, true);
+
+        itemVisibilityService.setupItemVersionVisibility(version, versionedItem, true, true);
 
         if (version.getStatus() == ItemStatus.APPROVED)
             deprecatePrevApprovedVersion(versionedItem);
@@ -307,7 +357,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I currentVersion = loadCurrentItem(persistentId);
         I targetVersion = makeItemVersionCopy(item);
 
-        targetVersion =  saveVersionInHistory(targetVersion, currentVersion, false);
+        targetVersion = saveVersionInHistory(targetVersion, currentVersion, false, true);
         copyVersionRelations(targetVersion, item);
 
         indexService.indexItem(targetVersion);
@@ -333,7 +383,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I item = loadCurrentItem(persistentId);
         I newItem = makeItemVersionCopy(item);
 
-        newItem = saveVersionInHistory(newItem, item, draft, modifyStatus);
+        newItem = saveVersionInHistory(newItem, item, draft, modifyStatus, true);
         copyVersionRelations(newItem, item);
 
         itemUpgradeRegistry.registerUpgradedVersion(newItem);
@@ -343,32 +393,68 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     protected void deleteItem(String persistentId, boolean draft) {
+        if (draft) {
+            deleteItemDraft(persistentId);
+        } else {
+            setDeleteItem(persistentId, null);
+        }
+    }
+
+    protected void deleteItem(String persistentId, long versionId) {
+        I item = loadItemVersion(persistentId, versionId);
+        if (item.getStatus() == ItemStatus.DRAFT) {
+            User currentUser = LoggedInUserHolder.getLoggedInUser();
+            if (currentUser.equals(item.getInformationContributor())) {
+                deleteItemDraft(persistentId);
+            } else {
+                throw new AccessDeniedException(
+                        String.format(
+                                "User is not authorized to access the given draft version with id %s (version id: %d)",
+                                persistentId, versionId
+                        )
+                );
+            }
+        } else {
+            setDeleteItem(persistentId, versionId);
+        }
+    }
+
+    protected void setDeleteItem(String persistentId, Long versionId) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        if (!draft && !currentUser.isModerator())
+        if (!currentUser.isModerator())
             throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
 
-        if (draft) {
-            I draftItem  = loadItemDraftForCurrentUser(persistentId);
-            cleanupDraft(draftItem);
+        I currentItem = loadCurrentItem(persistentId);
+        I item = (versionId != null) ? loadItemVersion(persistentId, versionId) : currentItem;
 
-            return;
-        }
-
-        I item = loadCurrentItem(persistentId);
         VersionedItem versionedItem = item.getVersionedItem();
 
-        if (versionedItem.getStatus() == VersionedItemStatus.INGESTED
-                || versionedItem.getStatus() == VersionedItemStatus.SUGGESTED) {
-
-            versionedItem.setStatus(VersionedItemStatus.REFUSED);
-            item.setStatus(ItemStatus.DISAPPROVED);
+        if (item.getId().equals(currentItem.getId())) {
+            if (versionedItem.getStatus() == VersionedItemStatus.INGESTED
+                    || versionedItem.getStatus() == VersionedItemStatus.SUGGESTED) {
+                versionedItem.setStatus(VersionedItemStatus.REFUSED);
+                item.setStatus(ItemStatus.DISAPPROVED);
+            } else {
+                versionedItem.setStatus(VersionedItemStatus.DELETED);
+                versionedItem.setActive(false);
+            }
+        } else {
+            if (item.getStatus() == ItemStatus.INGESTED || item.getStatus() == ItemStatus.SUGGESTED) {
+                item.setStatus(ItemStatus.DISAPPROVED);
+            }
+            else if (item.getStatus() == ItemStatus.APPROVED) {
+                item.setStatus(ItemStatus.DEPRECATED);
+            }
         }
-        else {
-            versionedItem.setStatus(VersionedItemStatus.DELETED);
-            versionedItem.setActive(false);
-        }
 
-        indexService.removeItemVersions(item);
+        if (item.getId().equals(currentItem.getId())) {
+            indexService.removeItemVersions(item);
+        }
+    }
+
+    protected void deleteItemDraft(String persistentId) {
+        I draftItem = loadItemDraftForCurrentUser(persistentId);
+        cleanupDraft(draftItem);
     }
 
     private void cleanupDraft(I draftItem) {
@@ -408,8 +494,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         for (int i = 0; i < item.getMedia().size(); ++i) {
             ItemMedia media = item.getMedia().get(i);
             MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
-
             dto.getMedia().get(i).setInfo(mediaDetails);
+        }
+
+        ItemMedia thumbnail = item.getThumbnail();
+        if (thumbnail != null) {
+            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(thumbnail.getMediaId());
+            dto.getThumbnail().setInfo(mediaDetails);
         }
     }
 
@@ -425,7 +516,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
     private boolean shouldRenderProperty(PropertyDto property, User user) {
-        return (!property.getType().isHidden() || (user != null && user.isModerator()));
+        // hidden properties have to be always rendered
+        //return (!property.getType().isHidden() || (user != null && user.isModerator()));
+        return true;
     }
 
     protected List<ItemExtBasicDto> getItemHistory(String persistentId, Long versionId) {
@@ -440,23 +533,106 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     )
             );
         }
-        return getHistoryOfItem(item);
+        return getHistoryOfItemWithMergedWith(item, versionId);
+    }
+
+    private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item, Long versionId) {
+
+        List<ItemExtBasicDto> mergedItemHistoryList = new ArrayList<>(ItemExtBasicConverter.convertItems(itemRepository.findMergedItemsHistory(item.getPersistentId(), versionId)));
+        mergedItemHistoryList.sort(Comparator.comparing(ItemExtBasicDto::getLastInfoUpdate).reversed());
+
+        return mergedItemHistoryList;
     }
 
 
-    private List<ItemExtBasicDto> getHistoryOfItem(Item item) {
-        // TODO change to recursive subordinates query in ItemRepository
-        List<ItemExtBasicDto> versions = new ArrayList<>();
-        versions.add(ItemExtBasicConverter.convertItem(item));
-        Item prevVersion = itemRepository.getOne(item.getId()).getPrevVersion();
-        while (prevVersion != null) {
-            versions.add(ItemExtBasicConverter.convertItem(prevVersion));
-            prevVersion = prevVersion.getPrevVersion();
+    protected List<UserDto> getInformationContributors(String itemId) {
+        return userService.getInformationContributors(itemId);
+    }
+
+    protected List<UserDto> getInformationContributors(String itemId, Long versionId) {
+        return userService.getInformationContributors(itemId, versionId);
+    }
+
+    protected D prepareMergeItems(String persistentId, List<String> mergeList) {
+
+        List<D> itemDtoList = new ArrayList<>();
+
+        I finalItem = loadLatestItem(persistentId);
+        D finalDto = convertItemToDto(finalItem);
+
+        finalDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalItem));
+        completeItemDto(finalDto, finalItem);
+
+        for (int i = 0; i < mergeList.size(); i++) {
+
+            I vItem = (I) versionedItemRepository.getOne(mergeList.get(i)).getCurrentVersion();
+
+            D tmp = convertToDto(vItem);
+            itemDtoList.add(tmp);
+
+            itemDtoList.get(i).setRelatedItems(itemRelatedItemService.getItemRelatedItems(vItem));
+            completeItemDto(itemDtoList.get(i), vItem);
+
+
+            if (!Objects.isNull(finalDto.getDescription()) && !Objects.isNull(itemDtoList.get(i).getDescription()))
+                if (!finalDto.getDescription().contains(itemDtoList.get(i).getDescription()))
+                    finalDto.setDescription(finalDto.getDescription() + "/" + itemDtoList.get(i).getDescription());
+
+
+            if (!Objects.isNull(finalDto.getLabel()) && !Objects.isNull(itemDtoList.get(i).getLabel()))
+                if (!finalDto.getLabel().contains(itemDtoList.get(i).getLabel()))
+                    finalDto.setLabel(finalDto.getLabel() + "/" + itemDtoList.get(i).getLabel());
+
+
+            if (!Objects.isNull(finalDto.getVersion()) && !Objects.isNull(itemDtoList.get(i).getVersion()))
+                if (!finalDto.getVersion().contains(itemDtoList.get(i).getVersion()))
+                    finalDto.setVersion(finalDto.getVersion() + "/" + itemDtoList.get(i).getVersion());
+
+
+            for (ItemContributorDto e : itemDtoList.get(i).getContributors()) {
+                if (!finalDto.getContributors().contains(e))
+                    finalDto.getContributors().add(e);
+            }
+
+
+            for (PropertyDto e : itemDtoList.get(i).getProperties()) {
+                if (!finalDto.getProperties().contains(e))
+                    finalDto.getProperties().add(e);
+            }
+
+
+            for (ItemExternalIdDto e : itemDtoList.get(i).getExternalIds()) {
+                if (!finalDto.getExternalIds().contains(e))
+                    finalDto.getExternalIds().add(e);
+            }
+
+
+            for (String e : itemDtoList.get(i).getAccessibleAt()) {
+                if (!finalDto.getAccessibleAt().contains(e))
+                    finalDto.getAccessibleAt().add(e);
+            }
+
+
+            for (RelatedItemDto e : itemDtoList.get(i).getRelatedItems()) {
+                if (!finalDto.getRelatedItems().contains(e))
+                    finalDto.getRelatedItems().add(e);
+            }
+
+
+            for (ItemMediaDto e : itemDtoList.get(i).getMedia()) {
+                if (!finalDto.getMedia().contains(e))
+                    finalDto.getMedia().add(e);
+            }
+
+
         }
-        return versions;
+
+        return finalDto;
     }
 
-
+    public List<SourceDto> getAllSources(String id) {
+        return sourceService.getAllSources(id);
+    }
 
     private I makeItemVersion(C itemCore, I prevItem) {
         return makeItem(itemCore, prevItem);
@@ -472,9 +648,14 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected abstract I makeItem(C itemCore, I prevItem);
+
     protected abstract I modifyItem(C itemCore, I item);
+
     protected abstract I makeItemCopy(I item);
 
     protected abstract P wrapPage(Page<I> resultsPage, List<D> convertedDtos);
+
     protected abstract D convertItemToDto(I item);
+
+    protected abstract D convertToDto(Item item);
 }

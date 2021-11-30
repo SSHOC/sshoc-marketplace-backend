@@ -240,6 +240,45 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
+    public void shouldUploadPngImageMediaFileWithTransparentBackground() throws Exception {
+        InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
+        MockMultipartFile mediaFile = new MockMultipartFile(
+                "file", "png_with_transparent_bg", "image/png", mediaStream
+        );
+
+        String response = mvc.perform(
+                multipart("/api/media/upload/full")
+                        .file(mediaFile)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("mediaId", notNullValue()))
+                .andExpect(jsonPath("category", is("image")))
+                .andExpect(jsonPath("filename", is("png_with_transparent_bg")))
+                .andExpect(jsonPath("mimeType", is("image/png")))
+                .andExpect(jsonPath("hasThumbnail", is(true)))
+                .andReturn().getResponse().getContentAsString();
+
+        MediaDetails details = mapper.readValue(response, MediaDetails.class);
+        UUID mediaId = details.getMediaId();
+
+        byte[] mediaContent = mvc.perform(get("/api/media/download/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals(mediaFile.getBytes(), mediaContent);
+
+        byte[] thumbnail = mvc.perform(get("/api/media/thumbnail/{mediaId}", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "image/jpeg"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        ImageIO.read(new ByteArrayInputStream(thumbnail));
+
+
+    }
+
+    @Test
     public void shouldUploadSvgImageMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(

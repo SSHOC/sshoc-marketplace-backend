@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeReorder;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypesReordering;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class PropertyTypeControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.hits", is(26)))
+                .andExpect(jsonPath("$.hits", is(27)))
                 .andExpect(jsonPath("$.count", is(10)))
                 .andExpect(jsonPath("$.page", is(1)))
                 .andExpect(jsonPath("$.perpage", is(10)))
@@ -67,7 +68,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.propertyTypes", hasSize(10)))
                 .andExpect(jsonPath("$.propertyTypes[*].code", contains(
                         "language", "activity", "technique", "material", "object-format",
-                        "keyword", "tadirah-goals", "thumbnail", "repository-url", "license-type"
+                        "keyword", "tadirah-goals", "thumbnail", "repository-url", "license"
                 )))
                 .andExpect(jsonPath("$.propertyTypes[5].label", is("Keyword")))
                 .andExpect(jsonPath("$.propertyTypes[0].allowedVocabularies", hasSize(2)))
@@ -82,14 +83,14 @@ public class PropertyTypeControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.hits", is(26)))
-                .andExpect(jsonPath("$.count", is(6)))
+                .andExpect(jsonPath("$.hits", is(27)))
+                .andExpect(jsonPath("$.count", is(7)))
                 .andExpect(jsonPath("$.page", is(3)))
                 .andExpect(jsonPath("$.perpage", is(10)))
                 .andExpect(jsonPath("$.pages", is(3)))
-                .andExpect(jsonPath("$.propertyTypes", hasSize(6)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(7)))
                 .andExpect(jsonPath("$.propertyTypes[*].code", contains(
-                        "issue", "pages", "year", "timestamp", "publication-type", "doi"
+                        "issue", "pages", "year", "timestamp", "publication-type", "doi", "deprecated-at-source"
                 )));
     }
 
@@ -114,7 +115,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.code", is("new-property-type")))
                 .andExpect(jsonPath("$.label", is("New property type")))
                 .andExpect(jsonPath("$.type", is("concept")))
-                .andExpect(jsonPath("$.ord", is(27)))
+                .andExpect(jsonPath("$.ord", is(28)))
                 .andExpect(jsonPath("$.allowedVocabularies", hasSize(2)))
                 .andExpect(jsonPath("$.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "iana-mime-type")));
 
@@ -127,7 +128,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.code", is("new-property-type")))
                 .andExpect(jsonPath("$.label", is("New property type")))
                 .andExpect(jsonPath("$.type", is("concept")))
-                .andExpect(jsonPath("$.ord", is(27)))
+                .andExpect(jsonPath("$.ord", is(28)))
                 .andExpect(jsonPath("$.allowedVocabularies", hasSize(2)))
                 .andExpect(jsonPath("$.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "iana-mime-type")));
     }
@@ -291,7 +292,6 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("web-usable", 11);
         assertPropertyTypeOrder("tool-family", 12);
         assertPropertyTypeOrder("media", 16);
-        assertPropertyTypeOrder("license-type", 10);
 
         mvc.perform(
                 delete("/api/property-types/{code}", "technique")
@@ -311,7 +311,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("web-usable", 10);
         assertPropertyTypeOrder("tool-family", 11);
         assertPropertyTypeOrder("media", 15);
-        assertPropertyTypeOrder("license-type", 9);
+        assertPropertyTypeOrder("license", 9);
     }
 
     @Test
@@ -339,6 +339,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
+    @Ignore(value = "hidden properties have to be always rendered")
     @Test
     public void shouldRetrieveHiddenPropertyForModeratorsOnly() throws Exception {
         String code = "http-status";
@@ -502,7 +503,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -526,7 +527,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("repository-url", 7);
         assertPropertyTypeOrder("tadirah-goals", 8);
         assertPropertyTypeOrder("keyword", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
     }
 
     @Test
@@ -536,7 +537,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -563,7 +564,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -590,7 +591,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -617,7 +618,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(

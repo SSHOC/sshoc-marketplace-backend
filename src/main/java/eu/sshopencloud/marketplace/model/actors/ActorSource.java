@@ -3,10 +3,7 @@ package eu.sshopencloud.marketplace.model.actors;
 import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 
 @Entity
@@ -26,11 +23,21 @@ public class ActorSource implements OrderableEntity<String> {
 
     private int ord;
 
+    @Basic
+    @Column(nullable = true)
+    private String urlTemplate;
 
     public ActorSource(String code, String label) {
         this.code = code;
         this.label = label;
         this.ord = 0;
+    }
+
+    public ActorSource(String code, String label, String urlTemplate) {
+        this.code = code;
+        this.label = label;
+        this.ord = 0;
+        this.urlTemplate = urlTemplate;
     }
 
 

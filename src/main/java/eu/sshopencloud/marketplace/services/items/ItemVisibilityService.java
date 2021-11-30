@@ -23,19 +23,19 @@ class ItemVisibilityService {
     private final UserService userService;
 
 
-    public void setupItemVersionVisibility(Item version, VersionedItem versionedItem, boolean changeStatus) {
+    public void setupItemVersionVisibility(Item version, VersionedItem versionedItem, boolean changeStatus, boolean approved) {
         User currentUser = userService.loadLoggedInUser();
         if (currentUser == null || !currentUser.isContributor())
             throw new AccessDeniedException("Not authorized to create new item version");
 
         version.setInformationContributor(currentUser);
-        assignItemVersionStatus(version, versionedItem, currentUser, changeStatus);
+        assignItemVersionStatus(version, versionedItem, currentUser, changeStatus, approved);
 
         boolean proposed = (version.getStatus() == ItemStatus.SUGGESTED || version.getStatus() == ItemStatus.INGESTED);
         version.setProposedVersion(proposed);
     }
 
-    private void assignItemVersionStatus(Item version, VersionedItem versionedItem, User currentUser, boolean changeStatus) {
+    private void assignItemVersionStatus(Item version, VersionedItem versionedItem, User currentUser, boolean changeStatus, boolean approved) {
         if (!versionedItem.isActive()) {
             throw new IllegalArgumentException(
                     String.format("Deleted/merged item with id %s cannot be modified anymore", versionedItem.getPersistentId())
@@ -49,20 +49,20 @@ class ItemVisibilityService {
 
         // The order of these role checks does matter as, for example, a moderator is a contributor as well
         if (currentUser.isModerator()) {
-            version.setStatus(ItemStatus.APPROVED);
-            versionedItem.setStatus(VersionedItemStatus.REVIEWED);
+            if (approved) {
+                version.setStatus(ItemStatus.APPROVED);
+                versionedItem.setStatus(VersionedItemStatus.REVIEWED);
+            } else {
+                version.setStatus(SUGGESTED);
+                versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
+            }
         }
         else if (currentUser.isSystemContributor()) {
             version.setStatus(ItemStatus.INGESTED);
-
-            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
-                versionedItem.setStatus(VersionedItemStatus.INGESTED);
-        }
-        else if (currentUser.isContributor()) {
+            versionedItem.setStatus(VersionedItemStatus.INGESTED);
+        } else if (currentUser.isContributor()) {
             version.setStatus(ItemStatus.SUGGESTED);
-
-            if (versionedItem.getStatus() != VersionedItemStatus.REVIEWED)
-                versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
+            versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
         }
     }
 

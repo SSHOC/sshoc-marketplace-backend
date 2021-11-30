@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.validators.auth;
 
 import eu.sshopencloud.marketplace.dto.auth.UserCore;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.auth.UserRole;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,11 @@ public class UserFactory {
                     user.setPassword(passwordEncoder.encode(userCore.getPassword()));
                 }
 
-                user.setRole(userCore.getRole());
+                if (userCore.getRole() != null) {
+                    user.setRole(userCore.getRole());
+                } else {
+                    user.setRole(UserRole.CONTRIBUTOR);
+                }
 
                 if (StringUtils.isBlank(userCore.getEmail())) {
                     errors.rejectValue("email", "field.required", "Email is required.");
