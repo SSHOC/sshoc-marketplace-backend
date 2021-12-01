@@ -14,6 +14,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
@@ -1922,9 +1923,9 @@ public class DatasetControllerITCase {
         ItemContributorId contributor3 = new ItemContributorId(new ActorId(2L), new ActorRoleId("provider"));
         ItemContributorId contributor2 = new ItemContributorId(new ActorId(3L), new ActorRoleId("provider"));
         dataset.setContributors(List.of(contributor1, contributor2, contributor3));
-
         String payload = mapper.writeValueAsString(dataset);
         log.debug("JSON: " + payload);
+
 
         mvc.perform(post("/api/datasets")
                         .content(payload)
@@ -1987,10 +1988,10 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("item.label", is("Austin Crime Data")))
                 .andExpect(jsonPath("item.informationContributor.id", is(3)))
                 .andExpect(jsonPath("equal", is(true)))
-                .andExpect(jsonPath("otherItem.persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("otherItem.id", is(datasetId)))
-                .andExpect(jsonPath("otherItem.category", is("dataset")))
-                .andExpect(jsonPath("otherItem.relatedItems[0]", nullValue()));
+                .andExpect(jsonPath("other.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("other.id", is(datasetId)))
+                .andExpect(jsonPath("other.category", is("dataset")))
+                .andExpect(jsonPath("other.relatedItems[0]", nullValue()));
     }
 
     @Test
@@ -2012,10 +2013,10 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("item.label", is("Austin Crime Data")))
                 .andExpect(jsonPath("item.informationContributor.id", is(3)))
                 .andExpect(jsonPath("equal", is(false)))
-                .andExpect(jsonPath("otherItem.persistentId", is(otherTrainingMaterialPersistentId)))
-                .andExpect(jsonPath("otherItem.id", is(7)))
-                .andExpect(jsonPath("otherItem.category", is("training-material")))
-                .andExpect(jsonPath("otherItem.label", is("Introduction to GEPHI")));
+                .andExpect(jsonPath("other.persistentId", is(otherTrainingMaterialPersistentId)))
+                .andExpect(jsonPath("other.id", is(7)))
+                .andExpect(jsonPath("other.category", is("training-material")))
+                .andExpect(jsonPath("other.label", is("Introduction to GEPHI")));
     }
 
 
@@ -2039,10 +2040,106 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("item.label", is("Austin Crime Data")))
                 .andExpect(jsonPath("item.informationContributor.id", is(3)))
                 .andExpect(jsonPath("equal", is(false)))
-                .andExpect(jsonPath("otherItem.persistentId", is(otherTrainingMaterialPersistentId)))
-                .andExpect(jsonPath("otherItem.id", is(otherTrainingMaterialVersionId.intValue())))
-                .andExpect(jsonPath("otherItem.category", is("training-material")))
-                .andExpect(jsonPath("otherItem.label", is("Introduction to GEPHI")));
+                .andExpect(jsonPath("other.persistentId", is(otherTrainingMaterialPersistentId)))
+                .andExpect(jsonPath("other.id", is(otherTrainingMaterialVersionId.intValue())))
+                .andExpect(jsonPath("other.category", is("training-material")))
+                .andExpect(jsonPath("other.label", is("Introduction to GEPHI")));
+    }
+
+    @Test
+    public void shouldReturnDifferenceBetweenDatasetAndTool() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+        Integer datasetId = 9;
+
+        String otherTrainingMaterialPersistentId = "WfcKvG";
+        Integer otherTrainingMaterialId = 7;
+
+        String responseDataset = mvc.perform(
+                        get("/api/datasets/{id}",datasetPersistentId)
+                                .param("approved", "false")
+                                .header("Authorization", IMPORTER_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("id",is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andReturn().getResponse().getContentAsString();
+
+        DatasetDto dataset = TestJsonMapper.serializingObjectMapper()
+                .readValue(responseDataset, DatasetDto.class);
+
+        dataset.setDateCreated(ZonedDateTime.of(LocalDate.of(2021,12,1), LocalTime.of(03,10), ZoneId.of("Europe/Paris")));
+
+        String responseTrainingMaterial = mvc.perform(
+                        get("/api/training-materials/{id}",otherTrainingMaterialPersistentId )
+                                .param("approved", "false")
+                                .header("Authorization", IMPORTER_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(otherTrainingMaterialPersistentId )))
+                .andExpect(jsonPath("id",is(otherTrainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterial = TestJsonMapper.serializingObjectMapper()
+                .readValue(responseTrainingMaterial, TrainingMaterialDto.class);
+
+        trainingMaterial.setDateCreated(ZonedDateTime.of(LocalDate.of(2000,4,20), LocalTime.of(03,10), ZoneId.of("Europe/Paris")));
+        trainingMaterial.setSourceItemId("1");
+        String payload = mapper.writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(
+                        put("/api/datasets/{id}", datasetPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization",ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("dateCreated", is("2021-12-01T02:10:00+0000")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")));
+
+
+        String payloadTrainingMaterial = mapper.writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payloadTrainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", otherTrainingMaterialPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payloadTrainingMaterial)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(otherTrainingMaterialPersistentId)))
+                .andExpect(jsonPath("dateCreated", is("2000-04-20T01:10:00+0000")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")));
+
+
+        mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", otherTrainingMaterialPersistentId)
+                        .param("otherVersionId", "")
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("item.category", is("dataset")))
+                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
+                .andExpect(jsonPath("item.informationContributor.id", is(1)))
+                .andExpect(jsonPath("item.dateCreated", is("2021-12-01T02:10:00+0000")))
+                .andExpect(jsonPath("item.description", is("This dataset includes Part 1 crimes for 2014 and 2015. Data is provided by the Austin Police Department and may differ from official APD crime data due to the variety of reporting and collection methods used.")))
+                .andExpect(jsonPath("item.contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("item.contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("item.contributors[1].actor.id", is(4)))
+                .andExpect(jsonPath("item.contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("item.relatedItems[0].id", is(10)))
+                .andExpect(jsonPath("equal", is(false)))
+                .andExpect(jsonPath("other.persistentId", is( otherTrainingMaterialPersistentId)))
+                .andExpect(jsonPath("other.id", not(otherTrainingMaterialId)))
+                .andExpect(jsonPath("other.category", is("training-material")))
+                .andExpect(jsonPath("other.label", is("Introduction to GEPHI")));
     }
 
 

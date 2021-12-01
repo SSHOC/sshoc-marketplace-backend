@@ -53,11 +53,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
                        ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Step> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                        PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                       MediaStorageService mediaStorageService, SourceService sourceService) {
+                       MediaStorageService mediaStorageService, SourceService sourceService, ItemDifferenceComparator itemDifferenceComparator) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService, itemDifferenceComparator
         );
 
         this.stepRepository = stepRepository;

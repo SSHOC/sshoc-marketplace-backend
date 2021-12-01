@@ -40,11 +40,11 @@ public class PublicationService extends ItemCrudService<Publication, Publication
                               ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                               PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                              MediaStorageService mediaStorageService, SourceService sourceService) {
+                              MediaStorageService mediaStorageService, SourceService sourceService, ItemDifferenceComparator itemDifferenceComparator) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService, itemDifferenceComparator
         );
 
         this.publicationRepository = publicationRepository;

@@ -9,9 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ItemsDifferenceDto {
+public class ItemsDifferenceDto<S extends ItemDto, T extends ItemDto> {
 
-    ItemDto item;
+    S item;
     boolean equal;
-    ItemDto otherItem;
+    T other;
 }
