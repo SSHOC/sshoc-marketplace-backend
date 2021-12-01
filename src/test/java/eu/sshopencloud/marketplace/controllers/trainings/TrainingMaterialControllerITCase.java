@@ -2063,11 +2063,11 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("item.informationContributor.id", is(1)))
                 .andExpect(jsonPath("item.status", is("deprecated")))
                 .andExpect(jsonPath("equal", is(false)))
-                .andExpect(jsonPath("otherItem.persistentId", is(trainingMaterialPersistentId)))
-                .andExpect(jsonPath("otherItem.id", is(otherTrainingMaterialVersionId.intValue())))
-                .andExpect(jsonPath("otherItem.category", is("training-material")))
-                .andExpect(jsonPath("otherItem.version", is("2.0")))
-                .andExpect(jsonPath("otherItem.status", is("deprecated")));
+                .andExpect(jsonPath("other.persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("other.id", is(otherTrainingMaterialVersionId.intValue())))
+                .andExpect(jsonPath("other.category", is("training-material")))
+                .andExpect(jsonPath("other.version", is("2.0")))
+                .andExpect(jsonPath("other.status", is("deprecated")));
 
         mvc.perform(get("/api/training-materials/{persistentId}/versions/{versionId}/diff", trainingMaterialPersistentId, trainingMaterialVersionId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -2083,11 +2083,11 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("item.informationContributor.id", is(1)))
                 .andExpect(jsonPath("item.status", is("deprecated")))
                 .andExpect(jsonPath("equal", is(false)))
-                .andExpect(jsonPath("otherItem.persistentId", is(trainingMaterialPersistentId)))
-                .andExpect(jsonPath("otherItem.id", is(7)))
-                .andExpect(jsonPath("otherItem.category", is("training-material")))
-                .andExpect(jsonPath("otherItem.version", is("3.0")))
-                .andExpect(jsonPath("otherItem.status", is("approved")));
+                .andExpect(jsonPath("other.persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("other.id", is(7)))
+                .andExpect(jsonPath("other.category", is("training-material")))
+                .andExpect(jsonPath("other.version", is("3.0")))
+                .andExpect(jsonPath("other.status", is("approved")));
     }
 
 }

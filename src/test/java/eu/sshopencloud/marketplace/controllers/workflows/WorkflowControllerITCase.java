@@ -2668,11 +2668,11 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("item.informationContributor.id", is(3)))
                 .andExpect(jsonPath("item.status", is("approved")))
                 .andExpect(jsonPath("equal", is(false)))
-                .andExpect(jsonPath("otherItem.persistentId", is(trainingMaterialPersistentId)))
-                .andExpect(jsonPath("otherItem.id", is(7)))
-                .andExpect(jsonPath("otherItem.category", is("training-material")))
-                .andExpect(jsonPath("otherItem.version", is("3.0")))
-                .andExpect(jsonPath("otherItem.status", is("approved")));
+                .andExpect(jsonPath("other.persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("other.id", is(7)))
+                .andExpect(jsonPath("other.category", is("training-material")))
+                .andExpect(jsonPath("other.version", is("3.0")))
+                .andExpect(jsonPath("other.status", is("approved")));
 
     }
 
