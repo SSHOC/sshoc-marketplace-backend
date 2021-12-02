@@ -19,15 +19,15 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 
-
 @Component
 class MediaExternalClient {
+
     public static final long MEDIA_FILE_MAX_BYTES = 1024 * 1024 * 5; // 5 MB
 
     private static final int MEDIA_CONNECT_TIMEOUT_MS = 500;
@@ -39,28 +39,33 @@ class MediaExternalClient {
 
 
     public MediaExternalClient(WebClient.Builder webClientBuilder) {
-        this.headClient = WebClientUtils.create(
-                webClientBuilder, MEDIA_CONNECT_TIMEOUT_MS, MEDIA_HEAD_READ_TIMEOUT_MS, Optional.empty()
-        );
+        this.headClient = WebClientUtils.create(webClientBuilder, MEDIA_CONNECT_TIMEOUT_MS, MEDIA_HEAD_READ_TIMEOUT_MS,
+                Optional.empty());
 
-        this.mediaClient = WebClientUtils.create(
-                webClientBuilder, MEDIA_CONNECT_TIMEOUT_MS, MEDIA_RESOURCE_READ_TIMEOUT_MS, Optional.of(MEDIA_FILE_MAX_BYTES)
-        );
+        this.mediaClient = WebClientUtils.create(webClientBuilder, MEDIA_CONNECT_TIMEOUT_MS,
+                MEDIA_RESOURCE_READ_TIMEOUT_MS, Optional.of(MEDIA_FILE_MAX_BYTES));
     }
 
 
     @Cacheable(cacheNames = "mediaMetadata", sync = true)
-    public MediaInfo resolveMediaInfo(MediaLocation mediaLocation) throws MediaServiceUnavailableException {
+    public MediaInfo resolveMediaInfo(MediaLocation mediaLocation)
+            throws MediaServiceUnavailableException {
         try {
 
-            if (mediaLocation.getSourceUrl().toURI().toString().startsWith("http://") && !mediaLocation.getSourceUrl().toURI().toString().contains("localhost"))
-                mediaLocation.setSourceUrl(new URL(mediaLocation.getSourceUrl().toURI().toString().replace("http://", "https://")));
-
-
-            ClientResponse response = headClient.head()
-                    .uri(mediaLocation.getSourceUrl().toURI())
-                    .exchange()
+            ClientResponse redirectResponse = headClient.head().uri(mediaLocation.getSourceUrl().toURI()).exchange()
                     .block();
+
+            ClientResponse response;
+            if (Objects.requireNonNull(redirectResponse).statusCode().is3xxRedirection()) {
+                response = headClient.head()
+                        .uri(Objects.requireNonNull(redirectResponse.headers().asHttpHeaders().getLocation()))
+                        .exchange().block();
+
+                mediaLocation.setSourceUrl(
+                        Objects.requireNonNull(redirectResponse.headers().asHttpHeaders().getLocation()).toURL());
+            } else {
+                response = redirectResponse;
+            }
 
             if (response == null)
                 throw new IllegalStateException("Failed to get a response from the media service");
@@ -69,12 +74,14 @@ class MediaExternalClient {
                 throw new IllegalArgumentException("Media resource client error", response.createException().block());
 
             if (response.statusCode().isError())
-                throw new MediaServiceUnavailableException("Failed to get a response from the media service", response.createException().block());
+                throw new MediaServiceUnavailableException("Failed to get a response from the media service",
+                        response.createException().block());
 
             ClientResponse.Headers headers = response.headers();
             String filename = headers.asHttpHeaders().getContentDisposition().getFilename();
             if (filename == null) {
-                filename = Paths.get(new URI(String.valueOf(mediaLocation.getSourceUrl())).getPath()).getFileName().toString();
+                filename = Paths.get(new URI(String.valueOf(mediaLocation.getSourceUrl())).getPath()).getFileName()
+                        .toString();
             }
 
             if (headers.contentType().isEmpty()) {
@@ -82,34 +89,28 @@ class MediaExternalClient {
                 String mediaFormat = downloadedMediaFile.consumeFile(this::recognizeFormat);
                 return MediaInfo.builder()
                         .mimeType(MimeTypeByFilenameUtils.resolveMimeTypeByFilename("." + mediaFormat))
-                        .filename(Optional.ofNullable(filename))
-                        .contentLength(headers.contentLength())
-                        .build();
+                        .filename(Optional.of(filename)).contentLength(headers.contentLength()).build();
             } else {
-                return MediaInfo.builder()
-                        .mimeType(headers.contentType())
-                        .filename(Optional.ofNullable(filename))
-                        .contentLength(headers.contentLength())
-                        .build();
+                return MediaInfo.builder().mimeType(headers.contentType()).filename(Optional.of(filename))
+                        .contentLength(headers.contentLength()).build();
             }
         } catch (URISyntaxException | MalformedURLException e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
         }
     }
 
+
     public DownloadedMediaFile fetchMediaFile(MediaLocation mediaLocation) {
         try {
-            Flux<DataBuffer> mediaContent = mediaClient.get()
-                    .uri(mediaLocation.getSourceUrl().toURI())
-                    .retrieve()
+            Flux<DataBuffer> mediaContent = mediaClient.get().uri(mediaLocation.getSourceUrl().toURI()).retrieve()
                     .bodyToFlux(DataBuffer.class);
-
 
             return new DownloadedFluxMediaFile(mediaContent);
         } catch (URISyntaxException e) {
             throw new IllegalStateException("Unexpected invalid media location url syntax", e);
         }
     }
+
 
     public String recognizeFormat(InputStream mediaStream) {
         try {
@@ -128,6 +129,7 @@ class MediaExternalClient {
     @Value
     @Builder
     public static class MediaInfo {
+
         Optional<MediaType> mimeType;
         Optional<String> filename;
         OptionalLong contentLength;
