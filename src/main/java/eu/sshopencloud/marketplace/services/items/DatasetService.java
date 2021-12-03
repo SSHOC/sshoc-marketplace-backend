@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
 @Service
 @Transactional
 @Slf4j
@@ -39,17 +38,16 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
 
     public DatasetService(DatasetRepository datasetRepository, DatasetFactory datasetFactory,
-                          ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-                          ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
-                          DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                          PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                          MediaStorageService mediaStorageService, SourceService sourceService, ItemDifferenceComparator itemDifferenceComparator) {
+            ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
+            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+            MediaStorageService mediaStorageService, SourceService sourceService,
+            ItemDifferenceComparator itemDifferenceComparator) {
 
-        super(
-                itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService,
-                itemDifferenceComparator
-        );
+        super(itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService,
+                sourceService, itemDifferenceComparator);
 
         this.datasetRepository = datasetRepository;
         this.datasetFactory = datasetFactory;
@@ -60,33 +58,40 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return getItemsPage(pageCoords, approved);
     }
 
+
     public DatasetDto getDatasetVersion(String persistentId, Long versionId) {
         return getItemVersion(persistentId, versionId);
     }
 
+
     public DatasetDto getLatestDataset(String persistentId, boolean draft, boolean approved) {
         return getLatestItem(persistentId, draft, approved);
     }
+
 
     public DatasetDto createDataset(DatasetCore datasetCore, boolean draft) {
         Dataset dataset = createItem(datasetCore, draft);
         return prepareItemDto(dataset);
     }
 
+
     public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft, boolean approved) {
         Dataset dataset = updateItem(persistentId, datasetCore, draft, approved);
         return prepareItemDto(dataset);
     }
+
 
     public DatasetDto revertDataset(String persistentId, long versionId) {
         Dataset dataset = revertItemVersion(persistentId, versionId);
         return prepareItemDto(dataset);
     }
 
+
     public DatasetDto commitDraftDataset(String persistentId) {
         Dataset dataset = publishDraftItem(persistentId);
         return prepareItemDto(dataset);
     }
+
 
     public void deleteDataset(String persistentId, boolean draft) {
         super.deleteItem(persistentId, draft);
@@ -98,41 +103,44 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return datasetRepository;
     }
 
+
     @Override
     public Dataset makeItem(DatasetCore datasetCore, Dataset prevDataset) {
         return datasetFactory.create(datasetCore, prevDataset);
     }
+
 
     @Override
     protected Dataset modifyItem(DatasetCore datasetCore, Dataset dataset) {
         return datasetFactory.modify(datasetCore, dataset);
     }
 
+
     @Override
     protected Dataset makeItemCopy(Dataset dataset) {
         return datasetFactory.makeNewVersion(dataset);
     }
 
+
     @Override
     public PaginatedDatasets wrapPage(Page<Dataset> datasetsPage, List<DatasetDto> datasets) {
-        return PaginatedDatasets.builder().datasets(datasets)
-                .count(datasetsPage.getContent().size())
-                .hits(datasetsPage.getTotalElements())
-                .page(datasetsPage.getNumber() + 1)
-                .perpage(datasetsPage.getSize())
-                .pages(datasetsPage.getTotalPages())
-                .build();
+        return PaginatedDatasets.builder().datasets(datasets).count(datasetsPage.getContent().size())
+                .hits(datasetsPage.getTotalElements()).page(datasetsPage.getNumber() + 1)
+                .perpage(datasetsPage.getSize()).pages(datasetsPage.getTotalPages()).build();
     }
+
 
     @Override
     public DatasetDto convertItemToDto(Dataset dataset) {
         return DatasetMapper.INSTANCE.toDto(dataset);
     }
 
+
     @Override
     public DatasetDto convertToDto(Item dataset) {
         return DatasetMapper.INSTANCE.toDto(dataset);
     }
+
 
     @Override
     protected String getItemTypeName() {
@@ -144,18 +152,22 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return getItemHistory(persistentId, getLatestDataset(persistentId, draft, approved).getId());
     }
 
+
     public List<UserDto> getInformationContributors(String id) {
         return super.getInformationContributors(id);
     }
+
 
     public List<UserDto> getInformationContributors(String id, Long versionId) {
         return super.getInformationContributors(id, versionId);
     }
 
+
     public DatasetDto getMerge(String persistentId, List<String> mergeList) {
 
         return prepareMergeItems(persistentId, mergeList);
     }
+
 
     public DatasetDto merge(DatasetCore mergeDataset, List<String> mergeList) {
 
@@ -164,16 +176,16 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return prepareItemDto(dataset);
     }
 
+
     public List<SourceDto> getSources(String id) {
         return getAllSources(id);
     }
 
-    public ItemsDifferenceDto getDifference(String datasetPersistentId, Long datasetVersionId,
-                                            String otherPersistentId, Long otherVersionId) {
 
-        return differentiateItems(datasetPersistentId, datasetVersionId,
-                otherPersistentId, otherVersionId);
+    public ItemsDifferenceDto getDifference(String datasetPersistentId, Long datasetVersionId, String otherPersistentId,
+            Long otherVersionId) {
+
+        return differentiateItems(datasetPersistentId, datasetVersionId, otherPersistentId, otherVersionId);
     }
-
 
 }

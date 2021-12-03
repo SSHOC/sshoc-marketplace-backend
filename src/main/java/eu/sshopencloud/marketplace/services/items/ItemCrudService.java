@@ -485,6 +485,51 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
+    private ItemsDifferenceDto completeDifferenceDto(I item, I other, ItemsDifferenceDto differenceDto) {
+
+        for (int i = 0; i < item.getMedia().size(); ++i) {
+            ItemMedia media = item.getMedia().get(i);
+            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
+            differenceDto.getItem().getMedia().get(i).setInfo(mediaDetails);
+        }
+
+        ItemMedia thumbnail = item.getThumbnail();
+        if (thumbnail != null) {
+            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(thumbnail.getMediaId());
+            differenceDto.getItem().getThumbnail().setInfo(mediaDetails);
+        }
+
+        for (int i = 0; i < other.getMedia().size(); ++i) {
+            ItemMedia media = other.getMedia().get(i);
+            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
+            differenceDto.getOther().getMedia().get(i).setInfo(mediaDetails);
+        }
+
+        ItemMedia thumbnailOther = other.getThumbnail();
+        if (thumbnailOther != null) {
+            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(thumbnailOther.getMediaId());
+            differenceDto.getOther().getThumbnail().setInfo(mediaDetails);
+        }
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        List<PropertyDto> properties = differenceDto.getItem().getProperties().stream()
+                .filter(property -> shouldRenderProperty(property, currentUser))
+                .peek(property -> propertyTypeService.completePropertyType(property.getType()))
+                .collect(Collectors.toList());
+
+        differenceDto.getItem().setProperties(properties);
+
+        List<PropertyDto> otherProperties = differenceDto.getOther().getProperties().stream()
+                .filter(property -> shouldRenderProperty(property, currentUser))
+                .peek(property -> propertyTypeService.completePropertyType(property.getType()))
+                .collect(Collectors.toList());
+
+        differenceDto.getOther().setProperties(otherProperties);
+
+        return differenceDto;
+    }
+
+
     private boolean shouldRenderProperty(PropertyDto property, User user) {
         // hidden properties have to be always rendered
         //return (!property.getType().isHidden() || (user != null && user.isModerator()));
@@ -629,13 +674,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             }
         }
 
-        D finalOtherItemDto = convertToDto(finalOtherItem);
-        finalOtherItemDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalOtherItem));
-        completeItemDto(finalOtherItemDto, finalOtherItem);
+        ItemsDifferenceDto difference = itemDifferenceComparator.differentiateItems(finalItem,
+                itemRelatedItemService.getItemRelatedItems(finalItem), finalOtherItem,
+                itemRelatedItemService.getItemRelatedItems(finalOtherItem));
+        difference = completeDifferenceDto(finalItem, finalOtherItem, difference);
 
-        return itemDifferenceComparator.differentiateItems(prepareItemDto(finalItem), finalOtherItemDto);
+        return itemDifferenceComparator.diffMedia(difference);
 
     }
+
 
     protected abstract I makeItem(C itemCore, I prevItem);
 
