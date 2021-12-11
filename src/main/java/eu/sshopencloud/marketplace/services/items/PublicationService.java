@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
@@ -40,11 +40,11 @@ public class PublicationService extends ItemCrudService<Publication, Publication
                               ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                               PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                              MediaStorageService mediaStorageService, SourceService sourceService, ItemDifferenceComparator itemDifferenceComparator) {
+                              MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService, itemDifferenceComparator
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.publicationRepository = publicationRepository;
@@ -164,11 +164,10 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return getAllSources(id);
     }
 
-    public ItemsDifferenceDto getDifference(String publicationPersistentId, Long publicationVersionId,
-                                            String otherPersistentId, Long otherVersionId) {
+    public ItemsDifferencesDto getDifferences(String publicationPersistentId, Long publicationVersionId,
+                                              String otherPersistentId, Long otherVersionId) {
 
-        return differentiateItems(publicationPersistentId, publicationVersionId,
-                otherPersistentId, otherVersionId);
+        return super.getDifferences(publicationPersistentId, publicationVersionId, otherPersistentId, otherVersionId);
     }
 
 }

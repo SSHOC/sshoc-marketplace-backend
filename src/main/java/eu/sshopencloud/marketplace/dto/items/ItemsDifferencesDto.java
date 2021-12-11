@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ItemsDifferenceDto<S extends ItemDto, T extends ItemDto> {
+public class ItemsDifferencesDto<S extends ItemDto, T extends ItemDto> {
 
     S item;
     boolean equal;

@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
@@ -42,12 +42,11 @@ public class TrainingMaterialService
                                    ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<TrainingMaterial> itemUpgradeRegistry,
                                    DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                                    PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                                   MediaStorageService mediaStorageService, SourceService sourceService, ItemDifferenceComparator itemDifferenceComparator) {
+                                   MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService,
-                itemDifferenceComparator
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.trainingMaterialRepository = trainingMaterialRepository;
@@ -171,10 +170,8 @@ public class TrainingMaterialService
         return getAllSources(id);
     }
 
-    public ItemsDifferenceDto getDifference(String trainingMaterialPersistentId, Long trainingMaterialVersionId,
-                                            String otherPersistentId, Long otherVersionId) {
+    public ItemsDifferencesDto getDifferences(String trainingMaterialPersistentId, Long trainingMaterialVersionId, String otherPersistentId, Long otherVersionId) {
 
-        return differentiateItems(trainingMaterialPersistentId, trainingMaterialVersionId,
-                otherPersistentId, otherVersionId);
+        return super.getDifferences(trainingMaterialPersistentId, trainingMaterialVersionId, otherPersistentId, otherVersionId);
     }
 }

@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
@@ -52,11 +52,11 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Workflow> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                           MediaStorageService mediaStorageService, SourceService sourceService, ItemDifferenceComparator itemDifferenceComparator) {
+                           MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService, itemDifferenceComparator
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
         );
 
         this.workflowRepository = workflowRepository;
@@ -325,10 +325,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return getAllSources(id);
     }
 
-    public ItemsDifferenceDto getDifference(String workflowPersistentId, Long workflowVersionId,
-                                            String otherPersistentId, Long otherVersionId) {
+    public ItemsDifferencesDto getDifferences(String workflowPersistentId, Long workflowVersionId, String otherPersistentId, Long otherVersionId) {
 
-        return differentiateItems(workflowPersistentId, workflowVersionId,
-                otherPersistentId, otherVersionId);
+        return super.getDifferences(workflowPersistentId, workflowVersionId, otherPersistentId, otherVersionId);
     }
 }

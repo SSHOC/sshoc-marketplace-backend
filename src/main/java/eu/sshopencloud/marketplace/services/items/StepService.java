@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
@@ -52,11 +52,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
             ItemUpgradeRegistry<Step> itemUpgradeRegistry, DraftItemRepository draftItemRepository,
             ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
             IndexService indexService, UserService userService, MediaStorageService mediaStorageService,
-            SourceService sourceService, ItemDifferenceComparator itemDifferenceComparator) {
+            SourceService sourceService) {
 
         super(itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService,
-                sourceService, itemDifferenceComparator);
+                sourceService);
 
         this.stepRepository = stepRepository;
         this.stepsTreeRepository = stepsTreeRepository;
@@ -465,9 +465,14 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
 
-    public ItemsDifferenceDto getDifference(String workflowPersistentId, String stepPersistentId, Long stepVersionId,
-            String otherPersistentId, Long otherVersionId) {
-
-        return differentiateItems(stepPersistentId, stepVersionId, otherPersistentId, otherVersionId);
+    public ItemsDifferencesDto getDifferences(String workflowPersistentId, String stepPersistentId, Long stepVersionId,
+                                              String otherPersistentId, Long otherVersionId) {
+        if (stepVersionId != null) {
+            validateWorkflowAndStepVersionConsistency(workflowPersistentId, stepPersistentId, stepVersionId);
+        } else {
+            validateCurrentWorkflowAndStepConsistency(workflowPersistentId, stepPersistentId, false);
+        }
+        return super.getDifferences(stepPersistentId, stepVersionId, otherPersistentId, otherVersionId);
     }
+
 }

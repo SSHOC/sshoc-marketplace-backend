@@ -7,7 +7,7 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.model.datasets.Dataset;
@@ -42,12 +42,11 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
             ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
             DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
             PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-            MediaStorageService mediaStorageService, SourceService sourceService,
-            ItemDifferenceComparator itemDifferenceComparator) {
+            MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService,
-                sourceService, itemDifferenceComparator);
+                sourceService);
 
         this.datasetRepository = datasetRepository;
         this.datasetFactory = datasetFactory;
@@ -182,10 +181,9 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
 
-    public ItemsDifferenceDto getDifference(String datasetPersistentId, Long datasetVersionId, String otherPersistentId,
-            Long otherVersionId) {
+    public ItemsDifferencesDto getDifferences(String datasetPersistentId, Long datasetVersionId, String otherPersistentId, Long otherVersionId) {
 
-        return differentiateItems(datasetPersistentId, datasetVersionId, otherPersistentId, otherVersionId);
+        return super.getDifferences(datasetPersistentId, datasetVersionId, otherPersistentId, otherVersionId);
     }
 
 }

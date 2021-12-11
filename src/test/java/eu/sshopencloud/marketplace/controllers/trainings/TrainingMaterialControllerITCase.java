@@ -1866,7 +1866,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Creation of a dictionary")));
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks. / Creation of a dictionary")));
 
     }
 
@@ -1888,7 +1888,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Creation of a dictionary")))
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks. / Creation of a dictionary")))
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
@@ -1902,7 +1902,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("persistentId", not(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks./Creation of a dictionary")));
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks. / Creation of a dictionary")));
 
         mvc.perform(
                         get("/api/training-materials/{id}", trainingMaterialId)
@@ -1985,7 +1985,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Introduction to GEPHI/Consortium of European Social Science Data Archives/WebSty")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI / Consortium of European Social Science Data Archives / WebSty")))
                 .andReturn().getResponse().getContentAsString();
 
 
@@ -2068,6 +2068,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("other.category", is("training-material")))
                 .andExpect(jsonPath("other.version", is("2.0")))
                 .andExpect(jsonPath("other.status", is("deprecated")));
+
 
         mvc.perform(get("/api/training-materials/{persistentId}/versions/{versionId}/diff", trainingMaterialPersistentId, trainingMaterialVersionId)
                         .contentType(MediaType.APPLICATION_JSON)

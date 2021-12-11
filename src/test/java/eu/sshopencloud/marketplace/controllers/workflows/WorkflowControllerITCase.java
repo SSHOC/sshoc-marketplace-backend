@@ -9,6 +9,8 @@ import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
+import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
@@ -31,6 +33,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -2032,7 +2035,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("persistentId", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi")));
+                .andExpect(jsonPath("label", is("Creation of a dictionary / Consortium of European Social Science Data Archives / Gephi")));
 
     }
 
@@ -2053,7 +2056,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("persistentId", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary / Consortium of European Social Science Data Archives / Gephi")))
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
@@ -2067,7 +2070,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("persistentId", not(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi")));
+                .andExpect(jsonPath("label", is("Creation of a dictionary / Consortium of European Social Science Data Archives / Gephi")));
 
         mvc.perform(
                         get("/api/datasets/{id}", datasetId)
@@ -2096,7 +2099,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("persistentId", is(stepId)))
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Build the model of the dictionary/Consortium of European Social Science Data Archives/Gephi")));
+                .andExpect(jsonPath("label", is("Build the model of the dictionary / Consortium of European Social Science Data Archives / Gephi")));
 
     }
 
@@ -2118,7 +2121,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("persistentId", is(stepId)))
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Build the model of the dictionary/Consortium of European Social Science Data Archives/Gephi")))
+                .andExpect(jsonPath("label", is("Build the model of the dictionary / Consortium of European Social Science Data Archives / Gephi")))
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
@@ -2132,7 +2135,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("persistentId", not(stepId)))
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Build the model of the dictionary/Consortium of European Social Science Data Archives/Gephi")));
+                .andExpect(jsonPath("label", is("Build the model of the dictionary / Consortium of European Social Science Data Archives / Gephi")));
 
 
         mvc.perform(
@@ -2217,7 +2220,7 @@ public class WorkflowControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Selection of textual works relevant for the research question/Consortium of European Social Science Data Archives/Run an inflectional analyzer")))
+                .andExpect(jsonPath("label", is("Selection of textual works relevant for the research question / Consortium of European Social Science Data Archives / Run an inflectional analyzer")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
@@ -2231,7 +2234,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("persistentId", not(stepOneId)))
                 .andExpect(jsonPath("category", is("step")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Selection of textual works relevant for the research question/Consortium of European Social Science Data Archives/Run an inflectional analyzer")))
+                .andExpect(jsonPath("label", is("Selection of textual works relevant for the research question / Consortium of European Social Science Data Archives / Run an inflectional analyzer")))
                 .andReturn().getResponse().getContentAsString();
 
 
@@ -2348,7 +2351,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("persistentId", is(workflowOneId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi/Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary / Consortium of European Social Science Data Archives / Gephi / Evaluation of an inflectional analyzer")))
                 .andExpect(jsonPath("composedOf", hasSize(4)))
                 .andReturn().getResponse().getContentAsString();
 
@@ -2363,7 +2366,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("persistentId", not(workflowOneId)))
                 .andExpect(jsonPath("category", is("workflow")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Creation of a dictionary/Consortium of European Social Science Data Archives/Gephi/Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary / Consortium of European Social Science Data Archives / Gephi / Evaluation of an inflectional analyzer")))
                 .andExpect(jsonPath("composedOf", hasSize(7)))
 
                 //steps of first workflow
@@ -2648,17 +2651,51 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldReturnDifferenceBetweenStepAndWorkflow() throws Exception {
-
+    public void shouldReturnDifferenceBetweenStepAndTrainingMaterial() throws Exception {
         String workflowPersistentId = "tqmbGY";
         String stepPersistentId = "prblMo";
         Long stepId = 13L;
         String trainingMaterialPersistentId = "WfcKvG";
 
+        String response = mvc.perform(
+                get("/api/training-materials/{id}", trainingMaterialPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto trainingMaterialDto = TestJsonMapper.serializingObjectMapper()
+                .readValue(response, TrainingMaterialDto.class);
+
+        TrainingMaterialCore trainingMaterialCore = new TrainingMaterialCore();
+        trainingMaterialCore.setLabel(trainingMaterialDto.getLabel());
+        trainingMaterialCore.setDescription(trainingMaterialDto.getDescription());
+        trainingMaterialCore.setAccessibleAt(trainingMaterialDto.getAccessibleAt());
+        trainingMaterialCore.setDateLastUpdated(ZonedDateTime.of(LocalDate.of(2020, Month.APRIL, 15), LocalTime.of(12, 0), ZoneId.of("UTC")));
+        trainingMaterialCore.setVersion(trainingMaterialDto.getVersion());
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterialCore);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("dateLastUpdated", is("2020-04-15T12:00:00+0000")));
+
+
         mvc.perform(get("/api/workflows/{persistentId}/steps/{stepPersistentId}/diff", workflowPersistentId, stepPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", trainingMaterialPersistentId )
-                        .param("otherVersionId", "")
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("item.persistentId", is(stepPersistentId)))
@@ -2669,10 +2706,12 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("item.status", is("approved")))
                 .andExpect(jsonPath("equal", is(false)))
                 .andExpect(jsonPath("other.persistentId", is(trainingMaterialPersistentId)))
-                .andExpect(jsonPath("other.id", is(7)))
                 .andExpect(jsonPath("other.category", is("training-material")))
                 .andExpect(jsonPath("other.version", is("3.0")))
-                .andExpect(jsonPath("other.status", is("approved")));
+                .andExpect(jsonPath("other.status", is("approved")))
+                .andExpect(jsonPath("other.description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("other.accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("other.dateLastUpdated", is("2020-04-15T12:00:00+0000")));
 
     }
 

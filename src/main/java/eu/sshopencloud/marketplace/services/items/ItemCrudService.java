@@ -21,6 +21,7 @@ import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -44,15 +45,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final UserService userService;
     private final MediaStorageService mediaStorageService;
     private final SourceService sourceService;
-    private final ItemDifferenceComparator itemDifferenceComparator;
-
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
             ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
             DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
             PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-            MediaStorageService mediaStorageService, SourceService sourceService,
-            ItemDifferenceComparator itemDifferenceComparator) {
+            MediaStorageService mediaStorageService, SourceService sourceService) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -69,8 +67,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         this.mediaStorageService = mediaStorageService;
         this.sourceService = sourceService;
-
-        this.itemDifferenceComparator = itemDifferenceComparator;
     }
 
 
@@ -128,7 +124,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected I mergeItem(String persistentId, List<String> mergedCores) {
-
         I mergedItem = loadCurrentItem(persistentId);
         mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
@@ -458,7 +453,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     private void completeItemDto(D dto, I item) {
-        completeItemDtoProperties(dto);
+        completeDto(dto, item);
+    }
+
+    private void completeDto(D dto, Item item) {
+        complete(dto, item);
+    }
+
+    private void complete(ItemDto dto, Item item) {
+        completeDtoProperties(dto);
 
         for (int i = 0; i < item.getMedia().size(); ++i) {
             ItemMedia media = item.getMedia().get(i);
@@ -473,8 +476,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
     }
 
-
-    private void completeItemDtoProperties(D dto) {
+    private void completeDtoProperties(ItemDto dto) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         List<PropertyDto> properties = dto.getProperties().stream()
                 .filter(property -> shouldRenderProperty(property, currentUser))
@@ -482,51 +484,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 .collect(Collectors.toList());
 
         dto.setProperties(properties);
-    }
-
-
-    private ItemsDifferenceDto completeDifferenceDto(I item, I other, ItemsDifferenceDto differenceDto) {
-
-        for (int i = 0; i < item.getMedia().size(); ++i) {
-            ItemMedia media = item.getMedia().get(i);
-            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
-            differenceDto.getItem().getMedia().get(i).setInfo(mediaDetails);
-        }
-
-        ItemMedia thumbnail = item.getThumbnail();
-        if (thumbnail != null) {
-            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(thumbnail.getMediaId());
-            differenceDto.getItem().getThumbnail().setInfo(mediaDetails);
-        }
-
-        for (int i = 0; i < other.getMedia().size(); ++i) {
-            ItemMedia media = other.getMedia().get(i);
-            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
-            differenceDto.getOther().getMedia().get(i).setInfo(mediaDetails);
-        }
-
-        ItemMedia thumbnailOther = other.getThumbnail();
-        if (thumbnailOther != null) {
-            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(thumbnailOther.getMediaId());
-            differenceDto.getOther().getThumbnail().setInfo(mediaDetails);
-        }
-
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
-        List<PropertyDto> properties = differenceDto.getItem().getProperties().stream()
-                .filter(property -> shouldRenderProperty(property, currentUser))
-                .peek(property -> propertyTypeService.completePropertyType(property.getType()))
-                .collect(Collectors.toList());
-
-        differenceDto.getItem().setProperties(properties);
-
-        List<PropertyDto> otherProperties = differenceDto.getOther().getProperties().stream()
-                .filter(property -> shouldRenderProperty(property, currentUser))
-                .peek(property -> propertyTypeService.completePropertyType(property.getType()))
-                .collect(Collectors.toList());
-
-        differenceDto.getOther().setProperties(otherProperties);
-
-        return differenceDto;
     }
 
 
@@ -571,67 +528,81 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected D prepareMergeItems(String persistentId, List<String> mergeList) {
-
         List<D> itemDtoList = new ArrayList<>();
 
         I finalItem = loadLatestItem(persistentId);
         D finalDto = convertItemToDto(finalItem);
+
+        // Remove the source. The merged item does not come from any source. Sources are only in the original items and
+        // are available via API: GET /api/{category}/{persistentId}/sources
+        finalDto.setSource(null);
+        finalDto.setSourceItemId(null);
 
         finalDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(finalItem));
         completeItemDto(finalDto, finalItem);
 
         for (int i = 0; i < mergeList.size(); i++) {
 
-            I vItem = (I) versionedItemRepository.getOne(mergeList.get(i)).getCurrentVersion();
+            Optional<Item> toMergeHolder = itemRepository.findCurrentVersion(mergeList.get(i));
+            if (toMergeHolder.isEmpty())
+                continue;
+            Item toMerge = toMergeHolder.get();
+            D toMergeDto = convertToDto(toMerge);
+            itemDtoList.add(toMergeDto);
 
-            D tmp = convertToDto(vItem);
-            itemDtoList.add(tmp);
+            itemDtoList.get(i).setRelatedItems(itemRelatedItemService.getItemRelatedItems(toMerge));
+            completeDto(itemDtoList.get(i), toMerge);
 
-            itemDtoList.get(i).setRelatedItems(itemRelatedItemService.getItemRelatedItems(vItem));
-            completeItemDto(itemDtoList.get(i), vItem);
-
-            if (!Objects.isNull(finalDto.getDescription()) && !Objects.isNull(itemDtoList.get(i).getDescription()))
-                if (!finalDto.getDescription().contains(itemDtoList.get(i).getDescription()))
-                    finalDto.setDescription(finalDto.getDescription() + "/" + itemDtoList.get(i).getDescription());
-
-            if (!Objects.isNull(finalDto.getLabel()) && !Objects.isNull(itemDtoList.get(i).getLabel()))
-                if (!finalDto.getLabel().contains(itemDtoList.get(i).getLabel()))
-                    finalDto.setLabel(finalDto.getLabel() + "/" + itemDtoList.get(i).getLabel());
-
-            if (!Objects.isNull(finalDto.getVersion()) && !Objects.isNull(itemDtoList.get(i).getVersion()))
-                if (!finalDto.getVersion().contains(itemDtoList.get(i).getVersion()))
-                    finalDto.setVersion(finalDto.getVersion() + "/" + itemDtoList.get(i).getVersion());
-
-            for (ItemContributorDto e : itemDtoList.get(i).getContributors()) {
-                if (!finalDto.getContributors().contains(e))
-                    finalDto.getContributors().add(e);
+            if (StringUtils.isNotBlank(itemDtoList.get(i).getDescription())) {
+                if (StringUtils.isBlank(finalDto.getDescription()))
+                    finalDto.setDescription(itemDtoList.get(i).getDescription());
+                else if (!finalDto.getDescription().contains(itemDtoList.get(i).getDescription()))
+                    finalDto.setDescription(finalDto.getDescription() + " / " + itemDtoList.get(i).getDescription());
             }
 
-            for (PropertyDto e : itemDtoList.get(i).getProperties()) {
-                if (!finalDto.getProperties().contains(e))
-                    finalDto.getProperties().add(e);
+            if (StringUtils.isNotBlank(itemDtoList.get(i).getLabel())) {
+                if (StringUtils.isBlank(finalDto.getLabel()))
+                    finalDto.setLabel(itemDtoList.get(i).getLabel());
+                else if (!finalDto.getLabel().contains(itemDtoList.get(i).getLabel()))
+                    finalDto.setLabel(finalDto.getLabel() + " / " + itemDtoList.get(i).getLabel());
             }
 
-            for (ItemExternalIdDto e : itemDtoList.get(i).getExternalIds()) {
-                if (!finalDto.getExternalIds().contains(e))
-                    finalDto.getExternalIds().add(e);
+            if (StringUtils.isNotBlank(itemDtoList.get(i).getVersion())) {
+                if (StringUtils.isBlank(finalDto.getVersion()))
+                    finalDto.setVersion(itemDtoList.get(i).getVersion());
+                else if (!finalDto.getVersion().contains(itemDtoList.get(i).getVersion()))
+                    finalDto.setVersion(finalDto.getVersion() + " / " + itemDtoList.get(i).getVersion());
             }
 
-            for (String e : itemDtoList.get(i).getAccessibleAt()) {
-                if (!finalDto.getAccessibleAt().contains(e))
-                    finalDto.getAccessibleAt().add(e);
+            for (ItemContributorDto itemContributor : itemDtoList.get(i).getContributors()) {
+                if (!finalDto.getContributors().contains(itemContributor))
+                    finalDto.getContributors().add(itemContributor);
             }
 
-            for (RelatedItemDto e : itemDtoList.get(i).getRelatedItems()) {
-                if (!finalDto.getRelatedItems().contains(e))
-                    finalDto.getRelatedItems().add(e);
+            for (PropertyDto property : itemDtoList.get(i).getProperties()) {
+                if (!finalDto.getProperties().contains(property))
+                    finalDto.getProperties().add(property);
             }
 
-            for (ItemMediaDto e : itemDtoList.get(i).getMedia()) {
-                if (!finalDto.getMedia().contains(e))
-                    finalDto.getMedia().add(e);
+            for (ItemExternalIdDto itemExternalId : itemDtoList.get(i).getExternalIds()) {
+                if (!finalDto.getExternalIds().contains(itemExternalId))
+                    finalDto.getExternalIds().add(itemExternalId);
             }
 
+            for (String accessibleAt : itemDtoList.get(i).getAccessibleAt()) {
+                if (!finalDto.getAccessibleAt().contains(accessibleAt))
+                    finalDto.getAccessibleAt().add(accessibleAt);
+            }
+
+            for (RelatedItemDto relatedItem : itemDtoList.get(i).getRelatedItems()) {
+                if (!finalDto.getRelatedItems().contains(relatedItem))
+                    finalDto.getRelatedItems().add(relatedItem);
+            }
+
+            for (ItemMediaDto itemMedia : itemDtoList.get(i).getMedia()) {
+                if (!finalDto.getMedia().contains(itemMedia))
+                    finalDto.getMedia().add(itemMedia);
+            }
         }
 
         return finalDto;
@@ -657,32 +628,32 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return getItemRepository().save(item);
     }
 
-
-    protected ItemsDifferenceDto differentiateItems(String persistentId, Long versionId, String otherPersistentId,
-            Long otherVersionId) {
-        I finalItem;
-        if (Objects.isNull(versionId) || versionId.toString().isBlank())
-            finalItem = loadLatestItem(persistentId);
+    protected ItemsDifferencesDto getDifferences(String persistentId, Long versionId, String otherPersistentId, Long otherVersionId) {
+        I item;
+        if (Objects.isNull(versionId))
+            item = loadLatestItem(persistentId);
         else
-            finalItem = loadItemVersion(persistentId, versionId);
+            item = loadItemVersion(persistentId, versionId);
 
-        I finalOtherItem = (I) versionedItemRepository.getOne(otherPersistentId).getCurrentVersion();
+        ItemDto itemDto = ItemsComparator.toDto(item);
+        itemDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(item));
+        complete(itemDto, item);
 
-        if (!Objects.isNull(otherVersionId) && !otherVersionId.toString().isBlank()) {
-            while (!Objects.isNull(finalOtherItem.getPrevVersion()) && !finalOtherItem.getId().equals(otherVersionId)) {
-                finalOtherItem = (I) finalOtherItem.getPrevVersion();
-            }
-        }
+        Optional<Item> otherHolder;
+        if (Objects.isNull(otherVersionId))
+            otherHolder = itemRepository.findCurrentVersion(otherPersistentId);
+        else
+            otherHolder = itemRepository.findByVersionedItemPersistentIdAndId(otherPersistentId, otherVersionId);
 
-        ItemsDifferenceDto difference = itemDifferenceComparator.differentiateItems(finalItem,
-                itemRelatedItemService.getItemRelatedItems(finalItem), finalOtherItem,
-                itemRelatedItemService.getItemRelatedItems(finalOtherItem));
-        difference = completeDifferenceDto(finalItem, finalOtherItem, difference);
+        Item other = otherHolder.orElseThrow(() -> new EntityNotFoundException(
+                String.format("Unable to find an item with id %s and version id %d", persistentId, versionId)));
 
-        return itemDifferenceComparator.diffMedia(difference);
+        ItemDto otherDto = ItemsComparator.toDto(other);
+        otherDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(other));
+        complete(otherDto, other);
 
+        return ItemsComparator.differentiateItems(itemDto, otherDto);
     }
-
 
     protected abstract I makeItem(C itemCore, I prevItem);
 

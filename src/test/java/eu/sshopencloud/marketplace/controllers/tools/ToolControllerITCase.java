@@ -1279,7 +1279,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andExpect(jsonPath("label", is("Gephi / Consortium of European Social Science Data Archives / Creation of a dictionary")))
                 .andReturn().getResponse().getContentAsString();
 
     }
@@ -1291,6 +1291,85 @@ public class ToolControllerITCase {
         String workflowId = "tqmbGY";
         String toolId = "n21Kfc";
 
+
+        mvc.perform(
+                get("/api/tools-services/{id}", toolId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("informationContributor.username", is("Moderator")))
+                .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
+                .andExpect(jsonPath("contributors[0].actor.name", is("John Smith")))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("properties[0].type.code", is("activity")))
+                .andExpect(jsonPath("properties[0].concept.code", is("7")))
+                .andExpect(jsonPath("properties[0].concept.label", is("Capture")))
+                .andExpect(jsonPath("properties[0].concept.uri", is("https://sshoc.poolparty.biz/Vocabularies/tadirah-activities/7")))
+                .andExpect(jsonPath("properties[1].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[1].value", is("graph")))
+                .andExpect(jsonPath("properties[2].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[2].value", is("social network analysis")))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[0].id", is(3)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[1].id", is(4)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        mvc.perform(
+                get("/api/datasets/{id}", datasetId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("description", is("The CESSDA Data Catalogue contains the metadata of all data in the holdings of CESSDA'a service providers. It is a one-stop-shop for search and discovery, enabling effective access to European social science research data.")))
+                .andExpect(jsonPath("contributors[0].actor.name", is("CESSDA")))
+                .andExpect(jsonPath("contributors[0].role.code", is("provider")))
+                .andExpect(jsonPath("properties[0].type.code", is("activity")))
+                .andExpect(jsonPath("properties[0].concept.code", is("ActivityType-Seeking")))
+                .andExpect(jsonPath("properties[0].concept.label", is("Seeking")))
+                .andExpect(jsonPath("properties[0].concept.uri", is("http://dcu.gr/ontologies/scholarlyontology/instances/ActivityType-Seeking")))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://datacatalogue.cessda.eu/")))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("relatedItems[0].id", is(9)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
+
+        mvc.perform(
+                get("/api/workflows/{id}", workflowId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowId)))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Creation of a dictionary")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("informationContributor.username", is("Contributor")))
+                .andExpect(jsonPath("description", is("Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset.")))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Austrian Academy of Sciences")))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].actor.name", is("CESSDA")))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("properties[0].type.code", is("language")))
+                .andExpect(jsonPath("properties[0].concept.code", is("eng")))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[0].concept.uri", is("http://iso639-3.sil.org/code/eng")));
+
+
         String response = mvc.perform(
                 get("/api/tools-services/{id}/merge", toolId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -1301,7 +1380,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andExpect(jsonPath("label", is("Gephi / Consortium of European Social Science Data Archives / Creation of a dictionary")))
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
@@ -1315,7 +1394,45 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("persistentId", not(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")));
+                .andExpect(jsonPath("label", is("Gephi / Consortium of European Social Science Data Archives / Creation of a dictionary")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("informationContributor.username", is("Moderator")))
+                .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks. / The CESSDA Data Catalogue contains the metadata of all data in the holdings of CESSDA'a service providers. It is a one-stop-shop for search and discovery, enabling effective access to European social science research data. / Best practices for creating a born-digital dictionary, i.e. a lexicographical dataset.")))
+                .andExpect(jsonPath("contributors[0].actor.name", is("John Smith")))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].actor.name", is("CESSDA")))
+                .andExpect(jsonPath("contributors[1].role.code", is("provider")))
+                .andExpect(jsonPath("contributors[2].actor.name", is("Austrian Academy of Sciences")))
+                .andExpect(jsonPath("contributors[2].role.code", is("author")))
+                .andExpect(jsonPath("contributors[3].actor.name", is("CESSDA")))
+                .andExpect(jsonPath("contributors[3].role.code", is("author")))
+                .andExpect(jsonPath("properties[0].type.code", is("activity")))
+                .andExpect(jsonPath("properties[0].concept.code", is("7")))
+                .andExpect(jsonPath("properties[0].concept.label", is("Capture")))
+                .andExpect(jsonPath("properties[0].concept.uri", is("https://sshoc.poolparty.biz/Vocabularies/tadirah-activities/7")))
+                .andExpect(jsonPath("properties[1].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[1].value", is("graph")))
+                .andExpect(jsonPath("properties[2].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[2].value", is("social network analysis")))
+                .andExpect(jsonPath("properties[3].type.code", is("activity")))
+                .andExpect(jsonPath("properties[3].concept.code", is("ActivityType-Seeking")))
+                .andExpect(jsonPath("properties[3].concept.label", is("Seeking")))
+                .andExpect(jsonPath("properties[3].concept.uri", is("http://dcu.gr/ontologies/scholarlyontology/instances/ActivityType-Seeking")))
+                .andExpect(jsonPath("properties[4].type.code", is("language")))
+                .andExpect(jsonPath("properties[4].concept.code", is("eng")))
+                .andExpect(jsonPath("properties[4].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[4].concept.uri", is("http://iso639-3.sil.org/code/eng")))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
+                .andExpect(jsonPath("accessibleAt[1]", is("https://datacatalogue.cessda.eu/")))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[0].id", not(is(3))))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-related-to")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("relatedItems[1].id", not(is(4))))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")))
+                .andExpect(jsonPath("relatedItems[2].persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("relatedItems[2].id", not(is(9))))
+                .andExpect(jsonPath("relatedItems[2].relation.code", is("mentions")));
 
         mvc.perform(
                 get("/api/datasets/{id}", datasetId)
@@ -1343,7 +1460,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andExpect(jsonPath("label", is("Gephi / Consortium of European Social Science Data Archives / Creation of a dictionary")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
@@ -1357,7 +1474,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("persistentId", not(toolId)))
                 .andExpect(jsonPath("category", is("tool-or-service")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Gephi/Consortium of European Social Science Data Archives/Creation of a dictionary")))
+                .andExpect(jsonPath("label", is("Gephi / Consortium of European Social Science Data Archives / Creation of a dictionary")))
                 .andReturn().getResponse().getContentAsString();
 
 

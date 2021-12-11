@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.controllers.tools;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
-import eu.sshopencloud.marketplace.dto.items.ItemsDifferenceDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
@@ -145,24 +145,24 @@ public class ToolController {
         return ResponseEntity.ok(toolService.getSources(persistentId));
     }
 
-    @Operation(summary = "Getting differences between tool and target version of item", operationId = "getToolAndVersionedItemDifference")
+    @Operation(summary = "Getting differences between tool and target version of item", operationId = "getToolAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemsDifferenceDto> getToolVersionedItemDifference(@PathVariable("persistentId") String persistentId,
-                                                                             @RequestParam String with,
-                                                                             @RequestParam Long otherVersionId) {
+    public ResponseEntity<ItemsDifferencesDto> getToolVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                               @RequestParam(required = true) String with,
+                                                                               @RequestParam(required = false) Long otherVersionId) {
 
-        return ResponseEntity.ok(toolService.getDifference(persistentId, null, with, otherVersionId));
+        return ResponseEntity.ok(toolService.getDifferences(persistentId, null, with, otherVersionId));
     }
 
 
-    @Operation(summary = "Getting differences between target version of tool and target version of item", operationId = "getVersionedToolAndVersionedItemDifference")
+    @Operation(summary = "Getting differences between target version of tool and target version of item", operationId = "getVersionedToolAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ItemsDifferenceDto> getVersionedToolVersionedItemDifference(@PathVariable("persistentId") String persistentId,
-                                                                                      @PathVariable("versionId") long versionId,
-                                                                                      @RequestParam String with,
-                                                                                      @RequestParam Long otherVersionId) {
+    public ResponseEntity<ItemsDifferencesDto> getVersionedToolVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                        @PathVariable("versionId") long versionId,
+                                                                                        @RequestParam(required = true) String with,
+                                                                                        @RequestParam(required = false) Long otherVersionId) {
 
-        return ResponseEntity.ok(toolService.getDifference(persistentId, versionId, with, otherVersionId));
+        return ResponseEntity.ok(toolService.getDifferences(persistentId, versionId, with, otherVersionId));
     }
 
 

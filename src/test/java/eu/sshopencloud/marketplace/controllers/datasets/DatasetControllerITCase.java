@@ -1252,7 +1252,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Gephi")));
 
     }
 
@@ -1273,7 +1273,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Gephi")))
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
@@ -1287,7 +1287,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")));
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Gephi")));
 
 
         mvc.perform(
@@ -1318,7 +1318,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Gephi")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
@@ -1332,7 +1332,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Gephi")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Gephi")))
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
@@ -1385,7 +1385,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
@@ -1399,7 +1399,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
@@ -1488,7 +1488,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
@@ -1502,7 +1502,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
         mvc.perform(
@@ -1576,7 +1576,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
@@ -1590,7 +1590,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
@@ -1616,7 +1616,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data")))
                 .andReturn().getResponse().getContentAsString();
 
 
@@ -1631,7 +1631,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data"))).andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data"))).andReturn().getResponse().getContentAsString();
 
         String mergedSecondPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse2, DatasetDto.class).getPersistentId();
@@ -1657,7 +1657,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data/Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data / Evaluation of an inflectional analyzer")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse3 = mvc.perform(
@@ -1671,7 +1671,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data/Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data / Evaluation of an inflectional analyzer")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedThirdPersistentId = TestJsonMapper.serializingObjectMapper()
@@ -1755,7 +1755,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse = mvc.perform(
@@ -1769,7 +1769,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(datasetPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
@@ -1831,7 +1831,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data")))
                 .andReturn().getResponse().getContentAsString();
 
 
@@ -1846,7 +1846,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data"))).andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data"))).andReturn().getResponse().getContentAsString();
 
         String mergedSecondPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse2, DatasetDto.class).getPersistentId();
@@ -1883,7 +1883,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data/Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data / Evaluation of an inflectional analyzer")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedResponse3 = mvc.perform(
@@ -1897,7 +1897,7 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
                 .andExpect(jsonPath("category", is("dataset")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives/Creation of a dictionary/Introduction to GEPHI/WebSty/Austin Crime Data/Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data / Evaluation of an inflectional analyzer")))
                 .andReturn().getResponse().getContentAsString();
 
         String mergedThirdPersistentId = TestJsonMapper.serializingObjectMapper()
@@ -1955,7 +1955,6 @@ public class DatasetControllerITCase {
         mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", otherDatasetPersistentId)
-                        .param("otherVersionId", "")
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
@@ -1963,12 +1962,18 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("item.category", is("dataset")))
                 .andExpect(jsonPath("item.label", is("Austin Crime Data")))
                 .andExpect(jsonPath("item.informationContributor.id", is(3)))
+                .andExpect(jsonPath("item.properties[0].type.code", is("language")))
+                .andExpect(jsonPath("item.properties[0].concept.code", is("eng")))
+                .andExpect(jsonPath("item.accessibleAt[0]", is("https://console.cloud.google.com/marketplace/details/city-of-austin/austin-crime")))
                 .andExpect(jsonPath("equal", is(false)))
                 .andExpect(jsonPath("other.persistentId", is(otherDatasetPersistentId)))
                 .andExpect(jsonPath("other.id", is(otherDatasetId)))
                 .andExpect(jsonPath("other.category", is("dataset")))
                 .andExpect(jsonPath("other.label", is("Consortium of European Social Science Data Archives")))
-                .andExpect(jsonPath("other.informationContributor.id", is(1)));
+                .andExpect(jsonPath("other.informationContributor.id", is(1)))
+                .andExpect(jsonPath("other.properties[0].type.code", is("activity")))
+                .andExpect(jsonPath("other.properties[0].concept.code", is("ActivityType-Seeking")))
+                .andExpect(jsonPath("other.accessibleAt[0]", is("https://datacatalogue.cessda.eu/")));
     }
 
     @Test
@@ -1980,7 +1985,6 @@ public class DatasetControllerITCase {
         mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", otherDatasetPersistentId)
-                        .param("otherVersionId", "")
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
@@ -1988,11 +1992,13 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("item.category", is("dataset")))
                 .andExpect(jsonPath("item.label", is("Austin Crime Data")))
                 .andExpect(jsonPath("item.informationContributor.id", is(3)))
+                .andExpect(jsonPath("item.accessibleAt[0]", is("https://console.cloud.google.com/marketplace/details/city-of-austin/austin-crime")))
                 .andExpect(jsonPath("equal", is(true)))
                 .andExpect(jsonPath("other.persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("other.id", is(datasetId)))
                 .andExpect(jsonPath("other.category", is("dataset")))
-                .andExpect(jsonPath("other.relatedItems[0]", nullValue()));
+                .andExpect(jsonPath("other.informationContributor.id", is(3)))
+                .andExpect(jsonPath("other.accessibleAt[0]", nullValue()));
     }
 
     @Test
@@ -2012,26 +2018,23 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("id",is(datasetId)))
                 .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Austin Crime Data")))
+                .andExpect(jsonPath("informationContributor.id", is(3)))
+                .andExpect(jsonPath("description", is("This dataset includes Part 1 crimes for 2014 and 2015. Data is provided by the Austin Police Department and may differ from official APD crime data due to the variety of reporting and collection methods used.")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(4)))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("relatedItems[0].id", is(10)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")))
+
                 .andReturn().getResponse().getContentAsString();
 
         DatasetDto dataset = TestJsonMapper.serializingObjectMapper()
                 .readValue(responseDataset, DatasetDto.class);
 
         dataset.setDateCreated(ZonedDateTime.of(LocalDate.of(2021,12,1), LocalTime.of(03,10), ZoneId.of("Europe/Paris")));
-
-        String responseTrainingMaterial = mvc.perform(
-                        get("/api/tools-services/{id}",otherToolPersistentId )
-                                .param("approved", "false")
-                                .header("Authorization", IMPORTER_JWT)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(otherToolPersistentId)))
-                .andExpect(jsonPath("id",is(otherToolId)))
-                .andExpect(jsonPath("category", is("tool-or-service")))
-                .andReturn().getResponse().getContentAsString();
-
-        ToolDto tool = TestJsonMapper.serializingObjectMapper()
-                .readValue(responseTrainingMaterial, ToolDto.class);
 
         String payload = mapper.writeValueAsString(dataset);
         log.debug("JSON: " + payload);
@@ -2040,37 +2043,78 @@ public class DatasetControllerITCase {
                         put("/api/datasets/{id}", datasetPersistentId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(payload)
-                                .header("Authorization",ADMINISTRATOR_JWT)
+                                .header("Authorization", ADMINISTRATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("dateCreated", is("2021-12-01T02:10:00+0000")))
                 .andExpect(jsonPath("category", is("dataset")))
-                .andExpect(jsonPath("status", is("approved")));
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Austin Crime Data")))
+                .andExpect(jsonPath("informationContributor.id", is(1)))
+                .andExpect(jsonPath("dateCreated", is("2021-12-01T02:10:00+0000")))
+                .andExpect(jsonPath("description", is("This dataset includes Part 1 crimes for 2014 and 2015. Data is provided by the Austin Police Department and may differ from official APD crime data due to the variety of reporting and collection methods used.")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(4)))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("relatedItems[0].id", is(10)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")));
+
+
+        mvc.perform(
+                get("/api/tools-services/{id}", otherToolPersistentId )
+                        .param("approved", "false")
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(otherToolPersistentId)))
+                .andExpect(jsonPath("id",is(otherToolId)))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("WebSty")))
+                .andExpect(jsonPath("informationContributor.id", is(1)))
+                .andExpect(jsonPath("description", is("Stylometric analysis tool.")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].actor.id", is(5)))
+                .andExpect(jsonPath("contributors[1].role.code", is("contributor")))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("n21Kfc")))
+                .andExpect(jsonPath("relatedItems[0].id", is(1)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")));
 
 
         mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", otherToolPersistentId)
-                        .param("otherVersionId", "")
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("item.category", is("dataset")))
                 .andExpect(jsonPath("item.label", is("Austin Crime Data")))
                 .andExpect(jsonPath("item.informationContributor.id", is(1)))
-               // .andExpect(jsonPath("item.dateCreated", is("2021-12-01T02:10:00+0000")))
+                .andExpect(jsonPath("item.dateCreated", is("2021-12-01T02:10:00+0000")))
                 .andExpect(jsonPath("item.description", is("This dataset includes Part 1 crimes for 2014 and 2015. Data is provided by the Austin Police Department and may differ from official APD crime data due to the variety of reporting and collection methods used.")))
                 .andExpect(jsonPath("item.contributors[0].actor.id", is(1)))
                 .andExpect(jsonPath("item.contributors[0].role.code", is("author")))
                 .andExpect(jsonPath("item.contributors[1].actor.id", is(4)))
                 .andExpect(jsonPath("item.contributors[1].role.code", is("author")))
+                .andExpect(jsonPath("item.relatedItems[0].persistentId", is("OdKfPc")))
                 .andExpect(jsonPath("item.relatedItems[0].id", is(10)))
+                .andExpect(jsonPath("item.relatedItems[0].relation.code", is("is-mentioned-in")))
                 .andExpect(jsonPath("equal", is(false)))
                 .andExpect(jsonPath("other.persistentId", is( otherToolPersistentId)))
                 .andExpect(jsonPath("other.id", is(otherToolId)))
                 .andExpect(jsonPath("other.category", is("tool-or-service")))
-                .andExpect(jsonPath("other.label", is("WebSty")));
+                .andExpect(jsonPath("other.label", is("WebSty")))
+                .andExpect(jsonPath("other.informationContributor.id", is(1)))
+                .andExpect(jsonPath("other.description", is("Stylometric analysis tool.")))
+                .andExpect(jsonPath("other.contributors[0].actor.id", is(3)))
+                .andExpect(jsonPath("other.contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("other.contributors[1].actor.id", is(5)))
+                .andExpect(jsonPath("other.contributors[1].role.code", is("contributor")))
+                .andExpect(jsonPath("other.relatedItems[0].persistentId", is("n21Kfc")))
+                .andExpect(jsonPath("other.relatedItems[0].id", is(1)))
+                .andExpect(jsonPath("other.relatedItems[0].relation.code", is("relates-to")));
     }
 
 
@@ -2100,113 +2144,16 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("other.label", is("Introduction to GEPHI")));
     }
 
-    @Test
-    public void shouldReturnDifferenceBetweenDatasetAndTrainingMaterial() throws Exception {
-        String datasetPersistentId = "dmbq4v";
-        Integer datasetId = 9;
-
-        String otherTrainingMaterialPersistentId = "WfcKvG";
-        Integer otherTrainingMaterialId = 7;
-
-        String responseDataset = mvc.perform(
-                        get("/api/datasets/{id}",datasetPersistentId)
-                                .param("approved", "false")
-                                .header("Authorization", IMPORTER_JWT)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("id",is(datasetId)))
-                .andExpect(jsonPath("category", is("dataset")))
-                .andReturn().getResponse().getContentAsString();
-
-        DatasetDto dataset = TestJsonMapper.serializingObjectMapper()
-                .readValue(responseDataset, DatasetDto.class);
-
-        dataset.setDateCreated(ZonedDateTime.of(LocalDate.of(2021,12,1), LocalTime.of(03,10), ZoneId.of("Europe/Paris")));
-
-        String responseTrainingMaterial = mvc.perform(
-                        get("/api/training-materials/{id}",otherTrainingMaterialPersistentId )
-                                .param("approved", "false")
-                                .header("Authorization", IMPORTER_JWT)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(otherTrainingMaterialPersistentId )))
-                .andExpect(jsonPath("id",is(otherTrainingMaterialId)))
-                .andExpect(jsonPath("category", is("training-material")))
-                .andReturn().getResponse().getContentAsString();
-
-        TrainingMaterialDto trainingMaterial = TestJsonMapper.serializingObjectMapper()
-                .readValue(responseTrainingMaterial, TrainingMaterialDto.class);
-
-        trainingMaterial.setDateCreated(ZonedDateTime.of(LocalDate.of(2000,4,20), LocalTime.of(03,10), ZoneId.of("Europe/Paris")));
-        trainingMaterial.setSourceItemId("1");
-        String payload = mapper.writeValueAsString(dataset);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(
-                        put("/api/datasets/{id}", datasetPersistentId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(payload)
-                                .header("Authorization",ADMINISTRATOR_JWT)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("dateCreated", is("2021-12-01T02:10:00+0000")))
-                .andExpect(jsonPath("category", is("dataset")))
-                .andExpect(jsonPath("status", is("approved")));
-
-
-        String payloadTrainingMaterial = mapper.writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payloadTrainingMaterial);
-
-        mvc.perform(
-                put("/api/training-materials/{id}", otherTrainingMaterialPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payloadTrainingMaterial)
-                        .header("Authorization", ADMINISTRATOR_JWT)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(otherTrainingMaterialPersistentId)))
-                .andExpect(jsonPath("dateCreated", is("2000-04-20T01:10:00+0000")))
-                .andExpect(jsonPath("category", is("training-material")))
-                .andExpect(jsonPath("status", is("approved")));
-
-
-        mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("with", otherTrainingMaterialPersistentId)
-                        .param("otherVersionId", "")
-                        .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
-                .andExpect(jsonPath("item.category", is("dataset")))
-                .andExpect(jsonPath("item.label", is("Austin Crime Data")))
-                .andExpect(jsonPath("item.informationContributor.id", is(1)))
-               // .andExpect(jsonPath("item.dateCreated", is("2021-12-01T02:10:00+0000")))
-                .andExpect(jsonPath("item.description", is("This dataset includes Part 1 crimes for 2014 and 2015. Data is provided by the Austin Police Department and may differ from official APD crime data due to the variety of reporting and collection methods used.")))
-                .andExpect(jsonPath("item.contributors[0].actor.id", is(1)))
-                .andExpect(jsonPath("item.contributors[0].role.code", is("author")))
-                .andExpect(jsonPath("item.contributors[1].actor.id", is(4)))
-                .andExpect(jsonPath("item.contributors[1].role.code", is("author")))
-                .andExpect(jsonPath("item.relatedItems[0].id", is(10)))
-                .andExpect(jsonPath("equal", is(false)))
-                .andExpect(jsonPath("other.persistentId", is( otherTrainingMaterialPersistentId)))
-                .andExpect(jsonPath("other.id", not(otherTrainingMaterialId)))
-                .andExpect(jsonPath("other.category", is("training-material")))
-                .andExpect(jsonPath("other.label", is("Introduction to GEPHI")));
-    }
-
 
     @Test
-    public void shouldNotReturnDifferenceBetweenTrainingMaterialAndDataset() throws Exception {
-        String trainingMaterialPersistentId = "WfcKvG";
+    public void shouldNotReturnDifferenceBetweenTrainingMaterialWhenNotExists() throws Exception {
+        String trainingMaterialPersistentId = "NONEXISTING";
 
         String otherDatasetPersistentId = "dmbq4v";
 
         mvc.perform(get("/api/datasets/{persistentId}/diff", trainingMaterialPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", otherDatasetPersistentId)
-                        .param("otherVersionId", "")
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isNotFound());
     }
