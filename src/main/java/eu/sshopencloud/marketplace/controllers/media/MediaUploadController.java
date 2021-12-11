@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaDownload;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
-import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
