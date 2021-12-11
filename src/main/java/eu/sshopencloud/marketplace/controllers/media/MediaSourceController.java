@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.controllers.media;
 import eu.sshopencloud.marketplace.domain.media.MediaSourceService;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceDto;
-import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
