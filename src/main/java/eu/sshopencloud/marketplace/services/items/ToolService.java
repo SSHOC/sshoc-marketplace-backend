@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
@@ -163,6 +164,11 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
     public List<SourceDto> getSources(String id) {
         return getAllSources(id);
+    }
+
+    public ItemsDifferencesDto getDifferences(String toolPersistentId, Long toolVersionId, String otherPersistentId, Long otherVersionId) {
+
+        return super.getDifferences(toolPersistentId, toolVersionId, otherPersistentId, otherVersionId);
     }
 
 }

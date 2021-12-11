@@ -1,6 +1,14 @@
 package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.items.ItemDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
+import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
+import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
+import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
+import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
+import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
+import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
@@ -15,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -158,8 +167,8 @@ abstract class ItemVersionService<I extends Item> {
                 );
     }
 
-
     protected abstract ItemVersionRepository<I> getItemRepository();
 
     protected abstract String getItemTypeName();
+
 }

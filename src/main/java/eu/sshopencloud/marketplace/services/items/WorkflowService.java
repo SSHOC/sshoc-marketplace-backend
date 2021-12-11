@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
@@ -379,4 +380,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return getAllSources(id);
     }
 
+    public ItemsDifferencesDto getDifferences(String workflowPersistentId, Long workflowVersionId, String otherPersistentId, Long otherVersionId) {
+
+        return super.getDifferences(workflowPersistentId, workflowVersionId, otherPersistentId, otherVersionId);
+    }
 }

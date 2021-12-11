@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.workflows;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.services.items.StepService;
@@ -191,7 +192,7 @@ public class WorkflowController {
         return ResponseEntity.ok(workflow);
     }
 
-    @Operation(summary = "Retrieving history of workflow by its persistentId" )
+    @Operation(summary = "Retrieving history of workflow by its persistentId")
     @GetMapping(path = "/{persistentId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemExtBasicDto>> getWorkflowHistory(@PathVariable("persistentId") String workflowPersistentId,
                                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft,
@@ -289,5 +290,49 @@ public class WorkflowController {
                                                           @PathVariable("stepPersistentId") String stepPersistentId) {
         return ResponseEntity.ok(stepService.getSources(workflowPersistentId, stepPersistentId));
     }
+
+    @Operation(summary = "Getting differences between workflow and target version of item", operationId = "getWorkflowAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getWorkflowVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                   @RequestParam(required = true) String with,
+                                                                                   @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(workflowService.getDifferences(persistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of workflow and target version of item", operationId = "getVersionedWorkflowAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getVersionedWorkflowVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                            @PathVariable("versionId") long versionId,
+                                                                                            @RequestParam(required = true) String with,
+                                                                                            @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(workflowService.getDifferences(persistentId, versionId, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between step and target version of item", operationId = "getStepAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/steps/{stepPersistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getStepVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                               @PathVariable("stepPersistentId") String stepPersistentId,
+                                                                               @RequestParam(required = true) String with,
+                                                                               @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(stepService.getDifferences(persistentId, stepPersistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of step and target version of item", operationId = "getVersionedStepAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/steps/{stepPersistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getVersionedStepVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                        @PathVariable("stepPersistentId") String stepPersistentId,
+                                                                                        @PathVariable("versionId") long versionId,
+                                                                                        @RequestParam(required = true) String with,
+                                                                                        @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(stepService.getDifferences(persistentId, stepPersistentId, versionId, with, otherVersionId));
+    }
+
 
 }
