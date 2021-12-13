@@ -7,10 +7,7 @@ import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.auth.User;
-import eu.sshopencloud.marketplace.model.items.DraftItem;
-import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
@@ -18,19 +15,18 @@ import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.validators.items.ItemContributorFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
 
 @Service
 @Transactional
@@ -48,13 +44,15 @@ public class ItemsService extends ItemVersionService<Item> {
     private final WorkflowService workflowService;
     private final StepService stepService;
 
+    private final ItemContributorFactory itemContributorFactory;
 
-    public ItemsService(ItemRepository itemRepository, DraftItemRepository draftItemRepository, VersionedItemRepository versionedItemRepository,
-                        ItemVisibilityService itemVisibilityService,
-                        SourceRepository sourceRepository,
-                        @Lazy ToolService toolService, @Lazy TrainingMaterialService trainingMaterialService,
-                        @Lazy PublicationService publicationService, @Lazy DatasetService datasetService,
-                        @Lazy WorkflowService workflowService, @Lazy StepService stepService) {
+
+    public ItemsService(ItemRepository itemRepository, DraftItemRepository draftItemRepository,
+            VersionedItemRepository versionedItemRepository, ItemVisibilityService itemVisibilityService,
+            SourceRepository sourceRepository, @Lazy ToolService toolService,
+            @Lazy TrainingMaterialService trainingMaterialService, @Lazy PublicationService publicationService,
+            @Lazy DatasetService datasetService, @Lazy WorkflowService workflowService, @Lazy StepService stepService,
+            ItemContributorFactory itemContributorFactory) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -67,22 +65,26 @@ public class ItemsService extends ItemVersionService<Item> {
         this.datasetService = datasetService;
         this.workflowService = workflowService;
         this.stepService = stepService;
+        this.itemContributorFactory = itemContributorFactory;
     }
+
 
     public PaginatedItemsBasic getMyDraftItems(ItemOrder order, PageCoords pageCoords) {
-        if (order == null) order = ItemOrder.MODIFIED_ON;
+        if (order == null)
+            order = ItemOrder.MODIFIED_ON;
 
         Page<DraftItem> draftItemsPage = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser(),
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))));
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(),
+                        Sort.by(getSortOrderByItemOrder(order))));
 
-        List<ItemBasicDto> items = draftItemsPage.stream().map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
+        List<ItemBasicDto> items = draftItemsPage.stream()
+                .map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
 
-        return PaginatedItemsBasic.builder().items(items)
-                .count(draftItemsPage.getContent().size()).hits(draftItemsPage.getTotalElements())
-                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
-                .pages(draftItemsPage.getTotalPages())
-                .build();
+        return PaginatedItemsBasic.builder().items(items).count(draftItemsPage.getContent().size())
+                .hits(draftItemsPage.getTotalElements()).page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(draftItemsPage.getTotalPages()).build();
     }
+
 
     private Sort.Order getSortOrderByItemOrder(ItemOrder itemOrder) {
         switch (itemOrder) {
@@ -108,27 +110,27 @@ public class ItemsService extends ItemVersionService<Item> {
         return getItemsBySource(sourceId, null, approved, pageCoords);
     }
 
-    public PaginatedItemsBasic getItemsBySource(Long sourceId, String sourceItemId, boolean approved, PageCoords pageCoords) {
+
+    public PaginatedItemsBasic getItemsBySource(Long sourceId, String sourceItemId, boolean approved,
+            PageCoords pageCoords) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        Source source = sourceRepository.findById(sourceId)
-                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + sourceId));
+        Source source = sourceRepository.findById(sourceId).orElseThrow(
+                () -> new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + sourceId));
 
         Page<Item> itemsPage = loadLatestItemsForSource(pageCoords, source, sourceItemId, currentUser, approved);
 
         List<ItemBasicDto> items = itemsPage.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
 
-        return PaginatedItemsBasic.builder()
-                .items(items)
-                .count(itemsPage.getContent().size()).hits(itemsPage.getTotalElements())
-                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
-                .pages(itemsPage.getTotalPages())
-                .build();
+        return PaginatedItemsBasic.builder().items(items).count(itemsPage.getContent().size())
+                .hits(itemsPage.getTotalElements()).page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(itemsPage.getTotalPages()).build();
     }
 
-    private Page<Item> loadLatestItemsForSource(PageCoords pageCoords, Source source, String sourceItemId, User user, boolean approved) {
-        PageRequest pageRequest = PageRequest.of(
-                pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
-        );
+
+    private Page<Item> loadLatestItemsForSource(PageCoords pageCoords, Source source, String sourceItemId, User user,
+            boolean approved) {
+        PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(),
+                Sort.by(Sort.Order.asc("label")));
 
         if (approved || user == null) {
             if (sourceItemId == null) {
@@ -154,11 +156,11 @@ public class ItemsService extends ItemVersionService<Item> {
     }
 
 
-
     public Item liftItemVersion(String persistentId, boolean draft, boolean changeStatus) {
         Item currentItem = loadCurrentItem(persistentId);
         return resolveItemsService(currentItem.getCategory()).liftItemVersion(persistentId, draft, changeStatus);
     }
+
 
     private ItemCrudService<? extends Item, ?, ?, ?> resolveItemsService(ItemCategory category) {
         switch (category) {
@@ -186,15 +188,84 @@ public class ItemsService extends ItemVersionService<Item> {
     }
 
 
+    public void replaceActors(Actor actor, Actor other) {
+        List<Item> items = itemRepository.findByContributorActorId(other.getId());
+        items.forEach(item -> {
+            replaceItemContributor(item, actor, other);
+        });
+
+    }
+
+
+    public boolean checkIfContainsItemContributor(List<ItemContributor> contributors, ItemContributor itemContributor) {
+        AtomicBoolean check = new AtomicBoolean(false);
+
+        contributors.forEach(c -> {
+            if (c.getActor().getId().equals(itemContributor.getActor().getId()) && c.getItem()
+                    .equals(itemContributor.getItem()) && c.getRole().equals(itemContributor.getRole()))
+                check.set(true);
+        });
+        return check.get();
+
+    }
+
+
+    public void replaceItemContributor(Item item, Actor actor, Actor other) {
+        List<ItemContributor> contributorsToReplace = new ArrayList<>();
+        List<ItemContributor> contributorsToRemove = new ArrayList<>();
+
+        item.getContributors().forEach(c -> {
+            if (c.getActor().equals(other)) {
+
+                contributorsToRemove.add(c);
+                ItemContributor itemContributor = new ItemContributor(item, actor, c.getRole(), c.getOrd());
+
+                if (!checkIfContainsItemContributor(item.getContributors(), itemContributor))
+                    contributorsToReplace.add(itemContributor);
+            }
+        });
+
+        if (contributorsToRemove.size() > 0) {
+            item.getContributors().removeAll(contributorsToRemove);
+            itemRepository.save(item);
+        }
+
+        if (contributorsToReplace.size() > 0) {
+            Set<Map.Entry<Long, String>> actorRoles = new HashSet<>();
+            List<ItemContributor> finalContributorsToAdd = new ArrayList<>(item.getContributors());
+
+            item.getContributors().forEach(c -> {
+                if (!Objects.isNull(c.getActor()) && !Objects.isNull(c.getRole()))
+                    actorRoles.add(Map.entry(c.getActor().getId(), c.getRole().getCode()));
+            });
+
+            contributorsToReplace.forEach(c -> {
+                if (!actorRoles.contains(Map.entry(c.getActor().getId(), c.getRole().getCode())))
+                    finalContributorsToAdd.add(c);
+            });
+
+            setItemContributors(item.getPersistentId(), finalContributorsToAdd);
+        }
+    }
+
+
+    public void setItemContributors(String persistentId, List<ItemContributor> finalContributorsToAdd) {
+        Item i = loadLatestItem(persistentId);
+        i.setContributors(finalContributorsToAdd);
+    }
+
+
     @Override
     protected Item loadLatestItem(String persistentId) {
         return super.loadLatestItem(persistentId);
     }
 
+
     @Override
     protected ItemVersionRepository<Item> getItemRepository() {
         return itemRepository;
     }
+
 
     @Override
     protected String getItemTypeName() {
