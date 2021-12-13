@@ -44,7 +44,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     "   FROM items i, sub_item si" +
                     "   WHERE i.id = si.prev_version_id)" +
 
-                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences " +
+                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status, u.registration_date, u.role, u.token_key, u.email, u.config, u.preferences " +
                     "FROM Users u " +
                     "INNER JOIN items i \n" +
                     "ON u.id = i.info_contributor_id\n" +
@@ -75,7 +75,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     "   FROM items i, sub_item si" +
                     "   WHERE i.id = si.prev_version_id)" +
 
-                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences " +
+                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password, u.status, u.registration_date, u.role, u.token_key, u.email, u.config, u.preferences " +
                     "FROM Users u " +
                     "INNER JOIN items i \n" +
                     "ON u.id = i.info_contributor_id\n" +
