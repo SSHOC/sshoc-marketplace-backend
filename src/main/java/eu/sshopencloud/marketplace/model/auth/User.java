@@ -7,6 +7,7 @@ import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -37,13 +38,16 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    private String provider;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_providers", joinColumns = @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "user_providers_user_fk")))
+    @Column(name = "provider")
+    private List<String> providers;
 
     @Column(nullable = true)
     @Nullable
     private String tokenKey;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
