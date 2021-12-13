@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.repositories.items;
 
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.sources.Source;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -73,5 +73,6 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
 
     Optional<T> findByVersionedItemPersistentIdAndId(String persistentId, long id);
 
+    List<T> findByVersionedItemPersistentId(String persistentId);
 
 }

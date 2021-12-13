@@ -30,6 +30,7 @@ import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
@@ -55,11 +56,12 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Workflow> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                           MediaStorageService mediaStorageService, SourceService sourceService) {
+                           MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService,
+                eventPublisher
         );
 
         this.workflowRepository = workflowRepository;

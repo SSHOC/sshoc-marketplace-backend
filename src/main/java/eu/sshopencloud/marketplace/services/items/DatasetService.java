@@ -22,6 +22,7 @@ import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.datasets.DatasetFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,11 +43,11 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
             ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
             DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
             PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-            MediaStorageService mediaStorageService, SourceService sourceService) {
+            MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService,
-                sourceService);
+                sourceService, eventPublisher);
 
         this.datasetRepository = datasetRepository;
         this.datasetFactory = datasetFactory;

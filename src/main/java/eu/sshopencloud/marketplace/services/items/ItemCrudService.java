@@ -17,11 +17,13 @@ import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.services.items.event.ItemsMergedEvent;
 import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -46,11 +48,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final MediaStorageService mediaStorageService;
     private final SourceService sourceService;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
             ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
             DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
             PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-            MediaStorageService mediaStorageService, SourceService sourceService) {
+            MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -67,6 +71,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         this.mediaStorageService = mediaStorageService;
         this.sourceService = sourceService;
+
+        this.eventPublisher = eventPublisher;
     }
 
 
@@ -123,12 +129,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    protected I mergeItem(String persistentId, List<String> mergedCores) {
+    protected I mergeItem(String persistentId, List<String> mergedPersistentIds) {
         I mergedItem = loadCurrentItem(persistentId);
         mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
-        for (String mergedCore : mergedCores) {
-            VersionedItem versionedItem = versionedItemRepository.getOne(mergedCore);
+        for (String mergedPersistentId : mergedPersistentIds) {
+            VersionedItem versionedItem = versionedItemRepository.getOne(mergedPersistentId);
             I prevItem = (I) versionedItem.getCurrentVersion();
             prevItem.setStatus(ItemStatus.DEPRECATED);
             mergedItem.getVersionedItem().addMergedWith(versionedItem);
@@ -138,8 +144,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         versionedItemRepository.save(mergedItem.getVersionedItem());
         itemRepository.save(mergedItem);
-        return mergedItem;
 
+        eventPublisher.publishEvent(new ItemsMergedEvent(persistentId, mergedPersistentIds));
+
+        return mergedItem;
     }
 
 
