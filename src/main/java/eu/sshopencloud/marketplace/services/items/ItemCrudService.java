@@ -131,6 +131,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected I mergeItem(String persistentId, List<String> mergedPersistentIds) {
         I mergedItem = loadCurrentItem(persistentId);
+        // The merged item does not come from any source. Sources are only in the original items and
+        // are available via API: GET /api/{category}/{persistentId}/sources
+        mergedItem.setSource(null);
+        mergedItem.setSourceItemId(null);
         mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
         for (String mergedPersistentId : mergedPersistentIds) {
@@ -582,7 +586,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I finalItem = loadLatestItem(persistentId);
         D finalDto = convertItemToDto(finalItem);
 
-        // Remove the source. The merged item does not come from any source. Sources are only in the original items and
+        // The merged item does not come from any source. Sources are only in the original items and
         // are available via API: GET /api/{category}/{persistentId}/sources
         finalDto.setSource(null);
         finalDto.setSourceItemId(null);
