@@ -18,7 +18,7 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.event.ItemsMergedEvent;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private final ItemRelatedItemService itemRelatedItemService;
     private final PropertyTypeService propertyTypeService;
-    private final IndexService indexService;
+    private final IndexItemService indexItemService;
     private final UserService userService;
     private final MediaStorageService mediaStorageService;
     private final SourceService sourceService;
@@ -51,10 +51,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final ApplicationEventPublisher eventPublisher;
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
-            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-            MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
+                           ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
+                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                           PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
+                           MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -66,7 +66,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         this.itemRelatedItemService = itemRelatedItemService;
         this.propertyTypeService = propertyTypeService;
-        this.indexService = indexService;
+        this.indexItemService = indexItemService;
         this.userService = userService;
 
         this.mediaStorageService = mediaStorageService;
@@ -177,7 +177,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
         I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft, approved);
-        indexService.indexItem(newItem);
+        indexItemService.indexItem(newItem);
         return newItem;
     }
 
@@ -307,7 +307,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I draftItem = loadItemDraftForCurrentUser(persistentId);
         I item = commitItemDraft(draftItem);
 
-        indexService.indexItem(item);
+        indexItemService.indexItem(item);
 
         return item;
     }
@@ -372,7 +372,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         targetVersion = saveVersionInHistory(targetVersion, currentVersion, false, true);
         copyVersionRelations(targetVersion, item);
 
-        indexService.indexItem(targetVersion);
+        indexItemService.indexItem(targetVersion);
 
         return targetVersion;
     }
@@ -401,7 +401,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         copyVersionRelations(newItem, item);
 
         itemUpgradeRegistry.registerUpgradedVersion(newItem);
-        indexService.indexItem(newItem);
+        indexItemService.indexItem(newItem);
 
         return newItem;
     }
@@ -463,7 +463,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         if (item.getId().equals(currentItem.getId())) {
-            indexService.removeItemVersions(item);
+            indexItemService.removeItemVersions(item);
         }
     }
 

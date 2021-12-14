@@ -14,7 +14,7 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.publications.PublicationFactory;
@@ -40,12 +40,12 @@ public class PublicationService extends ItemCrudService<Publication, Publication
                               ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                               ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                              PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                              PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
                               MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService,
+                itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService, sourceService,
                 eventPublisher
         );
 

@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
+import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -18,6 +19,7 @@ import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.search.SearchService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,8 +29,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -40,6 +44,7 @@ public class ItemsService extends ItemVersionService<Item> {
     private final DraftItemRepository draftItemRepository;
 
     private final SourceRepository sourceRepository;
+    private final SearchService searchService;
 
     private final ToolService toolService;
     private final TrainingMaterialService trainingMaterialService;
@@ -49,9 +54,10 @@ public class ItemsService extends ItemVersionService<Item> {
     private final StepService stepService;
 
 
+
     public ItemsService(ItemRepository itemRepository, DraftItemRepository draftItemRepository, VersionedItemRepository versionedItemRepository,
                         ItemVisibilityService itemVisibilityService,
-                        SourceRepository sourceRepository,
+                        SourceRepository sourceRepository, SearchService searchService,
                         @Lazy ToolService toolService, @Lazy TrainingMaterialService trainingMaterialService,
                         @Lazy PublicationService publicationService, @Lazy DatasetService datasetService,
                         @Lazy WorkflowService workflowService, @Lazy StepService stepService) {
@@ -61,6 +67,7 @@ public class ItemsService extends ItemVersionService<Item> {
         this.itemRepository = itemRepository;
         this.draftItemRepository = draftItemRepository;
         this.sourceRepository = sourceRepository;
+        this.searchService = searchService;
         this.toolService = toolService;
         this.trainingMaterialService = trainingMaterialService;
         this.publicationService = publicationService;
@@ -129,6 +136,8 @@ public class ItemsService extends ItemVersionService<Item> {
         PageRequest pageRequest = PageRequest.of(
                 pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
         );
+
+        // TODO change to SOLR query
 
         if (approved || user == null) {
             if (sourceItemId == null) {

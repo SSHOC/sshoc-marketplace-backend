@@ -116,6 +116,10 @@ public class IndexItem {
     @Singular
     private List<String> sources;
 
+    @Field(value = "detailed_source", child = true)
+    @Singular
+    private List<IndexSource> detailedSources;
+
     @Indexed(name = KEYWORD_TEXT_FIELD, type = "text_general_rev")
     @Singular("keywordText")
     private List<String> keywordsTexts;

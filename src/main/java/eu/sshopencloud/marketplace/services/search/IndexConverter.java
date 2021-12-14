@@ -14,6 +14,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.repositories.sources.projection.DetailedSourceView;
 import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import lombok.experimental.UtilityClass;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexConverter {
 
-    public IndexItem convertItem(Item item, int relatedItems, List<SourceDto> sourceOfItems) {
+    public IndexItem convertItem(Item item, int relatedItems, List<DetailedSourceView> detailedSources) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
         String labelText = LineBreakConverter.removeLineBreaks(item.getLabel());
@@ -51,8 +52,16 @@ public class IndexConverter {
                 .owner(item.getInformationContributor().getUsername())
                 .relatedItems(relatedItems);
 
-        for (SourceDto source : sourceOfItems) {
-            builder.source(source.getLabel());
+        for (DetailedSourceView detailedSource : detailedSources) {
+            builder.source(detailedSource.getLabel());
+        }
+
+        for (DetailedSourceView detailedSource : detailedSources) {
+            IndexSource indexSource = new IndexSource();
+            indexSource.setId(item.getId().toString() + "-" + detailedSource.getId().toString() + "-" + detailedSource.getSourceItemId());
+            indexSource.setSourceLabel(detailedSource.getLabel());
+            indexSource.setSourceItemId(detailedSource.getSourceItemId());
+            builder.detailedSource(indexSource);
         }
 
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));

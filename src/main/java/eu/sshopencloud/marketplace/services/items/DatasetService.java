@@ -17,7 +17,7 @@ import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.UserService;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.datasets.DatasetFactory;
@@ -39,14 +39,14 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
 
     public DatasetService(DatasetRepository datasetRepository, DatasetFactory datasetFactory,
-            ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
-            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-            MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
+                          ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
+                          ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Dataset> itemUpgradeRegistry,
+                          DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                          PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
+                          MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService,
+                itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService,
                 sourceService, eventPublisher);
 
         this.datasetRepository = datasetRepository;
