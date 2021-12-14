@@ -181,8 +181,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
     }
 
 

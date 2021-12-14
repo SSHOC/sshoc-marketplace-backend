@@ -166,8 +166,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareItemDto(publication);
     }
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
     }
 
     public ItemsDifferencesDto getDifferences(String publicationPersistentId, Long publicationVersionId,

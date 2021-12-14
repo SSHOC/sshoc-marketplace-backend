@@ -125,7 +125,7 @@
     <field name="status" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="owner" type="string" indexed="false" stored="true" required="false" multiValued="false" />
     <field name="modified_on" type="pdate" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="source" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="source" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="keyword_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
     <field name="suggestions" type="text_suggest" indexed="true" stored="true" multiValued="true" />
     <field name="context" type="text_context" indexed="true" stored="true" multiValued="false" />

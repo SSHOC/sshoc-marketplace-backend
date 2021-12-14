@@ -40,6 +40,6 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
                     " INNER JOIN sub_item si " +
                     " ON i.persistent_id = si.persistent_id AND si.id = i.id", nativeQuery = true
     )
-    List<Source> findSources(@Param("persistentId" ) String persistentId);
+    List<Source> findSourcesOfItem(@Param("persistentId") String persistentId);
 
 }

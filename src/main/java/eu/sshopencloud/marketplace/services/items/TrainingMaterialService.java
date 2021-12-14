@@ -172,8 +172,8 @@ public class TrainingMaterialService
         return prepareItemDto(trainingMaterial);
     }
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
     }
 
     public ItemsDifferencesDto getDifferences(String trainingMaterialPersistentId, Long trainingMaterialVersionId, String otherPersistentId, Long otherVersionId) {

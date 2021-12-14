@@ -1964,11 +1964,8 @@ public class TrainingMaterialControllerITCase {
         String datasetId = "OdKfPc";
         String toolId = "Xgufde";
 
-        String trainingMaterialSecondId = "heBAGQ";
-        String workflowId = "tqmbGY";
-
         mvc.perform(
-                        get("/api/training-materials/{id}/sources", datasetId)
+                        get("/api/datasets/{id}/sources", datasetId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", MODERATOR_JWT)
                 )
@@ -1976,7 +1973,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$", hasSize(0)));
 
         mvc.perform(
-                        get("/api/training-materials/{id}/sources", toolId)
+                        get("/api/tools-services/{id}/sources", toolId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", MODERATOR_JWT)
                 )
@@ -1985,7 +1982,6 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[0].label", is("TAPoR")))
                 .andExpect(jsonPath("$[0].url", is("http://tapor.ca")));
-
 
         mvc.perform(
                         get("/api/training-materials/{id}/sources", trainingMaterialId)
@@ -2013,22 +2009,15 @@ public class TrainingMaterialControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
 
-        SourceId sourceId = new SourceId();
-        sourceId.setId(1l);
-        String sourceItemId = "1";
-
-        TrainingMaterialDto t = TestJsonMapper.serializingObjectMapper()
+        TrainingMaterialDto trainingMaterialDto = TestJsonMapper.serializingObjectMapper()
                 .readValue(response, TrainingMaterialDto.class);
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Introduction to GEPHI/Consortium of European Social Science Data Archives/WebSty");
-        trainingMaterial.setDescription(t.getDescription());
-        trainingMaterial.setSource(sourceId);
-        trainingMaterial.setSourceItemId(t.getSourceItemId());
-        trainingMaterial.setAccessibleAt(t.getAccessibleAt());
-        trainingMaterial.setDateCreated(t.getDateCreated());
-        trainingMaterial.setVersion(t.getVersion());
-        trainingMaterial.setSourceItemId(sourceItemId);
+        trainingMaterial.setLabel(trainingMaterialDto.getLabel());
+        trainingMaterial.setDescription(trainingMaterialDto.getDescription());
+        trainingMaterial.setAccessibleAt(trainingMaterialDto.getAccessibleAt());
+        trainingMaterial.setDateCreated(trainingMaterialDto.getDateCreated());
+        trainingMaterial.setVersion(trainingMaterialDto.getVersion());
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
 
@@ -2043,7 +2032,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("persistentId", not(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is("Introduction to GEPHI/Consortium of European Social Science Data Archives/WebSty")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI / Consortium of European Social Science Data Archives / WebSty")))
                 .andReturn().getResponse().getContentAsString();
 
 

@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.conf.datetime.SolrDateTimeFormatter;
-import eu.sshopencloud.marketplace.mappers.sources.SourceConverter;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.items.Item;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexConverter {
 
-    public IndexItem convertItem(Item item, int relatedItems) {
+    public IndexItem convertItem(Item item, int relatedItems, List<SourceDto> sourceOfItems) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
         String labelText = LineBreakConverter.removeLineBreaks(item.getLabel());
@@ -49,9 +49,11 @@ public class IndexConverter {
                 .context(ItemCategoryConverter.convertCategoryForAutocompleteContext(item.getCategory()))
                 .status(item.getStatus().getValue())
                 .owner(item.getInformationContributor().getUsername())
-                .source(SourceConverter.convertSource(item.getSource()))
                 .relatedItems(relatedItems);
 
+        for (SourceDto source : sourceOfItems) {
+            builder.source(source.getLabel());
+        }
 
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
 

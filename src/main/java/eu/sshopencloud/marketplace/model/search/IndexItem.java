@@ -112,8 +112,9 @@ public class IndexItem {
     @Indexed(name = LAST_INFO_UPDATE_FIELD, type = "pdate")
     private String lastInfoUpdate;
 
-    @Indexed(name = SOURCE_FIELD, type = "string")
-    private String source;
+    @Indexed(name = SOURCE_FIELD, type = "strings")
+    @Singular
+    private List<String> sources;
 
     @Indexed(name = KEYWORD_TEXT_FIELD, type = "text_general_rev")
     @Singular("keywordText")

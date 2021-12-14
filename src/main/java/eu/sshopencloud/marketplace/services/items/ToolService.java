@@ -164,8 +164,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareItemDto(tool);
     }
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
     }
 
     public ItemsDifferencesDto getDifferences(String toolPersistentId, Long toolVersionId, String otherPersistentId, Long otherVersionId) {

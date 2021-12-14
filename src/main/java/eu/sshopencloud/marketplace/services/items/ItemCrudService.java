@@ -662,8 +662,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    public List<SourceDto> getAllSources(String id) {
-        return sourceService.getAllSources(id);
+    public List<SourceDto> getAllSources(String persistentId) {
+        return sourceService.getSourcesOfItem(persistentId);
     }
 
 

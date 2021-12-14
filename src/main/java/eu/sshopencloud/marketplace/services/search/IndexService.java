@@ -19,6 +19,7 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepositor
 import eu.sshopencloud.marketplace.services.actors.event.ActorChangedEvent;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
 import eu.sshopencloud.marketplace.services.items.event.ItemsMergedEvent;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.sources.event.SourceChangedEvent;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
@@ -57,6 +58,7 @@ public class IndexService {
     private final ActorRepository actorRepository;
 
     private final ItemRelatedItemService itemRelatedItemService;
+    private final SourceService sourceService;
 
 
     public IndexItem indexItem(Item item) {
@@ -66,7 +68,8 @@ public class IndexService {
         if (item.isNewestVersion())
             removeItemVersions(item);
 
-        IndexItem indexedItem = IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item));
+        IndexItem indexedItem = IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item),
+                sourceService.getSourcesOfItem(item.getPersistentId()));
         return indexItemRepository.save(indexedItem);
     }
 

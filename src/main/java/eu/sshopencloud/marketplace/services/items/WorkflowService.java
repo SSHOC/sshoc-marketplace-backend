@@ -378,8 +378,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return mergeWorkflowsList;
     }
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
     }
 
     public ItemsDifferencesDto getDifferences(String workflowPersistentId, Long workflowVersionId, String otherPersistentId, Long otherVersionId) {
