@@ -52,8 +52,8 @@ public class IndexConverter {
                 .owner(item.getInformationContributor().getUsername())
                 .relatedItems(relatedItems);
 
-        for (DetailedSourceView detailedSource : detailedSources) {
-            builder.source(detailedSource.getLabel());
+        for (String label : detailedSources.stream().map(DetailedSourceView::getLabel).distinct().collect(Collectors.toList())) {
+            builder.source(label);
         }
 
         for (DetailedSourceView detailedSource : detailedSources) {

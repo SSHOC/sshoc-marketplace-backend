@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface SourceRepository extends JpaRepository<Source, Long> {
@@ -69,6 +70,6 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
                     " INNER JOIN sub_item si " +
                     " ON i.persistent_id = si.persistent_id AND si.id = i.id", nativeQuery = true
     )
-    List<DetailedSourceView> findDetailedSourcesOfItem(@Param("persistentId") String persistentId);
+    List<Map<String, Object>> findDetailedSourcesOfItem(@Param("persistentId") String persistentId);
 
 }

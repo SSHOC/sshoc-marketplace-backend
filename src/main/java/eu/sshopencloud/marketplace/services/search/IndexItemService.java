@@ -20,6 +20,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -43,7 +45,11 @@ public class IndexItemService {
         if (item.isNewestVersion())
             removeItemVersions(item);
 
-        List<DetailedSourceView> detailedSources = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId());
+        //List<DetailedSourceView> detailedSources = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId());
+
+        List<Map<String, Object>> results = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId());
+        List<DetailedSourceView> detailedSources = results.stream().map(DetailedSourceView::new)
+                .collect(Collectors.toList());
 
         IndexItem indexedItem = IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item),
                 detailedSources);
