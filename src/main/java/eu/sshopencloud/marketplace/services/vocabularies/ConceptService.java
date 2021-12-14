@@ -81,7 +81,7 @@ public class ConceptService {
 
     public ConceptDto createConcept(ConceptCore conceptCore, String vocabularyCode, boolean candidate) throws ConceptAlreadyExistsException, VocabularyIsClosedException {
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
-        if (vocabulary.getClosed())
+        if (vocabulary.isClosed())
             throw new VocabularyIsClosedException(vocabularyCode);
         String code = conceptFactory.resolveCode(conceptCore, vocabulary);
         Optional<Concept> conceptHolder = conceptRepository.findById(

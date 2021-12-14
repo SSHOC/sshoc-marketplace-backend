@@ -12,6 +12,8 @@ public class VocabularyBasicDto {
 
     private String scheme;
 
+    private String namespace;
+
     private String label;
 
     @Nullable
