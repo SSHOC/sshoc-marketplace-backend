@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.services.items.StepService;
 import eu.sshopencloud.marketplace.services.items.WorkflowService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -254,7 +255,8 @@ public class WorkflowController {
                                              @Parameter(
                                                      description = "Merged workflow",
                                                      required = true,
-                                                     schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore mergeWorkflow) {
+                                                     schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore mergeWorkflow)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(workflowService.merge(mergeWorkflow, with));
     }
 
@@ -273,7 +275,8 @@ public class WorkflowController {
                                               @Parameter(
                                                       description = "Merged step",
                                                       required = true,
-                                                      schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore mergeStep) {
+                                                      schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore mergeStep)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(stepService.merge(workflowPersistentId, mergeStep, with));
     }
 

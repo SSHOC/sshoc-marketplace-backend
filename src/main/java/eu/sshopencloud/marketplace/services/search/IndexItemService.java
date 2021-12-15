@@ -107,7 +107,7 @@ public class IndexItemService {
     @Async
     @TransactionalEventListener(classes = {ItemsMergedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
     public void handleMergedEvent(ItemsMergedEvent event) {
-        for (String persistentId : event.getMergedPersistentIds()) {
+        for (String persistentId : event.getPersistentIdsToMerge()) {
             indexItemRepository.deleteByPersistentId(persistentId);
         }
         for (Item item : itemRepository.findByVersionedItemPersistentId(event.getNewPersistentId())) {

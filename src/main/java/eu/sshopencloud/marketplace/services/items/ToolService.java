@@ -14,6 +14,7 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -157,8 +158,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public ToolDto merge(ToolCore mergeTool, List<String> mergeList) {
-
+    public ToolDto merge(ToolCore mergeTool, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         Tool tool = createItem(mergeTool, false);
         tool = mergeItem(tool.getPersistentId(), mergeList);
         return prepareItemDto(tool);

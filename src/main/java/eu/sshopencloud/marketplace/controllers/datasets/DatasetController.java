@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -142,7 +143,8 @@ public class DatasetController {
                                             @Parameter(
                                                     description = "Merged dataset",
                                                     required = true,
-                                                    schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore mergeDataset) {
+                                                    schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore mergeDataset)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(datasetService.merge(mergeDataset, with));
     }
 

@@ -25,6 +25,7 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -354,19 +355,14 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         }
     }
 
-    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) {
+    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         Workflow workflow = createItem(mergeWorkflow, false);
-
         workflow = mergeItem(workflow.getPersistentId(), mergeList);
-
         WorkflowDto workflowDto = prepareItemDto(workflow);
-
         collectStepsFromMergedWorkflows(workflow, findAllWorkflows(mergeList));
-
         commitSteps(workflow.getStepsTree());
-
         collectSteps(workflowDto, workflow);
-
         return workflowDto;
     }
 

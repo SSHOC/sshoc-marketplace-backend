@@ -12,6 +12,6 @@ public class ItemsMergedEvent {
 
     private String newPersistentId;
 
-    private List<String> mergedPersistentIds;
+    private List<String> persistentIdsToMerge;
 
 }

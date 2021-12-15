@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.PublicationService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -142,7 +143,8 @@ public class PublicationController {
                                                 @Parameter(
                                                         description = "Merged publication",
                                                         required = true,
-                                                        schema = @Schema(implementation = PublicationCore.class)) @RequestBody PublicationCore mergePublication) {
+                                                        schema = @Schema(implementation = PublicationCore.class)) @RequestBody PublicationCore mergePublication)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(publicationService.merge(mergePublication, with));
     }
 

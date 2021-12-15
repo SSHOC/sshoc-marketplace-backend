@@ -17,6 +17,7 @@ import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -173,8 +174,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
 
-    public DatasetDto merge(DatasetCore mergeDataset, List<String> mergeList) {
-
+    public DatasetDto merge(DatasetCore mergeDataset, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         Dataset dataset = createItem(mergeDataset, false);
         dataset = mergeItem(dataset.getPersistentId(), mergeList);
         return prepareItemDto(dataset);

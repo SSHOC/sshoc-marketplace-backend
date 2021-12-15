@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.services.items.TrainingMaterialService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -146,7 +147,8 @@ public class TrainingMaterialController {
                                                      @Parameter(
                                                              description = "Merged training material",
                                                              required = true,
-                                                             schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore mergeTrainingMaterial) {
+                                                             schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore mergeTrainingMaterial)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(trainingMaterialService.merge(mergeTrainingMaterial, with));
     }
 

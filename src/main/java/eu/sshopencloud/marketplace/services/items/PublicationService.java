@@ -14,6 +14,7 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -158,11 +159,10 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public PublicationDto merge(PublicationCore mergePublication, List<String> mergeList) {
-
+    public PublicationDto merge(PublicationCore mergePublication, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         Publication publication = createItem(mergePublication, false);
         publication = mergeItem(publication.getPersistentId(), mergeList);
-
         return prepareItemDto(publication);
     }
 

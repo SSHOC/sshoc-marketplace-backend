@@ -24,6 +24,7 @@ import eu.sshopencloud.marketplace.repositories.items.workflow.StepRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepsTreeRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -464,13 +465,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
 
-    public StepDto merge(String workflowId, StepCore mergeStepCore, List<String> mergeList) {
-
-        StepDto stepDto;
-
+    public StepDto merge(String workflowId, StepCore mergeStepCore, List<String> mergeList) throws ItemIsAlreadyMergedException {
         if (!checkMergeStepConsistency(mergeList))
             throw new IllegalArgumentException("Steps to merge are from different workflows!");
-
+        checkIfMergeIsPossible(mergeList);
+        StepDto stepDto;
         String stepId = findStep(mergeList);
         List<String> stepList = findAllStep(mergeList);
         if (Objects.isNull(stepId))

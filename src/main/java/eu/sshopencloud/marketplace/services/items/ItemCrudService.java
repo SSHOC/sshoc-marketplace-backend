@@ -18,6 +18,8 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.event.ItemsMergedEvent;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -129,7 +131,16 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    protected I mergeItem(String persistentId, List<String> mergedPersistentIds) {
+    protected void checkIfMergeIsPossible(List<String> persistentIdsToMerge) throws ItemIsAlreadyMergedException {
+        for (String persistentIdToMerge : persistentIdsToMerge) {
+            Optional<VersionedItem> versionedItem = versionedItemRepository.findByMergedWithPersistentId(persistentIdToMerge);
+            if (versionedItem.isPresent()) {
+                throw new ItemIsAlreadyMergedException(persistentIdToMerge, versionedItem.get().getPersistentId());
+            }
+        }
+    }
+
+    protected I mergeItem(String persistentId, List<String> persistentIdsToMerge) {
         I mergedItem = loadCurrentItem(persistentId);
         // The merged item does not come from any source. Sources are only in the original items and
         // are available via API: GET /api/{category}/{persistentId}/sources
@@ -137,8 +148,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         mergedItem.setSourceItemId(null);
         mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
-        for (String mergedPersistentId : mergedPersistentIds) {
-            VersionedItem versionedItem = versionedItemRepository.getOne(mergedPersistentId);
+        for (String persistentIdToMerge : persistentIdsToMerge) {
+            VersionedItem versionedItem = versionedItemRepository.getOne(persistentIdToMerge);
             I prevItem = (I) versionedItem.getCurrentVersion();
             prevItem.setStatus(ItemStatus.DEPRECATED);
             mergedItem.getVersionedItem().addMergedWith(versionedItem);
@@ -149,7 +160,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         versionedItemRepository.save(mergedItem.getVersionedItem());
         itemRepository.save(mergedItem);
 
-        eventPublisher.publishEvent(new ItemsMergedEvent(persistentId, mergedPersistentIds));
+        eventPublisher.publishEvent(new ItemsMergedEvent(persistentId, persistentIdsToMerge));
 
         return mergedItem;
     }

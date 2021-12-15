@@ -14,6 +14,7 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -165,8 +166,8 @@ public class TrainingMaterialService
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public TrainingMaterialDto merge(TrainingMaterialCore mergeTrainingMaterial, List<String> mergeList) {
-
+    public TrainingMaterialDto merge(TrainingMaterialCore mergeTrainingMaterial, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         TrainingMaterial trainingMaterial = createItem(mergeTrainingMaterial, false);
         trainingMaterial = mergeItem(trainingMaterial.getPersistentId(), mergeList);
         return prepareItemDto(trainingMaterial);
