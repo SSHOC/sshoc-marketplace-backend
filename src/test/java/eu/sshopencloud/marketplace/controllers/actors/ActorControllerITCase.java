@@ -664,5 +664,302 @@ public class ActorControllerITCase {
                 .andReturn().getResponse().getContentAsString();
 
     }
+
+    //Eliza - test
+    //test for 3 actors merge !!!
+    @Test
+    public void shouldMergeActorsWithAffiliationsAndExternalIds() throws Exception {
+
+        ActorCore actor = new ActorCore();
+        actor.setName("Actor test 1");
+        actor.setEmail("test@example.org");
+        List<ActorId> affiliations = new ArrayList<ActorId>();
+        ActorId affiliation1 = new ActorId();
+        affiliation1.setId(1l);
+        affiliations.add(affiliation1);
+        ActorId affiliation2 = new ActorId();
+        affiliation2.setId(4l);
+        affiliations.add(affiliation2);
+        actor.setAffiliations(affiliations);
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
+        ));
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long actorId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Actor.class).getId();
+
+
+        ActorCore actor2 = new ActorCore();
+        actor2.setName("Actor test 2");
+        actor2.setEmail("test@example.org");
+
+        List<ActorId> secondAffiliations = new ArrayList<ActorId>();
+        ActorId secondAffiliation1 = new ActorId();
+        secondAffiliation1.setId(2l);
+        secondAffiliations.add(secondAffiliation1);
+        ActorId secondAffiliation2 = new ActorId();
+        secondAffiliation2.setId(3l);
+
+        secondAffiliations.add(secondAffiliation2);
+        actor2.setAffiliations(secondAffiliations);
+
+        actor2.setExternalIds(List.of(
+                new ActorExternalIdCore(new ActorSourceId("DBLP"), "DBLP")
+        ));
+
+        String payloadSecond = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor2);
+        log.debug("JSON: " + payloadSecond);
+
+        String jsonResponseSecond = mvc.perform(post("/api/actors")
+                        .content(payloadSecond)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long actorIdSecond = TestJsonMapper.serializingObjectMapper().readValue(jsonResponseSecond, Actor.class).getId();
+
+        String result = mvc.perform(post("/api/actors/{id}/merge", actorId)
+                        .param("with", String.valueOf(actorIdSecond.intValue()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(actorId.intValue())))
+                .andExpect(jsonPath("name", is(actor.getName())))
+                .andExpect(jsonPath("email", is(actor.getEmail())))
+                .andExpect(jsonPath("externalIds", hasSize(3)))
+                .andExpect(jsonPath("affiliations", hasSize(4)))
+                .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
+                .andExpect(jsonPath("affiliations[0].website", is("https://www.oeaw.ac.at/")))
+                .andReturn().getResponse().getContentAsString();
+
+    }
+
+    @Test
+    public void shouldMergeActorsWithDuplicatedAffiliationsAndExternalIds() throws Exception {
+
+        ActorCore actor = new ActorCore();
+        actor.setName("Actor test 1");
+        actor.setEmail("test@example.org");
+        List<ActorId> affiliations = new ArrayList<ActorId>();
+        ActorId affiliation1 = new ActorId();
+        affiliation1.setId(1l);
+        affiliations.add(affiliation1);
+        ActorId affiliation2 = new ActorId();
+        affiliation2.setId(4l);
+        affiliations.add(affiliation2);
+        actor.setAffiliations(affiliations);
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
+        ));
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long actorId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Actor.class).getId();
+
+
+        ActorCore actor2 = new ActorCore();
+        actor2.setName("Actor test 2");
+        actor2.setEmail("test@example.org");
+
+        List<ActorId> secondAffiliations = new ArrayList<ActorId>();
+        ActorId secondAffiliation1 = new ActorId();
+        secondAffiliation1.setId(2l);
+        secondAffiliations.add(secondAffiliation1);
+
+        secondAffiliations.add(affiliation2);
+
+        actor2.setAffiliations(secondAffiliations);
+
+        actor2.setExternalIds(List.of(
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
+                new ActorExternalIdCore(new ActorSourceId("DBLP"), "DBLP")
+        ));
+
+        String payloadSecond = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor2);
+        log.debug("JSON: " + payloadSecond);
+
+        String jsonResponseSecond = mvc.perform(post("/api/actors")
+                        .content(payloadSecond)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long actorIdSecond = TestJsonMapper.serializingObjectMapper().readValue(jsonResponseSecond, Actor.class).getId();
+
+        String result = mvc.perform(post("/api/actors/{id}/merge", actorId)
+                        .param("with", String.valueOf(actorIdSecond.intValue()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(actorId.intValue())))
+                .andExpect(jsonPath("name", is(actor.getName())))
+                .andExpect(jsonPath("email", is(actor.getEmail())))
+                .andExpect(jsonPath("externalIds", hasSize(3)))
+                .andExpect(jsonPath("affiliations", hasSize(3)))
+                .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
+                .andExpect(jsonPath("affiliations[0].website", is("https://www.oeaw.ac.at/")))
+                .andReturn().getResponse().getContentAsString();
+
+    }
+
+    @Test
+    public void shouldMergeActorsWithoutAffiliationsAndExternalIds() throws Exception {
+
+        ActorCore actor = new ActorCore();
+        actor.setName("Actor test 1");
+        actor.setEmail("test@example.org");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long actorId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Actor.class).getId();
+
+        ActorCore actor2 = new ActorCore();
+        actor2.setName("Actor test 2");
+        actor2.setEmail("test@example.org");
+
+        String payloadSecond = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor2);
+        log.debug("JSON: " + payloadSecond);
+
+        String jsonResponseSecond = mvc.perform(post("/api/actors")
+                        .content(payloadSecond)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long actorIdSecond = TestJsonMapper.serializingObjectMapper().readValue(jsonResponseSecond, Actor.class).getId();
+
+        String result = mvc.perform(post("/api/actors/{id}/merge", actorId)
+                        .param("with", String.valueOf(actorIdSecond.intValue()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(actorId.intValue())))
+                .andExpect(jsonPath("name", is(actor.getName())))
+                .andExpect(jsonPath("email", is(actor.getEmail())))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("affiliations", hasSize(0)))
+                 .andReturn().getResponse().getContentAsString();
+
+    }
+
+    @Test
+    public void shouldReturnMergedHistory() throws Exception {
+
+        ActorCore actor = new ActorCore();
+        actor.setName("Actor test 1");
+        actor.setEmail("test@example.org");
+        List<ActorId> affiliations = new ArrayList<ActorId>();
+        ActorId affiliation1 = new ActorId();
+        affiliation1.setId(1l);
+        affiliations.add(affiliation1);
+        ActorId affiliation2 = new ActorId();
+        affiliation2.setId(4l);
+        affiliations.add(affiliation2);
+        actor.setAffiliations(affiliations);
+        actor.setExternalIds(List.of(
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
+        ));
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long actorId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, Actor.class).getId();
+
+
+        ActorCore actor2 = new ActorCore();
+        actor2.setName("Actor test 2");
+        actor2.setEmail("test@example.org");
+
+        List<ActorId> secondAffiliations = new ArrayList<ActorId>();
+        ActorId secondAffiliation1 = new ActorId();
+        secondAffiliation1.setId(2l);
+        secondAffiliations.add(secondAffiliation1);
+
+        secondAffiliations.add(affiliation2);
+
+        actor2.setAffiliations(secondAffiliations);
+
+        actor2.setExternalIds(List.of(
+                new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
+                new ActorExternalIdCore(new ActorSourceId("DBLP"), "DBLP")
+        ));
+
+        String payloadSecond = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor2);
+        log.debug("JSON: " + payloadSecond);
+
+        String jsonResponseSecond = mvc.perform(post("/api/actors")
+                        .content(payloadSecond)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long actorIdSecond = TestJsonMapper.serializingObjectMapper().readValue(jsonResponseSecond, Actor.class).getId();
+
+        String result = mvc.perform(post("/api/actors/{id}/merge", actorId)
+                        .param("with", String.valueOf(actorIdSecond.intValue()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(actorId.intValue())))
+                .andExpect(jsonPath("name", is(actor.getName())))
+                .andExpect(jsonPath("email", is(actor.getEmail())))
+                .andExpect(jsonPath("externalIds", hasSize(3)))
+                .andExpect(jsonPath("affiliations", hasSize(3)))
+                .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")))
+                .andExpect(jsonPath("affiliations[0].website", is("https://www.oeaw.ac.at/")))
+                .andReturn().getResponse().getContentAsString();
+
+
+        String resultHistory = mvc.perform(get("/api/actors/{id}/history", actorId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(notNullValue())))
+                .andExpect(jsonPath("$[0].actor.name", is(actor.getName())))
+                .andExpect(jsonPath("$[0].actor.email", is(actor.getEmail())))
+                .andExpect(jsonPath("$[0].history", containsString("id\": " + actorIdSecond.intValue() +",\n  \"name\": \"Actor test 2\",")))
+                .andExpect(jsonPath("$[0].dateCreated", is(notNullValue())))
+                .andReturn().getResponse().getContentAsString();
+    }
 }
 

@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "actors")
 @Data
-@ToString(exclude = { "contributorTo", "history"})
+@ToString(exclude = { "contributorTo", "history" })
 public class Actor {
 
     @Id
@@ -43,15 +43,14 @@ public class Actor {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "actors_affiliations", joinColumns = @JoinColumn(name = "actor_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "actors_affiliations_actor_id_fk")), inverseJoinColumns = @JoinColumn(name = "affiliation_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "actors_affiliations_affiliation_id_fk")))
     @OrderColumn(name = "ord")
-    //@Expose
     private List<Actor> affiliations;
 
     @OneToMany(mappedBy = "actor", fetch = FetchType.LAZY)
     private List<ItemContributor> contributorTo;
 
-    @OneToMany(mappedBy = "actor", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "actor", fetch = FetchType.LAZY, cascade = CascadeType.ALL , orphanRemoval = true)
     @Nullable
-    List<ActorHistory> history;
+    private List<ActorHistory> history;
 
 
     public Actor() {
@@ -77,6 +76,8 @@ public class Actor {
 
 
     public void addToHistory(ActorHistory actorHistory) {
-        history.add(actorHistory);
+        if (this.history == null)
+            this.history = new ArrayList<>();
+        this.history.add(actorHistory);
     }
 }

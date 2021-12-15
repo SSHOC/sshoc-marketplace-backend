@@ -6,16 +6,13 @@ import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.model.sources.Source;
-import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
-import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.validators.items.ItemContributorFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +40,7 @@ public class ItemsService extends ItemVersionService<Item> {
     private final WorkflowService workflowService;
     private final StepService stepService;
 
-    private final ItemContributorFactory itemContributorFactory;
+    private final ItemContributorCriteriaRepository itemContributorRepository;
 
 
     public ItemsService(ItemRepository itemRepository, DraftItemRepository draftItemRepository,
@@ -52,7 +48,7 @@ public class ItemsService extends ItemVersionService<Item> {
             SourceRepository sourceRepository, @Lazy ToolService toolService,
             @Lazy TrainingMaterialService trainingMaterialService, @Lazy PublicationService publicationService,
             @Lazy DatasetService datasetService, @Lazy WorkflowService workflowService, @Lazy StepService stepService,
-            ItemContributorFactory itemContributorFactory) {
+            ItemContributorCriteriaRepository itemContributorRepository) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -65,7 +61,7 @@ public class ItemsService extends ItemVersionService<Item> {
         this.datasetService = datasetService;
         this.workflowService = workflowService;
         this.stepService = stepService;
-        this.itemContributorFactory = itemContributorFactory;
+        this.itemContributorRepository = itemContributorRepository;
     }
 
 
@@ -188,70 +184,64 @@ public class ItemsService extends ItemVersionService<Item> {
     }
 
 
-    public void replaceActors(Actor actor, Actor other) {
-        List<Item> items = itemRepository.findByContributorActorId(other.getId());
-        items.forEach(item -> {
-            replaceItemContributor(item, actor, other);
-        });
+    public void replaceActors(Actor actor, Actor mergeActor) {
+        List<Item> items = itemRepository.findByContributorActorId(mergeActor.getId());
 
+        items.forEach(item -> replaceItemContributor(item, actor, mergeActor));
     }
 
 
-    public boolean checkIfContainsItemContributor(List<ItemContributor> contributors, ItemContributor itemContributor) {
-        AtomicBoolean check = new AtomicBoolean(false);
+    public void replaceItemContributor(Item item, Actor actor, Actor mergeActor) {
 
-        contributors.forEach(c -> {
-            if (c.getActor().getId().equals(itemContributor.getActor().getId()) && c.getItem()
-                    .equals(itemContributor.getItem()) && c.getRole().equals(itemContributor.getRole()))
-                check.set(true);
-        });
-        return check.get();
-
-    }
-
-
-    public void replaceItemContributor(Item item, Actor actor, Actor other) {
         List<ItemContributor> contributorsToReplace = new ArrayList<>();
         List<ItemContributor> contributorsToRemove = new ArrayList<>();
 
-        item.getContributors().forEach(c -> {
-            if (c.getActor().equals(other)) {
+        item.getContributors().forEach(contributor -> {
+            if (contributor.getActor().equals(mergeActor)) {
 
-                contributorsToRemove.add(c);
-                ItemContributor itemContributor = new ItemContributor(item, actor, c.getRole(), c.getOrd());
+                contributorsToRemove.add(contributor);
+                ActorRole role = contributor.getRole();
 
-                if (!checkIfContainsItemContributor(item.getContributors(), itemContributor))
-                    contributorsToReplace.add(itemContributor);
+                if (actor != null && role != null) {
+                    ItemContributor itemContributor = null;
+                    if (item.getId() != null) {
+                        itemContributor = itemContributorRepository.findByItemIdAndActorIdAndActorRole(item.getId(),
+                                actor.getId(), role.getCode());
+                    }
+                    if (itemContributor == null) {
+                        itemContributor = new ItemContributor(item, actor, role);
+                        itemContributor.setItem(item);
+                        itemContributor.setActor(actor);
+                        itemContributor.setRole(role);
+                        contributorsToReplace.add(itemContributor);
+                    }
+                }
             }
         });
 
-        if (contributorsToRemove.size() > 0) {
-            item.getContributors().removeAll(contributorsToRemove);
-            itemRepository.save(item);
-        }
-
         if (contributorsToReplace.size() > 0) {
+
             Set<Map.Entry<Long, String>> actorRoles = new HashSet<>();
             List<ItemContributor> finalContributorsToAdd = new ArrayList<>(item.getContributors());
+            finalContributorsToAdd.removeAll(contributorsToRemove);
 
-            item.getContributors().forEach(c -> {
-                if (!Objects.isNull(c.getActor()) && !Objects.isNull(c.getRole()))
-                    actorRoles.add(Map.entry(c.getActor().getId(), c.getRole().getCode()));
+            item.getContributors().forEach(contributor -> actorRoles.add(
+                    Map.entry(contributor.getActor().getId(), contributor.getRole().getCode())));
+
+            contributorsToReplace.forEach(contributorToReplace -> {
+                if (!actorRoles.contains(
+                        Map.entry(contributorToReplace.getActor().getId(), contributorToReplace.getRole().getCode()))) {
+
+                    actorRoles.add(Map.entry(contributorToReplace.getActor().getId(),
+                            contributorToReplace.getRole().getCode()));
+                    finalContributorsToAdd.add(contributorToReplace);
+                }
             });
 
-            contributorsToReplace.forEach(c -> {
-                if (!actorRoles.contains(Map.entry(c.getActor().getId(), c.getRole().getCode())))
-                    finalContributorsToAdd.add(c);
-            });
+            item.setContributors(finalContributorsToAdd);
+        } else
+            item.getContributors().removeAll(contributorsToRemove);
 
-            setItemContributors(item.getPersistentId(), finalContributorsToAdd);
-        }
-    }
-
-
-    public void setItemContributors(String persistentId, List<ItemContributor> finalContributorsToAdd) {
-        Item i = loadLatestItem(persistentId);
-        i.setContributors(finalContributorsToAdd);
     }
 
 

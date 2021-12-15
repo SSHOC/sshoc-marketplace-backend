@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.actors;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorDto;
+import eu.sshopencloud.marketplace.dto.actors.ActorHistoryDto;
 import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
@@ -64,17 +65,17 @@ public class ActorController {
 
 
     @Operation(summary = "Merge of actors", operationId = "mergeActor")
-    @PostMapping(path = "/{id}/merge")
+    @PostMapping(path = "/{id}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ActorDto> mergeActors(@PathVariable("id") long id, @RequestParam("with") List<Long> with) {
 
         return ResponseEntity.ok(actorService.mergeActors(id, with));
     }
 
 
-    @Operation(summary = "Histpry of actor")
-    @GetMapping(path = "/history")
-    public ResponseEntity<String> actorHistory() {
-        return ResponseEntity.ok("XXX");
+    @Operation(summary = "History of actor", operationId = "getActorHistory")
+    @GetMapping(path = "{id}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ActorHistoryDto>> actorHistory(@PathVariable("id") long id) {
+        return ResponseEntity.ok(actorService.getHistory(id));
     }
 
 }
