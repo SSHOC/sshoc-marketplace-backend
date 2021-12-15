@@ -22,6 +22,9 @@ public class IndexItem {
     public static final String COLLECTION_NAME = "marketplace-items";
 
     public static final String ID_FIELD = "id";
+
+    public static final String DOC_CONTENT_TYPE_FIELD = "doc_content_type";
+
     public static final String PERSISTENT_ID_FIELD = "persistent_id";
 
     public static final String LABEL_FIELD = "label";
@@ -47,6 +50,9 @@ public class IndexItem {
 
     public static final String SOURCE_FIELD = "source";
 
+    public static final String SOURCE_LABEL_FIELD = "source_label";
+    public static final String SOURCE_ITEM_ID_FIELD = "source_item_id";
+
     public static final String KEYWORD_TEXT_FIELD = "keyword_text";
 
     public static final String RELATED_ITEMS_FIELD = "related_items";
@@ -63,6 +69,9 @@ public class IndexItem {
     @Id
     @Indexed(name = ID_FIELD, type = "string")
     private Long versionId;
+
+    @Indexed(name = DOC_CONTENT_TYPE_FIELD, type = "string")
+    private String docContentType;
 
     @Indexed(name = PERSISTENT_ID_FIELD, type = "string")
     private String persistentId;

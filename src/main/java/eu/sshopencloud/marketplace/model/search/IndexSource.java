@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.solr.client.solrj.beans.Field;
 
+
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor
@@ -15,10 +16,13 @@ public class IndexSource {
     @Field
     private String id;
 
-    @Field(value = "source_label")
+    @Field(value = IndexItem.DOC_CONTENT_TYPE_FIELD)
+    private String docContentType;
+
+    @Field(value = IndexItem.SOURCE_LABEL_FIELD)
     private String sourceLabel;
 
-    @Field(value = "source_item_id")
+    @Field(value = IndexItem.SOURCE_ITEM_ID_FIELD)
     private String sourceItemId;
 
 }

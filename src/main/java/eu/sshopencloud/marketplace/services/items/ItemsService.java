@@ -4,33 +4,46 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
-import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.dto.search.*;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
+import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
+import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyMapper;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.DraftItem;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.search.IllegalFilterException;
+import eu.sshopencloud.marketplace.services.search.SearchConverter;
 import eu.sshopencloud.marketplace.services.search.SearchService;
+import eu.sshopencloud.marketplace.services.search.filter.IndexType;
+import eu.sshopencloud.marketplace.services.search.filter.SearchExpressionCriteria;
+import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
+import eu.sshopencloud.marketplace.services.search.query.ItemSearchQueryPhrase;
+import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +57,7 @@ public class ItemsService extends ItemVersionService<Item> {
     private final DraftItemRepository draftItemRepository;
 
     private final SourceRepository sourceRepository;
-    private final SearchService searchService;
+    private final SearchItemRepository searchItemRepository;
 
     private final ToolService toolService;
     private final TrainingMaterialService trainingMaterialService;
@@ -57,7 +70,7 @@ public class ItemsService extends ItemVersionService<Item> {
 
     public ItemsService(ItemRepository itemRepository, DraftItemRepository draftItemRepository, VersionedItemRepository versionedItemRepository,
                         ItemVisibilityService itemVisibilityService,
-                        SourceRepository sourceRepository, SearchService searchService,
+                        SourceRepository sourceRepository, SearchItemRepository searchItemRepository,
                         @Lazy ToolService toolService, @Lazy TrainingMaterialService trainingMaterialService,
                         @Lazy PublicationService publicationService, @Lazy DatasetService datasetService,
                         @Lazy WorkflowService workflowService, @Lazy StepService stepService) {
@@ -67,7 +80,7 @@ public class ItemsService extends ItemVersionService<Item> {
         this.itemRepository = itemRepository;
         this.draftItemRepository = draftItemRepository;
         this.sourceRepository = sourceRepository;
-        this.searchService = searchService;
+        this.searchItemRepository = searchItemRepository;
         this.toolService = toolService;
         this.trainingMaterialService = trainingMaterialService;
         this.publicationService = publicationService;
@@ -138,6 +151,7 @@ public class ItemsService extends ItemVersionService<Item> {
         );
 
         // TODO change to SOLR query
+        //searchService.searchItems()
 
         if (approved || user == null) {
             if (sourceItemId == null) {
@@ -160,6 +174,45 @@ public class ItemsService extends ItemVersionService<Item> {
         } else {
             return itemRepository.findUserLatestItemsForSource(source, sourceItemId, user, pageRequest);
         }
+    }
+
+
+
+    public PaginatedSearchItems LatestItemsForSource(Source source, String sourceItemId, User user, boolean approved, PageCoords pageCoords)
+            throws IllegalFilterException {
+        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
+
+        Criteria queryCriteria = new SimpleStringCriteria("q={!parent which='doc_content_type:item'} doc_content_type:source AND source_label:TAPoR");
+
+        SearchOrder order = SearchOrder.LABEL;
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+
+        FacetPage<IndexItem> facetPage = searchItemRepository.findByQuery(queryCriteria, currentUser, order, pageable);
+
+
+        PaginatedSearchItems result = PaginatedSearchItems.builder()
+                .q("TODO")
+                .items(
+                        facetPage.get()
+                                .map(SearchConverter::convertIndexItem)
+                                .collect(Collectors.toList())
+                )
+                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .page(pageCoords.getPage())
+                .perpage(pageCoords.getPerpage())
+                .pages(facetPage.getTotalPages())
+                .build();
+
+        // TODO index contributors and properties directly in SOLR in nested docs (?) -
+        // TODO in a similar way add external identifiers to the result
+        for (SearchItem searchItem : result.getItems()) {
+            //searchItem.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(searchItem.getId())));
+            //searchItem.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(searchItem.getId())));
+            //searchItem.getProperties().stream().map(PropertyDto::getType).forEach(propertyTypeService::completePropertyType);
+        }
+
+        return result;
     }
 
 

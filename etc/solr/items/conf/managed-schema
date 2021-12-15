@@ -111,6 +111,9 @@
     -->
 
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+
+    <field name="doc_content_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+
     <field name="persistent_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="label" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="label_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="false" />

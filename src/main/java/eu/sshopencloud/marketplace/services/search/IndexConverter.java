@@ -34,11 +34,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexConverter {
 
+    public static final String DOC_CONTENT_TYPE_ITEM = "item";
+    public static final String DOC_CONTENT_TYPE_SOURCE = "source";
+
+
     public IndexItem convertItem(Item item, int relatedItems, List<DetailedSourceView> detailedSources) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
         String labelText = LineBreakConverter.removeLineBreaks(item.getLabel());
         builder.versionId(item.getId())
+                .docContentType(DOC_CONTENT_TYPE_ITEM)
                 .persistentId(item.getPersistentId())
                 .label(item.getLabel())
                 .labelText(labelText)
@@ -59,6 +64,7 @@ public class IndexConverter {
         for (DetailedSourceView detailedSource : detailedSources) {
             IndexSource indexSource = new IndexSource();
             indexSource.setId(item.getId().toString() + "-" + detailedSource.getId().toString() + "-" + detailedSource.getSourceItemId());
+            indexSource.setDocContentType(DOC_CONTENT_TYPE_SOURCE);
             indexSource.setSourceLabel(detailedSource.getLabel());
             indexSource.setSourceItemId(detailedSource.getSourceItemId());
             builder.detailedSource(indexSource);

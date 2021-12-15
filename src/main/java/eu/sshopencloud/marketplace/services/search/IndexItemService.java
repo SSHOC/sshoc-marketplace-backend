@@ -45,8 +45,6 @@ public class IndexItemService {
         if (item.isNewestVersion())
             removeItemVersions(item);
 
-        //List<DetailedSourceView> detailedSources = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId());
-
         List<Map<String, Object>> results = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId());
         List<DetailedSourceView> detailedSources = results.stream().map(DetailedSourceView::new)
                 .collect(Collectors.toList());
