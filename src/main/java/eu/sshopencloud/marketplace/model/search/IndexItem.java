@@ -31,6 +31,8 @@ public class IndexItem {
     public static final String LABEL_TEXT_FIELD = "label_text";
     public static final String LABEL_TEXT_EN_FIELD = "label_text_en";
 
+    public static final String VERSION_FIELD = "version";
+
     public static final String DESCRIPTION_FIELD = "description";
     public static final String DESCRIPTION_TEXT_FIELD = "description_text";
     public static final String DESCRIPTION_TEXT_EN_FIELD = "description_text_en";
@@ -84,6 +86,9 @@ public class IndexItem {
 
     @Indexed(name = LABEL_TEXT_EN_FIELD, type = "text_en")
     private String labelTextEn;
+
+    @Indexed(name = VERSION_FIELD, type = "string")
+    private String version;
 
     @Indexed(name = DESCRIPTION_FIELD, type = "string")
     private String description;

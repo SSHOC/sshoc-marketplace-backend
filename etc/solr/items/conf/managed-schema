@@ -118,6 +118,7 @@
     <field name="label" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="label_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="false" />
     <field name="label_text_en" type="text_en" indexed="true" stored="false" required="false" multiValued="false" />
+    <field name="version" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="description" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="description_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="false" />
     <field name="description_text_en" type="text_en" indexed="true" stored="false" required="false" multiValued="false" />
