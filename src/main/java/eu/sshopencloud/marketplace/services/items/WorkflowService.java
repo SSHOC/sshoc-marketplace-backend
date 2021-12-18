@@ -26,6 +26,7 @@ import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepositor
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -114,7 +115,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return prepareItemDto(workflow);
     }
 
-    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) {
+    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) throws VersionNotChangedException {
         Workflow workflow = updateItem(persistentId, workflowCore, draft, approved);
 
         if (!draft)
@@ -262,8 +263,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     @Override
-    protected Workflow makeItem(WorkflowCore workflowCore, Workflow prevWorkflow) {
-        return workflowFactory.create(workflowCore, prevWorkflow);
+    protected Workflow makeItem(WorkflowCore workflowCore, Workflow prevWorkflow, boolean conflict) {
+        return workflowFactory.create(workflowCore, prevWorkflow, conflict);
     }
 
     @Override

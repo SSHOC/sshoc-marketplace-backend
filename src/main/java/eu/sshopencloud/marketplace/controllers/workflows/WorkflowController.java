@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.services.items.StepService;
 import eu.sshopencloud.marketplace.services.items.WorkflowService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -75,7 +76,7 @@ public class WorkflowController {
                                                               required = true,
                                                               schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore updatedWorkflow,
                                                       @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
         return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft, approved));
     }
@@ -155,7 +156,7 @@ public class WorkflowController {
                                                       required = true,
                                                       schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore updatedStep,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
         return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft, approved));
     }

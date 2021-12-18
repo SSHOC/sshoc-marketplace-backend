@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.controllers;
 
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,13 @@ public class MarketplaceExceptionHandler {
         log.error("Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();
         return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(value = { VersionNotChangedException.class })
+    public ResponseEntity<Object> handleNotModifiedException(Exception ex, WebRequest request) {
+        log.error("Exception", ex);
+        ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getMessage()).build();
+        return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(errorResponse);
     }
 
     @ExceptionHandler(value = { AccessDeniedException.class })

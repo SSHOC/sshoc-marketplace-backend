@@ -279,3 +279,11 @@ PropertyType:
     groupName:                   ''
     hidden:                      false
     ord:                         35
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        conflict-at-source
+    label:                       Conflict at Source
+    type:                        BOOLEAN
+    groupName:                   'Curation'
+    hidden:                      true
+    ord:                         36

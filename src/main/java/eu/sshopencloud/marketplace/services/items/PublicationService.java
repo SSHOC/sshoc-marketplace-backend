@@ -15,6 +15,7 @@ import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -72,7 +73,7 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareItemDto(publication);
     }
 
-    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore, boolean draft, boolean approved) {
+    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore, boolean draft, boolean approved) throws VersionNotChangedException {
         Publication publication = updateItem(persistentId, publicationCore, draft, approved);
         return prepareItemDto(publication);
     }
@@ -102,8 +103,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     @Override
-    protected Publication makeItem(PublicationCore publicationCore, Publication prevPublication) {
-        return publicationFactory.create(publicationCore, prevPublication);
+    protected Publication makeItem(PublicationCore publicationCore, Publication prevPublication, boolean conflict) {
+        return publicationFactory.create(publicationCore, prevPublication, conflict);
     }
 
     @Override

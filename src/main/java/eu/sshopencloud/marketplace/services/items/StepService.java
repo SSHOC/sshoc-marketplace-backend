@@ -3,6 +3,8 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.items.ComparisonResult;
+import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
@@ -25,6 +27,7 @@ import eu.sshopencloud.marketplace.repositories.items.workflow.StepsTreeReposito
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -113,7 +116,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft,
-            boolean approved) {
+            boolean approved) throws VersionNotChangedException {
         validateCurrentWorkflowAndStepConsistency(workflowId, stepId, draft);
 
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
@@ -129,6 +132,19 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         addStepToTree(updatedStep, updatedStepCore.getStepNo(), parentStepTree);
 
         return prepareItemDto(updatedStep);
+    }
+
+    @Override
+    protected Step updateItem(String persistentId, WorkflowStepCore itemCore, boolean draft, boolean approved) throws VersionNotChangedException {
+        Step currentItem = loadItemForCurrentUser(persistentId);
+        ComparisonResult comparisonResult = ComparisonResult.UPDATED;
+        if (!draft && currentItem.getStatus() != ItemStatus.DRAFT) {
+            comparisonResult = recognizePotentialChanges(currentItem, itemCore.getStepCore());
+            if (comparisonResult == ComparisonResult.UNMODIFIED) {
+                throw new VersionNotChangedException();
+            }
+        }
+        return createOrUpdateItemVersion(itemCore, currentItem, draft, approved, comparisonResult == ComparisonResult.CONFLICT);
     }
 
 
@@ -386,11 +402,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     @Override
-    protected Step makeItem(WorkflowStepCore workflowStepCore, Step prevStep) {
+    protected Step makeItem(WorkflowStepCore workflowStepCore, Step prevStep, boolean conflict) {
         StepCore stepCore = workflowStepCore.getStepCore();
         StepsTree parentTree = workflowStepCore.getParentTree();
 
-        return stepFactory.create(stepCore, prevStep, parentTree);
+        return stepFactory.create(stepCore, prevStep, parentTree, conflict);
     }
 
 

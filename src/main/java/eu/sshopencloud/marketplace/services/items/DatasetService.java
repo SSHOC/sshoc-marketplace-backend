@@ -18,6 +18,7 @@ import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -76,7 +77,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
 
-    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft, boolean approved) {
+    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft, boolean approved)
+            throws VersionNotChangedException {
         Dataset dataset = updateItem(persistentId, datasetCore, draft, approved);
         return prepareItemDto(dataset);
     }
@@ -110,8 +112,8 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
 
     @Override
-    public Dataset makeItem(DatasetCore datasetCore, Dataset prevDataset) {
-        return datasetFactory.create(datasetCore, prevDataset);
+    public Dataset makeItem(DatasetCore datasetCore, Dataset prevDataset, boolean conflict) {
+        return datasetFactory.create(datasetCore, prevDataset, conflict);
     }
 
 

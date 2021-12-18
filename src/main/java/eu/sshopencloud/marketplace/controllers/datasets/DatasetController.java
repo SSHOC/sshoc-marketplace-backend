@@ -10,6 +10,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -74,7 +75,7 @@ public class DatasetController {
                                                             required = true,
                                                             schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore updatedDataset,
                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
         return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft, approved));
     }

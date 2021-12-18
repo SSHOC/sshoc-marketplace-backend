@@ -15,6 +15,7 @@ import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -76,8 +77,7 @@ public class TrainingMaterialService
 
     public TrainingMaterialDto updateTrainingMaterial(String persistentId,
                                                       TrainingMaterialCore trainingMaterialCore,
-                                                      boolean draft, boolean approved) {
-
+                                                      boolean draft, boolean approved) throws VersionNotChangedException {
         TrainingMaterial trainingMaterial = updateItem(persistentId, trainingMaterialCore, draft, approved);
         return prepareItemDto(trainingMaterial);
     }
@@ -107,8 +107,8 @@ public class TrainingMaterialService
     }
 
     @Override
-    protected TrainingMaterial makeItem(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial) {
-        return trainingMaterialFactory.create(trainingMaterialCore, prevTrainingMaterial);
+    protected TrainingMaterial makeItem(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial, boolean conflict) {
+        return trainingMaterialFactory.create(trainingMaterialCore, prevTrainingMaterial, conflict);
     }
 
     @Override

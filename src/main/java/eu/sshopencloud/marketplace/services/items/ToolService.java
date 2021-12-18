@@ -15,6 +15,7 @@ import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -72,7 +73,7 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareItemDto(tool);
     }
 
-    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft, boolean approved) {
+    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft, boolean approved) throws VersionNotChangedException {
         Tool tool = updateItem(persistentId, toolCore, draft, approved);
         return prepareItemDto(tool);
     }
@@ -102,8 +103,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     @Override
-    protected Tool makeItem(ToolCore toolCore, Tool prevTool) {
-        return toolFactory.create(toolCore, prevTool);
+    protected Tool makeItem(ToolCore toolCore, Tool prevTool, boolean conflict) {
+        return toolFactory.create(toolCore, prevTool, conflict);
     }
 
     @Override
