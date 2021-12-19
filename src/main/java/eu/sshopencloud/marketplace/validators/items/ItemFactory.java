@@ -65,14 +65,15 @@ public class ItemFactory {
         }
 
         item.setContributors(itemContributorFactory.create(itemCore.getContributors(), item, errors, "contributors"));
-        item.setProperties(propertyFactory.create(itemCore.getProperties(), item, errors, "properties"));
+        List<Property> properties = propertyFactory.create(itemCore.getProperties(), item, errors, "properties");
         if (conflict) {
             Property property = new Property();
             PropertyType propertyType = propertyTypeRepository.findById("conflict-at-source").get();
             property.setType(propertyType);
             property.setValue("true");
-            item.getProperties().add(property);
+            properties.add(property);
         }
+        item.setProperties(properties);
 
         List<URI> urls = parseAccessibleAtLinks(itemCore, errors);
         List<String> accessibleAtLinks = urls.stream()

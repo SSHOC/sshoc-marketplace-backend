@@ -641,6 +641,66 @@ public class PublicationControllerITCase {
 
 
     @Test
+    public void shouldNotUpdatePublicationWhenTheSame() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test publication");
+        publication.setDescription("New unknown publication");
+        publication.setExternalIds(
+                List.of(
+                        new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "https://github.com/tesseract-ocr/tessdoc"),
+                        new ItemExternalIdCore(new ItemExternalIdId("Wikidata"), "Q945242")
+                )
+        );
+
+        String payload = mapper.writeValueAsString(publication);
+
+        String publicationJson = mvc.perform(
+                post("/api/publications")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(publication.getLabel())))
+                .andExpect(jsonPath("description", is(publication.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("GitHub")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://github.com/{source-item-id}")))
+                .andExpect(jsonPath("externalIds[0].identifier", is(publication.getExternalIds().get(0).getIdentifier())))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-item-id}")))
+                .andExpect(jsonPath("externalIds[1].identifier", is(publication.getExternalIds().get(1).getIdentifier())))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto publicationDto = mapper.readValue(publicationJson, PublicationDto.class);
+        String publicationId = publicationDto.getPersistentId();
+
+        PublicationCore publicationV2 = new PublicationCore();
+        publicationV2.setLabel("Test publication");
+        publicationV2.setDescription("New unknown publication");
+        publicationV2.setExternalIds(
+                List.of(
+                        new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "https://github.com/tesseract-ocr/tessdoc"),
+                        new ItemExternalIdCore(new ItemExternalIdId("Wikidata"), "Q945242")
+                )
+        );
+
+        String payloadV2 = mapper.writeValueAsString(publicationV2);
+
+        mvc.perform(
+                put("/api/publications/{id}", publicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payloadV2)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isNotModified());
+    }
+
+    @Test
     public void shouldReturnPublicationInformationContributors() throws Exception {
 
         PublicationCore publication = new PublicationCore();
