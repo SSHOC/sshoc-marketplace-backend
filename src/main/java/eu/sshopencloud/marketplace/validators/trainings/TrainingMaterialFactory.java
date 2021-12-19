@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.validators.trainings;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.repositories.items.TrainingMaterialRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.items.ItemFactory;
 import lombok.RequiredArgsConstructor;
@@ -22,29 +21,29 @@ public class TrainingMaterialFactory {
     private final ItemFactory itemFactory;
 
 
-    public TrainingMaterial create(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial)
+    public TrainingMaterial create(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial, boolean conflict)
             throws ValidationException {
 
         TrainingMaterial trainingMaterial =
                 (prevTrainingMaterial != null) ? new TrainingMaterial(prevTrainingMaterial) : new TrainingMaterial();
 
-        return setTrainingMaterialValues(trainingMaterialCore, trainingMaterial);
+        return setTrainingMaterialValues(trainingMaterialCore, trainingMaterial, conflict);
     }
 
     public TrainingMaterial modify(TrainingMaterialCore trainingMaterialCore, TrainingMaterial trainingMaterial)
             throws ValidationException {
 
-        return setTrainingMaterialValues(trainingMaterialCore, trainingMaterial);
+        return setTrainingMaterialValues(trainingMaterialCore, trainingMaterial, false);
     }
 
     private TrainingMaterial setTrainingMaterialValues(TrainingMaterialCore trainingMaterialCore,
-                                                       TrainingMaterial trainingMaterial) throws ValidationException {
+                                                       TrainingMaterial trainingMaterial, boolean conflict) throws ValidationException {
 
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(trainingMaterialCore, "TrainingMaterial");
 
 
         trainingMaterial = itemFactory.initializeItem(
-                trainingMaterialCore, trainingMaterial, ItemCategory.TRAINING_MATERIAL, errors
+                trainingMaterialCore, trainingMaterial, conflict, ItemCategory.TRAINING_MATERIAL, errors
         );
 
         trainingMaterial.setDateCreated(trainingMaterialCore.getDateCreated());

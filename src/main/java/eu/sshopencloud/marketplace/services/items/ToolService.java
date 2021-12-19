@@ -14,7 +14,9 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.tools.ToolFactory;
@@ -40,12 +42,12 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
                        ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                        ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Tool> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                       PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                       PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
                        MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService,
+                itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService, sourceService,
                 eventPublisher
         );
 
@@ -71,7 +73,7 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareItemDto(tool);
     }
 
-    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft, boolean approved) {
+    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft, boolean approved) throws VersionNotChangedException {
         Tool tool = updateItem(persistentId, toolCore, draft, approved);
         return prepareItemDto(tool);
     }
@@ -101,8 +103,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     @Override
-    protected Tool makeItem(ToolCore toolCore, Tool prevTool) {
-        return toolFactory.create(toolCore, prevTool);
+    protected Tool makeItem(ToolCore toolCore, Tool prevTool, boolean conflict) {
+        return toolFactory.create(toolCore, prevTool, conflict);
     }
 
     @Override
@@ -157,15 +159,15 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public ToolDto merge(ToolCore mergeTool, List<String> mergeList) {
-
+    public ToolDto merge(ToolCore mergeTool, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         Tool tool = createItem(mergeTool, false);
         tool = mergeItem(tool.getPersistentId(), mergeList);
         return prepareItemDto(tool);
     }
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
     }
 
     public ItemsDifferencesDto getDifferences(String toolPersistentId, Long toolVersionId, String otherPersistentId, Long otherVersionId) {

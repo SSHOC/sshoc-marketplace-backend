@@ -14,7 +14,9 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.services.auth.UserService;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.trainings.TrainingMaterialFactory;
@@ -42,12 +44,12 @@ public class TrainingMaterialService
                                    ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                                    ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<TrainingMaterial> itemUpgradeRegistry,
                                    DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                                   PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                                   PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
                                    MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService,
+                itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService, sourceService,
                 eventPublisher
         );
 
@@ -75,8 +77,7 @@ public class TrainingMaterialService
 
     public TrainingMaterialDto updateTrainingMaterial(String persistentId,
                                                       TrainingMaterialCore trainingMaterialCore,
-                                                      boolean draft, boolean approved) {
-
+                                                      boolean draft, boolean approved) throws VersionNotChangedException {
         TrainingMaterial trainingMaterial = updateItem(persistentId, trainingMaterialCore, draft, approved);
         return prepareItemDto(trainingMaterial);
     }
@@ -106,8 +107,8 @@ public class TrainingMaterialService
     }
 
     @Override
-    protected TrainingMaterial makeItem(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial) {
-        return trainingMaterialFactory.create(trainingMaterialCore, prevTrainingMaterial);
+    protected TrainingMaterial makeItem(TrainingMaterialCore trainingMaterialCore, TrainingMaterial prevTrainingMaterial, boolean conflict) {
+        return trainingMaterialFactory.create(trainingMaterialCore, prevTrainingMaterial, conflict);
     }
 
     @Override
@@ -165,15 +166,15 @@ public class TrainingMaterialService
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public TrainingMaterialDto merge(TrainingMaterialCore mergeTrainingMaterial, List<String> mergeList) {
-
+    public TrainingMaterialDto merge(TrainingMaterialCore mergeTrainingMaterial, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         TrainingMaterial trainingMaterial = createItem(mergeTrainingMaterial, false);
         trainingMaterial = mergeItem(trainingMaterial.getPersistentId(), mergeList);
         return prepareItemDto(trainingMaterial);
     }
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
     }
 
     public ItemsDifferencesDto getDifferences(String trainingMaterialPersistentId, Long trainingMaterialVersionId, String otherPersistentId, Long otherVersionId) {

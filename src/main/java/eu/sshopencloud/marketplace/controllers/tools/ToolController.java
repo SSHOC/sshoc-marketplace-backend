@@ -9,6 +9,8 @@ import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.services.items.ToolService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -74,7 +76,7 @@ public class ToolController {
                                                       required = true,
                                                       schema = @Schema(implementation = ToolCore.class)) @RequestBody ToolCore updatedTool,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
         return ResponseEntity.ok(toolService.updateTool(persistentId, updatedTool, draft, approved));
     }
@@ -142,7 +144,8 @@ public class ToolController {
                                          @Parameter(
                                                  description = "Performing merge into tool",
                                                  required = true,
-                                                 schema = @Schema(implementation = ToolCore.class)) @RequestBody ToolCore mergeTool) {
+                                                 schema = @Schema(implementation = ToolCore.class)) @RequestBody ToolCore mergeTool)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(toolService.merge(mergeTool, with));
     }
 

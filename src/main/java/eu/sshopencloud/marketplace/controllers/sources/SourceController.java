@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.controllers.sources;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
+import eu.sshopencloud.marketplace.dto.search.PaginatedSearchItemsBasic;
 import eu.sshopencloud.marketplace.dto.sources.PaginatedSources;
 import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
@@ -69,24 +70,21 @@ public class SourceController {
 
     @Operation(summary = "Get list of items for given source")
     @GetMapping(path = "/{sourceId}/items", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedItemsBasic> getItemsForSource(@PathVariable("sourceId") Long sourceId,
-                                                                 @RequestParam(value = "page", required = false) Integer page,
-                                                                 @RequestParam(value = "perpage", required = false) Integer perpage,
-                                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved)
+    public ResponseEntity<PaginatedSearchItemsBasic> getItemsForSource(@PathVariable("sourceId") Long sourceId,
+                                                                       @RequestParam(value = "page", required = false) Integer page,
+                                                                       @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
-        return ResponseEntity.ok(itemService.getItemsBySource(sourceId, approved, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(itemService.getItemsBySource(sourceId, pageCoordsValidator.validate(page, perpage)));
     }
 
     @Operation(summary = "Get list of items for given source and id of an item in this source")
     @GetMapping(path = "/{sourceId}/items/{sourceItemId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedItemsBasic> getItemSource(@PathVariable("sourceId") Long sourceId,
-                                                             @PathVariable("sourceItemId") String sourceItemId,
-                                                             @RequestParam(value = "page", required = false) Integer page,
-                                                             @RequestParam(value = "perpage", required = false) Integer perpage,
-                                                             @RequestParam(value = "approved", defaultValue = "true") boolean approved)
+    public ResponseEntity<PaginatedSearchItemsBasic> getItemsForSourceAndSourceItemId(@PathVariable("sourceId") Long sourceId,
+                                                                                @PathVariable("sourceItemId") String sourceItemId,
+                                                                                @RequestParam(value = "page", required = false) Integer page,
+                                                                                @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
-
-        return ResponseEntity.ok(itemService.getItemsBySource(sourceId, sourceItemId, approved, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(itemService.getItemsBySource(sourceId, sourceItemId, pageCoordsValidator.validate(page, perpage)));
     }
 
 
