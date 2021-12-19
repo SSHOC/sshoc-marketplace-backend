@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
@@ -18,6 +19,7 @@ import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.publications.PublicationFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,11 +41,12 @@ public class PublicationService extends ItemCrudService<Publication, Publication
                               ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                               PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                              MediaStorageService mediaStorageService, SourceService sourceService) {
+                              MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
+                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService,
+                eventPublisher
         );
 
         this.publicationRepository = publicationRepository;
@@ -165,6 +168,12 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     public List<SourceDto> getSources(String id) {
         return getAllSources(id);
+    }
+
+    public ItemsDifferencesDto getDifferences(String publicationPersistentId, Long publicationVersionId,
+                                              String otherPersistentId, Long otherVersionId) {
+
+        return super.getDifferences(publicationPersistentId, publicationVersionId, otherPersistentId, otherVersionId);
     }
 
 }

@@ -81,11 +81,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/concept-reindex").hasAuthority(Authority.ADMINISTRATOR.name());
         http
                 .authorizeRequests()
-
                 .antMatchers(HttpMethod.GET, "/api/users/*/password").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/users/*/display-name").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/users").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.GET, "/api/users/*").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers("/api/users/**").hasAuthority(Authority.ADMINISTRATOR.name());
-
 
         http
                 .authorizeRequests()

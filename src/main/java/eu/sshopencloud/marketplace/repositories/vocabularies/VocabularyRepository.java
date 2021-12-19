@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VocabularyRepository extends JpaRepository<Vocabulary, String> {
 
-    Page<VocabularyBasicView> findAllVocabulariesBasicBy(Pageable pageable);
+    Page<VocabularyBasicView> findAllBasicBy(Pageable pageable);
 }

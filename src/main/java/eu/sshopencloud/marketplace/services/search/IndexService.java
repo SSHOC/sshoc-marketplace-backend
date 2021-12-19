@@ -18,6 +18,7 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.services.actors.event.ActorChangedEvent;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
+import eu.sshopencloud.marketplace.services.items.event.ItemsMergedEvent;
 import eu.sshopencloud.marketplace.services.sources.event.SourceChangedEvent;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -187,6 +189,17 @@ public class IndexService {
             for (Item item : itemRepository.findByContributorActorId(event.getId())) {
                 indexItem(item);
             }
+        }
+    }
+
+    @Async
+    @TransactionalEventListener(classes = {ItemsMergedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
+    public void handleMergedEvent(ItemsMergedEvent event) {
+        for (String persistentId : event.getMergedPersistentIds()) {
+            indexItemRepository.deleteByPersistentId(persistentId);
+        }
+        for (Item item : itemRepository.findByVersionedItemPersistentId(event.getNewPersistentId())) {
+            indexItem(item);
         }
     }
 

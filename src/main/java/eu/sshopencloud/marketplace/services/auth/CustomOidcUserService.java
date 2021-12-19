@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.UUID;
 
 @Service
@@ -42,11 +43,7 @@ public class CustomOidcUserService extends OidcUserService {
 
         User user = userRepository.findByUsername(oAuth2UserInfo.getId());
         if (user != null) {
-            if(!user.getProvider().equals(userRequest.getClientRegistration().getRegistrationId())) {
-                throw new OidcAuthenticationProcessingException("error.otherProvider." +  user.getProvider(),
-                        "Looks like you're signed up with " + user.getProvider() + " account. Please use your " + user.getProvider() + " account to login.");
-            }
-            user = updateExistingUser(user, oAuth2UserInfo);
+            user = updateExistingUser(user, userRequest);
         } else {
             user = registerNewUser(userRequest, oAuth2UserInfo);
         }
@@ -56,7 +53,7 @@ public class CustomOidcUserService extends OidcUserService {
 
     private User registerNewUser(OidcUserRequest userRequest, OAuth2UserInfo oAuth2UserInfo) {
         User user = new User();
-        user.setProvider(userRequest.getClientRegistration().getRegistrationId());
+        user.setProviders(Collections.singletonList(getUserProvider(userRequest)));
         user.setUsername(oAuth2UserInfo.getId());
         user.setDisplayName(oAuth2UserInfo.getName());
         user.setEmail(oAuth2UserInfo.getEmail());
@@ -67,9 +64,16 @@ public class CustomOidcUserService extends OidcUserService {
         return userRepository.save(user);
     }
 
-    private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
+    private User updateExistingUser(User existingUser, OidcUserRequest userRequest) {
         existingUser.setTokenKey(UUID.randomUUID().toString());
+        if (!existingUser.getProviders().contains(getUserProvider(userRequest))) {
+            existingUser.getProviders().add(getUserProvider(userRequest));
+        }
         return userRepository.save(existingUser);
+    }
+
+    private String getUserProvider(OidcUserRequest userRequest) {
+        return userRequest.getClientRegistration().getRegistrationId();
     }
 
 }
