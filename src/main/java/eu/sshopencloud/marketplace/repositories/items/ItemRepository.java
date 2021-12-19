@@ -1,10 +1,6 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
-import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.sources.Source;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,67 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends ItemVersionRepository<Item> {
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where v.status = 'APPROVED' " +
-                    "and i.active = true " +
-                    "and v.source = :source "
-    )
-    Page<Item> findAllLatestApprovedItemsForSource(@Param("source") Source source, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where v.status = 'APPROVED' " +
-                    "and i.active = true " +
-                    "and v.source = :source and v.sourceItemId = :sourceItemId"
-    )
-    Page<Item> findAllLatestApprovedItemsForSource(@Param("source") Source source, @Param("sourceItemId") String sourceItemId, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where i.active = true " +
-                    "and (v.status = 'APPROVED' or v.proposedVersion = true)" +
-                    "and v.source = :source "
-    )
-    Page<Item> findAllLatestItemsForSource(@Param("source") Source source, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where i.active = true " +
-                    "and (v.status = 'APPROVED' or v.proposedVersion = true)" +
-                    "and v.source = :source and v.sourceItemId = :sourceItemId"
-    )
-    Page<Item> findAllLatestItemsForSource(@Param("source") Source source, @Param("sourceItemId") String sourceItemId, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where i.active = true " +
-                    "and (" +
-                    "v.status = 'APPROVED' " +
-                    "or (v.proposedVersion = true and v.informationContributor = :owner)" +
-                    ")" +
-                    "and v.source = :source "
-    )
-    Page<Item> findUserLatestItemsForSource(@Param("source") Source source, @Param("owner") User user, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where i.active = true " +
-                    "and (" +
-                    "v.status = 'APPROVED' " +
-                    "or (v.proposedVersion = true and v.informationContributor = :owner)" +
-                    ")" +
-                    "and v.source = :source and v.sourceItemId = :sourceItemId"
-    )
-    Page<Item> findUserLatestItemsForSource(@Param("source") Source source, @Param("sourceItemId") String sourceItemId, @Param("owner") User user, Pageable page);
-
 
     // problem with the proper clazz_. sometimes abstract class is put
     @Deprecated

@@ -9,6 +9,8 @@ import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.services.items.TrainingMaterialService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -75,7 +77,7 @@ public class TrainingMaterialController {
                                                                               required = true,
                                                                               schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore updatedTrainingMaterial,
                                                                       @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft,
-                                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
         return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(persistentId, updatedTrainingMaterial, draft, approved));
     }
@@ -146,7 +148,8 @@ public class TrainingMaterialController {
                                                      @Parameter(
                                                              description = "Merged training material",
                                                              required = true,
-                                                             schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore mergeTrainingMaterial) {
+                                                             schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore mergeTrainingMaterial)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(trainingMaterialService.merge(mergeTrainingMaterial, with));
     }
 

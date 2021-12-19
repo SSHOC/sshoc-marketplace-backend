@@ -20,18 +20,18 @@ public class ToolFactory {
     private final ItemFactory itemFactory;
 
 
-    public Tool create(ToolCore toolCore, Tool prevTool) throws ValidationException {
+    public Tool create(ToolCore toolCore, Tool prevTool, boolean conflict) throws ValidationException {
         Tool tool = (prevTool != null) ? new Tool(prevTool) : new Tool();
-        return setToolValues(toolCore, tool);
+        return setToolValues(toolCore, tool, conflict);
     }
 
     public Tool modify(ToolCore toolCore, Tool tool) throws ValidationException {
-        return setToolValues(toolCore, tool);
+        return setToolValues(toolCore, tool, false);
     }
 
-    private Tool setToolValues(ToolCore toolCore, Tool tool) {
+    private Tool setToolValues(ToolCore toolCore, Tool tool, boolean conflict) {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(toolCore, "Tool");
-        tool = itemFactory.initializeItem(toolCore, tool, ItemCategory.TOOL_OR_SERVICE, errors);
+        tool = itemFactory.initializeItem(toolCore, tool, conflict, ItemCategory.TOOL_OR_SERVICE, errors);
 
         if (errors.hasErrors())
             throw new ValidationException(errors);

@@ -56,8 +56,8 @@ public class SourceService {
                 .build();
     }
 
-    public List<SourceDto> getAllSources(String itemId) {
-        return SourceMapper.INSTANCE.toDto(sourceRepository.findSources(itemId));
+    public List<SourceDto> getSourcesOfItem(String itemPersistentId) {
+        return SourceMapper.INSTANCE.toDto(sourceRepository.findSourcesOfItem(itemPersistentId));
     }
 
     public SourceDto getSource(Long id) {

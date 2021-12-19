@@ -280,71 +280,10 @@ PropertyType:
     hidden:                      false
     ord:                         35
 
-
-
-# Ignored, since the vocabularies are not loaded during startup
-PropertyTypeVocabulary:
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        object-type
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        object-type
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        language
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        iso-639-3
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        language
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        iso-639-3-v2
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        activity
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        tadirah-activity
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        activity
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        nemo-activity-type
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        technique
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        tadirah-research-technique
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        object-format
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        iana-mime-type
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        publication-type
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        publication-type
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        conflict-at-source
+    label:                       Conflict at Source
+    type:                        BOOLEAN
+    groupName:                   'Curation'
+    hidden:                      true
+    ord:                         36

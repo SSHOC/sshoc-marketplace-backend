@@ -21,19 +21,19 @@ public class DatasetFactory {
     private final ItemFactory itemFactory;
 
 
-    public Dataset create(DatasetCore datasetCore, Dataset prevDataset) throws ValidationException {
+    public Dataset create(DatasetCore datasetCore, Dataset prevDataset, boolean conflict) throws ValidationException {
         Dataset dataset = (prevDataset != null) ? new Dataset(prevDataset) : new Dataset();
-        return setDatasetValues(datasetCore, dataset);
+        return setDatasetValues(datasetCore, dataset, conflict);
     }
 
     public Dataset modify(DatasetCore datasetCore, Dataset dataset) throws ValidationException {
-        return setDatasetValues(datasetCore, dataset);
+        return setDatasetValues(datasetCore, dataset, false);
     }
 
-    private Dataset setDatasetValues(DatasetCore datasetCore, Dataset dataset) throws ValidationException {
+    private Dataset setDatasetValues(DatasetCore datasetCore, Dataset dataset, boolean conflict) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(datasetCore, "Dataset");
 
-        dataset = itemFactory.initializeItem(datasetCore, dataset, ItemCategory.DATASET, errors);
+        dataset = itemFactory.initializeItem(datasetCore, dataset, conflict, ItemCategory.DATASET, errors);
 
         dataset.setDateCreated(datasetCore.getDateCreated());
         dataset.setDateLastUpdated(datasetCore.getDateLastUpdated());
