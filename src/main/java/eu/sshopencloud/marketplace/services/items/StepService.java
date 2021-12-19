@@ -3,6 +3,8 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.items.ComparisonResult;
+import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
@@ -24,7 +26,9 @@ import eu.sshopencloud.marketplace.repositories.items.workflow.StepRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepsTreeRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
@@ -52,15 +56,15 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public StepService(StepRepository stepRepository, StepsTreeRepository stepsTreeRepository, StepFactory stepFactory,
-            WorkflowService workflowService, ItemRepository itemRepository,
-            VersionedItemRepository versionedItemRepository, ItemVisibilityService itemVisibilityService,
-            ItemUpgradeRegistry<Step> itemUpgradeRegistry, DraftItemRepository draftItemRepository,
-            ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
-            IndexService indexService, UserService userService, MediaStorageService mediaStorageService,
-            SourceService sourceService, ApplicationEventPublisher eventPublisher) {
+                       WorkflowService workflowService, ItemRepository itemRepository,
+                       VersionedItemRepository versionedItemRepository, ItemVisibilityService itemVisibilityService,
+                       ItemUpgradeRegistry<Step> itemUpgradeRegistry, DraftItemRepository draftItemRepository,
+                       ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
+                       IndexItemService indexItemService, UserService userService, MediaStorageService mediaStorageService,
+                       SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService,
+                itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService,
                 sourceService, eventPublisher);
 
         this.stepRepository = stepRepository;
@@ -112,7 +116,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft,
-            boolean approved) {
+            boolean approved) throws VersionNotChangedException {
         validateCurrentWorkflowAndStepConsistency(workflowId, stepId, draft);
 
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
@@ -128,6 +132,19 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         addStepToTree(updatedStep, updatedStepCore.getStepNo(), parentStepTree);
 
         return prepareItemDto(updatedStep);
+    }
+
+    @Override
+    protected Step updateItem(String persistentId, WorkflowStepCore itemCore, boolean draft, boolean approved) throws VersionNotChangedException {
+        Step currentItem = loadItemForCurrentUser(persistentId);
+        ComparisonResult comparisonResult = ComparisonResult.UPDATED;
+        if (!draft && currentItem.getStatus() != ItemStatus.DRAFT) {
+            comparisonResult = recognizePotentialChanges(currentItem, itemCore.getStepCore());
+            if (comparisonResult == ComparisonResult.UNMODIFIED) {
+                throw new VersionNotChangedException();
+            }
+        }
+        return createOrUpdateItemVersion(itemCore, currentItem, draft, approved, comparisonResult == ComparisonResult.CONFLICT);
     }
 
 
@@ -385,11 +402,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     @Override
-    protected Step makeItem(WorkflowStepCore workflowStepCore, Step prevStep) {
+    protected Step makeItem(WorkflowStepCore workflowStepCore, Step prevStep, boolean conflict) {
         StepCore stepCore = workflowStepCore.getStepCore();
         StepsTree parentTree = workflowStepCore.getParentTree();
 
-        return stepFactory.create(stepCore, prevStep, parentTree);
+        return stepFactory.create(stepCore, prevStep, parentTree, conflict);
     }
 
 
@@ -464,13 +481,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
 
-    public StepDto merge(String workflowId, StepCore mergeStepCore, List<String> mergeList) {
-
-        StepDto stepDto;
-
+    public StepDto merge(String workflowId, StepCore mergeStepCore, List<String> mergeList) throws ItemIsAlreadyMergedException {
         if (!checkMergeStepConsistency(mergeList))
             throw new IllegalArgumentException("Steps to merge are from different workflows!");
-
+        checkIfMergeIsPossible(mergeList);
+        StepDto stepDto;
         String stepId = findStep(mergeList);
         List<String> stepList = findAllStep(mergeList);
         if (Objects.isNull(stepId))

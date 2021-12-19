@@ -1483,8 +1483,9 @@ public class DatasetControllerITCase {
                                 .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].username", is("Administrator")));
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[1].username", is("System importer")));
 
         String response = mvc.perform(
                         get("/api/datasets/{id}/merge", datasetId)
@@ -1554,10 +1555,11 @@ public class DatasetControllerITCase {
                                 .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[1].username", is("Moderator")))
-                .andExpect(jsonPath("$[2].username", is("Contributor")));
+                .andExpect(jsonPath("$[2].username", is("Contributor")))
+                .andExpect(jsonPath("$[3].username", is("System importer")));
 
     }
 
@@ -1610,9 +1612,10 @@ public class DatasetControllerITCase {
                                 .header("Authorization", ADMINISTRATOR_JWT)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
-                .andExpect(jsonPath("$[1].username", is("Contributor")));
+                .andExpect(jsonPath("$[1].username", is("Contributor")))
+                .andExpect(jsonPath("$[2].username", is("System importer")));
 
         String response2 = mvc.perform(
                         get("/api/datasets/{id}/merge", mergedPersistentId)
@@ -1650,10 +1653,11 @@ public class DatasetControllerITCase {
                                 .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[1].username", is("Moderator")))
-                .andExpect(jsonPath("$[2].username", is("Contributor")));
+                .andExpect(jsonPath("$[2].username", is("Contributor")))
+                .andExpect(jsonPath("$[3].username", is("System importer")));
 
         String response3 = mvc.perform(
                         get("/api/datasets/{id}/merge", mergedSecondPersistentId)
@@ -1692,10 +1696,11 @@ public class DatasetControllerITCase {
                                 .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[1].username", is("Moderator")))
-                .andExpect(jsonPath("$[2].username", is("Contributor")));
+                .andExpect(jsonPath("$[2].username", is("Contributor")))
+                .andExpect(jsonPath("$[3].username", is("System importer")));
 
     }
 

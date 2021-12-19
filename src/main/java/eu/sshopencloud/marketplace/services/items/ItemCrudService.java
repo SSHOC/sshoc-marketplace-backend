@@ -18,13 +18,16 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.event.ItemsMergedEvent;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
@@ -43,7 +46,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private final ItemRelatedItemService itemRelatedItemService;
     private final PropertyTypeService propertyTypeService;
-    private final IndexService indexService;
+    private final IndexItemService indexItemService;
     private final UserService userService;
     private final MediaStorageService mediaStorageService;
     private final SourceService sourceService;
@@ -51,10 +54,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final ApplicationEventPublisher eventPublisher;
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
-            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-            PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-            MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
+                           ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
+                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                           PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
+                           MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -66,7 +69,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         this.itemRelatedItemService = itemRelatedItemService;
         this.propertyTypeService = propertyTypeService;
-        this.indexService = indexService;
+        this.indexItemService = indexItemService;
         this.userService = userService;
 
         this.mediaStorageService = mediaStorageService;
@@ -125,16 +128,29 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected I createItem(C itemCore, boolean draft) {
-        return createOrUpdateItemVersion(itemCore, null, draft, true);
+        return createOrUpdateItemVersion(itemCore, null, draft, true, false);
     }
 
 
-    protected I mergeItem(String persistentId, List<String> mergedPersistentIds) {
+    protected void checkIfMergeIsPossible(List<String> persistentIdsToMerge) throws ItemIsAlreadyMergedException {
+        for (String persistentIdToMerge : persistentIdsToMerge) {
+            Optional<VersionedItem> versionedItem = versionedItemRepository.findByMergedWithPersistentId(persistentIdToMerge);
+            if (versionedItem.isPresent()) {
+                throw new ItemIsAlreadyMergedException(persistentIdToMerge, versionedItem.get().getPersistentId());
+            }
+        }
+    }
+
+    protected I mergeItem(String persistentId, List<String> persistentIdsToMerge) {
         I mergedItem = loadCurrentItem(persistentId);
+        // The merged item does not come from any source. Sources are only in the original items and
+        // are available via API: GET /api/{category}/{persistentId}/sources
+        mergedItem.setSource(null);
+        mergedItem.setSourceItemId(null);
         mergedItem.getVersionedItem().setMergedWith(new ArrayList<>());
 
-        for (String mergedPersistentId : mergedPersistentIds) {
-            VersionedItem versionedItem = versionedItemRepository.getOne(mergedPersistentId);
+        for (String persistentIdToMerge : persistentIdsToMerge) {
+            VersionedItem versionedItem = versionedItemRepository.getOne(persistentIdToMerge);
             I prevItem = (I) versionedItem.getCurrentVersion();
             prevItem.setStatus(ItemStatus.DEPRECATED);
             mergedItem.getVersionedItem().addMergedWith(versionedItem);
@@ -145,7 +161,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         versionedItemRepository.save(mergedItem.getVersionedItem());
         itemRepository.save(mergedItem);
 
-        eventPublisher.publishEvent(new ItemsMergedEvent(persistentId, mergedPersistentIds));
+        eventPublisher.publishEvent(new ItemsMergedEvent(persistentId, persistentIdsToMerge));
 
         return mergedItem;
     }
@@ -165,20 +181,78 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    protected I updateItem(String persistentId, C itemCore, boolean draft, boolean approved) {
-        I item = loadItemForCurrentUser(persistentId);
-        return createOrUpdateItemVersion(itemCore, item, draft, approved);
+    protected I updateItem(String persistentId, C itemCore, boolean draft, boolean approved) throws VersionNotChangedException {
+        I currentItem = loadItemForCurrentUser(persistentId);
+        ComparisonResult comparisonResult = ComparisonResult.UPDATED;
+        if (!draft && currentItem.getStatus() != ItemStatus.DRAFT) {
+            comparisonResult = recognizePotentialChanges(currentItem, (ItemCore) itemCore);
+            if (comparisonResult == ComparisonResult.UNMODIFIED) {
+                throw new VersionNotChangedException();
+            }
+        }
+        return createOrUpdateItemVersion(itemCore, currentItem, draft, approved, comparisonResult == ComparisonResult.CONFLICT);
+    }
+
+    protected ComparisonResult recognizePotentialChanges(I currentItem, ItemCore itemCore) {
+        ItemDto currentItemDto = ItemsComparator.toDto(currentItem);
+        currentItemDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(currentItem));
+        complete(currentItemDto, currentItem);
+        ItemDto itemDtoFromSource = null;
+        if (itemCore.getSource() != null && itemCore.getSource().getId() != null && itemCore.getSourceItemId() != null) {
+            Item itemFromSource = getLastItemBySource(currentItem, itemCore.getSource().getId(), itemCore.getSourceItemId());
+            if (itemFromSource != null) {
+                itemDtoFromSource = ItemsComparator.toDto(itemFromSource);
+                itemDtoFromSource.setRelatedItems(itemRelatedItemService.getItemRelatedItems(itemFromSource));
+                complete(itemDtoFromSource, itemFromSource);
+            }
+        }
+        ItemDifferencesCore currentItemDifferences = ItemsComparator.differentiateItems(itemCore, currentItemDto);
+        if (itemDtoFromSource != null) {
+            ItemDifferencesCore itemFromSourceDifferences = ItemsComparator.differentiateItems(itemCore, itemDtoFromSource);
+            if (itemFromSourceDifferences.isEqual()) {
+                return ComparisonResult.UNMODIFIED;
+            } else {
+                if (currentItemDifferences.isEqual()) {
+                    return ComparisonResult.UNMODIFIED;
+                } else {
+                    if (ItemsConflictComparator.isConflict(currentItemDifferences, itemFromSourceDifferences)) {
+                        return ComparisonResult.CONFLICT;
+                    } else {
+                        return ComparisonResult.UPDATED;
+                    }
+                }
+            }
+        } else {
+            if (currentItemDifferences.isEqual()) {
+                return ComparisonResult.UNMODIFIED;
+            } else {
+                return ComparisonResult.UPDATED;
+            }
+        }
+    }
+
+    private Item getLastItemBySource(@NonNull I currentItem, @NonNull Long sourceId, @NonNull String sourceItemId) {
+        List<Item> history = loadItemHistory(currentItem);
+        for (Item historicalItem: history) {
+            if (historicalItem.getSource() != null) {
+                if (sourceId.equals(historicalItem.getSource().getId()) && sourceItemId.equals(historicalItem.getSourceItemId())) {
+                    // FIX ME whether check also an information contributor - System importer ?
+                    return historicalItem;
+                }
+            }
+        }
+        return null;
     }
 
 
-    private I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
-        I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft, approved);
-        indexService.indexItem(newItem);
+    protected I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved, boolean conflict) {
+        I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft, approved, conflict);
+        indexItemService.indexItem(newItem);
         return newItem;
     }
 
 
-    private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved) {
+    private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved, boolean conflict) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
             I version = modifyItem(itemCore, prevVersion);
@@ -190,7 +264,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             return version;
         }
 
-        I version = makeItemVersion(itemCore, prevVersion);
+        I version = makeItemVersion(itemCore, prevVersion, conflict);
 
         version = saveVersionInHistory(version, prevVersion, draft, approved);
 
@@ -303,7 +377,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I draftItem = loadItemDraftForCurrentUser(persistentId);
         I item = commitItemDraft(draftItem);
 
-        indexService.indexItem(item);
+        indexItemService.indexItem(item);
 
         return item;
     }
@@ -368,7 +442,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         targetVersion = saveVersionInHistory(targetVersion, currentVersion, false, true);
         copyVersionRelations(targetVersion, item);
 
-        indexService.indexItem(targetVersion);
+        indexItemService.indexItem(targetVersion);
 
         return targetVersion;
     }
@@ -397,7 +471,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         copyVersionRelations(newItem, item);
 
         itemUpgradeRegistry.registerUpgradedVersion(newItem);
-        indexService.indexItem(newItem);
+        indexItemService.indexItem(newItem);
 
         return newItem;
     }
@@ -459,7 +533,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
 
         if (item.getId().equals(currentItem.getId())) {
-            indexService.removeItemVersions(item);
+            indexItemService.removeItemVersions(item);
         }
     }
 
@@ -548,21 +622,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     String.format("User is not authorized to access the given item version with id %s (version id: %d)",
                             persistentId, versionId));
         }
-        return getHistoryOfItemWithMergedWith(item, versionId);
+        return loadItemHistory(item).stream().map(ItemExtBasicConverter::convertItem).collect(Collectors.toList());
     }
 
-
-    private List<ItemExtBasicDto> getHistoryOfItemWithMergedWith(Item item, Long versionId) {
-
-        List<Long> itemsIds = itemRepository.findItemsHistory(item.getPersistentId(), versionId);
-        List<ItemExtBasicDto> mergedItemHistoryList = new ArrayList<>();
-
-        for (Long id : itemsIds) {
-            Item historicalItem = itemRepository.findById(id).get();
-            mergedItemHistoryList.add(ItemExtBasicConverter.convertItem(historicalItem));
-        }
-
-        return mergedItemHistoryList;
+    private List<Item> loadItemHistory(Item item) {
+        List<Long> itemsIds = itemRepository.findItemsHistory(item.getPersistentId(), item.getId());
+        return itemsIds.stream().map(id -> itemRepository.findById(id).get()).collect(Collectors.toList());
     }
 
 
@@ -582,7 +647,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         I finalItem = loadLatestItem(persistentId);
         D finalDto = convertItemToDto(finalItem);
 
-        // Remove the source. The merged item does not come from any source. Sources are only in the original items and
+        // The merged item does not come from any source. Sources are only in the original items and
         // are available via API: GET /api/{category}/{persistentId}/sources
         finalDto.setSource(null);
         finalDto.setSourceItemId(null);
@@ -658,13 +723,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    public List<SourceDto> getAllSources(String id) {
-        return sourceService.getAllSources(id);
+    public List<SourceDto> getAllSources(String persistentId) {
+        return sourceService.getSourcesOfItem(persistentId);
     }
 
 
-    private I makeItemVersion(C itemCore, I prevItem) {
-        return makeItem(itemCore, prevItem);
+    private I makeItemVersion(C itemCore, I prevItem, boolean conflict) {
+        return makeItem(itemCore, prevItem, conflict);
     }
 
 
@@ -704,7 +769,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return ItemsComparator.differentiateItems(itemDto, otherDto);
     }
 
-    protected abstract I makeItem(C itemCore, I prevItem);
+
+
+    protected abstract I makeItem(C itemCore, I prevItem, boolean conflict);
 
     protected abstract I modifyItem(C itemCore, I item);
 

@@ -22,11 +22,16 @@ public class IndexItem {
     public static final String COLLECTION_NAME = "marketplace-items";
 
     public static final String ID_FIELD = "id";
+
+    public static final String DOC_CONTENT_TYPE_FIELD = "doc_content_type";
+
     public static final String PERSISTENT_ID_FIELD = "persistent_id";
 
     public static final String LABEL_FIELD = "label";
     public static final String LABEL_TEXT_FIELD = "label_text";
     public static final String LABEL_TEXT_EN_FIELD = "label_text_en";
+
+    public static final String VERSION_FIELD = "version";
 
     public static final String DESCRIPTION_FIELD = "description";
     public static final String DESCRIPTION_TEXT_FIELD = "description_text";
@@ -47,6 +52,9 @@ public class IndexItem {
 
     public static final String SOURCE_FIELD = "source";
 
+    public static final String SOURCE_LABEL_FIELD = "source_label";
+    public static final String SOURCE_ITEM_ID_FIELD = "source_item_id";
+
     public static final String KEYWORD_TEXT_FIELD = "keyword_text";
 
     public static final String RELATED_ITEMS_FIELD = "related_items";
@@ -64,6 +72,9 @@ public class IndexItem {
     @Indexed(name = ID_FIELD, type = "string")
     private Long versionId;
 
+    @Indexed(name = DOC_CONTENT_TYPE_FIELD, type = "string")
+    private String docContentType;
+
     @Indexed(name = PERSISTENT_ID_FIELD, type = "string")
     private String persistentId;
 
@@ -75,6 +86,9 @@ public class IndexItem {
 
     @Indexed(name = LABEL_TEXT_EN_FIELD, type = "text_en")
     private String labelTextEn;
+
+    @Indexed(name = VERSION_FIELD, type = "string")
+    private String version;
 
     @Indexed(name = DESCRIPTION_FIELD, type = "string")
     private String description;
@@ -112,8 +126,13 @@ public class IndexItem {
     @Indexed(name = LAST_INFO_UPDATE_FIELD, type = "pdate")
     private String lastInfoUpdate;
 
-    @Indexed(name = SOURCE_FIELD, type = "string")
-    private String source;
+    @Indexed(name = SOURCE_FIELD, type = "strings")
+    @Singular
+    private List<String> sources;
+
+    @Field(value = "detailed_source", child = true)
+    @Singular
+    private List<IndexSource> detailedSources;
 
     @Indexed(name = KEYWORD_TEXT_FIELD, type = "text_general_rev")
     @Singular("keywordText")

@@ -10,7 +10,7 @@ import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConce
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.search.IndexConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyIsClosedException;
 import eu.sshopencloud.marketplace.validators.vocabularies.ConceptFactory;
@@ -35,7 +35,7 @@ public class ConceptService {
     private final ConceptRelatedConceptDetachingRepository conceptRelatedConceptDetachingRepository;
     private final ConceptRelatedConceptService conceptRelatedConceptService;
     private final PropertyService propertyService;
-    private final IndexService indexService;
+    private final IndexConceptService indexConceptService;
 
 
     public PaginatedConcepts getConcepts(String vocabularyCode, PageCoords pageCoords) {
@@ -97,7 +97,7 @@ public class ConceptService {
                 List<ConceptRelatedConcept> conceptRelatedConcepts = conceptFactory.createConceptRelations(concept, conceptCore.getRelatedConcepts());
         conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
 
-        indexService.indexConcept(concept, vocabulary);
+        indexConceptService.indexConcept(concept, vocabulary);
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
@@ -124,7 +124,7 @@ public class ConceptService {
         List<ConceptRelatedConcept> conceptRelatedConcepts = conceptFactory.createConceptRelations(concept, conceptCore.getRelatedConcepts());
         conceptRelatedConceptService.validateReflexivityAndSave(conceptRelatedConcepts);
 
-        indexService.indexConcept(concept, vocabulary);
+        indexConceptService.indexConcept(concept, vocabulary);
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
@@ -134,7 +134,7 @@ public class ConceptService {
             .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code " + vocabularyCode));
         concept.setCandidate(false);
         concept = conceptRepository.save(concept);
-        indexService.indexConcept(concept, concept.getVocabulary());
+        indexConceptService.indexConcept(concept, concept.getVocabulary());
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);
     }
@@ -179,7 +179,7 @@ public class ConceptService {
                     )
             );
         }
-        indexService.removeConcept(concept, vocabularyCode);
+        indexConceptService.removeConcept(concept, vocabularyCode);
         propertyService.removePropertiesWithConcepts(Collections.singletonList(concept));
         conceptRepository.delete(concept);
     }

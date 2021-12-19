@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_85-dev_sources_for_items-1
+      author: mkozak
+      description: Sets missing source items ids
+      context: dev, test
+      changes:
+        - sqlFile:
+            dbms:  'postgresql'
+            encoding:  UTF-8
+            path:  db/changelog/sql/missing_source_item_ids-dev-data-2.sql
+            relativeToChangelogFile:  false
+

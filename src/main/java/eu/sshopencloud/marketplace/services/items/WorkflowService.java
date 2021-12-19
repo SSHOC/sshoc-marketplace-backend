@@ -25,7 +25,9 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
@@ -55,12 +57,12 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                            ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Workflow> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
+                           PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
                            MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService,
+                itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService, sourceService,
                 eventPublisher
         );
 
@@ -113,7 +115,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return prepareItemDto(workflow);
     }
 
-    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) {
+    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) throws VersionNotChangedException {
         Workflow workflow = updateItem(persistentId, workflowCore, draft, approved);
 
         if (!draft)
@@ -261,8 +263,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     @Override
-    protected Workflow makeItem(WorkflowCore workflowCore, Workflow prevWorkflow) {
-        return workflowFactory.create(workflowCore, prevWorkflow);
+    protected Workflow makeItem(WorkflowCore workflowCore, Workflow prevWorkflow, boolean conflict) {
+        return workflowFactory.create(workflowCore, prevWorkflow, conflict);
     }
 
     @Override
@@ -354,19 +356,14 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         }
     }
 
-    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) {
+    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         Workflow workflow = createItem(mergeWorkflow, false);
-
         workflow = mergeItem(workflow.getPersistentId(), mergeList);
-
         WorkflowDto workflowDto = prepareItemDto(workflow);
-
         collectStepsFromMergedWorkflows(workflow, findAllWorkflows(mergeList));
-
         commitSteps(workflow.getStepsTree());
-
         collectSteps(workflowDto, workflow);
-
         return workflowDto;
     }
 
@@ -378,8 +375,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return mergeWorkflowsList;
     }
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
     }
 
     public ItemsDifferencesDto getDifferences(String workflowPersistentId, Long workflowVersionId, String otherPersistentId, Long otherVersionId) {

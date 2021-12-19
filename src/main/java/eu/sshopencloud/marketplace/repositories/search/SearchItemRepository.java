@@ -74,6 +74,30 @@ public class SearchItemRepository {
         return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
     }
 
+
+    public FacetPage<IndexItem> findByQuery(Criteria queryCriteria, User currentUser, SearchOrder order, Pageable pageable) {
+        SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria)
+                .addProjectionOnFields(
+                        IndexItem.ID_FIELD,
+                        IndexItem.PERSISTENT_ID_FIELD,
+                        IndexItem.LABEL_FIELD,
+                        IndexItem.DESCRIPTION_FIELD,
+                        IndexItem.CATEGORY_FIELD,
+                        IndexItem.STATUS_FIELD,
+                        IndexItem.OWNER_FIELD,
+                        IndexItem.LAST_INFO_UPDATE_FIELD
+                )
+                .addSort(Sort.by(createQueryOrder(order)))
+                .setPageRequest(pageable);
+
+        if (currentUser == null || !currentUser.isModerator()) {
+            facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
+        }
+
+        return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
+    }
+
+
     private FilterQuery createVisibilityFilter(User user) {
         Criteria approvedVisibility = new Criteria(IndexItem.STATUS_FIELD).is(ItemStatus.APPROVED.getValue());
 
@@ -89,14 +113,18 @@ public class SearchItemRepository {
     private List<Sort.Order> createQueryOrder(List<SearchOrder> order) {
         List<Sort.Order> result = new ArrayList<Sort.Order>();
         for (SearchOrder o : order) {
-            String name = o.getValue().replace('-', '_');
-            if (o.isAsc()) {
-                result.add(Sort.Order.asc(name));
-            } else {
-                result.add(Sort.Order.desc(name));
-            }
+            result.add(createQueryOrder(o));
         }
         return result;
+    }
+
+    private Sort.Order createQueryOrder(SearchOrder order) {
+        String name = order.getValue().replace('-', '_');
+        if (order.isAsc()) {
+            return Sort.Order.asc(name);
+        } else {
+            return Sort.Order.desc(name);
+        }
     }
 
     private FacetOptions createFacetOptions() {
@@ -158,5 +186,6 @@ public class SearchItemRepository {
     private FilterQuery createStepFilter() {
         return new SimpleFilterQuery(new Criteria(IndexItem.CATEGORY_FIELD).is(ItemCategory.STEP).not());
     }
+
 
 }
