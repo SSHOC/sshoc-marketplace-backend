@@ -6,16 +6,16 @@ import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.dto.search.*;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
+import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.DraftItem;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.sources.Source;
-import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
-import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -51,14 +51,15 @@ public class ItemsService extends ItemVersionService<Item> {
     private final WorkflowService workflowService;
     private final StepService stepService;
 
-
+    private final ItemContributorCriteriaRepository itemContributorRepository;
 
     public ItemsService(ItemRepository itemRepository, DraftItemRepository draftItemRepository, VersionedItemRepository versionedItemRepository,
                         ItemVisibilityService itemVisibilityService,
                         SourceRepository sourceRepository, SearchItemRepository searchItemRepository,
                         @Lazy ToolService toolService, @Lazy TrainingMaterialService trainingMaterialService,
                         @Lazy PublicationService publicationService, @Lazy DatasetService datasetService,
-                        @Lazy WorkflowService workflowService, @Lazy StepService stepService) {
+                        @Lazy WorkflowService workflowService, @Lazy StepService stepService,
+                        ItemContributorCriteriaRepository itemContributorRepository) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -72,6 +73,7 @@ public class ItemsService extends ItemVersionService<Item> {
         this.datasetService = datasetService;
         this.workflowService = workflowService;
         this.stepService = stepService;
+        this.itemContributorRepository = itemContributorRepository;
     }
 
     public PaginatedItemsBasic getMyDraftItems(ItemOrder order, PageCoords pageCoords) {
@@ -180,6 +182,66 @@ public class ItemsService extends ItemVersionService<Item> {
             default:
                 throw new IllegalStateException(String.format("Unexpected item type: %s", category));
         }
+    }
+
+    public void replaceActors(Actor actor, Actor mergeActor) {
+        List<Item> items = itemRepository.findByContributorActorId(mergeActor.getId());
+
+        items.forEach(item -> replaceItemContributor(item, actor, mergeActor));
+    }
+
+
+    public void replaceItemContributor(Item item, Actor actor, Actor mergeActor) {
+
+        List<ItemContributor> contributorsToReplace = new ArrayList<>();
+        List<ItemContributor> contributorsToRemove = new ArrayList<>();
+
+        item.getContributors().forEach(contributor -> {
+            if (contributor.getActor().equals(mergeActor)) {
+
+                contributorsToRemove.add(contributor);
+                ActorRole role = contributor.getRole();
+
+                if (actor != null && role != null) {
+                    ItemContributor itemContributor = null;
+                    if (item.getId() != null) {
+                        itemContributor = itemContributorRepository.findByItemIdAndActorIdAndActorRole(item.getId(),
+                                actor.getId(), role.getCode());
+                    }
+                    if (itemContributor == null) {
+                        itemContributor = new ItemContributor(item, actor, role);
+                        itemContributor.setItem(item);
+                        itemContributor.setActor(actor);
+                        itemContributor.setRole(role);
+                        contributorsToReplace.add(itemContributor);
+                    }
+                }
+            }
+        });
+
+        if (contributorsToReplace.size() > 0) {
+
+            Set<Map.Entry<Long, String>> actorRoles = new HashSet<>();
+            List<ItemContributor> finalContributorsToAdd = new ArrayList<>(item.getContributors());
+            finalContributorsToAdd.removeAll(contributorsToRemove);
+
+            item.getContributors().forEach(contributor -> actorRoles.add(
+                    Map.entry(contributor.getActor().getId(), contributor.getRole().getCode())));
+
+            contributorsToReplace.forEach(contributorToReplace -> {
+                if (!actorRoles.contains(
+                        Map.entry(contributorToReplace.getActor().getId(), contributorToReplace.getRole().getCode()))) {
+
+                    actorRoles.add(Map.entry(contributorToReplace.getActor().getId(),
+                            contributorToReplace.getRole().getCode()));
+                    finalContributorsToAdd.add(contributorToReplace);
+                }
+            });
+
+            item.setContributors(finalContributorsToAdd);
+        } else
+            item.getContributors().removeAll(contributorsToRemove);
+
     }
 
 

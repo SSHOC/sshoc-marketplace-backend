@@ -26,8 +26,6 @@ public class ActorController {
 
     private final ActorService actorService;
 
-    //Test
-
     @Operation(summary = "Get list of actors in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedActors> getActors(@RequestParam(value = "page", required = false) Integer page,
