@@ -61,7 +61,7 @@ public class VocabularyService {
     }
 
     public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
-        Page<VocabularyBasicView> vocabulariesPage = vocabularyRepository.findAllVocabulariesBasicBy(
+        Page<VocabularyBasicView> vocabulariesPage = vocabularyRepository.findAllBasicBy(
                 PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label")))
         );
 

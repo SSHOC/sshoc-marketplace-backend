@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.conf.datetime.SolrDateTimeFormatter;
-import eu.sshopencloud.marketplace.mappers.sources.SourceConverter;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.items.Item;
@@ -14,6 +14,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.repositories.sources.projection.DetailedSourceView;
 import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
 import lombok.experimental.UtilityClass;
@@ -33,11 +34,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexConverter {
 
-    public IndexItem convertItem(Item item, int relatedItems) {
+    public static final String DOC_CONTENT_TYPE_ITEM = "item";
+    public static final String DOC_CONTENT_TYPE_SOURCE = "source";
+
+
+    public IndexItem convertItem(Item item, int relatedItems, List<DetailedSourceView> detailedSources) {
         IndexItem.IndexItemBuilder builder = IndexItem.builder();
         String descriptionText = MarkdownConverter.convertMarkdownToText(item.getDescription());
         String labelText = LineBreakConverter.removeLineBreaks(item.getLabel());
         builder.versionId(item.getId())
+                .docContentType(DOC_CONTENT_TYPE_ITEM)
                 .persistentId(item.getPersistentId())
                 .label(item.getLabel())
                 .labelText(labelText)
@@ -49,9 +55,20 @@ public class IndexConverter {
                 .context(ItemCategoryConverter.convertCategoryForAutocompleteContext(item.getCategory()))
                 .status(item.getStatus().getValue())
                 .owner(item.getInformationContributor().getUsername())
-                .source(SourceConverter.convertSource(item.getSource()))
                 .relatedItems(relatedItems);
 
+        for (String label : detailedSources.stream().map(DetailedSourceView::getLabel).distinct().collect(Collectors.toList())) {
+            builder.source(label);
+        }
+
+        for (DetailedSourceView detailedSource : detailedSources) {
+            IndexSource indexSource = new IndexSource();
+            indexSource.setId(item.getId().toString() + "-" + detailedSource.getId().toString() + "-" + detailedSource.getSourceItemId());
+            indexSource.setDocContentType(DOC_CONTENT_TYPE_SOURCE);
+            indexSource.setSourceLabel(detailedSource.getLabel());
+            indexSource.setSourceItemId(detailedSource.getSourceItemId());
+            builder.detailedSource(indexSource);
+        }
 
         builder.lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(item.getLastInfoUpdate().withZoneSameInstant(ZoneOffset.UTC)));
 

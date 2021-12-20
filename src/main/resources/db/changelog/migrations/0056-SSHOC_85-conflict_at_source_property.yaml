@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_85-conflict_at_source_property-1
+      author: mkozak
+      description: Adds new property type conflict-at-source
+      changes:
+          - sql:
+                sql: >
+                    insert into property_types (code, label, ord, type, group_name, hidden) values ('conflict-at-source', 'Conflict at Source', 36, 'BOOLEAN', 'Curation', true)
+

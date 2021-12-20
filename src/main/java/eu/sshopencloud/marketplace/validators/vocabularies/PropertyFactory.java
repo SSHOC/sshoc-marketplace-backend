@@ -64,7 +64,6 @@ public class PropertyFactory {
         List<Vocabulary> allowedVocabularies = propertyTypeService.getAllowedVocabulariesForPropertyType(propertyType);
         if (allowedVocabularies.isEmpty()) {
             String propertyValue = propertyCore.getValue();
-
             // value is mandatory
             if (propertyValueValidator.validate(propertyValue, propertyType, errors))
                 property.setValue(propertyCore.getValue());

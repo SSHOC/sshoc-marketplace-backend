@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0054-SSHOC_96-shared_email_for_many_accounts
+      description: drop unique constraint from users emails
+      author: mkozak
+      changes:
+        - dropUniqueConstraint:
+            tableName: users
+            constraintName: uk_6dotkott2kjsp8vw4d0m25fb7
+  - changeSet:
+      id: 0054-SSHOC_96-many_idp_providers_for_users
+      description: new table for many providers for one user
+      author: mkozak
+      changes:
+        - createTable:
+            tableName: user_providers
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: provider
+                  type: varchar(256)
+        - addForeignKeyConstraint:
+            baseTableName: user_providers
+            baseColumnNames: user_id
+            constraintName: user_providers_user_fk
+            onDelete: CASCADE
+            onUpdate: NO ACTION
+            referencedTableName: users
+            referencedColumnNames: id
+  - changeSet:
+      id: 0054-SSHOC_96-insert_provider_into_new_table
+      description: insert the only provider for the user to the new table
+      author: mkozak
+      changes:
+        - sql:
+            sql: >
+              insert into user_providers (user_id, provider) SELECT id, provider FROM users WHERE provider is not null;
+  - changeSet:
+      id: 0054-SSHOC_96-remove_unused_column
+      description: remove column for providers
+      author: mkozak
+      changes:
+        - dropColumn:
+            tableName: users
+            columnName: provider

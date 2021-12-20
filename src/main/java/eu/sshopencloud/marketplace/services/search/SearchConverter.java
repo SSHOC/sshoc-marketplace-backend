@@ -24,10 +24,22 @@ public class SearchConverter {
                 .id(indexItem.getVersionId())
                 .persistentId(indexItem.getPersistentId())
                 .label(indexItem.getLabel())
+                .version(indexItem.getVersion())
                 .description(indexItem.getDescription())
                 .category(ItemCategoryConverter.convertCategory(indexItem.getCategory()))
                 .status(ItemStatus.of(indexItem.getStatus()))
                 .owner(indexItem.getOwner())
+                .lastInfoUpdate(indexItem.getLastInfoUpdate())
+                .build();
+    }
+
+    public SearchItemBasic convertIndexItemBasic(IndexItem indexItem) {
+        return SearchItemBasic.builder()
+                .id(indexItem.getVersionId())
+                .persistentId(indexItem.getPersistentId())
+                .label(indexItem.getLabel())
+                .version(indexItem.getVersion())
+                .category(ItemCategoryConverter.convertCategory(indexItem.getCategory()))
                 .lastInfoUpdate(indexItem.getLastInfoUpdate())
                 .build();
     }
