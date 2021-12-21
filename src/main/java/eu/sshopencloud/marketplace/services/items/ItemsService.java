@@ -138,7 +138,7 @@ public class ItemsService extends ItemVersionService<Item> {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         FacetPage<IndexItem> facetPage = searchItemRepository.findByQuery(queryCriteria, currentUser, SearchOrder.LABEL, pageable);
 
-        PaginatedSearchItemsBasic result = PaginatedSearchItemsBasic.builder()
+        return PaginatedSearchItemsBasic.builder()
                 .items(
                         facetPage.get()
                                 .map(SearchConverter::convertIndexItemBasic)
@@ -149,8 +149,6 @@ public class ItemsService extends ItemVersionService<Item> {
                 .perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
                 .build();
-
-        return result;
     }
 
 
@@ -184,7 +182,7 @@ public class ItemsService extends ItemVersionService<Item> {
         }
     }
 
-    public void replaceActors(Actor actor, Actor mergeActor) {
+    public void mergeContributors(Actor actor, Actor mergeActor) {
         List<Item> items = itemRepository.findByContributorActorId(mergeActor.getId());
 
         items.forEach(item -> replaceItemContributor(item, actor, mergeActor));

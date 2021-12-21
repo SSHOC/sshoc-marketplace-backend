@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,23 +43,25 @@ public class ActorService {
 
     private final IndexActorService indexActor;
 
+
     public PaginatedActors getActors(PageCoords pageCoords) {
 
-        Page<Actor> actorsPage = actorRepository.findAll(PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("name"))));
+        Page<Actor> actorsPage = actorRepository.findAll(
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("name"))));
 
         List<ActorDto> actors = actorsPage.stream().map(ActorMapper.INSTANCE::toDto).collect(Collectors.toList());
 
-        return PaginatedActors.builder().actors(actors)
-                .count(actorsPage.getContent().size()).hits(actorsPage.getTotalElements())
-                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
-                .pages(actorsPage.getTotalPages())
-                .build();
+        return PaginatedActors.builder().actors(actors).count(actorsPage.getContent().size())
+                .hits(actorsPage.getTotalElements()).page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(actorsPage.getTotalPages()).build();
     }
+
 
     public Actor loadActor(Long id) {
         return actorRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id));
     }
+
 
     public ActorDto getActor(Long id) {
         return ActorMapper.INSTANCE.toDto(loadActor(id));
@@ -98,19 +100,21 @@ public class ActorService {
         eventPublisher.publishEvent(new ActorChangedEvent(id, true));
     }
 
+
     public ActorDto mergeActors(long id, List<Long> with) {
 
         if (!actorRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id);
         }
 
+        with.forEach(mergeId -> {
+            if (!actorRepository.existsById(mergeId))
+                throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + mergeId);
+        });
+
         Actor actor = loadActor(id);
 
         with.forEach(mergeId -> {
-
-            if (!actorRepository.existsById(mergeId)) {
-                throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + mergeId);
-            }
 
             Actor mergeActor = loadActor(mergeId);
 
@@ -118,24 +122,16 @@ public class ActorService {
 
             actor.addToHistory(actorHistoryService.createActorHistory(actor, mergeActor));
 
-            mergeActor.getAffiliations().forEach(affiliation -> {
-                if (!actor.getAffiliations().contains(affiliation))
-                    actor.getAffiliations().add(affiliation);
-            });
+            mergeActor.getAffiliations().stream().filter(a -> !actor.getAffiliations().contains(a)).forEach(a -> actor.getAffiliations().add(a));
 
-            removeAffiliation(actor, mergeActor);
+            mergeAffiliations(actor, mergeActor);
 
             actorRepository.save(mergeActor);
 
-            itemsService.replaceActors(actor, mergeActor);
+            itemsService.mergeContributors(actor, mergeActor);
 
-            mergeActor.getExternalIds().forEach(externalId -> {
-                if (!containsExternalId(actor.getExternalIds(), externalId)) {
-                    ActorExternalId actorExternalId = new ActorExternalId(externalId.getIdentifierService(),
-                            externalId.getIdentifier(), actor);
-                    actor.addExternalId(actorExternalId);
-                }
-            });
+            actor.addExternalIdsList(mergeExternalIds(actor ,mergeActor));
+
         });
 
         actorRepository.save(actor);
@@ -149,16 +145,7 @@ public class ActorService {
 
 
     public boolean containsExternalId(List<ActorExternalId> externalIds, ActorExternalId id) {
-
-        AtomicBoolean check = new AtomicBoolean(false);
-
-        externalIds.forEach(externalId -> {
-            if (externalId.getIdentifier().equals(id.getIdentifier()) && externalId.getIdentifierService()
-                    .equals(id.getIdentifierService()))
-                check.set(true);
-        });
-
-        return check.get();
+        return externalIds.stream().filter(eId -> eId.getIdentifier().equals(id.getIdentifier()) && eId.getIdentifierService() .equals(id.getIdentifierService())).count() > 0;
     }
 
 
@@ -169,17 +156,31 @@ public class ActorService {
         return actorHistoryService.findHistory(loadActor(id));
     }
 
-    public void removeAffiliation(Actor actor, Actor mergeActor){
+
+    public void mergeAffiliations(Actor actor, Actor mergeActor) {
         List<Actor> affiliations = actorRepository.getActorsByAffiliations(mergeActor);
-        affiliations.forEach(
-                affiliation -> {
-                    affiliation.getAffiliations().remove(mergeActor);
-                    if(!affiliation.equals(actor))
-                        affiliation.getAffiliations().add(actor);
+        affiliations.forEach(affiliation -> {
+            affiliation.getAffiliations().remove(mergeActor);
+            if (!affiliation.equals(actor))
+                affiliation.getAffiliations().add(actor);
+        });
+
+        actorRepository.saveAll(affiliations);
+    }
+
+    public List<ActorExternalId> mergeExternalIds(Actor actor, Actor mergeActor){
+        List<ActorExternalId> externalIds = new ArrayList<>();
+        mergeActor.getExternalIds().forEach(
+                externalId -> {
+                    if (!containsExternalId(actor.getExternalIds(), externalId)) {
+                        ActorExternalId actorExternalId = new ActorExternalId(externalId.getIdentifierService(),
+                                externalId.getIdentifier(), actor);
+                       externalIds.add(actorExternalId);
+                    }
                 }
         );
 
-        actorRepository.saveAll(affiliations);
+        return externalIds;
     }
 
 }

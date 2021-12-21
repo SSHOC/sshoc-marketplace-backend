@@ -114,12 +114,12 @@ public class ActorControllerITCase {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
-        List<ActorId> affiliations = new ArrayList<ActorId>();
+        List<ActorId> affiliations = new ArrayList<>();
         ActorId affiliation1 = new ActorId();
-        affiliation1.setId(1l);
+        affiliation1.setId(1L);
         affiliations.add(affiliation1);
         ActorId affiliation2 = new ActorId();
-        affiliation2.setId(4l);
+        affiliation2.setId(4L);
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
 
@@ -317,12 +317,12 @@ public class ActorControllerITCase {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
-        List<ActorId> affiliations = new ArrayList<ActorId>();
+        List<ActorId> affiliations = new ArrayList<>();
         ActorId affiliation1 = new ActorId();
-        affiliation1.setId(100l);
+        affiliation1.setId(100L);
         affiliations.add(affiliation1);
         ActorId affiliation2 = new ActorId();
-        affiliation2.setId(4l);
+        affiliation2.setId(4L);
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
 
@@ -371,12 +371,12 @@ public class ActorControllerITCase {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
-        List<ActorId> affiliations = new ArrayList<ActorId>();
+        List<ActorId> affiliations = new ArrayList<>();
         ActorId affiliation1 = new ActorId();
-        affiliation1.setId(1l);
+        affiliation1.setId(1L);
         affiliations.add(affiliation1);
         ActorId affiliation2 = new ActorId();
-        affiliation2.setId(4l);
+        affiliation2.setId(4L);
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
 
@@ -547,10 +547,10 @@ public class ActorControllerITCase {
         actor.setEmail("test@example.org");
         List<ActorId> affiliations = new ArrayList<ActorId>();
         ActorId affiliation1 = new ActorId();
-        affiliation1.setId(1l);
+        affiliation1.setId(1L);
         affiliations.add(affiliation1);
         ActorId affiliation2 = new ActorId();
-        affiliation2.setId(4l);
+        affiliation2.setId(4L);
         affiliations.add(affiliation2);
         actor.setAffiliations(affiliations);
         actor.setExternalIds(List.of(
@@ -665,22 +665,14 @@ public class ActorControllerITCase {
 
     }
 
-    //Eliza - test
-    //test for 3 actors merge !!!
+
     @Test
     public void shouldMergeActorsWithAffiliationsAndExternalIds() throws Exception {
 
         ActorCore actor = new ActorCore();
         actor.setName("Actor test 1");
         actor.setEmail("test@example.org");
-        List<ActorId> affiliations = new ArrayList<ActorId>();
-        ActorId affiliation1 = new ActorId();
-        affiliation1.setId(1l);
-        affiliations.add(affiliation1);
-        ActorId affiliation2 = new ActorId();
-        affiliation2.setId(4l);
-        affiliations.add(affiliation2);
-        actor.setAffiliations(affiliations);
+        actor.setAffiliations(List.of(new ActorId(1L),new ActorId(4L)));
         actor.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
                 new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
@@ -701,18 +693,8 @@ public class ActorControllerITCase {
 
         ActorCore actor2 = new ActorCore();
         actor2.setName("Actor test 2");
-        actor2.setEmail("test@example.org");
-
-        List<ActorId> secondAffiliations = new ArrayList<ActorId>();
-        ActorId secondAffiliation1 = new ActorId();
-        secondAffiliation1.setId(2l);
-        secondAffiliations.add(secondAffiliation1);
-        ActorId secondAffiliation2 = new ActorId();
-        secondAffiliation2.setId(3l);
-
-        secondAffiliations.add(secondAffiliation2);
-        actor2.setAffiliations(secondAffiliations);
-
+        actor2.setEmail("test2@example.org");
+        actor2.setAffiliations(List.of(new ActorId(2L),new ActorId(3L)));
         actor2.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("DBLP"), "DBLP")
         ));
@@ -751,14 +733,7 @@ public class ActorControllerITCase {
         ActorCore actor = new ActorCore();
         actor.setName("Actor test 1");
         actor.setEmail("test@example.org");
-        List<ActorId> affiliations = new ArrayList<ActorId>();
-        ActorId affiliation1 = new ActorId();
-        affiliation1.setId(1l);
-        affiliations.add(affiliation1);
-        ActorId affiliation2 = new ActorId();
-        affiliation2.setId(4l);
-        affiliations.add(affiliation2);
-        actor.setAffiliations(affiliations);
+        actor.setAffiliations(List.of(new ActorId(1L),new ActorId(4L)));
         actor.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
                 new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
@@ -779,17 +754,8 @@ public class ActorControllerITCase {
 
         ActorCore actor2 = new ActorCore();
         actor2.setName("Actor test 2");
-        actor2.setEmail("test@example.org");
-
-        List<ActorId> secondAffiliations = new ArrayList<ActorId>();
-        ActorId secondAffiliation1 = new ActorId();
-        secondAffiliation1.setId(2l);
-        secondAffiliations.add(secondAffiliation1);
-
-        secondAffiliations.add(affiliation2);
-
-        actor2.setAffiliations(secondAffiliations);
-
+        actor2.setEmail("test2@example.org");
+        actor2.setAffiliations(List.of(new ActorId(2L),actor.getAffiliations().get(1)));
         actor2.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
                 new ActorExternalIdCore(new ActorSourceId("DBLP"), "DBLP")
@@ -844,7 +810,7 @@ public class ActorControllerITCase {
 
         ActorCore actor2 = new ActorCore();
         actor2.setName("Actor test 2");
-        actor2.setEmail("test@example.org");
+        actor2.setEmail("test2@example.org");
 
         String payloadSecond = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor2);
         log.debug("JSON: " + payloadSecond);
@@ -878,14 +844,7 @@ public class ActorControllerITCase {
         ActorCore actor = new ActorCore();
         actor.setName("Actor test 1");
         actor.setEmail("test@example.org");
-        List<ActorId> affiliations = new ArrayList<ActorId>();
-        ActorId affiliation1 = new ActorId();
-        affiliation1.setId(1l);
-        affiliations.add(affiliation1);
-        ActorId affiliation2 = new ActorId();
-        affiliation2.setId(4l);
-        affiliations.add(affiliation2);
-        actor.setAffiliations(affiliations);
+        actor.setAffiliations(List.of(new ActorId(1L),new ActorId(4L)));
         actor.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
                 new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
@@ -906,17 +865,8 @@ public class ActorControllerITCase {
 
         ActorCore actor2 = new ActorCore();
         actor2.setName("Actor test 2");
-        actor2.setEmail("test@example.org");
-
-        List<ActorId> secondAffiliations = new ArrayList<ActorId>();
-        ActorId secondAffiliation1 = new ActorId();
-        secondAffiliation1.setId(2l);
-        secondAffiliations.add(secondAffiliation1);
-
-        secondAffiliations.add(affiliation2);
-
-        actor2.setAffiliations(secondAffiliations);
-
+        actor2.setEmail("test2@example.org");
+        actor2.setAffiliations(List.of(new ActorId(2L),actor.getAffiliations().get(1)));
         actor2.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
                 new ActorExternalIdCore(new ActorSourceId("DBLP"), "DBLP")
@@ -968,14 +918,7 @@ public class ActorControllerITCase {
         ActorCore actor = new ActorCore();
         actor.setName("Actor test 1");
         actor.setEmail("test@example.org");
-        List<ActorId> affiliations = new ArrayList<ActorId>();
-        ActorId affiliation1 = new ActorId();
-        affiliation1.setId(1l);
-        affiliations.add(affiliation1);
-        ActorId affiliation2 = new ActorId();
-        affiliation2.setId(4l);
-        affiliations.add(affiliation2);
-        actor.setAffiliations(affiliations);
+        actor.setAffiliations(List.of(new ActorId(1L),new ActorId(4L)));
         actor.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
                 new ActorExternalIdCore(new ActorSourceId("Wikidata"), "q42")
@@ -996,17 +939,8 @@ public class ActorControllerITCase {
 
         ActorCore actor2 = new ActorCore();
         actor2.setName("Actor test 2");
-        actor2.setEmail("test@example.org");
-
-        List<ActorId> secondAffiliations = new ArrayList<ActorId>();
-        ActorId secondAffiliation1 = new ActorId();
-        secondAffiliation1.setId(2l);
-        secondAffiliations.add(secondAffiliation1);
-
-        secondAffiliations.add(affiliation2);
-
-        actor2.setAffiliations(secondAffiliations);
-
+        actor2.setEmail("test2@example.org");
+        actor2.setAffiliations(List.of(new ActorId(2L),actor.getAffiliations().get(1)));
         actor2.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
                 new ActorExternalIdCore(new ActorSourceId("DBLP"), "DBLP")
@@ -1029,16 +963,7 @@ public class ActorControllerITCase {
         ActorCore actor3 = new ActorCore();
         actor3.setName("Actor test 3");
         actor3.setEmail("test3@example.org");
-
-        List<ActorId> thirdAffiliations = new ArrayList<ActorId>();
-        ActorId thirdAffiliation1 = new ActorId();
-        thirdAffiliation1.setId(3l);
-        thirdAffiliations.add(thirdAffiliation1);
-
-        secondAffiliations.add(affiliation1);
-
-        actor3.setAffiliations(thirdAffiliations);
-
+        actor3.setAffiliations(List.of(new ActorId(3L),actor.getAffiliations().get(0)));
         actor3.setExternalIds(List.of(
                 new ActorExternalIdCore(new ActorSourceId("ORCID"), "0000-0000-0000-1234"),
                 new ActorExternalIdCore(new ActorSourceId("DBLP"), "DBLP")
@@ -1081,6 +1006,12 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("$[0].actor.email", is(actor.getEmail())))
                 .andExpect(jsonPath("$[0].history", containsString("id\": " + actorIdSecond.intValue() +",\n  \"name\": \"Actor test 2\",")))
                 .andExpect(jsonPath("$[0].dateCreated", is(notNullValue())))
+                .andExpect(jsonPath("$[1].id", is(notNullValue())))
+                .andExpect(jsonPath("$[1].actor.name", is(actor.getName())))
+                .andExpect(jsonPath("$[1].actor.email", is(actor.getEmail())))
+                .andExpect(jsonPath("$[1].history", containsString("id\": " + actorIdThird.intValue() +",\n  \"name\": \"Actor test 3\",")))
+                .andExpect(jsonPath("$[1].dateCreated", is(notNullValue())))
+
                 .andReturn().getResponse().getContentAsString();
 
     }

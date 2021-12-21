@@ -38,7 +38,7 @@ public class ActorHistoryService {
 
     }
 
-    //Eliza
+
     public List<ActorHistoryDto> findHistory(Actor actor){
         List<ActorHistory> history = actorHistoryRepository.findActorHistoryByActor(actor);
         if(history==null) return new ArrayList<>();

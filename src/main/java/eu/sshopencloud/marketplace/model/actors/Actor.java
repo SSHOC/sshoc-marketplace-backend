@@ -65,10 +65,13 @@ public class Actor {
         this.externalIds.addAll(externalIds);
     }
 
-    public void addExternalId(ActorExternalId externalIds) {
-        this.externalIds.add(externalIds);
+    public void addExternalId(ActorExternalId externalId) {
+        this.externalIds.add(externalId);
     }
 
+    public void addExternalIdsList(List<ActorExternalId> externalIds) {
+        this.externalIds.addAll(externalIds);
+    }
 
     public List<ActorExternalId> getExternalIds() {
         return Collections.unmodifiableList(externalIds);
