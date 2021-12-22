@@ -512,4 +512,73 @@ public class ConceptControllerITCase {
 
     }
 
+    @Test
+    public void shouldQueryConceptWithURLAsCode() throws Exception {
+        String vocabularyCode = "publication-type";
+
+        mvc.perform(
+                        get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("publication-type")))
+                .andExpect(jsonPath("$.conceptResults.hits", is(5)))
+                .andExpect(jsonPath("$.conceptResults.count", is(5)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(5)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInRelativeOrder("Journal", "Book", "Conference", "Article", "Pre-Print")
+                        )
+                );
+
+        RelatedConceptCore relatedConceptConference = RelatedConceptCore.builder()
+                .uri("http://purl.org/ontology/bibo/Conference")
+                .relation(new ConceptRelationId("sameAs"))
+                .build();
+
+        ConceptCore conceptCore = ConceptCore.builder()
+                .code("https%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F")
+                .label("New candidate concept")
+                .relatedConcepts(List.of(relatedConceptConference))
+                .build();
+
+        mvc.perform(
+                        post("/api/vocabularies/{vocabulary-code}/concepts", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", moderatorJwt)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(conceptCore))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is(conceptCore.getCode())))
+                .andExpect(jsonPath("$.label", is("New candidate concept")))
+                .andExpect(jsonPath("$.candidate", is(true)))
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/https%3A%2F%2Fcreativecommons.org%2Flicenses%2Fby%2F4.0%2F")))
+                .andExpect(jsonPath("$.relatedConcepts[0].code", is("Conference")));
+
+
+        mvc.perform(
+                        get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("publication-type")))
+                .andExpect(jsonPath("$.conceptResults.hits", is(6)))
+                .andExpect(jsonPath("$.conceptResults.count", is(6)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(6)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInRelativeOrder("Journal", "Book", "Conference", "Article", "Pre-Print", conceptCore.getCode())
+                        )
+                )
+                .andExpect(jsonPath("$.conceptResults.concepts[4].candidate", is(false)))
+                .andExpect(jsonPath("$.conceptResults.concepts[5].candidate", is(true)));
+
+    }
+
 }
