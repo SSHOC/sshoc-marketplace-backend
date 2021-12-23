@@ -5,7 +5,10 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
 import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
+import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptDetachingRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
@@ -36,6 +39,7 @@ public class ConceptService {
     private final ConceptRelatedConceptService conceptRelatedConceptService;
     private final PropertyService propertyService;
     private final IndexConceptService indexConceptService;
+    private final ItemRepository itemRepository;
 
 
     public PaginatedConcepts getConcepts(String vocabularyCode, PageCoords pageCoords) {
@@ -213,9 +217,10 @@ public class ConceptService {
 
 
     //Eliza
-    //ITEM MEDIA
-    //PROPERTY
-    public ConceptDto mergeConcept(String code, String vocabularyCode, List<String> with)  throws VocabularyIsClosedException {
+
+    public ConceptDto mergeConcept(String code, String vocabularyCode, List<String> with)
+            throws VocabularyIsClosedException {
+
         Concept concept = conceptRepository.findById(
                 eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode)
                         .build()).orElseThrow(() -> new EntityNotFoundException(
@@ -229,27 +234,30 @@ public class ConceptService {
                         + vocabularyCode)));
 
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
-        if ( vocabulary.isClosed())
+        if (vocabulary.isClosed())
             throw new VocabularyIsClosedException(vocabularyCode);
 
         with.forEach(mergedCode -> {
 
-            Concept mergeConcept = conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(mergedCode)
+            Concept mergeConcept = conceptRepository.findById(
+                    eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(mergedCode)
                             .vocabulary(vocabularyCode).build()).get();
 
-            mergeConcept.getLabels().entrySet().forEach(labelEntry -> {
-                if (concept.getLabels().containsKey(labelEntry.getKey()))
-                    concept.getLabels().put(labelEntry.getKey(), labelEntry.getValue());
+            mergeConcept.getLabels().forEach((key, value) -> {
+                if (concept.getLabels().containsKey(key))
+                    concept.getLabels().put(key, value);
             });
 
-            mergeConcept.getDefinitions().entrySet().forEach(definitionEntry -> {
-                if (concept.getLabels().containsKey(definitionEntry.getKey()))
-                    concept.getLabels().put(definitionEntry.getKey(), definitionEntry.getValue());
+            mergeConcept.getDefinitions().forEach((key, value) -> {
+                if (concept.getLabels().containsKey(key))
+                    concept.getLabels().put(key, value);
             });
 
-            conceptRelatedConceptService.reassignConcepts(concept,mergeConcept, vocabularyCode);
+            conceptRelatedConceptService.reassignConcepts(concept, mergeConcept, vocabularyCode);
+            replaceConceptInItemMedia(concept, mergeConcept);
 
-            //ITEM MEDIA
+            propertyService.replaceConceptInProperties(concept, mergeConcept);
+
         });
 
         conceptRepository.save(concept);
@@ -258,6 +266,26 @@ public class ConceptService {
         indexConceptService.indexConcept(concept, vocabulary);
         ConceptDto conceptDto = ConceptMapper.INSTANCE.toDto(concept);
         return attachRelatedConcepts(conceptDto, vocabularyCode);
+    }
+
+
+    private void replaceConceptInItemMedia(Concept concept, Concept mergeConcept) {
+        replaceConcept(itemRepository.findAll().stream().filter(i -> containsConcept(i.getMedia(), mergeConcept))
+                .collect(Collectors.toList()), concept, mergeConcept);
+    }
+
+
+    private boolean containsConcept(List<ItemMedia> media, Concept mergeConcept) {
+        return media.stream().anyMatch(m -> m.getConcept().equals(mergeConcept));
+    }
+
+
+    private void replaceConcept(List<Item> items, Concept concept, Concept mergeConcept) {
+        items.forEach(item -> item.getMedia().forEach((m -> {
+            if (m.getConcept().equals(mergeConcept))
+                m.setConcept(concept);
+        })));
+        itemRepository.saveAll(items);
     }
 
 }
