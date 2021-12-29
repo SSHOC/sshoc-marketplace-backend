@@ -216,8 +216,6 @@ public class ConceptService {
     }
 
 
-    //Eliza
-
     public ConceptDto mergeConcept(String code, String vocabularyCode, List<String> with)
             throws VocabularyIsClosedException {
 
@@ -227,11 +225,11 @@ public class ConceptService {
                 "Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code "
                         + vocabularyCode));
 
-        with.forEach(mergedCode -> conceptRepository.findById(
-                eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(mergedCode)
+        with.forEach(mergedCode ->
+                conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(mergedCode)
                         .vocabulary(vocabularyCode).build()).orElseThrow(() -> new EntityNotFoundException(
-                "Unable to find " + Concept.class.getName() + " with code " + mergedCode + " and vocabulary code "
-                        + vocabularyCode)));
+                        "Unable to find " + Concept.class.getName() + " with code " + mergedCode + " and vocabulary code "
+                                + vocabularyCode)));
 
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
         if (vocabulary.isClosed())
@@ -243,17 +241,23 @@ public class ConceptService {
                     eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(mergedCode)
                             .vocabulary(vocabularyCode).build()).get();
 
-            mergeConcept.getLabels().forEach((key, value) -> {
-                if (concept.getLabels().containsKey(key))
-                    concept.getLabels().put(key, value);
-            });
+            if (mergeConcept.getLabels() != null && !mergeConcept.getLabels().isEmpty()) {
+                mergeConcept.getLabels().forEach((key, value) -> {
+                    if (concept.getLabels() != null && !concept.getLabels().isEmpty() && concept.getLabels().containsKey(key))
+                        concept.getLabels().put(key, value);
+                });
+            }
 
-            mergeConcept.getDefinitions().forEach((key, value) -> {
-                if (concept.getLabels().containsKey(key))
-                    concept.getLabels().put(key, value);
-            });
+            System.out.println("Des" + mergeConcept.getDefinitions());
+            if (mergeConcept.getDefinitions() != null && !mergeConcept.getDefinitions().isEmpty()) {
+                mergeConcept.getDefinitions().forEach((key, value) -> {
+                    if (concept.getDefinitions() != null && concept.getDefinitions().containsKey(key))
+                        concept.getDefinitions().put(key, value);
+                });
+            }
 
             conceptRelatedConceptService.reassignConcepts(concept, mergeConcept, vocabularyCode);
+
             replaceConceptInItemMedia(concept, mergeConcept);
 
             propertyService.replaceConceptInProperties(concept, mergeConcept);

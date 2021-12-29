@@ -137,7 +137,6 @@ public class ConceptRelatedConceptService {
     }
 
 
-   //ELiza
     public void reassignConcepts(Concept concept, Concept conceptToReplace, String vocabularyCode) {
 
         List<ConceptRelatedConcept> concepts = getConceptRelatedConcept(concept.getCode(), vocabularyCode);
