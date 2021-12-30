@@ -137,11 +137,11 @@ public class ConceptRelatedConceptService {
     }
 
 
-    public void reassignConcepts(Concept concept, Concept conceptToReplace, String vocabularyCode) {
+    public void mergeConceptsRelations(Concept concept, Concept conceptToReplace, String vocabularyCode) {
 
         List<ConceptRelatedConcept> concepts = getConceptRelatedConcept(concept.getCode(), vocabularyCode);
-        List<ConceptRelatedConcept> conceptsToMerge = getConceptRelatedConcept( conceptToReplace.getCode(), vocabularyCode);
-        List<ConceptRelatedConcept> conceptsToAdd = new ArrayList<>();
+        List<ConceptRelatedConcept> conceptsToMerge = getConceptRelatedConcept(conceptToReplace.getCode(), vocabularyCode);
+        List<ConceptRelatedConcept> newRelations = new ArrayList<>();
 
         conceptsToMerge.forEach(mergeConcept -> {
             if (!concepts.contains(mergeConcept) && !mergeConcept.getSubject().equals(concept)
@@ -156,18 +156,18 @@ public class ConceptRelatedConceptService {
                 }
 
                 newConcept.setRelation(mergeConcept.getRelation());
-                conceptsToAdd.add(newConcept);
+                newRelations.add(newConcept);
             }
 
         });
-        
+
         List<ConceptRelatedConcept> conceptsToRemove = concepts.stream().filter(c -> c.getSubject().equals(conceptToReplace) || c.getObject().equals(conceptToReplace)).collect(
                 Collectors.toList());
 
         conceptRelatedConceptRepository.deleteAll(conceptsToRemove);
         conceptRelatedConceptRepository.deleteAll(conceptsToMerge);
 
-        validateReflexivityAndSave(conceptsToAdd);
+        validateReflexivityAndSave(newRelations);
 
     }
 

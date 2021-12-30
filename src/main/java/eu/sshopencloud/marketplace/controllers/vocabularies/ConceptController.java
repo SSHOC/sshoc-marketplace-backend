@@ -78,7 +78,7 @@ public class ConceptController {
             @RequestParam("with") List<String> with)
             throws VocabularyIsClosedException {
 
-        return ResponseEntity.ok(conceptService.mergeConcept(code,vocabularyCode,with));
+        return ResponseEntity.ok(conceptService.mergeConcepts(code,vocabularyCode,with));
     }
 
 

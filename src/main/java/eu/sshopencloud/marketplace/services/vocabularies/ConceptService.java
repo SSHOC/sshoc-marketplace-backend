@@ -216,53 +216,46 @@ public class ConceptService {
     }
 
 
-    public ConceptDto mergeConcept(String code, String vocabularyCode, List<String> with)
+    public ConceptDto mergeConcepts(String code, String vocabularyCode, List<String> with)
             throws VocabularyIsClosedException {
-
-        Concept concept = conceptRepository.findById(
-                eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode)
-                        .build()).orElseThrow(() -> new EntityNotFoundException(
-                "Unable to find " + Concept.class.getName() + " with code " + code + " and vocabulary code "
-                        + vocabularyCode));
-
-        with.forEach(mergedCode ->
-                conceptRepository.findById(eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(mergedCode)
-                        .vocabulary(vocabularyCode).build()).orElseThrow(() -> new EntityNotFoundException(
-                        "Unable to find " + Concept.class.getName() + " with code " + mergedCode + " and vocabulary code "
-                                + vocabularyCode)));
 
         Vocabulary vocabulary = loadVocabulary(vocabularyCode);
         if (vocabulary.isClosed())
             throw new VocabularyIsClosedException(vocabularyCode);
 
-        with.forEach(mergedCode -> {
+        Concept concept = conceptRepository.findById(
+                eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(code).vocabulary(vocabularyCode)
+                        .build()).orElseThrow(() -> new EntityNotFoundException(
+                String.format("Unable to find %s with code %s and vocabulary code %s ", Concept.class.getName(), code, vocabularyCode)));
 
-            Concept mergeConcept = conceptRepository.findById(
-                    eu.sshopencloud.marketplace.model.vocabularies.ConceptId.builder().code(mergedCode)
-                            .vocabulary(vocabularyCode).build()).get();
 
-            if (mergeConcept.getLabels() != null && !mergeConcept.getLabels().isEmpty()) {
+        List<Concept> conceptsToMerge = with.stream().map(mergeCode -> conceptRepository.findById(
+                ConceptId.builder().code(mergeCode).vocabulary(vocabularyCode)
+                        .build()).orElseThrow(() -> new EntityNotFoundException(
+                String.format("Unable to find %s with code %s and vocabulary code %s ", Concept.class.getName(), code, vocabularyCode)))).collect(Collectors.toList());
+
+        for (Concept mergeConcept : conceptsToMerge) {
+            if (mergeConcept.getLabels() != null) {
                 mergeConcept.getLabels().forEach((key, value) -> {
                     if (concept.getLabels() != null && !concept.getLabels().isEmpty() && concept.getLabels().containsKey(key))
                         concept.getLabels().put(key, value);
                 });
             }
 
-            System.out.println("Des" + mergeConcept.getDefinitions());
-            if (mergeConcept.getDefinitions() != null && !mergeConcept.getDefinitions().isEmpty()) {
+
+            if (mergeConcept.getDefinitions() != null ) {
                 mergeConcept.getDefinitions().forEach((key, value) -> {
                     if (concept.getDefinitions() != null && concept.getDefinitions().containsKey(key))
                         concept.getDefinitions().put(key, value);
                 });
             }
 
-            conceptRelatedConceptService.reassignConcepts(concept, mergeConcept, vocabularyCode);
+            conceptRelatedConceptService.mergeConceptsRelations(concept, mergeConcept, vocabularyCode);
 
             replaceConceptInItemMedia(concept, mergeConcept);
 
             propertyService.replaceConceptInProperties(concept, mergeConcept);
-
-        });
+        }
 
         conceptRepository.save(concept);
 
