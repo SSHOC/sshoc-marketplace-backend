@@ -707,6 +707,26 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/code")))
                 .andExpect(jsonPath("$.relatedConcepts", hasSize(0)));
 
+
+        mvc.perform(
+                        get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("publication-type")))
+                .andExpect(jsonPath("$.conceptResults.hits", is(6)))
+                .andExpect(jsonPath("$.conceptResults.count", is(6)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(6)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInRelativeOrder("Journal", "Book", "Conference", "Article", "Pre-Print", conceptCore.getCode())
+                        )
+                )
+                .andExpect(jsonPath("$.conceptResults.concepts[4].candidate", is(false)))
+                .andExpect(jsonPath("$.conceptResults.concepts[5].candidate", is(true)));
+
     }
 
 
@@ -1001,6 +1021,19 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("datasets[2].persistentId", is("OdKfPc")))
                 .andExpect(jsonPath("datasets[3].persistentId", is("dU0BZc")));
 
+
+        mvc.perform(
+                        get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("perpage", "50")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(vocabularyCode)))
+                .andExpect(jsonPath("$.conceptResults.hits", is(403)))
+                .andExpect(jsonPath("$.conceptResults.count", is(50)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(50)));
+
     }
 
 
@@ -1094,6 +1127,17 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("properties[0].concept.code", is(conceptCode)))
                 .andExpect(jsonPath("properties[0].concept.vocabulary.code", is(vocabularyCode)));
 
+
+        mvc.perform(
+                        get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is(vocabularyCode)))
+                .andExpect(jsonPath("$.conceptResults.hits", is(163)))
+                .andExpect(jsonPath("$.conceptResults.count", is(20)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(20)));
 
     }
 
@@ -1250,5 +1294,25 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.relatedConcepts[2].code", is("Book")))
                 .andExpect(jsonPath("$.relatedConcepts[2].relation.code", is("related")));
 
+        mvc.perform(
+                        get("/api/vocabularies/{vocabulary-code}", vocabularyCode)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is("publication-type")))
+                .andExpect(jsonPath("$.conceptResults.hits", is(6)))
+                .andExpect(jsonPath("$.conceptResults.count", is(6)))
+                .andExpect(jsonPath("$.conceptResults.concepts", hasSize(6)))
+                .andExpect(
+                        jsonPath(
+                                "$.conceptResults.concepts[*].code",
+                                containsInRelativeOrder("Journal", "Book", "Conference", "Article", "Pre-Print", conceptCore.getCode())
+                        )
+                )
+                .andExpect(jsonPath("$.conceptResults.concepts[4].candidate", is(false)))
+                .andExpect(jsonPath("$.conceptResults.concepts[5].candidate", is(true)));
+
     }
+
 }
