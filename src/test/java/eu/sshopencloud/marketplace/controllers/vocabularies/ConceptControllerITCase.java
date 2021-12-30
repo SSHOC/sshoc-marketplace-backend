@@ -2,11 +2,9 @@ package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.domain.media.MediaTestUtils;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
@@ -26,11 +24,9 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 

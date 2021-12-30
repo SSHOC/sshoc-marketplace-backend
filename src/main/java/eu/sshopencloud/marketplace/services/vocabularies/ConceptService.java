@@ -6,7 +6,6 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
 import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRelatedConceptDetachingRepository;
@@ -267,13 +266,9 @@ public class ConceptService {
 
 
     private void replaceConceptInItemMedia(Concept concept, Concept mergeConcept) {
-        replaceConcept(itemRepository.findAll().stream().filter(i -> containsConcept(i.getMedia(), mergeConcept))
-                .collect(Collectors.toList()), concept, mergeConcept);
-    }
 
+       replaceConcept(itemRepository.findAllByMediaAndConcept(mergeConcept),concept, mergeConcept);
 
-    private boolean containsConcept(List<ItemMedia> media, Concept mergeConcept) {
-        return media.stream().anyMatch(m -> m.getConcept().equals(mergeConcept));
     }
 
 
