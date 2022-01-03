@@ -618,8 +618,9 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("types.activity.count", is(7)))
                 .andExpect(jsonPath("types.activity.checked", is(true)))
                 .andExpect(jsonPath("facets.candidate.['false'].count", is(7)))
-                .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));;
+                .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));
     }
+
 
     @Test
     public void shouldNotCrashWhenSearchingItemsForASlash() throws Exception {

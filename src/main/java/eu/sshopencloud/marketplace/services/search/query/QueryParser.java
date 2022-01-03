@@ -7,6 +7,8 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @UtilityClass
 @Slf4j
@@ -15,7 +17,7 @@ public class QueryParser {
     private List<String> QUERY_UNACCEPTABLE_CHARACTERS = List.of("-", "–");
 
     public List<QueryPart> parsePhrase(String phrase) {
-        List<QueryPart> result = new ArrayList<QueryPart>();
+        List<QueryPart> result = new ArrayList<>();
         StringBuilder expression = new StringBuilder();
         boolean insideQuote = false;
         StringTokenizer tokenizer = new StringTokenizer(phrase, " \"", true);
@@ -53,7 +55,11 @@ public class QueryParser {
             if (insideQuote) {
                 result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), true));
             } else {
-                result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), false));
+                Matcher hasSpecial = Pattern.compile ("[()]").matcher(expression.toString());
+                if(hasSpecial.find())  result.add(new QueryPart(expression.toString(), false));
+                else {
+                    result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), false));
+                }
             }
         }
         return result;
