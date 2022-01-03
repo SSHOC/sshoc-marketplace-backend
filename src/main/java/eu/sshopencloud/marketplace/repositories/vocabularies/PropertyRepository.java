@@ -28,5 +28,5 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     boolean existsByType(PropertyType type);
 
-    List<Property> findPropertyByConceptCode(@Param("conceptCode") String conceptCode);
+    List<Property> findPropertyByConceptCode(String conceptCode);
 }

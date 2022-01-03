@@ -267,7 +267,7 @@ public class ConceptService {
 
     private void replaceConceptInItemMedia(Concept concept, Concept mergeConcept) {
 
-       replaceConcept(itemRepository.findAllByMediaAndConcept(mergeConcept),concept, mergeConcept);
+       replaceConcept(itemRepository.findAllByMediaConcept(mergeConcept),concept, mergeConcept);
 
     }
 

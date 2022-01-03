@@ -76,6 +76,6 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
 
 
     @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept = :concept")
-    List<Item> findAllByMediaAndConcept(@Param("concept") Concept concept);
+    List<Item> findAllByMediaConcept(@Param("concept") Concept concept);
 
 }
