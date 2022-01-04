@@ -618,14 +618,17 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("types.activity.count", is(7)))
                 .andExpect(jsonPath("types.activity.checked", is(true)))
                 .andExpect(jsonPath("facets.candidate.['false'].count", is(7)))
-                .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));;
+                .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));
     }
 
+
+    //Eliza
     @Test
     public void shouldNotCrashWhenSearchingItemsForASlash() throws Exception {
         mvc.perform(
                 get("/api/item-search")
-                        .param("q", "/")
+                        .param("q", " / ")
+                       // .param("advanced", "true")
         )
                 .andExpect(status().isOk());
     }
