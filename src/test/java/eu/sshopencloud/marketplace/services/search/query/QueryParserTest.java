@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.*;
 public class QueryParserTest {
 
     @Test
-    public void shouldParseEmptyPhrase() throws Exception {
+    public void shouldParseEmptyPhrase() {
         String phrase = "";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -42,7 +42,7 @@ public class QueryParserTest {
 
         assertThat(queryParts, hasSize(2));
         assertThat(queryParts, contains(new QueryPart("gephi", false),
-                                        new QueryPart("complex\\+test", false)));
+                                        new QueryPart("complex+test", false)));
     }
 
     @Test

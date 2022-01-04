@@ -55,11 +55,7 @@ public class QueryParser {
             if (insideQuote) {
                 result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), true));
             } else {
-                Matcher hasSpecial = Pattern.compile ("[()]").matcher(expression.toString());
-                if(hasSpecial.find())  result.add(new QueryPart(expression.toString(), false));
-                else {
-                    result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), false));
-                }
+                result.add(new QueryPart(expression.toString(), false));
             }
         }
         return result;
@@ -70,7 +66,7 @@ public class QueryParser {
     }
 
     private boolean hasAllUnacceptableCharacters(String expression) {
-        for (String character: QUERY_UNACCEPTABLE_CHARACTERS) {
+        for (String character : QUERY_UNACCEPTABLE_CHARACTERS) {
             expression = expression.replace(character, "");
         }
         return !expression.isEmpty();

@@ -622,11 +622,13 @@ public class SearchControllerITCase {
     }
 
 
+    //Eliza
     @Test
     public void shouldNotCrashWhenSearchingItemsForASlash() throws Exception {
         mvc.perform(
                 get("/api/item-search")
-                        .param("q", "/")
+                        .param("q", " / ")
+                       // .param("advanced", "true")
         )
                 .andExpect(status().isOk());
     }
