@@ -2,6 +2,13 @@ package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.domain.media.MediaTestUtils;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
+import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.util.MediaTestUploadUtils;
 import eu.sshopencloud.marketplace.util.VocabularyTestUploadUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,9 +29,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -583,5 +594,162 @@ public class VocabularyControllerITCase {
         assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/scheme> a skos:ConceptScheme;"));
         assertThat(ttlContent, containsString("<http://dcu.gr/ontologies/scholarlyontology/instances/ActivityType-Printing> a skos:Concept;"));
     }
+
+    @Test
+    public void shouldRemoveVocabularyAndConceptsWithAssociatedItemMediaWithForce() throws Exception {
+        String vocabularyCode = "software-license";
+        String conceptCode = "Qhull";
+        String persistenId = "WfcKvG";
+
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", contributorJwt);
+
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", new ConceptId(conceptCode, new VocabularyId(vocabularyCode), null));
+
+        mvc.perform(get("/api/datasets")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("datasets", hasSize(3)))
+                .andExpect(jsonPath("datasets[0].persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("datasets[1].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("datasets[2].persistentId", is("dU0BZc")));
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("A dataset of cats");
+        dataset.setDescription("This dataset contains cats");
+        dataset.setMedia(List.of(seriouscat));
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                        put("/api/training-materials/{id}", "WfcKvG")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("media", hasSize(1)))
+                .andExpect(jsonPath("media[0].info.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[0].info.category", is("image")))
+                .andExpect(jsonPath("media[0].info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].caption", is("Serious Cat")))
+                .andExpect(jsonPath("media[0].concept.code", is(conceptCode)))
+                .andReturn().getResponse().getContentAsString();
+
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
+
+
+        mvc.perform(
+                        delete("/api/vocabularies/{code}", vocabularyCode)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .param("force", "true")
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk());
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", vocabularyCode)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isNotFound());
+
+        mvc.perform(
+                        get("/api/training-materials/{id}", "WfcKvG")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("media", hasSize(1)))
+                .andExpect(jsonPath("media[0].info.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[0].info.category", is("image")))
+                .andExpect(jsonPath("media[0].info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].caption", is("Serious Cat")));
+    }
+
+    @Test
+    public void shouldNotRemoveVocabularyAndConceptsWithAssociatedItemMediaWithoutForce() throws Exception {
+        String vocabularyCode = "software-license";
+        String conceptCode = "Qhull";
+        String persistenId = "WfcKvG";
+
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", contributorJwt);
+
+        ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", new ConceptId(conceptCode, new VocabularyId(vocabularyCode), null));
+
+        mvc.perform(get("/api/datasets")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("datasets", hasSize(3)))
+                .andExpect(jsonPath("datasets[0].persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("datasets[1].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("datasets[2].persistentId", is("dU0BZc")));
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("A dataset of cats");
+        dataset.setDescription("This dataset contains cats");
+        dataset.setMedia(List.of(seriouscat));
+
+        String payload = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                        put("/api/training-materials/{id}", persistenId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistenId)))
+                .andExpect(jsonPath("media", hasSize(1)))
+                .andExpect(jsonPath("media[0].info.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[0].info.category", is("image")))
+                .andExpect(jsonPath("media[0].info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].caption", is("Serious Cat")))
+                .andExpect(jsonPath("media[0].concept.code", is(conceptCode)))
+                .andReturn().getResponse().getContentAsString();
+
+        assertFalse(MediaTestUtils.isMediaTemporary(entityManager, seriouscatId));
+
+
+        mvc.perform(
+                        delete("/api/vocabularies/{code}", vocabularyCode)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .param("force", "false")
+                                .header("Authorization", moderatorJwt)
+                )
+                .andExpect(status().is4xxClientError());
+
+        mvc.perform(
+                        get("/api/vocabularies/{code}", vocabularyCode)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+
+        mvc.perform(
+                        get("/api/training-materials/{id}", persistenId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("media[0].info.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("media[0].info.category", is("image")))
+                .andExpect(jsonPath("media[0].info.filename", is("seriouscat.jpg")))
+                .andExpect(jsonPath("media[0].info.mimeType", is("image/jpeg")))
+                .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
+                .andExpect(jsonPath("media[0].caption", is("Serious Cat")))
+                .andExpect(jsonPath("media[0].concept.code", is(conceptCode)));
+    }
+
 
 }
