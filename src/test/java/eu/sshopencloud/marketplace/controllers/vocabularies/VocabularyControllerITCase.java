@@ -670,7 +670,8 @@ public class VocabularyControllerITCase {
                 .andExpect(jsonPath("media[0].info.filename", is("seriouscat.jpg")))
                 .andExpect(jsonPath("media[0].info.mimeType", is("image/jpeg")))
                 .andExpect(jsonPath("media[0].info.hasThumbnail", is(true)))
-                .andExpect(jsonPath("media[0].caption", is("Serious Cat")));
+                .andExpect(jsonPath("media[0].caption", is("Serious Cat")))
+                .andExpect(jsonPath("media[0].concept.code").doesNotExist());
     }
 
     @Test
