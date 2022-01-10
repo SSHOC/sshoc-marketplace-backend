@@ -97,7 +97,7 @@ public class WorkflowController {
 
     @Operation(summary = "Delete workflow by its persistentId and versionId")
     @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
-    public void deleteWorkflow(@PathVariable("persistentId") String workflowPersistentId, @PathVariable("versionId") long versionId) {
+    public void deleteWorkflowVersion(@PathVariable("persistentId") String workflowPersistentId, @PathVariable("versionId") long versionId) {
 
         workflowService.deleteWorkflow(workflowPersistentId, versionId);
     }
@@ -181,7 +181,7 @@ public class WorkflowController {
 
     @Operation(summary = "Delete step by its persistentId, versionId and workflow persistentId")
     @DeleteMapping(path = "/{persistentId}/steps/{stepPersistentId}/versions/{stepVersionId}")
-    public void deleteStep(@PathVariable("persistentId") String workflowPersistentId,
+    public void deleteStepVersion(@PathVariable("persistentId") String workflowPersistentId,
                            @PathVariable("stepPersistentId") String stepPersistentId, @PathVariable("stepVersionId") long stepVersionId) {
 
         stepService.deleteStep(workflowPersistentId, stepPersistentId, stepVersionId);

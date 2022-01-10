@@ -97,7 +97,7 @@ public class PublicationController {
 
     @Operation(summary = "Delete publication by its persistentId and versionId")
     @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
-    public void deletePublication(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+    public void deletePublicationVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         publicationService.deletePublication(persistentId, versionId);
     }

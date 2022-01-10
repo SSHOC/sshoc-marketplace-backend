@@ -96,7 +96,7 @@ public class ToolController {
 
     @Operation(summary = "Delete tool by its persistentId and versionId")
     @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
-    public void deleteTool(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+    public void deleteToolVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         toolService.deleteTool(persistentId, versionId);
     }
