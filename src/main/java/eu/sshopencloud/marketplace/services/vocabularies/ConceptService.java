@@ -280,4 +280,22 @@ public class ConceptService {
         itemRepository.saveAll(items);
     }
 
+    public void removeVocabularyFromItemMedia(Vocabulary vocabulary) {
+
+        List<Item> items = itemRepository.findAllByMediaConceptVocabulary(vocabulary.getCode());
+
+        for (Item i :items) {
+
+            i.getMedia().forEach((m -> {
+                if (m.getConcept().getVocabulary().equals(vocabulary))
+                    m.setConcept(null);
+            }));
+        }
+    }
+
+    public boolean existPropertiesFromVocabulary(String vocabularyCode) {
+        return itemRepository.existsByMediaConceptVocabularyCode(vocabularyCode);
+    }
+
+
 }

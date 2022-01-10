@@ -179,9 +179,20 @@ public class VocabularyService {
             );
         }
 
+        if (!forceRemove && conceptService.existPropertiesFromVocabulary(vocabularyCode)) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Cannot remove vocabulary '%s' since there already exist item media with assigned concepts to this vocabulary. " +
+                                    "Use force=true parameter to remove the vocabulary with its concepts and remove associated concepts from item media as well. ",
+                            vocabulary.getLabel()
+                    )
+            );
+        }
+
         removeConceptsAndProperties(vocabulary.getConcepts());
 
         propertyTypeService.removePropertyTypesAssociations(vocabularyCode);
+        conceptService.removeVocabularyFromItemMedia(vocabulary);
         vocabularyRepository.delete(vocabulary);
     }
 
