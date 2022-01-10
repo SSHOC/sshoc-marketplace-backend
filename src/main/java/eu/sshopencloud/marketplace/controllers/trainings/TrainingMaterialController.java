@@ -100,7 +100,7 @@ public class TrainingMaterialController {
 
     @Operation(summary = "Delete training material by its persistentId and versionId")
     @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
-    public void deleteTrainingMaterial(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+    public void deleteTrainingMaterialVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         trainingMaterialService.deleteTrainingMaterial(persistentId, versionId);
     }
