@@ -96,7 +96,7 @@ public class DatasetController {
 
     @Operation(summary = "Delete dataset by its persistentId and versionId")
     @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
-    public void deleteDataset(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+    public void deleteDatasetVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         datasetService.deleteDataset(persistentId, versionId);
     }
