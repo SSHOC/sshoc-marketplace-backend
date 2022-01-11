@@ -96,12 +96,12 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("affiliations[0].name", is("SSHOC project consortium")))
                 .andExpect(jsonPath("affiliations[0].website", is("https://sshopencloud.eu/")))
                 .andExpect(jsonPath("items", hasSize(4)))
-                .andExpect(jsonPath("items[0].persistentId", is("JmBgWa")))
-                .andExpect(jsonPath("items[0].category", is("training-material")))
+                .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
+                .andExpect(jsonPath("items[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("items[1].persistentId", is("heBAGQ")))
                 .andExpect(jsonPath("items[1].category", is("training-material")))
-                .andExpect(jsonPath("items[2].persistentId", is("n21Kfc")))
-                .andExpect(jsonPath("items[2].category", is("tool-or-service")))
+                .andExpect(jsonPath("items[2].persistentId", is("JmBgWa")))
+                .andExpect(jsonPath("items[2].category", is("training-material")))
                 .andExpect(jsonPath("items[3].persistentId", is("Xgufde")))
                 .andExpect(jsonPath("items[3].category", is("tool-or-service")));
     }

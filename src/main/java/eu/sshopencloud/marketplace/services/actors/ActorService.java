@@ -65,8 +65,7 @@ public class ActorService {
 
 
     public ActorDto getActor(Long id, boolean items) {
-        if(items)
-        return ActorMapper.INSTANCE.toDto(loadActor(id));
+        if(!items) return ActorMapper.INSTANCE.toDto(loadActor(id));
         else {
             ActorDto actorDto = ActorMapper.INSTANCE.toDto(loadActor(id));
             actorDto.setItems(getItemsByActor(id));
