@@ -122,7 +122,6 @@ public class ItemsService extends ItemVersionService<Item> {
         return findLatestItemsForSource(source, sourceItemId, pageCoords);
     }
 
-
     public PaginatedSearchItemsBasic findLatestItemsForSource(Source source, String sourceItemId, PageCoords pageCoords) {
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
 
@@ -150,7 +149,6 @@ public class ItemsService extends ItemVersionService<Item> {
                 .pages(facetPage.getTotalPages())
                 .build();
     }
-
 
     public Item liftItemVersion(String persistentId, boolean draft, boolean changeStatus) {
         Item currentItem = loadCurrentItem(persistentId);
@@ -187,7 +185,6 @@ public class ItemsService extends ItemVersionService<Item> {
 
         items.forEach(item -> replaceItemContributor(item, actor, mergeActor));
     }
-
 
     public void replaceItemContributor(Item item, Actor actor, Actor mergeActor) {
 
@@ -242,6 +239,9 @@ public class ItemsService extends ItemVersionService<Item> {
 
     }
 
+    public List<ItemBasicDto> getItemsByActor(Actor actor){
+        return ItemConverter.convertItem(itemRepository.findAllByContributorsActorId(actor.getId()));
+    }
 
     @Override
     protected Item loadLatestItem(String persistentId) {

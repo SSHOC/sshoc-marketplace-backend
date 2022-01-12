@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorDto;
 import eu.sshopencloud.marketplace.dto.actors.ActorHistoryDto;
 import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
+import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
@@ -63,8 +64,12 @@ public class ActorService {
     }
 
 
-    public ActorDto getActor(Long id) {
-        return ActorMapper.INSTANCE.toDto(loadActor(id));
+    public ActorDto getActor(Long id, boolean items) {
+        ActorDto actorDto = ActorMapper.INSTANCE.toDto(loadActor(id));
+        if (items) {
+            actorDto.setItems(getItemsByActor(id));
+        }
+        return actorDto;
     }
 
 
@@ -130,7 +135,7 @@ public class ActorService {
 
             itemsService.mergeContributors(actor, mergeActor);
 
-            actor.addExternalIdsList(mergeExternalIds(actor ,mergeActor));
+            actor.addExternalIdsList(mergeExternalIds(actor, mergeActor));
 
         });
 
@@ -145,7 +150,7 @@ public class ActorService {
 
 
     public boolean containsExternalId(List<ActorExternalId> externalIds, ActorExternalId id) {
-        return externalIds.stream().filter(eId -> eId.getIdentifier().equals(id.getIdentifier()) && eId.getIdentifierService() .equals(id.getIdentifierService())).count() > 0;
+        return externalIds.stream().anyMatch(eId -> eId.getIdentifier().equals(id.getIdentifier()) && eId.getIdentifierService().equals(id.getIdentifierService()));
     }
 
 
@@ -168,19 +173,23 @@ public class ActorService {
         actorRepository.saveAll(affiliations);
     }
 
-    public List<ActorExternalId> mergeExternalIds(Actor actor, Actor mergeActor){
+    public List<ActorExternalId> mergeExternalIds(Actor actor, Actor mergeActor) {
         List<ActorExternalId> externalIds = new ArrayList<>();
         mergeActor.getExternalIds().forEach(
                 externalId -> {
                     if (!containsExternalId(actor.getExternalIds(), externalId)) {
                         ActorExternalId actorExternalId = new ActorExternalId(externalId.getIdentifierService(),
                                 externalId.getIdentifier(), actor);
-                       externalIds.add(actorExternalId);
+                        externalIds.add(actorExternalId);
                     }
                 }
         );
 
         return externalIds;
+    }
+
+    private List<ItemBasicDto> getItemsByActor(long id) {
+        return itemsService.getItemsByActor(loadActor(id));
     }
 
 }
