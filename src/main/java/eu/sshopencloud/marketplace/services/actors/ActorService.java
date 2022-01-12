@@ -65,12 +65,11 @@ public class ActorService {
 
 
     public ActorDto getActor(Long id, boolean items) {
-        if(!items) return ActorMapper.INSTANCE.toDto(loadActor(id));
-        else {
-            ActorDto actorDto = ActorMapper.INSTANCE.toDto(loadActor(id));
+        ActorDto actorDto = ActorMapper.INSTANCE.toDto(loadActor(id));
+        if (items) {
             actorDto.setItems(getItemsByActor(id));
-            return actorDto;
         }
+        return actorDto;
     }
 
 
@@ -136,7 +135,7 @@ public class ActorService {
 
             itemsService.mergeContributors(actor, mergeActor);
 
-            actor.addExternalIdsList(mergeExternalIds(actor ,mergeActor));
+            actor.addExternalIdsList(mergeExternalIds(actor, mergeActor));
 
         });
 
@@ -174,14 +173,14 @@ public class ActorService {
         actorRepository.saveAll(affiliations);
     }
 
-    public List<ActorExternalId> mergeExternalIds(Actor actor, Actor mergeActor){
+    public List<ActorExternalId> mergeExternalIds(Actor actor, Actor mergeActor) {
         List<ActorExternalId> externalIds = new ArrayList<>();
         mergeActor.getExternalIds().forEach(
                 externalId -> {
                     if (!containsExternalId(actor.getExternalIds(), externalId)) {
                         ActorExternalId actorExternalId = new ActorExternalId(externalId.getIdentifierService(),
                                 externalId.getIdentifier(), actor);
-                       externalIds.add(actorExternalId);
+                        externalIds.add(actorExternalId);
                     }
                 }
         );
@@ -189,7 +188,7 @@ public class ActorService {
         return externalIds;
     }
 
-    private List<ItemBasicDto> getItemsByActor(long id){
+    private List<ItemBasicDto> getItemsByActor(long id) {
         return itemsService.getItemsByActor(loadActor(id));
     }
 

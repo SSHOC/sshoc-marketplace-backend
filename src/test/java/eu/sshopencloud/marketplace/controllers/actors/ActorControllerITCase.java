@@ -107,6 +107,25 @@ public class ActorControllerITCase {
     }
 
     @Test
+    public void shouldReturnActorWithoutItems() throws Exception {
+        Integer actorId = 5;
+
+        mvc.perform(get("/api/actors/{id}", actorId)
+                        .param("items", "false")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(actorId)))
+                .andExpect(jsonPath("name", is("John Smith")))
+                .andExpect(jsonPath("website", is("https://example.com/")))
+                .andExpect(jsonPath("email", is("john@example.com")))
+                .andExpect(jsonPath("affiliations", hasSize(1)))
+                .andExpect(jsonPath("affiliations[0].id", is(3)))
+                .andExpect(jsonPath("affiliations[0].name", is("SSHOC project consortium")))
+                .andExpect(jsonPath("affiliations[0].website", is("https://sshopencloud.eu/")))
+                .andExpect(jsonPath("items").doesNotExist());
+    }
+
+    @Test
     public void shouldNotReturnActorWhenNotExist() throws Exception {
         Integer actorId = 51;
 
