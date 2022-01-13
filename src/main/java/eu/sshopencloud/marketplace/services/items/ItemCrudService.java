@@ -55,11 +55,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
-            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
-            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-            PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
-            MediaStorageService mediaStorageService, SourceService sourceService,
-            ApplicationEventPublisher eventPublisher) {
+                           ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<I> itemUpgradeRegistry,
+                           DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
+                           PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
+                           MediaStorageService mediaStorageService, SourceService sourceService,
+                           ApplicationEventPublisher eventPublisher) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -105,10 +105,15 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     }
 
 
-    protected D getLatestItem(String persistentId, boolean draft, boolean approved) {
+    protected D getLatestItem(String persistentId, boolean draft, boolean approved, boolean redirect) {
         if (draft) {
             I itemDraft = loadItemDraftForCurrentUser(persistentId);
             return prepareItemDto(itemDraft);
+        }
+
+        if (redirect && isMerged(persistentId)) {
+            I item = loadLatestItemOrRedirect(persistentId);
+            return prepareItemDto(item);
         }
 
         I item = approved ? loadLatestItem(persistentId) : loadLatestItemForCurrentUser(persistentId, true);
@@ -259,7 +264,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected I createOrUpdateItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved,
-            boolean conflict) {
+                                          boolean conflict) {
         I newItem = prepareAndPushItemVersion(itemCore, prevVersion, draft, approved, conflict);
         indexItemService.indexItem(newItem);
         return newItem;
@@ -761,7 +766,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     protected ItemsDifferencesDto getDifferences(String persistentId, Long versionId, String otherPersistentId,
-            Long otherVersionId) {
+                                                 Long otherVersionId) {
         I item;
         if (Objects.isNull(versionId))
             item = loadLatestItem(persistentId);

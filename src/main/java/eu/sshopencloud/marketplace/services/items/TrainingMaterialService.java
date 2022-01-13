@@ -62,8 +62,8 @@ public class TrainingMaterialService
         return getItemsPage(pageCoords, approved);
     }
 
-    public TrainingMaterialDto getLatestTrainingMaterial(String persistentId, boolean draft, boolean approved) {
-        return getLatestItem(persistentId, draft, approved);
+    public TrainingMaterialDto getLatestTrainingMaterial(String persistentId, boolean draft, boolean approved, boolean redirect) {
+        return getLatestItem(persistentId, draft, approved, redirect);
     }
 
     public TrainingMaterialDto getTrainingMaterialVersion(String persistentId, long versionId) {
@@ -151,7 +151,7 @@ public class TrainingMaterialService
     }
 
     public List<ItemExtBasicDto> getTrainingMaterialVersions(String persistentId, boolean draft, boolean approved) {
-        return getItemHistory(persistentId, getLatestTrainingMaterial(persistentId, draft, approved).getId());
+        return getItemHistory(persistentId, getLatestTrainingMaterial(persistentId, draft, approved, false).getId());
     }
 
     public List<UserDto> getInformationContributors(String id) {
