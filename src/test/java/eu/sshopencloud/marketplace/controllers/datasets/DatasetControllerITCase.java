@@ -14,8 +14,6 @@ import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
-import eu.sshopencloud.marketplace.dto.tools.ToolDto;
-import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
@@ -172,7 +170,7 @@ public class DatasetControllerITCase {
         vocabulary1.setCode("software-license");
         concept1.setVocabulary(vocabulary1);
         property1.setConcept(concept1);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         dataset.setProperties(properties);
         dataset.setVersion("2.0");
@@ -2169,6 +2167,306 @@ public class DatasetControllerITCase {
                         .param("with", otherDatasetPersistentId)
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void shouldRedirectToMergedDataset() throws Exception {
+
+        String datasetPersistentId = "OdKfPc";
+
+        String workflowPersistentId = "tqmbGY";
+        String trainingMaterialPersistentId = "WfcKvG";
+
+        String toolPersistentId = "Xgufde";
+        String datasetSecondPersistentId = "dmbq4v";
+
+        String workflowSecondPersistentId = "vHQEhe";
+
+        String response = mvc.perform(
+                        get("/api/datasets/{id}/merge", datasetPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowPersistentId, trainingMaterialPersistentId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse = mvc.perform(
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", datasetPersistentId, workflowPersistentId, trainingMaterialPersistentId)
+                                .content(response)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(datasetPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, DatasetDto.class).getPersistentId();
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId )
+                                .param("redirect", "true")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedPersistentId)));
+
+        String response2 = mvc.perform(
+                        get("/api/datasets/{id}/merge", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", toolPersistentId, datasetSecondPersistentId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data")))
+                .andReturn().getResponse().getContentAsString();
+
+
+        String mergedResponse2 = mvc.perform(
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", mergedPersistentId, toolPersistentId, datasetSecondPersistentId)
+                                .content(response2)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data"))).andReturn().getResponse().getContentAsString();
+
+        String mergedSecondPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse2, DatasetDto.class).getPersistentId();
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId)
+                                .param("redirect", "true")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)));
+
+
+        String response3 = mvc.perform(
+                        get("/api/datasets/{id}/merge", mergedSecondPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowSecondPersistentId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data / Evaluation of an inflectional analyzer")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse3 = mvc.perform(
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", mergedSecondPersistentId, workflowSecondPersistentId)
+                                .content(response3)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data / Evaluation of an inflectional analyzer")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedThirdPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse3, DatasetDto.class).getPersistentId();
+
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId)
+                                .param("redirect", "true")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedThirdPersistentId)));
+    }
+
+    @Test
+    public void shouldNotRedirectToMergedDataset() throws Exception {
+
+        String datasetPersistentId = "OdKfPc";
+
+        String workflowPersistentId = "tqmbGY";
+        String trainingMaterialPersistentId = "WfcKvG";
+
+        String toolPersistentId = "Xgufde";
+        String datasetSecondPersistentId = "dmbq4v";
+
+        String workflowSecondPersistentId = "vHQEhe";
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId)
+                                .param("redirect", "true")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)));
+
+
+        String response = mvc.perform(
+                        get("/api/datasets/{id}/merge", datasetPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowPersistentId, trainingMaterialPersistentId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse = mvc.perform(
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", datasetPersistentId, workflowPersistentId, trainingMaterialPersistentId)
+                                .content(response)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(datasetPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, DatasetDto.class).getPersistentId();
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId )
+                                .param("redirect", "true")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedPersistentId)));
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId )
+                                .param("redirect", "false")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().is4xxClientError());
+
+        String response2 = mvc.perform(
+                        get("/api/datasets/{id}/merge", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", toolPersistentId, datasetSecondPersistentId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data")))
+                .andReturn().getResponse().getContentAsString();
+
+
+        String mergedResponse2 = mvc.perform(
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", mergedPersistentId, toolPersistentId, datasetSecondPersistentId)
+                                .content(response2)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data"))).andReturn().getResponse().getContentAsString();
+
+        String mergedSecondPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse2, DatasetDto.class).getPersistentId();
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId)
+                                .param("redirect", "true")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)));
+
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId)
+                                .param("redirect", "false")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().is4xxClientError());
+
+        String response3 = mvc.perform(
+                        get("/api/datasets/{id}/merge", mergedSecondPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowSecondPersistentId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedSecondPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data / Evaluation of an inflectional analyzer")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedResponse3 = mvc.perform(
+                        post("/api/datasets/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", mergedSecondPersistentId, workflowSecondPersistentId)
+                                .content(response3)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(mergedPersistentId)))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Consortium of European Social Science Data Archives / Creation of a dictionary / Introduction to GEPHI / WebSty / Austin Crime Data / Evaluation of an inflectional analyzer")))
+                .andReturn().getResponse().getContentAsString();
+
+        String mergedThirdPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse3, DatasetDto.class).getPersistentId();
+
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId)
+                                .param("redirect", "true")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(mergedThirdPersistentId)));
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetPersistentId)
+                                .param("redirect", "false")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().is4xxClientError());
     }
 
 }
