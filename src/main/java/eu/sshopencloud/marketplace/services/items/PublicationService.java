@@ -60,8 +60,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return getItemsPage(pageCoords, approved);
     }
 
-    public PublicationDto getLatestPublication(String persistentId, boolean draft, boolean approved) {
-        return getLatestItem(persistentId, draft, approved);
+    public PublicationDto getLatestPublication(String persistentId, boolean draft, boolean approved, boolean redirect) {
+        return getLatestItem(persistentId, draft, approved, redirect);
     }
 
     public PublicationDto getPublicationVersion(String persistentId, long versionId) {
@@ -145,7 +145,7 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     public List<ItemExtBasicDto> getPublicationVersions(String persistentId, boolean draft, boolean approved) {
-        return getItemHistory(persistentId, getLatestPublication(persistentId, draft, approved).getId());
+        return getItemHistory(persistentId, getLatestPublication(persistentId, draft, approved, false).getId());
     }
 
     public List<UserDto> getInformationContributors(String id) {

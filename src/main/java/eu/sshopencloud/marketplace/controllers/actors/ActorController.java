@@ -39,7 +39,7 @@ public class ActorController {
     @Operation(summary = "Get actor given by id with optional list of items that actor contributes to ")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ActorDto> getActor(@PathVariable("id") long id,
-                                             @RequestParam(value = "items", defaultValue = "true") boolean items) {
+                                             @RequestParam(value = "items", defaultValue = "false") boolean items) {
         return ResponseEntity.ok(actorService.getActor(id, items));
     }
 

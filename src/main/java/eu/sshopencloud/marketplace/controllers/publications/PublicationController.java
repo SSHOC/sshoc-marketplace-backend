@@ -46,9 +46,10 @@ public class PublicationController {
     @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PublicationDto> getPublication(@PathVariable("persistentId") String persistentId,
                                                          @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                         @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                         @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                                         @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(publicationService.getLatestPublication(persistentId, draft, approved));
+        return ResponseEntity.ok(publicationService.getLatestPublication(persistentId, draft, approved, redirect));
     }
 
     @Operation(summary = "Get publication selected version by its persistentId and versionId")

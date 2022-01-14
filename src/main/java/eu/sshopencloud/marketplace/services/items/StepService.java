@@ -4,7 +4,6 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ComparisonResult;
-import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
@@ -74,9 +73,9 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
 
-    public StepDto getLatestStep(String workflowId, String stepId, boolean draft, boolean approved) {
+    public StepDto getLatestStep(String workflowId, String stepId, boolean draft, boolean approved, boolean redirect) {
         validateLatestWorkflowAndStepConsistency(workflowId, stepId, draft, approved);
-        return getLatestItem(stepId, draft, approved);
+        return getLatestItem(stepId, draft, approved, redirect);
     }
 
 
@@ -240,8 +239,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
         Workflow workflow;
         if (step.getId().equals(currentStep.getId())) {
-            Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, false);
-            workflow = newWorkflow;
+            workflow = workflowService.liftWorkflowForNewStep(workflowId, false);
         } else {
             workflow = workflowService.loadLatestItem(workflowId);
         }
@@ -451,21 +449,21 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
     public List<ItemExtBasicDto> getStepVersions(String workflowId, String stepId, boolean draft, boolean approved) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId,
-                getLatestStep(workflowId, stepId, draft, approved).getId());
-        return getItemHistory(stepId, getLatestStep(workflowId, stepId, draft, approved).getId());
+                getLatestStep(workflowId, stepId, draft, approved, false).getId());
+        return getItemHistory(stepId, getLatestStep(workflowId, stepId, draft, approved, false).getId());
     }
 
 
     public List<UserDto> getInformationContributors(String workflowId, String stepId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId,
-                getLatestStep(workflowId, stepId, false, true).getId());
+                getLatestStep(workflowId, stepId, false, true,false).getId());
         return super.getInformationContributors(stepId);
     }
 
 
     public List<UserDto> getInformationContributors(String workflowId, String stepId, Long versionId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId,
-                getLatestStep(workflowId, stepId, false, true).getId());
+                getLatestStep(workflowId, stepId, false, true, false).getId());
         return super.getInformationContributors(stepId, versionId);
     }
 
@@ -491,8 +489,8 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         if (Objects.isNull(stepId))
             stepDto = createStep(workflowId, mergeStepCore, false);
         else {
-            WorkflowDto workflowDto = workflowService.getLatestWorkflow(workflowId, false, true);
-            StepDto stepTmp = getLatestStep(workflowId, stepId, false, true);
+            WorkflowDto workflowDto = workflowService.getLatestWorkflow(workflowId, false, true, false);
+            StepDto stepTmp = getLatestStep(workflowId, stepId, false, true, false);
             int replacingOrder = workflowDto.getComposedOf().indexOf(stepTmp) + 1;
             stepDto = replaceStep(workflowId, mergeStepCore, false, stepId, replacingOrder);
             stepList.remove(stepId);
@@ -508,13 +506,13 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
     public boolean checkMergeStepConsistency(List<String> mergeList) {
         String workflowPersistentId = "";
-        for (int i = 0; i < mergeList.size(); i++) {
-            if (checkIfStep(mergeList.get(i))) {
+        for (String s : mergeList) {
+            if (checkIfStep(s)) {
                 if (workflowPersistentId.isEmpty())
                     workflowPersistentId = stepsTreeRepository.findWorkflowPersistentIdByStep(
-                            loadCurrentItem(mergeList.get(i)));
+                            loadCurrentItem(s));
                 else if (workflowPersistentId.equals(
-                        stepsTreeRepository.findWorkflowPersistentIdByStep(loadCurrentItem(mergeList.get(i)))))
+                        stepsTreeRepository.findWorkflowPersistentIdByStep(loadCurrentItem(s))))
                     continue;
                 else
                     return false;
@@ -525,25 +523,25 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public String findStep(List<String> mergeList) {
-        for (int i = 0; i < mergeList.size(); i++)
-            if (checkIfStep(mergeList.get(i)))
-                return mergeList.get(i);
+        for (String s : mergeList)
+            if (checkIfStep(s))
+                return s;
         return null;
     }
 
 
     public List<String> findAllStep(List<String> mergeList) {
         List<String> mergeStepsList = new ArrayList<>();
-        for (int i = 0; i < mergeList.size(); i++)
-            if (checkIfStep(mergeList.get(i)))
-                mergeStepsList.add(mergeList.get(i));
+        for (String s : mergeList)
+            if (checkIfStep(s))
+                mergeStepsList.add(s);
         return mergeStepsList;
     }
 
 
     public List<SourceDto> getSources(String workflowId, String stepId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId,
-                getLatestStep(workflowId, stepId, false, true).getId());
+                getLatestStep(workflowId, stepId, false, true, false).getId());
         return super.getAllSources(stepId);
     }
 
