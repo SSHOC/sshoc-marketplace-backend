@@ -622,6 +622,7 @@ public class SearchControllerITCase {
     }
 
 
+
     @Test
     public void shouldNotCrashWhenSearchingItemsForASlash() throws Exception {
         mvc.perform(

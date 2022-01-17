@@ -45,9 +45,10 @@ public class TrainingMaterialController {
     @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> getTrainingMaterial(@PathVariable("persistentId") String persistentId,
                                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                                                   @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(persistentId, draft, approved));
+        return ResponseEntity.ok(trainingMaterialService.getLatestTrainingMaterial(persistentId, draft, approved, redirect));
     }
 
     @Operation(summary = "Get training material selected version by its persistentId and versionId")

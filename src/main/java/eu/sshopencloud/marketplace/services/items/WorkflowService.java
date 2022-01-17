@@ -76,8 +76,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return getItemsPage(pageCoords, approved);
     }
 
-    public WorkflowDto getLatestWorkflow(String persistentId, boolean draft, boolean approved) {
-        return getLatestItem(persistentId, draft, approved);
+    public WorkflowDto getLatestWorkflow(String persistentId, boolean draft, boolean approved, boolean redirect) {
+        return getLatestItem(persistentId, draft, approved,redirect);
     }
 
     public WorkflowDto getWorkflowVersion(String persistentId, long versionId) {
@@ -130,7 +130,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             public void onNextStep(StepsTree stepTree) {
                 Step step = stepTree.getStep();
 
-                if (step.getStatus().equals(ItemStatus.DRAFT)) {
+                if (step != null && step.getStatus().equals(ItemStatus.DRAFT)) {
                     step = stepService.commitDraftStep(step);
                     stepTree.setStep(step);
                 }
@@ -309,7 +309,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public List<ItemExtBasicDto> getWorkflowVersions(String persistentId, boolean draft, boolean approved) {
-        return getItemHistory(persistentId, getLatestWorkflow(persistentId, draft, approved).getId());
+        return getItemHistory(persistentId, getLatestWorkflow(persistentId, draft, approved, false).getId());
     }
 
     public List<UserDto> getInformationContributors(String id) {
@@ -327,8 +327,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public void collectStepsFromMergedWorkflows(Workflow workflow, List<String> workflowList) {
 
-        for (int i = 0; i < workflowList.size(); i++) {
-            Workflow workflowTmp = loadCurrentItem(workflowList.get(i));
+        for (String s : workflowList) {
+            Workflow workflowTmp = loadCurrentItem(s);
             if (!workflowTmp.getAllSteps().isEmpty())
                 collectTrees(workflow.getStepsTree(), workflowTmp.getAllSteps());
         }
@@ -339,8 +339,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         StepsTree s;
         List<StepsTree> subTrees = new ArrayList<>();
 
-        for (int i = 0; i < stepsTrees.size(); i++) {
-            s = stepsTrees.get(i);
+        for (StepsTree stepsTree : stepsTrees) {
+            s = stepsTree;
             if (!s.isRoot() && !Objects.isNull(s.getId()))
                 if (s.getSubTrees().size() > 0) {
                     stepService.addStepToTree(s.getStep(), null, parent);
@@ -369,8 +369,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public List<String> findAllWorkflows(List<String> mergeList) {
         List<String> mergeWorkflowsList = new ArrayList<>();
-        for (int i = 0; i < mergeList.size(); i++)
-            if (checkIfWorkflow(mergeList.get(i))) mergeWorkflowsList.add(mergeList.get(i));
+        for (String mergeItem : mergeList)
+            if (checkIfWorkflow(mergeItem)) mergeWorkflowsList.add(mergeItem);
 
         return mergeWorkflowsList;
     }
