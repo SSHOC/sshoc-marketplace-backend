@@ -270,15 +270,15 @@ public class SourceControllerITCase {
     @Test
     public void shouldGetItemsBySourceIdAndSourceItemId() throws Exception {
         Long sourceId = 2L;
-        String sourceItemId = "33367890";
+        String sourceItemId = "rT8gg";
 
         mvc.perform(get("/api/sources/{sourceId}/items/{sourceItemId}", sourceId, sourceItemId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(jsonPath("items", hasSize(1)))
-                .andExpect(jsonPath("items[0].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("items[0].persistentId", is("JmBgWa")))
                 .andExpect(jsonPath("items[0].category", is("training-material")))
-                .andExpect(jsonPath("items[0].label", is("Introduction to GEPHI")));
+                .andExpect(jsonPath("items[0].label", is("Webinar on DH")));
     }
 
 }
