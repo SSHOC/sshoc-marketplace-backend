@@ -33,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
@@ -299,6 +300,9 @@ public class SearchService {
     }
 
     private SearchExpressionCriteria createExpressionCriteria(String code, String expression) {
+
+        if(expression.contains("/")) expression =  ClientUtils.escapeQueryChars(expression);
+
         PropertyType propertyType = propertyTypeService.loadPropertyTypeOrNull(code);
         if (propertyType != null) {
             return new SearchExpressionDynamicFieldCriteria(code, expression, propertyType.getType());
