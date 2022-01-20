@@ -10,7 +10,6 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
-import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
@@ -395,7 +394,44 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("id", is(2)))
                 .andExpect(jsonPath("label", is("Programming Historian")))
                 .andExpect(jsonPath("url", is("https://programminghistorian.org")))
-                .andExpect(jsonPath("lastHarvestedDate", notNullValue()));
+                .andExpect(jsonPath("lastHarvestedDate").doesNotHaveJsonPath());
+    }
+
+    @Test
+    public void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAsSystemImporterWithLastHarvestDate() throws Exception {
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Test simple blog");
+        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setAccessibleAt(List.of("https://programminghistorian.org/en/lessons/test-simple-blog"));
+        trainingMaterial.setSourceItemId("9999");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/training-materials")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Test simple blog")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://programminghistorian.org/en/lessons/test-simple-blog")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("9999")));
+
+
+        mvc.perform(get("/api/sources/{id}", 2)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(2)))
+                .andExpect(jsonPath("label", is("Programming Historian")))
+                .andExpect(jsonPath("url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("lastHarvestedDate").doesNotHaveJsonPath());
     }
 
     @Test
@@ -439,7 +475,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("id", is(2)))
                 .andExpect(jsonPath("label", is("Programming Historian")))
                 .andExpect(jsonPath("url", is("https://programminghistorian.org")))
-                .andExpect(jsonPath("lastHarvestedDate", notNullValue()));
+                .andExpect(jsonPath("lastHarvestedDate").doesNotHaveJsonPath());
     }
 
     @Test
@@ -449,12 +485,12 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(3l);
+        actor.setId(3L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -472,7 +508,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -526,7 +562,7 @@ public class TrainingMaterialControllerITCase {
     public void shouldNotCreateTrainingMaterialWhenLabelIsNull() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setDescription("Lorem ipsum");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -549,15 +585,15 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(99l);
+        actor.setId(99L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -580,15 +616,15 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(2l);
+        actor.setId(2L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("xxx");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -624,7 +660,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -662,7 +698,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -700,7 +736,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -735,7 +771,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -947,12 +983,12 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setAccessibleAt(List.of("https://www.example.com"));
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(3l);
+        actor.setId(3L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -970,7 +1006,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1041,12 +1077,12 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setAccessibleAt(List.of("https://www.youtube.com/watch?v=2FqM4gKeNO4"));
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(2l);
+        actor.setId(2L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -1069,7 +1105,7 @@ public class TrainingMaterialControllerITCase {
         vocabulary2.setCode("nemo-activity-type");
         concept2.setVocabulary(vocabulary2);
         property2.setConcept(concept2);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1124,7 +1160,7 @@ public class TrainingMaterialControllerITCase {
 
         trainingMaterial.setLabel("Introduction to GEPHI 3");
         SourceId sourceId = new SourceId();
-        sourceId.setId(2l);
+        sourceId.setId(2L);
         trainingMaterial.setSource(sourceId);
         trainingMaterial.setSourceItemId("33367890");
 
@@ -1170,12 +1206,12 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setAccessibleAt(List.of("https://example.com"));
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(2l);
+        actor.setId(2L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -1198,7 +1234,7 @@ public class TrainingMaterialControllerITCase {
         vocabulary2.setCode("nemo-activity-type");
         concept2.setVocabulary(vocabulary2);
         property2.setConcept(concept2);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1253,7 +1289,7 @@ public class TrainingMaterialControllerITCase {
 
         trainingMaterial.setAccessibleAt(List.of("https://sshoc.marketplace.com", "https://example.com"));
         SourceId sourceId = new SourceId();
-        sourceId.setId(2l);
+        sourceId.setId(2L);
         trainingMaterial.setSource(sourceId);
         trainingMaterial.setSourceItemId("33367890");
 
@@ -1300,12 +1336,12 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setAccessibleAt(List.of("https://www.youtube.com/watch?v=2FqM4gKeNO4"));
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(2l);
+        actor.setId(2L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -1328,7 +1364,7 @@ public class TrainingMaterialControllerITCase {
         vocabulary2.setCode("nemo-activity-type");
         concept2.setVocabulary(vocabulary2);
         property2.setConcept(concept2);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1398,13 +1434,13 @@ public class TrainingMaterialControllerITCase {
         property4.setType(propertyType4);
         property4.setValue("paper");
 
-        List<PropertyCore> properties2 = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties2 = new ArrayList<>();
         properties2.add(property3);
         properties2.add(property4);
         trainingMaterial.setProperties(properties2);
 
         SourceId sourceId = new SourceId();
-        sourceId.setId(2l);
+        sourceId.setId(2L);
         trainingMaterial.setSource(sourceId);
         trainingMaterial.setSourceItemId("33367890");
 
@@ -1481,12 +1517,12 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(3l);
+        actor.setId(3L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -1504,7 +1540,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1542,7 +1578,7 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1579,7 +1615,7 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Introduction to GEPHI");
         trainingMaterial.setVersion("4.0");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1626,7 +1662,7 @@ public class TrainingMaterialControllerITCase {
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1652,15 +1688,15 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(99l);
+        actor.setId(99L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1685,15 +1721,15 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(2l);
+        actor.setId(2L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("xxx");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -1731,7 +1767,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1771,7 +1807,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1811,7 +1847,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1848,7 +1884,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1871,7 +1907,7 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem Ipsum ...");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
@@ -2375,8 +2411,6 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[1].email", is("moderator@example.com")))
                 .andExpect(jsonPath("$[1].config", is(true)));
 
-
-        Long beforeVersionId = 2l;
         int beforeVersion = 2;
 
         mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialPersistentId)
