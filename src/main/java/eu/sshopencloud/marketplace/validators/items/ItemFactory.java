@@ -169,8 +169,10 @@ public class ItemFactory {
     private void setInfoDates(Item item, boolean harvest) {
         ZonedDateTime now = ZonedDateTime.now();
         item.setLastInfoUpdate(now);
-        if (harvest && item.getSource() != null) {
-            item.getSource().setLastHarvestedDate(now);
+        if (LoggedInUserHolder.getLoggedInUser().isSystemContributor()) {
+            if (harvest && item.getSource() != null) {
+                item.getSource().setLastHarvestedDate(now);
+            }
         }
     }
 
