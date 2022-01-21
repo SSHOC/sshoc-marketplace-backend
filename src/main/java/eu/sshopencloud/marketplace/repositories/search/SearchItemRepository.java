@@ -111,7 +111,7 @@ public class SearchItemRepository {
     }
 
     private List<Sort.Order> createQueryOrder(List<SearchOrder> order) {
-        List<Sort.Order> result = new ArrayList<Sort.Order>();
+        List<Sort.Order> result = new ArrayList<>();
         for (SearchOrder o : order) {
             result.add(createQueryOrder(o));
         }
@@ -151,6 +151,10 @@ public class SearchItemRepository {
         params.set("qt", "/marketplace-items/suggest");
         params.set("dictionary", "itemSearch");
         params.set("q", searchQuery);
+        if(categoryContext==null || categoryContext.toLowerCase(Locale.ROOT).equals("step"))
+            categoryContext = "-step";
+        else
+            categoryContext = categoryContext + " AND -step";
         params.set("suggest.cfq", categoryContext);
         params.set("suggest.count", 50);
 
