@@ -809,4 +809,15 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("categories.step.count", is(11)))
                 .andExpect(jsonPath("categories.step.checked", is(true)));
     }
+
+    @Test
+    public void shouldReturnAutocompleteWithoutSteps() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=dictionary")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("suggestions", hasSize(1)))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("tqmbGY")));
+    }
+
 }
