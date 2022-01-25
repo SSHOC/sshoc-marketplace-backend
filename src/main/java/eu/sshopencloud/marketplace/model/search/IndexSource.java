@@ -25,4 +25,7 @@ public class IndexSource {
     @Field(value = IndexItem.SOURCE_ITEM_ID_FIELD)
     private String sourceItemId;
 
+    @Field(value = IndexItem.PERSISTENT_ID_FIELD)
+    private String parentPersistentId;
+
 }
