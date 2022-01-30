@@ -94,7 +94,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/property-types/**").hasAuthority(Authority.MODERATOR.name());
         http
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/vocabularies/*/concepts").hasAnyAuthority(Authority.SYSTEM_CONTRIBUTOR.name(),Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.POST, "/api/vocabularies/*/concepts/*/merge").hasAnyAuthority(Authority.SYSTEM_CONTRIBUTOR.name(),Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.POST, "/api/vocabularies/*/concepts").hasAnyAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.POST, "/api/vocabularies/**").hasAnyAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/vocabularies/**").hasAnyAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/vocabularies/**").hasAuthority(Authority.MODERATOR.name());
@@ -265,6 +266,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         StrictHttpFirewall firewall = new StrictHttpFirewall();
         firewall.setAllowUrlEncodedSlash(true);
         firewall.setAllowSemicolon(true);
+        firewall.setAllowUrlEncodedDoubleSlash(true);
         return firewall;
     }
 

@@ -14,6 +14,7 @@ public class ActorSearchQueryPhrase extends SearchQueryPhrase {
 
     @Override
     protected Criteria getPhraseQueryCriteria() {
+
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
 
         if (queryParts.isEmpty()) {
@@ -22,6 +23,7 @@ public class ActorSearchQueryPhrase extends SearchQueryPhrase {
             Criteria andCriteria = AnyCriteria.any();
 
             for (QueryPart queryPart : queryParts) {
+
                 Criteria idCriteria = Criteria.where(IndexActor.ID_FIELD).boost(10f).is(queryPart.getExpression());
                 Criteria externalIdentifierCriteria = Criteria.where(IndexActor.EXTERNAL_IDENTIFIER_FIELD).boost(10f).is(queryPart.getExpression());
                 Criteria nameCriteria = Criteria.where(IndexActor.NAME_FIELD).boost(4f).contains(queryPart.getExpression());
@@ -40,13 +42,13 @@ public class ActorSearchQueryPhrase extends SearchQueryPhrase {
         if (phrase.isEmpty()) {
             return AnyCriteria.any();
         } else {
+
             Criteria idCriteria = Criteria.where(IndexActor.ID_FIELD).boost(10f).expression(phrase);
             Criteria externalIdentifierCriteria = Criteria.where(IndexActor.EXTERNAL_IDENTIFIER_FIELD).boost(10f).expression(phrase);
             Criteria nameCriteria = Criteria.where(IndexActor.NAME_FIELD).boost(4f).expression(phrase);
             Criteria emailCriteria = Criteria.where(IndexActor.EMAIL_FIELD).boost(4f).expression(phrase);
             Criteria websiteCriteria = Criteria.where(IndexActor.WEBSITE_FIELD).boost(2f).expression(phrase);
-            return idCriteria.or(externalIdentifierCriteria).or(nameCriteria).or(emailCriteria)
-                    .or(websiteCriteria);
+            return idCriteria.or(externalIdentifierCriteria).or(nameCriteria).or(emailCriteria).or(websiteCriteria);
         }
     }
 }

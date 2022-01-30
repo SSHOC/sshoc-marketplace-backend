@@ -67,6 +67,7 @@ public class IndexConverter {
             indexSource.setDocContentType(DOC_CONTENT_TYPE_SOURCE);
             indexSource.setSourceLabel(detailedSource.getLabel());
             indexSource.setSourceItemId(detailedSource.getSourceItemId());
+            indexSource.setParentPersistentId(item.getPersistentId());
             builder.detailedSource(indexSource);
         }
 
@@ -82,11 +83,9 @@ public class IndexConverter {
         }
 
         for (Property property : item.getProperties()) {
-            switch (property.getType().getCode()) {
-                case "keyword":
-                    String keyword = getPropertyValue(property);
-                    builder.keywordText(keyword);
-                    break;
+            if ("keyword".equals(property.getType().getCode())) {
+                String keyword = getPropertyValue(property);
+                builder.keywordText(keyword);
             }
         }
 
@@ -108,12 +107,16 @@ public class IndexConverter {
                 case CONCEPT:
                 case STRING:
                 case URL:
+                    assert property.getValue() != null;
                     return property.getValue();
                 case INT:
+                    assert property.getValue() != null;
                     return new BigInteger(property.getValue()).toString();
                 case FLOAT:
+                    assert property.getValue() != null;
                     return new BigDecimal(property.getValue()).toString();
                 case DATE:
+                    assert property.getValue() != null;
                     ZonedDateTime date;
                     try {
                         date = ZonedDateTime.parse(property.getValue(), ApiDateTimeFormatter.INPUT_DATE_FORMATTER);

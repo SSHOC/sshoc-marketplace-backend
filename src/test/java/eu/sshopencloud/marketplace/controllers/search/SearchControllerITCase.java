@@ -618,14 +618,17 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("types.activity.count", is(7)))
                 .andExpect(jsonPath("types.activity.checked", is(true)))
                 .andExpect(jsonPath("facets.candidate.['false'].count", is(7)))
-                .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));;
+                .andExpect(jsonPath("facets.candidate.['false'].checked", is(false)));
     }
+
+
 
     @Test
     public void shouldNotCrashWhenSearchingItemsForASlash() throws Exception {
         mvc.perform(
                 get("/api/item-search")
-                        .param("q", "/")
+                        .param("q", " / ")
+                       // .param("advanced", "true")
         )
                 .andExpect(status().isOk());
     }
@@ -806,4 +809,15 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("categories.step.count", is(11)))
                 .andExpect(jsonPath("categories.step.checked", is(true)));
     }
+
+    @Test
+    public void shouldReturnAutocompleteWithoutSteps() throws Exception {
+
+        mvc.perform(get("/api/item-search/autocomplete?q=dictionary")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("suggestions", hasSize(1)))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("tqmbGY")));
+    }
+
 }

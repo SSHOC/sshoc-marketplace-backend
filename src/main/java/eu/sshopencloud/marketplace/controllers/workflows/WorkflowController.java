@@ -45,9 +45,10 @@ public class WorkflowController {
     @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> getWorkflow(@PathVariable("persistentId") String workflowPersistentId,
                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                                   @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowPersistentId, draft, approved));
+        return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowPersistentId, draft, approved, redirect));
     }
 
     @Operation(summary = "Get workflow selected version by its persistentId and versionId")
@@ -97,7 +98,7 @@ public class WorkflowController {
 
     @Operation(summary = "Delete workflow by its persistentId and versionId")
     @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
-    public void deleteWorkflow(@PathVariable("persistentId") String workflowPersistentId, @PathVariable("versionId") long versionId) {
+    public void deleteWorkflowVersion(@PathVariable("persistentId") String workflowPersistentId, @PathVariable("versionId") long versionId) {
 
         workflowService.deleteWorkflow(workflowPersistentId, versionId);
     }
@@ -108,9 +109,10 @@ public class WorkflowController {
     public ResponseEntity<StepDto> getStep(@PathVariable("persistentId") String workflowPersistentId,
                                            @PathVariable("stepPersistentId") String stepPersistentId,
                                            @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                           @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(stepService.getLatestStep(workflowPersistentId, stepPersistentId, draft, approved));
+        return ResponseEntity.ok(stepService.getLatestStep(workflowPersistentId, stepPersistentId, draft, approved, redirect));
     }
 
     @Operation(summary = "Get step selected version by its persistentId, versionId and workflow persistentId")
@@ -181,7 +183,7 @@ public class WorkflowController {
 
     @Operation(summary = "Delete step by its persistentId, versionId and workflow persistentId")
     @DeleteMapping(path = "/{persistentId}/steps/{stepPersistentId}/versions/{stepVersionId}")
-    public void deleteStep(@PathVariable("persistentId") String workflowPersistentId,
+    public void deleteStepVersion(@PathVariable("persistentId") String workflowPersistentId,
                            @PathVariable("stepPersistentId") String stepPersistentId, @PathVariable("stepVersionId") long stepVersionId) {
 
         stepService.deleteStep(workflowPersistentId, stepPersistentId, stepVersionId);

@@ -1,16 +1,13 @@
 package eu.sshopencloud.marketplace.validators.items;
 
 import eu.sshopencloud.marketplace.dto.items.ItemCore;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import eu.sshopencloud.marketplace.model.items.ItemMediaType;
-import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
-import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
@@ -172,8 +169,10 @@ public class ItemFactory {
     private void setInfoDates(Item item, boolean harvest) {
         ZonedDateTime now = ZonedDateTime.now();
         item.setLastInfoUpdate(now);
-        if (harvest && item.getSource() != null) {
-            item.getSource().setLastHarvestedDate(now);
+        if (LoggedInUserHolder.getLoggedInUser().isSystemContributor()) {
+            if (harvest && item.getSource() != null) {
+                item.getSource().setLastHarvestedDate(now);
+            }
         }
     }
 
