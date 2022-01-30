@@ -45,9 +45,10 @@ public class DatasetController {
     @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> getDataset(@PathVariable("persistentId") String persistentId,
                                                  @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                                 @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(datasetService.getLatestDataset(persistentId, draft, approved));
+        return ResponseEntity.ok(datasetService.getLatestDataset(persistentId, draft, approved,redirect));
     }
 
     @Operation(summary = "Get dataset selected version by its persistentId and versionId")
@@ -96,7 +97,7 @@ public class DatasetController {
 
     @Operation(summary = "Delete dataset by its persistentId and versionId")
     @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
-    public void deleteDataset(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+    public void deleteDatasetVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         datasetService.deleteDataset(persistentId, versionId);
     }

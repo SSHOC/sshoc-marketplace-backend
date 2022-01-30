@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_146-yt_url_change
+      author: ekalata
+      description: Refactors url from media_sources
+      changes:
+          - sql:
+              sql: >
+                  update media_sources set service_url = 'https://www.youtube.com/embed' where service_url = 'https://www.youtube.com/watch'
+

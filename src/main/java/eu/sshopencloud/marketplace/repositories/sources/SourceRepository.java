@@ -44,6 +44,8 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
     )
     List<Source> findSourcesOfItem(@Param("persistentId") String persistentId);
 
+    // problem with returning items with DEPRECATED status
+    @Deprecated
     @Query(value =
             "WITH RECURSIVE sub_item AS ( " +
                     "   WITH RECURSIVE merge_item AS (" +
@@ -70,6 +72,14 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
                     " INNER JOIN sub_item si " +
                     " ON i.persistent_id = si.persistent_id AND si.id = i.id", nativeQuery = true
     )
-    List<Map<String, Object>> findDetailedSourcesOfItem(@Param("persistentId") String persistentId);
+    List<Map<String, Object>> findDetailedSourcesOfItemDeprecated(@Param("persistentId") String persistentId);
 
+    @Query(value =
+                    "SELECT s.id, s.domain, s.label, s.last_harvested_date, s.url, s.url_template, i.source_item_id "+
+                    " FROM sources s " +
+                    " INNER JOIN items i" +
+                    " ON i.source_id = s.id"+
+                    " WHERE i.status = 'APPROVED' and i.persistent_id = :persistentId", nativeQuery = true
+    )
+    List<Map<String, Object>> findDetailedSourcesOfItem(@Param("persistentId") String persistentId);
 }

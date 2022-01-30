@@ -33,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
@@ -68,7 +69,7 @@ public class SearchService {
 
         SearchQueryCriteria queryCriteria = new ItemSearchQueryPhrase(q, advanced);
 
-        List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
+        List<SearchFilterCriteria> filterCriteria = new ArrayList<>();
         filterCriteria.add(makeCategoryCriteria(categories));
         filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.ITEMS));
 
@@ -201,7 +202,7 @@ public class SearchService {
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
         SearchQueryCriteria queryCriteria = new ConceptSearchQueryPhrase(q, advanced);
 
-        List<SearchFilterCriteria> filterCriteria = new ArrayList<SearchFilterCriteria>();
+        List<SearchFilterCriteria> filterCriteria = new ArrayList<>();
         filterCriteria.add(makePropertyTypeCriteria(types));
         filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.CONCEPTS));
 
@@ -210,7 +211,7 @@ public class SearchService {
         Map<String, CountedPropertyType> typeFacet = gatherTypeFacet(facetPage, types);
         Map<String, Map<String, CheckedCount>> facets = gatherSearchConceptFacets(facetPage, filterParams);
 
-        PaginatedSearchConcepts result = PaginatedSearchConcepts.builder()
+        return PaginatedSearchConcepts.builder()
                 .q(q).concepts(facetPage.get().map(SearchConverter::convertIndexConcept).collect(Collectors.toList()))
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
@@ -219,7 +220,6 @@ public class SearchService {
                 .facets(facets)
                 .build();
 
-        return result;
     }
 
     private Map<String, CountedPropertyType> gatherTypeFacet(FacetPage<IndexConcept> facetPage, List<String> types) {
@@ -300,6 +300,9 @@ public class SearchService {
     }
 
     private SearchExpressionCriteria createExpressionCriteria(String code, String expression) {
+
+        if(expression.contains("/")) expression =  ClientUtils.escapeQueryChars(expression);
+
         PropertyType propertyType = propertyTypeService.loadPropertyTypeOrNull(code);
         if (propertyType != null) {
             return new SearchExpressionDynamicFieldCriteria(code, expression, propertyType.getType());
@@ -307,6 +310,7 @@ public class SearchService {
             return new SearchExpressionCriteria(code, expression);
         }
     }
+
 
     public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, PageCoords pageCoords) {
 

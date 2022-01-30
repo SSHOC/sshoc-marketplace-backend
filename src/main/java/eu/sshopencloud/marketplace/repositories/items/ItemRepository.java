@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -72,5 +73,17 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
 
     @Query("select v from Item v join v.contributors c where c.actor.id = :actorId ")
     List<Item> findByContributorActorId(@Param("actorId") Long actorId);
+
+
+    @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept = :concept")
+    List<Item> findAllByMediaConcept(@Param("concept") Concept concept);
+
+    @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept.vocabulary = :vocabulary")
+    List<Item> findAllByMediaConceptVocabulary(@Param("vocabulary") String vocabulary);
+
+    boolean existsByMediaConceptVocabularyCode(String vocabularyCode);
+
+    @Query("select i from Item i inner join ItemContributor c ON c.item.id = i.id WHERE c.actor.id = :id ORDER BY i.label")
+    List<Item> findAllByContributorsActorId(@Param("id") Long id);
 
 }

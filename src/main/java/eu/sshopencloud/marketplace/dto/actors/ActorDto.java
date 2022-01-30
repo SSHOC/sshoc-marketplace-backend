@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.dto.actors;
 
+import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,5 +21,7 @@ public class ActorDto {
     private String email;
 
     private List<ActorDto> affiliations;
+
+    private List<ItemBasicDto> items;
 
 }

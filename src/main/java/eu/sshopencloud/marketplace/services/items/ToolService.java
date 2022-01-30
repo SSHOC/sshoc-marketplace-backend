@@ -64,8 +64,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return getItemVersion(persistentId, versionId);
     }
 
-    public ToolDto getLatestTool(String persistentId, boolean draft, boolean approved) {
-        return getLatestItem(persistentId, draft, approved);
+    public ToolDto getLatestTool(String persistentId, boolean draft, boolean approved, boolean redirect) {
+        return getLatestItem(persistentId, draft, approved, redirect);
     }
 
     public ToolDto createTool(ToolCore toolCore, boolean draft) {
@@ -144,7 +144,7 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     public List<ItemExtBasicDto> getToolVersions(String persistentId, boolean draft, boolean approved) {
-        return getItemHistory(persistentId, getLatestTool(persistentId, draft, approved).getId());
+        return getItemHistory(persistentId, getLatestTool(persistentId, draft, approved, false).getId());
     }
 
     public List<UserDto> getInformationContributors(String id) {

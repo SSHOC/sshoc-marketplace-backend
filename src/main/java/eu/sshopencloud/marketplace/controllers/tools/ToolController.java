@@ -45,9 +45,10 @@ public class ToolController {
     @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> getTool(@PathVariable("persistentId") String persistentId,
                                            @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                           @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(toolService.getLatestTool(persistentId, draft, approved));
+        return ResponseEntity.ok(toolService.getLatestTool(persistentId, draft, approved, redirect));
     }
 
     @Operation(summary = "Get tool selected version by its persistentId and versionId")
@@ -96,7 +97,7 @@ public class ToolController {
 
     @Operation(summary = "Delete tool by its persistentId and versionId")
     @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
-    public void deleteTool(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+    public void deleteToolVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
 
         toolService.deleteTool(persistentId, versionId);
     }

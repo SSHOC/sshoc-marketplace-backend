@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
+import eu.sshopencloud.marketplace.services.vocabularies.event.VocabulariesChangedEvent;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelParser;
 import eu.sshopencloud.marketplace.services.vocabularies.rdf.RDFModelPrinter;
@@ -17,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -45,12 +47,14 @@ public class VocabularyService {
 
     private final RDFModelPrinter rdfModelPrinter;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     public VocabularyService(VocabularyRepository vocabularyRepository,
                              ConceptService conceptService,
                              ConceptRelatedConceptService conceptRelatedConceptService,
                              PropertyService propertyService,
                              PropertyTypeService propertyTypeService,
-                             RDFModelPrinter rdfModelPrinter) {
+                             RDFModelPrinter rdfModelPrinter, ApplicationEventPublisher eventPublisher) {
 
         this.vocabularyRepository = vocabularyRepository;
         this.conceptService = conceptService;
@@ -58,6 +62,7 @@ public class VocabularyService {
         this.propertyService = propertyService;
         this.propertyTypeService = propertyTypeService;
         this.rdfModelPrinter = rdfModelPrinter;
+        this.eventPublisher = eventPublisher;
     }
 
     public PaginatedVocabularies getVocabularies(PageCoords pageCoords) {
@@ -115,6 +120,7 @@ public class VocabularyService {
 
         try {
             Vocabulary vocabulary = updateVocabulary(vocabularyCode, vocabularyFile.getInputStream(), forceUpdate, closed);
+            eventPublisher.publishEvent(new VocabulariesChangedEvent(List.of(vocabulary)));
             return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
         } catch (RDFParseException | UnsupportedRDFormatException e) {
             throw new IllegalArgumentException(String.format("Invalid vocabulary file contents: %s", e.getMessage()), e);
@@ -179,9 +185,20 @@ public class VocabularyService {
             );
         }
 
+        if (!forceRemove && conceptService.existPropertiesFromVocabulary(vocabularyCode)) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Cannot remove vocabulary '%s' since there already exist item media with assigned concepts to this vocabulary. " +
+                                    "Use force=true parameter to remove the vocabulary with its concepts and remove associated concepts from item media as well. ",
+                            vocabulary.getLabel()
+                    )
+            );
+        }
+
         removeConceptsAndProperties(vocabulary.getConcepts());
 
         propertyTypeService.removePropertyTypesAssociations(vocabularyCode);
+        conceptService.removeVocabularyFromItemMedia(vocabulary);
         vocabularyRepository.delete(vocabulary);
     }
 

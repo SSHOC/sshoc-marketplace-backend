@@ -47,4 +47,19 @@ public class ItemContributorCriteriaRepository {
         return query.getResultList();
     }
 
+    public List<ItemContributor> findByActorIdAndActorRole(Long actorId, String roleCode) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ItemContributor> cq = cb.createQuery(ItemContributor.class);
+        Root<ItemContributor> rootItemContributor = cq.from(ItemContributor.class);
+        cq.select(rootItemContributor);
+        cq.where(
+                cb.and(
+                        cb.equal(rootItemContributor.get("actor").get("id"), actorId),
+                        cb.equal(rootItemContributor.get("role").get("code"), roleCode)
+                )
+        );
+        TypedQuery<ItemContributor> query = entityManager.createQuery(cq);
+        return query.getResultList();
+    }
+
 }
