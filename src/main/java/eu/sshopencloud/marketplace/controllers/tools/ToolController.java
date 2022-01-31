@@ -32,7 +32,7 @@ public class ToolController {
 
     private final ToolService toolService;
 
-    @Operation(summary = "Retrieve all tools in pages")
+    @Operation(summary = "Retrieve all tools services in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
                                                    @RequestParam(value = "perpage", required = false) Integer perpage,
