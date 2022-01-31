@@ -119,7 +119,7 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
     @Override
     protected PaginatedTools wrapPage(Page<Tool> toolsPage, List<ToolDto> tools) {
-        return PaginatedTools.builder().tools(tools)
+        return PaginatedTools.builder().toolsServices(tools)
                 .count(toolsPage.getContent().size())
                 .hits(toolsPage.getTotalElements())
                 .page(toolsPage.getNumber() + 1)

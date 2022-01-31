@@ -15,11 +15,11 @@ import java.util.List;
 @AllArgsConstructor
 public class PaginatedTools extends PaginatedResult<ToolDto> {
 
-    private List<ToolDto> tools;
+    private List<ToolDto> toolsServices;
 
     @Override
-    @JsonGetter("tools")
+    @JsonGetter("toolsServices")
     public List<ToolDto> getResults() {
-        return tools;
+        return toolsServices;
     }
 }
