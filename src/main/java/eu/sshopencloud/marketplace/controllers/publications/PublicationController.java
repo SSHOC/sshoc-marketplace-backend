@@ -158,7 +158,7 @@ public class PublicationController {
     }
 
 
-    @Operation(summary = "Getting differences between publication and target version of item", operationId = "getPublicationAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between publication and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getPublicationAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getPublicationVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                       @RequestParam(required = true) String with,
@@ -168,7 +168,7 @@ public class PublicationController {
     }
 
 
-    @Operation(summary = "Getting differences between target version of publication and target version of item", operationId = "getVersionedPublicationAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between target version of publication and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedPublicationAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getVersionedPublicationVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                                @PathVariable("versionId") long versionId,

@@ -157,7 +157,7 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.getSources(persistentId));
     }
 
-    @Operation(summary = "Getting differences between dataset and target version of item", operationId = "getDatasetAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between dataset and target version of item, ('unaltered' string response means for the single field that remained unchanged)", operationId = "getDatasetAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getDatasetVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                   @RequestParam(required = true) String with,
@@ -167,7 +167,7 @@ public class DatasetController {
     }
 
 
-    @Operation(summary = "Getting differences between target version of dataset and target version of item", operationId = "getVersionedDatasetAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between target version of dataset and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedDatasetAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getVersionedDatasetVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                            @PathVariable("versionId") long versionId,
