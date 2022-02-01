@@ -297,7 +297,7 @@ public class WorkflowController {
         return ResponseEntity.ok(stepService.getSources(workflowPersistentId, stepPersistentId));
     }
 
-    @Operation(summary = "Getting differences between workflow and target version of item", operationId = "getWorkflowAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between workflow and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getWorkflowAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getWorkflowVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                    @RequestParam(required = true) String with,
@@ -307,7 +307,7 @@ public class WorkflowController {
     }
 
 
-    @Operation(summary = "Getting differences between target version of workflow and target version of item", operationId = "getVersionedWorkflowAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between target version of workflow and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedWorkflowAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getVersionedWorkflowVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                             @PathVariable("versionId") long versionId,
@@ -318,7 +318,7 @@ public class WorkflowController {
     }
 
 
-    @Operation(summary = "Getting differences between step and target version of item", operationId = "getStepAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between step and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getStepAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/steps/{stepPersistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getStepVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                @PathVariable("stepPersistentId") String stepPersistentId,
@@ -329,7 +329,7 @@ public class WorkflowController {
     }
 
 
-    @Operation(summary = "Getting differences between target version of step and target version of item", operationId = "getVersionedStepAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between target version of step and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedStepAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/steps/{stepPersistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getVersionedStepVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                         @PathVariable("stepPersistentId") String stepPersistentId,
