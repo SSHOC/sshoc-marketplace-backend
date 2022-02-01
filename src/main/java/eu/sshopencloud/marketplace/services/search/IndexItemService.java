@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class IndexItemService {
 
 
     public IndexItem indexItem(Item item) {
+
         if (!(item.isNewestVersion() || item.isProposedVersion()))
             return null;
 
@@ -46,19 +48,29 @@ public class IndexItemService {
             removeItemVersions(item);
 
         List<Map<String, Object>> results = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId());
-        List<DetailedSourceView> detailedSources = results.stream().map(DetailedSourceView::new)
-                .collect(Collectors.toList());
+        List<DetailedSourceView> detailedSources = results.stream().map(DetailedSourceView::new).collect(Collectors.toList());
 
         IndexItem indexedItem = IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item),
                 detailedSources);
+
         return indexItemRepository.save(indexedItem);
     }
 
+    public IndexItem indexItemAfterReindex(Item item) {
+
+        List<DetailedSourceView> detailedSources = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId()).stream().map(DetailedSourceView::new).collect(Collectors.toList());
+
+        return indexItemRepository.save(IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item),
+                detailedSources));
+    }
+
     public void reindexItems() {
+        log.debug("Eliza Before item index...");
         clearItemIndex();
-        for (Item item : itemRepository.findAll()) {
-            indexItem(item);
+        for (Item item : itemRepository.findAllItemsFaster()) {
+            indexItemAfterReindex(item);
         }
+        log.debug("Eliza After item index...");
     }
 
     public void clearItemIndex() {
@@ -77,7 +89,7 @@ public class IndexItemService {
 
 
 
-
+    //TODO - source changed therefore reindex only changes items
     @Async
     @TransactionalEventListener(classes = {SourceChangedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
     public void handleChangedSource(SourceChangedEvent event) {
@@ -90,6 +102,7 @@ public class IndexItemService {
         }
     }
 
+    //TODO - actor changed therefore reindex only changes items
     @Async
     @TransactionalEventListener(classes = {ActorChangedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
     public void handleChangedActor(ActorChangedEvent event) {

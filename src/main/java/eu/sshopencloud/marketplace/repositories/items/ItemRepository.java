@@ -86,4 +86,7 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     @Query("select i from Item i inner join ItemContributor c ON c.item.id = i.id WHERE c.actor.id = :id ORDER BY i.label")
     List<Item> findAllByContributorsActorId(@Param("id") Long id);
 
+    @Query("select i from Item i left join VersionedItem v ON i.versionedItem = v WHERE  i.status = 'APPROVED' AND i.proposedVersion = false AND v.active = true")
+    List<Item> findAllItemsFaster();
+
 }
