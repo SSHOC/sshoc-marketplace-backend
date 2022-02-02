@@ -77,7 +77,7 @@ public class IndexItemService {
         indexItemRepository.deleteAll();
     }
 
-    //Eliza
+
     public void removeItemVersions(Item item) {
         indexItemRepository.deleteByPersistentId(item.getPersistentId());
     }

@@ -157,7 +157,7 @@ public class ToolController {
         return ResponseEntity.ok(toolService.getSources(persistentId));
     }
 
-    @Operation(summary = "Getting differences between tool and target version of item", operationId = "getToolAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between tool and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getToolAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getToolVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                @RequestParam(required = true) String with,
@@ -167,7 +167,7 @@ public class ToolController {
     }
 
 
-    @Operation(summary = "Getting differences between target version of tool and target version of item", operationId = "getVersionedToolAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between target version of tool and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedToolAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getVersionedToolVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                         @PathVariable("versionId") long versionId,

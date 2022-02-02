@@ -29,6 +29,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ItemsComparator {
 
+    public static final String notChangedField= "unaltered";
     @SuppressWarnings(value = "rawtypes")
     public ItemsDifferencesDto differentiateItems(ItemDto item, ItemDto other) {
         ItemsDifferencesDto differences = createItemsDifferenceDto(item, other);
@@ -123,7 +124,7 @@ public class ItemsComparator {
     private void differentiateVersions(ItemDto item, ItemDto other, ItemsDifferencesDto differences) {
         if (item.getVersion() != null) {
             if (item.getVersion().equals(other.getVersion()))
-                other.setVersion(null);
+                other.setVersion(notChangedField);
             else
                 differences.setEqual(false);
         } else {
@@ -164,12 +165,9 @@ public class ItemsComparator {
         }
     }
 
-
     private void differentiateSources(ItemDto item, ItemDto other, ItemsDifferencesDto differences) {
         if (item.getSource() != null) {
-            if (item.getSource().equals(other.getSource()))
-                other.setSource(null);
-            else
+            if (!item.getSource().equals(other.getSource()))
                 differences.setEqual(false);
         } else {
             if (other.getSource() != null)
@@ -178,7 +176,7 @@ public class ItemsComparator {
 
         if (item.getSourceItemId() != null) {
             if (item.getSourceItemId().equals(other.getSourceItemId()))
-                other.setSourceItemId(null);
+                other.setSourceItemId(notChangedField);
             else
                 differences.setEqual(false);
         } else {
@@ -345,26 +343,14 @@ public class ItemsComparator {
     }
 
     private boolean arePropertiesEqual(PropertyCore propertyCore, PropertyDto propertyDto) {
-        if ((propertyCore.getType().getCode().equals(propertyDto.getType().getCode()))
+        return (propertyCore.getType().getCode().equals(propertyDto.getType().getCode()))
                 && ((propertyCore.getValue() != null && propertyCore.getValue().equals(propertyDto.getValue()))
-                    || (propertyCore.getValue() == null && propertyDto.getValue() == null))
-                && (areConceptsEqual(propertyCore.getConcept(), propertyDto.getConcept()))) {
-            return true;
-        } else {
-            return false;
-        }
+                || (propertyCore.getValue() == null && propertyDto.getValue() == null))
+                && (areConceptsEqual(propertyCore.getConcept(), propertyDto.getConcept()));
     }
 
     private boolean areConceptsEqual(ConceptId conceptId, ConceptBasicDto conceptDto) {
-       if ((conceptId == null && conceptDto == null)
-               || (
-               (conceptId != null && conceptId.getCode() != null && conceptId.getCode().equals(conceptDto.getCode()))
-            && (conceptId != null && conceptId.getVocabulary() != null && conceptId.getVocabulary().getCode() != null && conceptId.getVocabulary().getCode().equals(conceptDto.getVocabulary().getCode()))
-            && (conceptId != null && conceptId.getUri() != null && conceptId.getUri().equals(conceptDto.getUri())))) {
-           return true;
-       } else {
-           return false;
-       }
+        return conceptId == null && conceptDto == null || conceptId != null && conceptId.getCode() != null && conceptId.getCode().equals(conceptDto.getCode()) && conceptId != null && conceptId.getVocabulary() != null && conceptId.getVocabulary().getCode() != null && conceptId.getVocabulary().getCode().equals(conceptDto.getVocabulary().getCode()) && conceptId.getUri() != null && conceptId.getUri().equals(conceptDto.getUri());
     }
 
 
@@ -467,14 +453,10 @@ public class ItemsComparator {
     }
 
     private boolean areMediaEqual(ItemMediaCore itemMediaCore, ItemMediaDto itemMediaDto) {
-        if (itemMediaCore.getInfo().getMediaId().equals(itemMediaDto.getInfo().getMediaId())
-            && ((itemMediaCore.getCaption() != null && itemMediaCore.getCaption().equals(itemMediaDto.getCaption()))
+        return itemMediaCore.getInfo().getMediaId().equals(itemMediaDto.getInfo().getMediaId())
+                && ((itemMediaCore.getCaption() != null && itemMediaCore.getCaption().equals(itemMediaDto.getCaption()))
                 || (itemMediaCore.getCaption() == null && itemMediaDto.getCaption() == null))
-            && (areConceptsEqual(itemMediaCore.getConcept(), itemMediaDto.getConcept()))) {
-            return true;
-        } else {
-            return false;
-        }
+                && (areConceptsEqual(itemMediaCore.getConcept(), itemMediaDto.getConcept()));
     }
 
 
