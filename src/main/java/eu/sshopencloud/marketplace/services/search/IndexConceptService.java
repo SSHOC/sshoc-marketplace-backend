@@ -71,12 +71,12 @@ public class IndexConceptService {
     }
 
     public void reindexConcepts() {
-        log.debug("Eliza Before concept index...");
+        log.debug("Before concept index.");
         clearConceptIndex();
         for (Vocabulary vocabulary : vocabularyRepository.findAll()) {
             indexConcepts(vocabulary);
         }
-        log.debug("Eliza After concept index...");
+        log.debug("After concept index.");
     }
 
 

@@ -102,7 +102,8 @@ public class ActorService {
         actorRepository.deleteById(id);
         indexActorService.removeActor(id);
 
-        eventPublisher.publishEvent(new ActorChangedEvent(id, true));
+        //TODO - rethink
+       // eventPublisher.publishEvent(new ActorChangedEvent(id, true));
     }
 
 

@@ -5,7 +5,6 @@ import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorDto;
 import eu.sshopencloud.marketplace.dto.actors.ActorHistoryDto;
 import eu.sshopencloud.marketplace.dto.actors.PaginatedActors;
-import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;

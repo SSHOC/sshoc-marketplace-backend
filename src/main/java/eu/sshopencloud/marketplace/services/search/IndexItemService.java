@@ -65,19 +65,19 @@ public class IndexItemService {
     }
 
     public void reindexItems() {
-        log.debug("Eliza Before item index...");
+        log.debug("Before item reindex.");
         clearItemIndex();
         for (Item item : itemRepository.findAllItemsFaster()) {
             indexItemAfterReindex(item);
         }
-        log.debug("Eliza After item index...");
+        log.debug("After item reindex.");
     }
 
     public void clearItemIndex() {
         indexItemRepository.deleteAll();
     }
 
-
+    //Eliza
     public void removeItemVersions(Item item) {
         indexItemRepository.deleteByPersistentId(item.getPersistentId());
     }
@@ -88,8 +88,6 @@ public class IndexItemService {
     }
 
 
-
-    //TODO - source changed therefore reindex only changes items
     @Async
     @TransactionalEventListener(classes = {SourceChangedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
     public void handleChangedSource(SourceChangedEvent event) {
@@ -102,7 +100,6 @@ public class IndexItemService {
         }
     }
 
-    //TODO - actor changed therefore reindex only changes items
     @Async
     @TransactionalEventListener(classes = {ActorChangedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
     public void handleChangedActor(ActorChangedEvent event) {
