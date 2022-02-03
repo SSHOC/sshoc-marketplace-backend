@@ -29,7 +29,8 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ItemsComparator {
 
-    public static final String notChangedField= "unaltered";
+    public static final String notChangedField = "unaltered";
+
     @SuppressWarnings(value = "rawtypes")
     public ItemsDifferencesDto differentiateItems(ItemDto item, ItemDto other) {
         ItemsDifferencesDto differences = createItemsDifferenceDto(item, other);
@@ -120,7 +121,6 @@ public class ItemsComparator {
         }
     }
 
-    //Eliza
     private void differentiateVersions(ItemDto item, ItemDto other, ItemsDifferencesDto differences) {
         if (item.getVersion() != null) {
             if (item.getVersion().equals(other.getVersion()))
@@ -136,7 +136,7 @@ public class ItemsComparator {
     private void differentiateVersions(ItemCore item, ItemDto other, ItemDifferencesCore differences) {
         if (item.getVersion() != null) {
             if (item.getVersion().equals(other.getVersion()))
-                other.setVersion(null);
+                other.setVersion(notChangedField);
             else
                 differences.setEqual(false);
         } else {
@@ -165,10 +165,12 @@ public class ItemsComparator {
         }
     }
 
-    //Eliza
+
     private void differentiateSources(ItemDto item, ItemDto other, ItemsDifferencesDto differences) {
         if (item.getSource() != null) {
-            if (!item.getSource().equals(other.getSource()))
+            if (item.getSource().equals(other.getSource()))
+                other.setSource(null);
+            else
                 differences.setEqual(false);
         } else {
             if (other.getSource() != null)
@@ -212,7 +214,7 @@ public class ItemsComparator {
         for (i = 0; i < itemSize; i++) {
             if (i < otherSize) {
                 if (item.getContributors().get(i).getActor().getId().equals(other.getContributors().get(i).getActor().getId())
-                    && item.getContributors().get(i).getRole().getCode().equals(other.getContributors().get(i).getRole().getCode())) {
+                        && item.getContributors().get(i).getRole().getCode().equals(other.getContributors().get(i).getRole().getCode())) {
                     other.getContributors().set(i, null);
                 } else {
                     differences.setEqual(false);
@@ -291,7 +293,7 @@ public class ItemsComparator {
         for (i = 0; i < itemSize; i++) {
             if (i < otherSize) {
                 if (item.getExternalIds().get(i).getIdentifierService().getCode().equals(other.getExternalIds().get(i).getIdentifierService().getCode())
-                    && item.getExternalIds().get(i).getIdentifier().equals(other.getExternalIds().get(i).getIdentifier())) {
+                        && item.getExternalIds().get(i).getIdentifier().equals(other.getExternalIds().get(i).getIdentifier())) {
                     other.getExternalIds().set(i, null);
                 } else {
                     differences.setEqual(false);
@@ -385,7 +387,7 @@ public class ItemsComparator {
         for (i = 0; i < itemSize; i++) {
             if (i < otherSize) {
                 if (item.getRelatedItems().get(i).getPersistentId().equals(other.getRelatedItems().get(i).getPersistentId())
-                    && item.getRelatedItems().get(i).getRelation().getCode().equals(other.getRelatedItems().get(i).getRelation().getCode())) {
+                        && item.getRelatedItems().get(i).getRelation().getCode().equals(other.getRelatedItems().get(i).getRelation().getCode())) {
                     other.getRelatedItems().set(i, null);
                 } else {
                     differences.setEqual(false);
