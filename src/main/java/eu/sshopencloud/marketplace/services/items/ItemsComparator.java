@@ -121,7 +121,6 @@ public class ItemsComparator {
         }
     }
 
-    //Eliza
     private void differentiateVersions(ItemDto item, ItemDto other, ItemsDifferencesDto differences) {
         if (item.getVersion() != null) {
             if (item.getVersion().equals(other.getVersion()))
