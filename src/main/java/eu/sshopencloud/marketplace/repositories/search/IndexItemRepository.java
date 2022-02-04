@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface IndexItemRepository extends SolrCrudRepository<IndexItem, Long> {
 
     void deleteByPersistentId(String persistentId);
+
+
 }
