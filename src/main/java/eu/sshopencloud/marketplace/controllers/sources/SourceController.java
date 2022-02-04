@@ -67,7 +67,6 @@ public class SourceController {
     }
 
 
-
     @Operation(summary = "Get list of items for given source")
     @GetMapping(path = "/{sourceId}/items", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedSearchItemsBasic> getItemsForSource(@PathVariable("sourceId") Long sourceId,

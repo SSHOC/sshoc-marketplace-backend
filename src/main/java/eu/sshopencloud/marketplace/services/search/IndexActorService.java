@@ -24,10 +24,12 @@ public class IndexActorService {
     }
 
     public void reindexActors() {
+        log.debug("Before actor reindex.");
         clearActorIndex();
         for (Actor actor : actorRepository.findAll()) {
             indexActor(actor);
         }
+        log.debug("After actor index.");
     }
 
     public void clearActorIndex() {
