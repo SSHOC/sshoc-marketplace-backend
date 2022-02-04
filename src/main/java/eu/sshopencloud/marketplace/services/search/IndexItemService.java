@@ -41,8 +41,9 @@ public class IndexItemService {
 
     public IndexItem indexItem(Item item) {
 
-        if (!(item.isNewestVersion() || item.isProposedVersion()))
+        if (!item.isNewestVersion() && !item.isProposedVersion()) {
             return null;
+        }
 
         if (item.isNewestVersion())
             removeItemVersions(item);
@@ -64,10 +65,11 @@ public class IndexItemService {
                 detailedSources));
     }
 
+
     public void reindexItems() {
         log.debug("Before item reindex.");
         clearItemIndex();
-        for (Item item : itemRepository.findAllItemsFaster()) {
+        for (Item item : itemRepository.findAllItemsToReindex()) {
             indexItemAfterReindex(item);
         }
         log.debug("After item reindex.");
