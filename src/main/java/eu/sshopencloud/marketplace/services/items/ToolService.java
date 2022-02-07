@@ -3,16 +3,19 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
+import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
@@ -130,12 +133,16 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
     @Override
     protected ToolDto convertItemToDto(Tool tool) {
-        return ToolMapper.INSTANCE.toDto(tool);
+        ToolDto toolDto = ToolMapper.INSTANCE.toDto(tool);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) toolDto.getInformationContributor().setEmail(null);
+        return toolDto;
     }
 
     @Override
     protected ToolDto convertToDto(Item item) {
-        return ToolMapper.INSTANCE.toDto(item);
+        ToolDto toolDto = ToolMapper.INSTANCE.toDto(item);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) toolDto.getInformationContributor().setEmail(null);
+        return toolDto;
     }
 
     @Override

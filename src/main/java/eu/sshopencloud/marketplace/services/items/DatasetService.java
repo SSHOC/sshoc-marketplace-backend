@@ -16,6 +16,7 @@ import eu.sshopencloud.marketplace.repositories.items.DatasetRepository;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
@@ -139,13 +140,17 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
     @Override
     public DatasetDto convertItemToDto(Dataset dataset) {
-        return DatasetMapper.INSTANCE.toDto(dataset);
+        DatasetDto datasetDto = DatasetMapper.INSTANCE.toDto(dataset);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) datasetDto.getInformationContributor().setEmail(null);
+        return datasetDto;
     }
 
 
     @Override
     public DatasetDto convertToDto(Item dataset) {
-        return DatasetMapper.INSTANCE.toDto(dataset);
+        DatasetDto datasetDto = DatasetMapper.INSTANCE.toDto(dataset);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) datasetDto.getInformationContributor().setEmail(null);
+        return datasetDto;
     }
 
 

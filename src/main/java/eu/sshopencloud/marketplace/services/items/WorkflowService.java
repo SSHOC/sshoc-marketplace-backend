@@ -291,7 +291,9 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertItemToDto(Workflow workflow) {
+
         WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(workflow);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) dto.getInformationContributor().setEmail(null);
         collectSteps(dto, workflow);
 
         return dto;
@@ -299,7 +301,10 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertToDto(Item item) {
-        return WorkflowMapper.INSTANCE.toDto(item);
+
+        WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) dto.getInformationContributor().setEmail(null);
+        return dto;
     }
 
 

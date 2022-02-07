@@ -3,16 +3,19 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
+import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
@@ -137,12 +140,16 @@ public class TrainingMaterialService
 
     @Override
     protected TrainingMaterialDto convertItemToDto(TrainingMaterial trainingMaterial) {
-        return TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial);
+        TrainingMaterialDto trainingMaterialDto = TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) trainingMaterialDto.getInformationContributor().setEmail(null);
+        return trainingMaterialDto;
     }
 
     @Override
     protected TrainingMaterialDto convertToDto(Item item) {
-        return TrainingMaterialMapper.INSTANCE.toDto(item);
+        TrainingMaterialDto trainingMaterialDto = TrainingMaterialMapper.INSTANCE.toDto(item);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) trainingMaterialDto.getInformationContributor().setEmail(null);
+        return trainingMaterialDto;
     }
 
     @Override

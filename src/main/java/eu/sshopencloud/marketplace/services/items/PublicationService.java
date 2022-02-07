@@ -3,16 +3,19 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
+import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
@@ -131,12 +134,16 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     @Override
     protected PublicationDto convertItemToDto(Publication publication) {
-        return PublicationMapper.INSTANCE.toDto(publication);
+        PublicationDto publicationDto = PublicationMapper.INSTANCE.toDto(publication);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) publicationDto.getInformationContributor().setEmail(null);
+        return publicationDto;
     }
 
     @Override
     protected PublicationDto convertToDto(Item item) {
-        return PublicationMapper.INSTANCE.toDto(item);
+        PublicationDto publicationDto = PublicationMapper.INSTANCE.toDto(item);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) publicationDto.getInformationContributor().setEmail(null);
+        return publicationDto;
     }
 
     @Override
