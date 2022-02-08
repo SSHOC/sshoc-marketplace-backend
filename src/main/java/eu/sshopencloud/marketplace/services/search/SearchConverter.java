@@ -62,10 +62,11 @@ public class SearchConverter {
                 .build();
     }
 
+    //ELiza
     public SearchActor convertIndexActor(IndexActor indexActor) {
-        if(LoggedInUserHolder.getLoggedInUser().isModerator()) return convertNotRestrictedIndexActor(indexActor);
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) return convertRestrictedIndexActor(indexActor);
                 else
-                    return convertRestrictedIndexActor(indexActor);
+                    return convertNotRestrictedIndexActor(indexActor);
 
     }
 

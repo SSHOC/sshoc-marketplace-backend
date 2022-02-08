@@ -53,7 +53,7 @@ public class ActorService {
 
         List<ActorDto> actors = actorsPage.stream().map(ActorMapper.INSTANCE::toDto).collect(Collectors.toList());
 
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) actors.forEach(actorDto -> actorDto.setEmail(null));
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actors.forEach(actorDto -> actorDto.setEmail(null));
 
         return PaginatedActors.builder().actors(actors).count(actorsPage.getContent().size())
                 .hits(actorsPage.getTotalElements()).page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
@@ -72,7 +72,7 @@ public class ActorService {
         if (items) {
             actorDto.setItems(getItemsByActor(id));
         }
-        if (!LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
         return actorDto;
     }
 
@@ -82,7 +82,7 @@ public class ActorService {
         actorRepository.save(actor);
         indexActorService.indexActor(actor);
         ActorDto actorDto = ActorMapper.INSTANCE.toDto(actor);
-        if (!LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
         return actorDto;
     }
 
@@ -98,7 +98,7 @@ public class ActorService {
         eventPublisher.publishEvent(new ActorChangedEvent(id, false));
 
         ActorDto actorDto = ActorMapper.INSTANCE.toDto(actor);
-        if (!LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
         return actorDto;
     }
 
@@ -155,7 +155,7 @@ public class ActorService {
         with.forEach(this::deleteActor);
 
         ActorDto actorDto = ActorMapper.INSTANCE.toDto(actor);
-        if (!LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
         return actorDto;
     }
 

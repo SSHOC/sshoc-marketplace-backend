@@ -294,7 +294,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
         WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(workflow);
 
-        if (!LoggedInUserHolder.getLoggedInUser().isModerator()) {
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }
@@ -308,7 +308,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     protected WorkflowDto convertToDto(Item item) {
 
         WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
-        if (!LoggedInUserHolder.getLoggedInUser().isModerator()) {
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }

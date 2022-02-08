@@ -433,7 +433,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     @Override
     protected StepDto convertItemToDto(Step step){
         StepDto dto = StepMapper.INSTANCE.toDto(step);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()){
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()){
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }
@@ -444,7 +444,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     @Override
     protected StepDto convertToDto(Item item) {
         StepDto dto = StepMapper.INSTANCE.toDto(item);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) {
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }

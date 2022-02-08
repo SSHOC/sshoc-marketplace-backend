@@ -341,7 +341,7 @@ public class SearchService {
             searchActor.setExternalIds(ActorExternalIdMapper.INSTANCE.toDto(actor.getExternalIds()));
             searchActor.setAffiliations(ActorMapper.INSTANCE.toDto(actor.getAffiliations()));
 
-            if (!LoggedInUserHolder.getLoggedInUser().isModerator())
+            if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator())
                 searchActor.getAffiliations().forEach(affiliation -> affiliation.setEmail(null));
 
         }

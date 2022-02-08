@@ -141,7 +141,7 @@ public class TrainingMaterialService
     @Override
     protected TrainingMaterialDto convertItemToDto(TrainingMaterial trainingMaterial) {
         TrainingMaterialDto trainingMaterialDto = TrainingMaterialMapper.INSTANCE.toDto(trainingMaterial);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()){
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()){
             trainingMaterialDto.getInformationContributor().setEmail(null);
             trainingMaterialDto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }
@@ -151,7 +151,7 @@ public class TrainingMaterialService
     @Override
     protected TrainingMaterialDto convertToDto(Item item) {
         TrainingMaterialDto trainingMaterialDto = TrainingMaterialMapper.INSTANCE.toDto(item);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()){
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()){
             trainingMaterialDto.getInformationContributor().setEmail(null);
             trainingMaterialDto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }

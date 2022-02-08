@@ -134,7 +134,7 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     @Override
     protected ToolDto convertItemToDto(Tool tool) {
         ToolDto dto = ToolMapper.INSTANCE.toDto(tool);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()){
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()){
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }
@@ -144,7 +144,7 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     @Override
     protected ToolDto convertToDto(Item item) {
         ToolDto dto = ToolMapper.INSTANCE.toDto(item);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()){
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()){
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }
