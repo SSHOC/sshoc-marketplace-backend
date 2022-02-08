@@ -77,7 +77,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public WorkflowDto getLatestWorkflow(String persistentId, boolean draft, boolean approved, boolean redirect) {
-        return getLatestItem(persistentId, draft, approved,redirect);
+        return getLatestItem(persistentId, draft, approved, redirect);
     }
 
     public WorkflowDto getWorkflowVersion(String persistentId, long versionId) {
@@ -291,7 +291,14 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertItemToDto(Workflow workflow) {
+
         WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(workflow);
+
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+
         collectSteps(dto, workflow);
 
         return dto;
@@ -299,7 +306,13 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertToDto(Item item) {
-        return WorkflowMapper.INSTANCE.toDto(item);
+
+        WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
 
