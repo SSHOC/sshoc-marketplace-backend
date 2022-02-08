@@ -134,16 +134,22 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     @Override
     protected PublicationDto convertItemToDto(Publication publication) {
-        PublicationDto publicationDto = PublicationMapper.INSTANCE.toDto(publication);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) publicationDto.getInformationContributor().setEmail(null);
-        return publicationDto;
+        PublicationDto dto = PublicationMapper.INSTANCE.toDto(publication);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
     @Override
     protected PublicationDto convertToDto(Item item) {
-        PublicationDto publicationDto = PublicationMapper.INSTANCE.toDto(item);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) publicationDto.getInformationContributor().setEmail(null);
-        return publicationDto;
+        PublicationDto dto = PublicationMapper.INSTANCE.toDto(item);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
     @Override

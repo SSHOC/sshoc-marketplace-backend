@@ -10,6 +10,7 @@ import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 
@@ -44,13 +45,28 @@ public class SearchConverter {
                 .build();
     }
 
-    public SearchActor convertIndexActor(IndexActor indexActor) {
+    public SearchActor convertNotRestrictedIndexActor(IndexActor indexActor) {
         return SearchActor.builder()
                 .id(Long.valueOf(indexActor.getId()))
                 .name(indexActor.getName())
                 .email(indexActor.getEmail())
                 .website(indexActor.getWebsite())
                 .build();
+    }
+
+    public SearchActor convertRestrictedIndexActor(IndexActor indexActor) {
+        return SearchActor.builder()
+                .id(Long.valueOf(indexActor.getId()))
+                .name(indexActor.getName())
+                .website(indexActor.getWebsite())
+                .build();
+    }
+
+    public SearchActor convertIndexActor(IndexActor indexActor) {
+        if(LoggedInUserHolder.getLoggedInUser().isModerator()) return convertNotRestrictedIndexActor(indexActor);
+                else
+                    return convertRestrictedIndexActor(indexActor);
+
     }
 
     public LabeledCheckedCount convertCategoryFacet(FacetFieldEntry entry, List<ItemCategory> categories) {

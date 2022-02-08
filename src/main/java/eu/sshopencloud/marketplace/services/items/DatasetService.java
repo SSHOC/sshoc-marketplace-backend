@@ -140,17 +140,23 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
 
     @Override
     public DatasetDto convertItemToDto(Dataset dataset) {
-        DatasetDto datasetDto = DatasetMapper.INSTANCE.toDto(dataset);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) datasetDto.getInformationContributor().setEmail(null);
-        return datasetDto;
+        DatasetDto dto = DatasetMapper.INSTANCE.toDto(dataset);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
 
     @Override
     public DatasetDto convertToDto(Item dataset) {
-        DatasetDto datasetDto = DatasetMapper.INSTANCE.toDto(dataset);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) datasetDto.getInformationContributor().setEmail(null);
-        return datasetDto;
+        DatasetDto dto = DatasetMapper.INSTANCE.toDto(dataset);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
 

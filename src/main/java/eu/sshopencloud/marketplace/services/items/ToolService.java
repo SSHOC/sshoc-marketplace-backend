@@ -133,16 +133,22 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
     @Override
     protected ToolDto convertItemToDto(Tool tool) {
-        ToolDto toolDto = ToolMapper.INSTANCE.toDto(tool);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) toolDto.getInformationContributor().setEmail(null);
-        return toolDto;
+        ToolDto dto = ToolMapper.INSTANCE.toDto(tool);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()){
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
     @Override
     protected ToolDto convertToDto(Item item) {
-        ToolDto toolDto = ToolMapper.INSTANCE.toDto(item);
-        if(!LoggedInUserHolder.getLoggedInUser().isModerator()) toolDto.getInformationContributor().setEmail(null);
-        return toolDto;
+        ToolDto dto = ToolMapper.INSTANCE.toDto(item);
+        if(!LoggedInUserHolder.getLoggedInUser().isModerator()){
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
     @Override
