@@ -685,6 +685,7 @@ public class VocabularyControllerITCase {
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", new ConceptId(conceptCode, new VocabularyId(vocabularyCode), null));
 
         mvc.perform(get("/api/datasets")
+                        .header("Authorization", contributorJwt)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("datasets", hasSize(3)))
@@ -740,6 +741,7 @@ public class VocabularyControllerITCase {
                         get("/api/training-materials/{id}", persistenId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
+                                .header("Authorization", contributorJwt)
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

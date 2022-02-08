@@ -11,6 +11,7 @@ import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.services.actors.event.ActorChangedEvent;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemsService;
 import eu.sshopencloud.marketplace.services.search.IndexActorService;
 import eu.sshopencloud.marketplace.validators.actors.ActorFactory;
@@ -52,6 +53,8 @@ public class ActorService {
 
         List<ActorDto> actors = actorsPage.stream().map(ActorMapper.INSTANCE::toDto).collect(Collectors.toList());
 
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actors.forEach(actorDto -> actorDto.setEmail(null));
+
         return PaginatedActors.builder().actors(actors).count(actorsPage.getContent().size())
                 .hits(actorsPage.getTotalElements()).page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(actorsPage.getTotalPages()).build();
@@ -69,6 +72,7 @@ public class ActorService {
         if (items) {
             actorDto.setItems(getItemsByActor(id));
         }
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
         return actorDto;
     }
 
@@ -77,7 +81,9 @@ public class ActorService {
         Actor actor = actorFactory.create(actorCore, null);
         actorRepository.save(actor);
         indexActorService.indexActor(actor);
-        return ActorMapper.INSTANCE.toDto(actor);
+        ActorDto actorDto = ActorMapper.INSTANCE.toDto(actor);
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
+        return actorDto;
     }
 
 
@@ -91,7 +97,9 @@ public class ActorService {
 
         eventPublisher.publishEvent(new ActorChangedEvent(id, false));
 
-        return ActorMapper.INSTANCE.toDto(actor);
+        ActorDto actorDto = ActorMapper.INSTANCE.toDto(actor);
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
+        return actorDto;
     }
 
 
@@ -103,7 +111,7 @@ public class ActorService {
         indexActorService.removeActor(id);
 
         //TODO - rethink
-       // eventPublisher.publishEvent(new ActorChangedEvent(id, true));
+        // eventPublisher.publishEvent(new ActorChangedEvent(id, true));
     }
 
 
@@ -146,7 +154,9 @@ public class ActorService {
 
         with.forEach(this::deleteActor);
 
-        return ActorMapper.INSTANCE.toDto(actor);
+        ActorDto actorDto = ActorMapper.INSTANCE.toDto(actor);
+        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);
+        return actorDto;
     }
 
 

@@ -301,7 +301,7 @@ public class SearchService {
 
     private SearchExpressionCriteria createExpressionCriteria(String code, String expression) {
 
-        if(expression.contains("/")) expression =  ClientUtils.escapeQueryChars(expression);
+        if (expression.contains("/")) expression = ClientUtils.escapeQueryChars(expression);
 
         PropertyType propertyType = propertyTypeService.loadPropertyTypeOrNull(code);
         if (propertyType != null) {
@@ -322,13 +322,17 @@ public class SearchService {
 
         FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable);
 
-        PaginatedSearchActor result = PaginatedSearchActor.builder()
+        PaginatedSearchActor result;
+
+
+        result = PaginatedSearchActor.builder()
                 .q(q)
                 .actors(facetPage.get().map(SearchConverter::convertIndexActor).collect(Collectors.toList()))
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(facetPage.getTotalPages())
                 .build();
+
 
         // TODO index affiliations directly in SOLR in nested docs (?) -
         // TODO in a similar way add external identifiers to the result
@@ -337,8 +341,10 @@ public class SearchService {
             searchActor.setExternalIds(ActorExternalIdMapper.INSTANCE.toDto(actor.getExternalIds()));
             searchActor.setAffiliations(ActorMapper.INSTANCE.toDto(actor.getAffiliations()));
 
-        }
+            if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator())
+                searchActor.getAffiliations().forEach(affiliation -> affiliation.setEmail(null));
 
+        }
         return result;
     }
 

@@ -11,6 +11,7 @@ import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
+import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
@@ -430,14 +431,24 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     @Override
-    protected StepDto convertItemToDto(Step step) {
-        return StepMapper.INSTANCE.toDto(step);
+    protected StepDto convertItemToDto(Step step){
+        StepDto dto = StepMapper.INSTANCE.toDto(step);
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()){
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
 
     @Override
     protected StepDto convertToDto(Item item) {
-        return StepMapper.INSTANCE.toDto(item);
+        StepDto dto = StepMapper.INSTANCE.toDto(item);
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
 
