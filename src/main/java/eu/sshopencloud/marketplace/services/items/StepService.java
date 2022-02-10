@@ -11,7 +11,6 @@ import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
-import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
@@ -91,14 +90,14 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(stepCore, newWorkflow.getStepsTree());
 
         Step step = createItem(workflowStepCore, draft);
-        addStepToTree(step, stepCore.getStepNo(), newWorkflow.getStepsTree());
+        addStepToTree(step, stepCore.getStepNo(), newWorkflow.getStepsTree(), false);
 
         return prepareItemDto(step);
     }
 
 
     public StepDto replaceStep(String workflowId, StepCore stepCore, boolean draft, String replacedStepId,
-            int replacedOrd) {
+                               int replacedOrd) {
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
 
         StepsTree stepTree = loadStepTreeInWorkflow(newWorkflow, replacedStepId);
@@ -115,8 +114,9 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
 
+    //Eliza
     public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft,
-            boolean approved) throws VersionNotChangedException {
+                              boolean approved) throws VersionNotChangedException {
         validateCurrentWorkflowAndStepConsistency(workflowId, stepId, draft);
 
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
@@ -129,7 +129,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
         Step updatedStep = updateItem(stepId, workflowStepCore, draft, approved);
 
-        addStepToTree(updatedStep, updatedStepCore.getStepNo(), parentStepTree);
+        addStepToTree(updatedStep, updatedStepCore.getStepNo(), parentStepTree, draft);
 
         return prepareItemDto(updatedStep);
     }
@@ -159,13 +159,19 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(substepCore, stepTree);
 
         Step subStep = createItem(workflowStepCore, draft);
-        addStepToTree(subStep, substepCore.getStepNo(), stepTree);
+        addStepToTree(subStep, substepCore.getStepNo(), stepTree, false);
 
         return prepareItemDto(subStep);
     }
 
+    //Eliza
+    protected void addStepToTree(Step step, Integer stepNo, StepsTree parentStepsTree, boolean updatingDraft) {
 
-    protected void addStepToTree(Step step, Integer stepNo, StepsTree parentStepsTree) {
+        //remove previous draft if updating draft step
+        if (updatingDraft) {
+            parentStepsTree.removePreviousDraftStep(step);
+        }
+
         if (stepNo == null) {
             parentStepsTree.appendStep(step);
         } else {
@@ -327,7 +333,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     private void validateLatestWorkflowAndStepConsistency(String workflowId, String stepId, boolean draft,
-            boolean approved) {
+                                                          boolean approved) {
         if (draft) {
             validateDraftWorkflowAndStepConsistency(workflowId, stepId);
             return;
@@ -431,9 +437,9 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     @Override
-    protected StepDto convertItemToDto(Step step){
+    protected StepDto convertItemToDto(Step step) {
         StepDto dto = StepMapper.INSTANCE.toDto(step);
-        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()){
+        if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }
@@ -444,7 +450,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     @Override
     protected StepDto convertToDto(Item item) {
         StepDto dto = StepMapper.INSTANCE.toDto(item);
-        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+        if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }
@@ -467,7 +473,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
     public List<UserDto> getInformationContributors(String workflowId, String stepId) {
         validateWorkflowAndStepVersionConsistency(workflowId, stepId,
-                getLatestStep(workflowId, stepId, false, true,false).getId());
+                getLatestStep(workflowId, stepId, false, true, false).getId());
         return super.getInformationContributors(stepId);
     }
 
@@ -483,7 +489,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         List<String> tmpMergingList = new ArrayList<>(mergeList);
         tmpMergingList.add(persistentId);
 
-        if (!checkMergeStepConsistency(tmpMergingList))
+        if (checkMergeStepConsistency(tmpMergingList))
             throw new IllegalArgumentException("Steps to merge are from different workflows!");
 
         return prepareMergeItems(persistentId, mergeList);
@@ -491,7 +497,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public StepDto merge(String workflowId, StepCore mergeStepCore, List<String> mergeList) throws ItemIsAlreadyMergedException {
-        if (!checkMergeStepConsistency(mergeList))
+        if (checkMergeStepConsistency(mergeList))
             throw new IllegalArgumentException("Steps to merge are from different workflows!");
         checkIfMergeIsPossible(mergeList);
         StepDto stepDto;
@@ -523,13 +529,13 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
                     workflowPersistentId = stepsTreeRepository.findWorkflowPersistentIdByStep(
                             loadCurrentItem(s));
                 else if (workflowPersistentId.equals(
-                        stepsTreeRepository.findWorkflowPersistentIdByStep(loadCurrentItem(s))))
-                    continue;
+                        stepsTreeRepository.findWorkflowPersistentIdByStep(loadCurrentItem(s)))) {
+                }
                 else
-                    return false;
+                    return true;
             }
         }
-        return true;
+        return false;
     }
 
 

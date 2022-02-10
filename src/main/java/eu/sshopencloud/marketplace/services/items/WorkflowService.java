@@ -115,6 +115,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return prepareItemDto(workflow);
     }
 
+
     public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) throws VersionNotChangedException {
         Workflow workflow = updateItem(persistentId, workflowCore, draft, approved);
 
@@ -356,7 +357,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             s = stepsTree;
             if (!s.isRoot() && !Objects.isNull(s.getId()))
                 if (s.getSubTrees().size() > 0) {
-                    stepService.addStepToTree(s.getStep(), null, parent);
+                    stepService.addStepToTree(s.getStep(), null, parent, false);
                     Step step = s.getStep();
                     List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
                     StepsTree nextParent = nextParentList.get(0);
@@ -364,7 +365,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                     collectTrees(nextParent, s.getSubTrees());
                 } else {
                     if (!subTrees.contains(s))
-                        stepService.addStepToTree(s.getStep(), null, parent);
+                        stepService.addStepToTree(s.getStep(), null, parent, false);
                 }
         }
     }

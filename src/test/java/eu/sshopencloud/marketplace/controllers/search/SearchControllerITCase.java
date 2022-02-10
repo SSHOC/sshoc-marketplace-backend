@@ -720,10 +720,11 @@ public class SearchControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("phrase", is("gep")))
                 .andExpect(jsonPath("suggestions", hasSize(3)))
-                .andExpect(jsonPath("suggestions[1].phrase", is("Gephi")))
-                .andExpect(jsonPath("suggestions[1].persistentId", is("n21Kfc")))
                 .andExpect(jsonPath("suggestions[0].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
                 .andExpect(jsonPath("suggestions[0].persistentId", is("heBAGQ")))
+
+                .andExpect(jsonPath("suggestions[1].phrase", is("Gephi")))
+                .andExpect(jsonPath("suggestions[1].persistentId", is("n21Kfc")))
                 .andExpect(jsonPath("suggestions[2].phrase", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("suggestions[2].persistentId", is("WfcKvG")));
     }
