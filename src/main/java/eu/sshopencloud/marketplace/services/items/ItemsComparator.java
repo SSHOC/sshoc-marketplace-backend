@@ -25,11 +25,16 @@ import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import lombok.experimental.UtilityClass;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 
 @UtilityClass
 public class ItemsComparator {
 
-    public static final String notChangedField = "unaltered";
+    private static final String notChangedField = "unaltered";
+
+    private static final ZonedDateTime notChangedDate = ZonedDateTime.of(0, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
     @SuppressWarnings(value = "rawtypes")
     public ItemsDifferencesDto differentiateItems(ItemDto item, ItemDto other) {
@@ -353,11 +358,11 @@ public class ItemsComparator {
     }
 
     private boolean areConceptsEqual(ConceptId conceptId, ConceptBasicDto conceptDto) {
-        return (conceptId == null && conceptDto == null)
-                || (
+        return !(!(conceptId == null && conceptDto == null)
+                && !(
                 (conceptId != null && conceptId.getCode() != null && conceptId.getCode().equals(conceptDto.getCode()))
                         && (conceptId != null && conceptId.getVocabulary() != null && conceptId.getVocabulary().getCode() != null && conceptId.getVocabulary().getCode().equals(conceptDto.getVocabulary().getCode()))
-                        && (conceptId != null && conceptId.getUri() != null && conceptId.getUri().equals(conceptDto.getUri())));
+                        && (conceptId != null && conceptId.getUri() != null && conceptId.getUri().equals(conceptDto.getUri()))));
     }
 
 
@@ -466,15 +471,16 @@ public class ItemsComparator {
                 && (areConceptsEqual(itemMediaCore.getConcept(), itemMediaDto.getConcept()));
     }
 
-
+    //Eliza
     private void differentiateDigitalObjectDates(ItemDto item, ItemDto other, ItemsDifferencesDto differences) {
+        System.out.println("Eliza ");
         if (item instanceof DigitalObjectDto) {
             DigitalObjectDto itemDigitalObject = (DigitalObjectDto) item;
             if (other instanceof DigitalObjectDto) {
                 DigitalObjectDto otherDigitalObject = (DigitalObjectDto) other;
                 if (itemDigitalObject.getDateCreated() != null) {
                     if (itemDigitalObject.getDateCreated().equals(otherDigitalObject.getDateCreated()))
-                        otherDigitalObject.setDateCreated(null);
+                        otherDigitalObject.setDateCreated(notChangedDate);
                     else
                         differences.setEqual(false);
                 } else {
@@ -482,9 +488,9 @@ public class ItemsComparator {
                         differences.setEqual(false);
                 }
                 if (itemDigitalObject.getDateLastUpdated() != null) {
-                    if (itemDigitalObject.getDateLastUpdated().equals(otherDigitalObject.getDateLastUpdated()))
-                        otherDigitalObject.setDateLastUpdated(null);
-                    else
+                    if (itemDigitalObject.getDateLastUpdated().equals(otherDigitalObject.getDateLastUpdated())) {
+                        otherDigitalObject.setDateLastUpdated(notChangedDate);
+                    } else
                         differences.setEqual(false);
                 } else {
                     if (otherDigitalObject.getDateLastUpdated() != null)
