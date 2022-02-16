@@ -155,7 +155,6 @@ public class StepsTree {
                 .findFirst();
     }
 
-    //Eliza
     private void removePreviousStep(Step step) {
         String persistentId = step.getVersionedItem().getPersistentId();
         subTrees.removeIf(
@@ -166,7 +165,6 @@ public class StepsTree {
 //        renumberSubTrees();
     }
 
-    //Eliza
     public void removePreviousDraftStep(Step step) {
         String persistentId = step.getVersionedItem().getPersistentId();
         subTrees.removeIf(

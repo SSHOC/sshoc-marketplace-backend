@@ -114,7 +114,6 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
     }
 
 
-    //Eliza
     public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft,
                               boolean approved) throws VersionNotChangedException {
         validateCurrentWorkflowAndStepConsistency(workflowId, stepId, draft);
@@ -164,7 +163,6 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         return prepareItemDto(subStep);
     }
 
-    //Eliza
     protected void addStepToTree(Step step, Integer stepNo, StepsTree parentStepsTree, boolean updatingDraft) {
 
         //remove previous draft if updating draft step
