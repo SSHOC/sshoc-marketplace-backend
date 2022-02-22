@@ -471,9 +471,8 @@ public class ItemsComparator {
                 && (areConceptsEqual(itemMediaCore.getConcept(), itemMediaDto.getConcept()));
     }
 
-    //Eliza
+
     private void differentiateDigitalObjectDates(ItemDto item, ItemDto other, ItemsDifferencesDto differences) {
-        System.out.println("Eliza ");
         if (item instanceof DigitalObjectDto) {
             DigitalObjectDto itemDigitalObject = (DigitalObjectDto) item;
             if (other instanceof DigitalObjectDto) {
