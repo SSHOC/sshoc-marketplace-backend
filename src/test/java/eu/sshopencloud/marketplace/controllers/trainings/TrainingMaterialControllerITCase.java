@@ -2209,7 +2209,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldApproveTrainingMaterialRelatedToAToolMultipleTimes() throws Exception {
+    public void shouldApproveTrainingMaterialRelatedToATool() throws Exception {
         String trainingMaterialId = "heBAGQ";
         String relatedObjectId = "n21Kfc";
 
@@ -2240,14 +2240,10 @@ public class TrainingMaterialControllerITCase {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(relatedObjectId)))
-                .andExpect(jsonPath("relatedItems", hasSize(3)))
-                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
-                .andExpect(jsonPath("relatedItems[1].persistentId", is(trainingMaterialId)))
-                .andExpect(jsonPath("relatedItems[1].id", is(4)))
-                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")))
-                .andExpect(jsonPath("relatedItems[2].persistentId", is(trainingMaterialId)))
-                .andExpect(jsonPath("relatedItems[2].id", not(is(4))))
-                .andExpect(jsonPath("relatedItems[2].relation.code", is("is-documented-by")));
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-documented-by")));
+
 
         trainingMaterial.setLabel("Gephi: explore the networks!");
 
@@ -2297,14 +2293,10 @@ public class TrainingMaterialControllerITCase {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(relatedObjectId)))
-                .andExpect(jsonPath("relatedItems", hasSize(3)))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
                 .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
                 .andExpect(jsonPath("relatedItems[1].persistentId", is(trainingMaterialId)))
-                .andExpect(jsonPath("relatedItems[1].id", is(4)))
-                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")))
-                .andExpect(jsonPath("relatedItems[2].persistentId", is(trainingMaterialId)))
-                .andExpect(jsonPath("relatedItems[2].id", not(is(4))))
-                .andExpect(jsonPath("relatedItems[2].relation.code", is("is-documented-by")));
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Gephi: lonline");

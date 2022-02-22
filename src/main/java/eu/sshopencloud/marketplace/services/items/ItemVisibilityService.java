@@ -75,10 +75,13 @@ class ItemVisibilityService {
         if (item.getStatus().equals(ItemStatus.DEPRECATED))
             return false;
 
+        System.out.println("Eliza " + hasAccessToVersion(item, user));
         return hasAccessToVersion(item, user);
     }
 
+    //Eliza
     public boolean hasAccessToVersion(Item version, User user) {
+
         ItemStatus itemStatus = version.getStatus();
 
         if (itemStatus.equals(ItemStatus.APPROVED))
@@ -86,6 +89,9 @@ class ItemVisibilityService {
 
         if (user == null)
             return false;
+
+        if (user.isModerator())
+            return true;
 
         return List.of(SUGGESTED, INGESTED, DISAPPROVED).contains(itemStatus)
                 && user.isContributor()
@@ -99,7 +105,12 @@ class ItemVisibilityService {
             if (currentUser.equals(item.getInformationContributor())) {
                 return item.getVersionedItem().getCurrentVersion().getId().equals(item.getId());
             } else {
-                return currentUser.isModerator() && item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()) || (currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor());
+                if(currentUser.isModerator() && item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
+                    return true;
+                if(currentUser.isModerator() && !item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
+                    return false;
+                if(currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor())
+                    return false;
             }
         }
         return true;
