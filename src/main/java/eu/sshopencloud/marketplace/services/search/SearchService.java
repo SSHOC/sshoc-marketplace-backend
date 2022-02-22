@@ -303,6 +303,10 @@ public class SearchService {
 
         if (expression.contains("/")) expression = ClientUtils.escapeQueryChars(expression);
 
+        if (expression.isEmpty() && !code.isEmpty()) {
+            throw new IllegalArgumentException(String.format("To use dynamic property, you must assign value to your code: %s", code));
+        }
+
         PropertyType propertyType = propertyTypeService.loadPropertyTypeOrNull(code);
         if (propertyType != null) {
             return new SearchExpressionDynamicFieldCriteria(code, expression, propertyType.getType());
@@ -322,10 +326,7 @@ public class SearchService {
 
         FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable);
 
-        PaginatedSearchActor result;
-
-
-        result = PaginatedSearchActor.builder()
+        PaginatedSearchActor result = PaginatedSearchActor.builder()
                 .q(q)
                 .actors(facetPage.get().map(SearchConverter::convertIndexActor).collect(Collectors.toList()))
                 .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
@@ -341,7 +342,7 @@ public class SearchService {
             searchActor.setExternalIds(ActorExternalIdMapper.INSTANCE.toDto(actor.getExternalIds()));
             searchActor.setAffiliations(ActorMapper.INSTANCE.toDto(actor.getAffiliations()));
 
-            if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator())
+            if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator())
                 searchActor.getAffiliations().forEach(affiliation -> affiliation.setEmail(null));
 
         }

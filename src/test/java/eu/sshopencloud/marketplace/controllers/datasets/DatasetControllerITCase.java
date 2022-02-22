@@ -2023,7 +2023,7 @@ public class DatasetControllerITCase {
         String responseDataset = mvc.perform(
                         get("/api/datasets/{id}",datasetPersistentId)
                                 .param("approved", "false")
-                                .header("Authorization", IMPORTER_JWT)
+                                .header("Authorization", ADMINISTRATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
@@ -2076,7 +2076,7 @@ public class DatasetControllerITCase {
         mvc.perform(
                 get("/api/tools-services/{id}", otherToolPersistentId )
                         .param("approved", "false")
-                        .header("Authorization", IMPORTER_JWT)
+                        .header("Authorization", ADMINISTRATOR_JWT)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(otherToolPersistentId)))
@@ -2097,7 +2097,7 @@ public class DatasetControllerITCase {
         mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("with", otherToolPersistentId)
-                        .header("Authorization", MODERATOR_JWT))
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("item.persistentId", is(datasetPersistentId)))
                 .andExpect(jsonPath("item.category", is("dataset")))
