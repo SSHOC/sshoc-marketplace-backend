@@ -303,10 +303,6 @@ public class SearchService {
 
         if (expression.contains("/")) expression = ClientUtils.escapeQueryChars(expression);
 
-        if (expression.isEmpty() && !code.isEmpty()) {
-            throw new IllegalArgumentException(String.format("To use dynamic property, you must assign value to your code: %s", code));
-        }
-
         PropertyType propertyType = propertyTypeService.loadPropertyTypeOrNull(code);
         if (propertyType != null) {
             return new SearchExpressionDynamicFieldCriteria(code, expression, propertyType.getType());
