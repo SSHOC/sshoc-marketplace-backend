@@ -124,7 +124,7 @@ public class SearchControllerITCase {
         solrTemplate.commit(IndexItem.COLLECTION_NAME);
 
         mvc.perform(
-                        get("/api/item-search?q=test")
+                        get("/api/item-search?q=test&d.status=(suggested OR approved)")
                                 .header("Authorization", CONTRIBUTOR_JWT)
                 )
                 .andExpect(status().isOk())
