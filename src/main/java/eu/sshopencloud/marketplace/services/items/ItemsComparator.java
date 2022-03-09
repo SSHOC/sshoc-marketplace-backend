@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
+import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
@@ -593,6 +594,39 @@ public class ItemsComparator {
             default:
                 return null;
         }
+    }
+
+    //Eliza
+    public ItemsDifferencesDto differentiateComposedOf(WorkflowDto item, WorkflowDto other, ItemsDifferencesDto differences) {
+
+        int itemSize = item.getComposedOf() != null ? item.getComposedOf().size() : 0;
+        int otherSize = other.getComposedOf() != null ? other.getComposedOf().size() : 0;
+        int i;
+        if (item.getComposedOf() != null) {
+            for (i = 0; i < itemSize; i++) {
+                if (i < otherSize) {
+                    if (areStepsEqual(item.getComposedOf().get(i), other.getComposedOf().get(i))) {
+                        other.getComposedOf().set(i, null);
+                    } else {
+                        differences.setEqual(false);
+                    }
+                } else {
+                    differences.setEqual(false);
+                }
+            }
+        } else {
+            if (other.getComposedOf() != null) {
+                differences.setEqual(false);
+            }
+        }
+
+        differences.setOther(other);
+        return differences;
+    }
+
+    private boolean areStepsEqual(StepDto itemStepDto, StepDto otherStepDto) {
+        return itemStepDto.getId().equals(otherStepDto.getId()) &&
+                itemStepDto.getPersistentId().equals(otherStepDto.getPersistentId());
     }
 
 }

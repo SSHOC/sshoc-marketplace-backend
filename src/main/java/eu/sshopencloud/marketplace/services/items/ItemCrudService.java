@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
+import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
@@ -791,6 +792,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         complete(otherDto, other);
 
         return ItemsComparator.differentiateItems(itemDto, otherDto);
+    }
+
+    protected ItemsDifferencesDto differentiateComposedOf(WorkflowDto workflowDto, WorkflowDto otherWorkflowDto, ItemsDifferencesDto differences) {
+        return ItemsComparator.differentiateComposedOf(workflowDto, otherWorkflowDto, differences);
     }
 
     protected abstract I makeItem(C itemCore, I prevItem, boolean conflict);
