@@ -51,8 +51,12 @@ class SearchController {
                             + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
             @RequestParam(required = false) MultiValueMap<String, String> f) throws PageTooLargeException, IllegalFilterException {
 
+        if(!d.containsKey("d.status"))
+            d.add("d.status", "approved");
+
         Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(d);
         Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
+
         return ResponseEntity.ok(searchService.searchItems(q, advanced, includeSteps, expressionParams, categories, filterParams, order,
                 pageCoordsValidator.validate(page, perpage)));
     }
