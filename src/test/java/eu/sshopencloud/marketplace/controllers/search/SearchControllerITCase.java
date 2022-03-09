@@ -615,6 +615,7 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("concepts[0].code", is("83")))
                 .andExpect(jsonPath("concepts[0].vocabulary.code", is("tadirah-activity")))
                 .andExpect(jsonPath("concepts[0].label", is("Software")))
+                .andExpect(jsonPath("concepts[0].candidate", is(false)))
                 .andExpect(jsonPath("types.activity.count", is(7)))
                 .andExpect(jsonPath("types.activity.checked", is(true)))
                 .andExpect(jsonPath("facets.candidate.['false'].count", is(7)))
@@ -722,7 +723,6 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("suggestions", hasSize(3)))
                 .andExpect(jsonPath("suggestions[0].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
                 .andExpect(jsonPath("suggestions[0].persistentId", is("heBAGQ")))
-
                 .andExpect(jsonPath("suggestions[1].phrase", is("Gephi")))
                 .andExpect(jsonPath("suggestions[1].persistentId", is("n21Kfc")))
                 .andExpect(jsonPath("suggestions[2].phrase", is("Introduction to GEPHI")))

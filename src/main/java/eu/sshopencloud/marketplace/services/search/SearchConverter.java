@@ -93,6 +93,7 @@ public class SearchConverter {
         return SearchConcept.builder()
                 .code(indexConcept.getCode()).vocabulary(vocabulary).label(indexConcept.getLabel()).notation(indexConcept.getNotation()).definition(indexConcept.getDefinition())
                 .uri(indexConcept.getUri())
+                .candidate(indexConcept.getCandidate())
                 .types(indexConcept.getTypes().stream()
                         .map(type -> {
                             PropertyTypeId propertyType = new PropertyTypeId();
