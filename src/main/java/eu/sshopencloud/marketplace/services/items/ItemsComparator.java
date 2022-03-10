@@ -619,7 +619,6 @@ public class ItemsComparator {
                 differences.setEqual(false);
             }
         }
-
         differences.setOther(other);
         return differences;
     }

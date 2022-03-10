@@ -467,7 +467,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return targetVersion;
     }
 
-
     protected I liftItemVersion(String persistentId, boolean draft) {
         return liftItemVersion(persistentId, draft, true);
     }

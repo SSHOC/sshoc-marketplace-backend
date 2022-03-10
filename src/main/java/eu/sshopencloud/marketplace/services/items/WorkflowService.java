@@ -399,8 +399,15 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         ItemsDifferencesDto differencesDto = super.getDifferences(workflowPersistentId, workflowVersionId, otherPersistentId, otherVersionId);
 
         if (differencesDto.getItem().getCategory().equals(ItemCategory.WORKFLOW) && differencesDto.getOther().getCategory().equals(ItemCategory.WORKFLOW)) {
-            collectSteps((WorkflowDto) differencesDto.getItem(), liftItemVersion(workflowPersistentId, false, false));
-            collectSteps((WorkflowDto) differencesDto.getOther(), liftItemVersion(otherPersistentId, false,  false));
+
+            if (workflowVersionId != null)
+                collectSteps((WorkflowDto) differencesDto.getItem(), super.loadItemVersion(workflowPersistentId, workflowVersionId));
+            else collectSteps((WorkflowDto) differencesDto.getItem(), super.loadCurrentItem(workflowPersistentId));
+
+            if (otherVersionId != null)
+                collectSteps((WorkflowDto) differencesDto.getOther(), super.loadItemVersion(otherPersistentId, otherVersionId));
+            collectSteps((WorkflowDto) differencesDto.getOther(), super.loadCurrentItem(otherPersistentId));
+
             System.out.println("Eliza in " + ((WorkflowDto) differencesDto.getOther()).getComposedOf());
             System.out.println("Eliza in " + ((WorkflowDto) differencesDto.getItem()).getComposedOf());
             return super.differentiateComposedOf((WorkflowDto) differencesDto.getItem(), (WorkflowDto) differencesDto.getOther(), differencesDto);
