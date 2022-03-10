@@ -596,7 +596,6 @@ public class ItemsComparator {
         }
     }
 
-    //Eliza
     public ItemsDifferencesDto differentiateComposedOf(WorkflowDto item, WorkflowDto other, ItemsDifferencesDto differences) {
 
         int itemSize = item.getComposedOf() != null ? item.getComposedOf().size() : 0;
@@ -614,6 +613,8 @@ public class ItemsComparator {
                     differences.setEqual(false);
                 }
             }
+            if (itemSize != otherSize)
+                differences.setEqual(false);
         } else {
             if (other.getComposedOf() != null) {
                 differences.setEqual(false);
