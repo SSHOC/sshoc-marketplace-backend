@@ -74,12 +74,10 @@ class ItemVisibilityService {
     public boolean shouldSeeItem(Item item, User user) {
         if (item.getStatus().equals(ItemStatus.DEPRECATED))
             return false;
-
-        System.out.println("Eliza " + hasAccessToVersion(item, user));
         return hasAccessToVersion(item, user);
     }
 
-    //Eliza
+
     public boolean hasAccessToVersion(Item version, User user) {
 
         ItemStatus itemStatus = version.getStatus();

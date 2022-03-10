@@ -408,8 +408,6 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                 collectSteps((WorkflowDto) differencesDto.getOther(), super.loadItemVersion(otherPersistentId, otherVersionId));
             collectSteps((WorkflowDto) differencesDto.getOther(), super.loadCurrentItem(otherPersistentId));
 
-            System.out.println("Eliza in " + ((WorkflowDto) differencesDto.getOther()).getComposedOf());
-            System.out.println("Eliza in " + ((WorkflowDto) differencesDto.getItem()).getComposedOf());
             return super.differentiateComposedOf((WorkflowDto) differencesDto.getItem(), (WorkflowDto) differencesDto.getOther(), differencesDto);
         } else return differencesDto;
     }
