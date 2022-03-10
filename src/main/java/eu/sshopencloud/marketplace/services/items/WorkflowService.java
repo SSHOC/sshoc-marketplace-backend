@@ -13,6 +13,7 @@ import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
@@ -295,7 +296,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
         WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(workflow);
 
-        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+        if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }
@@ -309,7 +310,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     protected WorkflowDto convertToDto(Item item) {
 
         WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
-        if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+        if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
             dto.getInformationContributor().setEmail(null);
             dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
         }
@@ -395,6 +396,21 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public ItemsDifferencesDto getDifferences(String workflowPersistentId, Long workflowVersionId, String otherPersistentId, Long otherVersionId) {
 
-        return super.getDifferences(workflowPersistentId, workflowVersionId, otherPersistentId, otherVersionId);
+        ItemsDifferencesDto differencesDto = super.getDifferences(workflowPersistentId, workflowVersionId, otherPersistentId, otherVersionId);
+
+        if (differencesDto.getItem().getCategory().equals(ItemCategory.WORKFLOW) && differencesDto.getOther().getCategory().equals(ItemCategory.WORKFLOW)) {
+
+            if (workflowVersionId != null)
+                collectSteps((WorkflowDto) differencesDto.getItem(), super.loadItemVersion(workflowPersistentId, workflowVersionId));
+            else collectSteps((WorkflowDto) differencesDto.getItem(), super.loadCurrentItem(workflowPersistentId));
+
+            if (otherVersionId != null)
+                collectSteps((WorkflowDto) differencesDto.getOther(), super.loadItemVersion(otherPersistentId, otherVersionId));
+            collectSteps((WorkflowDto) differencesDto.getOther(), super.loadCurrentItem(otherPersistentId));
+
+            System.out.println("Eliza in " + ((WorkflowDto) differencesDto.getOther()).getComposedOf());
+            System.out.println("Eliza in " + ((WorkflowDto) differencesDto.getItem()).getComposedOf());
+            return super.differentiateComposedOf((WorkflowDto) differencesDto.getItem(), (WorkflowDto) differencesDto.getOther(), differencesDto);
+        } else return differencesDto;
     }
 }
