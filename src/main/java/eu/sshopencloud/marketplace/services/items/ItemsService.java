@@ -82,10 +82,7 @@ public class ItemsService extends ItemVersionService<Item> {
         Page<DraftItem> draftItemsPage = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser(),
                 PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))));
 
-        //List<ItemBasicDto> items = draftItemsPage.stream().filter(draftItem -> !draftItem.getItem().getCategory().equals(ItemCategory.STEP)).map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
-
-        List<ItemBasicDto> items = draftItemsPage.stream().map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
-
+        List<ItemBasicDto> items = draftItemsPage.stream().filter(draftItem -> !draftItem.getItem().getCategory().equals(ItemCategory.STEP)).map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
 
         return PaginatedItemsBasic.builder().items(items)
                 .count(draftItemsPage.getContent().size()).hits(draftItemsPage.getTotalElements())
