@@ -13,6 +13,7 @@ import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
@@ -77,7 +78,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public WorkflowDto getLatestWorkflow(String persistentId, boolean draft, boolean approved, boolean redirect) {
-        return getLatestItem(persistentId, draft, approved,redirect);
+        return getLatestItem(persistentId, draft, approved, redirect);
     }
 
     public WorkflowDto getWorkflowVersion(String persistentId, long versionId) {
@@ -114,6 +115,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         Workflow workflow = createItem(workflowCore, draft);
         return prepareItemDto(workflow);
     }
+
 
     public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) throws VersionNotChangedException {
         Workflow workflow = updateItem(persistentId, workflowCore, draft, approved);
@@ -291,7 +293,14 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertItemToDto(Workflow workflow) {
+
         WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(workflow);
+
+        if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+
         collectSteps(dto, workflow);
 
         return dto;
@@ -299,7 +308,13 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertToDto(Item item) {
-        return WorkflowMapper.INSTANCE.toDto(item);
+
+        WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
+        if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
 
@@ -343,7 +358,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             s = stepsTree;
             if (!s.isRoot() && !Objects.isNull(s.getId()))
                 if (s.getSubTrees().size() > 0) {
-                    stepService.addStepToTree(s.getStep(), null, parent);
+                    stepService.addStepToTree(s.getStep(), null, parent, false);
                     Step step = s.getStep();
                     List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
                     StepsTree nextParent = nextParentList.get(0);
@@ -351,7 +366,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                     collectTrees(nextParent, s.getSubTrees());
                 } else {
                     if (!subTrees.contains(s))
-                        stepService.addStepToTree(s.getStep(), null, parent);
+                        stepService.addStepToTree(s.getStep(), null, parent, false);
                 }
         }
     }
@@ -381,6 +396,19 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public ItemsDifferencesDto getDifferences(String workflowPersistentId, Long workflowVersionId, String otherPersistentId, Long otherVersionId) {
 
-        return super.getDifferences(workflowPersistentId, workflowVersionId, otherPersistentId, otherVersionId);
+        ItemsDifferencesDto differencesDto = super.getDifferences(workflowPersistentId, workflowVersionId, otherPersistentId, otherVersionId);
+
+        if (differencesDto.getItem().getCategory().equals(ItemCategory.WORKFLOW) && differencesDto.getOther().getCategory().equals(ItemCategory.WORKFLOW)) {
+
+            if (workflowVersionId != null)
+                collectSteps((WorkflowDto) differencesDto.getItem(), super.loadItemVersion(workflowPersistentId, workflowVersionId));
+            else collectSteps((WorkflowDto) differencesDto.getItem(), super.loadCurrentItem(workflowPersistentId));
+
+            if (otherVersionId != null)
+                collectSteps((WorkflowDto) differencesDto.getOther(), super.loadItemVersion(otherPersistentId, otherVersionId));
+            collectSteps((WorkflowDto) differencesDto.getOther(), super.loadCurrentItem(otherPersistentId));
+
+            return super.differentiateComposedOf((WorkflowDto) differencesDto.getItem(), (WorkflowDto) differencesDto.getOther(), differencesDto);
+        } else return differencesDto;
     }
 }

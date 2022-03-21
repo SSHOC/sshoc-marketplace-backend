@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.dto.workflows.StepCore;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
+import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
@@ -25,9 +26,16 @@ import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import lombok.experimental.UtilityClass;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 
 @UtilityClass
 public class ItemsComparator {
+
+    private static final String notChangedField = "unaltered";
+
+    private static final ZonedDateTime notChangedDate = ZonedDateTime.of(0, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
     @SuppressWarnings(value = "rawtypes")
     public ItemsDifferencesDto differentiateItems(ItemDto item, ItemDto other) {
@@ -119,11 +127,10 @@ public class ItemsComparator {
         }
     }
 
-
     private void differentiateVersions(ItemDto item, ItemDto other, ItemsDifferencesDto differences) {
         if (item.getVersion() != null) {
             if (item.getVersion().equals(other.getVersion()))
-                other.setVersion(null);
+                other.setVersion(notChangedField);
             else
                 differences.setEqual(false);
         } else {
@@ -135,7 +142,7 @@ public class ItemsComparator {
     private void differentiateVersions(ItemCore item, ItemDto other, ItemDifferencesCore differences) {
         if (item.getVersion() != null) {
             if (item.getVersion().equals(other.getVersion()))
-                other.setVersion(null);
+                other.setVersion(notChangedField);
             else
                 differences.setEqual(false);
         } else {
@@ -178,7 +185,7 @@ public class ItemsComparator {
 
         if (item.getSourceItemId() != null) {
             if (item.getSourceItemId().equals(other.getSourceItemId()))
-                other.setSourceItemId(null);
+                other.setSourceItemId(notChangedField);
             else
                 differences.setEqual(false);
         } else {
@@ -213,7 +220,7 @@ public class ItemsComparator {
         for (i = 0; i < itemSize; i++) {
             if (i < otherSize) {
                 if (item.getContributors().get(i).getActor().getId().equals(other.getContributors().get(i).getActor().getId())
-                    && item.getContributors().get(i).getRole().getCode().equals(other.getContributors().get(i).getRole().getCode())) {
+                        && item.getContributors().get(i).getRole().getCode().equals(other.getContributors().get(i).getRole().getCode())) {
                     other.getContributors().set(i, null);
                 } else {
                     differences.setEqual(false);
@@ -292,7 +299,7 @@ public class ItemsComparator {
         for (i = 0; i < itemSize; i++) {
             if (i < otherSize) {
                 if (item.getExternalIds().get(i).getIdentifierService().getCode().equals(other.getExternalIds().get(i).getIdentifierService().getCode())
-                    && item.getExternalIds().get(i).getIdentifier().equals(other.getExternalIds().get(i).getIdentifier())) {
+                        && item.getExternalIds().get(i).getIdentifier().equals(other.getExternalIds().get(i).getIdentifier())) {
                     other.getExternalIds().set(i, null);
                 } else {
                     differences.setEqual(false);
@@ -345,26 +352,18 @@ public class ItemsComparator {
     }
 
     private boolean arePropertiesEqual(PropertyCore propertyCore, PropertyDto propertyDto) {
-        if ((propertyCore.getType().getCode().equals(propertyDto.getType().getCode()))
+        return (propertyCore.getType().getCode().equals(propertyDto.getType().getCode()))
                 && ((propertyCore.getValue() != null && propertyCore.getValue().equals(propertyDto.getValue()))
-                    || (propertyCore.getValue() == null && propertyDto.getValue() == null))
-                && (areConceptsEqual(propertyCore.getConcept(), propertyDto.getConcept()))) {
-            return true;
-        } else {
-            return false;
-        }
+                || (propertyCore.getValue() == null && propertyDto.getValue() == null))
+                && (areConceptsEqual(propertyCore.getConcept(), propertyDto.getConcept()));
     }
 
     private boolean areConceptsEqual(ConceptId conceptId, ConceptBasicDto conceptDto) {
-       if ((conceptId == null && conceptDto == null)
-               || (
-               (conceptId != null && conceptId.getCode() != null && conceptId.getCode().equals(conceptDto.getCode()))
-            && (conceptId != null && conceptId.getVocabulary() != null && conceptId.getVocabulary().getCode() != null && conceptId.getVocabulary().getCode().equals(conceptDto.getVocabulary().getCode()))
-            && (conceptId != null && conceptId.getUri() != null && conceptId.getUri().equals(conceptDto.getUri())))) {
-           return true;
-       } else {
-           return false;
-       }
+        return !(!(conceptId == null && conceptDto == null)
+                && !(
+                (conceptId != null && conceptId.getCode() != null && conceptId.getCode().equals(conceptDto.getCode()))
+                        && (conceptId != null && conceptId.getVocabulary() != null && conceptId.getVocabulary().getCode() != null && conceptId.getVocabulary().getCode().equals(conceptDto.getVocabulary().getCode()))
+                        && (conceptId != null && conceptId.getUri() != null && conceptId.getUri().equals(conceptDto.getUri()))));
     }
 
 
@@ -394,7 +393,7 @@ public class ItemsComparator {
         for (i = 0; i < itemSize; i++) {
             if (i < otherSize) {
                 if (item.getRelatedItems().get(i).getPersistentId().equals(other.getRelatedItems().get(i).getPersistentId())
-                    && item.getRelatedItems().get(i).getRelation().getCode().equals(other.getRelatedItems().get(i).getRelation().getCode())) {
+                        && item.getRelatedItems().get(i).getRelation().getCode().equals(other.getRelatedItems().get(i).getRelation().getCode())) {
                     other.getRelatedItems().set(i, null);
                 } else {
                     differences.setEqual(false);
@@ -467,14 +466,10 @@ public class ItemsComparator {
     }
 
     private boolean areMediaEqual(ItemMediaCore itemMediaCore, ItemMediaDto itemMediaDto) {
-        if (itemMediaCore.getInfo().getMediaId().equals(itemMediaDto.getInfo().getMediaId())
-            && ((itemMediaCore.getCaption() != null && itemMediaCore.getCaption().equals(itemMediaDto.getCaption()))
+        return itemMediaCore.getInfo().getMediaId().equals(itemMediaDto.getInfo().getMediaId())
+                && ((itemMediaCore.getCaption() != null && itemMediaCore.getCaption().equals(itemMediaDto.getCaption()))
                 || (itemMediaCore.getCaption() == null && itemMediaDto.getCaption() == null))
-            && (areConceptsEqual(itemMediaCore.getConcept(), itemMediaDto.getConcept()))) {
-            return true;
-        } else {
-            return false;
-        }
+                && (areConceptsEqual(itemMediaCore.getConcept(), itemMediaDto.getConcept()));
     }
 
 
@@ -485,7 +480,7 @@ public class ItemsComparator {
                 DigitalObjectDto otherDigitalObject = (DigitalObjectDto) other;
                 if (itemDigitalObject.getDateCreated() != null) {
                     if (itemDigitalObject.getDateCreated().equals(otherDigitalObject.getDateCreated()))
-                        otherDigitalObject.setDateCreated(null);
+                        otherDigitalObject.setDateCreated(notChangedDate);
                     else
                         differences.setEqual(false);
                 } else {
@@ -493,9 +488,9 @@ public class ItemsComparator {
                         differences.setEqual(false);
                 }
                 if (itemDigitalObject.getDateLastUpdated() != null) {
-                    if (itemDigitalObject.getDateLastUpdated().equals(otherDigitalObject.getDateLastUpdated()))
-                        otherDigitalObject.setDateLastUpdated(null);
-                    else
+                    if (itemDigitalObject.getDateLastUpdated().equals(otherDigitalObject.getDateLastUpdated())) {
+                        otherDigitalObject.setDateLastUpdated(notChangedDate);
+                    } else
                         differences.setEqual(false);
                 } else {
                     if (otherDigitalObject.getDateLastUpdated() != null)
@@ -599,6 +594,39 @@ public class ItemsComparator {
             default:
                 return null;
         }
+    }
+
+    public ItemsDifferencesDto differentiateComposedOf(WorkflowDto item, WorkflowDto other, ItemsDifferencesDto differences) {
+
+        int itemSize = item.getComposedOf() != null ? item.getComposedOf().size() : 0;
+        int otherSize = other.getComposedOf() != null ? other.getComposedOf().size() : 0;
+        int i;
+        if (item.getComposedOf() != null) {
+            for (i = 0; i < itemSize; i++) {
+                if (i < otherSize) {
+                    if (areStepsEqual(item.getComposedOf().get(i), other.getComposedOf().get(i))) {
+                        other.getComposedOf().set(i, null);
+                    } else {
+                        differences.setEqual(false);
+                    }
+                } else {
+                    differences.setEqual(false);
+                }
+            }
+            if (itemSize != otherSize)
+                differences.setEqual(false);
+        } else {
+            if (other.getComposedOf() != null) {
+                differences.setEqual(false);
+            }
+        }
+        differences.setOther(other);
+        return differences;
+    }
+
+    private boolean areStepsEqual(StepDto itemStepDto, StepDto otherStepDto) {
+        return itemStepDto.getId().equals(otherStepDto.getId()) &&
+                itemStepDto.getPersistentId().equals(otherStepDto.getPersistentId());
     }
 
 }

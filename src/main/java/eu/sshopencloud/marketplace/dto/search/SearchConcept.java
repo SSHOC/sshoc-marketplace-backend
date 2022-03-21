@@ -29,4 +29,6 @@ public class SearchConcept {
 
     private List<PropertyTypeId> types;
 
+    private boolean candidate;
+
 }

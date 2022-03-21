@@ -50,14 +50,14 @@ public class SearchControllerITCase {
     @Before
     public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
-        MODERATOR_JWT =  LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
+        MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
     }
 
     @Test
     public void shouldReturnAllItems() throws Exception {
 
         mvc.perform(get("/api/item-search")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -65,7 +65,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByWord() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
                 .andExpect(jsonPath("items[0].id", is(1)))
@@ -108,11 +108,11 @@ public class SearchControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         mvc.perform(
-                put("/api/datasets/{datasetId}", datasetId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        put("/api/datasets/{datasetId}", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(datasetId)))
                 .andExpect(jsonPath("id", not(is(datasetVersionId))))
@@ -124,9 +124,9 @@ public class SearchControllerITCase {
         solrTemplate.commit(IndexItem.COLLECTION_NAME);
 
         mvc.perform(
-                get("/api/item-search?q=test")
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/item-search?q=test&d.status=(suggested OR approved)")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(2)))
                 .andExpect(jsonPath("items[0].id", not(is(datasetVersionId))))
@@ -157,7 +157,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByPhrase() throws Exception {
 
         mvc.perform(get("/api/item-search?q=\"dummy text ever\"")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(7)))
@@ -179,7 +179,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByKeyword() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic modeling")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(2)))
                 .andExpect(jsonPath("items[0].id", is(2)))
@@ -207,7 +207,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByKeywordAndFilterByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic modeling&categories=tool-or-service,training-material")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(2)))
@@ -232,7 +232,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByKeywordPhrase() throws Exception {
 
         mvc.perform(get("/api/item-search?q=\"topic modeling\"")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(2)))
                 .andExpect(jsonPath("items[*].id", containsInAnyOrder(11, 2)))
@@ -256,7 +256,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsWildcardPhrase() throws Exception {
 
         mvc.perform(get("/api/item-search?q=(topi* OR \"Introduction to GEPHI\")&advanced=true")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(4)))
                 .andExpect(jsonPath("items[*].id", containsInAnyOrder(7, 2, 11, 8)))
@@ -280,7 +280,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByKeywordPhraseAndFilterByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=\"topic modeling\"&categories=tool-or-service,training-material")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(2)))
@@ -306,7 +306,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByKeywordPart() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
                 .andExpect(jsonPath("items[*].id", containsInAnyOrder(8, 11, 2)))
@@ -334,7 +334,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByKeywordPartAndFilterByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic&categories=tool-or-service,training-material")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(2)))
                 .andExpect(jsonPath("items[0].id", is(8)))
@@ -365,7 +365,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByKeywordPartAndFilterBySubfilters() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic&f.keyword=Lorem ipsum&f.keyword=topic modeling")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(2)))
                 .andExpect(jsonPath("items[*].id", containsInAnyOrder(2, 11)))
@@ -391,7 +391,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByKeywordPartAndFilterByCategoriesAndSubfilters() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic&categories=tool-or-service,training-material&f.keyword=Lorem ipsum&f.keyword=topic modeling")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(2)))
@@ -418,7 +418,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByWordAndSortedByLabel() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&order=label")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
                 .andExpect(jsonPath("items[0].id", is(1)))
@@ -448,7 +448,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByWordAndFilteredByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&categories=tool-or-service,dataset")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(1)))
@@ -472,7 +472,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByWordAndFilteredBySubfilters() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&f.keyword=social network analysis")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(1)))
@@ -497,7 +497,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByWordAndFilteredByCategoriesAndSubfilters() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&categories=tool-or-service,dataset&f.keyword=social network analysis")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(1)))
@@ -522,7 +522,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByWordAndFilteredByCategoriesAndSubfiltersWithNonExistentValue() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&categories=tool-or-service,dataset&f.keyword=non_existent_value")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(0)))
                 .andExpect(jsonPath("categories.tool-or-service.count", is(0)))
@@ -544,7 +544,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByExpressionOnContributors() throws Exception {
 
         mvc.perform(get("/api/item-search?d.contributor=(+CESSDE~ -*Academy*)")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
                 .andExpect(jsonPath("items[0].id", is(10)))
@@ -579,7 +579,7 @@ public class SearchControllerITCase {
     public void shouldReturnItemsByExpressionOnContributorsAndExpressionOnLanguage() throws Exception {
 
         mvc.perform(get("/api/item-search?d.contributor=(+CESSDE~ -*Academy*)&d.language=(en?)")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)))
                 .andExpect(jsonPath("items[0].id", is(4)))
@@ -602,7 +602,7 @@ public class SearchControllerITCase {
     public void shouldReturnAllConcepts() throws Exception {
 
         mvc.perform(get("/api/concept-search")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -610,11 +610,12 @@ public class SearchControllerITCase {
     public void shouldReturnConceptsByWordAndFilteredByTypes() throws Exception {
 
         mvc.perform(get("/api/concept-search?q=software&types=object-type,activity")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("concepts[0].code", is("83")))
                 .andExpect(jsonPath("concepts[0].vocabulary.code", is("tadirah-activity")))
                 .andExpect(jsonPath("concepts[0].label", is("Software")))
+                .andExpect(jsonPath("concepts[0].candidate", is(false)))
                 .andExpect(jsonPath("types.activity.count", is(7)))
                 .andExpect(jsonPath("types.activity.checked", is(true)))
                 .andExpect(jsonPath("facets.candidate.['false'].count", is(7)))
@@ -622,23 +623,22 @@ public class SearchControllerITCase {
     }
 
 
-
     @Test
     public void shouldNotCrashWhenSearchingItemsForASlash() throws Exception {
         mvc.perform(
-                get("/api/item-search")
-                        .param("q", " / ")
-                       // .param("advanced", "true")
-        )
+                        get("/api/item-search")
+                                .param("q", " / ")
+                        // .param("advanced", "true")
+                )
                 .andExpect(status().isOk());
     }
 
     @Test
     public void shouldNotCrashWhenSearchingConceptsForASlash() throws Exception {
         mvc.perform(
-                get("/api/concept-search")
-                        .param("q", "teaching / learning")
-        )
+                        get("/api/concept-search")
+                                .param("q", "teaching / learning")
+                )
                 .andExpect(status().isOk());
     }
 
@@ -646,7 +646,7 @@ public class SearchControllerITCase {
     public void shouldReturnConceptsWithCandidateFacet() throws Exception {
 
         mvc.perform(get("/api/concept-search?q=new&f.candidate=false")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("concepts", hasSize(9)))
                 .andExpect(jsonPath("facets.candidate.['false'].count", is(9)))
@@ -658,7 +658,7 @@ public class SearchControllerITCase {
     public void shouldReturnAllActors() throws Exception {
 
         mvc.perform(get("/api/actor-search")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -666,10 +666,9 @@ public class SearchControllerITCase {
     public void shouldReturnActorsByWebsite() throws Exception {
 
         mvc.perform(get("/api/actor-search?q=CESSDA")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("actors[0].id", is(4)))
-                .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
                 .andExpect(jsonPath("actors[0].name", is("CESSDA")))
                 .andExpect(jsonPath("actors[0].website", is("https://www.cessda.eu/")))
                 .andExpect(jsonPath("actors[0].externalIds", hasSize(0)))
@@ -681,7 +680,8 @@ public class SearchControllerITCase {
     public void shouldReturnActorsByDynamicParametersEmail() throws Exception {
 
         mvc.perform(get("/api/actor-search?d.email=cessda@cessda.eu")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .header("Authorization", MODERATOR_JWT)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("actors[0].id", is(4)))
                 .andExpect(jsonPath("actors[0].email", is("cessda@cessda.eu")))
@@ -695,7 +695,8 @@ public class SearchControllerITCase {
     public void shouldReturnActorsByEmailExpression() throws Exception {
 
         mvc.perform(get("/api/actor-search?d.email=(*@*)")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .header("Authorization", MODERATOR_JWT)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(2)))
                 .andExpect(jsonPath("actors[0].id", is(4)))
@@ -720,10 +721,10 @@ public class SearchControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("phrase", is("gep")))
                 .andExpect(jsonPath("suggestions", hasSize(3)))
-                .andExpect(jsonPath("suggestions[0].phrase", is("Gephi")))
-                .andExpect(jsonPath("suggestions[0].persistentId", is("n21Kfc")))
-                .andExpect(jsonPath("suggestions[1].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
-                .andExpect(jsonPath("suggestions[1].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("suggestions[0].phrase", is("Gephi: an open source software for exploring and manipulating networks.")))
+                .andExpect(jsonPath("suggestions[0].persistentId", is("heBAGQ")))
+                .andExpect(jsonPath("suggestions[1].phrase", is("Gephi")))
+                .andExpect(jsonPath("suggestions[1].persistentId", is("n21Kfc")))
                 .andExpect(jsonPath("suggestions[2].phrase", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("suggestions[2].persistentId", is("WfcKvG")));
     }
@@ -732,7 +733,7 @@ public class SearchControllerITCase {
     public void shouldReturnAutocompleteSuggestionWithCategoryForItems() throws Exception {
 
         mvc.perform(get("/api/item-search/autocomplete?q=gep&category=training-material")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("phrase", is("gep")))
                 .andExpect(jsonPath("suggestions", hasSize(2)))
