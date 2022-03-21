@@ -56,8 +56,7 @@ class ItemVisibilityService {
                 version.setStatus(SUGGESTED);
                 versionedItem.setStatus(VersionedItemStatus.SUGGESTED);
             }
-        }
-        else if (currentUser.isSystemContributor()) {
+        } else if (currentUser.isSystemContributor()) {
             version.setStatus(ItemStatus.INGESTED);
             versionedItem.setStatus(VersionedItemStatus.INGESTED);
         } else if (currentUser.isContributor()) {
@@ -75,11 +74,12 @@ class ItemVisibilityService {
     public boolean shouldSeeItem(Item item, User user) {
         if (item.getStatus().equals(ItemStatus.DEPRECATED))
             return false;
-
         return hasAccessToVersion(item, user);
     }
 
+
     public boolean hasAccessToVersion(Item version, User user) {
+
         ItemStatus itemStatus = version.getStatus();
 
         if (itemStatus.equals(ItemStatus.APPROVED))
@@ -94,5 +94,23 @@ class ItemVisibilityService {
         return List.of(SUGGESTED, INGESTED, DISAPPROVED).contains(itemStatus)
                 && user.isContributor()
                 && user.equals(version.getInformationContributor());
+    }
+
+
+    public boolean isTheLatestVersion(Item item) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (currentUser != null) {
+            if (currentUser.equals(item.getInformationContributor())) {
+                return item.getVersionedItem().getCurrentVersion().getId().equals(item.getId());
+            } else {
+                if(currentUser.isModerator() && item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
+                    return true;
+                if(currentUser.isModerator() && !item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
+                    return false;
+                if(currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor())
+                    return false;
+            }
+        }
+        return true;
     }
 }

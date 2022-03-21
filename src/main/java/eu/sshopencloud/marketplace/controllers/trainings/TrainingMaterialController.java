@@ -161,7 +161,7 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterialService.getSources(persistentId));
     }
 
-    @Operation(summary = "Getting differences between training material and target version of item", operationId = "getTrainingMaterialAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between training material and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getTrainingMaterialAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getTrainingMaterialVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                            @RequestParam(required = true) String with,
@@ -171,7 +171,7 @@ public class TrainingMaterialController {
     }
 
 
-    @Operation(summary = "Getting differences between target version of training material and target version of item", operationId = "getVersionedTrainingMaterialAndVersionedItemDifferences")
+    @Operation(summary = "Getting differences between target version of training material and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedTrainingMaterialAndVersionedItemDifferences")
     @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemsDifferencesDto> getVersionedTrainingMaterialVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
                                                                                                     @PathVariable("versionId") long versionId,

@@ -2950,4 +2950,58 @@ public class WorkflowControllerITCase {
 
     }
 
+    @Test
+    public void shouldReturnDifferenceBetweenWorkflows() throws Exception {
+        String workflowPersistentId = "tqmbGY";
+        Integer workflowId = 12;
+        String otherWorkflowPersistentId = "vHQEhe";
+        Integer otherWorkflowId = 21;
+
+        mvc.perform(get("/api/workflows/{persistentId}/diff", workflowPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", otherWorkflowPersistentId)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("item.id", is(workflowId)))
+                .andExpect(jsonPath("item.category", is("workflow")))
+                .andExpect(jsonPath("item.label", is("Creation of a dictionary")))
+                .andExpect(jsonPath("item.informationContributor.id", is(3)))
+                .andExpect(jsonPath("item.properties[0].type.code", is("language")))
+                .andExpect(jsonPath("item.properties[0].concept.code", is("eng")))
+                .andExpect(jsonPath("item.composedOf", hasSize(4)))
+                .andExpect(jsonPath("equal", is(false)))
+                .andExpect(jsonPath("other.persistentId", is(otherWorkflowPersistentId)))
+                .andExpect(jsonPath("other.id", is(otherWorkflowId)))
+                .andExpect(jsonPath("other.category", is("workflow")))
+                .andExpect(jsonPath("other.label", is("Evaluation of an inflectional analyzer")))
+                .andExpect(jsonPath("other.composedOf", hasSize(3)))
+                .andExpect(jsonPath("other.informationContributor.id", is(1)));
+    }
+
+    @Test
+    public void shouldNotReturnDifferenceBetweenComposedOf() throws Exception {
+        String workflowPersistentId = "tqmbGY";
+        Integer workflowId = 12;
+
+        mvc.perform(get("/api/workflows/{persistentId}/diff", workflowPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", workflowPersistentId)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(workflowPersistentId)))
+                .andExpect(jsonPath("item.id", is(workflowId)))
+                .andExpect(jsonPath("item.category", is("workflow")))
+                .andExpect(jsonPath("item.label", is("Creation of a dictionary")))
+                .andExpect(jsonPath("item.informationContributor.id", is(3)))
+                .andExpect(jsonPath("item.properties[0].type.code", is("language")))
+                .andExpect(jsonPath("item.properties[0].concept.code", is("eng")))
+                .andExpect(jsonPath("item.composedOf", hasSize(4)))
+                .andExpect(jsonPath("equal", is(true)))
+                .andExpect(jsonPath("other.composedOf[0]", nullValue()))
+                .andExpect(jsonPath("other.composedOf[1]", nullValue()))
+                .andExpect(jsonPath("other.composedOf[2]", nullValue()))
+                .andExpect(jsonPath("other.composedOf[3]", nullValue()));
+    }
+
 }
