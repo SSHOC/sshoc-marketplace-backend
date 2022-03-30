@@ -111,6 +111,6 @@ class ItemVisibilityService {
                     return false;
             }
         }
-        return true;
+        return false;
     }
 }
