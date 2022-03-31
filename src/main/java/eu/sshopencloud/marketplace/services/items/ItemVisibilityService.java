@@ -110,6 +110,8 @@ class ItemVisibilityService {
             if (currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor() && !currentUser.equals(item.getInformationContributor()))
                 return item.getStatus().equals(APPROVED);
 
+        }else {
+            return item.getStatus().equals(APPROVED) && item.getVersionedItem().getCurrentVersion().getId().equals(item.getId());
         }
         return false;
     }
