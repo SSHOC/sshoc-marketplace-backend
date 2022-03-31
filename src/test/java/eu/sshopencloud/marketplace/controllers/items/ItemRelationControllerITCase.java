@@ -700,7 +700,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relation.code", is("mentions")))
                 .andExpect(jsonPath("relation.label", is("Mentions")));
 
-        mvc.perform(get("/api/workflows/{id}", workflowPersistentId))
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -1235,6 +1236,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/workflows/{workflowId}/steps/{stepId}", "tqmbGY", "prblMo")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("prblMo")))
@@ -1258,6 +1260,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/datasets/{datasetId}", "OdKfPc")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("OdKfPc")))
@@ -1276,6 +1279,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/datasets/{datasetId}", "dmbq4v")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("dmbq4v")))
@@ -1290,6 +1294,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/datasets/{datasetId}", newDataset.getPersistentId())
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(newDataset.getPersistentId())))
@@ -1315,6 +1320,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/tools-services/{toolId}", toolId)
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(toolId)))
@@ -1359,6 +1365,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("heBAGQ")))
@@ -1373,6 +1380,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/workflows/{workflowId}", "tqmbGY")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("tqmbGY")))
@@ -1387,6 +1395,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/tools-services/{toolId}", "Xgufde")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("Xgufde")))
@@ -1402,6 +1411,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/tools-services/{toolId}", toolId)
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(toolId)))
@@ -1449,6 +1459,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/tools-services/{toolId}", "Xgufde")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("Xgufde")))
@@ -1463,6 +1474,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("heBAGQ")))
@@ -1482,6 +1494,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/tools-services/{toolId}", toolId)
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(toolId)))
@@ -1526,6 +1539,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("heBAGQ")))
@@ -1540,6 +1554,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/workflows/{workflowId}", "tqmbGY")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("tqmbGY")))
@@ -1550,6 +1565,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/tools-services/{toolId}", "Xgufde")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("Xgufde")))
@@ -1582,6 +1598,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("heBAGQ")))
@@ -1596,6 +1613,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/workflows/{workflowId}", "tqmbGY")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("tqmbGY")))
@@ -1610,6 +1628,7 @@ public class ItemRelationControllerITCase {
 
         mvc.perform(
                         get("/api/tools-services/{toolId}", "Xgufde")
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("Xgufde")))
@@ -1865,7 +1884,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relation.code", is("mentions")))
                 .andExpect(jsonPath("relation.label", is("Mentions")));
 
-        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", subjectWorkflowId, subjectPersistentId))
+        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", subjectWorkflowId, subjectPersistentId)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("category", is("step")))
@@ -1875,7 +1895,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
                 .andExpect(jsonPath("relatedItems[0].workflowId", is(objectWorkflowId)));
 
-        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", objectWorkflowId, objectPersistentId))
+        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", objectWorkflowId, objectPersistentId)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("category", is("step")))
