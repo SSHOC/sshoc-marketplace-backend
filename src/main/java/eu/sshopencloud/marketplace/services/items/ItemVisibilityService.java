@@ -100,16 +100,16 @@ class ItemVisibilityService {
     public boolean isTheLatestVersion(Item item) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         if (currentUser != null) {
-            if (currentUser.equals(item.getInformationContributor())) {
+            if (currentUser.isModerator() && item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
+                return true;
+            if (currentUser.isModerator() && !item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
+                return false;
+            if (currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor() && currentUser.equals(item.getInformationContributor())) {
                 return item.getVersionedItem().getCurrentVersion().getId().equals(item.getId());
-            } else {
-                if(currentUser.isModerator() && item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
-                    return true;
-                if(currentUser.isModerator() && !item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
-                    return false;
-                if(currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor())
-                    return false;
             }
+            if (currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor() && !currentUser.equals(item.getInformationContributor()))
+                return item.getStatus().equals(APPROVED);
+
         }
         return false;
     }

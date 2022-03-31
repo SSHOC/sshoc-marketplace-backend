@@ -2006,6 +2006,7 @@ public class WorkflowControllerITCase {
 
         mvc.perform(
                         get("/api/workflows/{workflowId}", workflowId)
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(workflowId)))
@@ -2076,6 +2077,7 @@ public class WorkflowControllerITCase {
 
         mvc.perform(
                         get("/api/workflows/{workflowId}", workflowId)
+                                .header("Authorization", MODERATOR_JWT)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(workflowId)))
