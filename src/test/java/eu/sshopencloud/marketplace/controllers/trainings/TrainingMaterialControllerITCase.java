@@ -2240,9 +2240,9 @@ public class TrainingMaterialControllerITCase {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(relatedObjectId)))
-                .andExpect(jsonPath("relatedItems", hasSize(1)))
-                .andExpect(jsonPath("relatedItems[0].persistentId", is(trainingMaterialId)))
-                .andExpect(jsonPath("relatedItems[0].relation.code", is("is-documented-by")));
+                .andExpect(jsonPath("relatedItems", hasSize(3)))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
 
 
         trainingMaterial.setLabel("Gephi: explore the networks!");
