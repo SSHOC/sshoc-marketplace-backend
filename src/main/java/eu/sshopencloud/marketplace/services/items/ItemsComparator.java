@@ -16,14 +16,8 @@ import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
-import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.publications.Publication;
-import eu.sshopencloud.marketplace.model.tools.Tool;
-import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
-import eu.sshopencloud.marketplace.model.workflows.Step;
-import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import lombok.experimental.UtilityClass;
 
 import java.time.ZoneId;
@@ -576,21 +570,20 @@ public class ItemsComparator {
         return itemsDifferencesCore;
     }
 
-
     public ItemDto toDto(Item item) {
         switch (item.getCategory()) {
             case TOOL_OR_SERVICE:
-                return ToolMapper.INSTANCE.toDto((Tool) item);
+                return ToolMapper.INSTANCE.toDto(item);
             case TRAINING_MATERIAL:
-                return TrainingMaterialMapper.INSTANCE.toDto((TrainingMaterial) item);
+                return TrainingMaterialMapper.INSTANCE.toDto(item);
             case PUBLICATION:
-                return PublicationMapper.INSTANCE.toDto((Publication) item);
+                return PublicationMapper.INSTANCE.toDto(item);
             case DATASET:
-                return DatasetMapper.INSTANCE.toDto((Dataset) item);
+                return DatasetMapper.INSTANCE.toDto(item);
             case WORKFLOW:
-                return WorkflowMapper.INSTANCE.toDto((Workflow) item);
+                return WorkflowMapper.INSTANCE.toDto(item);
             case STEP:
-                return StepMapper.INSTANCE.toDto((Step) item);
+                return StepMapper.INSTANCE.toDto(item);
             default:
                 return null;
         }
