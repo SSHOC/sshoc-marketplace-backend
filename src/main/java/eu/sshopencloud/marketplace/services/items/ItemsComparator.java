@@ -576,13 +576,12 @@ public class ItemsComparator {
         return itemsDifferencesCore;
     }
 
-
     public ItemDto toDto(Item item) {
         switch (item.getCategory()) {
             case TOOL_OR_SERVICE:
                 return ToolMapper.INSTANCE.toDto((Tool) item);
             case TRAINING_MATERIAL:
-                return TrainingMaterialMapper.INSTANCE.toDto((TrainingMaterial) item);
+                return TrainingMaterialMapper.INSTANCE.toDto( (TrainingMaterial) item);
             case PUBLICATION:
                 return PublicationMapper.INSTANCE.toDto((Publication) item);
             case DATASET:
@@ -591,6 +590,25 @@ public class ItemsComparator {
                 return WorkflowMapper.INSTANCE.toDto((Workflow) item);
             case STEP:
                 return StepMapper.INSTANCE.toDto((Step) item);
+            default:
+                return null;
+        }
+    }
+
+    public ItemDto toDtoSource(Item item) {
+        switch (item.getCategory()) {
+            case TOOL_OR_SERVICE:
+                return ToolMapper.INSTANCE.toDto(item);
+            case TRAINING_MATERIAL:
+                return TrainingMaterialMapper.INSTANCE.toDto(item);
+            case PUBLICATION:
+                return PublicationMapper.INSTANCE.toDto(item);
+            case DATASET:
+                return DatasetMapper.INSTANCE.toDto(item);
+            case WORKFLOW:
+                return WorkflowMapper.INSTANCE.toDto(item);
+            case STEP:
+                return StepMapper.INSTANCE.toDto(item);
             default:
                 return null;
         }

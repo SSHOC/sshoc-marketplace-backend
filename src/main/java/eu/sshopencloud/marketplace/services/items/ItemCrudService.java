@@ -217,7 +217,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             Item itemFromSource = getLastItemBySource(currentItem, itemCore.getSource().getId(),
                     itemCore.getSourceItemId());
             if (itemFromSource != null) {
-                itemDtoFromSource = ItemsComparator.toDto(itemFromSource);
+                itemDtoFromSource = ItemsComparator.toDtoSource(itemFromSource);
                 itemDtoFromSource.setRelatedItems(itemRelatedItemService.getItemRelatedItems(itemFromSource));
                 complete(itemDtoFromSource, itemFromSource);
             }
@@ -251,15 +251,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private Item getLastItemBySource(@NonNull I currentItem, @NonNull Long sourceId, @NonNull String sourceItemId) {
         List<Item> history = loadItemHistory(currentItem);
-        for (Item historicalItem : history) {
+        for (Item historicalItem : history)
             if (historicalItem.getSource() != null) {
                 if (sourceId.equals(historicalItem.getSource().getId()) && sourceItemId.equals(
-                        historicalItem.getSourceItemId())) {
-                    // FIX ME whether check also an information contributor - System importer ?
+                        historicalItem.getSourceItemId()) && historicalItem.getInformationContributor().isSystemContributor()) {
                     return historicalItem;
                 }
             }
-        }
         return null;
     }
 
