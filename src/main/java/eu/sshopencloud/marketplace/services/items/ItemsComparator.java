@@ -16,8 +16,14 @@ import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.mappers.workflows.StepMapper;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
+import eu.sshopencloud.marketplace.model.datasets.Dataset;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
+import eu.sshopencloud.marketplace.model.publications.Publication;
+import eu.sshopencloud.marketplace.model.tools.Tool;
+import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
+import eu.sshopencloud.marketplace.model.workflows.Step;
+import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import lombok.experimental.UtilityClass;
 
 import java.time.ZoneId;
@@ -571,6 +577,25 @@ public class ItemsComparator {
     }
 
     public ItemDto toDto(Item item) {
+        switch (item.getCategory()) {
+            case TOOL_OR_SERVICE:
+                return ToolMapper.INSTANCE.toDto((Tool) item);
+            case TRAINING_MATERIAL:
+                return TrainingMaterialMapper.INSTANCE.toDto( (TrainingMaterial) item);
+            case PUBLICATION:
+                return PublicationMapper.INSTANCE.toDto((Publication) item);
+            case DATASET:
+                return DatasetMapper.INSTANCE.toDto((Dataset) item);
+            case WORKFLOW:
+                return WorkflowMapper.INSTANCE.toDto((Workflow) item);
+            case STEP:
+                return StepMapper.INSTANCE.toDto((Step) item);
+            default:
+                return null;
+        }
+    }
+
+    public ItemDto toDtoSource(Item item) {
         switch (item.getCategory()) {
             case TOOL_OR_SERVICE:
                 return ToolMapper.INSTANCE.toDto(item);

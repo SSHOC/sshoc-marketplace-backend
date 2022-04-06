@@ -217,7 +217,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             Item itemFromSource = getLastItemBySource(currentItem, itemCore.getSource().getId(),
                     itemCore.getSourceItemId());
             if (itemFromSource != null) {
-                itemDtoFromSource = ItemsComparator.toDto(itemFromSource);
+                itemDtoFromSource = ItemsComparator.toDtoSource(itemFromSource);
                 itemDtoFromSource.setRelatedItems(itemRelatedItemService.getItemRelatedItems(itemFromSource));
                 complete(itemDtoFromSource, itemFromSource);
             }
