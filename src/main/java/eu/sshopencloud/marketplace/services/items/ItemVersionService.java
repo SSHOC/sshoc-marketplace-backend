@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 
 @RequiredArgsConstructor
+@Slf4j
 abstract class ItemVersionService<I extends Item> {
 
     private final VersionedItemRepository versionedItemRepository;
@@ -109,7 +111,7 @@ abstract class ItemVersionService<I extends Item> {
 
     protected Optional<I> loadItemDraft(String persistentId, @NonNull User draftOwner) {
         if (!versionedItemRepository.existsById(persistentId)) {
-            throw new EntityNotFoundException(
+            log.error("Exception " +
                     String.format("Unable to find draft %s with id %s", getItemTypeName(), persistentId)
             );
         }
@@ -147,6 +149,7 @@ abstract class ItemVersionService<I extends Item> {
         return resolveItemDraftForCurrentUser(persistentId)
                 .orElseGet(() -> loadLatestItemForCurrentUser(persistentId, false));
     }
+
 
     protected I loadItemVersion(String persistentId, long versionId) {
         return getItemRepository().findByVersionedItemPersistentIdAndId(persistentId, versionId)
