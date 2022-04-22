@@ -31,7 +31,7 @@ public class ItemExternalId {
     @Column(nullable = false, length = 2048)
     private String identifier;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REFRESH)
     @JoinColumn(nullable = false)
     private Item item;
 
