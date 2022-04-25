@@ -35,6 +35,7 @@ public class ItemExternalIdFactory {
             errors.pushNestedPath(nestedPath);
 
             ItemExternalId externalId = create(externalIds.get(i), item, errors);
+
             if (externalId != null) {
 
                 if (!processedExternalIds.contains(externalId)) {
@@ -87,12 +88,13 @@ public class ItemExternalIdFactory {
 
         itemExternalIds.forEach(
                 itemExternalId -> {
-                    if (newExternalId.getIdentifier().isEmpty()) {
+
+                    if (!Objects.isNull(newExternalId.getItem().getId())) {
                         if (itemExternalId.getItem().getId().equals(newExternalId.getItem().getId()) && itemExternalId.getItem().getPersistentId().equals(newExternalId.getItem().getPersistentId())
-                                && itemExternalId.getIdentifierService().equals(newExternalId.getIdentifierService()))
+                                && itemExternalId.getIdentifier().equals(newExternalId.getIdentifier()) && itemExternalId.getIdentifierService().equals(newExternalId.getIdentifierService()))
                             contains.set(true);
                     } else {
-                        if (itemExternalId.getItem().getId().equals(newExternalId.getItem().getId()) && itemExternalId.getItem().getPersistentId().equals(newExternalId.getItem().getPersistentId())
+                        if (itemExternalId.getItem().equals(newExternalId.getItem())
                                 && itemExternalId.getIdentifier().equals(newExternalId.getIdentifier()) && itemExternalId.getIdentifierService().equals(newExternalId.getIdentifierService()))
                             contains.set(true);
                     }
