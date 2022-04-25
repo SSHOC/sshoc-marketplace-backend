@@ -76,13 +76,15 @@ public class ItemsService extends ItemVersionService<Item> {
         this.itemContributorRepository = itemContributorRepository;
     }
 
+
     public PaginatedItemsBasic getMyDraftItems(ItemOrder order, PageCoords pageCoords) {
         if (order == null) order = ItemOrder.MODIFIED_ON;
 
-        Page<DraftItem> draftItemsPage = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser(),
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))));
+        List<DraftItem> draftItemsList = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser()).stream().filter(draftItem -> !draftItem.getItem().getCategory().equals(ItemCategory.STEP)).collect(Collectors.toList());
 
-        List<ItemBasicDto> items = draftItemsPage.stream().filter(draftItem -> !draftItem.getItem().getCategory().equals(ItemCategory.STEP)).map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
+        Page<DraftItem> draftItemsPage = new PageImpl<>(draftItemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), draftItemsList.size());
+
+        List<ItemBasicDto> items = draftItemsPage.stream().map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
 
         return PaginatedItemsBasic.builder().items(items)
                 .count(draftItemsPage.getContent().size()).hits(draftItemsPage.getTotalElements())
@@ -239,8 +241,31 @@ public class ItemsService extends ItemVersionService<Item> {
 
     }
 
-    public List<ItemBasicDto> getItemsByActor(Actor actor){
+    public List<ItemBasicDto> getItemsByActor(Actor actor) {
         return ItemConverter.convertItem(itemRepository.findAllByContributorsActorId(actor.getId()));
+    }
+
+
+    public PaginatedItemsBasic getDeletedItems(ItemOrder order, PageCoords pageCoords) {
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+
+        if (currentUser == null || !currentUser.isModerator())
+            return null;
+
+        if (order == null) order = ItemOrder.MODIFIED_ON;
+
+        List<Item> list = itemRepository.getDeletedItemsIds2().stream().map(id -> itemRepository.findById(id).get()).collect(Collectors.toList());
+
+        Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), list.size());
+
+        List<ItemBasicDto> items = pages.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
+
+        return PaginatedItemsBasic.builder().items(items)
+                .count(pages.getContent().size()).hits(pages.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(pages.getTotalPages())
+                .build();
     }
 
     @Override
