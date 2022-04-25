@@ -24,7 +24,7 @@ public class ItemExternalIdFactory {
         List<ItemExternalId> itemExternalIds = new ArrayList<>();
         Set<ItemExternalId> processedExternalIds = new HashSet<>();
 
-        if(!item.getExternalIds().isEmpty())
+        if (!item.getExternalIds().isEmpty())
             itemExternalIds.addAll(item.getExternalIds());
 
         if (externalIds == null)
@@ -37,19 +37,17 @@ public class ItemExternalIdFactory {
             ItemExternalId externalId = create(externalIds.get(i), item, errors);
             if (externalId != null) {
 
-                if (!processedExternalIds.contains(externalId) ) {
+                if (!processedExternalIds.contains(externalId)) {
 
-                    if(ifContains(itemExternalIds, externalId)) {
+                    if (itemExternalIds.size() > 0 && ifContains(itemExternalIds, externalId)) {
                         processedExternalIds.add(externalId);
                         if (externalIds.size() == i + 1)
                             return itemExternalIds;
-                    }
-                    else {
+                    } else {
                         itemExternalIds.add(externalId);
                         processedExternalIds.add(externalId);
                     }
-                }
-                else {
+                } else {
                     errors.popNestedPath();
                     errors.rejectValue(
                             nestedPath, "field.duplicateEntry",
@@ -84,13 +82,21 @@ public class ItemExternalIdFactory {
         return new ItemExternalId(itemSource.get(), externalId.getIdentifier(), item);
     }
 
-    public boolean ifContains(List<ItemExternalId> itemExternalIds,ItemExternalId newExternalId){
+    public boolean ifContains(List<ItemExternalId> itemExternalIds, ItemExternalId newExternalId) {
         AtomicBoolean contains = new AtomicBoolean(false);
+
         itemExternalIds.forEach(
-                itemExternalId ->{
-                    if(itemExternalId.getItem().getId().equals(newExternalId.getItem().getId()) && itemExternalId.getItem().getPersistentId().equals(newExternalId.getItem().getPersistentId())
-                        && itemExternalId.getIdentifier().equals(newExternalId.getIdentifier()) && itemExternalId.getIdentifierService().equals(newExternalId.getIdentifierService()))
-                       contains.set(true);
+                itemExternalId -> {
+                    if (newExternalId.getIdentifier().isEmpty()) {
+                        if (itemExternalId.getItem().getId().equals(newExternalId.getItem().getId()) && itemExternalId.getItem().getPersistentId().equals(newExternalId.getItem().getPersistentId())
+                                && itemExternalId.getIdentifierService().equals(newExternalId.getIdentifierService()))
+                            contains.set(true);
+                    } else {
+                        if (itemExternalId.getItem().getId().equals(newExternalId.getItem().getId()) && itemExternalId.getItem().getPersistentId().equals(newExternalId.getItem().getPersistentId())
+                                && itemExternalId.getIdentifier().equals(newExternalId.getIdentifier()) && itemExternalId.getIdentifierService().equals(newExternalId.getIdentifierService()))
+                            contains.set(true);
+                    }
+
                 }
         );
 

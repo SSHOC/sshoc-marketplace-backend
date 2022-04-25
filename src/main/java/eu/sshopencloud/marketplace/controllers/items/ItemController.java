@@ -30,4 +30,13 @@ public class ItemController {
     }
 
 
+    @Operation(summary = "Get all deleted-items available in pages")
+    @GetMapping(path = "/deleted-items", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedItemsBasic> getDeletedItems(@RequestParam(value = "order", required = false) ItemOrder order,
+                                                               @RequestParam(value = "page", required = false) Integer page,
+                                                               @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
+        return ResponseEntity.ok(itemService.getDeletedItems(order, pageCoordsValidator.validate(page, perpage)));
+    }
+
 }

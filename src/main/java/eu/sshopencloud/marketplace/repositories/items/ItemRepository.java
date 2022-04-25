@@ -1,7 +1,11 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
+import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.items.DraftItem;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -88,5 +92,12 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
 
     @Query("select i from Item i left join VersionedItem v ON i.versionedItem = v WHERE  (i.status = 'APPROVED' AND v.active = true) OR (i.proposedVersion = true AND v.active = true)")
     List<Item> findAllItemsToReindex();
+
+    @Query(value = "SELECT i.id FROM items i\n" +
+            "            INNER JOIN versioned_items v \n" +
+            "            ON v.id = i.persistent_id\n" +
+            "            WHERE v.curr_ver_id = i.id \n" +
+            "            AND v.status = 'DELETED' AND i.category != 'STEP'", nativeQuery = true)
+    List<Long> getDeletedItemsIds2();
 
 }
