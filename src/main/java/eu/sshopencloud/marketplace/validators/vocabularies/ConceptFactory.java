@@ -93,7 +93,7 @@ public class ConceptFactory {
                 Concept object;
                 // either uri or code and vocabulary must be provided
                 if (relatedConcept.getUri() == null) {
-                    object = createByCodeAndVocabularyId(relatedConcept.getCode().toLowerCase(Locale.ROOT), relatedConcept.getVocabulary(), errors);
+                    object = createByCodeAndVocabularyId(relatedConcept.getCode(), relatedConcept.getVocabulary(), errors);
                 } else {
                     object = createByUri(relatedConcept.getUri(), errors);
                 }
@@ -131,14 +131,9 @@ public class ConceptFactory {
                     .code(code).vocabulary(vocabulary.getCode()).build());
 
             if (conceptHolder.isEmpty()) {
-                Optional<Concept> optionalConceptHolder = conceptRepository.findByCodeAndVocabularyCode(code, vocabulary.getCode());
                 // assign error to code field because vocabulary was validated earlier
-                if (optionalConceptHolder.isEmpty()) {
-                    errors.rejectValue("code", "field.notExist", "Concept does not exist.");
-                    return null;
-                }else {
-                    return optionalConceptHolder.get();
-                }
+                errors.rejectValue("code", "field.notExist", "Concept does not exist.");
+                return null;
             }
 
             return conceptHolder.get();
