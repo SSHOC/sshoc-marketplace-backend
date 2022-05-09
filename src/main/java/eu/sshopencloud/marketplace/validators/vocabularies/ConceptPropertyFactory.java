@@ -24,7 +24,7 @@ public class ConceptPropertyFactory {
         Concept concept;
         // either uri or code and vocabulary must be provided
         if (conceptId.getUri() == null) {
-            concept = conceptFactory.createByCodeAndVocabularyId(conceptId.getCode().toLowerCase(Locale.ROOT), conceptId.getVocabulary(), errors);
+            concept = conceptFactory.createByCodeAndVocabularyId(conceptId.getCode(), conceptId.getVocabulary(), errors);
         } else {
             concept = conceptFactory.createByUri(conceptId.getUri(), errors);
         }
