@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Service
@@ -23,7 +24,7 @@ public class ConceptPropertyFactory {
         Concept concept;
         // either uri or code and vocabulary must be provided
         if (conceptId.getUri() == null) {
-            concept = conceptFactory.createByCodeAndVocabularyId(conceptId.getCode(), conceptId.getVocabulary(), errors);
+            concept = conceptFactory.createByCodeAndVocabularyId(conceptId.getCode().toLowerCase(Locale.ROOT), conceptId.getVocabulary(), errors);
         } else {
             concept = conceptFactory.createByUri(conceptId.getUri(), errors);
         }

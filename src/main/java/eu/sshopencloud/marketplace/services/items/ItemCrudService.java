@@ -191,7 +191,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return currItem.getCategory().equals(ItemCategory.WORKFLOW);
     }
 
-
     protected I updateItem(String persistentId, C itemCore, boolean draft, boolean approved)
             throws VersionNotChangedException {
         I currentItem = loadItemForCurrentUser(persistentId);
@@ -273,11 +272,16 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved, boolean conflict) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
+
+            unlinkItemMedia(prevVersion);
+
             I version = modifyItem(itemCore, prevVersion);
             itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), prevVersion, null, true);
 
             if (!draft)
                 commitItemDraft(version);
+
+            linkItemMedia(version);
 
             return version;
         }
@@ -287,6 +291,8 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         version = saveVersionInHistory(version, prevVersion, draft, approved);
 
         itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), version, prevVersion, draft);
+
+        linkItemMedia(version);
 
         return version;
     }
@@ -342,7 +348,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         return version;
     }
-
 
     private void linkItemMedia(I version) {
         for (ItemMedia media : version.getMedia()) {
@@ -578,7 +583,14 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     private void unlinkItemMedia(I version) {
+        System.out.println("Eliza media size unlink " + version.getMedia());
         version.getMedia().stream().map(ItemMedia::getMediaId).forEach(mediaStorageService::removeMediaLink);
+    }
+
+    private void unlinkAllItemMedia(I version) {
+        System.out.println("Eliza media size unlink 2" + version.getMedia());
+        version.getMedia().stream().map(ItemMedia::getMediaId).forEach(mediaStorageService::removeMediaLink);
+        version.setMedia(new ArrayList<>());
     }
 
 
