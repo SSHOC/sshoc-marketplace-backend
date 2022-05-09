@@ -292,8 +292,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), version, prevVersion, draft);
 
-        linkItemMedia(version);
-
         return version;
     }
 
