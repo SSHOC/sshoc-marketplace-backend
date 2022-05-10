@@ -98,6 +98,12 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
             "            ON v.id = i.persistent_id\n" +
             "            WHERE v.curr_ver_id = i.id \n" +
             "            AND v.status = 'DELETED' AND i.category != 'STEP'", nativeQuery = true)
-    List<Long> getDeletedItemsIds2();
+    List<Long> getDeletedItemsIds();
+
+    @Query(value = "SELECT DISTINCT (v.curr_ver_id) FROM items i\n" +
+            "            INNER JOIN versioned_items v \n" +
+            "            ON v.id = i.persistent_id\n" +
+            "            WHERE i.info_contributor_id = :contributorId ", nativeQuery = true)
+    List<Long> getContributedItemsIds(Long contributorId);
 
 }

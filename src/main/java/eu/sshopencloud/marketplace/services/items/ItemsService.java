@@ -255,7 +255,29 @@ public class ItemsService extends ItemVersionService<Item> {
 
         if (order == null) order = ItemOrder.MODIFIED_ON;
 
-        List<Item> list = itemRepository.getDeletedItemsIds2().stream().map(id -> itemRepository.findById(id).get()).collect(Collectors.toList());
+        List<Item> list = itemRepository.getDeletedItemsIds().stream().map(id -> itemRepository.findById(id).get()).collect(Collectors.toList());
+
+        Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), list.size());
+
+        List<ItemBasicDto> items = pages.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
+
+        return PaginatedItemsBasic.builder().items(items)
+                .count(pages.getContent().size()).hits(pages.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(pages.getTotalPages())
+                .build();
+    }
+
+    public PaginatedItemsBasic getContributedItems(ItemOrder order, PageCoords pageCoords) {
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+
+        if (currentUser == null )
+            return null;
+
+        if (order == null) order = ItemOrder.MODIFIED_ON;
+
+        List<Item> list = itemRepository.getContributedItemsIds(currentUser.getId()).stream().map(id -> itemRepository.findById(id).get()).collect(Collectors.toList());
 
         Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), list.size());
 
