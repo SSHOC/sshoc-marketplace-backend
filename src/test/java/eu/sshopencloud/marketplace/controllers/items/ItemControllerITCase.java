@@ -1,7 +1,10 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,12 +41,17 @@ public class ItemControllerITCase {
 
     private String CONTRIBUTOR_JWT;
     private String ADMINISTRATOR_JWT;
+    private String MODERATOR_JWT;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @Before
     public void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
+        MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
     }
 
     @Test
@@ -111,4 +118,202 @@ public class ItemControllerITCase {
                 .andExpect(jsonPath("items[1].lastInfoUpdate", notNullValue()));
     }
 
+    @Test
+    public void shouldGetContributedItems() throws Exception {
+
+        mvc.perform(get("/api/contributed-items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("order", "label")
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(14)))
+                .andExpect(jsonPath("items[0].persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("items[0].id", is(9)))
+                .andExpect(jsonPath("items[1].persistentId", is("prblMo")))
+                .andExpect(jsonPath("items[1].id", is(13)))
+                .andExpect(jsonPath("items[2].persistentId", is("dVZeir")))
+                .andExpect(jsonPath("items[2].id", is(15)))
+                .andExpect(jsonPath("items[3].persistentId", is("2CwYCU")))
+                .andExpect(jsonPath("items[3].id", is(14)))
+                .andExpect(jsonPath("items[4].persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("items[4].id", is(12)))
+                .andExpect(jsonPath("items[5].persistentId", is("gQu2wl")))
+                .andExpect(jsonPath("items[5].id", is(24)))
+                .andExpect(jsonPath("items[6].persistentId", is("EPax9f")))
+                .andExpect(jsonPath("items[6].id", is(16)))
+                .andExpect(jsonPath("items[7].persistentId", is("xYpCdU")))
+                .andExpect(jsonPath("items[7].id", is(18)))
+                .andExpect(jsonPath("items[8].persistentId", is("U8vUos")))
+                .andExpect(jsonPath("items[8].id", is(20)))
+                .andExpect(jsonPath("items[9].persistentId", is("sQY6US")))
+                .andExpect(jsonPath("items[9].id", is(23)))
+                .andExpect(jsonPath("items[10].persistentId", is("HLYtzq")))
+                .andExpect(jsonPath("items[10].id", is(17)))
+                .andExpect(jsonPath("items[11].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("items[11].id", is(22)))
+                .andExpect(jsonPath("items[12].persistentId", is("dU0BZc")))
+                .andExpect(jsonPath("items[12].id", is(11)))
+                .andExpect(jsonPath("items[13].persistentId", is("k68NbF")))
+                .andExpect(jsonPath("items[13].id", is(19)));
+
+    }
+
+    @Test
+    public void shouldCreateApproveAndGetContributedItems() throws Exception {
+
+        mvc.perform(get("/api/contributed-items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("order", "label")
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(14)))
+                .andExpect(jsonPath("items[0].persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("items[0].id", is(9)))
+                .andExpect(jsonPath("items[1].persistentId", is("prblMo")))
+                .andExpect(jsonPath("items[1].id", is(13)))
+                .andExpect(jsonPath("items[2].persistentId", is("dVZeir")))
+                .andExpect(jsonPath("items[2].id", is(15)))
+                .andExpect(jsonPath("items[3].persistentId", is("2CwYCU")))
+                .andExpect(jsonPath("items[3].id", is(14)))
+                .andExpect(jsonPath("items[4].persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("items[4].id", is(12)))
+                .andExpect(jsonPath("items[5].persistentId", is("gQu2wl")))
+                .andExpect(jsonPath("items[5].id", is(24)))
+                .andExpect(jsonPath("items[6].persistentId", is("EPax9f")))
+                .andExpect(jsonPath("items[6].id", is(16)))
+                .andExpect(jsonPath("items[7].persistentId", is("xYpCdU")))
+                .andExpect(jsonPath("items[7].id", is(18)))
+                .andExpect(jsonPath("items[8].persistentId", is("U8vUos")))
+                .andExpect(jsonPath("items[8].id", is(20)))
+                .andExpect(jsonPath("items[9].persistentId", is("sQY6US")))
+                .andExpect(jsonPath("items[9].id", is(23)))
+                .andExpect(jsonPath("items[10].persistentId", is("HLYtzq")))
+                .andExpect(jsonPath("items[10].id", is(17)))
+                .andExpect(jsonPath("items[11].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("items[11].id", is(22)))
+                .andExpect(jsonPath("items[12].persistentId", is("dU0BZc")))
+                .andExpect(jsonPath("items[12].id", is(11)))
+                .andExpect(jsonPath("items[13].persistentId", is("k68NbF")))
+                .andExpect(jsonPath("items[13].id", is(19)));
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("A first");
+        dataset.setDescription("Lorem ipsum");
+
+        String payload = mapper.writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        String response = mvc.perform(post("/api/datasets")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("A first")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        String datasetPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(response, DatasetDto.class).getPersistentId();
+
+        long datasetId = TestJsonMapper.serializingObjectMapper()
+                .readValue(response, DatasetDto.class).getId();
+
+        mvc.perform(get("/api/contributed-items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("order", "label")
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(15)))
+                .andExpect(jsonPath("items[0].persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("items[0].id", is((int) datasetId)))
+                .andExpect(jsonPath("items[1].persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("items[1].id", is(9)))
+                .andExpect(jsonPath("items[2].persistentId", is("prblMo")))
+                .andExpect(jsonPath("items[2].id", is(13)))
+                .andExpect(jsonPath("items[3].persistentId", is("dVZeir")))
+                .andExpect(jsonPath("items[3].id", is(15)))
+                .andExpect(jsonPath("items[4].persistentId", is("2CwYCU")))
+                .andExpect(jsonPath("items[4].id", is(14)))
+                .andExpect(jsonPath("items[5].persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("items[5].id", is(12)))
+                .andExpect(jsonPath("items[6].persistentId", is("gQu2wl")))
+                .andExpect(jsonPath("items[6].id", is(24)))
+                .andExpect(jsonPath("items[7].persistentId", is("EPax9f")))
+                .andExpect(jsonPath("items[7].id", is(16)))
+                .andExpect(jsonPath("items[8].persistentId", is("xYpCdU")))
+                .andExpect(jsonPath("items[8].id", is(18)))
+                .andExpect(jsonPath("items[9].persistentId", is("U8vUos")))
+                .andExpect(jsonPath("items[9].id", is(20)))
+                .andExpect(jsonPath("items[10].persistentId", is("sQY6US")))
+                .andExpect(jsonPath("items[10].id", is(23)))
+                .andExpect(jsonPath("items[11].persistentId", is("HLYtzq")))
+                .andExpect(jsonPath("items[11].id", is(17)))
+                .andExpect(jsonPath("items[12].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("items[12].id", is(22)))
+                .andExpect(jsonPath("items[13].persistentId", is("dU0BZc")))
+                .andExpect(jsonPath("items[13].id", is(11)))
+                .andExpect(jsonPath("items[14].persistentId", is("k68NbF")))
+                .andExpect(jsonPath("items[14].id", is(19)));
+
+
+        dataset.setLabel("A first ");
+        String payloadUpdate = mapper.writeValueAsString(dataset);
+        log.debug("JSON: " + payloadUpdate);
+
+        String responseUpdated = mvc.perform(put("/api/datasets/{id}",datasetPersistentId)
+                        .content(payloadUpdate)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("A first ")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        long datasetIdUpdated = TestJsonMapper.serializingObjectMapper()
+                .readValue(responseUpdated, DatasetDto.class).getId();
+
+        mvc.perform(get("/api/contributed-items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("order", "label")
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(15)))
+                .andExpect(jsonPath("items[0].persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("items[0].id", is((int) datasetIdUpdated)))
+                .andExpect(jsonPath("items[1].persistentId", is("dmbq4v")))
+                .andExpect(jsonPath("items[1].id", is(9)))
+                .andExpect(jsonPath("items[2].persistentId", is("prblMo")))
+                .andExpect(jsonPath("items[2].id", is(13)))
+                .andExpect(jsonPath("items[3].persistentId", is("dVZeir")))
+                .andExpect(jsonPath("items[3].id", is(15)))
+                .andExpect(jsonPath("items[4].persistentId", is("2CwYCU")))
+                .andExpect(jsonPath("items[4].id", is(14)))
+                .andExpect(jsonPath("items[5].persistentId", is("tqmbGY")))
+                .andExpect(jsonPath("items[5].id", is(12)))
+                .andExpect(jsonPath("items[6].persistentId", is("gQu2wl")))
+                .andExpect(jsonPath("items[6].id", is(24)))
+                .andExpect(jsonPath("items[7].persistentId", is("EPax9f")))
+                .andExpect(jsonPath("items[7].id", is(16)))
+                .andExpect(jsonPath("items[8].persistentId", is("xYpCdU")))
+                .andExpect(jsonPath("items[8].id", is(18)))
+                .andExpect(jsonPath("items[9].persistentId", is("U8vUos")))
+                .andExpect(jsonPath("items[9].id", is(20)))
+                .andExpect(jsonPath("items[10].persistentId", is("sQY6US")))
+                .andExpect(jsonPath("items[10].id", is(23)))
+                .andExpect(jsonPath("items[11].persistentId", is("HLYtzq")))
+                .andExpect(jsonPath("items[11].id", is(17)))
+                .andExpect(jsonPath("items[12].persistentId", is("BNw43H")))
+                .andExpect(jsonPath("items[12].id", is(22)))
+                .andExpect(jsonPath("items[13].persistentId", is("dU0BZc")))
+                .andExpect(jsonPath("items[13].id", is(11)))
+                .andExpect(jsonPath("items[14].persistentId", is("k68NbF")))
+                .andExpect(jsonPath("items[14].id", is(19)));
+
+    }
 }

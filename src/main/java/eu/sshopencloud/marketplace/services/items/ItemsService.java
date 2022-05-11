@@ -19,6 +19,7 @@ import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.items.exception.BasicItemsComparator;
 import eu.sshopencloud.marketplace.services.search.SearchConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
@@ -268,7 +269,9 @@ public class ItemsService extends ItemVersionService<Item> {
                 .build();
     }
 
+    //ELiza
     public PaginatedItemsBasic getContributedItems(ItemOrder order, PageCoords pageCoords) {
+        BasicItemsComparator comparator = new BasicItemsComparator();
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
 
@@ -282,6 +285,9 @@ public class ItemsService extends ItemVersionService<Item> {
         Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), list.size());
 
         List<ItemBasicDto> items = pages.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
+
+        if(order != ItemOrder.MODIFIED_ON)
+            items.sort(comparator);
 
         return PaginatedItemsBasic.builder().items(items)
                 .count(pages.getContent().size()).hits(pages.getTotalElements())
