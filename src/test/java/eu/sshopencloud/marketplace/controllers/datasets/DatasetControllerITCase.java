@@ -2130,7 +2130,7 @@ public class DatasetControllerITCase {
         Integer datasetId = 9;
 
         String otherTrainingMaterialPersistentId = "WfcKvG";
-        long otherTrainingMaterialVersionId = 6L;
+        Long otherTrainingMaterialVersionId = 6L;
 
         mvc.perform(get("/api/datasets/{persistentId}/diff", datasetPersistentId)
                         .contentType(MediaType.APPLICATION_JSON)
