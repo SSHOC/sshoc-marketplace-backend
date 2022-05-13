@@ -39,4 +39,13 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getDeletedItems(order, pageCoordsValidator.validate(page, perpage)));
     }
 
+    @Operation(summary = "Get all contributed-items available in pages")
+    @GetMapping(path = "/contributed-items", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedItemsBasic> getContributedItems(@RequestParam(value = "order", required = false) ItemOrder order,
+                                                               @RequestParam(value = "page", required = false) Integer page,
+                                                               @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
+        return ResponseEntity.ok(itemService.getContributedItems(order, pageCoordsValidator.validate(page, perpage)));
+    }
+
 }
