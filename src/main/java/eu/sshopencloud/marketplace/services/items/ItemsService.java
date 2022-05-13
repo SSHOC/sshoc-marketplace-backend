@@ -269,7 +269,7 @@ public class ItemsService extends ItemVersionService<Item> {
                 .build();
     }
 
-    //ELiza
+
     public PaginatedItemsBasic getContributedItems(ItemOrder order, PageCoords pageCoords) {
         BasicItemsComparator comparator = new BasicItemsComparator();
 
