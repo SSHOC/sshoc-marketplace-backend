@@ -581,12 +581,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
 
     private void unlinkItemMedia(I version) {
-        System.out.println("Eliza media size unlink " + version.getMedia());
         version.getMedia().stream().map(ItemMedia::getMediaId).forEach(mediaStorageService::removeMediaLink);
     }
 
     private void unlinkAllItemMedia(I version) {
-        System.out.println("Eliza media size unlink 2" + version.getMedia());
         version.getMedia().stream().map(ItemMedia::getMediaId).forEach(mediaStorageService::removeMediaLink);
         version.setMedia(new ArrayList<>());
     }
