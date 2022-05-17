@@ -9,17 +9,14 @@ import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
-import eu.sshopencloud.marketplace.model.items.DraftItem;
-import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.items.ItemContributor;
+import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.services.items.exception.BasicItemsComparator;
+import eu.sshopencloud.marketplace.services.items.exception.ItemsComparator;
 import eu.sshopencloud.marketplace.services.search.SearchConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
@@ -271,25 +268,21 @@ public class ItemsService extends ItemVersionService<Item> {
 
 
     public PaginatedItemsBasic getContributedItems(ItemOrder order, PageCoords pageCoords) {
-        BasicItemsComparator comparator = new BasicItemsComparator();
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-
         if (currentUser == null )
             return null;
 
         if (order == null) order = ItemOrder.MODIFIED_ON;
 
-        List<Item> list = itemRepository.getContributedItemsIds(currentUser.getId()).stream().map(id -> itemRepository.findById(id).get()).collect(Collectors.toList());
+        List<Item> list = itemRepository.findByIdInAndStatusIsIn(itemRepository.getContributedItemsIds(currentUser.getId()), List.of(ItemStatus.APPROVED, ItemStatus.INGESTED, ItemStatus.SUGGESTED));
 
         Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), list.size());
 
-        List<ItemBasicDto> items = pages.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
-
         if(order != ItemOrder.MODIFIED_ON)
-            items.sort(comparator);
+            list.sort(new ItemsComparator());
 
-        return PaginatedItemsBasic.builder().items(items)
+        return PaginatedItemsBasic.builder().items(ItemConverter.convertItem(list))
                 .count(pages.getContent().size()).hits(pages.getTotalElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(pages.getTotalPages())

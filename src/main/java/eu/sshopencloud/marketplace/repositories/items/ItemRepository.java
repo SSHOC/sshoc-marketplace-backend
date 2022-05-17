@@ -1,11 +1,8 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
-import eu.sshopencloud.marketplace.model.auth.User;
-import eu.sshopencloud.marketplace.model.items.DraftItem;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -100,10 +97,12 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
             "            AND v.status = 'DELETED' AND i.category != 'STEP'", nativeQuery = true)
     List<Long> getDeletedItemsIds();
 
-    @Query(value = "SELECT DISTINCT (v.curr_ver_id) FROM items i\n" +
-            "            INNER JOIN versioned_items v \n" +
-            "            ON v.id = i.persistent_id\n" +
-            "            WHERE i.info_contributor_id = :contributorId ", nativeQuery = true)
+    @Query(value = " SELECT DISTINCT(v.curr_ver_id) FROM items i" +
+            "    INNER JOIN versioned_items v " +
+            "    ON v.id = i.persistent_id" +
+            "    WHERE i.info_contributor_id = :contributorId", nativeQuery = true)
     List<Long> getContributedItemsIds(Long contributorId);
 
+    @Query("select i from Item i where i.id in :idList AND i.status in :itemStatusList AND i.category <> 'STEP' ")
+    List<Item> findByIdInAndStatusIsIn(@Param("idList") List<Long> idList, @Param("itemStatusList") List<ItemStatus> itemStatusList);
 }
