@@ -103,6 +103,6 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
             "    WHERE i.info_contributor_id = :contributorId", nativeQuery = true)
     List<Long> getContributedItemsIds(Long contributorId);
 
-    @Query("select i from Item i where i.id in :idList AND i.status in :itemStatusList ")
+    @Query("select i from Item i where i.id in :idList AND i.status in :itemStatusList AND i.category <> 'STEP' ")
     List<Item> findByIdInAndStatusIsIn(@Param("idList") List<Long> idList, @Param("itemStatusList") List<ItemStatus> itemStatusList);
 }
