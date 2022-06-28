@@ -191,7 +191,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return currItem.getCategory().equals(ItemCategory.WORKFLOW);
     }
 
-
     protected I updateItem(String persistentId, C itemCore, boolean draft, boolean approved)
             throws VersionNotChangedException {
         I currentItem = loadItemForCurrentUser(persistentId);
@@ -217,7 +216,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             Item itemFromSource = getLastItemBySource(currentItem, itemCore.getSource().getId(),
                     itemCore.getSourceItemId());
             if (itemFromSource != null) {
-                itemDtoFromSource = ItemsComparator.toDto(itemFromSource);
+                itemDtoFromSource = ItemsComparator.toDtoSource(itemFromSource);
                 itemDtoFromSource.setRelatedItems(itemRelatedItemService.getItemRelatedItems(itemFromSource));
                 complete(itemDtoFromSource, itemFromSource);
             }
@@ -251,15 +250,13 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private Item getLastItemBySource(@NonNull I currentItem, @NonNull Long sourceId, @NonNull String sourceItemId) {
         List<Item> history = loadItemHistory(currentItem);
-        for (Item historicalItem : history) {
+        for (Item historicalItem : history)
             if (historicalItem.getSource() != null) {
                 if (sourceId.equals(historicalItem.getSource().getId()) && sourceItemId.equals(
-                        historicalItem.getSourceItemId())) {
-                    // FIX ME whether check also an information contributor - System importer ?
+                        historicalItem.getSourceItemId()) && historicalItem.getInformationContributor().isSystemContributor()) {
                     return historicalItem;
                 }
             }
-        }
         return null;
     }
 
@@ -275,11 +272,16 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private I prepareAndPushItemVersion(C itemCore, I prevVersion, boolean draft, boolean approved, boolean conflict) {
         // If there exists a draft item (owned by current user) then it should be modified instead of the current item version
         if (prevVersion != null && prevVersion.getStatus().equals(ItemStatus.DRAFT)) {
+
+            unlinkItemMedia(prevVersion);
+
             I version = modifyItem(itemCore, prevVersion);
             itemRelatedItemService.updateRelatedItems(itemCore.getRelatedItems(), prevVersion, null, true);
 
             if (!draft)
                 commitItemDraft(version);
+
+            linkItemMedia(version);
 
             return version;
         }
@@ -344,7 +346,6 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         return version;
     }
-
 
     private void linkItemMedia(I version) {
         for (ItemMedia media : version.getMedia()) {
@@ -581,6 +582,11 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     private void unlinkItemMedia(I version) {
         version.getMedia().stream().map(ItemMedia::getMediaId).forEach(mediaStorageService::removeMediaLink);
+    }
+
+    private void unlinkAllItemMedia(I version) {
+        version.getMedia().stream().map(ItemMedia::getMediaId).forEach(mediaStorageService::removeMediaLink);
+        version.setMedia(new ArrayList<>());
     }
 
 

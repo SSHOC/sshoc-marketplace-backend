@@ -339,7 +339,7 @@ public class DatasetControllerITCase {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with malformed Url");
         dataset.setDescription("Lorem ipsum");
-        dataset.setAccessibleAt(Arrays.asList("Malformed Url"));
+        dataset.setAccessibleAt(List.of("Malformed Url"));
 
         String payload = mapper.writeValueAsString(dataset);
         log.debug("JSON: " + payload);
@@ -532,7 +532,7 @@ public class DatasetControllerITCase {
         vocabulary1.setCode("software-license");
         concept1.setVocabulary(vocabulary1);
         property1.setConcept(concept1);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         dataset.setProperties(properties);
 
@@ -566,12 +566,12 @@ public class DatasetControllerITCase {
         dataset.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(3l);
+        actor.setId(3L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         dataset.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -589,7 +589,7 @@ public class DatasetControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         dataset.setProperties(properties);
@@ -644,7 +644,6 @@ public class DatasetControllerITCase {
     @Test
     public void shouldUpdateDatasetWithApprovedFalseForSystemModerator() throws Exception {
         String datasetPersistentId = "dmbq4v";
-        Integer datasetCurrentId = 9;
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
@@ -659,7 +658,7 @@ public class DatasetControllerITCase {
         vocabulary1.setCode("software-license");
         concept1.setVocabulary(vocabulary1);
         property1.setConcept(concept1);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         dataset.setProperties(properties);
 
@@ -770,7 +769,7 @@ public class DatasetControllerITCase {
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         dataset.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -785,7 +784,7 @@ public class DatasetControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         dataset.setProperties(properties);
@@ -1716,7 +1715,6 @@ public class DatasetControllerITCase {
         String toolPersistentId = "Xgufde";
         int toolId = 3;
         String datasetSecondPersistentId = "dmbq4v";
-        int datasetSecondId = 103;
 
         String workflowSecondPersistentId = "vHQEhe";
         int workflowSecondId = 21;
@@ -1861,9 +1859,6 @@ public class DatasetControllerITCase {
 
         String mergedSecondPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(mergedResponse2, DatasetDto.class).getPersistentId();
-
-        int mergedSecondId = TestJsonMapper.serializingObjectMapper()
-                .readValue(mergedResponse2, DatasetDto.class).getId().intValue();
 
 
         mvc.perform(
@@ -2045,7 +2040,7 @@ public class DatasetControllerITCase {
         DatasetDto dataset = TestJsonMapper.serializingObjectMapper()
                 .readValue(responseDataset, DatasetDto.class);
 
-        dataset.setDateCreated(ZonedDateTime.of(LocalDate.of(2021,12,1), LocalTime.of(03,10), ZoneId.of("Europe/Paris")));
+        dataset.setDateCreated(ZonedDateTime.of(LocalDate.of(2021,12,1), LocalTime.of(3,10), ZoneId.of("Europe/Paris")));
 
         String payload = mapper.writeValueAsString(dataset);
         log.debug("JSON: " + payload);
