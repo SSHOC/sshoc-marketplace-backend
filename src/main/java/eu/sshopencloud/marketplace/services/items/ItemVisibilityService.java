@@ -72,8 +72,10 @@ class ItemVisibilityService {
     }
 
     public boolean shouldSeeItem(Item item, User user) {
-        if (item.getStatus().equals(ItemStatus.DEPRECATED))
+        if (ItemStatus.DEPRECATED.equals(item.getStatus()) || (item.getVersionedItem() != null &&
+                VersionedItemStatus.DELETED.equals(item.getVersionedItem().getStatus()))) {
             return false;
+        }
         return hasAccessToVersion(item, user);
     }
 
