@@ -23,10 +23,12 @@ class ItemVisibilityService {
     private final UserService userService;
 
 
-    public void setupItemVersionVisibility(Item version, VersionedItem versionedItem, boolean changeStatus, boolean approved) {
+    public void setupItemVersionVisibility(Item version, VersionedItem versionedItem, boolean changeStatus,
+            boolean approved) {
         User currentUser = userService.loadLoggedInUser();
-        if (currentUser == null || !currentUser.isContributor())
+        if (currentUser == null || !currentUser.isContributor()) {
             throw new AccessDeniedException("Not authorized to create new item version");
+        }
 
         version.setInformationContributor(currentUser);
         assignItemVersionStatus(version, versionedItem, currentUser, changeStatus, approved);
@@ -35,11 +37,12 @@ class ItemVisibilityService {
         version.setProposedVersion(proposed);
     }
 
-    private void assignItemVersionStatus(Item version, VersionedItem versionedItem, User currentUser, boolean changeStatus, boolean approved) {
+    private void assignItemVersionStatus(Item version, VersionedItem versionedItem, User currentUser,
+            boolean changeStatus, boolean approved) {
         if (!versionedItem.isActive()) {
             throw new IllegalArgumentException(
-                    String.format("Deleted/merged item with id %s cannot be modified anymore", versionedItem.getPersistentId())
-            );
+                    String.format("Deleted/merged item with id %s cannot be modified anymore",
+                            versionedItem.getPersistentId()));
         }
 
         if (!changeStatus && version.getPrevVersion() != null) {
@@ -72,8 +75,10 @@ class ItemVisibilityService {
     }
 
     public boolean shouldSeeItem(Item item, User user) {
-        if (item.getStatus().equals(ItemStatus.DEPRECATED))
+        if (ItemStatus.DEPRECATED.equals(item.getStatus()) || (item.getVersionedItem() != null &&
+                VersionedItemStatus.DELETED.equals(item.getVersionedItem().getStatus()))) {
             return false;
+        }
         return hasAccessToVersion(item, user);
     }
 
@@ -82,36 +87,44 @@ class ItemVisibilityService {
 
         ItemStatus itemStatus = version.getStatus();
 
-        if (itemStatus.equals(ItemStatus.APPROVED))
+        if (itemStatus.equals(ItemStatus.APPROVED)) {
             return true;
+        }
 
-        if (user == null)
+        if (user == null) {
             return false;
+        }
 
-        if (user.isModerator())
+        if (user.isModerator()) {
             return true;
+        }
 
-        return List.of(SUGGESTED, INGESTED, DISAPPROVED).contains(itemStatus)
-                && user.isContributor()
-                && user.equals(version.getInformationContributor());
+        return List.of(SUGGESTED, INGESTED, DISAPPROVED).contains(itemStatus) && user.isContributor() &&
+                user.equals(version.getInformationContributor());
     }
 
 
     public boolean isTheLatestVersion(Item item) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         if (currentUser != null) {
-            if (currentUser.isModerator() && item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
+            if (currentUser.isModerator() && item.getVersionedItem().getCurrentVersion().getId().equals(item.getId())) {
                 return true;
-            if (currentUser.isModerator() && !item.getVersionedItem().getCurrentVersion().getId().equals(item.getId()))
+            }
+            if (currentUser.isModerator() &&
+                    !item.getVersionedItem().getCurrentVersion().getId().equals(item.getId())) {
                 return false;
-            if (currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor() && currentUser.equals(item.getInformationContributor())) {
+            }
+            if (currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor() &&
+                    currentUser.equals(item.getInformationContributor())) {
                 return item.getVersionedItem().getCurrentVersion().getId().equals(item.getId());
             }
-            if (currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor() && !currentUser.equals(item.getInformationContributor()))
+            if (currentUser.isContributor() && !currentUser.isModerator() && !currentUser.isSystemContributor() &&
+                    !currentUser.equals(item.getInformationContributor())) {
                 return item.getStatus().equals(APPROVED);
-
-        }else {
-            return item.getStatus().equals(APPROVED) && item.getVersionedItem().getCurrentVersion().getId().equals(item.getId());
+            }
+        } else {
+            return item.getStatus().equals(APPROVED) &&
+                    item.getVersionedItem().getCurrentVersion().getId().equals(item.getId());
         }
         return false;
     }
