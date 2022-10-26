@@ -607,6 +607,57 @@ public class ToolControllerITCase {
     }
 
     @Test
+    public void shouldUpdateToolAddAndRemoveExternalId() throws Exception {
+        String toolPersistentId = "n21Kfc";
+        int toolCurrentId = 1;
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Gephi");
+        tool.setDescription("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.");
+        tool.setAccessibleAt(Arrays.asList("https://gephi.org/"));
+
+        ItemExternalIdCore id = new ItemExternalIdCore();
+        id.setIdentifier("myId");
+        ItemExternalIdId idid = new ItemExternalIdId();
+        idid.setCode("GitHub");
+        id.setIdentifierService(idid);
+
+        tool.setExternalIds(Arrays.asList(id));
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Gephi")))
+                .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
+                .andExpect(jsonPath("externalIds[0].identifier", is("myId")));
+
+        tool.setExternalIds(List.of());
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(tool);
+
+        mvc.perform(put("/api/tools-services/{id}", toolPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("label", is("Gephi")))
+                .andExpect(jsonPath("description", is("**Gephi** is the leading visualization and exploration software for all kinds of graphs and networks.")))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://gephi.org/")))
+                .andExpect(jsonPath("externalIds", hasSize(0)));
+    }
+
+    @Test
     public void shouldNotUpdateToolWhenLabelIsNull() throws Exception {
         String toolPersistentId = "Xgufde";
 
