@@ -24,9 +24,6 @@ public class ItemExternalIdFactory {
         List<ItemExternalId> itemExternalIds = new ArrayList<>();
         Set<ItemExternalId> processedExternalIds = new HashSet<>();
 
-        if (!item.getExternalIds().isEmpty())
-            itemExternalIds.addAll(item.getExternalIds());
-
         if (externalIds == null)
             return itemExternalIds;
 
