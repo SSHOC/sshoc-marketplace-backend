@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0039-SSHOC_81-user-config
+      author: mkozak
+      description: Add column to users
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              name: config
+              type: boolean
+              constraints:
+                nullable: false
+              defaultValue: false
+
+  - changeSet:
+      id: 0039-SSHOC_81-set-user-config
+      author: mkozak
+      description: Set the config depending on provider (as far only local users are config users)
+      changes:
+        - sql:
+            sql: >
+              update users set config = true where provider is null

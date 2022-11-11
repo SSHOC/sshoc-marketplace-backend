@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.repositories.items.ItemContributorCriteriaRepository;
+import eu.sshopencloud.marketplace.validators.CollectionUtils;
 import eu.sshopencloud.marketplace.validators.actors.ActorRoleFactory;
 import eu.sshopencloud.marketplace.validators.actors.ActorFactory;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class ItemContributorFactory {
 
 
     public List<ItemContributor> create(List<ItemContributorId> itemContributorIds, Item item, Errors errors, String nestedPath) {
-        if (itemContributorIds == null)
+        if (itemContributorIds == null || CollectionUtils.isAllNulls(itemContributorIds))
             return new ArrayList<>();
 
         List<ItemContributor> itemContributors = new ArrayList<>();

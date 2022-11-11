@@ -3,11 +3,11 @@ package eu.sshopencloud.marketplace.model.auth;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -18,13 +18,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
-    @GenericGenerator(
-            name = "user_generator", strategy = "eu.sshopencloud.marketplace.conf.jpa.KnownIdOrSequenceStyleGenerator",
-            parameters = {
-                    @Parameter(name = "sequence_name", value = "users_id_seq"),
-                    @Parameter(name = "increment_size", value = "50"),
-            }
-    )
+    @SequenceGenerator(name = "user_generator", sequenceName = "users_id_seq", allocationSize = 50)
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -35,21 +29,29 @@ public class User {
 
     private String password;
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    private boolean enabled;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     private ZonedDateTime registrationDate;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    private String provider;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_providers", joinColumns = @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "user_providers_user_fk")))
+    @Column(name = "provider")
+    private List<String> providers;
 
     @Column(nullable = true)
+    @Nullable
     private String tokenKey;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    private boolean config;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String preferences;
@@ -70,4 +72,9 @@ public class User {
     public boolean isSystemContributor() {
         return role.equals(UserRole.SYSTEM_CONTRIBUTOR);
     }
+
+    public boolean isSystemModerator() {
+        return role.equals(UserRole.SYSTEM_MODERATOR);
+    }
+
 }

@@ -4,21 +4,22 @@ import eu.sshopencloud.marketplace.dto.items.ItemRelatedItemDto;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
-import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.mappers.items.ItemRelatedItemMapper;
+import eu.sshopencloud.marketplace.mappers.items.RelatedItemsConverter;
 import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRelatedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlreadyExistsException;
+import eu.sshopencloud.marketplace.validators.CollectionUtils;
 import eu.sshopencloud.marketplace.validators.items.ItemRelationFactory;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -33,7 +34,11 @@ public class ItemRelatedItemService {
     private final ItemVisibilityService itemVisibilityService;
     private final DraftItemRepository draftItemRepository;
     private final VersionedItemRepository versionedItemRepository;
+    private final RelatedItemsConverter relatedItemsConverter;
 
+    public int countAllRelatedItems(Item item) {
+        return itemRelatedItemRepository.countAllBySubjectId(item.getId()) + itemRelatedItemRepository.countAllByObjectId(item.getId());
+    }
 
     public List<RelatedItemDto> getItemRelatedItems(Item item) {
         long itemId = item.getId();
@@ -48,13 +53,13 @@ public class ItemRelatedItemService {
         List<RelatedItemDto> relatedItems = new ArrayList<>();
 
         List<RelatedItemDto> subjectRelations = itemRelatedItemRepository.findAllBySubjectId(itemId).stream()
-                .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getObject()))
-                .map(ItemConverter::convertRelatedItemFromSubject)
+                .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getObject()) && itemVisibilityService.isTheLatestVersion(relatedItem.getObject()))
+                .map(relatedItemsConverter::convertRelatedItemFromSubject)
                 .collect(Collectors.toList());
 
         List<RelatedItemDto> objectRelations = itemRelatedItemRepository.findAllByObjectId(itemId).stream()
-                .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getSubject()))
-                .map(ItemConverter::convertRelatedItemFromObject)
+                .filter(relatedItem -> itemVisibilityService.shouldCurrentUserSeeItem(relatedItem.getSubject()) && itemVisibilityService.isTheLatestVersion(relatedItem.getSubject()))
+                .map(relatedItemsConverter::convertRelatedItemFromObject)
                 .collect(Collectors.toList());
 
         relatedItems.addAll(subjectRelations);
@@ -68,15 +73,14 @@ public class ItemRelatedItemService {
 
         return draftItem.getRelations().stream()
                 .map(ItemRelatedItem::new)
-                .map(ItemConverter::convertRelatedItemFromSubject)
+                .map(relatedItemsConverter::convertRelatedItemFromSubject)
                 .collect(Collectors.toList());
     }
 
     public void updateRelatedItems(List<RelatedItemCore> relatedItems, Item newVersion, Item prevItem, boolean draft) {
         if (draft) {
             updateDraftRelatedItems(relatedItems, newVersion);
-        }
-        else {
+        } else {
             updateRelatedItems(relatedItems, newVersion, prevItem);
         }
     }
@@ -87,12 +91,21 @@ public class ItemRelatedItemService {
         Map<String, Item> relatedVersions = new HashMap<>();
         Map<Long, ItemRelation> savedRelations = new HashMap<>();
 
-        if (relatedItems == null)
+        if (relatedItems == null || CollectionUtils.isAllNulls(relatedItems))
             relatedItems = new ArrayList<>();
 
         List<RelatedItemDto> prevRelations = (prevItem != null) ? getRelatedItems(prevItem.getId()) : new ArrayList<>();
-        Map<String, RelatedItemDto> relatedObjects = prevRelations.stream()
-                .collect(Collectors.toUnmodifiableMap(RelatedItemDto::getPersistentId, Function.identity()));
+
+        Map<String, Set<String>> existentRelations = new HashMap<>();
+        prevRelations.forEach(relatedItem -> {
+            String persistentId = relatedItem.getPersistentId();
+
+            if (!existentRelations.containsKey(persistentId))
+                existentRelations.put(persistentId, new HashSet<>());
+
+            existentRelations.get(persistentId)
+                    .add(relatedItem.getRelation().getCode());
+        });
 
         Map<String, RelatedItemCore> toKeep = new HashMap<>();
 
@@ -100,21 +113,20 @@ public class ItemRelatedItemService {
         relatedItems.forEach(relatedItem -> {
             ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
 
-            String objectId = relatedItem.getObjectId();
+            String persistentId = relatedItem.getPersistentId();
             String relationCode = relatedItem.getRelation().getCode();
-            RelatedItemDto existentRelation = relatedObjects.get(objectId);
 
-            if (existentRelation != null && relationCode.equals(existentRelation.getRelation().getCode())) {
-                toKeep.put(objectId, relatedItem);
+            if (existentRelations.containsKey(persistentId) && existentRelations.get(persistentId).contains(relationCode)) {
+                toKeep.put(persistentId, relatedItem);
                 return;
             }
 
-            if (!relatedVersions.containsKey(objectId)) {
-                Item objectVersion = itemsService.liftItemVersion(objectId, false, false);
-                relatedVersions.put(objectId, objectVersion);
+            if (!relatedVersions.containsKey(persistentId)) {
+                Item objectVersion = itemsService.liftItemVersion(persistentId, false, false);
+                relatedVersions.put(persistentId, objectVersion);
             }
 
-            Item objectVersion = relatedVersions.get(objectId);
+            Item objectVersion = relatedVersions.get(persistentId);
             ItemRelatedItem itemsRelation = saveItemsRelationChecked(newVersion, objectVersion, relationType);
 
             savedRelations.put(itemsRelation.getObject().getId(), relationType);
@@ -150,9 +162,9 @@ public class ItemRelatedItemService {
 
         // Keep relations from previous version
         toKeep.values().forEach(relatedItem -> {
-            String objectId = relatedItem.getObjectId();
-            Item objectVersion = relatedVersions.containsKey(objectId) ?
-                    relatedVersions.get(objectId) : itemsService.loadCurrentItem(objectId);
+            String persistentId = relatedItem.getPersistentId();
+            Item objectVersion = relatedVersions.containsKey(persistentId) ?
+                    relatedVersions.get(persistentId) : itemsService.loadCurrentItem(persistentId);
 
             ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
             saveItemsRelationChecked(newVersion, objectVersion, relationType);
@@ -160,24 +172,24 @@ public class ItemRelatedItemService {
     }
 
     private void validateNewRelatedItems(List<RelatedItemCore> relatedItems) {
-        if (relatedItems == null)
+
+        if (relatedItems == null || CollectionUtils.isAllNulls(relatedItems))
             return;
 
-        Set<String> relatedObjectIds = new HashSet<>();
+        Set<String> relatedPersistentIds = new HashSet<>();
 
         relatedItems.forEach(rel -> {
-            if (relatedObjectIds.contains(rel.getObjectId()))
-                throw new IllegalArgumentException(String.format("Duplicate relation to object with id %s", rel.getObjectId()));
+            if (relatedPersistentIds.contains(rel.getPersistentId()))
+                throw new IllegalArgumentException(String.format("Duplicate relation to object with id %s", rel.getPersistentId()));
 
-            relatedObjectIds.add(rel.getObjectId());
+            relatedPersistentIds.add(rel.getPersistentId());
         });
     }
 
     private ItemRelatedItem saveItemsRelationChecked(Item subject, Item object, ItemRelation itemRelation) {
         try {
             return saveItemsRelation(subject, object, itemRelation);
-        }
-        catch (ItemsRelationAlreadyExistsException e) {
+        } catch (ItemsRelationAlreadyExistsException e) {
             throw new IllegalArgumentException(
                     String.format(
                             "A relation between objects with ids %s and %s already exists",
@@ -197,15 +209,15 @@ public class ItemRelatedItemService {
         relatedItems.forEach(relatedItem -> {
             ItemRelation relationType = itemRelationFactory.create(relatedItem.getRelation());
             try {
-                createDraftItemRelation(subject.getPersistentId(), relatedItem.getObjectId(), relationType);
-            }
-            catch (ItemsRelationAlreadyExistsException e) {
+                createDraftItemRelation(subject.getPersistentId(), relatedItem.getPersistentId(), relationType);
+            } catch (ItemsRelationAlreadyExistsException e) {
                 throw new IllegalArgumentException(
-                        String.format("Repeated relation to object with id %s", relatedItem.getObjectId())
+                        String.format("Repeated relation to object with id %s", relatedItem.getPersistentId())
                 );
             }
         });
     }
+
 
     public ItemRelatedItemDto createItemRelatedItem(String subjectId, String objectId,
                                                     ItemRelationId itemRelationId, boolean draft)
@@ -283,8 +295,8 @@ public class ItemRelatedItemService {
         List<RelatedItemCore> relatedItems = draftItem.getRelations().stream()
                 .map(rel ->
                         RelatedItemCore.builder()
-                                .objectId(rel.getObject().getPersistentId())
-                                .relation(rel.getRelation().getId())
+                                .persistentId(rel.getObject().getPersistentId())
+                                .relation(rel.getRelation().getItemRelationId())
                                 .build()
                 )
                 .collect(Collectors.toList());
@@ -330,6 +342,14 @@ public class ItemRelatedItemService {
         if (itemRelatedItemRepository.existsById(relationId)) {
             itemRelatedItemRepository.deleteById(relationId);
         }
+    }
+
+    public boolean existByRelation(@NonNull ItemRelation itemRelation) {
+        return itemRelatedItemRepository.existsByRelation(itemRelation);
+    }
+
+    public void removeItemRelatedItemByRelation(@NonNull ItemRelation itemRelation) {
+        itemRelatedItemRepository.deleteItemRelatedItemsByOfRelation(itemRelation);
     }
 
 }

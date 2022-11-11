@@ -9,21 +9,24 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
 @RequiredArgsConstructor
+@Slf4j
 abstract class ItemVersionService<I extends Item> {
 
     private final VersionedItemRepository versionedItemRepository;
     private final ItemVisibilityService itemVisibilityService;
-
 
     protected Page<I> loadLatestItems(PageCoords pageCoords, User user, boolean approved) {
         PageRequest pageRequest = PageRequest.of(
@@ -32,13 +35,13 @@ abstract class ItemVersionService<I extends Item> {
 
         ItemVersionRepository<I> itemRepository = getItemRepository();
 
-        if (approved || user == null || !user.isContributor())
+        if (approved || user == null)
             return itemRepository.findAllLatestApprovedItems(pageRequest);
 
         if (user.isModerator())
             return itemRepository.findAllLatestItems(pageRequest);
 
-        return getItemRepository().findUserLatestItems(user, pageRequest);
+        return itemRepository.findUserLatestItems(user, pageRequest);
     }
 
     /**
@@ -79,6 +82,7 @@ abstract class ItemVersionService<I extends Item> {
                 );
     }
 
+
     protected I loadLatestItemForCurrentUser(String persistentId, boolean authorize) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
 
@@ -107,7 +111,7 @@ abstract class ItemVersionService<I extends Item> {
 
     protected Optional<I> loadItemDraft(String persistentId, @NonNull User draftOwner) {
         if (!versionedItemRepository.existsById(persistentId)) {
-            throw new EntityNotFoundException(
+            log.error("Exception " +
                     String.format("Unable to find draft %s with id %s", getItemTypeName(), persistentId)
             );
         }
@@ -140,10 +144,12 @@ abstract class ItemVersionService<I extends Item> {
                 .orElseGet(() -> loadCurrentItem(persistentId));
     }
 
+
     protected I loadDraftOrLatestItemForCurrentUser(String persistentId) {
         return resolveItemDraftForCurrentUser(persistentId)
                 .orElseGet(() -> loadLatestItemForCurrentUser(persistentId, false));
     }
+
 
     protected I loadItemVersion(String persistentId, long versionId) {
         return getItemRepository().findByVersionedItemPersistentIdAndId(persistentId, versionId)
@@ -157,8 +163,32 @@ abstract class ItemVersionService<I extends Item> {
                 );
     }
 
-
     protected abstract ItemVersionRepository<I> getItemRepository();
 
     protected abstract String getItemTypeName();
+
+    protected boolean isMerged(String persistentId) {
+        return !getItemRepository().findIfMergedItem(persistentId).isEmpty();
+    }
+
+    protected I loadLatestItemOrRedirect(String persistentId) {
+        return tryLoadLatestMergedItem(persistentId).orElseThrow(() -> new EntityNotFoundException(
+                String.format(
+                        "Unable to find merged %s with id %s",
+                        getItemTypeName(), persistentId
+                )
+        ));
+
+    }
+
+    protected Optional<I> tryLoadLatestMergedItem(String persistentId) {
+
+        String itemPersistentId = persistentId;
+        while (isMerged(itemPersistentId)) {
+            itemPersistentId = getItemRepository().findMergedWithPersistentId(itemPersistentId);
+        }
+        return getItemRepository().findCurrentVersion(itemPersistentId);
+
+    }
+
 }

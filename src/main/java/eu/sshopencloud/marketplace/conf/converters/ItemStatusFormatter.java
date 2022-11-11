@@ -1,25 +1,20 @@
 package eu.sshopencloud.marketplace.conf.converters;
 
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
-import org.springframework.format.Formatter;
-
-import java.text.ParseException;
-import java.util.Locale;
 
 
-public class ItemStatusFormatter implements Formatter<ItemStatus> {
+public class ItemStatusFormatter extends BaseEnumFormatter<ItemStatus> {
+
+    private static final String ITEM_STATUS_NAME = "item-status";
 
     @Override
-    public String print(ItemStatus object, Locale locale) {
-        return object.getValue();
+    protected ItemStatus toEnum(String enumValue) {
+        return ItemStatus.valueOf(enumValue);
     }
 
-    public ItemStatus parse(String text, Locale locale) throws ParseException {
-        try {
-            return ItemStatus.valueOf(text.toUpperCase().replace('-', '_'));
-        } catch (Exception e) {
-            throw new ParseException("Incorrect value '" + text + "' for enum '" + "category" + "'!", 0);
-        }
+    @Override
+    protected String getEnumName() {
+        return ITEM_STATUS_NAME;
     }
 
 }

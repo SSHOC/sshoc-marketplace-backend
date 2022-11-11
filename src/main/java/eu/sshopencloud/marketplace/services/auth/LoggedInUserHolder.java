@@ -10,7 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collection;
-import java.util.Collections;
 
 
 @UtilityClass
@@ -26,7 +25,7 @@ public class LoggedInUserHolder {
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             user.setId(userPrincipal.getId());
             user.setUsername(userPrincipal.getUsername());
-            user.setEnabled(userPrincipal.isEnabled());
+            user.setStatus(userPrincipal.getStatus());
             user.setRole(findRoleByAuthorities((Collection<Authority>) authentication.getAuthorities()));
             return user;
         }
@@ -35,6 +34,9 @@ public class LoggedInUserHolder {
     private UserRole findRoleByAuthorities(Collection<Authority> authorities) {
         if (authorities.contains(Authority.ADMINISTRATOR)) {
             return UserRole.ADMINISTRATOR;
+        }
+        if (authorities.contains(Authority.SYSTEM_MODERATOR)) {
+            return UserRole.SYSTEM_MODERATOR;
         }
         if (authorities.contains(Authority.MODERATOR)) {
             return UserRole.MODERATOR;

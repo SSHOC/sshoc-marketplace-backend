@@ -1,21 +1,23 @@
 package eu.sshopencloud.marketplace.validators.vocabularies;
 
-import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptCore;
+import eu.sshopencloud.marketplace.dto.vocabularies.RelatedConceptCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.vocabularies.Concept;
-import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
-import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
+import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
+import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Locale;
 import java.util.Optional;
+
 
 @Service
 @Transactional
@@ -23,31 +25,96 @@ import java.util.Optional;
 public class ConceptFactory {
 
     private final ConceptRepository conceptRepository;
+    private final ConceptRelationFactory conceptRelationFactory;
     private final VocabularyFactory vocabularyFactory;
 
 
-    public Concept create(ItemCategory category, ConceptId conceptId, PropertyType propertyType, List<Vocabulary> allowedVocabularies, Errors errors) {
-        Concept concept;
-        // either uri or code and vocabulary must be provided
-        if (conceptId.getUri() == null) {
-            concept = createByCodeAndVocabularyId(conceptId.getCode(), conceptId.getVocabulary(), errors);
+    public String resolveCode(ConceptCore conceptCore, Vocabulary vocabulary) {
+        if (StringUtils.isNotBlank(conceptCore.getCode())) {
+            return conceptCore.getCode();
+        } else if (StringUtils.isNotBlank(conceptCore.getUri())) {
+            if (conceptCore.getUri().startsWith(vocabulary.getNamespace())) {
+                return conceptCore.getUri().substring(vocabulary.getNamespace().length());
+            }
+        }
+        return null;
+    }
+
+    public Concept create(ConceptCore conceptCore, Vocabulary vocabulary, String code) throws ValidationException {
+        Concept concept = getOrCreateConcept(code, vocabulary);
+
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(conceptCore, "Concept");
+
+        concept.setCode(conceptCore.getCode());
+        concept.setVocabulary(vocabulary);
+
+        if (conceptCore.getLabel() == null) {
+            concept.setLabel("");
         } else {
-            concept = createByUri(conceptId.getUri(), errors);
+            concept.setLabel(conceptCore.getLabel());
         }
-        if (concept == null) {
-            return null;
+
+        if (conceptCore.getNotation() == null) {
+            concept.setNotation("");
+        } else {
+            concept.setNotation(conceptCore.getNotation());
         }
-        String vocabularyCode = concept.getVocabulary().getCode();
-        if (allowedVocabularies.stream().noneMatch(v -> Objects.equals(v.getCode(), vocabularyCode))) {
-            errors.rejectValue("vocabulary", "field.disallowedVocabulary", new String[]{vocabularyCode, propertyType.getCode()},
-                    "Disallowed vocabulary '" + vocabularyCode + "' for property type '" + propertyType.getCode() + "'.");
-            return null;
+
+        concept.setDefinition(conceptCore.getDefinition());
+
+        if (StringUtils.isBlank(conceptCore.getUri())) {
+            concept.setUri(vocabulary.getNamespace() + concept.getCode());
+        } else {
+            if (conceptCore.getUri().equals(vocabulary.getNamespace() + concept.getCode())) {
+                concept.setUri(conceptCore.getUri());
+            } else {
+                errors.rejectValue("uri", "field.invalid", "Uri is not consistent with vocabulary namespace and concept code.");
+            }
         }
+
+        if (errors.hasErrors())
+            throw new ValidationException(errors);
 
         return concept;
     }
 
-    private Concept createByCodeAndVocabularyId(String code, VocabularyId vocabularyId, Errors errors) {
+    public List<ConceptRelatedConcept> createConceptRelations(Concept concept, List<RelatedConceptCore> relatedConcepts) throws ValidationException {
+
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(relatedConcepts, "Concept");
+
+        List<ConceptRelatedConcept> conceptRelatedConcepts = new ArrayList<>();
+        if (relatedConcepts != null) {
+            for (int i = 0; i < relatedConcepts.size(); i++) {
+                errors.pushNestedPath("relatedConcept[" + i + "]");
+                RelatedConceptCore relatedConcept = relatedConcepts.get(i);
+                ConceptRelatedConcept conceptRelatedConcept = new ConceptRelatedConcept();
+                conceptRelatedConcept.setSubject(concept);
+
+                Concept object;
+                // either uri or code and vocabulary must be provided
+                if (relatedConcept.getUri() == null) {
+                    object = createByCodeAndVocabularyId(relatedConcept.getCode(), relatedConcept.getVocabulary(), errors);
+                } else {
+                    object = createByUri(relatedConcept.getUri(), errors);
+                }
+                conceptRelatedConcept.setObject(object);
+
+                errors.pushNestedPath("relation");
+                conceptRelatedConcept.setRelation(conceptRelationFactory.create(relatedConcept.getRelation(), errors));
+                errors.popNestedPath();
+
+                conceptRelatedConcepts.add(conceptRelatedConcept);
+                errors.popNestedPath();
+            }
+        }
+
+        if (errors.hasErrors())
+            throw new ValidationException(errors);
+
+        return conceptRelatedConcepts;
+    }
+
+    public Concept createByCodeAndVocabularyId(String code, VocabularyId vocabularyId, Errors errors) {
         Vocabulary vocabulary = null;
         if (StringUtils.isBlank(code)) {
             errors.rejectValue("code", "field.required", "Concept code is required.");
@@ -75,7 +142,7 @@ public class ConceptFactory {
         return null;
     }
 
-    private Concept createByUri(String uri, Errors errors) {
+    public Concept createByUri(String uri, Errors errors) {
         if (StringUtils.isBlank(uri)) {
             errors.rejectValue("uri", "field.required", "Concept uri is required.");
             return null;
@@ -88,4 +155,13 @@ public class ConceptFactory {
 
         return concept;
     }
+
+    private Concept getOrCreateConcept(String code, Vocabulary vocabulary) {
+        if (code != null) {
+            return conceptRepository.getOne(ConceptId.builder().code(code).vocabulary(vocabulary.getCode()).build());
+        }
+
+        return new Concept();
+    }
+
 }

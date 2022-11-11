@@ -14,8 +14,13 @@ public class ItemCategoryConverter {
         return ItemCategory.valueOf(category.toUpperCase().replace('-', '_'));
     }
 
+
     public String convertCategory(ItemCategory category) {
         return category.getValue();
+    }
+
+    public String convertCategoryForAutocompleteContext(ItemCategory category) {
+        return convertCategory(category).replace('-', '_');
     }
 
     public List<String> convertCategories(List<ItemCategory> categories) {

@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Table(
         name = "item_external_ids",
-        uniqueConstraints = @UniqueConstraint(columnNames = { "identifier_service_code", "identifier" })
+        uniqueConstraints = @UniqueConstraint(columnNames = { "identifier_service_code", "identifier", "item_id" })
 )
 @Data
 @EqualsAndHashCode(exclude = "item")
@@ -31,7 +31,7 @@ public class ItemExternalId {
     @Column(nullable = false, length = 2048)
     private String identifier;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REFRESH)
     @JoinColumn(nullable = false)
     private Item item;
 

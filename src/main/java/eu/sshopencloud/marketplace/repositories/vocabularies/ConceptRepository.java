@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ConceptRepository extends JpaRepository<Concept, ConceptId> {
@@ -17,6 +18,7 @@ public interface ConceptRepository extends JpaRepository<Concept, ConceptId> {
 
     Page<Concept> findByVocabularyCode(String vocabularyCode, Pageable pageable);
 
-    List<Concept> findByVocabularyCode(String vocabularyCode, Sort sort);
+    List<Concept> findByVocabularyCode(String vocabularyCode);
 
+    Optional<Concept> findByCodeAndVocabularyCode(String code, String vocabularyCode );
 }

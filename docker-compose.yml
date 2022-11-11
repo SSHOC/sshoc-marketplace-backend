@@ -14,19 +14,16 @@ services:
       - solr
     environment:
       APPLICATION_PROFILE: dev
-      aai_base_uri: https://aai-dev.egi.eu/oidc
+      aai_base_uri: https://aai.eosc-portal.eu/oidc
       egi_id: ${egi_id}
       egi_secret: ${egi_secret}
       token_secret: ${token_secret}
       recaptcha_site_key: ${recaptcha_site_key}
       recaptcha_secret_key: ${recaptcha_secret_key}
       marketplace_log_dir: /tmp
-      SPRING_DATA_SOLR_HOST: http://solr:8983/solr
-      DATABASE_URL: postgres://user:testing-password@psql:5432/marketplace_db
-      CI: "true"
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://psql:5432/marketplace_db
-#      SPRING_DATASOURCE_USERNAME: user
-#      SPRING_DATASOURCE_PASSWORD: testing-password
+      marketplace_media_dir: /var/sshoc/media
+    volumes:
+      - media-data:/var/sshoc/media
 
   psql:
     image: bitnami/postgresql:9.6.16
@@ -50,4 +47,4 @@ services:
 volumes:
   psql-data:
   solr-data:
-
+  media-data:

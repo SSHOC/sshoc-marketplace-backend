@@ -1,17 +1,22 @@
 package eu.sshopencloud.marketplace.repositories.search;
 
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.dto.search.SuggestedObject;
+import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.repositories.search.solr.ForceFacetSortSolrTemplate;
-import eu.sshopencloud.marketplace.services.items.ItemsService;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
+import eu.sshopencloud.marketplace.services.search.filter.SearchExpressionCriteria;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFilterCriteria;
+import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
+import org.apache.solr.client.solrj.response.Suggestion;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +38,14 @@ import java.util.stream.Collectors;
 public class SearchItemRepository {
 
     private final ForceFacetSortSolrTemplate solrTemplate;
-    private final ItemsService itemsService;
 
-
-    public FacetPage<IndexItem> findByQueryAndFilters(String q, boolean advancedSearch, User currentUser,
+    public FacetPage<IndexItem> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
+                                                      List<SearchExpressionCriteria> expressionCriteria,
+                                                      User currentUser, boolean includeSteps,
                                                       List<SearchFilterCriteria> filterCriteria,
                                                       List<SearchOrder> order, Pageable pageable) {
 
-        SimpleFacetQuery facetQuery = new SimpleFacetQuery(createQueryCriteria(q, advancedSearch))
+        SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria.getQueryCriteria())
                 .addProjectionOnFields(
                         IndexItem.ID_FIELD,
                         IndexItem.PERSISTENT_ID_FIELD,
@@ -48,19 +53,50 @@ public class SearchItemRepository {
                         IndexItem.DESCRIPTION_FIELD,
                         IndexItem.CATEGORY_FIELD,
                         IndexItem.STATUS_FIELD,
-                        IndexItem.OWNER_FIELD
+                        IndexItem.OWNER_FIELD,
+                        IndexItem.LAST_INFO_UPDATE_FIELD
                 )
                 .addSort(Sort.by(createQueryOrder(order)))
                 .setPageRequest(pageable);
 
-        if (currentUser == null || !currentUser.isModerator())
-            facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
+        if (!includeSteps)
+            facetQuery.addFilterQuery(createStepFilter());
 
+        if (currentUser == null || !currentUser.isModerator()) {
+            facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
+        }
+
+        expressionCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
         filterCriteria.forEach(item -> facetQuery.addFilterQuery(new SimpleFilterQuery(item.getFilterCriteria())));
+
         facetQuery.setFacetOptions(createFacetOptions());
 
         return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
     }
+
+
+    public FacetPage<IndexItem> findByQuery(Criteria queryCriteria, User currentUser, SearchOrder order, Pageable pageable) {
+        SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria)
+                .addProjectionOnFields(
+                        IndexItem.ID_FIELD,
+                        IndexItem.PERSISTENT_ID_FIELD,
+                        IndexItem.LABEL_FIELD,
+                        IndexItem.DESCRIPTION_FIELD,
+                        IndexItem.CATEGORY_FIELD,
+                        IndexItem.STATUS_FIELD,
+                        IndexItem.OWNER_FIELD,
+                        IndexItem.LAST_INFO_UPDATE_FIELD
+                )
+                .addSort(Sort.by(createQueryOrder(order)))
+                .setPageRequest(pageable);
+
+        if (currentUser == null || !currentUser.isModerator()) {
+            facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
+        }
+
+        return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
+    }
+
 
     private FilterQuery createVisibilityFilter(User user) {
         Criteria approvedVisibility = new Criteria(IndexItem.STATUS_FIELD).is(ItemStatus.APPROVED.getValue());
@@ -74,44 +110,21 @@ public class SearchItemRepository {
         return new SimpleFilterQuery(visibilityCriteria);
     }
 
-    private Criteria createQueryCriteria(String q, boolean advancedSearch) {
-        List<QueryPart> queryParts = QueryParser.parseQuery(q, advancedSearch);
-        if (queryParts.isEmpty()) {
-            return Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains("");
-        } else {
-            Criteria andCriteria = AnyCriteria.any();
-            for (QueryPart queryPart : queryParts) {
-                Criteria orCriteria = null;
-                if (!queryPart.isPhrase()) {
-                    Criteria nameTextCriteria = Criteria.where(IndexItem.LABEL_TEXT_FIELD).boost(4f).contains(queryPart.getExpression());
-                    Criteria descTextCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_FIELD).boost(3f).contains(queryPart.getExpression());
-                    orCriteria = nameTextCriteria.or(descTextCriteria);
-                }
-                Criteria nameTextEnCriteria = Criteria.where(IndexItem.LABEL_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
-                Criteria descTextEnCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_EN_FIELD).boost(1f).is(queryPart.getExpression());
-                Criteria keywordTextCriteria = Criteria.where(IndexItem.KEYWORD_TEXT_FIELD).boost(3f).is(queryPart.getExpression());
-                if (orCriteria == null) {
-                    orCriteria = nameTextEnCriteria.or(descTextEnCriteria).or(keywordTextCriteria);
-                } else {
-                    orCriteria = orCriteria.or(nameTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria);
-                }
-                andCriteria = andCriteria.and(orCriteria);
-            }
-            return andCriteria;
-        }
-    }
-
     private List<Sort.Order> createQueryOrder(List<SearchOrder> order) {
-        List<Sort.Order> result = new ArrayList<Sort.Order>();
+        List<Sort.Order> result = new ArrayList<>();
         for (SearchOrder o : order) {
-            String name = o.getValue().replace('-', '_');
-            if (o.isAsc()) {
-                result.add(Sort.Order.asc(name));
-            } else {
-                result.add(Sort.Order.desc(name));
-            }
+            result.add(createQueryOrder(o));
         }
         return result;
+    }
+
+    private Sort.Order createQueryOrder(SearchOrder order) {
+        String name = order.getValue().replace('-', '_');
+        if (order.isAsc()) {
+            return Sort.Order.asc(name);
+        } else {
+            return Sort.Order.desc(name);
+        }
     }
 
     private FacetOptions createFacetOptions() {
@@ -127,38 +140,38 @@ public class SearchItemRepository {
         return facetOptions;
     }
 
-    public List<String> autocompleteSearchQuery(String searchQuery) {
+    public List<SuggestedObject> autocompleteSearchQuery(String searchQuery, ItemCategory context) {
+        String categoryContext = null;
+
+        if (context != null) {
+            categoryContext = ItemCategoryConverter.convertCategoryForAutocompleteContext(context);
+        }
+
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set("qt", "/marketplace-items/suggest");
+        params.set("dictionary", "itemSearch");
         params.set("q", searchQuery);
+        if(categoryContext==null || categoryContext.toLowerCase(Locale.ROOT).equals("step"))
+            categoryContext = "-step";
+        else
+            categoryContext = categoryContext + " AND -step";
+        params.set("suggest.cfq", categoryContext);
         params.set("suggest.count", 50);
 
         try {
-            SuggesterResponse response = solrTemplate.getSolrClient()
-                    .query(params).getSuggesterResponse();
+            SuggesterResponse response = solrTemplate.getSolrClient().query(params).getSuggesterResponse();
 
-            List<String> rawSuggestions = response.getSuggestedTerms().get("itemSearch");
-            return prepareSuggestions(rawSuggestions, 10);
-        }
-        catch (SolrServerException | IOException e) {
+            List<Suggestion> rawPayload = response.getSuggestions().get("itemSearch");
+            return prepareSuggestions(rawPayload, 10);
+        } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Search engine instance connection error", e);
         }
     }
 
-    private List<String> prepareSuggestions(List<String> suggestions, int limit) {
-        Set<String> uniqueSuggestions = new HashSet<>();
 
-        return suggestions.stream()
-                .map(String::toLowerCase)
-                .filter(suggestion -> {
-                    if (uniqueSuggestions.contains(suggestion))
-                        return false;
-                    else
-                        uniqueSuggestions.add(suggestion);
-
-                    return true;
-                })
-                .limit(limit)
+    private List<SuggestedObject> prepareSuggestions(List<Suggestion> rawPayload, int limit) {
+        return rawPayload.stream().map(s -> new SuggestedObject(s.getTerm(), s.getPayload()))
+                .distinct().limit(10)
                 .collect(Collectors.toList());
     }
 
@@ -169,9 +182,14 @@ public class SearchItemRepository {
 
         try {
             solrTemplate.getSolrClient().query(params);
-        }
-        catch (SolrServerException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Failed to rebuild index for autocomplete");
         }
     }
+
+    private FilterQuery createStepFilter() {
+        return new SimpleFilterQuery(new Criteria(IndexItem.CATEGORY_FIELD).is(ItemCategory.STEP).not());
+    }
+
+
 }

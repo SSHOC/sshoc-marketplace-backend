@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 
 @Data
 @Builder
@@ -12,6 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RelatedItemCore {
 
-    private String objectId;
+    @NotNull
+    private String persistentId;
     private ItemRelationId relation;
 }

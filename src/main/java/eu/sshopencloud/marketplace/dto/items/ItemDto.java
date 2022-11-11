@@ -1,30 +1,20 @@
 package eu.sshopencloud.marketplace.dto.items;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
-import eu.sshopencloud.marketplace.dto.auth.UserDto;
-import eu.sshopencloud.marketplace.dto.licenses.LicenseDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceBasicDto;
-import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.items.ItemStatus;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class ItemDto extends ItemBasicDto {
+public class ItemDto extends ItemExtBasicDto {
 
     private String description;
-
-    private List<LicenseDto> licenses;
 
     private List<ItemContributorDto> contributors;
 
@@ -34,22 +24,16 @@ public class ItemDto extends ItemBasicDto {
 
     private List<String> accessibleAt;
 
+    @Nullable
     private SourceBasicDto source;
 
+    @Nullable
     private String sourceItemId;
 
     private List<RelatedItemDto> relatedItems;
 
-    private UserDto informationContributor;
+    private List<ItemMediaDto> media;
 
-    @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
-    private ZonedDateTime lastInfoUpdate;
-
-    private ItemStatus status;
-
-    private List<ItemBasicDto> olderVersions;
-
-    private List<ItemBasicDto> newerVersions;
+    private ItemMediaDto thumbnail;
 
 }

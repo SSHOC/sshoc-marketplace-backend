@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.mappers.workflows;
 
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.Workflow;
 import org.mapstruct.Mapper;
@@ -26,4 +27,6 @@ public interface WorkflowMapper {
 
     List<StepDto> toStepDto(List<Step> steps);
 
+    @Mapping(source = "versionedItem.persistentId", target = "persistentId")
+    WorkflowDto toDto(Item item);
 }

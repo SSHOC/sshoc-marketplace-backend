@@ -5,8 +5,9 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorExternalIdCore;
 import eu.sshopencloud.marketplace.dto.actors.ActorSourceCore;
+import eu.sshopencloud.marketplace.dto.actors.ActorSourceId;
+import eu.sshopencloud.marketplace.dto.items.ItemSourceCore;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +18,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
-
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringRunner.class)
@@ -57,8 +58,11 @@ public class ActorSourceControllerITCase {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].code", is("ORCID")))
+                .andExpect(jsonPath("$[0].ord", is(1)))
                 .andExpect(jsonPath("$[1].code", is("DBLP")))
-                .andExpect(jsonPath("$[2].code", is("Wikidata")));
+                .andExpect(jsonPath("$[1].ord", is(2)))
+                .andExpect(jsonPath("$[2].code", is("Wikidata")))
+                .andExpect(jsonPath("$[2].ord", is(3)));
     }
 
     @Test
@@ -66,6 +70,7 @@ public class ActorSourceControllerITCase {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test source service")
+                .urlTemplate("https://www.test.org/{source-actor-id}")
                 .ord(3)
                 .build();
 
@@ -79,6 +84,7 @@ public class ActorSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.test.org/{source-actor-id}")))
                 .andExpect(jsonPath("label", is("Test source service")));
 
         mvc.perform(get("/api/actor-sources")
@@ -89,6 +95,42 @@ public class ActorSourceControllerITCase {
                 .andExpect(jsonPath("$[2].code", is("test")))
                 .andExpect(jsonPath("$[2].label", is("Test source service")))
                 .andExpect(jsonPath("$[3].code", is("Wikidata")));
+    }
+
+    @Test
+    public void shouldCreateActorSourceWithoutOrd() throws Exception {
+        ActorSourceCore actorSource = ActorSourceCore.builder()
+                .code("test")
+                .label("Test source service")
+                .urlTemplate("https://www.test.org/{source-actor-id}")
+                .build();
+
+        String payload = mapper.writeValueAsString(actorSource);
+
+        mvc.perform(
+                post("/api/actor-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test source service")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.test.org/{source-actor-id}")))
+                .andExpect(jsonPath("ord", is(4)));
+
+        mvc.perform(get("/api/actor-sources")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code", is("ORCID")))
+                .andExpect(jsonPath("$[0].ord", is(1)))
+                .andExpect(jsonPath("$[1].code", is("DBLP")))
+                .andExpect(jsonPath("$[1].ord", is(2)))
+                .andExpect(jsonPath("$[2].code", is("Wikidata")))
+                .andExpect(jsonPath("$[2].ord", is(3)))
+                .andExpect(jsonPath("$[3].label", is("Test source service")))
+                .andExpect(jsonPath("$[3].code", is("test")))
+                .andExpect(jsonPath("$[3].ord", is(4)));
     }
 
     @Test
@@ -115,6 +157,7 @@ public class ActorSourceControllerITCase {
         mvc.perform(get("/api/actor-sources/Wikidata"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("Wikidata")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
                 .andExpect(jsonPath("label", is("Wikidata")));
     }
 
@@ -123,6 +166,7 @@ public class ActorSourceControllerITCase {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("Wikidata")
                 .label("Wikidata v2")
+                .urlTemplate("https://www.wikidata.org/wiki/{source-actor-id}")
                 .ord(1)
                 .build();
 
@@ -136,6 +180,7 @@ public class ActorSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("Wikidata")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.wikidata.org/wiki/{source-actor-id}")))
                 .andExpect(jsonPath("label", is("Wikidata v2")));
 
         mvc.perform(get("/api/actor-sources")
@@ -168,7 +213,7 @@ public class ActorSourceControllerITCase {
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
         actor.setExternalIds(List.of(
-                new ActorExternalIdCore("Wikidata", "https://www.wikidata.org/wiki/Q42")
+                new ActorExternalIdCore(new ActorSourceId("Wikidata"), "https://www.wikidata.org/wiki/Q42")
         ));
 
         String payload = mapper.writeValueAsString(actor);
@@ -237,6 +282,7 @@ public class ActorSourceControllerITCase {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test v2")
+                .urlTemplate("https://www.test.org/{source-actor-id}")
                 .ord(4)
                 .build();
 
@@ -249,5 +295,46 @@ public class ActorSourceControllerITCase {
                         .header("Authorization", ADMINISTRATOR_JWT)
         )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldCreateItemSourceWithoutUrlTemplate() throws Exception {
+        ActorSourceCore actorSource = ActorSourceCore.builder()
+                .code("test")
+                .label("Test...")
+                .ord(1)
+                .build();
+
+        String payload = mapper.writeValueAsString(actorSource);
+
+        mvc.perform(
+                post("/api/actor-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test...")));
+    }
+
+    @Test
+    public void shouldNotCreateItemSourceWithWrongUrlTemplate() throws Exception {
+        ActorSourceCore actorSource = ActorSourceCore.builder()
+                .code("test")
+                .label("Test...")
+                .urlTemplate("https://www.test.org/{item-id}")
+                .ord(1)
+                .build();
+
+        String payload = mapper.writeValueAsString(actorSource);
+
+        mvc.perform(
+                post("/api/actor-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
     }
 }

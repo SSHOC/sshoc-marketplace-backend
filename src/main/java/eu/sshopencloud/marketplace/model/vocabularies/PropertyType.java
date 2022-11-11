@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 
@@ -24,6 +25,12 @@ public class PropertyType {
 
     @Column(nullable = false)
     private String label;
+
+    @Nullable
+    private String groupName;
+
+    @Column(nullable = false)
+    private boolean hidden;
 
     @Column(nullable = false)
     private int ord;

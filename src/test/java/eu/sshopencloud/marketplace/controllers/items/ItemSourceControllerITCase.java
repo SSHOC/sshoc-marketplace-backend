@@ -3,10 +3,10 @@ package eu.sshopencloud.marketplace.controllers.items;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
+import eu.sshopencloud.marketplace.dto.items.ItemExternalIdId;
 import eu.sshopencloud.marketplace.dto.items.ItemSourceCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,8 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringRunner.class)
@@ -56,7 +57,9 @@ public class ItemSourceControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].code", is("Wikidata")))
-                .andExpect(jsonPath("$[1].code", is("GitHub")));
+                .andExpect(jsonPath("$[0].ord", is(1)))
+                .andExpect(jsonPath("$[1].code", is("GitHub")))
+                .andExpect(jsonPath("$[1].ord", is(2)));
     }
 
     @Test
@@ -64,6 +67,7 @@ public class ItemSourceControllerITCase {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test source service")
+                .urlTemplate("https://www.test.org/{source-item-id}")
                 .ord(2)
                 .build();
 
@@ -77,6 +81,7 @@ public class ItemSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.test.org/{source-item-id}")))
                 .andExpect(jsonPath("label", is("Test source service")));
 
         mvc.perform(get("/api/item-sources")
@@ -84,9 +89,47 @@ public class ItemSourceControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].code", is("Wikidata")))
+                .andExpect(jsonPath("$[0].ord", is(1)))
                 .andExpect(jsonPath("$[1].code", is("test")))
                 .andExpect(jsonPath("$[1].label", is("Test source service")))
-                .andExpect(jsonPath("$[2].code", is("GitHub")));
+                .andExpect(jsonPath("$[1].ord", is(2)))
+                .andExpect(jsonPath("$[2].code", is("GitHub")))
+                .andExpect(jsonPath("$[2].ord", is(3)));
+    }
+
+    @Test
+    public void shouldCreateItemSourceWithoutOrd() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
+                .code("test")
+                .label("Test source service")
+                .urlTemplate("https://www.test.org/{source-item-id}")
+                .build();
+
+        String payload = mapper.writeValueAsString(itemSource);
+
+        mvc.perform(
+                post("/api/item-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test source service")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.test.org/{source-item-id}")))
+                .andExpect(jsonPath("ord", is(3)));
+
+        mvc.perform(get("/api/item-sources")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].code", is("Wikidata")))
+                .andExpect(jsonPath("$[0].ord", is(1)))
+                .andExpect(jsonPath("$[1].code", is("GitHub")))
+                .andExpect(jsonPath("$[1].ord", is(2)))
+                .andExpect(jsonPath("$[2].code", is("test")))
+                .andExpect(jsonPath("$[2].label", is("Test source service")))
+                .andExpect(jsonPath("$[2].ord", is(3)));
     }
 
     @Test
@@ -121,6 +164,7 @@ public class ItemSourceControllerITCase {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("Wikidata")
                 .label("Wikidata v2")
+                .urlTemplate("https://www.wikidata.org/wiki/{source-item-id}")
                 .ord(2)
                 .build();
 
@@ -134,6 +178,7 @@ public class ItemSourceControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("Wikidata")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.wikidata.org/wiki/{source-item-id}")))
                 .andExpect(jsonPath("label", is("Wikidata v2")));
 
         mvc.perform(get("/api/item-sources")
@@ -143,6 +188,39 @@ public class ItemSourceControllerITCase {
                 .andExpect(jsonPath("$[0].code", is("GitHub")))
                 .andExpect(jsonPath("$[1].code", is("Wikidata")))
                 .andExpect(jsonPath("$[1].label", is("Wikidata v2")));
+    }
+
+    @Test
+    public void shouldUpdateItemSourceWithoutOrder() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
+                .code("Wikidata")
+                .label("Wikidata test")
+                .urlTemplate("https://www.wikidata.org/wiki/{source-item-id}")
+                .build();
+
+        String payload = mapper.writeValueAsString(itemSource);
+
+        mvc.perform(
+                put("/api/item-sources/{sourceId}", "Wikidata")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("Wikidata")))
+                .andExpect(jsonPath("urlTemplate", is("https://www.wikidata.org/wiki/{source-item-id}")))
+                .andExpect(jsonPath("label", is("Wikidata test")));
+
+
+        mvc.perform(get("/api/item-sources")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].code", is("GitHub")))
+                .andExpect(jsonPath("$[1].code", is("Wikidata")))
+                .andExpect(jsonPath("$[1].label", is("Wikidata test")));
+
+
     }
 
     @Test
@@ -167,8 +245,8 @@ public class ItemSourceControllerITCase {
         trainingMaterial.setDescription("Test Training Material imported from Wikidata and GitHub");
         trainingMaterial.setExternalIds(
                 List.of(
-                        new ItemExternalIdCore("Wikidata", "cdefgahc"),
-                        new ItemExternalIdCore("GitHub", "code-like-chopin")
+                        new ItemExternalIdCore(new ItemExternalIdId("Wikidata"), "cdefgahc"),
+                        new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "code-like-chopin")
                 )
         );
 
@@ -249,6 +327,7 @@ public class ItemSourceControllerITCase {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test v2")
+                .urlTemplate("https://www.test.org/{source-item-id}")
                 .ord(3)
                 .build();
 
@@ -261,5 +340,47 @@ public class ItemSourceControllerITCase {
                         .header("Authorization", ADMINISTRATOR_JWT)
         )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldCreateItemSourceWithoutUrlTemplate() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
+                .code("test")
+                .label("Test...")
+                .ord(1)
+                .build();
+
+        String payload = mapper.writeValueAsString(itemSource);
+
+        mvc.perform(
+                post("/api/item-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test...")))
+                .andExpect(jsonPath("ord", is(1)));
+    }
+
+    @Test
+    public void shouldNotCreateItemSourceWithWrongUrlTemplate() throws Exception {
+        ItemSourceCore itemSource = ItemSourceCore.builder()
+                .code("test")
+                .label("Test...")
+                .urlTemplate("https://www.test.org/{item-id}")
+                .ord(1)
+                .build();
+
+        String payload = mapper.writeValueAsString(itemSource);
+
+        mvc.perform(
+                post("/api/item-sources")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isBadRequest());
     }
 }

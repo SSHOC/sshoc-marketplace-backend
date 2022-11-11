@@ -9,4 +9,6 @@ import lombok.NoArgsConstructor;
 public class ActorSourceDto {
     private String code;
     private String label;
+    private int ord;
+    private String urlTemplate;
 }

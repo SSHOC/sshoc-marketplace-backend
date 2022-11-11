@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeReorder;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypesReordering;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,11 +40,13 @@ public class PropertyTypeControllerITCase {
 
     private String CONTRIBUTOR_JWT;
     private String MODERATOR_JWT;
+    private String ADMINISTRATOR_JWT;
 
     @Before
     public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
+        ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
     }
 
 
@@ -57,7 +60,7 @@ public class PropertyTypeControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.hits", is(26)))
+                .andExpect(jsonPath("$.hits", is(28)))
                 .andExpect(jsonPath("$.count", is(10)))
                 .andExpect(jsonPath("$.page", is(1)))
                 .andExpect(jsonPath("$.perpage", is(10)))
@@ -65,7 +68,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.propertyTypes", hasSize(10)))
                 .andExpect(jsonPath("$.propertyTypes[*].code", contains(
                         "language", "activity", "technique", "material", "object-format",
-                        "keyword", "tadirah-goals", "thumbnail", "repository-url", "license-type"
+                        "keyword", "tadirah-goals", "thumbnail", "repository-url", "license"
                 )))
                 .andExpect(jsonPath("$.propertyTypes[5].label", is("Keyword")))
                 .andExpect(jsonPath("$.propertyTypes[0].allowedVocabularies", hasSize(2)))
@@ -80,14 +83,14 @@ public class PropertyTypeControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.hits", is(26)))
-                .andExpect(jsonPath("$.count", is(6)))
+                .andExpect(jsonPath("$.hits", is(28)))
+                .andExpect(jsonPath("$.count", is(8)))
                 .andExpect(jsonPath("$.page", is(3)))
                 .andExpect(jsonPath("$.perpage", is(10)))
                 .andExpect(jsonPath("$.pages", is(3)))
-                .andExpect(jsonPath("$.propertyTypes", hasSize(6)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(8)))
                 .andExpect(jsonPath("$.propertyTypes[*].code", contains(
-                        "issue", "pages", "year", "timestamp", "publication-type", "doi"
+                        "issue", "pages", "year", "timestamp", "publication-type", "doi", "deprecated-at-source", "conflict-at-source"
                 )));
     }
 
@@ -112,7 +115,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.code", is("new-property-type")))
                 .andExpect(jsonPath("$.label", is("New property type")))
                 .andExpect(jsonPath("$.type", is("concept")))
-                .andExpect(jsonPath("$.ord", is(27)))
+                .andExpect(jsonPath("$.ord", is(29)))
                 .andExpect(jsonPath("$.allowedVocabularies", hasSize(2)))
                 .andExpect(jsonPath("$.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "iana-mime-type")));
 
@@ -125,7 +128,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.code", is("new-property-type")))
                 .andExpect(jsonPath("$.label", is("New property type")))
                 .andExpect(jsonPath("$.type", is("concept")))
-                .andExpect(jsonPath("$.ord", is(27)))
+                .andExpect(jsonPath("$.ord", is(29)))
                 .andExpect(jsonPath("$.allowedVocabularies", hasSize(2)))
                 .andExpect(jsonPath("$.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "iana-mime-type")));
     }
@@ -289,7 +292,6 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("web-usable", 11);
         assertPropertyTypeOrder("tool-family", 12);
         assertPropertyTypeOrder("media", 16);
-        assertPropertyTypeOrder("license-type", 10);
 
         mvc.perform(
                 delete("/api/property-types/{code}", "technique")
@@ -309,7 +311,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("web-usable", 10);
         assertPropertyTypeOrder("tool-family", 11);
         assertPropertyTypeOrder("media", 15);
-        assertPropertyTypeOrder("license-type", 9);
+        assertPropertyTypeOrder("license", 9);
     }
 
     @Test
@@ -337,6 +339,163 @@ public class PropertyTypeControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
+    @Ignore(value = "hidden properties have to be always rendered")
+    @Test
+    public void shouldRetrieveHiddenPropertyForModeratorsOnly() throws Exception {
+        String code = "http-status";
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code(code)
+                .label("HTTP resource status code")
+                .type(PropertyTypeClass.INT)
+                .groupName("availability")
+                .hidden(true)
+                .build();
+
+        String payload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                post("/api/property-types")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("http-status")))
+                .andExpect(jsonPath("label", is("HTTP resource status code")))
+                .andExpect(jsonPath("type", is("int")))
+                .andExpect(jsonPath("groupName", is("availability")))
+                .andExpect(jsonPath("hidden", is(true)));
+
+        mvc.perform(get("/api/property-types/{code}", code))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(
+                get("/api/property-types/{code}", code)
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isNotFound());
+
+        mvc.perform(
+                get("/api/property-types/{code}", code)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("http-status")))
+                .andExpect(jsonPath("label", is("HTTP resource status code")))
+                .andExpect(jsonPath("type", is("int")))
+                .andExpect(jsonPath("groupName", is("availability")))
+                .andExpect(jsonPath("hidden", is(true)));
+
+        mvc.perform(
+                get("/api/property-types/{code}", code)
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk());
+
+        mvc.perform(
+                get("/api/property-types")
+                        .param("q", "http resource")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hits", is(0)))
+                .andExpect(jsonPath("$.count", is(0)))
+                .andExpect(jsonPath("$.pages", is(0)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(0)));
+
+        mvc.perform(
+                get("/api/property-types")
+                        .param("q", "http resource")
+                        .header("Authorization", CONTRIBUTOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hits", is(0)))
+                .andExpect(jsonPath("$.count", is(0)))
+                .andExpect(jsonPath("$.pages", is(0)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(0)));
+
+        mvc.perform(
+                get("/api/property-types")
+                        .param("q", "http resource")
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hits", is(1)))
+                .andExpect(jsonPath("$.count", is(1)))
+                .andExpect(jsonPath("$.pages", is(1)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(1)))
+                .andExpect(jsonPath("$.propertyTypes[0].code", is(code)))
+                .andExpect(jsonPath("$.propertyTypes[0].hidden", is(true)));
+
+        mvc.perform(
+                get("/api/property-types")
+                        .param("q", "http resource")
+                        .header("Authorization", ADMINISTRATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hits", is(1)))
+                .andExpect(jsonPath("$.count", is(1)))
+                .andExpect(jsonPath("$.pages", is(1)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(1)))
+                .andExpect(jsonPath("$.propertyTypes[0].code", is(code)))
+                .andExpect(jsonPath("$.propertyTypes[0].hidden", is(true)));
+    }
+
+    @Test
+    public void shouldCreatePropertyWithGroupName() throws Exception {
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("grouped-property")
+                .label("This property is grouped")
+                .type(PropertyTypeClass.STRING)
+                .groupName("group")
+                .hidden(false)
+                .build();
+
+        String payload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                post("/api/property-types")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("grouped-property")))
+                .andExpect(jsonPath("groupName", is("group")));
+    }
+
+    @Test
+    public void shouldUpdatePropertyGroupName() throws Exception {
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("media")
+                .label("Media")
+                .type(PropertyTypeClass.URL)
+                .groupName("browsable")
+                .hidden(false)
+                .ord(16)
+                .build();
+
+        String payload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                put("/api/property-types/{code}", "media")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("media")))
+                .andExpect(jsonPath("groupName", is("browsable")));
+
+        mvc.perform(get("/api/property-types/{code}", "media"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("media")))
+                .andExpect(jsonPath("label", is("Media")))
+                .andExpect(jsonPath("type", is("url")))
+                .andExpect(jsonPath("groupName", is("browsable")))
+                .andExpect(jsonPath("hidden", is(false)))
+                .andExpect(jsonPath("ord", is(16)));
+    }
+
     @Test
     public void shouldProperlyReorderPropertyTypes() throws Exception {
         assertPropertyTypeOrder("object-format", 5);
@@ -344,7 +503,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -368,7 +527,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("repository-url", 7);
         assertPropertyTypeOrder("tadirah-goals", 8);
         assertPropertyTypeOrder("keyword", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
     }
 
     @Test
@@ -378,7 +537,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -405,7 +564,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -432,7 +591,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(
@@ -459,7 +618,7 @@ public class PropertyTypeControllerITCase {
         assertPropertyTypeOrder("tadirah-goals", 7);
         assertPropertyTypeOrder("thumbnail", 8);
         assertPropertyTypeOrder("repository-url", 9);
-        assertPropertyTypeOrder("license-type", 10);
+        assertPropertyTypeOrder("license", 10);
 
         PropertyTypesReordering request = new PropertyTypesReordering(
                 Arrays.asList(

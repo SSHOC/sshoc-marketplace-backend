@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0031-SSHOC_53-media_sources-1
+      author: swolarz
+      description: Creates table for media sources
+      changes:
+        - createTable:
+            tableName: media_sources
+            columns:
+              - column:
+                  name: code
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: service_url
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: media_category
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ord
+                  type: integer
+                  constraints:
+                    nullable: false

@@ -1,12 +1,9 @@
 package eu.sshopencloud.marketplace.model.items;
 
-import eu.sshopencloud.marketplace.services.common.OrderableEntity;
+import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 
 @Entity
@@ -26,6 +23,10 @@ public class ItemSource implements OrderableEntity<String> {
     private String label;
 
     private int ord;
+
+    @Basic
+    @Column(nullable = true)
+    private String urlTemplate;
 
     @Override
     public String getId() {

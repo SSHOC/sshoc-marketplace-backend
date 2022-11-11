@@ -10,8 +10,8 @@ import java.util.List;
 @Entity
 @Table(name = "workflows")
 @Data
-@ToString(callSuper = true, exclude = { "stepsTree", "allSteps" })
-@EqualsAndHashCode(callSuper = true, exclude = { "stepsTree", "allSteps" })
+@ToString(callSuper = true, exclude = {"stepsTree", "allSteps"})
+@EqualsAndHashCode(callSuper = true, exclude = {"stepsTree", "allSteps"})
 public class Workflow extends Item {
 
     @OneToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -34,11 +34,15 @@ public class Workflow extends Item {
     }
 
     public StepsTree gatherSteps() {
-        // Invoke size method to force steps fetch
+        // Invoke size method to force steps fetch - rethink is it really needed?
         if (allSteps != null) {
             int prefetchSize = allSteps.size();
         }
 
         return stepsTree;
+    }
+
+    public int getSize() {
+        return allSteps.size();
     }
 }

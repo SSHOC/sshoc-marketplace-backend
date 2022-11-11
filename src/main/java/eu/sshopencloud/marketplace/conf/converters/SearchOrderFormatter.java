@@ -1,24 +1,21 @@
 package eu.sshopencloud.marketplace.conf.converters;
 
 import eu.sshopencloud.marketplace.dto.search.SearchOrder;
-import org.springframework.format.Formatter;
 
-import java.text.ParseException;
-import java.util.Locale;
 
-public class SearchOrderFormatter implements Formatter<SearchOrder> {
+public class SearchOrderFormatter extends BaseEnumFormatter<SearchOrder> {
+
+    private static final String SEARCH_ORDER_NAME = "search-order";
 
     @Override
-    public String print(SearchOrder object, Locale locale) {
-        return object.getValue();
+    protected SearchOrder toEnum(String enumValue) {
+        return SearchOrder.valueOf(enumValue);
     }
 
-    public SearchOrder parse(String text, Locale locale) throws ParseException {
-        try {
-            return SearchOrder.valueOf(text.toUpperCase().replace('-', '_'));
-        } catch (Exception e) {
-            throw new ParseException("Incorrect value '" + text + "' for enum '" + "order" + "'!", 0);
-        }
+    @Override
+    protected String getEnumName() {
+        return SEARCH_ORDER_NAME;
     }
 
 }
+

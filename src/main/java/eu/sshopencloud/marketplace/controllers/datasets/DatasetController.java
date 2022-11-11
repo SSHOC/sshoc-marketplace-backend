@@ -1,15 +1,26 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
-import eu.sshopencloud.marketplace.services.items.DatasetService;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
+import eu.sshopencloud.marketplace.services.items.DatasetService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -21,6 +32,7 @@ public class DatasetController {
 
     private final DatasetService datasetService;
 
+    @Operation(summary = "Retrieve all datasets in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedDatasets> getDatasets(@RequestParam(value = "page", required = false) Integer page,
                                                          @RequestParam(value = "perpage", required = false) Integer perpage,
@@ -29,48 +41,141 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.getDatasets(pageCoordsValidator.validate(page, perpage), approved));
     }
 
-    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getDataset(@PathVariable("id") String id,
+    @Operation(summary = "Get single dataset by its persistentId")
+    @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getDataset(@PathVariable("persistentId") String persistentId,
                                                  @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                                 @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(datasetService.getLatestDataset(id, draft, approved));
+        return ResponseEntity.ok(datasetService.getLatestDataset(persistentId, draft, approved,redirect));
     }
 
-    @GetMapping(path = "/{id}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> getDatasetVersion(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
-        return ResponseEntity.ok(datasetService.getDatasetVersion(id, versionId));
+    @Operation(summary = "Get dataset selected version by its persistentId and versionId")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getDatasetVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(datasetService.getDatasetVersion(persistentId, versionId));
     }
 
+    @Operation(summary = "Creating dataset")
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> createDataset(@RequestBody DatasetCore newDataset,
+    public ResponseEntity<DatasetDto> createDataset(@Parameter(
+            description = "Created dataset",
+            required = true,
+            schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore newDataset,
                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
         return ResponseEntity.ok(datasetService.createDataset(newDataset, draft));
     }
 
-    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("id") String id, @RequestBody DatasetCore updatedDataset,
-                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
+    @Operation(summary = "Updating dataset for given persistentId")
+    @PutMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> updateDataset(@PathVariable("persistentId") String persistentId,
+                                                    @Parameter(
+                                                            description = "Updated dataset",
+                                                            required = true,
+                                                            schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore updatedDataset,
+                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
-        return ResponseEntity.ok(datasetService.updateDataset(id, updatedDataset, draft));
+        return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft, approved));
     }
 
-    @PutMapping(path = "/{id}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> revertDataset(@PathVariable("id") String id, @PathVariable("versionId") long versionId) {
-        return ResponseEntity.ok(datasetService.revertDataset(id, versionId));
+    @Operation(summary = "Revert dataset to target version by its persistentId and versionId that is reverted to")
+    @PutMapping(path = "/{persistentId}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> revertDataset(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+        return ResponseEntity.ok(datasetService.revertDataset(persistentId, versionId));
     }
 
-    @DeleteMapping(path = "/{id}")
-    public void deleteDataset(@PathVariable("id") String id,
+    @Operation(summary = "Delete dataset by its persistentId")
+    @DeleteMapping(path = "/{persistentId}")
+    public void deleteDataset(@PathVariable("persistentId") String persistentId,
                               @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
 
-        datasetService.deleteDataset(id, draft);
+        datasetService.deleteDataset(persistentId, draft);
     }
 
-    @PostMapping(path = "/{datasetId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatasetDto> publishDataset(@PathVariable("datasetId") String datasetId) {
-        DatasetDto dataset = datasetService.commitDraftDataset(datasetId);
+    @Operation(summary = "Delete dataset by its persistentId and versionId")
+    @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
+    public void deleteDatasetVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        datasetService.deleteDataset(persistentId, versionId);
+    }
+
+
+    @Operation(summary = "Committing draft of dataset by its persistentId")
+    @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> publishDataset(@PathVariable("persistentId") String persistentId) {
+        DatasetDto dataset = datasetService.commitDraftDataset(persistentId);
         return ResponseEntity.ok(dataset);
     }
+
+    @Operation(summary = "Retrieving history of dataset by its persistentId")
+    @GetMapping(path = "/{persistentId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemExtBasicDto>> getDatasetHistory(@PathVariable("persistentId") String persistentId,
+                                                                   @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+        return ResponseEntity.ok(datasetService.getDatasetVersions(persistentId, draft, approved));
+    }
+
+    @Operation(summary = "Retrieving list of information-contributors across the whole history of dataset by its persistentId", operationId = "getDatasetInformationContributors")
+    @GetMapping(path = "/{persistentId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId) {
+
+        return ResponseEntity.ok(datasetService.getInformationContributors(persistentId));
+    }
+
+    @Operation(summary = "Retrieving list of information-contributors to the selected version of dataset by its persistentId and versionId", operationId = "getDatasetVersionInformationContributors")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/information-contributors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDto>> getInformationContributors(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        return ResponseEntity.ok(datasetService.getInformationContributors(persistentId, versionId));
+    }
+
+    @Operation(summary = "Getting body of merged version of dataset", operationId = "getDatasetMerge")
+    @GetMapping(path = "/{persistentId}/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> getMerge(@PathVariable("persistentId") String persistentId,
+                                               @RequestParam List<String> with) {
+        return ResponseEntity.ok(datasetService.getMerge(persistentId, with));
+    }
+
+    @Operation(summary = "Performing merge into dataset", operationId = "mergeDataset")
+    @PostMapping(path = "/merge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> merge(@RequestParam List<String> with,
+                                            @Parameter(
+                                                    description = "Merged dataset",
+                                                    required = true,
+                                                    schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore mergeDataset)
+            throws ItemIsAlreadyMergedException {
+        return ResponseEntity.ok(datasetService.merge(mergeDataset, with));
+    }
+
+    @Operation(summary = "Getting list of sources of dataset by its persistentId", operationId = "getDatasetSources")
+    @GetMapping(path = "/{persistentId}/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SourceDto>> getSources(@PathVariable("persistentId") String persistentId) {
+
+        return ResponseEntity.ok(datasetService.getSources(persistentId));
+    }
+
+    @Operation(summary = "Getting differences between dataset and target version of item, ('unaltered' string response means for the single field that remained unchanged)", operationId = "getDatasetAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getDatasetVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                  @RequestParam(required = true) String with,
+                                                                                  @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(datasetService.getDifferences(persistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of dataset and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedDatasetAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getVersionedDatasetVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                           @PathVariable("versionId") long versionId,
+                                                                                           @RequestParam(required = true) String with,
+                                                                                           @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(datasetService.getDifferences(persistentId, versionId, with, otherVersionId));
+    }
+
+
 }

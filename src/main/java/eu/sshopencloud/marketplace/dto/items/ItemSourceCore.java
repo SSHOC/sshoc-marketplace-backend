@@ -18,5 +18,7 @@ public class ItemSourceCore {
     @NotNull
     private String label;
 
-    private int ord;
+    private Integer ord;
+
+    private String urlTemplate;
 }

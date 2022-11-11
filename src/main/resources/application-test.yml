@@ -7,5 +7,10 @@ spring:
     solr:
       host: ${SPRING_DATA_SOLR_HOST:http://localhost:8984/solr}
 
-  liquibase:
-    contexts: test
+    liquibase:
+        contexts: test
+
+marketplace:
+    media:
+        files:
+            path: /tmp/${random.value}/sshoc/media

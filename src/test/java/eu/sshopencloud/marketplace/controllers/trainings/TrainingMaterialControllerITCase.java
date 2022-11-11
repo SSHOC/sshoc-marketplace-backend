@@ -6,17 +6,20 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
-import eu.sshopencloud.marketplace.dto.licenses.LicenseId;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
+import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
+import eu.sshopencloud.marketplace.dto.sources.SourceId;
+import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -36,7 +39,6 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -77,7 +79,7 @@ public class TrainingMaterialControllerITCase {
     public void shouldReturnTrainingMaterials() throws Exception {
 
         mvc.perform(get("/api/training-materials")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -92,11 +94,11 @@ public class TrainingMaterialControllerITCase {
         String payload1 = mapper.writeValueAsString(trainingMaterial1);
 
         String trainingMaterialJson1 = mvc.perform(
-                put("/api/training-materials/{id}", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload1)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload1)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", notNullValue()))
@@ -116,11 +118,11 @@ public class TrainingMaterialControllerITCase {
         String payload2 = mapper.writeValueAsString(trainingMaterial2);
 
         String trainingMaterialJson2 = mvc.perform(
-                put("/api/training-materials/{id}", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload2)
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload2)
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("id", notNullValue()))
@@ -134,10 +136,10 @@ public class TrainingMaterialControllerITCase {
         int trainingMaterialVersionId2 = trainingMaterialDto2.getId().intValue();
 
         mvc.perform(
-                get("/api/training-materials/{id}", trainingMaterialId)
-                        .param("approved", "false")
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/training-materials/{id}", trainingMaterialId)
+                                .param("approved", "false")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", is(trainingMaterialVersionId1)))
@@ -147,10 +149,10 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("description", is(trainingMaterial1.getDescription())));
 
         mvc.perform(
-                get("/api/training-materials")
-                        .param("approved", "false")
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/training-materials")
+                                .param("approved", "false")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(4)))
                 .andExpect(jsonPath("trainingMaterials", hasSize(4)))
@@ -159,10 +161,10 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("trainingMaterials[0].status", is("suggested")));
 
         mvc.perform(
-                get("/api/training-materials")
-                        .param("approved", "false")
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        get("/api/training-materials")
+                                .param("approved", "false")
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(4)))
                 .andExpect(jsonPath("trainingMaterials", hasSize(4)))
@@ -171,10 +173,10 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("trainingMaterials[0].status", is("ingested")));
 
         mvc.perform(
-                get("/api/training-materials")
-                        .param("approved", "false")
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials")
+                                .param("approved", "false")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(5)))
                 .andExpect(jsonPath("trainingMaterials", hasSize(5)))
@@ -192,11 +194,11 @@ public class TrainingMaterialControllerITCase {
         String payload = mapper.writeValueAsString(trainingMaterial);
 
         String trainingMaterialJson = mvc.perform(
-                put("/api/training-materials/{id}", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", notNullValue()))
@@ -207,10 +209,10 @@ public class TrainingMaterialControllerITCase {
         int versionId = trainingMaterialDto.getId().intValue();
 
         mvc.perform(
-                get("/api/training-materials")
-                        .param("approved", "false")
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/training-materials")
+                                .param("approved", "false")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(3)))
                 .andExpect(jsonPath("trainingMaterials", hasSize(3)))
@@ -219,10 +221,10 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("trainingMaterials[0].status", is("approved")));
 
         mvc.perform(
-                get("/api/training-materials")
-                        .param("approved", "false")
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        get("/api/training-materials")
+                                .param("approved", "false")
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(3)))
                 .andExpect(jsonPath("trainingMaterials", hasSize(3)))
@@ -231,10 +233,10 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("trainingMaterials[0].status", is("approved")));
 
         mvc.perform(
-                get("/api/training-materials")
-                        .param("approved", "false")
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials")
+                                .param("approved", "false")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("hits", is(3)))
                 .andExpect(jsonPath("trainingMaterials", hasSize(3)))
@@ -249,17 +251,14 @@ public class TrainingMaterialControllerITCase {
         int newestVersionId = 7;
 
         mvc.perform(get("/api/training-materials/{id}", trainingMaterialId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", is(newestVersionId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("version", is("3.0")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("informationContributor.id", is(1)))
-                .andExpect(jsonPath("olderVersions", hasSize(2)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("informationContributor.id", is(1)));
     }
 
     @Test
@@ -267,9 +266,9 @@ public class TrainingMaterialControllerITCase {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(
-                get("/api/training-materials/{id}?draft=1", trainingMaterialId)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/training-materials/{id}?draft=1", trainingMaterialId)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isNotFound());
     }
 
@@ -279,20 +278,18 @@ public class TrainingMaterialControllerITCase {
         int versionId = 5;
 
         mvc.perform(
-                get("/api/training-materials/{id}/versions/{vId}", trainingMaterialId, versionId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}/versions/{vId}", trainingMaterialId, versionId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", is(versionId)))
                 .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")))
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("version", is("1.0")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("informationContributor.id", is(1)))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(2)));
+                .andExpect(jsonPath("informationContributor.id", is(4)));
     }
 
     @Test
@@ -300,7 +297,7 @@ public class TrainingMaterialControllerITCase {
         Integer trainingMaterialId = 51;
 
         mvc.perform(get("/api/training-materials/{id}", trainingMaterialId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -315,11 +312,11 @@ public class TrainingMaterialControllerITCase {
         String payload = testMapper.writeValueAsString(trainingMaterial);
 
         String jsonResponse = mvc.perform(
-                post("/api/training-materials?draft=true")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/training-materials?draft=true")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("id", notNullValue()))
@@ -339,15 +336,15 @@ public class TrainingMaterialControllerITCase {
         String trainingMaterialId = testMapper.readValue(jsonResponse, TrainingMaterialDto.class).getPersistentId();
 
         mvc.perform(
-                get("/api/training-materials/{id}", trainingMaterialId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}", trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isNotFound());
 
         mvc.perform(
-                get("/api/training-materials/{id}?draft=true", trainingMaterialId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}?draft=true", trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
@@ -375,9 +372,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Test simple blog")))
@@ -392,12 +389,49 @@ public class TrainingMaterialControllerITCase {
 
 
         mvc.perform(get("/api/sources/{id}", 2)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(2)))
                 .andExpect(jsonPath("label", is("Programming Historian")))
                 .andExpect(jsonPath("url", is("https://programminghistorian.org")))
-                .andExpect(jsonPath("lastHarvestedDate", notNullValue()));
+                .andExpect(jsonPath("lastHarvestedDate").doesNotHaveJsonPath());
+    }
+
+    @Test
+    public void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAsSystemImporterWithLastHarvestDate() throws Exception {
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Test simple blog");
+        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setAccessibleAt(List.of("https://programminghistorian.org/en/lessons/test-simple-blog"));
+        trainingMaterial.setSourceItemId("9999");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/training-materials")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Test simple blog")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://programminghistorian.org/en/lessons/test-simple-blog")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("9999")));
+
+
+        mvc.perform(get("/api/sources/{id}", 2)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(2)))
+                .andExpect(jsonPath("label", is("Programming Historian")))
+                .andExpect(jsonPath("url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("lastHarvestedDate").doesNotHaveJsonPath());
     }
 
     @Test
@@ -418,9 +452,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Test simple blog")))
@@ -436,12 +470,12 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("sourceItemId", is("9999")));
 
         mvc.perform(get("/api/sources/{id}", 2)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(2)))
                 .andExpect(jsonPath("label", is("Programming Historian")))
                 .andExpect(jsonPath("url", is("https://programminghistorian.org")))
-                .andExpect(jsonPath("lastHarvestedDate", notNullValue()));
+                .andExpect(jsonPath("lastHarvestedDate").doesNotHaveJsonPath());
     }
 
     @Test
@@ -449,19 +483,14 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("apache-2.0");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        trainingMaterial.setLicenses(licenses);
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(3l);
+        actor.setId(3L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -479,7 +508,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -492,89 +521,21 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Test complex online course")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("licenses[0].label", is("Apache License 2.0")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
-                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
-                .andExpect(jsonPath("olderVersions", hasSize(0)))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
     }
 
-    /*
-    @Test
-    public void shouldCreateTrainingMaterialWithPrevVersionInChain() throws Exception {
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test complex online course");
-        trainingMaterial.setDescription("Lorem Ipsum ...");
-        trainingMaterial.setPrevVersionId(7l);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("training-material")))
-                .andExpect(jsonPath("label", is("Test complex online course")))
-                .andExpect(jsonPath("description", is("Lorem Ipsum ...")))
-                .andExpect(jsonPath("olderVersions", hasSize(3)))
-                .andExpect(jsonPath("olderVersions[0].id", is(7)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[0].version", is("3.0")))
-                .andExpect(jsonPath("olderVersions[1].id", is(6)))
-                .andExpect(jsonPath("olderVersions[1].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[1].version", is("2.0")))
-                .andExpect(jsonPath("olderVersions[2].id", is(5)))
-                .andExpect(jsonPath("olderVersions[2].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[2].version", is("1.0")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
-    }
-
-    @Test
-    public void shouldCreateTrainingMaterialWithPrevVersionInSubChain() throws Exception {
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test complex online course");
-        trainingMaterial.setDescription("Lorem ipsum");
-        trainingMaterial.setPrevVersionId(6l);
-
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("category", is("training-material")))
-                .andExpect(jsonPath("label", is("Test complex online course")))
-                .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("olderVersions", hasSize(2)))
-                .andExpect(jsonPath("olderVersions[0].id", is(6)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[0].version", is("2.0")))
-                .andExpect(jsonPath("newerVersions", hasSize(1)))
-                .andExpect(jsonPath("newerVersions[0].id", is(7)))
-                .andExpect(jsonPath("newerVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("newerVersions[0].version", is("3.0")));
-    }
-    */
 
     @Test
     public void shouldNotCreateTrainingMaterialWithImplicitSourceButWithoutSourceItemId() throws Exception {
@@ -587,9 +548,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(1)))
                 .andExpect(jsonPath("errors[0].field", is("sourceItemId")))
@@ -601,46 +562,19 @@ public class TrainingMaterialControllerITCase {
     public void shouldNotCreateTrainingMaterialWhenLabelIsNull() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setDescription("Lorem ipsum");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("label")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
-
-
-    @Test
-    public void shouldNotCreateTrainingMaterialWhenLicenseIsUnknown() throws Exception {
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("qwerty1");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        trainingMaterial.setLicenses(licenses);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
@@ -651,24 +585,24 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(99l);
+        actor.setId(99L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -682,24 +616,24 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(2l);
+        actor.setId(2L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("xxx");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -726,7 +660,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -735,9 +669,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[0].type.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -764,7 +698,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -773,9 +707,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -802,7 +736,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -811,9 +745,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[0].concept.vocabulary")))
                 .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
@@ -837,7 +771,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -846,9 +780,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[0].concept")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
@@ -858,7 +792,24 @@ public class TrainingMaterialControllerITCase {
     @Test
     public void shouldPerformDraftUpdateAndCommit() throws Exception {
         String trainingMaterialId = "WfcKvG";
-        int prevVersionId = 7;
+
+        mvc.perform(get("/api/training-materials/{id}/history?draft=false", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")));
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("First attempt of making a test simple blog");
@@ -869,11 +820,11 @@ public class TrainingMaterialControllerITCase {
         String payload = testMapper.writeValueAsString(trainingMaterial);
 
         mvc.perform(
-                put("/api/training-materials/{id}?draft=1", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        put("/api/training-materials/{id}?draft=1", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("id", notNullValue()))
@@ -890,9 +841,9 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("sourceItemId", is("9999")));
 
         mvc.perform(
-                get("/api/training-materials/{id}?draft=true", trainingMaterialId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}?draft=true", trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
@@ -907,12 +858,35 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
                 .andExpect(jsonPath("sourceItemId", is("9999")));
 
-        mvc.perform(
-                put("/api/training-materials/{id}", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
+        mvc.perform(get("/api/training-materials/{id}/history?draft=true", trainingMaterialId)
                         .header("Authorization", MODERATOR_JWT)
-        )
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].status", is("draft")))
+
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("$[1].status", is("approved")))
+
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[3].category", is("training-material")))
+                .andExpect(jsonPath("$[3].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[3].status", is("deprecated")));
+
+        mvc.perform(
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
@@ -925,87 +899,96 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("source.id", is(2)))
                 .andExpect(jsonPath("source.label", is("Programming Historian")))
                 .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
-                .andExpect(jsonPath("sourceItemId", is("9999")))
-                .andExpect(jsonPath("olderVersions", hasSize(3)))
-                .andExpect(jsonPath("olderVersions[0].id", is(7)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[0].version", is("3.0")));
+                .andExpect(jsonPath("sourceItemId", is("9999")));
 
         mvc.perform(
-                get("/api/training-materials/{id}?draft=true", trainingMaterialId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}?draft=true", trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isNotFound());
 
+        mvc.perform(get("/api/training-materials/{id}/history?draft=true", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
+
+
         mvc.perform(
-                get("/api/training-materials/{id}", trainingMaterialId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}", trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("status", is("approved")))
-                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())))
-                .andExpect(jsonPath("olderVersions", hasSize(3)))
-                .andExpect(jsonPath("olderVersions[0].id", is(7)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[0].version", is("3.0")));
-    }
+                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())));
 
-    @Test
-    public void shouldUpdateTrainingMaterialWithImplicitSource() throws Exception {
-        String trainingMaterialId = "WfcKvG";
-
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test simple training material");
-        trainingMaterial.setDescription("Lorem ipsum");
-        trainingMaterial.setAccessibleAt(List.of("http://programminghistorian.org/en/lessons/test-simple-training-material"));
-        trainingMaterial.setSourceItemId("8888");
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+        mvc.perform(get("/api/training-materials/{id}/history?draft=false", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
-                .andExpect(jsonPath("category", is("training-material")))
-                .andExpect(jsonPath("label", is("Test simple training material")))
-                .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("accessibleAt", hasSize(1)))
-                .andExpect(jsonPath("accessibleAt[0]", is("http://programminghistorian.org/en/lessons/test-simple-training-material")))
-                .andExpect(jsonPath("licenses", hasSize(0)))
-                .andExpect(jsonPath("contributors", hasSize(0)))
-                .andExpect(jsonPath("properties", hasSize(0)))
-                .andExpect(jsonPath("source.id", is(2)))
-                .andExpect(jsonPath("source.label", is("Programming Historian")))
-                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
-                .andExpect(jsonPath("sourceItemId", is("8888")));
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[3].category", is("training-material")))
+                .andExpect(jsonPath("$[3].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[3].status", is("deprecated")));
 
     }
 
+
     @Test
-    public void shouldUpdateTrainingMaterialWithRelations() throws Exception {
+    public void shouldNotUpdateTrainingMaterialWhenNewVersionIsEqualToDeprecatedOne() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
+        mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].id", is(7)))
+                .andExpect(jsonPath("$[0].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[0].informationContributor.username", is("Administrator")))
+
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].id", is(6)))
+                .andExpect(jsonPath("$[1].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+                .andExpect(jsonPath("$[1].informationContributor.username", is("System importer")))
+
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].id", is(5)))
+                .andExpect(jsonPath("$[2].label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("$[2].status", is("deprecated")))
+                .andExpect(jsonPath("$[2].informationContributor.username", is("System importer")));
+
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Introduction to GEPHI");
-        trainingMaterial.setDescription("Lorem ipsum");
-        LicenseId license = new LicenseId();
-        license.setCode("mit");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        trainingMaterial.setLicenses(licenses);
+        trainingMaterial.setLabel("An approved version of traing material");
+        trainingMaterial.setDescription("Lorem ipsum is not enough for a blog");
+        trainingMaterial.setAccessibleAt(List.of("https://www.example.com"));
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(3l);
+        actor.setId(3L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
         PropertyCore property1 = new PropertyCore();
@@ -1023,7 +1006,541 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+        String payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial.getDescription())))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.example.com")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("SSHOC project consortium")));
+
+        String oldVersion = mvc.perform(
+                get("/api/training-materials/{id}/versions/6", trainingMaterialId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(oldVersion)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isNotModified());
+
+    }
+
+
+    @Test
+    public void shouldUpdateTrainingMaterialWithConflictAtSourceOnLabel() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI 2");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
+        trainingMaterial.setAccessibleAt(List.of("https://www.youtube.com/watch?v=2FqM4gKeNO4"));
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(2L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("object-format");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("video/mp4");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iana-mime-type");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("activity");
+        property2.setType(propertyType2);
+        ConceptId concept2 = new ConceptId();
+        concept2.setCode("ActivityType-Collecting");
+        VocabularyId vocabulary2 = new VocabularyId();
+        vocabulary2.setCode("nemo-activity-type");
+        concept2.setVocabulary(vocabulary2);
+        property2.setConcept(concept2);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+
+        String payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI 2")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+
+        mvc.perform(
+                get("/api/training-materials/{id}/versions/6", trainingMaterialId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+
+        trainingMaterial.setLabel("Introduction to GEPHI 3");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("33367890");
+
+        payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI 3")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(3)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("properties[2].type.code", is("conflict-at-source")))
+                .andExpect(jsonPath("properties[2].value", is("true")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+    }
+
+
+    @Test
+    public void shouldUpdateTrainingMaterialWithConflictAtSourceOnAccessibleAt() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
+        trainingMaterial.setAccessibleAt(List.of("https://example.com"));
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(2L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("object-format");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("video/mp4");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iana-mime-type");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("activity");
+        property2.setType(propertyType2);
+        ConceptId concept2 = new ConceptId();
+        concept2.setCode("ActivityType-Collecting");
+        VocabularyId vocabulary2 = new VocabularyId();
+        vocabulary2.setCode("nemo-activity-type");
+        concept2.setVocabulary(vocabulary2);
+        property2.setConcept(concept2);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+
+        String payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://example.com")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+
+        mvc.perform(
+                get("/api/training-materials/{id}/versions/6", trainingMaterialId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+
+        trainingMaterial.setAccessibleAt(List.of("https://sshoc.marketplace.com", "https://example.com"));
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("33367890");
+
+        payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(2)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://sshoc.marketplace.com")))
+                .andExpect(jsonPath("accessibleAt[1]", is("https://example.com")))
+                .andExpect(jsonPath("properties", hasSize(3)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("properties[2].type.code", is("conflict-at-source")))
+                .andExpect(jsonPath("properties[2].value", is("true")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+    }
+
+
+    @Test
+    public void shouldUpdateTrainingMaterialWithConflictAtSourceOnProperties() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
+        trainingMaterial.setAccessibleAt(List.of("https://www.youtube.com/watch?v=2FqM4gKeNO4"));
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(2L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("language");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("eng");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iso-639-3");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("activity");
+        property2.setType(propertyType2);
+        ConceptId concept2 = new ConceptId();
+        concept2.setCode("ActivityType-Collecting");
+        VocabularyId vocabulary2 = new VocabularyId();
+        vocabulary2.setCode("nemo-activity-type");
+        concept2.setVocabulary(vocabulary2);
+        property2.setConcept(concept2);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+
+        String payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("eng")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+
+        mvc.perform(
+                get("/api/training-materials/{id}/versions/6", trainingMaterialId)
+                        .header("Authorization", MODERATOR_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+
+        PropertyCore property3 = new PropertyCore();
+        PropertyTypeId propertyType3 = new PropertyTypeId();
+        propertyType3.setCode("object-format");
+        property3.setType(propertyType3);
+        ConceptId concept3 = new ConceptId();
+        concept3.setCode("video/mp4");
+        VocabularyId vocabulary3 = new VocabularyId();
+        vocabulary3.setCode("iana-mime-type");
+        concept3.setVocabulary(vocabulary3);
+        property3.setConcept(concept3);
+
+        PropertyCore property4 = new PropertyCore();
+        PropertyTypeId propertyType4 = new PropertyTypeId();
+        propertyType4.setCode("material");
+        property4.setType(propertyType4);
+        property4.setValue("paper");
+
+        List<PropertyCore> properties2 = new ArrayList<>();
+        properties2.add(property3);
+        properties2.add(property4);
+        trainingMaterial.setProperties(properties2);
+
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("33367890");
+
+        payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                put("/api/training-materials/{id}", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", IMPORTER_JWT)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(3)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("properties[2].type.code", is("conflict-at-source")))
+                .andExpect(jsonPath("properties[2].value", is("true")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+    }
+
+    @Test
+    public void shouldUpdateTrainingMaterialWithImplicitSource() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Test simple training material");
+        trainingMaterial.setDescription("Lorem ipsum");
+        trainingMaterial.setAccessibleAt(List.of("http://programminghistorian.org/en/lessons/test-simple-training-material"));
+        trainingMaterial.setSourceItemId("8888");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Test simple training material")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("http://programminghistorian.org/en/lessons/test-simple-training-material")))
+                .andExpect(jsonPath("contributors", hasSize(0)))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("8888")));
+
+    }
+
+    @Test
+    public void shouldUpdateTrainingMaterialWithRelations() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setDescription("Lorem ipsum");
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(3L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("language");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("eng");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iso-639-3");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("material");
+        property2.setType(propertyType2);
+        property2.setValue("paper");
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1036,16 +1553,14 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
                 .andExpect(jsonPath("description", is("Lorem ipsum")))
-                .andExpect(jsonPath("licenses", hasSize(1)))
-                .andExpect(jsonPath("licenses[0].label", is("MIT License")))
                 .andExpect(jsonPath("contributors", hasSize(1)))
                 .andExpect(jsonPath("contributors[0].actor.id", is(3)))
                 .andExpect(jsonPath("contributors[0].role.label", is("Author")))
@@ -1053,18 +1568,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("properties[0].concept.label", is("eng")))
                 .andExpect(jsonPath("properties[1].value", is("paper")))
                 .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
-                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
-                .andExpect(jsonPath("olderVersions", hasSize(3)))
-                .andExpect(jsonPath("olderVersions[0].id", is(7)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[0].version", is("3.0")))
-                .andExpect(jsonPath("olderVersions[1].id", is(6)))
-                .andExpect(jsonPath("olderVersions[1].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[1].version", is("2.0")))
-                .andExpect(jsonPath("olderVersions[2].id", is(5)))
-                .andExpect(jsonPath("olderVersions[2].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[2].version", is("1.0")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
     }
 
     @Test
@@ -1074,54 +1578,82 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @Deprecated
-    public void shouldUpdateTrainingMaterialWithPrevVersionForMiddleOfChain() throws Exception {
+    public void shouldUpdateTrainingMaterialWithHistory() throws Exception {
         String trainingMaterialId = "WfcKvG";
+
+        mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")));
+
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Introduction to GEPHI");
         trainingMaterial.setVersion("4.0");
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("category", is("training-material")))
                 .andExpect(jsonPath("label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
-                .andExpect(jsonPath("olderVersions", hasSize(3)))
-                .andExpect(jsonPath("olderVersions[0].id", is(7)))
-                .andExpect(jsonPath("olderVersions[0].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[0].version", is("3.0")))
-                .andExpect(jsonPath("olderVersions[1].id", is(6)))
-                .andExpect(jsonPath("olderVersions[1].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[1].version", is("2.0")))
-                .andExpect(jsonPath("olderVersions[2].id", is(5)))
-                .andExpect(jsonPath("olderVersions[2].label", is("Introduction to GEPHI")))
-                .andExpect(jsonPath("olderVersions[2].version", is("1.0")))
-                .andExpect(jsonPath("newerVersions", hasSize(0)));
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")));
+
+
+        mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0].category", is("training-material")))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[0].version", is("4.0")))
+                .andExpect(jsonPath("$[0].label", is("Introduction to GEPHI")))
+
+                .andExpect(jsonPath("$[1].category", is("training-material")))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[2].category", is("training-material")))
+                .andExpect(jsonPath("$[2].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[2].status", is("deprecated")))
+
+                .andExpect(jsonPath("$[3].category", is("training-material")))
+                .andExpect(jsonPath("$[3].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("$[3].status", is("deprecated")));
+
     }
 
     @Test
@@ -1130,49 +1662,22 @@ public class TrainingMaterialControllerITCase {
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("label")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
                 .andExpect(jsonPath("errors[0].message", notNullValue()));
     }
 
-    @Test
-    public void shouldNotUpdateTrainingMaterialWhenLicenseIsUnknown() throws Exception {
-        String trainingMaterialId = "WfcKvG";
-
-        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
-        trainingMaterial.setLabel("Test training material");
-        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
-        LicenseId license = new LicenseId();
-        license.setCode("qwerty1");
-        List<LicenseId> licenses = new ArrayList<LicenseId>();
-        licenses.add(license);
-        trainingMaterial.setLicenses(licenses);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
-        trainingMaterial.setProperties(properties);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
-        log.debug("JSON: " + payload);
-
-        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("licenses[0].code")))
-                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
-                .andExpect(jsonPath("errors[0].message", notNullValue()));
-    }
 
     @Test
     public void shouldNotUpdateTrainingMaterialWhenContributorIsUnknown() throws Exception {
@@ -1183,24 +1688,24 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(99l);
+        actor.setId(99L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("author");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -1216,24 +1721,24 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
         ItemContributorId contributor = new ItemContributorId();
         ActorId actor = new ActorId();
-        actor.setId(2l);
+        actor.setId(2L);
         contributor.setActor(actor);
         ActorRoleId role = new ActorRoleId();
         role.setCode("xxx");
         contributor.setRole(role);
-        List<ItemContributorId> contributors = new ArrayList<ItemContributorId>();
+        List<ItemContributorId> contributors = new ArrayList<>();
         contributors.add(contributor);
         trainingMaterial.setContributors(contributors);
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -1262,7 +1767,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1271,9 +1776,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[0].type.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -1302,7 +1807,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1311,9 +1816,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[0].concept.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -1342,7 +1847,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1351,9 +1856,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[0].concept.vocabulary")))
                 .andExpect(jsonPath("errors[0].code", is("field.disallowedVocabulary")))
@@ -1379,7 +1884,7 @@ public class TrainingMaterialControllerITCase {
         propertyType2.setCode("material");
         property2.setType(propertyType2);
         property2.setValue("paper");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         properties.add(property1);
         properties.add(property2);
         trainingMaterial.setProperties(properties);
@@ -1388,9 +1893,9 @@ public class TrainingMaterialControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[0].concept")))
                 .andExpect(jsonPath("errors[0].code", is("field.required")))
@@ -1402,39 +1907,62 @@ public class TrainingMaterialControllerITCase {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem Ipsum ...");
-        List<PropertyCore> properties = new ArrayList<PropertyCore>();
+        List<PropertyCore> properties = new ArrayList<>();
         trainingMaterial.setProperties(properties);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
         String jsonResponse = mvc.perform(post("/api/training-materials")
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", ADMINISTRATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        String trainingMaterialId = TestJsonMapper.serializingObjectMapper()
+        String trainingMaterialPersistentId = TestJsonMapper.serializingObjectMapper()
                 .readValue(jsonResponse, TrainingMaterialDto.class).getPersistentId();
+        Long trainingMaterialVersionId = TestJsonMapper.serializingObjectMapper()
+                .readValue(jsonResponse, TrainingMaterialDto.class).getId();
 
-        mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
+        mvc.perform(delete("/api/training-materials/{persistentId}/versions/{id}", trainingMaterialPersistentId, trainingMaterialVersionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/api/training-materials/{id}", trainingMaterialId))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void shouldNotDeleteTrainingMaterialWhenNotExist() throws Exception {
-        String trainingMaterialId = "noting";
-
-        mvc.perform(delete("/api/training-materials/{id}", trainingMaterialId)
+        mvc.perform(get("/api/training-materials/{persistentId}?approved=false", trainingMaterialPersistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/training-materials/{persistentId}/versions/{id}", trainingMaterialPersistentId, trainingMaterialVersionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("id", is(trainingMaterialVersionId.intValue())))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")));
+    }
+
+    @Test
+    public void shouldDeleteTrainingMaterialHistoricalVersion() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+        int versionId = 5;
+
+        mvc.perform(delete("/api/training-materials/{persistentId}/versions/{id}", trainingMaterialId, versionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/training-materials/{persistentId}/versions/{id}", trainingMaterialId, versionId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", is(versionId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")));
     }
 
     @Test
@@ -1456,11 +1984,11 @@ public class TrainingMaterialControllerITCase {
         String payload = mapper.writeValueAsString(trainingMaterial);
 
         mvc.perform(
-                post("/api/training-materials")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/training-materials")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("properties[1].value")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
@@ -1479,11 +2007,11 @@ public class TrainingMaterialControllerITCase {
         String payload = mapper.writeValueAsString(trainingMaterial);
 
         mvc.perform(
-                put("/api/training-materials/{id}", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", not(is(trainingMaterialVersionId))))
@@ -1491,10 +2019,10 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/training-materials/{id}", trainingMaterialId)
-                        .param("approved", "false")
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        get("/api/training-materials/{id}", trainingMaterialId)
+                                .param("approved", "false")
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", not(is(trainingMaterialVersionId))))
@@ -1502,10 +2030,10 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/training-materials/{id}", trainingMaterialId)
-                        .param("approved", "false")
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/training-materials/{id}", trainingMaterialId)
+                                .param("approved", "false")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
@@ -1523,9 +2051,9 @@ public class TrainingMaterialControllerITCase {
     @Test
     public void shouldNotAccessNotOwnedVersion() throws Exception {
         mvc.perform(
-                get("/api/training-materials/{id}/versions/{verId}", "WfcKvG", 5)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/training-materials/{id}/versions/{verId}", "WfcKvG", 5)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isForbidden());
     }
 
@@ -1538,11 +2066,11 @@ public class TrainingMaterialControllerITCase {
         String payload = mapper.writeValueAsString(trainingMaterial);
 
         String trainingMaterialResponse = mvc.perform(
-                post("/api/training-materials")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        post("/api/training-materials")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("id", notNullValue()))
@@ -1555,9 +2083,9 @@ public class TrainingMaterialControllerITCase {
         int trainingMaterialVersionId = trainingMaterialDto.getId().intValue();
 
         mvc.perform(
-                get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
-                        .header("Authorization", IMPORTER_JWT)
-        )
+                        get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
+                                .header("Authorization", IMPORTER_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
@@ -1565,9 +2093,9 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
-                        .header("Authorization", ADMINISTRATOR_JWT)
-        )
+                        get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
@@ -1575,9 +2103,9 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
                 .andExpect(jsonPath("id", is(trainingMaterialVersionId)))
@@ -1585,12 +2113,552 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("status", is("ingested")));
 
         mvc.perform(
-                get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isForbidden());
 
         mvc.perform(get("/api/training-materials/{id}/versions/{verId}", trainingMaterialId, trainingMaterialVersionId))
                 .andExpect(status().isForbidden());
     }
+
+    @Ignore(value = "hidden properties have to be always rendered")
+    @Test
+    public void shouldNotRenderHiddenProperty() throws Exception {
+        PropertyTypeCore propertyType = PropertyTypeCore.builder()
+                .code("http-status")
+                .label("HTTP resource status code")
+                .type(PropertyTypeClass.INT)
+                .groupName("status")
+                .hidden(true)
+                .build();
+
+        String propertyTypePayload = mapper.writeValueAsString(propertyType);
+
+        mvc.perform(
+                        post("/api/property-types")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(propertyTypePayload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("http-status")))
+                .andExpect(jsonPath("hidden", is(true)));
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Confidential training material");
+        trainingMaterial.setDescription("Training material with hidden property");
+        trainingMaterial.setProperties(
+                List.of(
+                        new PropertyCore(new PropertyTypeId("http-status"), "404"),
+                        new PropertyCore(new PropertyTypeId("keyword"), "confidential")
+                )
+        );
+
+        String trainingMaterialPayload = mapper.writeValueAsString(trainingMaterial);
+
+        String responseJson = mvc.perform(
+                        post("/api/training-materials")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(trainingMaterialPayload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].type.code", is("http-status")))
+                .andExpect(jsonPath("properties[0].type.groupName", is("status")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(true)))
+                .andExpect(jsonPath("properties[1].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[1].type.hidden", is(false)))
+                .andReturn().getResponse().getContentAsString();
+
+        TrainingMaterialDto dto = mapper.readValue(responseJson, TrainingMaterialDto.class);
+        String persistentId = dto.getPersistentId();
+
+        mvc.perform(get("/api/training-materials/{persistentId}", persistentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistentId)))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(false)));
+
+        mvc.perform(
+                        get("/api/training-materials/{persistentId}", persistentId)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistentId)))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("properties[0].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(false)));
+
+
+        mvc.perform(
+                        get("/api/training-materials/{persistentId}", persistentId)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(persistentId)))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].type.code", is("http-status")))
+                .andExpect(jsonPath("properties[0].type.groupName", is("status")))
+                .andExpect(jsonPath("properties[0].type.hidden", is(true)))
+                .andExpect(jsonPath("properties[1].type.code", is("keyword")))
+                .andExpect(jsonPath("properties[1].type.hidden", is(false)));
+    }
+
+    @Test
+    public void shouldApproveTrainingMaterialRelatedToATool() throws Exception {
+        String trainingMaterialId = "heBAGQ";
+        String relatedObjectId = "n21Kfc";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Gephi: explore the networks");
+        trainingMaterial.setDescription("An open source software for exploring and manipulating networks");
+        trainingMaterial.setRelatedItems(
+                List.of(new RelatedItemCore(relatedObjectId, new ItemRelationId("documents")))
+        );
+
+        String suggestedPayload = mapper.writeValueAsString(trainingMaterial);
+        mvc.perform(
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(suggestedPayload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(relatedObjectId)));
+
+        mvc.perform(
+                        get("/api/tools-services/{id}", relatedObjectId)
+                                .param("approved", "false")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(relatedObjectId)))
+                .andExpect(jsonPath("relatedItems", hasSize(3)))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+
+        trainingMaterial.setLabel("Gephi: explore the networks!");
+
+        String approvalPayload = mapper.writeValueAsString(trainingMaterial);
+        mvc.perform(
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(approvalPayload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(relatedObjectId)));
+    }
+
+    @Test
+    public void shouldRemoveMultiVersionRelationToItem() throws Exception {
+        String trainingMaterialId = "heBAGQ";
+        String relatedObjectId = "n21Kfc";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Gephi: explore the networks");
+        trainingMaterial.setDescription("An open source software for exploring and manipulating networks");
+        trainingMaterial.setRelatedItems(
+                List.of(new RelatedItemCore(relatedObjectId, new ItemRelationId("documents")))
+        );
+
+        String trainingMaterialPayload = mapper.writeValueAsString(trainingMaterial);
+        mvc.perform(
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(trainingMaterialPayload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("relatedItems", hasSize(1)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is(relatedObjectId)));
+
+        mvc.perform(
+                        get("/api/tools-services/{id}", relatedObjectId)
+                                .param("approved", "false")
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(relatedObjectId)))
+                .andExpect(jsonPath("relatedItems", hasSize(2)))
+                .andExpect(jsonPath("relatedItems[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("relatedItems[1].persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
+
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Gephi: lonline");
+        tool.setDescription("Gephi without any relations");
+        tool.setRelatedItems(List.of());
+
+        String toolPayload = mapper.writeValueAsString(tool);
+        mvc.perform(
+                        put("/api/tools-services/{id}", relatedObjectId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(toolPayload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+    }
+
+
+    @Test
+    public void shouldReturnTrainingMaterialInformationContributors() throws Exception {
+
+        String trainingMaterialPersistentId = "heBAGQ";
+
+        mvc.perform(get("/api/training-materials/{id}/information-contributors", trainingMaterialPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].username", is("Moderator")))
+                .andExpect(jsonPath("$[0].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("moderator")))
+                .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+    }
+
+    @Test
+    public void shouldReturnTrainingMaterialInformationContributorsForVersion() throws Exception {
+
+        String trainingMaterialPersistentId = "heBAGQ";
+        int trainingMaterialId = 4;
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Gephi: explore the networks");
+        trainingMaterial.setDescription("An open source software for exploring and manipulating networks");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(trainingMaterialId)));
+
+        mvc.perform(get("/api/training-materials/{id}/information-contributors", trainingMaterialPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].username", is("Moderator")))
+                .andExpect(jsonPath("$[0].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("moderator")))
+                .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+
+        String jsonResponse = mvc.perform(put("/api/training-materials/{id}", trainingMaterialPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("description", is(trainingMaterial.getDescription())))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("contributors", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+
+        Long versionId = TestJsonMapper.serializingObjectMapper()
+                .readValue(jsonResponse, DatasetDto.class).getId();
+
+        log.debug("Dataset version Id: " + versionId);
+
+        mvc.perform(get("/api/training-materials/{id}/versions/{versionId}/information-contributors", trainingMaterialPersistentId, versionId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].username", is("Administrator")))
+                .andExpect(jsonPath("$[0].displayName", is("Administrator")))
+                .andExpect(jsonPath("$[1].id", is(2)))
+                .andExpect(jsonPath("$[1].username", is("Moderator")))
+                .andExpect(jsonPath("$[1].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[1].status", is("enabled")))
+                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].role", is("moderator")))
+                .andExpect(jsonPath("$[1].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[1].config", is(true)));
+
+        int beforeVersion = 2;
+
+        mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[0].id", is(versionId.intValue())))
+                .andExpect(jsonPath("$[1].persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("$[1].id", is(trainingMaterialId)));
+
+        mvc.perform(get("/api/training-materials/{id}/versions/{versionId}/information-contributors", trainingMaterialPersistentId, trainingMaterialId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(beforeVersion)))
+                .andExpect(jsonPath("$[0].username", is("Moderator")))
+                .andExpect(jsonPath("$[0].displayName", is("Moderator")))
+                .andExpect(jsonPath("$[0].status", is("enabled")))
+                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].role", is("moderator")))
+                .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
+                .andExpect(jsonPath("$[0].config", is(true)));
+
+    }
+
+    @Test
+    public void shouldGetMergeForTrainingMaterial() throws Exception {
+
+        String trainingMaterialId = "heBAGQ";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        mvc.perform(
+                        get("/api/training-materials/{id}/merge", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowId, toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks. / Creation of a dictionary")));
+
+    }
+
+
+    @Test
+    public void shouldMergeIntoTrainingMaterial() throws Exception {
+
+        String trainingMaterialId = "heBAGQ";
+        String workflowId = "tqmbGY";
+        String toolId = "n21Kfc";
+
+        String response = mvc.perform(
+                        get("/api/training-materials/{id}/merge", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", workflowId, toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks. / Creation of a dictionary")))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                        post("/api/training-materials/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", trainingMaterialId, workflowId, toolId)
+                                .content(response)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Gephi: an open source software for exploring and manipulating networks. / Creation of a dictionary")));
+
+        mvc.perform(
+                        get("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    public void shouldGetSourcesForTrainingMaterial() throws Exception {
+
+        String trainingMaterialId = "WfcKvG";
+
+        mvc.perform(
+                        get("/api/training-materials/{id}/sources", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].label", is("Programming Historian")))
+                .andExpect(jsonPath("$[0].url", is("https://programminghistorian.org")));
+
+
+    }
+
+
+    @Test
+    public void shouldGetSourcesForMergedTrainingMaterial() throws Exception {
+
+        String trainingMaterialId = "WfcKvG";
+        String datasetId = "OdKfPc";
+        String toolId = "Xgufde";
+
+        mvc.perform(
+                        get("/api/datasets/{id}/sources", datasetId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        mvc.perform(
+                        get("/api/tools-services/{id}/sources", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].label", is("TAPoR")))
+                .andExpect(jsonPath("$[0].url", is("http://tapor.ca")));
+
+        mvc.perform(
+                        get("/api/training-materials/{id}/sources", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(2)))
+                .andExpect(jsonPath("$[0].label", is("Programming Historian")))
+                .andExpect(jsonPath("$[0].url", is("https://programminghistorian.org")));
+
+
+        String response = mvc.perform(
+                        get("/api/training-materials/{id}/merge", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", datasetId, toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI / Consortium of European Social Science Data Archives / WebSty")))
+                .andReturn().getResponse().getContentAsString();
+
+
+        TrainingMaterialDto trainingMaterialDto = TestJsonMapper.serializingObjectMapper()
+                .readValue(response, TrainingMaterialDto.class);
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel(trainingMaterialDto.getLabel());
+        trainingMaterial.setDescription(trainingMaterialDto.getDescription());
+        trainingMaterial.setAccessibleAt(trainingMaterialDto.getAccessibleAt());
+        trainingMaterial.setDateCreated(trainingMaterialDto.getDateCreated());
+        trainingMaterial.setVersion(trainingMaterialDto.getVersion());
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+
+        String mergedResponse = mvc.perform(
+                        post("/api/training-materials/merge")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("with", trainingMaterialId, datasetId, toolId)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", not(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI / Consortium of European Social Science Data Archives / WebSty")))
+                .andReturn().getResponse().getContentAsString();
+
+
+        String mergedPersistentId = TestJsonMapper.serializingObjectMapper()
+                .readValue(mergedResponse, TrainingMaterialDto.class).getPersistentId();
+
+        mvc.perform(
+                        get("/api/training-materials/{id}/sources", mergedPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].label", is("TAPoR")))
+                .andExpect(jsonPath("$[0].url", is("http://tapor.ca")))
+                .andExpect(jsonPath("$[1].id", is(2)))
+                .andExpect(jsonPath("$[1].label", is("Programming Historian")))
+                .andExpect(jsonPath("$[1].url", is("https://programminghistorian.org")));
+
+    }
+    
+    @Test
+    public void shouldReturnDifferenceBetweenVersionsOfTrainingMaterials() throws Exception {
+        String trainingMaterialPersistentId = "WfcKvG";
+        Long trainingMaterialVersionId = 5L;
+
+        Long otherTrainingMaterialVersionId = 6L;
+
+        mvc.perform(get("/api/training-materials/{persistentId}/versions/{versionId}/diff", trainingMaterialPersistentId, trainingMaterialVersionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", trainingMaterialPersistentId)
+                        .param("otherVersionId", otherTrainingMaterialVersionId.toString())
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("item.id", is(trainingMaterialVersionId.intValue())))
+                .andExpect(jsonPath("item.version", is("1.0")))
+                .andExpect(jsonPath("item.category", is("training-material")))
+                .andExpect(jsonPath("item.label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("item.informationContributor.id", is(4)))
+                .andExpect(jsonPath("item.status", is("deprecated")))
+                .andExpect(jsonPath("equal", is(false)))
+                .andExpect(jsonPath("other.persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("other.id", is(otherTrainingMaterialVersionId.intValue())))
+                .andExpect(jsonPath("other.category", is("training-material")))
+                .andExpect(jsonPath("other.version", is("2.0")))
+                .andExpect(jsonPath("other.status", is("deprecated")));
+
+
+        mvc.perform(get("/api/training-materials/{persistentId}/versions/{versionId}/diff", trainingMaterialPersistentId, trainingMaterialVersionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("with", trainingMaterialPersistentId)
+                        .param("otherVersionId", "7")
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("item.persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("item.id", is(trainingMaterialVersionId.intValue())))
+                .andExpect(jsonPath("item.version", is("1.0")))
+                .andExpect(jsonPath("item.category", is("training-material")))
+                .andExpect(jsonPath("item.label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("item.informationContributor.id", is(4)))
+                .andExpect(jsonPath("item.status", is("deprecated")))
+                .andExpect(jsonPath("equal", is(false)))
+                .andExpect(jsonPath("other.persistentId", is(trainingMaterialPersistentId)))
+                .andExpect(jsonPath("other.id", is(7)))
+                .andExpect(jsonPath("other.category", is("training-material")))
+                .andExpect(jsonPath("other.version", is("3.0")))
+                .andExpect(jsonPath("other.status", is("approved")))
+                .andExpect(jsonPath("other.informationContributor.id", is(1)));
+    }
+
 }

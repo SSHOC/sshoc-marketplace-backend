@@ -11,6 +11,7 @@ public enum UserRole {
     CONTRIBUTOR(List.of(Authority.CONTRIBUTOR)),
     SYSTEM_CONTRIBUTOR(List.of(Authority.CONTRIBUTOR, Authority.SYSTEM_CONTRIBUTOR)),
     MODERATOR(List.of(Authority.CONTRIBUTOR, Authority.MODERATOR)),
+    SYSTEM_MODERATOR(List.of(Authority.CONTRIBUTOR, Authority.MODERATOR, Authority.SYSTEM_MODERATOR)),
     ADMINISTRATOR(List.of(Authority.CONTRIBUTOR, Authority.MODERATOR, Authority.ADMINISTRATOR));
 
 

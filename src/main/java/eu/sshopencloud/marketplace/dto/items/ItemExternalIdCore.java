@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 public class ItemExternalIdCore {
 
     @NotNull
-    private String serviceIdentifier;
+    private ItemExternalIdId identifierService;
 
     @NotNull
     private String identifier;

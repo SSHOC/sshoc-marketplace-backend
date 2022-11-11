@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.model.auth.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -32,6 +33,7 @@ public class ItemComment {
     private ZonedDateTime dateCreated;
 
     @Column(nullable = true)
+    @Nullable
     private ZonedDateTime dateLastUpdated;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

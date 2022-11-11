@@ -1,3 +1,17 @@
+User:
+
+  - !!eu.sshopencloud.marketplace.model.auth.User
+    id:                          1
+    username:                    Administrator
+    displayName:                 Administrator
+    password:                    $2a$10$kPF9JIeRO5BNOutUrZj3c.dn.8NNAKHdO.KO2GvkFkMBDupHx7kZi
+    status:                      ENABLED
+    role:                        ADMINISTRATOR
+    config:                      true
+    preferences:                 "{}"
+    email:                       administrator@example.com
+
+
 ActorRole:
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
@@ -11,23 +25,43 @@ ActorRole:
     label:                       Author
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
-    code:                        provider
+    code:                        reviewer
     ord:                         3
+    label:                       Reviewer
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        director
+    ord:                         4
+    label:                       Director
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        programmer
+    ord:                         5
+    label:                       Programmer
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        editor
+    ord:                         6
+    label:                       Editor
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        provider
+    ord:                         7
     label:                       Provider
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        contact
-    ord:                         4
+    ord:                         8
     label:                       Contact
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        funder
-    ord:                         5
+    ord:                         9
     label:                       Funder
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        helpdesk
-    ord:                         6
+    ord:                         10
     label:                       Helpdesk
 
 ItemRelation:
@@ -143,11 +177,13 @@ ConceptRelation:
     code:                        related
     ord:                         1
     label:                       Related
+    uri:                         http://www.w3.org/2004/02/skos/core#related
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
     code:                        related
     ord:                         1
     label:                       Related
+    uri:                         http://www.w3.org/2004/02/skos/core#related
     inverseOf:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                          related
@@ -156,11 +192,13 @@ ConceptRelation:
     code:                        sameAs
     ord:                         2
     label:                       Same as
+    uri:                         http://www.w3.org/2002/07/owl#sameAs
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
     code:                        sameAs
     ord:                         2
     label:                       Same as
+    uri:                         http://www.w3.org/2002/07/owl#sameAs
     inverseOf:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                          sameAs
@@ -169,16 +207,19 @@ ConceptRelation:
     code:                        broader
     ord:                         3
     label:                       Broader
+    uri:                         http://www.w3.org/2004/02/skos/core#broader
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
     code:                        narrower
     ord:                         4
     label:                       Narrower
+    uri:                         http://www.w3.org/2004/02/skos/core#narrower
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
     code:                        broader
     ord:                         3
     label:                       Broader
+    uri:                         http://www.w3.org/2004/02/skos/core#broader
     inverseOf:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                          narrower
@@ -187,6 +228,7 @@ ConceptRelation:
     code:                        narrower
     ord:                         4
     label:                       Narrower
+    uri:                         http://www.w3.org/2004/02/skos/core#narrower
     inverseOf:
       !!eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation
       code:                          broader
@@ -235,4 +277,23 @@ ItemSource:
   - !!eu.sshopencloud.marketplace.model.items.ItemSource
     code:                        GitHub
     label:                       GitHub
+    ord:                         2
+
+  - !!eu.sshopencloud.marketplace.model.items.ItemSource
+    code:                        doi
+    label:                       DOI
+    ord:                         3
+
+
+MediaSource:
+  - !!eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore
+    code:                        youtube
+    serviceUrl:                  https://www.youtube.com/watch
+    mediaCategory:               EMBED
+    ord:                         1
+
+  - !!eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore
+    code:                        vimeo
+    serviceUrl:                  https://vimeo.com/watch
+    mediaCategory:               EMBED
     ord:                         2

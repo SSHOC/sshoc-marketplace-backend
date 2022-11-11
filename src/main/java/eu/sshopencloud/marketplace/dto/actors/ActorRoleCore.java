@@ -17,5 +17,5 @@ public class ActorRoleCore {
     @NotNull
     private String label;
 
-    private int ord;
+    private Integer ord;
 }

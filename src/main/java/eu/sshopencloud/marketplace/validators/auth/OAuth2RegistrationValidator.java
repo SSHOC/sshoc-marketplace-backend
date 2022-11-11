@@ -11,15 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
 
-import java.util.regex.Pattern;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class OAuth2RegistrationValidator {
-
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
 
     private final UserRepository userRepository;
 
@@ -45,7 +41,7 @@ public class OAuth2RegistrationValidator {
             if (StringUtils.isBlank(oAuthRegistrationData.getEmail())) {
                 errors.rejectValue("email", "field.required", "Email is required.");
             } else {
-                if (EMAIL_PATTERN.matcher(oAuthRegistrationData.getEmail()).matches()) {
+                if (EmailValidator.isValid(oAuthRegistrationData.getEmail())) {
                     user.setEmail(oAuthRegistrationData.getEmail());
                 } else {
                     errors.rejectValue("email", "field.invalid", "Email is malformed.");

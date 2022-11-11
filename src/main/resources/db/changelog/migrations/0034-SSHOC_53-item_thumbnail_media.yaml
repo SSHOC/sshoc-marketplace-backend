@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0034-SSHOC_53-item_thumbnail_media-1
+      author: swolarz
+      description: Add column for item thumbnail flag
+      changes:
+        - addColumn:
+            tableName: items_media
+            columns:
+              name: item_thumbnail
+              type: boolean

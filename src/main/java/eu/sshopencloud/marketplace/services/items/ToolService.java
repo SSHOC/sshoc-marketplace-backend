@@ -1,17 +1,30 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
+import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
+import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.tools.ToolFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,11 +45,13 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
                        ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                        ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Tool> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                       PropertyTypeService propertyTypeService, IndexService indexService, UserService userService) {
+                       PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
+                       MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService
+                itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService, sourceService,
+                eventPublisher
         );
 
         this.toolRepository = toolRepository;
@@ -52,8 +67,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return getItemVersion(persistentId, versionId);
     }
 
-    public ToolDto getLatestTool(String persistentId, boolean draft, boolean approved) {
-        return getLatestItem(persistentId, draft, approved);
+    public ToolDto getLatestTool(String persistentId, boolean draft, boolean approved, boolean redirect) {
+        return getLatestItem(persistentId, draft, approved, redirect);
     }
 
     public ToolDto createTool(ToolCore toolCore, boolean draft) {
@@ -61,8 +76,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         return prepareItemDto(tool);
     }
 
-    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft) {
-        Tool tool = updateItem(persistentId, toolCore, draft);
+    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft, boolean approved) throws VersionNotChangedException {
+        Tool tool = updateItem(persistentId, toolCore, draft, approved);
         return prepareItemDto(tool);
     }
 
@@ -80,6 +95,10 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
         deleteItem(persistentId, draft);
     }
 
+    public void deleteTool(String persistentId, long versionId) {
+        deleteItem(persistentId, versionId);
+    }
+
 
     @Override
     protected ItemVersionRepository<Tool> getItemRepository() {
@@ -87,8 +106,8 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     @Override
-    protected Tool makeItem(ToolCore toolCore, Tool prevTool) {
-        return toolFactory.create(toolCore, prevTool);
+    protected Tool makeItem(ToolCore toolCore, Tool prevTool, boolean conflict) {
+        return toolFactory.create(toolCore, prevTool, conflict);
     }
 
     @Override
@@ -114,11 +133,59 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
     @Override
     protected ToolDto convertItemToDto(Tool tool) {
-        return ToolMapper.INSTANCE.toDto(tool);
+        ToolDto dto = ToolMapper.INSTANCE.toDto(tool);
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()){
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
+    }
+
+    @Override
+    protected ToolDto convertToDto(Item item) {
+        ToolDto dto = ToolMapper.INSTANCE.toDto(item);
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()){
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
     @Override
     protected String getItemTypeName() {
         return Tool.class.getName();
     }
+
+    public List<ItemExtBasicDto> getToolVersions(String persistentId, boolean draft, boolean approved) {
+        return getItemHistory(persistentId, getLatestTool(persistentId, draft, approved, false).getId());
+    }
+
+    public List<UserDto> getInformationContributors(String id) {
+        return super.getInformationContributors(id);
+    }
+
+    public List<UserDto> getInformationContributors(String id, Long versionId) {
+        return super.getInformationContributors(id, versionId);
+    }
+
+    public ToolDto getMerge(String persistentId, List<String> mergeList) {
+        return prepareMergeItems(persistentId, mergeList);
+    }
+
+    public ToolDto merge(ToolCore mergeTool, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
+        Tool tool = createItem(mergeTool, false);
+        tool = mergeItem(tool.getPersistentId(), mergeList);
+        return prepareItemDto(tool);
+    }
+
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
+    }
+
+    public ItemsDifferencesDto getDifferences(String toolPersistentId, Long toolVersionId, String otherPersistentId, Long otherVersionId) {
+
+        return super.getDifferences(toolPersistentId, toolVersionId, otherPersistentId, otherVersionId);
+    }
+
 }
