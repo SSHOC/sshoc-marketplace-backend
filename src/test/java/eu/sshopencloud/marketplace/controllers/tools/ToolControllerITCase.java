@@ -1160,6 +1160,46 @@ public class ToolControllerITCase {
     }
 
     @Test
+    public void shouldCreateToolWithAccessibleAtUrlSameAsExistingSource() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Tapor related tool");
+        tool.setDescription("The tool that has tapor url in the accessible at property");
+        tool.setAccessibleAt(List.of("http://tapor.ca/fakeId"));
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)));
+    }
+
+    @Test
     public void shouldCreateMultipleToolDrafts() throws Exception {
         String toolId = "DstBL5";
 
