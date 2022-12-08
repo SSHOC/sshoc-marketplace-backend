@@ -401,7 +401,6 @@ public class DatasetControllerITCase {
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
         dataset.setSourceItemId("testSourceItemId");
-
         dataset.setAccessibleAt(
                 Arrays.asList(
                         "https://programminghistorian.org",
@@ -409,6 +408,9 @@ public class DatasetControllerITCase {
                         "https://dev.programminghistorian.org"
                 )
         );
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        dataset.setSource(sourceId);
 
         String payload = mapper.writeValueAsString(dataset);
         log.debug("JSON: " + payload);

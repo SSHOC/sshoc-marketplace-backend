@@ -80,10 +80,8 @@ public class ItemFactory {
 
         item.setAccessibleAt(accessibleAtLinks);
 
-        URI accessibleAtUri = (!urls.isEmpty()) ? urls.get(0) : null;
-
         errors.pushNestedPath("source");
-        item.setSource(sourceFactory.create(itemCore.getSource(), accessibleAtUri, errors));
+        item.setSource(sourceFactory.create(itemCore.getSource(), errors));
         errors.popNestedPath();
 
         item.setSourceItemId(itemCore.getSourceItemId());

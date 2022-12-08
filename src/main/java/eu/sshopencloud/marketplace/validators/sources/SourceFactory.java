@@ -67,23 +67,19 @@ public class SourceFactory {
     }
 
 
-    public Source create(SourceId sourceId, URI accessibleAtUri, Errors errors) {
-        // explicit source has priority
+    public Source create(SourceId sourceId, Errors errors) {
         if (sourceId != null) {
             if (sourceId.getId() == null) {
                 errors.rejectValue("id", "field.required", "Source id is required.");
                 return null;
             }
             Optional<Source> sourceHolder = sourceRepository.findById(sourceId.getId());
-            if (!sourceHolder.isPresent()) {
+            if (sourceHolder.isEmpty()) {
                 errors.rejectValue("id", "field.notExist", "Source does not exist.");
                 return null;
             } else {
                 return sourceHolder.get();
             }
-        }
-        if (!Objects.isNull(accessibleAtUri)) {
-            return sourceRepository.findByDomain(accessibleAtUri.getHost());
         }
         return null;
     }
