@@ -308,6 +308,9 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum is not enough for a blog");
         trainingMaterial.setAccessibleAt(List.of("https://programminghistorian.org/en/lessons/test-simple-blog"));
         trainingMaterial.setSourceItemId("9999");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
 
         String payload = testMapper.writeValueAsString(trainingMaterial);
 
@@ -367,6 +370,9 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum");
         trainingMaterial.setAccessibleAt(List.of("https://programminghistorian.org/en/lessons/test-simple-blog"));
         trainingMaterial.setSourceItemId("9999");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
@@ -404,6 +410,9 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum");
         trainingMaterial.setAccessibleAt(List.of("https://programminghistorian.org/en/lessons/test-simple-blog"));
         trainingMaterial.setSourceItemId("9999");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
@@ -447,6 +456,9 @@ public class TrainingMaterialControllerITCase {
                         "https://dev.programminghistorian.org/en/lessons/test-simple-blog"
                 )
         );
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
@@ -543,7 +555,9 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
         trainingMaterial.setAccessibleAt(Arrays.asList("https://programminghistorian.org/en/lessons/test-simple-blog"));
-
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
 
@@ -816,6 +830,9 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum is not enough for a blog");
         trainingMaterial.setAccessibleAt(List.of("https://programminghistorian.org/en/lessons/test-simple-blog"));
         trainingMaterial.setSourceItemId("9999");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
 
         String payload = testMapper.writeValueAsString(trainingMaterial);
 
@@ -1484,6 +1501,9 @@ public class TrainingMaterialControllerITCase {
         trainingMaterial.setDescription("Lorem ipsum");
         trainingMaterial.setAccessibleAt(List.of("http://programminghistorian.org/en/lessons/test-simple-training-material"));
         trainingMaterial.setSourceItemId("8888");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
         log.debug("JSON: " + payload);
