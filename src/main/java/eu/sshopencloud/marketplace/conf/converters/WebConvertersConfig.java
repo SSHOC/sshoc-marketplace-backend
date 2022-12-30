@@ -3,7 +3,9 @@ package eu.sshopencloud.marketplace.conf.converters;
 import eu.sshopencloud.marketplace.domain.media.MediaCategory;
 import eu.sshopencloud.marketplace.dto.auth.UserOrder;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
-import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.dto.search.ActorSearchOrder;
+import eu.sshopencloud.marketplace.dto.search.ConceptSearchOrder;
+import eu.sshopencloud.marketplace.dto.search.ItemSearchOrder;
 import eu.sshopencloud.marketplace.dto.sources.SourceOrder;
 import eu.sshopencloud.marketplace.model.auth.UserRole;
 import eu.sshopencloud.marketplace.model.auth.UserStatus;
@@ -27,11 +29,13 @@ public class WebConvertersConfig implements WebMvcConfigurer {
         registry.addFormatterForFieldType(ItemCategory.class, new ItemCategoryFormatter());
         registry.addFormatterForFieldType(ItemStatus.class, new ItemStatusFormatter());
         registry.addFormatterForFieldType(ItemOrder.class, new ItemOrderFormatter());
-        registry.addFormatterForFieldType(SearchOrder.class, new SearchOrderFormatter());
+        registry.addFormatterForFieldType(ItemSearchOrder.class, new ItemSearchOrderFormatter());
         registry.addFormatterForFieldType(PropertyTypeClass.class, new PropertyTypeClassFormatter());
         registry.addFormatterForFieldType(MediaCategory.class, new MediaCategoryFormatter());
         registry.addFormatterForFieldType(SourceOrder.class, new SourceOrderFormatter());
         registry.addFormatterForFieldType(UserOrder.class, new UserOrderFormatter());
+        registry.addFormatterForFieldType(ActorSearchOrder.class, new ActorSearchOrderFormatter());
+        registry.addFormatterForFieldType(ConceptSearchOrder.class, new ConceptSearchOrderFormatter());
     }
 
     @Override

@@ -62,7 +62,7 @@ public class SearchService {
     public PaginatedSearchItems searchItems(String q, boolean advanced, boolean includeSteps,
                                             @NotNull Map<String, String> expressionParams,
                                             List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams,
-                                            List<SearchOrder> order, PageCoords pageCoords) throws IllegalFilterException {
+                                            List<ItemSearchOrder> order, PageCoords pageCoords) throws IllegalFilterException {
 
         log.debug("filterParams " + filterParams.toString());
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
@@ -76,7 +76,7 @@ public class SearchService {
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
         if (order == null || order.isEmpty()) {
-            order = Collections.singletonList(SearchOrder.SCORE);
+            order = Collections.singletonList(ItemSearchOrder.SCORE);
         }
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
@@ -116,7 +116,7 @@ public class SearchService {
 
     private Map<ItemCategory, LabeledCheckedCount> gatherCategoryFacet(FacetPage<IndexItem> facetPage, List<ItemCategory> categories) {
         Map<ItemCategory, LabeledCheckedCount> countedCategories = facetPage.getFacetFields().stream()
-                .filter(field -> field.getName().equals(IndexItem.CATEGORY_FIELD))
+                .filter(field -> IndexItem.CATEGORY_FIELD.equals(field.getName()))
                 .map(facetPage::getFacetResultPage)
                 .flatMap(facetFieldEntries -> facetFieldEntries.getContent().stream())
                 .collect(
@@ -147,7 +147,7 @@ public class SearchService {
 
     private Map<String, Map<String, CheckedCount>> gatherSearchItemFacets(FacetPage<IndexItem> facetPage, Map<String, List<String>> filterParams) {
         return facetPage.getFacetFields().stream()
-                .filter(field -> !field.getName().equals(IndexItem.CATEGORY_FIELD))
+                .filter(field -> !IndexItem.CATEGORY_FIELD.equals(field.getName()))
                 .map(field -> createFacetsDetails(field.getName(), facetPage, filterParams))
                 .collect(Collectors.toMap(
                         Pair::getKey, Pair::getValue,
@@ -195,7 +195,7 @@ public class SearchService {
 
     public PaginatedSearchConcepts searchConcepts(String q, boolean advanced, List<String> types,
                                                   @NotNull Map<String, List<String>> filterParams,
-                                                  PageCoords pageCoords) throws IllegalFilterException {
+                                                  PageCoords pageCoords, ConceptSearchOrder order) throws IllegalFilterException {
 
         log.debug("filterParams " + filterParams.toString());
 
@@ -206,7 +206,7 @@ public class SearchService {
         filterCriteria.add(makePropertyTypeCriteria(types));
         filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.CONCEPTS));
 
-        FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters(queryCriteria, filterCriteria, pageable);
+        FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters(queryCriteria, filterCriteria, pageable, order);
 
         Map<String, CountedPropertyType> typeFacet = gatherTypeFacet(facetPage, types);
         Map<String, Map<String, CheckedCount>> facets = gatherSearchConceptFacets(facetPage, filterParams);
@@ -225,7 +225,7 @@ public class SearchService {
     private Map<String, CountedPropertyType> gatherTypeFacet(FacetPage<IndexConcept> facetPage, List<String> types) {
         Map<String, PropertyType> propertyTypes = propertyTypeService.getAllPropertyTypes();
         List<CountedPropertyType> countedPropertyTypes = facetPage.getFacetFields().stream()
-                .filter(field -> field.getName().equals(IndexConcept.TYPES_FIELD))
+                .filter(field -> IndexConcept.TYPES_FIELD.equals(field.getName()))
                 .map(facetPage::getFacetResultPage)
                 .flatMap(facetFieldEntries -> facetFieldEntries.getContent().stream())
                 .map(entry -> SearchConverter.convertPropertyTypeFacet(entry, types, propertyTypes))
@@ -239,7 +239,7 @@ public class SearchService {
 
     private Map<String, Map<String, CheckedCount>> gatherSearchConceptFacets(FacetPage<IndexConcept> facetPage, Map<String, List<String>> filterParams) {
         return facetPage.getFacetFields().stream()
-                .filter(field -> !field.getName().equals(IndexConcept.TYPES_FIELD))
+                .filter(field -> !IndexConcept.TYPES_FIELD.equals(field.getName()))
                 .map(field -> Pair.create(
                         field.getName().replace('_', '-'),
                         createFacetDetails(
@@ -281,16 +281,13 @@ public class SearchService {
     }
 
     private SearchFilterCriteria createFilterCriteria(SearchFilter filter, List<String> values) {
-        switch (filter.getType()) {
-            case VALUES_SELECTION_FILTER:
-                if (values == null) {
-                    values = Collections.emptyList();
-                }
-                return new SearchFilterValuesSelection(filter, values);
-            // TODO other types of filter types
-            default:
-                throw new RuntimeException();   // impossible to happen
+        if (filter.getType() == FilterType.VALUES_SELECTION_FILTER) {
+            if (values == null) {
+                values = Collections.emptyList();
+            }
+            return new SearchFilterValuesSelection(filter, values);
         }
+        throw new RuntimeException();   // impossible to happen
     }
 
     private List<SearchExpressionCriteria> makeExpressionCriteria(@NotNull Map<String, String> expressionParams) {
@@ -312,7 +309,8 @@ public class SearchService {
     }
 
 
-    public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, PageCoords pageCoords) {
+    public PaginatedSearchActor searchActors(String q, boolean advanced, @NotNull Map<String, String> expressionParams, PageCoords pageCoords,
+            ActorSearchOrder order) {
 
         Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());// SOLR counts from page 0
 
@@ -320,7 +318,7 @@ public class SearchService {
 
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
-        FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable);
+        FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable, order);
 
         PaginatedSearchActor result = PaginatedSearchActor.builder()
                 .q(q)

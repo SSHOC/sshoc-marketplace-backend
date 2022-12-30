@@ -41,7 +41,7 @@ class SearchController {
                             + SearchFilter.ITEMS_INDEX_TYPE_PROPERTIES + " and those codes returned by GET /api/property-types .", schema = @Schema(type = "string"))
             @RequestParam(required = false) MultiValueMap<String, String> d,
             @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
-            @RequestParam(value = "order", required = false) List<SearchOrder> order,
+            @RequestParam(value = "order", required = false) List<ItemSearchOrder> order,
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "perpage", required = false) Integer perpage,
             @RequestParam(value = "advanced", defaultValue = "false") boolean advanced,
@@ -71,12 +71,13 @@ class SearchController {
                                                                           description = "Facets parameters should be provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: "
                                                                                   + SearchFilter.CONCEPT_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
                                                                   @RequestParam(required = false) MultiValueMap<String, String> f,
-                                                                  @RequestParam(value = "advanced", defaultValue = "false") boolean advanced)
+                                                                  @RequestParam(value = "advanced", defaultValue = "false") boolean advanced,
+                                                                  @RequestParam(value = "order", defaultValue = "score") ConceptSearchOrder order)
 
             throws PageTooLargeException, IllegalFilterException {
 
         Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
-        return ResponseEntity.ok(searchService.searchConcepts(q, advanced, types, filterParams, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(searchService.searchConcepts(q, advanced, types, filterParams, pageCoordsValidator.validate(page, perpage), order));
     }
 
     @GetMapping(path = "/item-search/autocomplete", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -96,12 +97,13 @@ class SearchController {
                                                                      description = "Dynamic property filter parameters should be provided with putting multiple d.{property}={expression} as request parameters. Allowed property codes: "
                                                                              + " name, email, website, external-identifier .", schema = @Schema(type = "string"))
                                                              @RequestParam(required = false) MultiValueMap<String, String> d,
-                                                             @RequestParam(value = "advanced", defaultValue = "false") boolean advanced)
+                                                             @RequestParam(value = "advanced", defaultValue = "false") boolean advanced,
+                                                             @RequestParam(value = "order", defaultValue = "score") ActorSearchOrder order)
 
             throws PageTooLargeException {
 
         Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(d);
-        return ResponseEntity.ok(searchService.searchActors(q, advanced, expressionParams, pageCoordsValidator.validate(page, perpage)));
+        return ResponseEntity.ok(searchService.searchActors(q, advanced, expressionParams, pageCoordsValidator.validate(page, perpage), order));
     }
 
 }

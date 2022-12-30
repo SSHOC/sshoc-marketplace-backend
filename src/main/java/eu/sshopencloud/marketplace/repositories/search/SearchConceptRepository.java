@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.repositories.search;
 
+import eu.sshopencloud.marketplace.dto.search.ConceptSearchOrder;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.services.search.filter.IndexType;
 import eu.sshopencloud.marketplace.services.search.filter.SearchFacet;
@@ -10,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.RequestMethod;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.core.query.*;
+import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.SimpleFacetQuery;
+import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Repository;
 
@@ -26,7 +29,7 @@ public class SearchConceptRepository {
 
     public FacetPage<IndexConcept> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                          List<SearchFilterCriteria> filterCriteria,
-                                                         Pageable pageable) {
+                                                         Pageable pageable, ConceptSearchOrder order) {
 
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria.getQueryCriteria())
                 .addProjectionOnFields(
@@ -39,9 +42,9 @@ public class SearchConceptRepository {
                         IndexConcept.TYPES_FIELD,
                         IndexConcept.CANDIDATE_FIELD
                 )
-                .setPageRequest(pageable);
+                .setPageRequest(pageable).addSort(order.toSort());
 
-        filterCriteria.stream().forEach(concept -> facetQuery.addFilterQuery(new SimpleFilterQuery(concept.getFilterCriteria())));
+        filterCriteria.forEach(concept -> facetQuery.addFilterQuery(new SimpleFilterQuery(concept.getFilterCriteria())));
         facetQuery.setFacetOptions(createFacetOptions());
 
         return solrTemplate.queryForFacetPage(IndexConcept.COLLECTION_NAME, facetQuery, IndexConcept.class, RequestMethod.GET);
