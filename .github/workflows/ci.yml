@@ -75,7 +75,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Create tags based on git data Solr
-        id: meta
+        id: meta-solr
         uses: docker/metadata-action@v4
         with:
           images: |
@@ -95,8 +95,8 @@ jobs:
           push: true
           secret-files: |
             "secrets_env=./secrets.env"
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-solr.outputs.tags }}
+          labels: ${{ steps.meta-solr.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 #  _2:
