@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "labels" . | nindent 4 }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+  name: {{ template "fullname" . }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      {{- include "selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        {{- include "selectorLabels" . | nindent 8 }}
+    spec:
+      affinity: {}
+      containers:
+        - env:
+            - name: APPLICATION_PROFILE
+              value: prod
+            - name: SOLR_HOST
+              value: {{ print ( include "fullname" . ) "-solr" | quote }}
+            - name: SOLR_PORT
+              value: '8983'
+            - name: marketplace_log_dir
+              value: /log
+            - name: marketplace_media_dir
+              value: /var/sshoc/media
+          envFrom:
+            - secretRef:
+                name: {{ template "fullname" . }}-postgres
+                optional: false
+            - secretRef:
+                name: {{ template "fullname" . }}-markteplace
+                optional: false
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" | quote }}
+          livenessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /api/property-types
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          name: marketplace
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /api/property-types
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - mountPath: /var/sshoc/media
+              name: media-data
+            - mountPath: /log
+              name: app-log
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
+        - name: app-log
+          persistentVolumeClaim:
+            claimName: {{ print ( include "fullname" . ) "-app-log"| quote }}
+        - name: media-data
+          persistentVolumeClaim:
+            claimName: {{ print ( include "fullname" . ) "-media-data"| quote }}
