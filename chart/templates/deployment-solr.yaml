@@ -31,7 +31,7 @@ spec:
         - env:
             - name: SOLR_OPTS
               value: '-XX:-UseLargePages -Dsolr.lock.type=single'
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}-solr"
+          image: "{{ .Values.image.repository }}-solr:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: IfNotPresent
           name: solr
           ports:
