@@ -41,7 +41,7 @@ spec:
                 name: {{ template "fullname" . }}-postgres
                 optional: false
             - secretRef:
-                name: {{ template "fullname" . }}-marketplace
+                name: {{ .Release.Name }}
                 optional: false
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" | quote }}
