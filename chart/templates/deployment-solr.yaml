@@ -39,12 +39,12 @@ spec:
               name: solr
               protocol: TCP
           volumeMounts:
-            - mountPath: /var/solr
+            - mountPath: /var/solr/data
               name: solr-data
       dnsPolicy: ClusterFirst
       initContainers:
         - args:
-            - 'chown 8983:8983 /var/solr'
+            - 'chown 8983:8983 /var/solr/data'
           command:
             - /bin/sh
             - '-c'
@@ -61,7 +61,7 @@ spec:
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           volumeMounts:
-            - mountPath: /var/solr
+            - mountPath: /var/solr/data
               name: solr-data
       restartPolicy: Always
       schedulerName: default-scheduler
