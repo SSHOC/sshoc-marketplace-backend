@@ -1,6 +1,6 @@
 apiVersion: v2
-name: chart
-description: SSH marketplace
+name: sshomp
+description: SSH Open Marketplace
 
 # A chart can be either an 'application' or a 'library' 
 #
