@@ -9,11 +9,11 @@ jobs:
     outputs:
       environment: ${{ steps.get_environment_from_git_ref.outputs.environment }}
       environment_short: ${{ steps.get_environment_from_git_ref.outputs.environment_short }}
-      image_name: ssh-mp-api
+      image_name: api
       registry_root: ghcr.io/${{ github.repository }}/
       default_port: "5000"
       submodules: "true"
-      APP_NAME: ssh-mp-api
+      APP_NAME: api
       APP_ROOT: "/"     
     steps:
       - name: Get environment from git ref
