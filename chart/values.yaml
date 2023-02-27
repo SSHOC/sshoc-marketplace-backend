@@ -18,8 +18,17 @@ image:
 #    pullPolicy: IfNotPresent
 #    tag: "fb8900b"
 
-postgres: {}
-    
+service:
+  enabled: true
+  url: "https://ssh-mp-api.acdh-cluster-2.arz.oeaw.ac.at"
+
+ingress:
+  enabled: true
+  tls:
+    enabled: false
+application: {}
+prometheus: {}
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -45,24 +54,6 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
-service: {}
-
-ingress:
-  enabled: true
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: ssh-mp-api.acdh-cluster-2.arz.oeaw.ac.at
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
