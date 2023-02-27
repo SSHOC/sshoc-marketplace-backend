@@ -11,7 +11,7 @@ jobs:
       environment_short: ${{ steps.get_environment_from_git_ref.outputs.environment_short }}
       image_name: api
       registry_root: ghcr.io/${{ github.repository }}/
-      default_port: "5000"
+      default_port: "8080"
       submodules: "true"
       APP_NAME: api
       APP_ROOT: "/"     
