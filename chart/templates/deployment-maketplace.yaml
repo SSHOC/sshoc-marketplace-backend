@@ -32,6 +32,8 @@ spec:
               value: {{ print ( include "fullname" . ) "-solr" | quote }}
             - name: SOLR_PORT
               value: '8983'
+            - name: POSTGRES_PORT
+              value: '5432'
             - name: marketplace_log_dir
               value: /log
             - name: marketplace_media_dir
