@@ -25,7 +25,7 @@ service:
 ingress:
   enabled: true
   tls:
-    enabled: false
+    enabled: true
 application: {}
 prometheus: {}
 
