@@ -4,7 +4,8 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
-import eu.sshopencloud.marketplace.dto.search.*;
+import eu.sshopencloud.marketplace.dto.search.PaginatedSearchItemsBasic;
+import eu.sshopencloud.marketplace.dto.search.SearchOrder;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
@@ -16,7 +17,6 @@ import eu.sshopencloud.marketplace.repositories.items.*;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
-import eu.sshopencloud.marketplace.services.items.exception.ItemsComparator;
 import eu.sshopencloud.marketplace.services.search.SearchConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
@@ -78,9 +78,10 @@ public class ItemsService extends ItemVersionService<Item> {
     public PaginatedItemsBasic getMyDraftItems(ItemOrder order, PageCoords pageCoords) {
         if (order == null) order = ItemOrder.MODIFIED_ON;
 
-        List<DraftItem> draftItemsList = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser()).stream().filter(draftItem -> !draftItem.getItem().getCategory().equals(ItemCategory.STEP)).collect(Collectors.toList());
-
-        Page<DraftItem> draftItemsPage = new PageImpl<>(draftItemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), draftItemsList.size());
+        Page<DraftItem> draftItemsPage = draftItemRepository.findAllByOwnerExcludeCategory(
+                LoggedInUserHolder.getLoggedInUser(), ItemCategory.STEP,
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(),
+                        Sort.by(getSortOrderByItemOrder(order, false))));
 
         List<ItemBasicDto> items = draftItemsPage.stream().map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
 
@@ -91,22 +92,22 @@ public class ItemsService extends ItemVersionService<Item> {
                 .build();
     }
 
-    private Sort.Order getSortOrderByItemOrder(ItemOrder itemOrder) {
+    private Sort.Order getSortOrderByItemOrder(ItemOrder itemOrder, boolean directProperty) {
         switch (itemOrder) {
             case LABEL:
                 if (itemOrder.isAsc()) {
-                    return Sort.Order.asc("item.label");
+                    return Sort.Order.asc(directProperty ? "label" : "item.label");
                 } else {
-                    return Sort.Order.desc("item.label");
+                    return Sort.Order.desc(directProperty ? "label" : "item.label");
                 }
             case MODIFIED_ON:
                 if (itemOrder.isAsc()) {
-                    return Sort.Order.asc("item.lastInfoUpdate");
+                    return Sort.Order.asc(directProperty ? "lastInfoUpdate" : "item.lastInfoUpdate");
                 } else {
-                    return Sort.Order.desc("item.lastInfoUpdate");
+                    return Sort.Order.desc(directProperty ? "lastInfoUpdate" : "item.lastInfoUpdate");
                 }
             default:
-                return Sort.Order.desc("item.lastInfoUpdate");
+                return Sort.Order.desc(directProperty ? "lastInfoUpdate" : "item.lastInfoUpdate");
         }
     }
 
@@ -255,7 +256,7 @@ public class ItemsService extends ItemVersionService<Item> {
 
         List<Item> list = itemRepository.getDeletedItemsIds().stream().map(id -> itemRepository.findById(id).get()).collect(Collectors.toList());
 
-        Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), list.size());
+        Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order, false))), list.size());
 
         List<ItemBasicDto> items = pages.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
 
@@ -275,17 +276,17 @@ public class ItemsService extends ItemVersionService<Item> {
 
         if (order == null) order = ItemOrder.MODIFIED_ON;
 
-        List<Item> list = itemRepository.findByIdInAndStatusIsIn(itemRepository.getContributedItemsIds(currentUser.getId()), List.of(ItemStatus.APPROVED, ItemStatus.INGESTED, ItemStatus.SUGGESTED));
+        Page<Item> page = itemRepository.findByIdInAndStatusIsInExcludeCategory(
+                itemRepository.getContributedItemsIds(currentUser.getId()),
+                List.of(ItemStatus.APPROVED, ItemStatus.INGESTED, ItemStatus.SUGGESTED),
+                ItemCategory.STEP,
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(),
+                        Sort.by(getSortOrderByItemOrder(order, true))));
 
-        Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), list.size());
-
-        if(order != ItemOrder.MODIFIED_ON)
-            list.sort(new ItemsComparator());
-
-        return PaginatedItemsBasic.builder().items(ItemConverter.convertItem(list))
-                .count(pages.getContent().size()).hits(pages.getTotalElements())
+        return PaginatedItemsBasic.builder().items(ItemConverter.convertItem(page))
+                .count(page.getContent().size()).hits(page.getTotalElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
-                .pages(pages.getTotalPages())
+                .pages(page.getTotalPages())
                 .build();
     }
 
