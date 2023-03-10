@@ -147,7 +147,7 @@ ItemRelation:
   - !!eu.sshopencloud.marketplace.model.items.ItemRelation
     code:                        extends
     ord:                         7
-    label:                       Enxtends
+    label:                       Extends
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelation
     code:                        is-extended-by
@@ -157,7 +157,7 @@ ItemRelation:
   - !!eu.sshopencloud.marketplace.model.items.ItemRelation
     code:                        extends
     ord:                         7
-    label:                       Enxtends
+    label:                       Extends
     inverseOf:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
       code:                          is-extended-by
