@@ -1,7 +1,8 @@
 name: workflows starter
 # env: is empty, see setup-env and the outputs there
 on:
-  push: {master, develop}
+  push:
+    branches: [master, develop]
   workflow_dispatch: {}
 jobs:
   setup_workflow_env:
