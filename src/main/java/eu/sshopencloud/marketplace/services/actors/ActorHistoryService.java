@@ -46,7 +46,7 @@ public class ActorHistoryService {
             return new ArrayList<>();
         } else {
             List<ActorHistoryDto> actorHistoryDtos = ActorHistoryMapper.INSTANCE.toDto(history);
-            if (!LoggedInUserHolder.getLoggedInUser().isModerator())
+            if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator())
                 actorHistoryDtos.forEach(actorHistoryDto -> actorHistoryDto.getActor().setEmail(null));
             return actorHistoryDtos;
         }
