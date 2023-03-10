@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.services.sources;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.sources.PaginatedSources;
 import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
@@ -9,11 +8,14 @@ import eu.sshopencloud.marketplace.dto.sources.SourceOrder;
 import eu.sshopencloud.marketplace.mappers.sources.SourceMapper;
 import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
+import eu.sshopencloud.marketplace.services.sources.event.SourceChangedEvent;
 import eu.sshopencloud.marketplace.validators.sources.SourceFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
@@ -29,6 +31,8 @@ public class SourceService {
     private final SourceRepository sourceRepository;
 
     private final SourceFactory sourceFactory;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     public PaginatedSources getSources(SourceOrder order, String q, PageCoords pageCoords) {
         if (order == null) order = SourceOrder.NAME;
@@ -52,8 +56,8 @@ public class SourceService {
                 .build();
     }
 
-    public List<SourceDto> getAllSources(String itemId) {
-        return SourceMapper.INSTANCE.toDto(sourceRepository.findSources(itemId));
+    public List<SourceDto> getSourcesOfItem(String itemPersistentId) {
+        return SourceMapper.INSTANCE.toDto(sourceRepository.findSourcesOfItem(itemPersistentId));
     }
 
     public SourceDto getSource(Long id) {
@@ -74,6 +78,9 @@ public class SourceService {
         }
         Source source = sourceFactory.create(sourceCore, id);
         source = sourceRepository.save(source);
+
+        eventPublisher.publishEvent(new SourceChangedEvent(id, false));
+
         return SourceMapper.INSTANCE.toDto(source);
     }
 
@@ -102,7 +109,5 @@ public class SourceService {
                 return Sort.Order.desc("lastHarvestedDate");
         }
     }
-
-
 
 }

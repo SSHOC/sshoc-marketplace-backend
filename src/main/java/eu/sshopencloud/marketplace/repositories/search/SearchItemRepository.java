@@ -39,10 +39,9 @@ public class SearchItemRepository {
 
     private final ForceFacetSortSolrTemplate solrTemplate;
 
-
     public FacetPage<IndexItem> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                       List<SearchExpressionCriteria> expressionCriteria,
-                                                      User currentUser,
+                                                      User currentUser, boolean includeSteps,
                                                       List<SearchFilterCriteria> filterCriteria,
                                                       List<SearchOrder> order, Pageable pageable) {
 
@@ -60,6 +59,9 @@ public class SearchItemRepository {
                 .addSort(Sort.by(createQueryOrder(order)))
                 .setPageRequest(pageable);
 
+        if (!includeSteps)
+            facetQuery.addFilterQuery(createStepFilter());
+
         if (currentUser == null || !currentUser.isModerator()) {
             facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
         }
@@ -71,6 +73,30 @@ public class SearchItemRepository {
 
         return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
     }
+
+
+    public FacetPage<IndexItem> findByQuery(Criteria queryCriteria, User currentUser, SearchOrder order, Pageable pageable) {
+        SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria)
+                .addProjectionOnFields(
+                        IndexItem.ID_FIELD,
+                        IndexItem.PERSISTENT_ID_FIELD,
+                        IndexItem.LABEL_FIELD,
+                        IndexItem.DESCRIPTION_FIELD,
+                        IndexItem.CATEGORY_FIELD,
+                        IndexItem.STATUS_FIELD,
+                        IndexItem.OWNER_FIELD,
+                        IndexItem.LAST_INFO_UPDATE_FIELD
+                )
+                .addSort(Sort.by(createQueryOrder(order)))
+                .setPageRequest(pageable);
+
+        if (currentUser == null || !currentUser.isModerator()) {
+            facetQuery.addFilterQuery(createVisibilityFilter(currentUser));
+        }
+
+        return solrTemplate.queryForFacetPage(IndexItem.COLLECTION_NAME, facetQuery, IndexItem.class, RequestMethod.GET);
+    }
+
 
     private FilterQuery createVisibilityFilter(User user) {
         Criteria approvedVisibility = new Criteria(IndexItem.STATUS_FIELD).is(ItemStatus.APPROVED.getValue());
@@ -85,16 +111,20 @@ public class SearchItemRepository {
     }
 
     private List<Sort.Order> createQueryOrder(List<SearchOrder> order) {
-        List<Sort.Order> result = new ArrayList<Sort.Order>();
+        List<Sort.Order> result = new ArrayList<>();
         for (SearchOrder o : order) {
-            String name = o.getValue().replace('-', '_');
-            if (o.isAsc()) {
-                result.add(Sort.Order.asc(name));
-            } else {
-                result.add(Sort.Order.desc(name));
-            }
+            result.add(createQueryOrder(o));
         }
         return result;
+    }
+
+    private Sort.Order createQueryOrder(SearchOrder order) {
+        String name = order.getValue().replace('-', '_');
+        if (order.isAsc()) {
+            return Sort.Order.asc(name);
+        } else {
+            return Sort.Order.desc(name);
+        }
     }
 
     private FacetOptions createFacetOptions() {
@@ -121,6 +151,10 @@ public class SearchItemRepository {
         params.set("qt", "/marketplace-items/suggest");
         params.set("dictionary", "itemSearch");
         params.set("q", searchQuery);
+        if(categoryContext==null || categoryContext.toLowerCase(Locale.ROOT).equals("step"))
+            categoryContext = "-step";
+        else
+            categoryContext = categoryContext + " AND -step";
         params.set("suggest.cfq", categoryContext);
         params.set("suggest.count", 50);
 
@@ -152,4 +186,10 @@ public class SearchItemRepository {
             throw new RuntimeException("Failed to rebuild index for autocomplete");
         }
     }
+
+    private FilterQuery createStepFilter() {
+        return new SimpleFilterQuery(new Criteria(IndexItem.CATEGORY_FIELD).is(ItemCategory.STEP).not());
+    }
+
+
 }

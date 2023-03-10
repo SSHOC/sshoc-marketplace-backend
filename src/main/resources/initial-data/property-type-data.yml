@@ -281,12 +281,20 @@ PropertyType:
     ord:                         35
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        conflict-at-source
+    label:                       Conflict at Source
+    type:                        BOOLEAN
+    groupName:                   'Curation'
+    hidden:                      true
+    ord:                         36
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        curation-flag-description
     label:                       Curate description
     type:                        BOOLEAN
     groupName:                   'Curation'
     hidden:                      true
-    ord:                         36
+    ord:                         37
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        curation-flag-coverage
@@ -294,7 +302,7 @@ PropertyType:
     type:                        BOOLEAN
     groupName:                   'Curation'
     hidden:                      true
-    ord:                         37
+    ord:                         38
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        curation-flag-relations
@@ -302,7 +310,7 @@ PropertyType:
     type:                        BOOLEAN
     groupName:                   'Curation'
     hidden:                      true
-    ord:                         38
+    ord:                         39
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        life-cycle-status
@@ -310,7 +318,7 @@ PropertyType:
     type:                        CONCEPT
     groupName:                   'Technical'
     hidden:                      false
-    ord:                         39
+    ord:                         40
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        technology-readiness-level
@@ -318,7 +326,7 @@ PropertyType:
     type:                        STRING
     groupName:                   'Technical'
     hidden:                      false
-    ord:                         40
+    ord:                         41
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        version
@@ -326,7 +334,7 @@ PropertyType:
     type:                        STRING
     groupName:                   'Technical'
     hidden:                      false
-    ord:                         41
+    ord:                         42
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        source-last-update
@@ -334,72 +342,4 @@ PropertyType:
     type:                        STRING
     groupName:                   ''
     hidden:                      false
-    ord:                         42
-
-
-# Ignored, since the vocabularies are not loaded during startup
-PropertyTypeVocabulary:
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        object-type
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        object-type
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        language
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        iso-639-3
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        language
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        iso-639-3-v2
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        activity
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        tadirah-activity
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        activity
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        nemo-activity-type
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        technique
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        tadirah-research-technique
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        object-format
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        iana-mime-type
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeVocabulary
-    propertyType:
-      !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-      code:                        publication-type
-    vocabulary:
-      !!eu.sshopencloud.marketplace.model.vocabularies.Vocabulary
-      code:                        publication-type
+    ord:                         43

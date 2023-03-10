@@ -60,7 +60,7 @@ public class PropertyTypeControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.hits", is(27)))
+                .andExpect(jsonPath("$.hits", is(28)))
                 .andExpect(jsonPath("$.count", is(10)))
                 .andExpect(jsonPath("$.page", is(1)))
                 .andExpect(jsonPath("$.perpage", is(10)))
@@ -83,14 +83,14 @@ public class PropertyTypeControllerITCase {
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.hits", is(27)))
-                .andExpect(jsonPath("$.count", is(7)))
+                .andExpect(jsonPath("$.hits", is(28)))
+                .andExpect(jsonPath("$.count", is(8)))
                 .andExpect(jsonPath("$.page", is(3)))
                 .andExpect(jsonPath("$.perpage", is(10)))
                 .andExpect(jsonPath("$.pages", is(3)))
-                .andExpect(jsonPath("$.propertyTypes", hasSize(7)))
+                .andExpect(jsonPath("$.propertyTypes", hasSize(8)))
                 .andExpect(jsonPath("$.propertyTypes[*].code", contains(
-                        "issue", "pages", "year", "timestamp", "publication-type", "doi", "deprecated-at-source"
+                        "issue", "pages", "year", "timestamp", "publication-type", "doi", "deprecated-at-source", "conflict-at-source"
                 )));
     }
 
@@ -115,7 +115,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.code", is("new-property-type")))
                 .andExpect(jsonPath("$.label", is("New property type")))
                 .andExpect(jsonPath("$.type", is("concept")))
-                .andExpect(jsonPath("$.ord", is(28)))
+                .andExpect(jsonPath("$.ord", is(29)))
                 .andExpect(jsonPath("$.allowedVocabularies", hasSize(2)))
                 .andExpect(jsonPath("$.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "iana-mime-type")));
 
@@ -128,7 +128,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(jsonPath("$.code", is("new-property-type")))
                 .andExpect(jsonPath("$.label", is("New property type")))
                 .andExpect(jsonPath("$.type", is("concept")))
-                .andExpect(jsonPath("$.ord", is(28)))
+                .andExpect(jsonPath("$.ord", is(29)))
                 .andExpect(jsonPath("$.allowedVocabularies", hasSize(2)))
                 .andExpect(jsonPath("$.allowedVocabularies[*].code", containsInAnyOrder("nemo-activity-type", "iana-mime-type")));
     }

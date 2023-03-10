@@ -4,31 +4,31 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
+import eu.sshopencloud.marketplace.dto.search.*;
 import eu.sshopencloud.marketplace.mappers.items.ItemConverter;
 import eu.sshopencloud.marketplace.model.actors.Actor;
+import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.auth.User;
-import eu.sshopencloud.marketplace.model.items.DraftItem;
-import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.model.items.*;
+import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.sources.Source;
-import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
-import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.items.exception.ItemsComparator;
+import eu.sshopencloud.marketplace.services.search.SearchConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -40,6 +40,7 @@ public class ItemsService extends ItemVersionService<Item> {
     private final DraftItemRepository draftItemRepository;
 
     private final SourceRepository sourceRepository;
+    private final SearchItemRepository searchItemRepository;
 
     private final ToolService toolService;
     private final TrainingMaterialService trainingMaterialService;
@@ -48,32 +49,38 @@ public class ItemsService extends ItemVersionService<Item> {
     private final WorkflowService workflowService;
     private final StepService stepService;
 
+    private final ItemContributorCriteriaRepository itemContributorRepository;
 
     public ItemsService(ItemRepository itemRepository, DraftItemRepository draftItemRepository, VersionedItemRepository versionedItemRepository,
                         ItemVisibilityService itemVisibilityService,
-                        SourceRepository sourceRepository,
+                        SourceRepository sourceRepository, SearchItemRepository searchItemRepository,
                         @Lazy ToolService toolService, @Lazy TrainingMaterialService trainingMaterialService,
                         @Lazy PublicationService publicationService, @Lazy DatasetService datasetService,
-                        @Lazy WorkflowService workflowService, @Lazy StepService stepService) {
+                        @Lazy WorkflowService workflowService, @Lazy StepService stepService,
+                        ItemContributorCriteriaRepository itemContributorRepository) {
 
         super(versionedItemRepository, itemVisibilityService);
 
         this.itemRepository = itemRepository;
         this.draftItemRepository = draftItemRepository;
         this.sourceRepository = sourceRepository;
+        this.searchItemRepository = searchItemRepository;
         this.toolService = toolService;
         this.trainingMaterialService = trainingMaterialService;
         this.publicationService = publicationService;
         this.datasetService = datasetService;
         this.workflowService = workflowService;
         this.stepService = stepService;
+        this.itemContributorRepository = itemContributorRepository;
     }
+
 
     public PaginatedItemsBasic getMyDraftItems(ItemOrder order, PageCoords pageCoords) {
         if (order == null) order = ItemOrder.MODIFIED_ON;
 
-        Page<DraftItem> draftItemsPage = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser(),
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))));
+        List<DraftItem> draftItemsList = draftItemRepository.findByOwner(LoggedInUserHolder.getLoggedInUser()).stream().filter(draftItem -> !draftItem.getItem().getCategory().equals(ItemCategory.STEP)).collect(Collectors.toList());
+
+        Page<DraftItem> draftItemsPage = new PageImpl<>(draftItemsList, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), draftItemsList.size());
 
         List<ItemBasicDto> items = draftItemsPage.stream().map(draftItem -> ItemConverter.convertItem(draftItem.getItem())).collect(Collectors.toList());
 
@@ -104,56 +111,44 @@ public class ItemsService extends ItemVersionService<Item> {
     }
 
 
-    public PaginatedItemsBasic getItemsBySource(Long sourceId, boolean approved, PageCoords pageCoords) {
-        return getItemsBySource(sourceId, null, approved, pageCoords);
+    public PaginatedSearchItemsBasic getItemsBySource(Long sourceId, PageCoords pageCoords) {
+        return getItemsBySource(sourceId, null, pageCoords);
     }
 
-    public PaginatedItemsBasic getItemsBySource(Long sourceId, String sourceItemId, boolean approved, PageCoords pageCoords) {
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
+    public PaginatedSearchItemsBasic getItemsBySource(Long sourceId, String sourceItemId, PageCoords pageCoords) {
         Source source = sourceRepository.findById(sourceId)
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + sourceId));
 
-        Page<Item> itemsPage = loadLatestItemsForSource(pageCoords, source, sourceItemId, currentUser, approved);
+        return findLatestItemsForSource(source, sourceItemId, pageCoords);
+    }
 
-        List<ItemBasicDto> items = itemsPage.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
+    public PaginatedSearchItemsBasic findLatestItemsForSource(Source source, String sourceItemId, PageCoords pageCoords) {
+        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // SOLR counts from page 0
 
-        return PaginatedItemsBasic.builder()
-                .items(items)
-                .count(itemsPage.getContent().size()).hits(itemsPage.getTotalElements())
-                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
-                .pages(itemsPage.getTotalPages())
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("{!parent which='doc_content_type:item'} doc_content_type:source AND source_label:");
+        queryBuilder.append("\"").append(source.getLabel()).append("\"");
+        if (StringUtils.isNotBlank(sourceItemId)) {
+            queryBuilder.append(" AND source_item_id:");
+            queryBuilder.append("\"").append(sourceItemId).append("\"");
+        }
+        Criteria queryCriteria = new SimpleStringCriteria(queryBuilder.toString());
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        FacetPage<IndexItem> facetPage = searchItemRepository.findByQuery(queryCriteria, currentUser, SearchOrder.LABEL, pageable);
+
+        return PaginatedSearchItemsBasic.builder()
+                .items(
+                        facetPage.get()
+                                .map(SearchConverter::convertIndexItemBasic)
+                                .collect(Collectors.toList())
+                )
+                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .page(pageCoords.getPage())
+                .perpage(pageCoords.getPerpage())
+                .pages(facetPage.getTotalPages())
                 .build();
     }
-
-    private Page<Item> loadLatestItemsForSource(PageCoords pageCoords, Source source, String sourceItemId, User user, boolean approved) {
-        PageRequest pageRequest = PageRequest.of(
-                pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
-        );
-
-        if (approved || user == null) {
-            if (sourceItemId == null) {
-                return itemRepository.findAllLatestApprovedItemsForSource(source, pageRequest);
-            } else {
-                return itemRepository.findAllLatestApprovedItemsForSource(source, sourceItemId, pageRequest);
-            }
-        }
-
-        if (user.isModerator()) {
-            if (sourceItemId == null) {
-                return itemRepository.findAllLatestItemsForSource(source, pageRequest);
-            } else {
-                return itemRepository.findAllLatestItemsForSource(source, sourceItemId, pageRequest);
-            }
-        }
-
-        if (sourceItemId == null) {
-            return itemRepository.findUserLatestItemsForSource(source, user, pageRequest);
-        } else {
-            return itemRepository.findUserLatestItemsForSource(source, sourceItemId, user, pageRequest);
-        }
-    }
-
-
 
     public Item liftItemVersion(String persistentId, boolean draft, boolean changeStatus) {
         Item currentItem = loadCurrentItem(persistentId);
@@ -185,6 +180,114 @@ public class ItemsService extends ItemVersionService<Item> {
         }
     }
 
+    public void mergeContributors(Actor actor, Actor mergeActor) {
+        List<Item> items = itemRepository.findByContributorActorId(mergeActor.getId());
+
+        items.forEach(item -> replaceItemContributor(item, actor, mergeActor));
+    }
+
+    public void replaceItemContributor(Item item, Actor actor, Actor mergeActor) {
+
+        List<ItemContributor> contributorsToReplace = new ArrayList<>();
+        List<ItemContributor> contributorsToRemove = new ArrayList<>();
+
+        item.getContributors().forEach(contributor -> {
+            if (contributor.getActor().equals(mergeActor)) {
+
+                contributorsToRemove.add(contributor);
+                ActorRole role = contributor.getRole();
+
+                if (actor != null && role != null) {
+                    ItemContributor itemContributor = null;
+                    if (item.getId() != null) {
+                        itemContributor = itemContributorRepository.findByItemIdAndActorIdAndActorRole(item.getId(),
+                                actor.getId(), role.getCode());
+                    }
+                    if (itemContributor == null) {
+                        itemContributor = new ItemContributor(item, actor, role);
+                        itemContributor.setItem(item);
+                        itemContributor.setActor(actor);
+                        itemContributor.setRole(role);
+                        contributorsToReplace.add(itemContributor);
+                    }
+                }
+            }
+        });
+
+        if (contributorsToReplace.size() > 0) {
+
+            Set<Map.Entry<Long, String>> actorRoles = new HashSet<>();
+            List<ItemContributor> finalContributorsToAdd = new ArrayList<>(item.getContributors());
+            finalContributorsToAdd.removeAll(contributorsToRemove);
+
+            item.getContributors().forEach(contributor -> actorRoles.add(
+                    Map.entry(contributor.getActor().getId(), contributor.getRole().getCode())));
+
+            contributorsToReplace.forEach(contributorToReplace -> {
+                if (!actorRoles.contains(
+                        Map.entry(contributorToReplace.getActor().getId(), contributorToReplace.getRole().getCode()))) {
+
+                    actorRoles.add(Map.entry(contributorToReplace.getActor().getId(),
+                            contributorToReplace.getRole().getCode()));
+                    finalContributorsToAdd.add(contributorToReplace);
+                }
+            });
+
+            item.setContributors(finalContributorsToAdd);
+        } else
+            item.getContributors().removeAll(contributorsToRemove);
+
+    }
+
+    public List<ItemBasicDto> getItemsByActor(Actor actor) {
+        return ItemConverter.convertItem(itemRepository.findAllByContributorsActorId(actor.getId()));
+    }
+
+
+    public PaginatedItemsBasic getDeletedItems(ItemOrder order, PageCoords pageCoords) {
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+
+        if (currentUser == null || !currentUser.isModerator())
+            return null;
+
+        if (order == null) order = ItemOrder.MODIFIED_ON;
+
+        List<Item> list = itemRepository.getDeletedItemsIds().stream().map(id -> itemRepository.findById(id).get()).collect(Collectors.toList());
+
+        Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), list.size());
+
+        List<ItemBasicDto> items = pages.stream().map(ItemConverter::convertItem).collect(Collectors.toList());
+
+        return PaginatedItemsBasic.builder().items(items)
+                .count(pages.getContent().size()).hits(pages.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(pages.getTotalPages())
+                .build();
+    }
+
+
+    public PaginatedItemsBasic getContributedItems(ItemOrder order, PageCoords pageCoords) {
+
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (currentUser == null )
+            return null;
+
+        if (order == null) order = ItemOrder.MODIFIED_ON;
+
+        List<Item> list = itemRepository.findByIdInAndStatusIsIn(itemRepository.getContributedItemsIds(currentUser.getId()), List.of(ItemStatus.APPROVED, ItemStatus.INGESTED, ItemStatus.SUGGESTED));
+
+        Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order))), list.size());
+
+        if(order != ItemOrder.MODIFIED_ON)
+            list.sort(new ItemsComparator());
+
+        return PaginatedItemsBasic.builder().items(ItemConverter.convertItem(list))
+                .count(pages.getContent().size()).hits(pages.getTotalElements())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages(pages.getTotalPages())
+                .build();
+    }
 
     @Override
     protected Item loadLatestItem(String persistentId) {

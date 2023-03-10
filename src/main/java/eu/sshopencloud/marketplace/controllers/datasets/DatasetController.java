@@ -6,8 +6,11 @@ import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.datasets.PaginatedDatasets;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.services.items.DatasetService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,9 +45,10 @@ public class DatasetController {
     @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> getDataset(@PathVariable("persistentId") String persistentId,
                                                  @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                 @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                                 @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(datasetService.getLatestDataset(persistentId, draft, approved));
+        return ResponseEntity.ok(datasetService.getLatestDataset(persistentId, draft, approved,redirect));
     }
 
     @Operation(summary = "Get dataset selected version by its persistentId and versionId")
@@ -72,7 +76,7 @@ public class DatasetController {
                                                             required = true,
                                                             schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore updatedDataset,
                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
         return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft, approved));
     }
@@ -90,6 +94,14 @@ public class DatasetController {
 
         datasetService.deleteDataset(persistentId, draft);
     }
+
+    @Operation(summary = "Delete dataset by its persistentId and versionId")
+    @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
+    public void deleteDatasetVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        datasetService.deleteDataset(persistentId, versionId);
+    }
+
 
     @Operation(summary = "Committing draft of dataset by its persistentId")
     @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -133,7 +145,8 @@ public class DatasetController {
                                             @Parameter(
                                                     description = "Merged dataset",
                                                     required = true,
-                                                    schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore mergeDataset) {
+                                                    schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore mergeDataset)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(datasetService.merge(mergeDataset, with));
     }
 
@@ -143,5 +156,26 @@ public class DatasetController {
 
         return ResponseEntity.ok(datasetService.getSources(persistentId));
     }
+
+    @Operation(summary = "Getting differences between dataset and target version of item, ('unaltered' string response means for the single field that remained unchanged)", operationId = "getDatasetAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getDatasetVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                  @RequestParam(required = true) String with,
+                                                                                  @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(datasetService.getDifferences(persistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of dataset and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedDatasetAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getVersionedDatasetVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                           @PathVariable("versionId") long versionId,
+                                                                                           @RequestParam(required = true) String with,
+                                                                                           @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(datasetService.getDifferences(persistentId, versionId, with, otherVersionId));
+    }
+
 
 }

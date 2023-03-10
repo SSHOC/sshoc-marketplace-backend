@@ -10,9 +10,15 @@ public class VocabularyBasicDto {
 
     private String code;
 
+    private String scheme;
+
+    private String namespace;
+
     private String label;
 
     @Nullable
     private String accessibleAt;
+
+    private boolean closed;
 
 }

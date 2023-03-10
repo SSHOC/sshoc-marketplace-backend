@@ -22,19 +22,19 @@ public class StepFactory {
     private final ItemFactory itemFactory;
 
 
-    public Step create(StepCore stepCore, Step prevStep, StepsTree stepsTree) throws ValidationException {
+    public Step create(StepCore stepCore, Step prevStep, StepsTree stepsTree, boolean conflict) throws ValidationException {
         Step step = (prevStep != null) ? new Step(prevStep) : new Step();
-        return setupStep(stepCore, step, stepsTree);
+        return setupStep(stepCore, step, stepsTree, conflict);
     }
 
     public Step modify(StepCore stepCore, Step step, StepsTree stepsTree) throws ValidationException {
-        return setupStep(stepCore, step, stepsTree);
+        return setupStep(stepCore, step, stepsTree, false);
     }
 
-    private Step setupStep(StepCore stepCore, Step step, StepsTree stepsTree) throws ValidationException {
+    private Step setupStep(StepCore stepCore, Step step, StepsTree stepsTree, boolean conflict) throws ValidationException {
         BeanPropertyBindingResult errors = new BeanPropertyBindingResult(stepCore, "Step");
 
-        step = itemFactory.initializeItem(stepCore, step, ItemCategory.STEP, errors);
+        step = itemFactory.initializeItem(stepCore, step, conflict, ItemCategory.STEP, errors);
 
         if (stepCore.getStepNo() != null && stepsTree.isInvalidStepNo(stepCore.getStepNo())) {
             errors.rejectValue(

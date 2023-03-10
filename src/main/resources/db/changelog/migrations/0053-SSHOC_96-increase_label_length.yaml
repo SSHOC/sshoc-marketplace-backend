@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0053-SSHOC_96-increase_label_length
+      description: increase of the label length limit
+      author: mkozak
+      changes:
+        changes:
+            - modifyDataType:
+                tableName: items
+                columnName: label
+                newDataType: varchar(1024)

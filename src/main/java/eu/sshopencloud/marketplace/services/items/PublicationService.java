@@ -3,21 +3,28 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
+import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.publications.Publication;
 import eu.sshopencloud.marketplace.repositories.items.*;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.publications.PublicationFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,12 +45,13 @@ public class PublicationService extends ItemCrudService<Publication, Publication
                               ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                               ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Publication> itemUpgradeRegistry,
                               DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                              PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                              MediaStorageService mediaStorageService, SourceService sourceService) {
+                              PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
+                              MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
+                itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService, sourceService,
+                eventPublisher
         );
 
         this.publicationRepository = publicationRepository;
@@ -55,8 +63,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return getItemsPage(pageCoords, approved);
     }
 
-    public PublicationDto getLatestPublication(String persistentId, boolean draft, boolean approved) {
-        return getLatestItem(persistentId, draft, approved);
+    public PublicationDto getLatestPublication(String persistentId, boolean draft, boolean approved, boolean redirect) {
+        return getLatestItem(persistentId, draft, approved, redirect);
     }
 
     public PublicationDto getPublicationVersion(String persistentId, long versionId) {
@@ -68,7 +76,7 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareItemDto(publication);
     }
 
-    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore, boolean draft, boolean approved) {
+    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore, boolean draft, boolean approved) throws VersionNotChangedException {
         Publication publication = updateItem(persistentId, publicationCore, draft, approved);
         return prepareItemDto(publication);
     }
@@ -87,6 +95,10 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         deleteItem(persistentId, draft);
     }
 
+    public void deletePublication(String persistentId, long versionId) {
+        deleteItem(persistentId, versionId);
+    }
+
 
     @Override
     protected ItemVersionRepository<Publication> getItemRepository() {
@@ -94,8 +106,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     @Override
-    protected Publication makeItem(PublicationCore publicationCore, Publication prevPublication) {
-        return publicationFactory.create(publicationCore, prevPublication);
+    protected Publication makeItem(PublicationCore publicationCore, Publication prevPublication, boolean conflict) {
+        return publicationFactory.create(publicationCore, prevPublication, conflict);
     }
 
     @Override
@@ -122,12 +134,22 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     @Override
     protected PublicationDto convertItemToDto(Publication publication) {
-        return PublicationMapper.INSTANCE.toDto(publication);
+        PublicationDto dto = PublicationMapper.INSTANCE.toDto(publication);
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
     @Override
     protected PublicationDto convertToDto(Item item) {
-        return PublicationMapper.INSTANCE.toDto(item);
+        PublicationDto dto = PublicationMapper.INSTANCE.toDto(item);
+        if(LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
     @Override
@@ -136,7 +158,7 @@ public class PublicationService extends ItemCrudService<Publication, Publication
     }
 
     public List<ItemExtBasicDto> getPublicationVersions(String persistentId, boolean draft, boolean approved) {
-        return getItemHistory(persistentId, getLatestPublication(persistentId, draft, approved).getId());
+        return getItemHistory(persistentId, getLatestPublication(persistentId, draft, approved, false).getId());
     }
 
     public List<UserDto> getInformationContributors(String id) {
@@ -151,16 +173,21 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareMergeItems(persistentId, mergeList);
     }
 
-    public PublicationDto merge(PublicationCore mergePublication, List<String> mergeList) {
-
+    public PublicationDto merge(PublicationCore mergePublication, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         Publication publication = createItem(mergePublication, false);
         publication = mergeItem(publication.getPersistentId(), mergeList);
-
         return prepareItemDto(publication);
     }
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
+    }
+
+    public ItemsDifferencesDto getDifferences(String publicationPersistentId, Long publicationVersionId,
+                                              String otherPersistentId, Long otherVersionId) {
+
+        return super.getDifferences(publicationPersistentId, publicationVersionId, otherPersistentId, otherVersionId);
     }
 
 }

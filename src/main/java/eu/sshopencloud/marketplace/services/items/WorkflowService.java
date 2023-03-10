@@ -4,13 +4,16 @@ import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
 import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
@@ -21,14 +24,19 @@ import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemVersionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.workflow.WorkflowRepository;
+import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
-import eu.sshopencloud.marketplace.services.search.IndexService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,12 +58,13 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                            ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
                            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Workflow> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
-                           PropertyTypeService propertyTypeService, IndexService indexService, UserService userService,
-                           MediaStorageService mediaStorageService, SourceService sourceService) {
+                           PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
+                           MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
-                itemRelatedItemService, propertyTypeService, indexService, userService, mediaStorageService, sourceService
+                itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService, sourceService,
+                eventPublisher
         );
 
         this.workflowRepository = workflowRepository;
@@ -68,8 +77,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return getItemsPage(pageCoords, approved);
     }
 
-    public WorkflowDto getLatestWorkflow(String persistentId, boolean draft, boolean approved) {
-        return getLatestItem(persistentId, draft, approved);
+    public WorkflowDto getLatestWorkflow(String persistentId, boolean draft, boolean approved, boolean redirect) {
+        return getLatestItem(persistentId, draft, approved, redirect);
     }
 
     public WorkflowDto getWorkflowVersion(String persistentId, long versionId) {
@@ -107,7 +116,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         return prepareItemDto(workflow);
     }
 
-    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) {
+
+    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) throws VersionNotChangedException {
         Workflow workflow = updateItem(persistentId, workflowCore, draft, approved);
 
         if (!draft)
@@ -122,7 +132,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             public void onNextStep(StepsTree stepTree) {
                 Step step = stepTree.getStep();
 
-                if (step.getStatus().equals(ItemStatus.DRAFT)) {
+                if (step != null && step.getStatus().equals(ItemStatus.DRAFT)) {
                     step = stepService.commitDraftStep(step);
                     stepTree.setStep(step);
                 }
@@ -140,12 +150,46 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public void deleteWorkflow(String persistentId, boolean draft) {
-        Workflow workflow = loadLatestItem(persistentId);
+        if (draft) {
+            deleteWorkflowDraft(persistentId);
+        } else {
+            deleteWorkflowVersion(persistentId, null);
+        }
+    }
+
+    public void deleteWorkflow(String persistentId, long versionId) {
+        Workflow workflow = loadItemVersion(persistentId, versionId);
+        if (workflow.getStatus() == ItemStatus.DRAFT) {
+            User currentUser = LoggedInUserHolder.getLoggedInUser();
+            if (currentUser.equals(workflow.getInformationContributor())) {
+                deleteWorkflowDraft(persistentId);
+            } else {
+                throw new AccessDeniedException(
+                        String.format(
+                                "User is not authorized to access the given draft version with id %s (version id: %d)",
+                                persistentId, versionId
+                        )
+                );
+            }
+        } else {
+            deleteWorkflowVersion(persistentId, versionId);
+        }
+    }
+
+    public void deleteWorkflowVersion(String persistentId, Long versionId) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!currentUser.isModerator())
+            throw new AccessDeniedException("Current user is not a moderator and is not allowed to remove items");
+
+        Workflow currentWorkflow = loadCurrentItem(persistentId);
+        Workflow workflow = (versionId != null) ? loadItemVersion(persistentId, versionId) : currentWorkflow;
+
+
         workflow.getStepsTree().visit(new StepsTreeVisitor() {
             @Override
             public void onNextStep(StepsTree stepTree) {
                 Step step = stepTree.getStep();
-                stepService.deleteStepOnly(step, draft);
+                stepService.deleteStepOnly(step, false);
             }
 
             @Override
@@ -153,7 +197,25 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
             }
         });
 
-        deleteItem(persistentId, draft);
+        setDeleteItem(persistentId, versionId);
+    }
+
+
+    private void deleteWorkflowDraft(String persistentId) {
+        Workflow workflow = loadLatestItem(persistentId);
+        workflow.getStepsTree().visit(new StepsTreeVisitor() {
+            @Override
+            public void onNextStep(StepsTree stepTree) {
+                Step step = stepTree.getStep();
+                stepService.deleteStepOnly(step, true);
+            }
+
+            @Override
+            public void onBackToParent() {
+            }
+        });
+
+        deleteItemDraft(persistentId);
     }
 
     Workflow liftWorkflowForNewStep(String persistentId, boolean draft) {
@@ -162,7 +224,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         if (!draft && workflowDraft.isPresent()) {
             throw new IllegalArgumentException(
                     String.format(
-                            "%s with id %s is in draft state for current user, so a non-draft step cannot be added",
+                            "%s with id %s is in draft state for current user, so a non-draft step cannot be added, changed and removed",
                             getItemTypeName(), persistentId
                     )
             );
@@ -171,7 +233,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         if (draft && workflowDraft.isEmpty()) {
             throw new IllegalArgumentException(
                     String.format(
-                            "No draft %s with id %s is found for current user, so a draft step cannot be added",
+                            "No draft %s with id %s is found for current user, so a draft step cannot be added, changed and removed",
                             getItemTypeName(), persistentId
                     )
             );
@@ -203,8 +265,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     @Override
-    protected Workflow makeItem(WorkflowCore workflowCore, Workflow prevWorkflow) {
-        return workflowFactory.create(workflowCore, prevWorkflow);
+    protected Workflow makeItem(WorkflowCore workflowCore, Workflow prevWorkflow, boolean conflict) {
+        return workflowFactory.create(workflowCore, prevWorkflow, conflict);
     }
 
     @Override
@@ -231,7 +293,14 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertItemToDto(Workflow workflow) {
+
         WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(workflow);
+
+        if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+
         collectSteps(dto, workflow);
 
         return dto;
@@ -239,7 +308,13 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     @Override
     protected WorkflowDto convertToDto(Item item) {
-        return WorkflowMapper.INSTANCE.toDto(item);
+
+        WorkflowDto dto = WorkflowMapper.INSTANCE.toDto(item);
+        if (LoggedInUserHolder.getLoggedInUser() == null || !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+            dto.getInformationContributor().setEmail(null);
+            dto.getContributors().forEach(contributor -> contributor.getActor().setEmail(null));
+        }
+        return dto;
     }
 
 
@@ -249,7 +324,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
     public List<ItemExtBasicDto> getWorkflowVersions(String persistentId, boolean draft, boolean approved) {
-        return getItemHistory(persistentId, getLatestWorkflow(persistentId, draft, approved).getId());
+        return getItemHistory(persistentId, getLatestWorkflow(persistentId, draft, approved, false).getId());
     }
 
     public List<UserDto> getInformationContributors(String id) {
@@ -267,8 +342,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public void collectStepsFromMergedWorkflows(Workflow workflow, List<String> workflowList) {
 
-        for (int i = 0; i < workflowList.size(); i++) {
-            Workflow workflowTmp = loadCurrentItem(workflowList.get(i));
+        for (String s : workflowList) {
+            Workflow workflowTmp = loadCurrentItem(s);
             if (!workflowTmp.getAllSteps().isEmpty())
                 collectTrees(workflow.getStepsTree(), workflowTmp.getAllSteps());
         }
@@ -279,11 +354,11 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         StepsTree s;
         List<StepsTree> subTrees = new ArrayList<>();
 
-        for (int i = 0; i < stepsTrees.size(); i++) {
-            s = stepsTrees.get(i);
+        for (StepsTree stepsTree : stepsTrees) {
+            s = stepsTree;
             if (!s.isRoot() && !Objects.isNull(s.getId()))
                 if (s.getSubTrees().size() > 0) {
-                    stepService.addStepToTree(s.getStep(), null, parent);
+                    stepService.addStepToTree(s.getStep(), null, parent, false);
                     Step step = s.getStep();
                     List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
                     StepsTree nextParent = nextParentList.get(0);
@@ -291,37 +366,49 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                     collectTrees(nextParent, s.getSubTrees());
                 } else {
                     if (!subTrees.contains(s))
-                        stepService.addStepToTree(s.getStep(), null, parent);
+                        stepService.addStepToTree(s.getStep(), null, parent, false);
                 }
         }
     }
 
-    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) {
+    public WorkflowDto merge(WorkflowCore mergeWorkflow, List<String> mergeList) throws ItemIsAlreadyMergedException {
+        checkIfMergeIsPossible(mergeList);
         Workflow workflow = createItem(mergeWorkflow, false);
-
         workflow = mergeItem(workflow.getPersistentId(), mergeList);
-
         WorkflowDto workflowDto = prepareItemDto(workflow);
-
         collectStepsFromMergedWorkflows(workflow, findAllWorkflows(mergeList));
-
         commitSteps(workflow.getStepsTree());
-
         collectSteps(workflowDto, workflow);
-
         return workflowDto;
     }
 
     public List<String> findAllWorkflows(List<String> mergeList) {
         List<String> mergeWorkflowsList = new ArrayList<>();
-        for (int i = 0; i < mergeList.size(); i++)
-            if (checkIfWorkflow(mergeList.get(i))) mergeWorkflowsList.add(mergeList.get(i));
+        for (String mergeItem : mergeList)
+            if (checkIfWorkflow(mergeItem)) mergeWorkflowsList.add(mergeItem);
 
         return mergeWorkflowsList;
     }
 
-    public List<SourceDto> getSources(String id) {
-        return getAllSources(id);
+    public List<SourceDto> getSources(String persistentId) {
+        return getAllSources(persistentId);
     }
 
+    public ItemsDifferencesDto getDifferences(String workflowPersistentId, Long workflowVersionId, String otherPersistentId, Long otherVersionId) {
+
+        ItemsDifferencesDto differencesDto = super.getDifferences(workflowPersistentId, workflowVersionId, otherPersistentId, otherVersionId);
+
+        if (differencesDto.getItem().getCategory().equals(ItemCategory.WORKFLOW) && differencesDto.getOther().getCategory().equals(ItemCategory.WORKFLOW)) {
+
+            if (workflowVersionId != null)
+                collectSteps((WorkflowDto) differencesDto.getItem(), super.loadItemVersion(workflowPersistentId, workflowVersionId));
+            else collectSteps((WorkflowDto) differencesDto.getItem(), super.loadCurrentItem(workflowPersistentId));
+
+            if (otherVersionId != null)
+                collectSteps((WorkflowDto) differencesDto.getOther(), super.loadItemVersion(otherPersistentId, otherVersionId));
+            collectSteps((WorkflowDto) differencesDto.getOther(), super.loadCurrentItem(otherPersistentId));
+
+            return super.differentiateComposedOf((WorkflowDto) differencesDto.getItem(), (WorkflowDto) differencesDto.getOther(), differencesDto);
+        } else return differencesDto;
+    }
 }

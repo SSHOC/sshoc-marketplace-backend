@@ -6,7 +6,10 @@ import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemMedia;
 import eu.sshopencloud.marketplace.model.items.ItemMediaType;
+import eu.sshopencloud.marketplace.model.vocabularies.Property;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.auth.UserRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.PropertyTypeRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.text.LineBreakConverter;
 import eu.sshopencloud.marketplace.services.text.MarkdownConverter;
@@ -39,8 +42,10 @@ public class ItemFactory {
     private final ItemMediaFactory itemMediaFactory;
 
     private final UserRepository userRepository;
+    private final PropertyTypeRepository propertyTypeRepository;
 
-    public <T extends Item> T initializeItem(ItemCore itemCore, T item, ItemCategory category, Errors errors) {
+
+    public <T extends Item> T initializeItem(ItemCore itemCore, T item, boolean conflict, ItemCategory category, Errors errors) {
         item.setCategory(category);
         if (StringUtils.isBlank(itemCore.getLabel())) {
             errors.rejectValue("label", "field.required", "Label is required.");
@@ -57,7 +62,15 @@ public class ItemFactory {
         }
 
         item.setContributors(itemContributorFactory.create(itemCore.getContributors(), item, errors, "contributors"));
-        item.setProperties(propertyFactory.create(itemCore.getProperties(), item, errors, "properties"));
+        List<Property> properties = propertyFactory.create(itemCore.getProperties(), item, errors, "properties");
+        if (conflict) {
+            Property property = new Property();
+            PropertyType propertyType = propertyTypeRepository.findById("conflict-at-source").get();
+            property.setType(propertyType);
+            property.setValue("true");
+            properties.add(property);
+        }
+        item.setProperties(properties);
 
         List<URI> urls = parseAccessibleAtLinks(itemCore, errors);
         List<String> accessibleAtLinks = urls.stream()
@@ -67,10 +80,8 @@ public class ItemFactory {
 
         item.setAccessibleAt(accessibleAtLinks);
 
-        URI accessibleAtUri = (!urls.isEmpty()) ? urls.get(0) : null;
-
         errors.pushNestedPath("source");
-        item.setSource(sourceFactory.create(itemCore.getSource(), accessibleAtUri, errors));
+        item.setSource(sourceFactory.create(itemCore.getSource(), errors));
         errors.popNestedPath();
 
         item.setSourceItemId(itemCore.getSourceItemId());
@@ -156,8 +167,10 @@ public class ItemFactory {
     private void setInfoDates(Item item, boolean harvest) {
         ZonedDateTime now = ZonedDateTime.now();
         item.setLastInfoUpdate(now);
-        if (harvest && item.getSource() != null) {
-            item.getSource().setLastHarvestedDate(now);
+        if (LoggedInUserHolder.getLoggedInUser().isSystemContributor()) {
+            if (harvest && item.getSource() != null) {
+                item.getSource().setLastHarvestedDate(now);
+            }
         }
     }
 

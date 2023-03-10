@@ -8,8 +8,6 @@ import org.springframework.lang.Nullable;
 @NoArgsConstructor
 public class PropertyDto {
 
-    private Long id;
-
     private PropertyTypeDto type;
 
     @Nullable

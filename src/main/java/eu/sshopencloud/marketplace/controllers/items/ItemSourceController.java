@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
-import eu.sshopencloud.marketplace.dto.actors.ActorCore;
 import eu.sshopencloud.marketplace.dto.items.ItemSourceCore;
 import eu.sshopencloud.marketplace.dto.items.ItemSourceDto;
 import eu.sshopencloud.marketplace.services.items.ItemSourceService;

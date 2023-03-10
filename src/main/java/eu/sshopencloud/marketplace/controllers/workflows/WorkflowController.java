@@ -3,10 +3,13 @@ package eu.sshopencloud.marketplace.controllers.workflows;
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.services.items.StepService;
 import eu.sshopencloud.marketplace.services.items.WorkflowService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,9 +45,10 @@ public class WorkflowController {
     @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> getWorkflow(@PathVariable("persistentId") String workflowPersistentId,
                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                   @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                                   @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowPersistentId, draft, approved));
+        return ResponseEntity.ok(workflowService.getLatestWorkflow(workflowPersistentId, draft, approved, redirect));
     }
 
     @Operation(summary = "Get workflow selected version by its persistentId and versionId")
@@ -73,7 +77,7 @@ public class WorkflowController {
                                                               required = true,
                                                               schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore updatedWorkflow,
                                                       @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
         return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft, approved));
     }
@@ -92,14 +96,23 @@ public class WorkflowController {
         workflowService.deleteWorkflow(workflowPersistentId, draft);
     }
 
+    @Operation(summary = "Delete workflow by its persistentId and versionId")
+    @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
+    public void deleteWorkflowVersion(@PathVariable("persistentId") String workflowPersistentId, @PathVariable("versionId") long versionId) {
+
+        workflowService.deleteWorkflow(workflowPersistentId, versionId);
+    }
+
+
     @Operation(summary = "Get single step by its persistentId and workflow persistentId")
     @GetMapping(path = "/{persistentId}/steps/{stepPersistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StepDto> getStep(@PathVariable("persistentId") String workflowPersistentId,
                                            @PathVariable("stepPersistentId") String stepPersistentId,
                                            @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                           @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(stepService.getLatestStep(workflowPersistentId, stepPersistentId, draft, approved));
+        return ResponseEntity.ok(stepService.getLatestStep(workflowPersistentId, stepPersistentId, draft, approved, redirect));
     }
 
     @Operation(summary = "Get step selected version by its persistentId, versionId and workflow persistentId")
@@ -145,7 +158,7 @@ public class WorkflowController {
                                                       required = true,
                                                       schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore updatedStep,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
         return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft, approved));
     }
@@ -168,6 +181,14 @@ public class WorkflowController {
         stepService.deleteStep(workflowPersistentId, stepPersistentId, draft);
     }
 
+    @Operation(summary = "Delete step by its persistentId, versionId and workflow persistentId")
+    @DeleteMapping(path = "/{persistentId}/steps/{stepPersistentId}/versions/{stepVersionId}")
+    public void deleteStepVersion(@PathVariable("persistentId") String workflowPersistentId,
+                           @PathVariable("stepPersistentId") String stepPersistentId, @PathVariable("stepVersionId") long stepVersionId) {
+
+        stepService.deleteStep(workflowPersistentId, stepPersistentId, stepVersionId);
+    }
+
     @Operation(summary = "Committing draft of workflow by its persistentId")
     @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> publishWorkflow(@PathVariable("persistentId") String workflowPersistentId) {
@@ -175,7 +196,7 @@ public class WorkflowController {
         return ResponseEntity.ok(workflow);
     }
 
-    @Operation(summary = "Retrieving history of workflow by its persistentId" )
+    @Operation(summary = "Retrieving history of workflow by its persistentId")
     @GetMapping(path = "/{persistentId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ItemExtBasicDto>> getWorkflowHistory(@PathVariable("persistentId") String workflowPersistentId,
                                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft,
@@ -237,7 +258,8 @@ public class WorkflowController {
                                              @Parameter(
                                                      description = "Merged workflow",
                                                      required = true,
-                                                     schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore mergeWorkflow) {
+                                                     schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore mergeWorkflow)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(workflowService.merge(mergeWorkflow, with));
     }
 
@@ -256,7 +278,8 @@ public class WorkflowController {
                                               @Parameter(
                                                       description = "Merged step",
                                                       required = true,
-                                                      schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore mergeStep) {
+                                                      schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore mergeStep)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(stepService.merge(workflowPersistentId, mergeStep, with));
     }
 
@@ -273,5 +296,49 @@ public class WorkflowController {
                                                           @PathVariable("stepPersistentId") String stepPersistentId) {
         return ResponseEntity.ok(stepService.getSources(workflowPersistentId, stepPersistentId));
     }
+
+    @Operation(summary = "Getting differences between workflow and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getWorkflowAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getWorkflowVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                   @RequestParam(required = true) String with,
+                                                                                   @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(workflowService.getDifferences(persistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of workflow and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedWorkflowAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getVersionedWorkflowVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                            @PathVariable("versionId") long versionId,
+                                                                                            @RequestParam(required = true) String with,
+                                                                                            @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(workflowService.getDifferences(persistentId, versionId, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between step and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getStepAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/steps/{stepPersistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getStepVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                               @PathVariable("stepPersistentId") String stepPersistentId,
+                                                                               @RequestParam(required = true) String with,
+                                                                               @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(stepService.getDifferences(persistentId, stepPersistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of step and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedStepAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/steps/{stepPersistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getVersionedStepVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                        @PathVariable("stepPersistentId") String stepPersistentId,
+                                                                                        @PathVariable("versionId") long versionId,
+                                                                                        @RequestParam(required = true) String with,
+                                                                                        @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(stepService.getDifferences(persistentId, stepPersistentId, versionId, with, otherVersionId));
+    }
+
 
 }

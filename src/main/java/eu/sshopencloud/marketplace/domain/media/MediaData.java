@@ -39,7 +39,7 @@ class MediaData {
     @Convert(converter = UrlConverter.class)
     private URL sourceUrl;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private MediaData thumbnail;
 
     @UpdateTimestamp
@@ -74,7 +74,8 @@ class MediaData {
     }
 
     public void decrementLinkCount() {
-        this.linkCount -= 1;
+        if (this.linkCount > 0)
+            this.linkCount -= 1;
     }
 
     public void setThumbnail(MediaData thumbnail) {

@@ -27,4 +27,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     boolean existsByConceptVocabularyCode(String vocabularyCode);
 
     boolean existsByType(PropertyType type);
+
+    List<Property> findPropertyByConceptCode(String conceptCode);
 }

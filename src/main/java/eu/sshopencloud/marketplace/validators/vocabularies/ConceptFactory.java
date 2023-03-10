@@ -5,7 +5,6 @@ import eu.sshopencloud.marketplace.dto.vocabularies.RelatedConceptCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
-import eu.sshopencloud.marketplace.services.search.IndexService;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +15,7 @@ import org.springframework.validation.Errors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 

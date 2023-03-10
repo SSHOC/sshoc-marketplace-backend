@@ -78,6 +78,7 @@ public class MediaTestUploadUtils {
         URL imageUrl = new URL("http", "localhost", wireMockRule.port(), mediaPath);
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
+
         String payload = mapper.writeValueAsString(mediaLocation);
 
         String response = mvc.perform(

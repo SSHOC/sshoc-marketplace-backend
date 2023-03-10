@@ -38,21 +38,26 @@ class SearchController {
             @RequestParam(value = "q", required = false) String q,
             @Parameter(
                     description = "Dynamic property filter parameters should be provided with putting multiple d.{property}={expression} as request parameters. Allowed property codes: "
-                            + "contributor, external-identifier and those codes returned by GET /api/property-types .", schema = @Schema(type = "string"))
+                            + SearchFilter.ITEMS_INDEX_TYPE_PROPERTIES + " and those codes returned by GET /api/property-types .", schema = @Schema(type = "string"))
             @RequestParam(required = false) MultiValueMap<String, String> d,
             @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
             @RequestParam(value = "order", required = false) List<SearchOrder> order,
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "perpage", required = false) Integer perpage,
             @RequestParam(value = "advanced", defaultValue = "false") boolean advanced,
+            @RequestParam(value = "includeSteps", defaultValue = "false") boolean includeSteps,
             @Parameter(
                     description = "Facets parameters should be provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: "
                             + SearchFilter.ITEMS_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
             @RequestParam(required = false) MultiValueMap<String, String> f) throws PageTooLargeException, IllegalFilterException {
 
+        if(!d.containsKey("d.status"))
+            d.add("d.status", "approved");
+
         Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(d);
         Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
-        return ResponseEntity.ok(searchService.searchItems(q, advanced, expressionParams, categories, filterParams, order,
+
+        return ResponseEntity.ok(searchService.searchItems(q, advanced, includeSteps, expressionParams, categories, filterParams, order,
                 pageCoordsValidator.validate(page, perpage)));
     }
 

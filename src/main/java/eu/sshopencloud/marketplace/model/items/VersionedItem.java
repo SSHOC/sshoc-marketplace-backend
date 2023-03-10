@@ -57,10 +57,6 @@ public class VersionedItem {
         this.comments = new ArrayList<>();
     }
 
-    public boolean hasAnyVersions() {
-        return (currentVersion != null);
-    }
-
     public ItemComment getLatestComment() {
         return comments.get(0);
     }

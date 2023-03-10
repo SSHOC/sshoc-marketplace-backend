@@ -5,9 +5,9 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.dto.items.ItemRelationCore;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemCore;
-import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
@@ -68,18 +68,529 @@ public class ItemRelationControllerITCase {
     public void shouldReturnAllItemRelations() throws Exception {
 
         mvc.perform(get("/api/items-relations")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(8)))
-                .andExpect(jsonPath("$[0].code", is("relates-to")))
-                .andExpect(jsonPath("$[1].code", is("is-related-to")))
-                .andExpect(jsonPath("$[2].code", is("documents")))
-                .andExpect(jsonPath("$[3].code", is("is-documented-by")))
-                .andExpect(jsonPath("$[4].code", is("mentions")))
-                .andExpect(jsonPath("$[5].code", is("is-mentioned-in")))
-                .andExpect(jsonPath("$[6].code", is("extends")))
-                .andExpect(jsonPath("$[7].code", is("is-extended-by")));
+                .andExpect(jsonPath("itemRelations", hasSize(8)))
+                .andExpect(jsonPath("itemRelations[0].code", is("relates-to")))
+                .andExpect(jsonPath("itemRelations[1].code", is("is-related-to")))
+                .andExpect(jsonPath("itemRelations[2].code", is("documents")))
+                .andExpect(jsonPath("itemRelations[3].code", is("is-documented-by")))
+                .andExpect(jsonPath("itemRelations[4].code", is("mentions")))
+                .andExpect(jsonPath("itemRelations[5].code", is("is-mentioned-in")))
+                .andExpect(jsonPath("itemRelations[6].code", is("extends")))
+                .andExpect(jsonPath("itemRelations[7].code", is("is-extended-by")));
     }
+
+    @Test
+    public void shouldCreateItemRelationWithoutInverseOf() throws Exception {
+
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("test");
+        itemRelationCore.setOrd(1);
+        itemRelationCore.setLabel("Test");
+        itemRelationCore.setInverseOf(null);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/items-relations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test")));
+    }
+
+    @Test
+    public void shouldCreateItemRelationWithInverseOf() throws Exception {
+
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("test");
+        itemRelationCore.setOrd(1);
+        itemRelationCore.setLabel("Test");
+        itemRelationCore.setInverseOf(null);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/items-relations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test")));
+
+        ItemRelationCore itemRelationInverseCore = new ItemRelationCore();
+        itemRelationInverseCore.setCode("test-inverse");
+        itemRelationInverseCore.setLabel("Test inverse");
+        itemRelationInverseCore.setInverseOf("test");
+
+        String payloadInverse = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationInverseCore);
+        log.debug("JSON: " + payloadInverse);
+
+        mvc.perform(post("/api/items-relations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payloadInverse)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")))
+                .andExpect(jsonPath("label", is("Test inverse")))
+                .andExpect(jsonPath("inverseOf", is("test")));
+
+        mvc.perform(get("/api/items-relations/test")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test")))
+                .andExpect(jsonPath("inverseOf", is("test-inverse")));
+
+        mvc.perform(get("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations[0].code", is("test")))
+                .andExpect(jsonPath("itemRelations[9].code", is("test-inverse")));
+
+    }
+
+    @Test
+    public void shouldUpdateItemRelationWithoutInverseOf() throws Exception {
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("test");
+        itemRelationCore.setLabel("Test");
+        itemRelationCore.setInverseOf(null);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test")));
+
+        mvc.perform(get("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations", hasSize(9)))
+                .andExpect(jsonPath("itemRelations[0].code", is("relates-to")))
+                .andExpect(jsonPath("itemRelations[1].code", is("is-related-to")))
+                .andExpect(jsonPath("itemRelations[2].code", is("documents")))
+                .andExpect(jsonPath("itemRelations[3].code", is("is-documented-by")))
+                .andExpect(jsonPath("itemRelations[4].code", is("mentions")))
+                .andExpect(jsonPath("itemRelations[5].code", is("is-mentioned-in")))
+                .andExpect(jsonPath("itemRelations[6].code", is("extends")))
+                .andExpect(jsonPath("itemRelations[7].code", is("is-extended-by")))
+                .andExpect(jsonPath("itemRelations[8].code", is("test")));
+
+        itemRelationCore.setLabel("Changed label");
+        itemRelationCore.setOrd(5);
+
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Changed label")));
+
+        mvc.perform(get("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Changed label")));
+
+        mvc.perform(get("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations", hasSize(9)))
+                .andExpect(jsonPath("itemRelations[0].code", is("relates-to")))
+                .andExpect(jsonPath("itemRelations[1].code", is("is-related-to")))
+                .andExpect(jsonPath("itemRelations[2].code", is("documents")))
+                .andExpect(jsonPath("itemRelations[3].code", is("is-documented-by")))
+                .andExpect(jsonPath("itemRelations[4].code", is("test")))
+                .andExpect(jsonPath("itemRelations[5].code", is("mentions")))
+                .andExpect(jsonPath("itemRelations[6].code", is("is-mentioned-in")))
+                .andExpect(jsonPath("itemRelations[7].code", is("extends")))
+                .andExpect(jsonPath("itemRelations[8].code", is("is-extended-by")));
+
+        ItemRelationCore secondItemRelationCore = new ItemRelationCore();
+        secondItemRelationCore.setCode("second");
+        secondItemRelationCore.setLabel("Second");
+
+        String secondPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(secondItemRelationCore);
+        log.debug("JSON: " + secondPayload);
+
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(secondPayload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("second")))
+                .andExpect(jsonPath("label", is("Second")));
+
+        itemRelationCore.setInverseOf("second");
+
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Changed label")))
+                .andExpect(jsonPath("inverseOf", is("second")));
+
+    }
+
+
+    @Test
+    public void shouldUpdateItemRelationWithInverseOf() throws Exception {
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("test");
+        itemRelationCore.setLabel("Test");
+        itemRelationCore.setInverseOf(null);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test")));
+
+        ItemRelationCore itemRelationInverseCore = new ItemRelationCore();
+        itemRelationInverseCore.setCode("test-inverse");
+        itemRelationInverseCore.setLabel("Test inverse");
+        itemRelationInverseCore.setInverseOf("test");
+
+        String payloadInverse = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationInverseCore);
+        log.debug("JSON: " + payloadInverse);
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payloadInverse)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")))
+                .andExpect(jsonPath("label", is("Test inverse")))
+                .andExpect(jsonPath("inverseOf", is("test")));
+
+        ItemRelationCore secondItemRelationCore = new ItemRelationCore();
+        secondItemRelationCore.setCode("second");
+        secondItemRelationCore.setLabel("Second");
+
+        String secondPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(secondItemRelationCore);
+        log.debug("JSON: " + secondPayload);
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(secondPayload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("second")))
+                .andExpect(jsonPath("label", is("Second")));
+
+        mvc.perform(get("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations", hasSize(11)))
+                .andExpect(jsonPath("itemRelations[0].code", is("relates-to")))
+                .andExpect(jsonPath("itemRelations[1].code", is("is-related-to")))
+                .andExpect(jsonPath("itemRelations[2].code", is("documents")))
+                .andExpect(jsonPath("itemRelations[3].code", is("is-documented-by")))
+                .andExpect(jsonPath("itemRelations[4].code", is("mentions")))
+                .andExpect(jsonPath("itemRelations[5].code", is("is-mentioned-in")))
+                .andExpect(jsonPath("itemRelations[6].code", is("extends")))
+                .andExpect(jsonPath("itemRelations[7].code", is("is-extended-by")))
+                .andExpect(jsonPath("itemRelations[8].code", is("test")))
+                .andExpect(jsonPath("itemRelations[9].code", is("test-inverse")))
+                .andExpect(jsonPath("itemRelations[10].code", is("second")));
+
+        itemRelationCore.setInverseOf("second");
+
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("inverseOf", is("second")));
+
+        mvc.perform(get("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("inverseOf", is("second")));
+
+        mvc.perform(get("/api/items-relations/test-inverse")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")));
+
+        mvc.perform(get("/api/items-relations/second")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("second")))
+                .andExpect(jsonPath("inverseOf", is("test")));
+
+        itemRelationCore.setInverseOf(null);
+
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")));
+
+        mvc.perform(get("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")));
+
+        mvc.perform(get("/api/items-relations/test-inverse")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")));
+
+        mvc.perform(get("/api/items-relations/second")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("second")));
+    }
+
+    @Test
+    public void shouldNotUpdateItemRelationLeavingInverseUntouched() throws Exception {
+        mvc.perform(get("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("Mentions")))
+                .andExpect(jsonPath("inverseOf", is("is-mentioned-in")));
+
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("is-mentioned-in")))
+                .andExpect(jsonPath("label", is("Is mentioned in")))
+                .andExpect(jsonPath("inverseOf", is("mentions")));
+
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("mentions");
+        itemRelationCore.setLabel("New label");
+        itemRelationCore.setInverseOf("is-mentioned-in");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("New label")))
+                .andExpect(jsonPath("inverseOf", is("is-mentioned-in")));
+
+        mvc.perform(get("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("New label")))
+                .andExpect(jsonPath("inverseOf", is("is-mentioned-in")));
+
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("is-mentioned-in")))
+                .andExpect(jsonPath("label", is("Is mentioned in")))
+                .andExpect(jsonPath("inverseOf", is("mentions")));
+    }
+
+
+    @Test
+    public void shouldNotUpdateItemRelationWhenInverseRelationHasAnInverse() throws Exception {
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("mentions");
+        itemRelationCore.setLabel("Mentions");
+        itemRelationCore.setInverseOf("is-documented-by");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(1)))
+                .andExpect(jsonPath("errors[0].field", is("inverseOf")))
+                .andExpect(jsonPath("errors[0].code", is("field.isAlreadyInUse")))
+                .andExpect(jsonPath("errors[0].message", notNullValue()));
+    }
+
+    @Test
+    public void shouldDeleteItemRelationWithInverseOf() throws Exception {
+
+        ItemRelationCore itemRelationCore = new ItemRelationCore();
+        itemRelationCore.setCode("test");
+        itemRelationCore.setOrd(1);
+        itemRelationCore.setLabel("Test");
+        itemRelationCore.setInverseOf(null);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationCore);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(get("/api/items-relations")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations", hasSize(8)));
+
+        mvc.perform(post("/api/items-relations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test")));
+
+        ItemRelationCore itemRelationInverseCore = new ItemRelationCore();
+        itemRelationInverseCore.setCode("test-inverse");
+        itemRelationInverseCore.setLabel("Test inverse");
+        itemRelationInverseCore.setInverseOf("test");
+
+        String payloadInverse = TestJsonMapper.serializingObjectMapper().writeValueAsString(itemRelationInverseCore);
+        log.debug("JSON: " + payloadInverse);
+
+        mvc.perform(post("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payloadInverse)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")))
+                .andExpect(jsonPath("label", is("Test inverse")))
+                .andExpect(jsonPath("inverseOf", is("test")));
+
+        mvc.perform(get("/api/items-relations/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test")))
+                .andExpect(jsonPath("label", is("Test")))
+                .andExpect(jsonPath("inverseOf", is("test-inverse")));
+
+        mvc.perform(get("/api/items-relations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("itemRelations[0].code", is("test")))
+                .andExpect(jsonPath("itemRelations[9].code", is("test-inverse")));
+
+        mvc.perform(delete("/api/items-relations/test")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT)
+                        .param("force", "false"))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/items-relations/test")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/items-relations/test-inverse")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("test-inverse")))
+                .andExpect(jsonPath("label", is("Test inverse")));
+
+    }
+
+    @Test
+    public void shouldNotDeleteItemRelationInUse() throws Exception {
+        mvc.perform(delete("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT)
+                .param("force", "false"))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldDeleteItemRelationInUse() throws Exception {
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("is-mentioned-in")))
+                .andExpect(jsonPath("label", is("Is mentioned in")))
+                .andExpect(jsonPath("inverseOf", is("mentions")));
+
+        mvc.perform(get("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("Mentions")))
+                .andExpect(jsonPath("inverseOf", is("is-mentioned-in")));
+
+        mvc.perform(delete("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT)
+                .param("force", "true"))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/items-relations/mentions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is("mentions")))
+                .andExpect(jsonPath("label", is("Mentions")));
+
+        mvc.perform(get("/api/items-relations/is-mentioned-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
+    }
+
 
     @Test
     public void shouldCreateItemsRelations() throws Exception {
@@ -93,9 +604,9 @@ public class ItemRelationControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("subject.category", is("tool-or-service")))
@@ -105,8 +616,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relation.label", is("Mentions")));
 
         mvc.perform(get("/api/tools-services/{id}", subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -124,22 +635,22 @@ public class ItemRelationControllerITCase {
 
 
         mvc.perform(get("/api/tools-services/{id}/history", subjectPersistentId)
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", hasSize(2)))
-                    .andExpect(jsonPath("$[0].category", is("tool-or-service")))
-                    .andExpect(jsonPath("$[0].label", is("Gephi")))
-                    .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
-                    .andExpect(jsonPath("$[0].status", is("approved")))
-                    .andExpect(jsonPath("$[1].category", is("tool-or-service")))
-                    .andExpect(jsonPath("$[1].label", is("Gephi")))
-                    .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
-                    .andExpect(jsonPath("$[1].status", is("deprecated")));
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[0].label", is("Gephi")))
+                .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("$[0].status", is("approved")))
+                .andExpect(jsonPath("$[1].category", is("tool-or-service")))
+                .andExpect(jsonPath("$[1].label", is("Gephi")))
+                .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
+                .andExpect(jsonPath("$[1].status", is("deprecated")));
 
 
         mvc.perform(get("/api/tools-services/{id}", objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -150,7 +661,7 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")));
 
         mvc.perform(get("/api/tools-services/{id}/history", objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
@@ -176,11 +687,11 @@ public class ItemRelationControllerITCase {
         String payload = mapper.writeValueAsString(itemRelation);
 
         mvc.perform(
-                post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("subject.category", is("step")))
@@ -189,7 +700,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relation.code", is("mentions")))
                 .andExpect(jsonPath("relation.label", is("Mentions")));
 
-        mvc.perform(get("/api/workflows/{id}", workflowPersistentId))
+        mvc.perform(get("/api/workflows/{id}", workflowPersistentId)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(workflowPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -222,7 +734,7 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{id}/history", workflowPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", not(is(21))))
@@ -256,9 +768,9 @@ public class ItemRelationControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/tools-services/{id}?draft=true", subjectPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("status", is("draft")))
@@ -271,17 +783,17 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[1].persistentId", is("heBAGQ")))
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("documents")));
 
-        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true", subjectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Draft Gephi")))
-                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("draft")))
                 .andExpect(jsonPath("$[1].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("approved")));
 
         String objectPersistentId = "DstBL5";
@@ -293,9 +805,9 @@ public class ItemRelationControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}?draft=true", subjectPersistentId, objectPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("subject.category", is("tool-or-service")))
@@ -305,8 +817,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relation.label", is("Mentions")));
 
         mvc.perform(get("/api/tools-services/{id}?draft=true", subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("status", is("draft")))
@@ -320,23 +832,23 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[2].persistentId", is("heBAGQ")))
                 .andExpect(jsonPath("relatedItems[2].relation.code", is("documents")));
 
-        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true", subjectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Draft Gephi")))
-                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("draft")))
 
                 .andExpect(jsonPath("$[1].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("approved")));
 
         mvc.perform(get("/api/tools-services/{id}", objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -345,23 +857,23 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
         mvc.perform(get("/api/tools-services/{id}?draft=true", objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isNotFound());
 
-        mvc.perform(get("/api/tools-services/{id}/history",  objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+        mvc.perform(get("/api/tools-services/{id}/history", objectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Stata")))
-                .andExpect(jsonPath("$[0].persistentId", is( objectPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")));
 
-        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true", objectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isNotFound());
 
     }
@@ -378,9 +890,9 @@ public class ItemRelationControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].field", is("code")))
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
@@ -399,9 +911,9 @@ public class ItemRelationControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("error", notNullValue()));
     }
@@ -418,9 +930,9 @@ public class ItemRelationControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
@@ -436,9 +948,9 @@ public class ItemRelationControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("subject.category", is("tool-or-service")))
@@ -448,8 +960,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relation.label", is("Mentions")));
 
         mvc.perform(get("/api/tools-services/{id}", subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -459,21 +971,21 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
 
-        mvc.perform(get("/api/tools-services/{id}/history",   subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/tools-services/{id}/history", subjectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Stata")))
-                .andExpect(jsonPath("$[0].persistentId", is(  subjectPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("approved")))
                 .andExpect(jsonPath("$[1].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[1].persistentId", is(  subjectPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("deprecated")));
 
         mvc.perform(get("/api/datasets/{id}", objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -485,7 +997,7 @@ public class ItemRelationControllerITCase {
 
 
         mvc.perform(get("/api/datasets/{id}/history", objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
@@ -498,13 +1010,13 @@ public class ItemRelationControllerITCase {
 
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk());
 
         mvc.perform(get("/api/tools-services/{id}", subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -513,7 +1025,7 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
         mvc.perform(get("/api/tools-services/{id}/history", subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
@@ -529,8 +1041,8 @@ public class ItemRelationControllerITCase {
 
 
         mvc.perform(get("/api/datasets/{id}", objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("status", is("approved")))
@@ -540,7 +1052,7 @@ public class ItemRelationControllerITCase {
 
 
         mvc.perform(get("/api/datasets/{id}/history", objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
@@ -569,9 +1081,9 @@ public class ItemRelationControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(put("/api/tools-services/{id}?draft=true", subjectPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("status", is("draft")))
@@ -581,18 +1093,18 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
 
-        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true", subjectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Draft Stata")))
-                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("draft")))
 
                 .andExpect(jsonPath("$[1].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("approved")));
 
         String objectPersistentId = "dU0BZc";
@@ -604,14 +1116,14 @@ public class ItemRelationControllerITCase {
         log.debug("JSON: " + payload);
 
         mvc.perform(post("/api/items-relations/{subjectId}/{objectId}?draft=true", subjectPersistentId, objectPersistentId)
-                .content(payload)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk());
 
         mvc.perform(get("/api/tools-services/{id}?draft=true", subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("status", is("draft")))
@@ -622,29 +1134,29 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
 
 
-        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true", subjectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Draft Stata")))
-                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("draft")))
 
                 .andExpect(jsonPath("$[1].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("approved")));
 
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}?draft=true", subjectPersistentId, objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk());
 
         mvc.perform(get("/api/tools-services/{id}?draft=true", subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("status", is("draft")))
@@ -652,18 +1164,18 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("label", is("Draft Stata")))
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
-        mvc.perform(get("/api/tools-services/{id}/history?draft=true",  subjectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", MODERATOR_JWT))
+        mvc.perform(get("/api/tools-services/{id}/history?draft=true", subjectPersistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
                 .andExpect(jsonPath("$[0].label", is("Draft Stata")))
-                .andExpect(jsonPath("$[0].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[0].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[0].status", is("draft")))
 
                 .andExpect(jsonPath("$[1].category", is("tool-or-service")))
-                .andExpect(jsonPath("$[1].persistentId", is( subjectPersistentId)))
+                .andExpect(jsonPath("$[1].persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("$[1].status", is("approved")));
 
 
@@ -675,8 +1187,8 @@ public class ItemRelationControllerITCase {
         String objectPersistentId = "xxxxxx7";
 
         mvc.perform(delete("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", CONTRIBUTOR_JWT))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isNotFound());
     }
 
@@ -695,11 +1207,11 @@ public class ItemRelationControllerITCase {
         String payload = mapper.writeValueAsString(dataset);
 
         String datasetJson = mvc.perform(
-                post("/api/datasets")
-                        .content(payload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/datasets")
+                                .content(payload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("category", is("dataset")))
@@ -723,8 +1235,9 @@ public class ItemRelationControllerITCase {
         });
 
         mvc.perform(
-                get("/api/workflows/{workflowId}/steps/{stepId}", "tqmbGY", "prblMo")
-        )
+                        get("/api/workflows/{workflowId}/steps/{stepId}", "tqmbGY", "prblMo")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("prblMo")))
                 .andExpect(jsonPath("id", not(is(13))))
@@ -737,8 +1250,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
 
         mvc.perform(
-                get("/api/workflows/{workflowId}", "tqmbGY")
-        )
+                        get("/api/workflows/{workflowId}", "tqmbGY")
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("tqmbGY")))
                 .andExpect(jsonPath("id", not(is(12))))
@@ -746,8 +1259,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("category", is("workflow")));
 
         mvc.perform(
-                get("/api/datasets/{datasetId}", "OdKfPc")
-        )
+                        get("/api/datasets/{datasetId}", "OdKfPc")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("OdKfPc")))
                 .andExpect(jsonPath("id", not(is(10))))
@@ -764,8 +1278,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("is-related-to")));
 
         mvc.perform(
-                get("/api/datasets/{datasetId}", "dmbq4v")
-        )
+                        get("/api/datasets/{datasetId}", "dmbq4v")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("dmbq4v")))
                 .andExpect(jsonPath("id", is(9)))
@@ -778,8 +1293,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")));
 
         mvc.perform(
-                get("/api/datasets/{datasetId}", newDataset.getPersistentId())
-        )
+                        get("/api/datasets/{datasetId}", newDataset.getPersistentId())
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(newDataset.getPersistentId())))
                 .andExpect(jsonPath("id", is(newDataset.getId().intValue())))
@@ -803,8 +1319,9 @@ public class ItemRelationControllerITCase {
         String toolId = "n21Kfc";
 
         mvc.perform(
-                get("/api/tools-services/{toolId}", toolId)
-        )
+                        get("/api/tools-services/{toolId}", toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("id", is(1)))
@@ -829,11 +1346,11 @@ public class ItemRelationControllerITCase {
         String payload = mapper.writeValueAsString(tool);
 
         mvc.perform(
-                put("/api/tools-services/{toolId}", toolId)
-                        .content(payload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        put("/api/tools-services/{toolId}", toolId)
+                                .content(payload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("id", not(is(1))))
@@ -847,8 +1364,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
 
         mvc.perform(
-                get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
-        )
+                        get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("heBAGQ")))
                 .andExpect(jsonPath("id", not(is(4))))
@@ -861,8 +1379,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
 
         mvc.perform(
-                get("/api/workflows/{workflowId}", "tqmbGY")
-        )
+                        get("/api/workflows/{workflowId}", "tqmbGY")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("tqmbGY")))
                 .andExpect(jsonPath("id", not(is(12))))
@@ -875,8 +1394,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")));
 
         mvc.perform(
-                get("/api/tools-services/{toolId}", "Xgufde")
-        )
+                        get("/api/tools-services/{toolId}", "Xgufde")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("Xgufde")))
                 .andExpect(jsonPath("id", not(is(3))))
@@ -890,8 +1410,9 @@ public class ItemRelationControllerITCase {
         String toolId = "n21Kfc";
 
         mvc.perform(
-                get("/api/tools-services/{toolId}", toolId)
-        )
+                        get("/api/tools-services/{toolId}", toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("id", is(1)))
@@ -916,11 +1437,11 @@ public class ItemRelationControllerITCase {
         String payload = mapper.writeValueAsString(tool);
 
         mvc.perform(
-                put("/api/tools-services/{toolId}", toolId)
-                        .content(payload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        put("/api/tools-services/{toolId}", toolId)
+                                .content(payload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("id", not(is(1))))
@@ -937,8 +1458,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
 
         mvc.perform(
-                get("/api/tools-services/{toolId}", "Xgufde")
-        )
+                        get("/api/tools-services/{toolId}", "Xgufde")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("Xgufde")))
                 .andExpect(jsonPath("id", is(3)))
@@ -951,8 +1473,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")));
 
         mvc.perform(
-                get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
-        )
+                        get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("heBAGQ")))
                 .andExpect(jsonPath("id", is(4)))
@@ -970,8 +1493,9 @@ public class ItemRelationControllerITCase {
         String toolId = "n21Kfc";
 
         mvc.perform(
-                get("/api/tools-services/{toolId}", toolId)
-        )
+                        get("/api/tools-services/{toolId}", toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("id", is(1)))
@@ -996,11 +1520,11 @@ public class ItemRelationControllerITCase {
         String payload = mapper.writeValueAsString(tool);
 
         mvc.perform(
-                put("/api/tools-services/{toolId}?draft=1", toolId)
-                        .content(payload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        put("/api/tools-services/{toolId}?draft=1", toolId)
+                                .content(payload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(toolId)))
                 .andExpect(jsonPath("id", not(is(1))))
@@ -1014,8 +1538,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
 
         mvc.perform(
-                get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
-        )
+                        get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("heBAGQ")))
                 .andExpect(jsonPath("id", is(4)))
@@ -1028,8 +1553,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")));
 
         mvc.perform(
-                get("/api/workflows/{workflowId}", "tqmbGY")
-        )
+                        get("/api/workflows/{workflowId}", "tqmbGY")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("tqmbGY")))
                 .andExpect(jsonPath("id", is(12)))
@@ -1038,8 +1564,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
         mvc.perform(
-                get("/api/tools-services/{toolId}", "Xgufde")
-        )
+                        get("/api/tools-services/{toolId}", "Xgufde")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("Xgufde")))
                 .andExpect(jsonPath("id", is(3)))
@@ -1052,9 +1579,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("relates-to")));
 
         mvc.perform(
-                post("/api/tools-services/{toolId}/commit", toolId)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/tools-services/{toolId}/commit", toolId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", not(is(1))))
                 .andExpect(jsonPath("status", is("approved")))
@@ -1070,8 +1597,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[1].relation.code", is("is-documented-by")));
 
         mvc.perform(
-                get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
-        )
+                        get("/api/training-materials/{trainingMaterialId}", "heBAGQ")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("heBAGQ")))
                 .andExpect(jsonPath("id", not(is(4))))
@@ -1084,8 +1612,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
 
         mvc.perform(
-                get("/api/workflows/{workflowId}", "tqmbGY")
-        )
+                        get("/api/workflows/{workflowId}", "tqmbGY")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("tqmbGY")))
                 .andExpect(jsonPath("id", not(is(12))))
@@ -1098,8 +1627,9 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("documents")));
 
         mvc.perform(
-                get("/api/tools-services/{toolId}", "Xgufde")
-        )
+                        get("/api/tools-services/{toolId}", "Xgufde")
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is("Xgufde")))
                 .andExpect(jsonPath("id", not(is(3))))
@@ -1125,11 +1655,11 @@ public class ItemRelationControllerITCase {
         String payload = mapper.writeValueAsString(tool);
 
         mvc.perform(
-                put("/api/tools-services/{toolId}", toolId)
-                        .content(payload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        put("/api/tools-services/{toolId}", toolId)
+                                .content(payload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isBadRequest());
     }
 
@@ -1144,11 +1674,11 @@ public class ItemRelationControllerITCase {
         String workflowPayload = mapper.writeValueAsString(workflow);
 
         mvc.perform(
-                put("/api/workflows/{id}", workflowId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(workflowPayload)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        put("/api/workflows/{id}", workflowId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(workflowPayload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(workflowId)))
                 .andExpect(jsonPath("category", is("workflow")))
@@ -1182,11 +1712,11 @@ public class ItemRelationControllerITCase {
         String relationPayload = mapper.writeValueAsString(itemRelation);
 
         mvc.perform(
-                post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(relationPayload)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(relationPayload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("subject.category", is("step")))
@@ -1205,11 +1735,11 @@ public class ItemRelationControllerITCase {
         String publicationPayload = mapper.writeValueAsString(publication);
 
         String publicationJson = mvc.perform(
-                post("/api/publications")
-                        .content(publicationPayload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        post("/api/publications")
+                                .content(publicationPayload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("id", notNullValue()))
@@ -1228,11 +1758,11 @@ public class ItemRelationControllerITCase {
         String trainingMaterialPayload = mapper.writeValueAsString(trainingMaterial);
 
         String trainingMaterialJson = mvc.perform(
-                post("/api/training-materials")
-                        .content(trainingMaterialPayload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", CONTRIBUTOR_JWT)
-        )
+                        post("/api/training-materials")
+                                .content(trainingMaterialPayload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", notNullValue()))
                 .andExpect(jsonPath("id", notNullValue()))
@@ -1255,11 +1785,11 @@ public class ItemRelationControllerITCase {
         String acceptedTrainingMaterialPayload = mapper.writeValueAsString(acceptedTrainingMaterial);
 
         trainingMaterialJson = mvc.perform(
-                put("/api/training-materials/{trainingMaterialId}", trainingMaterialDto.getPersistentId())
-                        .content(acceptedTrainingMaterialPayload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        put("/api/training-materials/{trainingMaterialId}", trainingMaterialDto.getPersistentId())
+                                .content(acceptedTrainingMaterialPayload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(trainingMaterialDto.getPersistentId())))
                 .andExpect(jsonPath("id", not(is(trainingMaterialDto.getId()))))
@@ -1279,9 +1809,9 @@ public class ItemRelationControllerITCase {
         Long newerPublicationVersionId = mapper.readValue(trainingMaterialJson, PublicationDto.class).getRelatedItems().get(0).getId();
 
         mvc.perform(
-                get("/api/publications/{publicationId}/versions/{versionId}",
-                        publicationDto.getPersistentId(), newerPublicationVersionId)
-                        .header("Authorization", MODERATOR_JWT))
+                        get("/api/publications/{publicationId}/versions/{versionId}",
+                                publicationDto.getPersistentId(), newerPublicationVersionId)
+                                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(publicationDto.getPersistentId())))
                 .andExpect(jsonPath("id", not(is(publicationDto.getId()))))
@@ -1313,11 +1843,11 @@ public class ItemRelationControllerITCase {
         String publicationPayload = mapper.writeValueAsString(publication);
 
         mvc.perform(
-                post("/api/publications")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(publicationPayload)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/publications")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(publicationPayload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("relatedItems", hasSize(1)))
@@ -1341,11 +1871,11 @@ public class ItemRelationControllerITCase {
         String payload = mapper.writeValueAsString(itemRelation);
 
         mvc.perform(
-                post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
-                        .content(payload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", MODERATOR_JWT)
-        )
+                        post("/api/items-relations/{subjectId}/{objectId}", subjectPersistentId, objectPersistentId)
+                                .content(payload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("subject.persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("subject.category", is("step")))
@@ -1354,7 +1884,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relation.code", is("mentions")))
                 .andExpect(jsonPath("relation.label", is("Mentions")));
 
-        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", subjectWorkflowId, subjectPersistentId))
+        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", subjectWorkflowId, subjectPersistentId)
+                .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(subjectPersistentId)))
                 .andExpect(jsonPath("category", is("step")))
@@ -1364,7 +1895,8 @@ public class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")))
                 .andExpect(jsonPath("relatedItems[0].workflowId", is(objectWorkflowId)));
 
-        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", objectWorkflowId, objectPersistentId))
+        mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}", objectWorkflowId, objectPersistentId)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("persistentId", is(objectPersistentId)))
                 .andExpect(jsonPath("category", is("step")))

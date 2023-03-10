@@ -13,4 +13,5 @@ interface MediaDataRepository extends JpaRepository<MediaData, UUID> {
 
     @Query("select m from MediaData m where m.linkCount = 0 and m.touchTimestamp < :retentionTimestamp")
     Stream<MediaData> streamStaleMedia(@Param("retentionTimestamp") LocalDateTime retentionTimestamp);
+
 }

@@ -31,8 +31,7 @@ public class UserFactory {
         if (user != null) {
             errors.rejectValue("username", "field.alreadyExists", "User already exists.");
         } else {
-            user = userRepository.findByEmail(userCore.getEmail());
-            if (user != null) {
+            if (!userRepository.findByEmail(userCore.getEmail()).isEmpty()) {
                 errors.rejectValue("email", "field.alreadyExists", "User already exists.");
             } else {
                 user = new User();

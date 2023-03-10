@@ -16,7 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByUsername(String username);
 
-    User findByEmail(String email);
+    List<User> findByEmail(String email);
 
     @Query("select u from User u" +
             " where lower(u.username) like lower(concat('%', :q,'%'))" +
@@ -44,15 +44,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     "   FROM items i, sub_item si" +
                     "   WHERE i.id = si.prev_version_id)" +
 
-                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences " +
+                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status, u.registration_date, u.role, u.token_key, u.email, u.config, u.preferences " +
                     "FROM Users u " +
-                    "INNER JOIN items i \n" +
-                    "ON u.id = i.info_contributor_id\n" +
-                    "INNER JOIN sub_item si\n" +
+                    "INNER JOIN items i " +
+                    "ON u.id = i.info_contributor_id " +
+                    "INNER JOIN sub_item si " +
                     "ON i.persistent_id = si.persistent_id AND si.id = i.id" , nativeQuery = true
     )
-    List<User> findInformationContributors(@Param("persistentId" ) String persistentId);
-
+    List<User> findInformationContributors(@Param("persistentId") String persistentId);
 
 
     @Query(value =
@@ -75,14 +74,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     "   FROM items i, sub_item si" +
                     "   WHERE i.id = si.prev_version_id)" +
 
-                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password,  u.status,u.registration_date, u.role, u.provider, u.token_key, u.email, u.config, u.preferences " +
+                    "SELECT DISTINCT(u.id), u.username, u.display_name, u.password, u.status, u.registration_date, u.role, u.token_key, u.email, u.config, u.preferences " +
                     "FROM Users u " +
-                    "INNER JOIN items i \n" +
-                    "ON u.id = i.info_contributor_id\n" +
-                    "INNER JOIN sub_item si\n" +
+                    "INNER JOIN items i " +
+                    "ON u.id = i.info_contributor_id " +
+                    "INNER JOIN sub_item si " +
                     "ON i.persistent_id = si.persistent_id AND si.id = i.id", nativeQuery = true
     )
-    List<User> findInformationContributors(@Param("persistentId" ) String persistentId, @Param("versionId" ) Long versionId);
+    List<User> findInformationContributors(@Param("persistentId") String persistentId, @Param("versionId") Long versionId);
 
 
 }

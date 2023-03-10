@@ -1,14 +1,16 @@
 package eu.sshopencloud.marketplace.controllers.tools;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.services.items.ToolService;
+import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
+import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,7 +32,7 @@ public class ToolController {
 
     private final ToolService toolService;
 
-    @Operation(summary = "Retrieve all tools in pages")
+    @Operation(summary = "Retrieve all tools services in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
                                                    @RequestParam(value = "perpage", required = false) Integer perpage,
@@ -43,9 +45,10 @@ public class ToolController {
     @GetMapping(path = "/{persistentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> getTool(@PathVariable("persistentId") String persistentId,
                                            @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                           @RequestParam(value = "approved", defaultValue = "true") boolean approved,
+                                           @RequestParam(value = "redirect", defaultValue = "false") boolean redirect) {
 
-        return ResponseEntity.ok(toolService.getLatestTool(persistentId, draft, approved));
+        return ResponseEntity.ok(toolService.getLatestTool(persistentId, draft, approved, redirect));
     }
 
     @Operation(summary = "Get tool selected version by its persistentId and versionId")
@@ -74,7 +77,7 @@ public class ToolController {
                                                       required = true,
                                                       schema = @Schema(implementation = ToolCore.class)) @RequestBody ToolCore updatedTool,
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft,
-                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
+                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
         return ResponseEntity.ok(toolService.updateTool(persistentId, updatedTool, draft, approved));
     }
@@ -91,6 +94,14 @@ public class ToolController {
 
         toolService.deleteTool(persistentId, draft);
     }
+
+    @Operation(summary = "Delete tool by its persistentId and versionId")
+    @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
+    public void deleteToolVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
+
+        toolService.deleteTool(persistentId, versionId);
+    }
+
 
     @Operation(summary = "Committing draft of tool by its persistentId")
     @PostMapping(path = "/{persistentId}/commit", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -134,7 +145,8 @@ public class ToolController {
                                          @Parameter(
                                                  description = "Performing merge into tool",
                                                  required = true,
-                                                 schema = @Schema(implementation = ToolCore.class))  @RequestBody ToolCore mergeTool) {
+                                                 schema = @Schema(implementation = ToolCore.class)) @RequestBody ToolCore mergeTool)
+            throws ItemIsAlreadyMergedException {
         return ResponseEntity.ok(toolService.merge(mergeTool, with));
     }
 
@@ -144,5 +156,26 @@ public class ToolController {
 
         return ResponseEntity.ok(toolService.getSources(persistentId));
     }
+
+    @Operation(summary = "Getting differences between tool and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getToolAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getToolVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                               @RequestParam(required = true) String with,
+                                                                               @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(toolService.getDifferences(persistentId, null, with, otherVersionId));
+    }
+
+
+    @Operation(summary = "Getting differences between target version of tool and target version of item ('unaltered' string response means for the single field that remained unchanged)", operationId = "getVersionedToolAndVersionedItemDifferences")
+    @GetMapping(path = "/{persistentId}/versions/{versionId}/diff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ItemsDifferencesDto> getVersionedToolVersionedItemDifferences(@PathVariable("persistentId") String persistentId,
+                                                                                        @PathVariable("versionId") long versionId,
+                                                                                        @RequestParam(required = true) String with,
+                                                                                        @RequestParam(required = false) Long otherVersionId) {
+
+        return ResponseEntity.ok(toolService.getDifferences(persistentId, versionId, with, otherVersionId));
+    }
+
 
 }

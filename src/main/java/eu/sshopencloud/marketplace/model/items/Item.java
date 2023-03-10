@@ -35,7 +35,7 @@ public abstract class Item {
     @Column(nullable = false)
     private ItemCategory category;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1024)
     private String label;
 
     @Column

@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.controllers.ErrorResponse;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.PropertyTypeAlreadyExistsException;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyIsClosedException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
@@ -24,7 +25,6 @@ public class VocabularyExceptionHandler {
 
     @ExceptionHandler(value = {
             PropertyTypeAlreadyExistsException.class,
-            ConceptAlreadyExistsException.class,
             VocabularyAlreadyExistsException.class,
             RDFParseException.class,
             UnsupportedRDFormatException.class

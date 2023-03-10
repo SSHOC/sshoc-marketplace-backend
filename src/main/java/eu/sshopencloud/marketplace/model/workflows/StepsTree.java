@@ -165,6 +165,15 @@ public class StepsTree {
 //        renumberSubTrees();
     }
 
+    public void removePreviousDraftStep(Step step) {
+        String persistentId = step.getVersionedItem().getPersistentId();
+        subTrees.removeIf(
+                st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId)
+                        && st.getStep().getId().equals(step.getId())
+        );
+
+    }
+
     public void removeStep(Step step) {
         String persistentId = step.getVersionedItem().getPersistentId();
         subTrees.removeIf(st -> st.getStep().getVersionedItem().getPersistentId().equals(persistentId));

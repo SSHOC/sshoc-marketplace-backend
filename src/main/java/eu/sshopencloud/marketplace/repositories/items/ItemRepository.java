@@ -1,10 +1,8 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
-import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.sources.Source;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,95 +12,8 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends ItemVersionRepository<Item> {
 
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where v.status = 'APPROVED' " +
-                    "and i.active = true " +
-                    "and v.source = :source "
-    )
-    Page<Item> findAllLatestApprovedItemsForSource(@Param("source") Source source, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where v.status = 'APPROVED' " +
-                    "and i.active = true " +
-                    "and v.source = :source and v.sourceItemId = :sourceItemId"
-    )
-    Page<Item> findAllLatestApprovedItemsForSource(@Param("source") Source source, @Param("sourceItemId") String sourceItemId, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where i.active = true " +
-                    "and (v.status = 'APPROVED' or v.proposedVersion = true)" +
-                    "and v.source = :source "
-    )
-    Page<Item> findAllLatestItemsForSource(@Param("source") Source source, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where i.active = true " +
-                    "and (v.status = 'APPROVED' or v.proposedVersion = true)" +
-                    "and v.source = :source and v.sourceItemId = :sourceItemId"
-    )
-    Page<Item> findAllLatestItemsForSource(@Param("source") Source source, @Param("sourceItemId") String sourceItemId, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where i.active = true " +
-                    "and (" +
-                    "v.status = 'APPROVED' " +
-                    "or (v.proposedVersion = true and v.informationContributor = :owner)" +
-                    ")" +
-                    "and v.source = :source "
-    )
-    Page<Item> findUserLatestItemsForSource(@Param("source") Source source, @Param("owner") User user, Pageable page);
-
-    @Query(
-            "select v from Item v " +
-                    "join v.versionedItem i " +
-                    "where i.active = true " +
-                    "and (" +
-                    "v.status = 'APPROVED' " +
-                    "or (v.proposedVersion = true and v.informationContributor = :owner)" +
-                    ")" +
-                    "and v.source = :source and v.sourceItemId = :sourceItemId"
-    )
-    Page<Item> findUserLatestItemsForSource(@Param("source") Source source, @Param("sourceItemId") String sourceItemId, @Param("owner") User user, Pageable page);
-
-
+    // problem with the proper clazz_. sometimes abstract class is put
     @Deprecated
-    @Query(value =
-            "WITH RECURSIVE sub_item AS ( " +
-                    "   WITH RECURSIVE merge_item AS (" +
-                    "       SELECT v.id, v.merged_with_id" +
-                    "       FROM versioned_items v" +
-                    "       INNER JOIN items i ON i.persistent_id = v.id" +
-                    "       WHERE i.id = :versionId " +
-                    "       UNION" +
-                    "       SELECT v.id, v.merged_with_id " +
-                    "       FROM versioned_items v, merge_item m" +
-                    "       WHERE m.id = v.merged_with_id)" +
-                    "   SELECT i.persistent_id , i.id,  i.prev_version_id" +
-                    "   FROM merge_item m" +
-                    "   INNER JOIN items i " +
-                    "   ON i.persistent_id  = m.id " +
-                    "   UNION" +
-                    "   SELECT i.persistent_id, i.id, i.prev_version_id" +
-                    "   FROM items i, sub_item si" +
-                    "   WHERE i.id = si.prev_version_id)" +
-                    "SELECT s.id, s.category, s.description, s.label, s.last_info_update, s.last_info_update AS date_last_updated," +
-                    "    s.source_item_id, s.status, s.version, s.prev_version_id, s.source_id," +
-                    "    s.persistent_id, s.proposed_version, s.info_contributor_id, s.last_info_update AS date_created, s.clazz_" +
-                    "    FROM sub_tree s", nativeQuery = true
-    )
-    List<Item> findItemHistoryImproved(@Param("versionId") Long versionId);
-
-
     @Query(value =
             "WITH RECURSIVE sub_item AS ( " +
                     "   WITH RECURSIVE merge_item AS (" +
@@ -131,4 +42,67 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     )
     List<Item> findMergedItemsHistory(@Param("persistentId") String persistentId, @Param("versionId") Long versionId);
 
+    @Query(value =
+            "WITH RECURSIVE sub_item AS ( " +
+                    "   WITH RECURSIVE merge_item AS (" +
+                    "       SELECT v.id, v.merged_with_id, i.id AS itemId" +
+                    "       FROM versioned_items v" +
+                    "       INNER JOIN items i ON i.persistent_id = v.id" +
+                    "       WHERE i.persistent_id = :persistentId and i.id = :versionId " +
+                    "       UNION" +
+                    "       SELECT v.id, v.merged_with_id, i.id" +
+                    "       FROM versioned_items v, merge_item m, items i" +
+                    "       WHERE m.id = v.merged_with_id and i.persistent_id = v.id)" +
+                    "   SELECT i.persistent_id , i.id,  i.prev_version_id" +
+                    "   FROM merge_item m" +
+                    "   INNER JOIN items i " +
+                    "   ON i.persistent_id  = m.id and m.itemId = i.id" +
+                    "   UNION" +
+                    "   SELECT i.persistent_id, i.id, i.prev_version_id" +
+                    "   FROM items i, sub_item si" +
+                    "   WHERE i.id = si.prev_version_id)" +
+
+                    "SELECT i1.id" +
+                    " FROM items i1 INNER JOIN sub_item si" +
+                    " ON i1.persistent_id = si.persistent_id AND i1.id = si.id" +
+                    " ORDER BY i1.last_info_update DESC", nativeQuery = true
+    )
+    List<Long> findItemsHistory(@Param("persistentId") String persistentId, @Param("versionId") Long versionId);
+
+
+    List<Item> findBySourceId(Long sourceId);
+
+    @Query("select v from Item v join v.contributors c where c.actor.id = :actorId ")
+    List<Item> findByContributorActorId(@Param("actorId") Long actorId);
+
+
+    @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept = :concept")
+    List<Item> findAllByMediaConcept(@Param("concept") Concept concept);
+
+    @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept.vocabulary = :vocabulary")
+    List<Item> findAllByMediaConceptVocabulary(@Param("vocabulary") String vocabulary);
+
+    boolean existsByMediaConceptVocabularyCode(String vocabularyCode);
+
+    @Query("select i from Item i inner join ItemContributor c ON c.item.id = i.id WHERE c.actor.id = :id ORDER BY i.label")
+    List<Item> findAllByContributorsActorId(@Param("id") Long id);
+
+    @Query("select i from Item i left join VersionedItem v ON i.versionedItem = v WHERE  (i.status = 'APPROVED' AND v.active = true) OR (i.proposedVersion = true AND v.active = true)")
+    List<Item> findAllItemsToReindex();
+
+    @Query(value = "SELECT i.id FROM items i\n" +
+            "            INNER JOIN versioned_items v \n" +
+            "            ON v.id = i.persistent_id\n" +
+            "            WHERE v.curr_ver_id = i.id \n" +
+            "            AND v.status = 'DELETED' AND i.category != 'STEP'", nativeQuery = true)
+    List<Long> getDeletedItemsIds();
+
+    @Query(value = " SELECT DISTINCT(v.curr_ver_id) FROM items i" +
+            "    INNER JOIN versioned_items v " +
+            "    ON v.id = i.persistent_id" +
+            "    WHERE i.info_contributor_id = :contributorId", nativeQuery = true)
+    List<Long> getContributedItemsIds(Long contributorId);
+
+    @Query("select i from Item i where i.id in :idList AND i.status in :itemStatusList AND i.category <> 'STEP' ")
+    List<Item> findByIdInAndStatusIsIn(@Param("idList") List<Long> idList, @Param("itemStatusList") List<ItemStatus> itemStatusList);
 }

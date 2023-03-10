@@ -27,6 +27,8 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestReposi
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -79,11 +81,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/concept-reindex").hasAuthority(Authority.ADMINISTRATOR.name());
         http
                 .authorizeRequests()
-
                 .antMatchers(HttpMethod.GET, "/api/users/*/password").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/users/*/display-name").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/users").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.GET, "/api/users/*").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers("/api/users/**").hasAuthority(Authority.ADMINISTRATOR.name());
-
 
         http
                 .authorizeRequests()
@@ -92,9 +94,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/property-types/**").hasAuthority(Authority.MODERATOR.name());
         http
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/vocabularies/**").hasAuthority(Authority.MODERATOR.name())
-                .antMatchers(HttpMethod.PUT, "/api/vocabularies/**").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.POST, "/api/vocabularies/*/concepts/*/merge").hasAnyAuthority(Authority.SYSTEM_CONTRIBUTOR.name(),Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.POST, "/api/vocabularies/*/concepts").hasAnyAuthority(Authority.CONTRIBUTOR.name())
+                .antMatchers(HttpMethod.POST, "/api/vocabularies/**").hasAnyAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/vocabularies/**").hasAnyAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/vocabularies/**").hasAuthority(Authority.MODERATOR.name());
+
         http
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/actors/**").hasAuthority(Authority.CONTRIBUTOR.name())
@@ -109,6 +114,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/datasets/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/datasets/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/datasets/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/datasets/**").hasAuthority(Authority.CONTRIBUTOR.name());
@@ -116,6 +122,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/tools-services/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/tools-services/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/tools-services/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/tools-services/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/tools-services/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/tools-services/**").hasAuthority(Authority.CONTRIBUTOR.name());
@@ -123,6 +130,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/training-materials/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/training-materials/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/training-materials/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/training-materials/**").hasAuthority(Authority.CONTRIBUTOR.name());
@@ -130,6 +138,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/publications/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/publications/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/publications/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/publications/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/publications/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/publications/**").hasAuthority(Authority.MODERATOR.name());
@@ -137,8 +146,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/workflows/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/workflows/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/workflows/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.GET, "/api/workflows/*/steps/*/merge").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/workflows/*/steps/merge").hasAuthority(Authority.MODERATOR.name())
+                .antMatchers(HttpMethod.PUT, "/api/workflows/*/steps/*/versions/*/revert").hasAuthority(Authority.MODERATOR.name())
                 .antMatchers(HttpMethod.POST, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/workflows/**").hasAuthority(Authority.CONTRIBUTOR.name());
@@ -248,6 +259,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         authenticationFilter.setAuthenticationManager(authenticationManagerBean());
         authenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
         return authenticationFilter;
+    }
+
+    @Bean
+    public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowUrlEncodedSlash(true);
+        firewall.setAllowSemicolon(true);
+        firewall.setAllowUrlEncodedDoubleSlash(true);
+        firewall.setAllowUrlEncodedPercent(true);
+        return firewall;
     }
 
 }

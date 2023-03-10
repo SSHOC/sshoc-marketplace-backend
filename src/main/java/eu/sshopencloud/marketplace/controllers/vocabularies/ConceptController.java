@@ -1,9 +1,9 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
-import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.services.vocabularies.ConceptService;
 import eu.sshopencloud.marketplace.services.vocabularies.exception.ConceptAlreadyExistsException;
+import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyIsClosedException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/vocabularies")
@@ -35,7 +36,8 @@ public class ConceptController {
             required = true,
             schema = @Schema(implementation = ConceptCore.class)) @RequestBody ConceptCore newConcept,
                                                     @PathVariable("vocabulary-code") String vocabularyCode,
-                                                    @RequestParam(value = "candidate", defaultValue = "true") boolean candidate) throws ConceptAlreadyExistsException {
+                                                    @RequestParam(value = "candidate", defaultValue = "true") boolean candidate)
+            throws ConceptAlreadyExistsException, VocabularyIsClosedException {
 
         return ResponseEntity.ok(conceptService.createConcept(newConcept, vocabularyCode, candidate));
     }
@@ -69,5 +71,15 @@ public class ConceptController {
         conceptService.removeConcept(code, vocabularyCode, force);
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "Merge concepts")
+    @PostMapping(path= "/{vocabulary-code}/concepts/{code}/merge")
+    public ResponseEntity<ConceptDto> mergeConcepts(@PathVariable("vocabulary-code") String vocabularyCode, @PathVariable("code") String code,
+            @RequestParam("with") List<String> with)
+            throws VocabularyIsClosedException {
+
+        return ResponseEntity.ok(conceptService.mergeConcepts(code,vocabularyCode,with));
+    }
+
 
 }

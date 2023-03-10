@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.repositories.items;
 
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.sources.Source;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -37,8 +37,8 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
                     "join v.versionedItem i " +
                     "where i.active = true " +
                     "and (" +
-                        "v.status = 'APPROVED' " +
-                        "or (v.proposedVersion = true and v.informationContributor = :owner)" +
+                    "v.status = 'APPROVED' " +
+                    "or (v.proposedVersion = true and v.informationContributor = :owner)" +
                     ")"
     )
     Page<T> findUserLatestItems(@Param("owner") User user, Pageable page);
@@ -51,7 +51,6 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
                     "and i.active = true"
     )
     Optional<T> findLatestItem(@Param("persistentId") String persistentId);
-
 
 
     @Query(
@@ -73,5 +72,22 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
 
     Optional<T> findByVersionedItemPersistentIdAndId(String persistentId, long id);
 
+    List<T> findByVersionedItemPersistentId(String persistentId);
 
+    @Query(
+            "select v from #{#entityName} v " +
+                    "join v.versionedItem i " +
+                    "where i.status = 'MERGED' " +
+                    "and i.persistentId = :persistentId " +
+                    "and v.status = 'DEPRECATED' "
+    )
+    List<T> findIfMergedItem(@Param("persistentId") String persistentId);
+
+    @Query( value =
+            "SELECT DISTINCT(i2.persistent_id) FROM items i " +
+                    "Inner join versioned_items v ON i.persistent_id = v.id " +
+                    "INNER JOIN items i2 ON v.merged_with_id = i2.persistent_id  " +
+                    "WHERE v.id = :persistentId AND i.status = 'DEPRECATED' AND v.status = 'MERGED' ",  nativeQuery = true
+    )
+    String findMergedWithPersistentId(@Param("persistentId") String persistentId);
 }

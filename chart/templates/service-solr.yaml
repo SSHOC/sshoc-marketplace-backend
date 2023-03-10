@@ -1,0 +1,19 @@
+{{- $_ := set . "namePrefix" "solr" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "fullname" . }}-solr
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  internalTrafficPolicy: Cluster
+  ports:
+    - name: solr
+      port: 8983
+      protocol: TCP
+      targetPort: 8983
+  selector:
+    {{- include "selectorLabels" . | nindent 4 }}
+  sessionAffinity: None
+  type: ClusterIP
+{{- $_ := unset . "namePrefix" -}}

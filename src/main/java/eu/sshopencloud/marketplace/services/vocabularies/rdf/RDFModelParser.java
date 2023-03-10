@@ -6,9 +6,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelation;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleLiteral;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +42,6 @@ public class RDFModelParser {
     private static final String SKOS_BROADER = "http://www.w3.org/2004/02/skos/core#broader";
 
     private static final String SKOS_NARROWER = "http://www.w3.org/2004/02/skos/core#narrower";
-
 
     private void completeWithStatement(Statement statement, Map<String, String> values,
                                        Function<Void, String> checkFunction, Function<String, Void> setFunction) {
@@ -124,6 +121,7 @@ public class RDFModelParser {
             rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(scheme))
                     .forEach(statement -> completeVocabulary(vocabulary, statement));
+            vocabulary.setScheme(scheme);
             if (StringUtils.isBlank(vocabulary.getLabel()) && vocabulary.getLabels().containsKey("en")) {
                 vocabulary.setLabel(vocabulary.getLabels().get("en"));
             }
@@ -149,8 +147,17 @@ public class RDFModelParser {
                 vocabulary.setDescription(vocabulary.getDescriptions().values().iterator().next());
             }
         }
+        vocabulary.setNamespaces(getNamespaces(rdfModel));
         vocabulary.setNamespace(extractNamespaceUri(rdfModel));
         return vocabulary;
+    }
+
+    private Map<String, String> getNamespaces(Model rdfModel) {
+        Map<String, String> namespaces = new LinkedHashMap<>();
+        for (Namespace namespace : rdfModel.getNamespaces()) {
+            namespaces.put(namespace.getPrefix(), namespace.getName());
+        }
+        return namespaces;
     }
 
     private String extractNamespaceUri(Model rdfModel) {
@@ -288,8 +295,8 @@ public class RDFModelParser {
     }
 
     public List<ConceptRelatedConcept> createConceptRelatedConcepts(Map<String, Concept> conceptMap, Model rdfModel) {
-        List<ConceptRelatedConcept> result = new ArrayList<ConceptRelatedConcept>();
-        for (String subjectUri: conceptMap.keySet()) {
+        List<ConceptRelatedConcept> result = new ArrayList<>();
+        for (String subjectUri : conceptMap.keySet()) {
             Concept concept = conceptMap.get(subjectUri);
             List<ConceptRelatedConcept> conceptRelatedConcepts = rdfModel.stream()
                     .filter(statement -> statement.getSubject().stringValue().equals(subjectUri))

@@ -25,7 +25,6 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
 
     private final ItemSourceRepository itemSourceRepository;
 
-
     public List<ItemSourceDto> getAllItemSources() {
         return ItemSourceMapper.INSTANCE.toDto(loadAllEntries());
     }
@@ -86,7 +85,7 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
             itemSourceRepository.deleteById(code);
             removeEntryFromPosition(code);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Actor role with code %s not found", code));
+            throw new EntityNotFoundException(String.format("Item source with code %s not found", code));
         }
     }
 
@@ -94,4 +93,5 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
     protected JpaRepository<ItemSource, String> getEntityRepository() {
         return itemSourceRepository;
     }
+
 }

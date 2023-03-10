@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0053-SSHOC_129-actor_history_1
+      description: creating table actor history
+      author: ekalata
+      changes:
+        - createTable:
+            tableName: actor_history
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: actor_history_pkey
+              - column:
+                  name: actor_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: actor_actor_history_fk
+                    references: actors(id)
+              - column:
+                  name: date_created
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: history
+                  type: jsonb
+  - changeSet:
+      id: 0053-SSHOC_129-actor_history_2
+      description: creating sequence for table actor history
+      author: ekalata
+      changes:
+        - createSequence:
+            sequenceName: actor_history_id_seq
+            incrementBy: 50
