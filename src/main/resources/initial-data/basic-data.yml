@@ -300,6 +300,11 @@ ActorSource:
     ord:                         6
     urlTemplate:                 "https://ror.org/{source-actor-id}"
 
+  - !!eu.sshopencloud.marketplace.model.actors.ActorSource
+    code:                        SourceActorId
+    label:                       "Source ActorId"
+    ord:                         7
+    urlTemplate:                 ""
 
 ItemSource:
 
