@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.repositories.search;
 
+import eu.sshopencloud.marketplace.dto.search.ActorSearchOrder;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.repositories.search.solr.ForceFacetSortSolrTemplate;
 import eu.sshopencloud.marketplace.services.search.filter.SearchExpressionCriteria;
@@ -8,7 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.RequestMethod;
-import org.springframework.data.solr.core.query.*;
+import org.springframework.data.solr.core.query.SimpleFacetQuery;
+import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +25,7 @@ public class SearchActorRepository {
 
     public FacetPage<IndexActor> findByQueryAndFilters(SearchQueryCriteria queryCriteria,
                                                        List<SearchExpressionCriteria> expressionCriteria,
-                                                       Pageable pageable) {
+                                                       Pageable pageable, ActorSearchOrder order) {
 
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria.getQueryCriteria())
                 .addProjectionOnFields(
@@ -33,7 +35,7 @@ public class SearchActorRepository {
                         IndexActor.EMAIL_FIELD,
                         IndexActor.EXTERNAL_IDENTIFIER_FIELD
                 )
-                .setPageRequest(pageable);
+                .setPageRequest(pageable).addSort(order.toSort());
 
         expressionCriteria.forEach(actor -> facetQuery.addFilterQuery(new SimpleFilterQuery(actor.getFilterCriteria())));
 

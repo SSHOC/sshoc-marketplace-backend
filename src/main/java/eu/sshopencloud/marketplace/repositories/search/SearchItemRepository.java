@@ -1,6 +1,6 @@
 package eu.sshopencloud.marketplace.repositories.search;
 
-import eu.sshopencloud.marketplace.dto.search.SearchOrder;
+import eu.sshopencloud.marketplace.dto.search.ItemSearchOrder;
 import eu.sshopencloud.marketplace.dto.search.SuggestedObject;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.model.auth.User;
@@ -43,7 +43,7 @@ public class SearchItemRepository {
                                                       List<SearchExpressionCriteria> expressionCriteria,
                                                       User currentUser, boolean includeSteps,
                                                       List<SearchFilterCriteria> filterCriteria,
-                                                      List<SearchOrder> order, Pageable pageable) {
+                                                      List<ItemSearchOrder> order, Pageable pageable) {
 
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria.getQueryCriteria())
                 .addProjectionOnFields(
@@ -75,7 +75,7 @@ public class SearchItemRepository {
     }
 
 
-    public FacetPage<IndexItem> findByQuery(Criteria queryCriteria, User currentUser, SearchOrder order, Pageable pageable) {
+    public FacetPage<IndexItem> findByQuery(Criteria queryCriteria, User currentUser, ItemSearchOrder order, Pageable pageable) {
         SimpleFacetQuery facetQuery = new SimpleFacetQuery(queryCriteria)
                 .addProjectionOnFields(
                         IndexItem.ID_FIELD,
@@ -110,15 +110,15 @@ public class SearchItemRepository {
         return new SimpleFilterQuery(visibilityCriteria);
     }
 
-    private List<Sort.Order> createQueryOrder(List<SearchOrder> order) {
+    private List<Sort.Order> createQueryOrder(List<ItemSearchOrder> order) {
         List<Sort.Order> result = new ArrayList<>();
-        for (SearchOrder o : order) {
+        for (ItemSearchOrder o : order) {
             result.add(createQueryOrder(o));
         }
         return result;
     }
 
-    private Sort.Order createQueryOrder(SearchOrder order) {
+    private Sort.Order createQueryOrder(ItemSearchOrder order) {
         String name = order.getValue().replace('-', '_');
         if (order.isAsc()) {
             return Sort.Order.asc(name);
@@ -162,14 +162,14 @@ public class SearchItemRepository {
             SuggesterResponse response = solrTemplate.getSolrClient().query(params).getSuggesterResponse();
 
             List<Suggestion> rawPayload = response.getSuggestions().get("itemSearch");
-            return prepareSuggestions(rawPayload, 10);
+            return prepareSuggestions(rawPayload);
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException("Search engine instance connection error", e);
         }
     }
 
 
-    private List<SuggestedObject> prepareSuggestions(List<Suggestion> rawPayload, int limit) {
+    private List<SuggestedObject> prepareSuggestions(List<Suggestion> rawPayload) {
         return rawPayload.stream().map(s -> new SuggestedObject(s.getTerm(), s.getPayload()))
                 .distinct().limit(10)
                 .collect(Collectors.toList());

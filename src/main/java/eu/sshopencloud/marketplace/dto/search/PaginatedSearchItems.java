@@ -19,7 +19,7 @@ public class PaginatedSearchItems extends PaginatedResult<SearchItem> {
 
     private String q;
 
-    private List<SearchOrder> order;
+    private List<ItemSearchOrder> order;
 
     private List<SearchItem> items;
 
