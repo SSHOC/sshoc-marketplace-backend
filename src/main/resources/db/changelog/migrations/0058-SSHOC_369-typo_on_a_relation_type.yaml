@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_369-typo_on_a_relation_type
+      author: tparkola
+      description: Changes label of extends relation
+      changes:
+          - sql:
+                sql: update item_relations set label='Extends' where code='extends';
+
