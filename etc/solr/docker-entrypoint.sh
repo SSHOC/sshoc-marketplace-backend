@@ -17,4 +17,4 @@ if [ ! -d $SOLR_MARKETPLACE_ACTORS_DIR ]; then
 fi
 
 # Execute parent entrypoint script
-/opt/docker-solr/scripts/docker-entrypoint.sh "$@"
+exec /opt/docker-solr/scripts/docker-entrypoint.sh "$@"

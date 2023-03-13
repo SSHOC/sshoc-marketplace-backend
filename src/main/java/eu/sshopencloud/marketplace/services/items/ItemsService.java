@@ -135,7 +135,7 @@ public class ItemsService extends ItemVersionService<Item> {
         Criteria queryCriteria = new SimpleStringCriteria(queryBuilder.toString());
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        FacetPage<IndexItem> facetPage = searchItemRepository.findByQuery(queryCriteria, currentUser, SearchOrder.LABEL, pageable);
+        FacetPage<IndexItem> facetPage = searchItemRepository.findByQuery(queryCriteria, currentUser, ItemSearchOrder.LABEL, pageable);
 
         return PaginatedSearchItemsBasic.builder()
                 .items(

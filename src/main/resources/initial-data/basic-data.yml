@@ -25,44 +25,55 @@ ActorRole:
     label:                       Author
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
-    code:                        reviewer
+    code:                        creator
     ord:                         3
+    label:                       Creator
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        reviewer
+    ord:                         4
     label:                       Reviewer
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        director
-    ord:                         4
+    ord:                         5
     label:                       Director
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        programmer
-    ord:                         5
+    ord:                         6
     label:                       Programmer
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        editor
-    ord:                         6
+    ord:                         7
     label:                       Editor
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        provider
-    ord:                         7
+    ord:                         8
     label:                       Provider
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        contact
-    ord:                         8
+    ord:                         9
     label:                       Contact
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        funder
-    ord:                         9
+    ord:                         10
     label:                       Funder
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorRole
+    code:                        curator
+    ord:                         11
+    label:                       Curator
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorRole
     code:                        helpdesk
-    ord:                         10
+    ord:                         12
     label:                       Helpdesk
+
 
 ItemRelation:
 
@@ -147,7 +158,7 @@ ItemRelation:
   - !!eu.sshopencloud.marketplace.model.items.ItemRelation
     code:                        extends
     ord:                         7
-    label:                       Enxtends
+    label:                       Extends
 
   - !!eu.sshopencloud.marketplace.model.items.ItemRelation
     code:                        is-extended-by
@@ -157,7 +168,7 @@ ItemRelation:
   - !!eu.sshopencloud.marketplace.model.items.ItemRelation
     code:                        extends
     ord:                         7
-    label:                       Enxtends
+    label:                       Extends
     inverseOf:
       !!eu.sshopencloud.marketplace.model.items.ItemRelation
       code:                          is-extended-by
@@ -245,7 +256,7 @@ Source:
 
   - !!eu.sshopencloud.marketplace.model.sources.Source
     id:                          2
-    label:                       "Programming Historian"
+    label:                       "The Programming Historian"
     url:                         "https://programminghistorian.org"
     urlTemplate:                 "https://programminghistorian.org/en/lessons/{source-item-id}"
     domain:                      "programminghistorian.org"
@@ -255,37 +266,69 @@ ActorSource:
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorSource
     code:                        ORCID
-    label:                       ORCID
+    label:                       "ORCID"
     ord:                         1
+    urlTemplate:                 "https://orcid.org/{source-actor-id}"
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorSource
     code:                        DBLP
-    label:                       DBLP
+    label:                       "dblp"
     ord:                         2
+    urlTemplate:                 "https://dblp.org/pid/{source-actor-id}"
 
   - !!eu.sshopencloud.marketplace.model.actors.ActorSource
     code:                        Wikidata
-    label:                       Wikidata
+    label:                       "Wikidata"
     ord:                         3
+    urlTemplate:                 "https://www.wikidata.org/wiki/{source-actor-id}"
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorSource
+    code:                        GitHub
+    label:                       "GitHub"
+    ord:                         4
+    urlTemplate:                 "https://github.com/{source-actor-id}"
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorSource
+    code:                        Twitter
+    label:                       "Twitter"
+    ord:                         5
+    urlTemplate:                 "https://twitter.com/{source-actor-id}"
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorSource
+    code:                        ROR
+    label:                       "ROR"
+    ord:                         6
+    urlTemplate:                 "https://ror.org/{source-actor-id}"
+
+  - !!eu.sshopencloud.marketplace.model.actors.ActorSource
+    code:                        SourceActorId
+    label:                       "Source ActorId"
+    ord:                         7
+    urlTemplate:                 ""
 
 ItemSource:
+
   - !!eu.sshopencloud.marketplace.model.items.ItemSource
     code:                        Wikidata
-    label:                       Wikidata
+    label:                       "Wikidata"
     ord:                         1
+    urlTemplate:                 "https://www.wikidata.org/wiki/{source-item-id}"
 
   - !!eu.sshopencloud.marketplace.model.items.ItemSource
     code:                        GitHub
-    label:                       GitHub
+    label:                       "GitHub"
     ord:                         2
+    urlTemplate:                 "https://github.com/{source-item-id}"
 
   - !!eu.sshopencloud.marketplace.model.items.ItemSource
     code:                        doi
-    label:                       DOI
+    label:                       "DOI"
     ord:                         3
+    urlTemplate:                 "https://doi.org/{source-item-id}"
 
 
 MediaSource:
+
   - !!eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore
     code:                        youtube
     serviceUrl:                  https://www.youtube.com/watch

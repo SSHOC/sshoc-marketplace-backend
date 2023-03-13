@@ -145,12 +145,20 @@ PropertyType:
     ord:                         18
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        discipline
+    label:                       Discipline
+    type:                        CONCEPT
+    groupName:                   'Categorisation'
+    hidden:                      false
+    ord:                         19
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        language
     label:                       Language
     type:                        CONCEPT
     groupName:                   'Categorisation'
     hidden:                      false
-    ord:                         19
+    ord:                         20
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        tool-family
@@ -158,7 +166,7 @@ PropertyType:
     type:                        STRING
     groupName:                   'Categorisation'
     hidden:                      false
-    ord:                         20
+    ord:                         21
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        mode-of-use
@@ -166,7 +174,47 @@ PropertyType:
     type:                        CONCEPT
     groupName:                   'Categorisation'
     hidden:                      false
-    ord:                         21
+    ord:                         22
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        object-format
+    label:                       Object format
+    type:                        CONCEPT
+    groupName:                   'Categorisation'
+    hidden:                      false
+    ord:                         23
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        extent
+    label:                       Extent
+    type:                        STRING
+    groupName:                   'Categorisation'
+    hidden:                      false
+    ord:                         24
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        intended-audience
+    label:                       Intended audience
+    type:                        CONCEPT
+    groupName:                   'Categorisation'
+    hidden:                      false
+    ord:                         25
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        standard
+    label:                       Standard
+    type:                        CONCEPT
+    groupName:                   'Categorisation'
+    hidden:                      false
+    ord:                         26
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        resource-category
+    label:                       Resource category
+    type:                        CONCEPT
+    groupName:                   'Categorisation'
+    hidden:                      false
+    ord:                         27
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        see-also
@@ -174,7 +222,7 @@ PropertyType:
     type:                        URL
     groupName:                   'Context'
     hidden:                      false
-    ord:                         22
+    ord:                         28
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        user-manual-url
@@ -182,7 +230,7 @@ PropertyType:
     type:                        URL
     groupName:                   'Context'
     hidden:                      false
-    ord:                         23
+    ord:                         29
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        helpdesk-url
@@ -190,7 +238,7 @@ PropertyType:
     type:                        URL
     groupName:                   'Context'
     hidden:                      false
-    ord:                         24
+    ord:                         30
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        service-level-url
@@ -198,15 +246,7 @@ PropertyType:
     type:                        URL
     groupName:                   'Context'
     hidden:                      false
-    ord:                         25
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        HTTP-status-code
-    label:                       HTTP Status Code
-    type:                        STRING
-    groupName:                   'Curation'
-    hidden:                      true
-    ord:                         26
+    ord:                         31
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        processed-at
@@ -214,7 +254,7 @@ PropertyType:
     type:                        DATE
     groupName:                   'Curation'
     hidden:                      true
-    ord:                         27
+    ord:                         32
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
     code:                        deprecated-at-source
@@ -222,62 +262,22 @@ PropertyType:
     type:                        BOOLEAN
     groupName:                   'Curation'
     hidden:                      true
-    ord:                         28
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        life-cycle-status
-    label:                       Life Cycle Status
-    type:                        STRING
-    groupName:                   'Technical'
-    hidden:                      false
-    ord:                         29
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        technical-readiness-level
-    label:                       Technical Readiness Level
-    type:                        STRING
-    groupName:                   'Technical'
-    hidden:                      false
-    ord:                         30
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        version
-    label:                       Version
-    type:                        STRING
-    groupName:                   'Technical'
-    hidden:                      false
-    ord:                         31
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        object-format
-    label:                       Object format
-    type:                        CONCEPT
-    groupName:                   ''
-    hidden:                      false
-    ord:                         32
-
-  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        thumbnail
-    label:                       Thumbnail
-    type:                        URL
-    groupName:                   ''
-    hidden:                      false
     ord:                         33
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        timestamp
-    label:                       Timestamp
-    type:                        DATE
-    groupName:                   ''
-    hidden:                      false
+    code:                        curation-detail
+    label:                       Curate details
+    type:                        STRING
+    groupName:                   'Curation'
+    hidden:                      true
     ord:                         34
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
-    code:                        source-last-update
-    label:                       Source last update
-    type:                        STRING
-    groupName:                   ''
-    hidden:                      false
+    code:                        curation-flag-url
+    label:                       Curate URL
+    type:                        BOOLEAN
+    groupName:                   'Curation'
+    hidden:                      true
     ord:                         35
 
   - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
@@ -287,3 +287,59 @@ PropertyType:
     groupName:                   'Curation'
     hidden:                      true
     ord:                         36
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        curation-flag-description
+    label:                       Curate description
+    type:                        BOOLEAN
+    groupName:                   'Curation'
+    hidden:                      true
+    ord:                         37
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        curation-flag-coverage
+    label:                       Curate coverage
+    type:                        BOOLEAN
+    groupName:                   'Curation'
+    hidden:                      true
+    ord:                         38
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        curation-flag-relations
+    label:                       Curate relations
+    type:                        BOOLEAN
+    groupName:                   'Curation'
+    hidden:                      true
+    ord:                         39
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        life-cycle-status
+    label:                       Life Cycle Status
+    type:                        CONCEPT
+    groupName:                   'Technical'
+    hidden:                      false
+    ord:                         40
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        technology-readiness-level
+    label:                       Technology Readiness Level
+    type:                        STRING
+    groupName:                   'Technical'
+    hidden:                      false
+    ord:                         41
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        version
+    label:                       Version
+    type:                        STRING
+    groupName:                   'Technical'
+    hidden:                      false
+    ord:                         42
+
+  - !!eu.sshopencloud.marketplace.model.vocabularies.PropertyType
+    code:                        source-last-update
+    label:                       Source last update
+    type:                        STRING
+    groupName:                   ''
+    hidden:                      false
+    ord:                         43

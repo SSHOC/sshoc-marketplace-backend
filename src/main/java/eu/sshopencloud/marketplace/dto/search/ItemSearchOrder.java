@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.dto.search;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum SearchOrder {
+public enum ItemSearchOrder {
 
     SCORE(false),
 
@@ -10,9 +10,9 @@ public enum SearchOrder {
 
     MODIFIED_ON(false);
 
-    private boolean asc;
+    private final boolean asc;
 
-    SearchOrder(boolean asc) {
+    ItemSearchOrder(boolean asc) {
         this.asc = asc;
     }
 

@@ -1,0 +1,74 @@
+{{- $_ := set . "namePrefix" "solr" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "labels" . | nindent 4 }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+  name: {{ template "fullname" . }}-solr
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      {{- include "selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        cattle.io/timestamp: '2023-02-14T15:20:13Z'
+      creationTimestamp: null
+      labels:
+        {{- include "selectorLabels" . | nindent 8 }}
+    spec:
+      affinity: {}
+      containers:
+        - env:
+            - name: SOLR_OPTS
+              value: '-XX:-UseLargePages -Dsolr.lock.type=single'
+          image: "{{ .Values.image.repository }}-solr:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          name: solr
+          ports:
+            - containerPort: 8983
+              name: solr
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/solr/data
+              name: solr-data
+      dnsPolicy: ClusterFirst
+      initContainers:
+        - args:
+            - 'chown 8983:8983 /var/solr/data'
+          command:
+            - /bin/sh
+            - '-c'
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          name: chown8983
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities: {}
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsUser: 0
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/solr/data
+              name: solr-data
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: solr-data
+          persistentVolumeClaim:
+            claimName: {{ print ( include "fullname" . ) "-solr-data" | quote }}
+{{- $_ := unset . "namePrefix" -}}
