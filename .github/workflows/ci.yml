@@ -121,7 +121,7 @@ jobs:
       submodules: ${{ needs.setup_workflow_env.outputs.submodules }}
   _3_stage:
     needs: [setup_workflow_env, _1]
-    if: ${{ needs.setup_workflow_env.outputs.environment}} == 'review/develop'
+    if: ${{ needs.setup_workflow_env.outputs.environment == 'review/develop' }}
     uses: SSHOC/gl-autodevops-minimal-port/.github/workflows/deploy-cluster-2.yml@main
     secrets: inherit
     with:
