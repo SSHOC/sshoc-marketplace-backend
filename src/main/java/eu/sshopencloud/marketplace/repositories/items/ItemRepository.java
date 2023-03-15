@@ -1,11 +1,8 @@
 package eu.sshopencloud.marketplace.repositories.items;
 
 import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -106,6 +103,6 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
             "    WHERE i.info_contributor_id = :contributorId", nativeQuery = true)
     List<Long> getContributedItemsIds(Long contributorId);
 
-    @Query("select item from Item item where item.id in :idList AND item.status in :itemStatusList AND item.category <> :toExclude ")
-    Page<Item> findByIdInAndStatusIsInExcludeCategory(@Param("idList") List<Long> idList, @Param("itemStatusList") List<ItemStatus> itemStatusList, ItemCategory toExclude, Pageable pageable);
+    @Query("select i from Item i where i.id in :idList AND i.status in :itemStatusList AND i.category <> 'STEP' ")
+    List<Item> findByIdInAndStatusIsIn(@Param("idList") List<Long> idList, @Param("itemStatusList") List<ItemStatus> itemStatusList);
 }
