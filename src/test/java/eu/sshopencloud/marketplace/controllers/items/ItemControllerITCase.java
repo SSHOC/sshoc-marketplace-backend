@@ -112,9 +112,9 @@ public class ItemControllerITCase {
                         .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(2)))
-                .andExpect(jsonPath("items[0].label", is(tool2.getLabel())))
+                .andExpect(jsonPath("items[0].label", is(tool.getLabel())))
                 .andExpect(jsonPath("items[0].lastInfoUpdate", notNullValue()))
-                .andExpect(jsonPath("items[1].label", is(tool.getLabel())))
+                .andExpect(jsonPath("items[1].label", is(tool2.getLabel())))
                 .andExpect(jsonPath("items[1].lastInfoUpdate", notNullValue()));
     }
 
