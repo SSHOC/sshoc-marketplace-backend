@@ -79,11 +79,13 @@ public class ItemExternalIdFactory {
             return null;
         }
 
-        List<ItemExternalId> externalIds = itemExternalIdRepository.findAllByIdentifierAndIdentifierService(
-                externalId.getIdentifier(), itemSource.get());
+        if (Objects.nonNull(item.getId())) {
+            Optional<ItemExternalId> existingExternalId = itemExternalIdRepository.findByIdentifierAndIdentifierServiceAndItem(
+                    externalId.getIdentifier(), itemSource.get(), item);
 
-        if (Objects.nonNull(externalIds) && !externalIds.isEmpty()) {
-            return externalIds.get(0);
+            if (existingExternalId.isPresent()) {
+                return existingExternalId.get();
+            }
         }
 
         return new ItemExternalId(itemSource.get(), externalId.getIdentifier(), item);
