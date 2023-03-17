@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemExternalIdCore;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemExternalId;
 import eu.sshopencloud.marketplace.model.items.ItemSource;
+import eu.sshopencloud.marketplace.repositories.items.ItemExternalIdRepository;
 import eu.sshopencloud.marketplace.services.items.ItemSourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ItemExternalIdFactory {
 
     private final ItemSourceService itemSourceService;
+    private final ItemExternalIdRepository itemExternalIdRepository;
 
 
     public List<ItemExternalId> create(List<ItemExternalIdCore> externalIds, Item item, Errors errors) {
@@ -75,6 +77,15 @@ public class ItemExternalIdFactory {
             );
 
             return null;
+        }
+
+        if (Objects.nonNull(item.getId())) {
+            Optional<ItemExternalId> existingExternalId = itemExternalIdRepository.findByIdentifierAndIdentifierServiceAndItem(
+                    externalId.getIdentifier(), itemSource.get(), item);
+
+            if (existingExternalId.isPresent()) {
+                return existingExternalId.get();
+            }
         }
 
         return new ItemExternalId(itemSource.get(), externalId.getIdentifier(), item);
