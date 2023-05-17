@@ -13,13 +13,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
-public class PaginatedItemsBasic extends PaginatedResult<ItemBasicDto> {
+public class PaginatedItemsBasic<T extends ItemBasicDto> extends PaginatedResult<T> {
 
-    private List<ItemBasicDto> items;
+    private List<T> items;
 
     @Override
     @JsonGetter("items")
-    public List<ItemBasicDto> getResults() {
+    public List<T> getResults() {
         return items;
     }
 

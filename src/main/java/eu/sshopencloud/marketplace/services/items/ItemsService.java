@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.items;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.dto.search.ItemSearchOrder;
@@ -75,7 +76,7 @@ public class ItemsService extends ItemVersionService<Item> {
     }
 
 
-    public PaginatedItemsBasic getMyDraftItems(ItemOrder order, PageCoords pageCoords) {
+    public PaginatedItemsBasic<ItemBasicDto> getMyDraftItems(ItemOrder order, PageCoords pageCoords) {
         if (order == null) order = ItemOrder.MODIFIED_ON;
 
         Page<DraftItem> draftItemsPage = draftItemRepository.findAllByOwnerExcludeCategory(
@@ -245,7 +246,7 @@ public class ItemsService extends ItemVersionService<Item> {
     }
 
 
-    public PaginatedItemsBasic getDeletedItems(ItemOrder order, PageCoords pageCoords) {
+    public PaginatedItemsBasic<ItemBasicDto> getDeletedItems(ItemOrder order, PageCoords pageCoords) {
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
 
@@ -268,7 +269,7 @@ public class ItemsService extends ItemVersionService<Item> {
     }
 
 
-    public PaginatedItemsBasic getContributedItems(ItemOrder order, PageCoords pageCoords) {
+    public PaginatedItemsBasic<ItemExtBasicDto> getContributedItems(ItemOrder order, PageCoords pageCoords) {
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
         if (currentUser == null )
@@ -283,7 +284,7 @@ public class ItemsService extends ItemVersionService<Item> {
                 PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(),
                         Sort.by(getSortOrderByItemOrder(order, true))));
 
-        return PaginatedItemsBasic.builder().items(ItemConverter.convertItem(page))
+        return PaginatedItemsBasic.<ItemExtBasicDto>builder().items(ItemConverter.convertItemsToExtBasic(page))
                 .count(page.getContent().size()).hits(page.getTotalElements())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
                 .pages(page.getTotalPages())

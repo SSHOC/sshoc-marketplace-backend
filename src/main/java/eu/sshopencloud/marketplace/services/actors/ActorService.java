@@ -49,7 +49,8 @@ public class ActorService {
     public PaginatedActors getActors(PageCoords pageCoords) {
 
         Page<Actor> actorsPage = actorRepository.findAll(
-                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("name"))));
+                PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(),
+                        Sort.by(Sort.Order.asc("name")).and(Sort.by(Sort.Order.asc("id")))));
 
         List<ActorDto> actors = actorsPage.stream().map(ActorMapper.INSTANCE::toDto).collect(Collectors.toList());
 

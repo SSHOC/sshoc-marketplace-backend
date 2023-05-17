@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.controllers.items;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
+import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemOrder;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.services.items.*;
@@ -22,7 +24,7 @@ public class ItemController {
 
     @Operation(summary = "Get all draft-items available in pages")
     @GetMapping(path = "/draft-items", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedItemsBasic> getMyDraftItems(@RequestParam(value = "order", required = false) ItemOrder order,
+    public ResponseEntity<PaginatedItemsBasic<ItemBasicDto>> getMyDraftItems(@RequestParam(value = "order", required = false) ItemOrder order,
                                                                @RequestParam(value = "page", required = false) Integer page,
                                                                @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
@@ -32,7 +34,7 @@ public class ItemController {
 
     @Operation(summary = "Get all deleted-items available in pages")
     @GetMapping(path = "/deleted-items", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedItemsBasic> getDeletedItems(@RequestParam(value = "order", required = false) ItemOrder order,
+    public ResponseEntity<PaginatedItemsBasic<ItemBasicDto>> getDeletedItems(@RequestParam(value = "order", required = false) ItemOrder order,
                                                                @RequestParam(value = "page", required = false) Integer page,
                                                                @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
@@ -41,7 +43,7 @@ public class ItemController {
 
     @Operation(summary = "Get all contributed-items available in pages")
     @GetMapping(path = "/contributed-items", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedItemsBasic> getContributedItems(@RequestParam(value = "order", required = false) ItemOrder order,
+    public ResponseEntity<PaginatedItemsBasic<ItemExtBasicDto>> getContributedItems(@RequestParam(value = "order", required = false) ItemOrder order,
                                                                @RequestParam(value = "page", required = false) Integer page,
                                                                @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
