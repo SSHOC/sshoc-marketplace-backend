@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -16,6 +17,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -143,12 +145,12 @@ public class RDFModelPrinter {
                 .subject(concept.getUri())
                 .add(RDF.TYPE, SKOS.CONCEPT);
 
-        if (!concept.getNotation().isBlank()) {
+        if (Strings.isNotBlank(concept.getNotation())) {
             builder.subject(concept.getUri()).add(SKOS.NOTATION,
                     factory.createLiteral(concept.getNotation()));
         }
 
-        if (!concept.getDefinitions().isEmpty()) {
+        if (Objects.nonNull(concept.getDefinitions()) && !concept.getDefinitions().isEmpty()) {
             concept.getDefinitions().forEach(
                     (key, value) ->
                             builder.subject(concept.getUri())
@@ -162,7 +164,7 @@ public class RDFModelPrinter {
         builder.subject(concept.getUri())
                 .add(SKOS.IN_SCHEME, scheme);
 
-        if (!concept.getLabels().isEmpty()) {
+        if (Objects.nonNull(concept.getLabels()) && !concept.getLabels().isEmpty()) {
             concept.getLabels().forEach(
                     (key, value) ->
                             builder.subject(concept.getUri())
