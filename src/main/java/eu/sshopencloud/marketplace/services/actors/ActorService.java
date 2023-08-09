@@ -9,7 +9,9 @@ import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
+import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
+import eu.sshopencloud.marketplace.repositories.items.ItemSourceRepository;
 import eu.sshopencloud.marketplace.services.actors.event.ActorChangedEvent;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemsService;
@@ -18,12 +20,14 @@ import eu.sshopencloud.marketplace.validators.actors.ActorFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -104,9 +108,20 @@ public class ActorService {
     }
 
 
-    public void deleteActor(Long id) {
+    public void deleteActor(Long id, boolean force) {
         if (!actorRepository.existsById(id)) {
             throw new EntityNotFoundException("Unable to find " + Actor.class.getName() + " with id " + id);
+        }
+        if (force) {
+            User user = LoggedInUserHolder.getLoggedInUser();
+            if (Objects.isNull(user) || !user.isAdministrator()) {
+                throw new AccessDeniedException("Only administrator can use force delete!");
+            }
+            if (itemsService.isContributorOfActiveItem(id)) {
+                throw new IllegalArgumentException("Cannot delete actors that are contributors of active items!");
+            } else {
+                itemsService.removeActorFromAllItems(id);
+            }
         }
         actorRepository.deleteById(id);
         indexActorService.removeActor(id);
@@ -153,7 +168,7 @@ public class ActorService {
         indexActor.indexActor(actor);
         eventPublisher.publishEvent(new ActorChangedEvent(id, false));
 
-        with.forEach(this::deleteActor);
+        with.forEach(mergedId -> deleteActor(mergedId, false));
 
         ActorDto actorDto = ActorMapper.INSTANCE.toDto(actor);
         if (LoggedInUserHolder.getLoggedInUser() ==null || !LoggedInUserHolder.getLoggedInUser().isModerator()) actorDto.setEmail(null);

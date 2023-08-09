@@ -306,4 +306,11 @@ public class ItemsService extends ItemVersionService<Item> {
         return Item.class.getName();
     }
 
+    public boolean isContributorOfActiveItem(Long id) {
+        return itemRepository.countActiveItemsByContributorId(id) > 0;
+    }
+
+    public void removeActorFromAllItems(Long id) {
+        itemContributorRepository.deleteByActorId(id);
+    }
 }
