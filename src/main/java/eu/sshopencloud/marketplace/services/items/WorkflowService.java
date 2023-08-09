@@ -399,14 +399,17 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         ItemsDifferencesDto differencesDto = super.getDifferences(workflowPersistentId, workflowVersionId, otherPersistentId, otherVersionId);
 
         if (differencesDto.getItem().getCategory().equals(ItemCategory.WORKFLOW) && differencesDto.getOther().getCategory().equals(ItemCategory.WORKFLOW)) {
+            if (workflowVersionId != null) {
+                collectSteps((WorkflowDto) differencesDto.getItem(), super.loadItemVersionForCurrentUser(workflowPersistentId, workflowVersionId));
+            } else {
+                collectSteps((WorkflowDto) differencesDto.getItem(), super.loadLatestItem(workflowPersistentId));
+            }
 
-            if (workflowVersionId != null)
-                collectSteps((WorkflowDto) differencesDto.getItem(), super.loadItemVersion(workflowPersistentId, workflowVersionId));
-            else collectSteps((WorkflowDto) differencesDto.getItem(), super.loadCurrentItem(workflowPersistentId));
-
-            if (otherVersionId != null)
-                collectSteps((WorkflowDto) differencesDto.getOther(), super.loadItemVersion(otherPersistentId, otherVersionId));
-            collectSteps((WorkflowDto) differencesDto.getOther(), super.loadCurrentItem(otherPersistentId));
+            if (otherVersionId != null) {
+                collectSteps((WorkflowDto) differencesDto.getOther(), super.loadItemVersionForCurrentUser(otherPersistentId, otherVersionId));
+            } else {
+                collectSteps((WorkflowDto) differencesDto.getOther(), super.loadLatestItem(otherPersistentId));
+            }
 
             return super.differentiateComposedOf((WorkflowDto) differencesDto.getItem(), (WorkflowDto) differencesDto.getOther(), differencesDto);
         } else return differencesDto;
