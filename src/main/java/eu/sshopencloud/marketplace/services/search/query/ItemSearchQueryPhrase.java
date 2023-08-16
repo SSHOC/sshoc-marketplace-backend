@@ -27,6 +27,7 @@ public class ItemSearchQueryPhrase extends SearchQueryPhrase {
                 Criteria labelTextEnCriteria = Criteria.where(IndexItem.LABEL_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
                 Criteria descTextEnCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_EN_FIELD).boost(1f).is(queryPart.getExpression());
                 Criteria keywordTextCriteria = Criteria.where(IndexItem.KEYWORD_TEXT_FIELD).boost(2f).is(queryPart.getExpression());
+                Criteria contributorTextCriteria = Criteria.where(IndexItem.CONTRIBUTOR_TEXT_FIELD).boost(1f).is(queryPart.getExpression());
                 Criteria orCriteria;
 
                 if (!queryPart.isQuotedPhrase()) {
@@ -34,10 +35,10 @@ public class ItemSearchQueryPhrase extends SearchQueryPhrase {
                     Criteria descTextCriteria = Criteria.where(IndexItem.DESCRIPTION_TEXT_FIELD).boost(1f).contains(queryPart.getExpression());
 
                     orCriteria = persistentIdCriteria.or(externalIdCriteria).or(labelTextCriteria).or(descTextCriteria)
-                            .or(labelTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria);
+                            .or(labelTextEnCriteria).or(descTextEnCriteria).or(keywordTextCriteria).or(contributorTextCriteria);
                 } else {
                     orCriteria = persistentIdCriteria.or(externalIdCriteria).or(labelTextEnCriteria).or(descTextEnCriteria)
-                            .or(keywordTextCriteria);
+                            .or(keywordTextCriteria).or(contributorTextCriteria);
 
                 }
 
