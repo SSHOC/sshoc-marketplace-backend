@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.*;
+import eu.sshopencloud.marketplace.dto.items.ItemContributorDto;
+import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -592,6 +594,67 @@ public class ActorControllerITCase {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void shouldForceDeleteActor() throws Exception {
+        ActorCore actor = new ActorCore();
+        actor.setName("Actor to delete");
+        actor.setEmail("test@example.org");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/actors")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String gephi = mvc.perform(get("/api/tools-services/{id}", "Xgufde")
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        ActorDto actorDto = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, ActorDto.class);
+
+        ToolDto gephiTool = TestJsonMapper.serializingObjectMapper().readValue(gephi, ToolDto.class);
+        List<ItemContributorDto> originalContributors = new ArrayList<>(gephiTool.getContributors());
+        List<ItemContributorDto> newContributors = new ArrayList<>(gephiTool.getContributors());
+        ItemContributorDto newContributor = new ItemContributorDto();
+        newContributor.setActor(actorDto);
+        ActorRoleDto actorRoleDto = new ActorRoleDto();
+        actorRoleDto.setCode("contributor");
+        actorRoleDto.setLabel("Contributor");
+        actorRoleDto.setOrd(1);
+        newContributor.setRole(actorRoleDto);
+        newContributors.add(newContributor);
+        gephiTool.setContributors(newContributors);
+
+        String payloadGehpi = TestJsonMapper.serializingObjectMapper().writeValueAsString(gephiTool);
+
+        mvc.perform(put("/api/tools-services/{id}", gephiTool.getPersistentId())
+                        .content(payloadGehpi)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk());
+
+        gephiTool.setContributors(originalContributors);
+        payloadGehpi = TestJsonMapper.serializingObjectMapper().writeValueAsString(gephiTool);
+
+        mvc.perform(put("/api/tools-services/{id}", gephiTool.getPersistentId())
+                        .content(payloadGehpi)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk());
+
+        Long actorId = actorDto.getId();
+
+        mvc.perform(delete("/api/actors/{id}?force=true", actorId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk());
     }
 
     @Test

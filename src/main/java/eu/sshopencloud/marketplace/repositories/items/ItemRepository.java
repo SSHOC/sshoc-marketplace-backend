@@ -78,6 +78,11 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     @Query("select v from Item v join v.contributors c where c.actor.id = :actorId ")
     List<Item> findByContributorActorId(@Param("actorId") Long actorId);
 
+    @Query("SELECT count(v) FROM Item v,  ItemContributor c, VersionedItem vi WHERE" +
+            " c.item = v AND vi.currentVersion = v" +
+            " AND c.actor.id = :actorId AND vi.active = true")
+    int countActiveItemsByContributorId(@Param("actorId") Long actorId);
+
 
     @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept = :concept")
     List<Item> findAllByMediaConcept(@Param("concept") Concept concept);

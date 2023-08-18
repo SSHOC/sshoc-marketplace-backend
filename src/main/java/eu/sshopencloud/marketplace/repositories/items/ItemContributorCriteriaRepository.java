@@ -6,8 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
@@ -62,4 +64,16 @@ public class ItemContributorCriteriaRepository {
         return query.getResultList();
     }
 
+    public int deleteByActorId(Long actorId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaDelete<ItemContributor> criteriaDelete = cb.createCriteriaDelete(ItemContributor.class);
+        Root<ItemContributor> rootItemContributor = criteriaDelete.from(ItemContributor.class);
+        criteriaDelete.where(
+                cb.and(
+                        cb.equal(rootItemContributor.get("actor").get("id"), actorId)
+                )
+        );
+        Query query = entityManager.createQuery(criteriaDelete);
+        return query.executeUpdate();
+    }
 }
