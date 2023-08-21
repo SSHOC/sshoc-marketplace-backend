@@ -57,10 +57,12 @@ public class ActorController {
     }
 
 
-    @Operation(summary = "Delete actor by given id")
+    @Operation(summary = "Delete actor by given id. Force delete can be used by administrators only.")
     @DeleteMapping(path = "/{id}")
-    public void deleteActor(@PathVariable("id") long id) {
-        actorService.deleteActor(id);
+    public void deleteActor(
+            @PathVariable("id") long id,
+            @RequestParam(value = "force", required = false, defaultValue = "false") boolean force) {
+        actorService.deleteActor(id, force);
     }
 
 

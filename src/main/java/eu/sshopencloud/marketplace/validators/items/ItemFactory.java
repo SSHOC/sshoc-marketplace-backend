@@ -67,7 +67,7 @@ public class ItemFactory {
             Property property = new Property();
             PropertyType propertyType = propertyTypeRepository.findById("conflict-at-source").get();
             property.setType(propertyType);
-            property.setValue("true");
+            property.setValue("TRUE");
             properties.add(property);
         }
         item.setProperties(properties);

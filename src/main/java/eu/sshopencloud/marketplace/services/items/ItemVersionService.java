@@ -16,8 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -29,17 +27,18 @@ abstract class ItemVersionService<I extends Item> {
     private final ItemVisibilityService itemVisibilityService;
 
     protected Page<I> loadLatestItems(PageCoords pageCoords, User user, boolean approved) {
-        PageRequest pageRequest = PageRequest.of(
-                pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(Sort.Order.asc("label"))
-        );
+        PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(),
+                Sort.by(Sort.Order.asc("label")));
 
         ItemVersionRepository<I> itemRepository = getItemRepository();
 
-        if (approved || user == null)
+        if (approved || user == null) {
             return itemRepository.findAllLatestApprovedItems(pageRequest);
+        }
 
-        if (user.isModerator())
+        if (user.isModerator()) {
             return itemRepository.findAllLatestItems(pageRequest);
+        }
 
         return itemRepository.findUserLatestItems(user, pageRequest);
     }
@@ -48,15 +47,8 @@ abstract class ItemVersionService<I extends Item> {
      * Loads the most recent item for presentation purposes i.e. an approved item
      */
     protected I loadLatestItem(String persistentId) {
-        return tryLoadLatestItem(persistentId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                String.format(
-                                        "Unable to find latest approved %s with id %s",
-                                        getItemTypeName(), persistentId
-                                )
-                        )
-                );
+        return tryLoadLatestItem(persistentId).orElseThrow(() -> new EntityNotFoundException(
+                String.format("Unable to find latest approved %s with id %s", getItemTypeName(), persistentId)));
     }
 
     protected Optional<I> tryLoadLatestItem(String persistentId) {
@@ -71,15 +63,8 @@ abstract class ItemVersionService<I extends Item> {
         // Here - why not to load VersionedItem, and then do getCurrentVersion() ?
         // Because getCurrentVersion() returns Item, and we want the generic item type I
         // Hence, there is a dedicated method in the repository - do not remove
-        return getItemRepository().findCurrentVersion(persistentId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                String.format(
-                                        "Unable to find current %s with id %s",
-                                        getItemTypeName(), persistentId
-                                )
-                        )
-                );
+        return getItemRepository().findCurrentVersion(persistentId).orElseThrow(() -> new EntityNotFoundException(
+                String.format("Unable to find current %s with id %s", getItemTypeName(), persistentId)));
     }
 
 
@@ -87,80 +72,79 @@ abstract class ItemVersionService<I extends Item> {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
 
         if (currentUser == null) {
-            if (authorize)
+            if (authorize) {
                 throw new AccessDeniedException("Cannot access unapproved item for an unauthorized user");
+            }
 
             return loadLatestItem(persistentId);
         }
 
         I item = loadCurrentItem(persistentId);
         while (item != null) {
-            if (itemVisibilityService.hasAccessToVersion(item, currentUser))
+            if (itemVisibilityService.hasAccessToVersion(item, currentUser)) {
                 return item;
+            }
 
-            if (item.getStatus().equals(ItemStatus.DEPRECATED))
+            if (item.getStatus().equals(ItemStatus.DEPRECATED)) {
                 break;
+            }
 
             item = (I) item.getPrevVersion();
         }
 
         throw new EntityNotFoundException(
-                String.format("Unable to find latest %s with id %s", getItemTypeName(), persistentId)
-        );
+                String.format("Unable to find latest %s with id %s", getItemTypeName(), persistentId));
     }
 
     protected Optional<I> loadItemDraft(String persistentId, @NonNull User draftOwner) {
         if (!versionedItemRepository.existsById(persistentId)) {
             log.error("Exception " +
-                    String.format("Unable to find draft %s with id %s", getItemTypeName(), persistentId)
-            );
+                    String.format("Unable to find draft %s with id %s", getItemTypeName(), persistentId));
         }
 
         return getItemRepository().findDraftVersion(persistentId, draftOwner);
     }
 
     protected I loadItemDraftForCurrentUser(String persistentId) {
-        return resolveItemDraftForCurrentUser(persistentId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                String.format(
-                                        "Unable to find draft %s with id %s for the authorized user",
-                                        getItemTypeName(), persistentId
-                                )
-                        )
-                );
+        return resolveItemDraftForCurrentUser(persistentId).orElseThrow(() -> new EntityNotFoundException(
+                String.format("Unable to find draft %s with id %s for the authorized user", getItemTypeName(),
+                        persistentId)));
     }
 
     protected Optional<I> resolveItemDraftForCurrentUser(String persistentId) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        if (currentUser == null)
+        if (currentUser == null) {
             throw new AccessDeniedException("Cannot access draft item for an unauthorized user");
+        }
 
         return loadItemDraft(persistentId, currentUser);
     }
 
     protected I loadItemForCurrentUser(String persistentId) {
-        return resolveItemDraftForCurrentUser(persistentId)
-                .orElseGet(() -> loadCurrentItem(persistentId));
+        return resolveItemDraftForCurrentUser(persistentId).orElseGet(() -> loadCurrentItem(persistentId));
     }
 
 
     protected I loadDraftOrLatestItemForCurrentUser(String persistentId) {
-        return resolveItemDraftForCurrentUser(persistentId)
-                .orElseGet(() -> loadLatestItemForCurrentUser(persistentId, false));
+        return resolveItemDraftForCurrentUser(persistentId).orElseGet(
+                () -> loadLatestItemForCurrentUser(persistentId, false));
     }
 
 
     protected I loadItemVersion(String persistentId, long versionId) {
-        return getItemRepository().findByVersionedItemPersistentIdAndId(persistentId, versionId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                String.format(
-                                        "Unable to find %s with id %s and version id %d",
-                                        getItemTypeName(), persistentId, versionId
-                                )
-                        )
-                );
+        return getItemRepository().findByVersionedItemPersistentIdAndId(persistentId, versionId).orElseThrow(
+                () -> new EntityNotFoundException(
+                        String.format("Unable to find %s with id %s and version id %d", getItemTypeName(), persistentId,
+                                versionId)));
+    }
+
+    protected I loadItemVersionForCurrentUser(String persistentId, long versionId) {
+        I item = loadItemVersion(persistentId, versionId);
+        if (itemVisibilityService.hasAccessToVersion(item, LoggedInUserHolder.getLoggedInUser())) {
+            return item;
+        }
+        throw new AccessDeniedException(
+                String.format("User is not authorised to retrieve version %d of item %s.", versionId, persistentId));
     }
 
     protected abstract ItemVersionRepository<I> getItemRepository();
@@ -173,12 +157,7 @@ abstract class ItemVersionService<I extends Item> {
 
     protected I loadLatestItemOrRedirect(String persistentId) {
         return tryLoadLatestMergedItem(persistentId).orElseThrow(() -> new EntityNotFoundException(
-                String.format(
-                        "Unable to find merged %s with id %s",
-                        getItemTypeName(), persistentId
-                )
-        ));
-
+                String.format("Unable to find merged %s with id %s", getItemTypeName(), persistentId)));
     }
 
     protected Optional<I> tryLoadLatestMergedItem(String persistentId) {
@@ -188,7 +167,5 @@ abstract class ItemVersionService<I extends Item> {
             itemPersistentId = getItemRepository().findMergedWithPersistentId(itemPersistentId);
         }
         return getItemRepository().findCurrentVersion(itemPersistentId);
-
     }
-
 }

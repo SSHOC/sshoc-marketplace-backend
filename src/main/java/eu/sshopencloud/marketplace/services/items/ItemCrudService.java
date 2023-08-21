@@ -777,7 +777,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         if (Objects.isNull(versionId))
             item = loadLatestItem(persistentId);
         else
-            item = loadItemVersion(persistentId, versionId);
+            item = loadItemVersionForCurrentUser(persistentId, versionId);
 
         ItemDto itemDto = ItemsComparator.toDto(item);
         itemDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(item));
@@ -791,6 +791,12 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         Item other = otherHolder.orElseThrow(() -> new EntityNotFoundException(
                 String.format("Unable to find an item with id %s and version id %d", persistentId, versionId)));
+
+        if (!itemVisibilityService.hasAccessToVersion(other, LoggedInUserHolder.getLoggedInUser())) {
+            throw new AccessDeniedException(
+                    String.format("User is not authorised to retrieve version %d of item %s.", otherVersionId,
+                            otherPersistentId));
+        }
 
         ItemDto otherDto = ItemsComparator.toDto(other);
         otherDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(other));
