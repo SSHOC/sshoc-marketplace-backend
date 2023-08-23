@@ -82,7 +82,7 @@ spec:
       volumes:
         - name: app-log
           persistentVolumeClaim:
-            claimName: {{ print ( include "fullname" . ) "-app-log"| quote }}
+            claimName: {{ print (.Values.pvc.namePrefix) ( include "fullname" . ) "-app-log"| quote }}
         - name: media-data
           persistentVolumeClaim:
-            claimName: {{ print ( include "fullname" . ) "-media-data"| quote }}
+            claimName: {{ print (.Values.pvc.namePrefix) ( include "fullname" . ) "-media-data"| quote }}
