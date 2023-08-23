@@ -19,7 +19,9 @@ image:
 #    tag: "fb8900b"
 
 pvc:
-  namePrefix: ""
+  namePrefix: ""  
+  accessModes:
+    - ReadWriteOnce
 
 service:
   enabled: true
