@@ -4,7 +4,9 @@ metadata:
   name: {{ print (.Values.pvc.namePrefix) ( include "fullname" . ) "-solr-data"| quote }}
 spec:
   accessModes:
-    - ReadWriteOnce
+  {{- range .Values.pvc.accessModes}}
+    - {{ toYaml . }}
+  {{- end }}
   resources:
     requests:
       storage: 2Gi
