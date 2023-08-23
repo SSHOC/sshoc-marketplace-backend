@@ -18,6 +18,9 @@ image:
 #    pullPolicy: IfNotPresent
 #    tag: "fb8900b"
 
+pvc:
+  namePrefix: ""
+
 service:
   enabled: true
   url: "https://ssh-mp-api.acdh-cluster-2.arz.oeaw.ac.at"
