@@ -113,3 +113,58 @@ marketplace:
         retention:
             temporary: 2h
             upload: 2h
+    oai-pmh-data-provider:
+        name: "OAI-PMH Repository of SSH Open Marketplace"
+        adminEmails: "admin@man.poznan.pl"
+        baseUrl: "https://marketplace.sshopencloud.eu"
+        description: "<oai-identifier xmlns=\"http://www.openarchives.org/OAI/2.0/oai-identifier\"  
+                     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+                     xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai-identifier
+                     http://www.openarchives.org/OAI/2.0/oai-identifier.xsd\">
+                     <scheme>oai</scheme>
+                     <repositoryIdentifier>marketplace.sshopencloud.eu</repositoryIdentifier>
+                     <delimiter>:</delimiter>
+                     <sampleIdentifier>oai:marketplace.sshopencloud.eu:sQY6US</sampleIdentifier> 
+                     </oai-identifier>"
+        max:
+            list:
+                identifiers: 100
+                records: 100
+        identifier:
+            domain: marketplace.sshopencloud.eu
+        mapping:
+            dcToPropertyCode:
+                subject:
+                    - "keyword"
+                    - "activity"
+                publisher:
+                    - "publisher"
+                date:
+                    - "year"
+                type:
+                    - "publication-type"
+                    - "resource-category"
+                format:
+                    - "object-format"
+                language:
+                    - "language"
+                relation:
+                    - "see-also"
+                rights:
+                    - "license"
+                    - "terms-of-use"
+                    - "terms-of-use-url"
+            dcToActorRole:
+                creator:
+                    - "author"
+                    - "creator"
+                contributor:
+                    - "contributor"
+                    - "provider"
+                    - "contact"
+                    - "funder"
+                    - "helpdesk"
+                    - "editor"
+                    - "programmer"
+                    - "reviewer"
+                    - "curator"

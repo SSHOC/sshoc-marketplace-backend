@@ -10,7 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ItemRepository extends ItemVersionRepository<Item> {
@@ -108,4 +110,16 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
 
     @Query("select item from Item item where item.id in :idList AND item.status in :itemStatusList AND item.category <> :toExclude ")
     Page<Item> findByIdInAndStatusIsInExcludeCategory(@Param("idList") List<Long> idList, @Param("itemStatusList") List<ItemStatus> itemStatusList, ItemCategory toExclude, Pageable pageable);
+
+    Page<Item> findAllByStatusAndCategoryIsNotAndLastInfoUpdateGreaterThanEqualAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory, ZonedDateTime from, ZonedDateTime until, Pageable pageable);
+    Page<Item> findAllByStatusAndCategoryIsNotAndLastInfoUpdateGreaterThanEqualOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory, ZonedDateTime from, Pageable pageable);
+    Page<Item> findAllByStatusAndCategoryIsNotAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory, ZonedDateTime until, Pageable pageable);
+    Page<Item> findAllByStatusAndCategoryIsNotOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory, Pageable pageable);
+
+    @Query("SELECT MIN(lastInfoUpdate) FROM Item where status=:status")
+    Optional<ZonedDateTime> getMinLastUpdateDateByStatus(ItemStatus status);
+
+    @Query("select i from Item i inner join VersionedItem v ON i.versionedItem = v" +
+            " WHERE (i.status = :status AND v.active = true AND v.persistentId = :persistentId)")
+    Optional<Item> findByPersistentIdAndStatus(String persistentId, ItemStatus status);
 }

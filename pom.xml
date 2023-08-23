@@ -236,8 +236,12 @@
             <version>2.14.0</version>
         </dependency>
 
-
-
+        <!-- https://mvnrepository.com/artifact/io.gdcc/xoai-data-provider -->
+        <dependency>
+            <groupId>io.gdcc</groupId>
+            <artifactId>xoai-data-provider</artifactId>
+            <version>5.0.0</version>
+        </dependency>
     </dependencies>
 
 
