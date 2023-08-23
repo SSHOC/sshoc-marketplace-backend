@@ -70,5 +70,5 @@ spec:
       volumes:
         - name: solr-data
           persistentVolumeClaim:
-            claimName: {{ print ( include "fullname" . ) "-solr-data" | quote }}
+            claimName: {{ print (.Values.pvc.namePrefix) ( include "fullname" . ) "-solr-data" | quote }}
 {{- $_ := unset . "namePrefix" -}}
