@@ -5,7 +5,6 @@ import eu.sshopencloud.marketplace.dto.items.RelatedStepDto;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemRelatedItem;
-import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.repositories.items.workflow.StepsTreeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -40,8 +39,7 @@ public class RelatedItemsConverter {
         if (target.getCategory() != ItemCategory.STEP)
             return new RelatedItemDto();
 
-        Step relatedStep = (Step) target;
-        String stepWorkflowId = stepsTreeRepository.findWorkflowPersistentIdByStep(relatedStep);
+        String stepWorkflowId = stepsTreeRepository.findWorkflowPersistentIdByStepId(target.getId());
 
         return new RelatedStepDto(stepWorkflowId);
     }
