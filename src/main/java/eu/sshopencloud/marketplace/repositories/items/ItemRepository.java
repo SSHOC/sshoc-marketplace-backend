@@ -83,6 +83,9 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
             " AND c.actor.id = :actorId AND vi.active = true")
     int countActiveItemsByContributorId(@Param("actorId") Long actorId);
 
+    @Query("SELECT count(v) FROM Item v INNER JOIN v.contributors c WHERE" +
+            " c.actor.id = :actorId")
+    int countItemsByContributorId(@Param("actorId") Long actorId);
 
     @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept = :concept")
     List<Item> findAllByMediaConcept(@Param("concept") Concept concept);
