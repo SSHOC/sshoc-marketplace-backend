@@ -115,7 +115,7 @@ marketplace:
             upload: 2h
     oai-pmh-data-provider:
         name: "OAI-PMH Repository of SSH Open Marketplace"
-        adminEmails: "admin@man.poznan.pl"
+        adminEmails: "sshopenmarketplace@sshopencloud.eu"
         baseUrl: "https://marketplace.sshopencloud.eu"
         description: "<oai-identifier xmlns=\"http://www.openarchives.org/OAI/2.0/oai-identifier\"  
                      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
