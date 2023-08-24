@@ -1,8 +1,8 @@
-package eu.sshopencloud.marketplace.controllers.oaipmh.metadata.extractors;
+package eu.sshopencloud.marketplace.repositories.oaipmh.metadata.extractors;
 
-import eu.sshopencloud.marketplace.controllers.oaipmh.OaiItemUtils;
-import eu.sshopencloud.marketplace.controllers.oaipmh.metadata.DcValue;
-import eu.sshopencloud.marketplace.controllers.oaipmh.metadata.ValuesExtractor;
+import eu.sshopencloud.marketplace.repositories.oaipmh.OaiItemUtils;
+import eu.sshopencloud.marketplace.repositories.oaipmh.metadata.DcValue;
+import eu.sshopencloud.marketplace.repositories.oaipmh.metadata.ValuesExtractor;
 import eu.sshopencloud.marketplace.repositories.oaipmh.OaiItem;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;

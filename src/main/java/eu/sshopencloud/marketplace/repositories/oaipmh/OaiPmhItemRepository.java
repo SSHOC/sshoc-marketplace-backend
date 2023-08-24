@@ -31,25 +31,28 @@ import java.util.stream.Collectors;
 @Transactional
 public class OaiPmhItemRepository implements ItemRepository {
 
+    public static final String OAIPMH_SPLIT_CHARACTER = ":";
     private final eu.sshopencloud.marketplace.repositories.items.ItemRepository itemRepository;
     private final ItemRelatedItemService itemRelatedItemService;
 
     @Override
     public ItemIdentifier getItemIdentifier(String oaiId) throws IdDoesNotExistException {
-        eu.sshopencloud.marketplace.model.items.Item item = itemRepository.findByPersistentIdAndStatus(
-                extractPersistentId(oaiId), ItemStatus.APPROVED).orElseThrow(IdDoesNotExistException::new);
+        eu.sshopencloud.marketplace.model.items.Item item = itemRepository.findActiveByPersistentIdAndStatusAndCategoryNot(
+                        extractPersistentId(oaiId), ItemStatus.APPROVED, ItemCategory.STEP)
+                .orElseThrow(IdDoesNotExistException::new);
         return OaiItemIdentifier.fromItem(item);
     }
 
     private String extractPersistentId(String oaiId) {
-        String[] elements = oaiId.split(":");
+        String[] elements = oaiId.split(OAIPMH_SPLIT_CHARACTER);
         return elements[elements.length - 1];
     }
 
     @Override
     public Item getItem(String oaiId, MetadataFormat metadataFormat) throws HandlerException {
-        eu.sshopencloud.marketplace.model.items.Item item = itemRepository.findByPersistentIdAndStatus(
-                extractPersistentId(oaiId), ItemStatus.APPROVED).orElseThrow(IdDoesNotExistException::new);
+        eu.sshopencloud.marketplace.model.items.Item item = itemRepository.findActiveByPersistentIdAndStatusAndCategoryNot(
+                        extractPersistentId(oaiId), ItemStatus.APPROVED, ItemCategory.STEP)
+                .orElseThrow(IdDoesNotExistException::new);
         return new OaiItem(item, itemRelatedItemService.getItemRelatedItems(item));
     }
 
@@ -74,26 +77,27 @@ public class OaiPmhItemRepository implements ItemRepository {
         }
         Page<eu.sshopencloud.marketplace.model.items.Item> items;
         if (value.hasFrom() && value.hasUntil()) {
-            items = itemRepository.findAllByStatusAndCategoryIsNotAndLastInfoUpdateGreaterThanEqualAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(
+            items = itemRepository.findAllActiveByStatusAndCategoryNotAndLastInfoUpdateGreaterThanEqualAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(
                     ItemStatus.APPROVED, ItemCategory.STEP, value.getFrom().atZone(ZoneId.systemDefault()),
                     value.getUntil().atZone(ZoneId.systemDefault()), PageRequest.of((int) page, i, Sort.by("id")));
         } else if (value.hasFrom()) {
-            items = itemRepository.findAllByStatusAndCategoryIsNotAndLastInfoUpdateGreaterThanEqualOrderByLastInfoUpdateDesc(
+            items = itemRepository.findAllActiveByStatusAndCategoryNotAndLastInfoUpdateGreaterThanEqualOrderByLastInfoUpdateDesc(
                     ItemStatus.APPROVED, ItemCategory.STEP, value.getFrom().atZone(ZoneId.systemDefault()),
                     PageRequest.of((int) page, i, Sort.by("id")));
         } else if (value.hasUntil()) {
-            items = itemRepository.findAllByStatusAndCategoryIsNotAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(
+            items = itemRepository.findAllActiveByStatusAndCategoryNotAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(
                     ItemStatus.APPROVED, ItemCategory.STEP, value.getUntil().atZone(ZoneId.systemDefault()),
                     PageRequest.of((int) page, i, Sort.by("id")));
         } else {
-            items = itemRepository.findAllByStatusAndCategoryIsNotOrderByLastInfoUpdateDesc(ItemStatus.APPROVED,
+            items = itemRepository.findAllActiveByStatusAndCategoryNotOrderByLastInfoUpdateDesc(ItemStatus.APPROVED,
                     ItemCategory.STEP, PageRequest.of((int) page, i, Sort.by("id")));
         }
         return items;
     }
 
     public Optional<Instant> getMinDate() {
-        return itemRepository.getMinLastUpdateDateByStatus(ItemStatus.APPROVED).map(ZonedDateTime::toInstant);
+        return itemRepository.getMinLastUpdateDateOfActiveItemByStatusAndNotCategory(ItemStatus.APPROVED,
+                ItemCategory.STEP).map(ZonedDateTime::toInstant);
     }
 
     private ResultsPage<ItemIdentifier> pageToIdentifiers(Page<eu.sshopencloud.marketplace.model.items.Item> page,

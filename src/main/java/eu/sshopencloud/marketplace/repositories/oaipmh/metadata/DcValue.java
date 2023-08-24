@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.controllers.oaipmh.metadata;
+package eu.sshopencloud.marketplace.repositories.oaipmh.metadata;
 
 import lombok.Data;
 

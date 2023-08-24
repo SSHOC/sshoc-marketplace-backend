@@ -109,17 +109,37 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     List<Long> getContributedItemsIds(Long contributorId);
 
     @Query("select item from Item item where item.id in :idList AND item.status in :itemStatusList AND item.category <> :toExclude ")
-    Page<Item> findByIdInAndStatusIsInExcludeCategory(@Param("idList") List<Long> idList, @Param("itemStatusList") List<ItemStatus> itemStatusList, ItemCategory toExclude, Pageable pageable);
+    Page<Item> findByIdInAndStatusIsInExcludeCategory(@Param("idList") List<Long> idList,
+            @Param("itemStatusList") List<ItemStatus> itemStatusList, ItemCategory toExclude, Pageable pageable);
 
-    Page<Item> findAllByStatusAndCategoryIsNotAndLastInfoUpdateGreaterThanEqualAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory, ZonedDateTime from, ZonedDateTime until, Pageable pageable);
-    Page<Item> findAllByStatusAndCategoryIsNotAndLastInfoUpdateGreaterThanEqualOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory, ZonedDateTime from, Pageable pageable);
-    Page<Item> findAllByStatusAndCategoryIsNotAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory, ZonedDateTime until, Pageable pageable);
-    Page<Item> findAllByStatusAndCategoryIsNotOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory, Pageable pageable);
+    @Query("SELECT i FROM Item i INNER JOIN VersionedItem v ON i.versionedItem = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory AND i.lastInfoUpdate <= :until AND i.lastInfoUpdate >= :from" +
+            " ORDER BY i.lastInfoUpdate desc")
+    Page<Item> findAllActiveByStatusAndCategoryNotAndLastInfoUpdateGreaterThanEqualAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(
+            ItemStatus status, ItemCategory notCategory, ZonedDateTime from, ZonedDateTime until, Pageable pageable);
 
-    @Query("SELECT MIN(lastInfoUpdate) FROM Item where status=:status")
-    Optional<ZonedDateTime> getMinLastUpdateDateByStatus(ItemStatus status);
+    @Query("SELECT i FROM Item i INNER JOIN VersionedItem v ON i.versionedItem  = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory AND i.lastInfoUpdate >= :from ORDER BY i.lastInfoUpdate desc")
+    Page<Item> findAllActiveByStatusAndCategoryNotAndLastInfoUpdateGreaterThanEqualOrderByLastInfoUpdateDesc(
+            ItemStatus status, ItemCategory notCategory, ZonedDateTime from, Pageable pageable);
+
+    @Query("SELECT i FROM Item i INNER JOIN VersionedItem v ON i.versionedItem = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory AND i.lastInfoUpdate <= :until ORDER BY i.lastInfoUpdate desc")
+    Page<Item> findAllActiveByStatusAndCategoryNotAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(ItemStatus status,
+            ItemCategory notCategory, ZonedDateTime until, Pageable pageable);
+
+    @Query("SELECT i FROM Item i INNER JOIN VersionedItem v ON i.versionedItem = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory ORDER BY i.lastInfoUpdate desc")
+    Page<Item> findAllActiveByStatusAndCategoryNotOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory,
+            Pageable pageable);
+
+    @Query("SELECT MIN(i.lastInfoUpdate) FROM Item i INNER JOIN VersionedItem v ON i.versionedItem = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory")
+    Optional<ZonedDateTime> getMinLastUpdateDateOfActiveItemByStatusAndNotCategory(ItemStatus status,
+            ItemCategory notCategory);
 
     @Query("select i from Item i inner join VersionedItem v ON i.versionedItem = v" +
-            " WHERE (i.status = :status AND v.active = true AND v.persistentId = :persistentId)")
-    Optional<Item> findByPersistentIdAndStatus(String persistentId, ItemStatus status);
+            " WHERE i.status = :status AND v.active = true AND v.persistentId = :persistentId AND i.category <> :notCategory")
+    Optional<Item> findActiveByPersistentIdAndStatusAndCategoryNot(String persistentId, ItemStatus status,
+            ItemCategory notCategory);
 }

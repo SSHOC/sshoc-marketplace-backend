@@ -1,6 +1,6 @@
-package eu.sshopencloud.marketplace.controllers.oaipmh.metadata.extractors;
+package eu.sshopencloud.marketplace.repositories.oaipmh.metadata.extractors;
 
-import eu.sshopencloud.marketplace.controllers.oaipmh.metadata.DcValue;
+import eu.sshopencloud.marketplace.repositories.oaipmh.metadata.DcValue;
 import eu.sshopencloud.marketplace.repositories.oaipmh.OaiItem;
 import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;

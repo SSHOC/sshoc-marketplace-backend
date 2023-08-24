@@ -21,15 +21,15 @@ public class OaiPmhMetadataConfiguration {
     private Map<String, List<String>> dcToActorRole;
 
     public List<String> getPropertyCode(String dcElementName) {
-        return getCode(dcToPropertyCode, dcElementName);
+        return getCodesForDcElement(dcToPropertyCode, dcElementName);
     }
 
     public List<String> getActorRole(String dcElementName) {
-        return getCode(dcToActorRole, dcElementName);
+        return getCodesForDcElement(dcToActorRole, dcElementName);
     }
 
     @NotNull
-    private List<String> getCode(Map<String, List<String>> mapping, String dcElementName) {
+    private List<String> getCodesForDcElement(Map<String, List<String>> mapping, String dcElementName) {
         return mapping != null ? Optional.ofNullable(mapping.get(dcElementName)).orElse(List.of()) : List.of();
     }
 }

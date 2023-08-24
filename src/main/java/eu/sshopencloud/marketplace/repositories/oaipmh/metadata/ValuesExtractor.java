@@ -1,4 +1,4 @@
-package eu.sshopencloud.marketplace.controllers.oaipmh.metadata;
+package eu.sshopencloud.marketplace.repositories.oaipmh.metadata;
 
 import eu.sshopencloud.marketplace.repositories.oaipmh.OaiItem;
 import lombok.NonNull;

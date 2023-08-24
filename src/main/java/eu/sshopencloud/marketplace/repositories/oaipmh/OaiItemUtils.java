@@ -1,8 +1,7 @@
-package eu.sshopencloud.marketplace.controllers.oaipmh;
+package eu.sshopencloud.marketplace.repositories.oaipmh;
 
 import eu.sshopencloud.marketplace.conf.oaipmh.OaiPmhMetadataConfiguration;
-import eu.sshopencloud.marketplace.controllers.oaipmh.metadata.DublinCoreMetadataExtractors;
-import eu.sshopencloud.marketplace.repositories.oaipmh.OaiItem;
+import eu.sshopencloud.marketplace.repositories.oaipmh.metadata.DublinCoreMetadataExtractors;
 import lombok.RequiredArgsConstructor;
 import org.codehaus.stax2.XMLOutputFactory2;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.services.oaipmh;
 
 import eu.sshopencloud.marketplace.repositories.oaipmh.OaiPmhItemRepository;
-import eu.sshopencloud.marketplace.repositories.oaipmh.OaiPmhSetRepository;
 import io.gdcc.xoai.dataprovider.DataProvider;
 import io.gdcc.xoai.dataprovider.exceptions.InternalOAIException;
 import io.gdcc.xoai.dataprovider.model.Context;
@@ -31,17 +30,13 @@ import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.List;
 
 @Service
 @Transactional
 public class OaiPmhDataProviderService {
     protected static final String FORMAT = "oai_dc";
-
-    // Repositories
     private final OaiPmhItemRepository oaiItemRepository;
-    private final OaiPmhSetRepository oaiSetRepository;
-
-    // Configuration variables
     private final String repositoryName;
     private final String[] adminEmails;
     private final String repositoryBaseUrl;
@@ -53,7 +48,7 @@ public class OaiPmhDataProviderService {
 
 
     @Autowired
-    public OaiPmhDataProviderService(OaiPmhItemRepository oaiItemRepository, OaiPmhSetRepository oaiSetRepository,
+    public OaiPmhDataProviderService(OaiPmhItemRepository oaiItemRepository,
             @Value("${marketplace.oai-pmh-data-provider.name}") String oaiRepositoryName,
             @Value("${marketplace.oai-pmh-data-provider.adminEmails}") String[] oaiRepositoryAdminEmails,
             @Value("${marketplace.oai-pmh-data-provider.baseUrl}") String oaiRepositoryBaseUrl,
@@ -61,7 +56,6 @@ public class OaiPmhDataProviderService {
             @Value("${marketplace.oai-pmh-data-provider.max.list.records}") int oaiRepositoryMaxListRecords,
             @Value("${marketplace.oai-pmh-data-provider.description}") String description) {
         this.oaiItemRepository = oaiItemRepository;
-        this.oaiSetRepository = oaiSetRepository;
         this.repositoryName = oaiRepositoryName;
         this.adminEmails = oaiRepositoryAdminEmails;
         this.repositoryBaseUrl = oaiRepositoryBaseUrl;
@@ -80,7 +74,8 @@ public class OaiPmhDataProviderService {
                 .withDeleteMethod(DeletedRecord.NO).withDescription(description)
                 .withResumptionTokenFormat(new SimpleResumptionTokenFormat()).build();
         Context context = new Context().withMetadataFormat(FORMAT, createIdentity());
-        Repository repository = new Repository(repositoryConfiguration).withSetRepository(oaiSetRepository)
+        // no support for sets, only item repository is supported in a limited way
+        Repository repository = new Repository(repositoryConfiguration).withSetRepository(List::of)
                 .withItemRepository(oaiItemRepository);
         this.dataProvider = new DataProvider(context, repository);
     }
@@ -103,6 +98,8 @@ public class OaiPmhDataProviderService {
         OAIPMH oaiPmhResponse;
         try {
             oaiPmhResponse = dataProvider.handle(oaiRequest);
+            // this is to fix error in identify verb of XOAI library - we use here granularity declared by the repository
+            // while default XOAI library uses hard-coded seconds granularity
             if (Verb.Type.Identify.equals(oaiRequest.getVerb()) && oaiPmhResponse.getVerb() instanceof Identify) {
                 oaiPmhResponse.withVerb(new IdentifyWrapper((Identify) oaiPmhResponse.getVerb()));
             }

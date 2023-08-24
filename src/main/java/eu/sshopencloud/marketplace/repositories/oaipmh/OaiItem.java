@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.repositories.oaipmh;
 
-import eu.sshopencloud.marketplace.controllers.oaipmh.OaiItemUtils;
 import eu.sshopencloud.marketplace.dto.items.RelatedItemDto;
 import io.gdcc.xoai.dataprovider.model.Item;
 import io.gdcc.xoai.dataprovider.model.Set;

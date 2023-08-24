@@ -1,13 +1,15 @@
-package eu.sshopencloud.marketplace.controllers.oaipmh.metadata;
+package eu.sshopencloud.marketplace.repositories.oaipmh.metadata;
 
-import eu.sshopencloud.marketplace.controllers.oaipmh.metadata.extractors.*;
 import eu.sshopencloud.marketplace.repositories.oaipmh.OaiItem;
+import eu.sshopencloud.marketplace.repositories.oaipmh.metadata.extractors.*;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.List;
 
+@RequiredArgsConstructor
 public enum DublinCoreMetadataExtractors {
     TITLE("title", (oaiItem, dcLocalName) -> Strings.isBlank(oaiItem.getItem().getLabel()) ? List.of() : List.of(
             new DcValue(oaiItem.getItem().getLabel()))),
@@ -32,11 +34,6 @@ public enum DublinCoreMetadataExtractors {
 
     private final String localName;
     private final ValuesExtractor valuesExtractor;
-
-    DublinCoreMetadataExtractors(String localName, ValuesExtractor valuesExtractor) {
-        this.localName = localName;
-        this.valuesExtractor = valuesExtractor;
-    }
 
     public void write(XMLStreamWriter writer, OaiItem oaiItem) throws XMLStreamException {
         List<DcValue> dcValues = valuesExtractor.extractValues(oaiItem, localName);
