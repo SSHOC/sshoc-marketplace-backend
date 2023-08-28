@@ -43,7 +43,7 @@ public class ConceptService {
 
     public PaginatedConcepts getConcepts(String vocabularyCode, PageCoords pageCoords) {
         PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(),
-                Sort.by(Sort.Order.asc("ord")));
+                Sort.by(List.of(Sort.Order.asc("ord"), Sort.Order.asc("code"))));
 
         Page<Concept> conceptsPage = conceptRepository.findByVocabularyCode(vocabularyCode, pageRequest);
 
