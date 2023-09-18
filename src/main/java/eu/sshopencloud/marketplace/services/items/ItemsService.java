@@ -310,6 +310,10 @@ public class ItemsService extends ItemVersionService<Item> {
         return itemRepository.countActiveItemsByContributorId(id) > 0;
     }
 
+    public boolean isContributorOfItem(Long id) {
+        return itemRepository.countItemsByContributorId(id) > 0;
+    }
+
     public void removeActorFromAllItems(Long id) {
         itemContributorRepository.deleteByActorId(id);
     }
