@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_389-conflict_at_source_value
+      author: tparkola
+      description: Changes the value of the conflict-at-source property to uppercase
+      changes:
+          - sql:
+                sql: update properties set value='TRUE' where type_code='conflict-at-source' and value='true';
+          - sql:
+                sql: update properties set value='FALSE' where type_code='conflict-at-source' and value='false';
+
