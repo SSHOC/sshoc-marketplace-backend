@@ -113,3 +113,12 @@ marketplace:
         retention:
             temporary: 2h
             upload: 2h
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "health"
+    endpoint:
+        health:
+            show-details: when_authorized
+            roles: 'ADMINISTRATOR'
