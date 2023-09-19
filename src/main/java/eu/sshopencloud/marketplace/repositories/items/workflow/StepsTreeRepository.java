@@ -16,6 +16,9 @@ public interface StepsTreeRepository extends JpaRepository<StepsTree, Long> {
     @Query("select distinct w.versionedItem.persistentId from StepsTree st join st.workflow w where st.step = :step")
     String findWorkflowPersistentIdByStep(@Param("step") Step step);
 
+    @Query("select distinct w.versionedItem.persistentId from StepsTree st join st.workflow w where st.step.id = :stepId")
+    String findWorkflowPersistentIdByStepId(@Param("stepId") long stepId);
+
     @Query("select st from StepsTree st where st.workflow.id = :workflowId and st.step.versionedItem.persistentId = :stepId")
     Optional<StepsTree> findByWorkflowIdAndStepPersistentId(@Param("workflowId") long workflowVersionId,
                                                             @Param("stepId") String stepId);
