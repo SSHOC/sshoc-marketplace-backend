@@ -11,7 +11,6 @@ import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
-import eu.sshopencloud.marketplace.repositories.items.ItemSourceRepository;
 import eu.sshopencloud.marketplace.services.actors.event.ActorChangedEvent;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemsService;
@@ -19,7 +18,9 @@ import eu.sshopencloud.marketplace.services.search.IndexActorService;
 import eu.sshopencloud.marketplace.validators.actors.ActorFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -119,10 +120,19 @@ public class ActorService {
             }
             if (itemsService.isContributorOfActiveItem(id)) {
                 throw new IllegalArgumentException("Cannot delete actors that are contributors of active items!");
+            } else if (actorRepository.existsActorByAffiliationActorId(id)) {
+                throw new IllegalArgumentException("Cannot delete actors that are affiliations of other actors!");
             } else {
                 itemsService.removeActorFromAllItems(id);
             }
+        } else if (itemsService.isContributorOfItem(id)) {
+            throw new IllegalArgumentException("Cannot delete actors that are contributors of items!");
         }
+
+        if (actorRepository.existsActorByAffiliationActorId(id)) {
+            throw new IllegalArgumentException("Cannot delete actors that are affiliations of other actors!");
+        }
+
         actorRepository.deleteById(id);
         indexActorService.removeActor(id);
 
