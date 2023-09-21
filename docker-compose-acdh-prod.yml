@@ -46,7 +46,7 @@ services:
       - app-log:/log
       - media-data:/var/sshoc/media
   psql-prod:
-    image: postgres:9.6
+    image: postgres:15.3
     container_name: sshoc-marketplace-backend-postgres-prod
     ports:
       - 5432:5432

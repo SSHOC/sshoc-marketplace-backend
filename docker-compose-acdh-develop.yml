@@ -44,7 +44,7 @@ services:
       - app-log:/log
       - media-data:/var/sshoc/media
   psql:
-    image: postgres:9.6
+    image: postgres:15.3
     container_name: sshoc-marketplace-backend-postgres
     volumes:
       - psql-data:/var/lib/postgresql/data

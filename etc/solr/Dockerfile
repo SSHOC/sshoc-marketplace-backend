@@ -1,14 +1,14 @@
-FROM solr:8.2.0
+FROM solr:8.11.2
 
 USER root
 RUN mkdir -p /usr/solr && \
 	chown solr -hR /usr/solr && \
-	chown solr -hR /opt/solr-8.2.0 && \
+	chown solr -hR /opt/solr-8.11.2 && \
 	chown solr -hR /var/solr
 
 USER solr
 
-WORKDIR /opt/solr-8.2.0
+WORKDIR /opt/solr-8.11.2
 
 RUN ./bin/solr start && \
 	./bin/solr create_core -c marketplace-items && \
