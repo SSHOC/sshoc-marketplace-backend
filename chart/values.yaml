@@ -12,7 +12,7 @@ image:
   postgresql:
     repository: "postgres"
     pullPolicy: IfNotPresent
-    tag: "9.6"    
+    tag: "15.3"    
 #  solr:
 #    repository: "ghcr.io/sshoc/sshoc-marketplace-backend/ssh-mp-api-solr"
 #    pullPolicy: IfNotPresent
