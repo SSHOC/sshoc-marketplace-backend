@@ -44,7 +44,7 @@ services:
       - app-log-stage:/log
       - media-data-stage:/var/sshoc/media
   psql-stage:
-    image: postgres:9.6
+    image: postgres:15.3
     container_name: sshoc-marketplace-backend-postgres-stage
     volumes:
       - psql-data-stage:/var/lib/postgresql/data

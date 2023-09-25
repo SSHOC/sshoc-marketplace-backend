@@ -23,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ItemSourceService extends BaseOrderableEntityService<ItemSource, String> {
 
+    public static final String SOURCE_ITEM_ID_PLACEHOLDER = "{source-item-id}";
     private final ItemSourceRepository itemSourceRepository;
 
     public List<ItemSourceDto> getAllItemSources() {
@@ -51,7 +52,7 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
             throw new IllegalArgumentException("Item's source's code is required.");
 
         if (StringUtils.isNotBlank(newItemSource.getUrlTemplate())) {
-            if (!newItemSource.getUrlTemplate().contains("{source-item-id}"))
+            if (!newItemSource.getUrlTemplate().contains(SOURCE_ITEM_ID_PLACEHOLDER))
                 throw new IllegalArgumentException("Item's source's url template has to contain {source-item-id} substring.");
         }
 
@@ -67,7 +68,7 @@ public class ItemSourceService extends BaseOrderableEntityService<ItemSource, St
 
         itemSource.setLabel(itemSourceCore.getLabel());
         if (StringUtils.isNotBlank(itemSourceCore.getUrlTemplate())) {
-            if (!itemSourceCore.getUrlTemplate().contains("{source-item-id}"))
+            if (!itemSourceCore.getUrlTemplate().contains(SOURCE_ITEM_ID_PLACEHOLDER))
                 throw new IllegalArgumentException("Item's source's url template has to contain {source-item-id} substring.");
         }
         itemSource.setUrlTemplate(itemSourceCore.getUrlTemplate());

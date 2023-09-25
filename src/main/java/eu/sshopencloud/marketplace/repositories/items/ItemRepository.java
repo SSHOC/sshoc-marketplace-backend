@@ -10,7 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ItemRepository extends ItemVersionRepository<Item> {
@@ -83,6 +85,9 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
             " AND c.actor.id = :actorId AND vi.active = true")
     int countActiveItemsByContributorId(@Param("actorId") Long actorId);
 
+    @Query("SELECT count(v) FROM Item v INNER JOIN v.contributors c WHERE" +
+            " c.actor.id = :actorId")
+    int countItemsByContributorId(@Param("actorId") Long actorId);
 
     @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept = :concept")
     List<Item> findAllByMediaConcept(@Param("concept") Concept concept);
@@ -112,5 +117,37 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     List<Long> getContributedItemsIds(Long contributorId);
 
     @Query("select item from Item item where item.id in :idList AND item.status in :itemStatusList AND item.category <> :toExclude ")
-    Page<Item> findByIdInAndStatusIsInExcludeCategory(@Param("idList") List<Long> idList, @Param("itemStatusList") List<ItemStatus> itemStatusList, ItemCategory toExclude, Pageable pageable);
+    Page<Item> findByIdInAndStatusIsInExcludeCategory(@Param("idList") List<Long> idList,
+            @Param("itemStatusList") List<ItemStatus> itemStatusList, ItemCategory toExclude, Pageable pageable);
+
+    @Query("SELECT i FROM Item i INNER JOIN VersionedItem v ON i.versionedItem = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory AND i.lastInfoUpdate <= :until AND i.lastInfoUpdate >= :from" +
+            " ORDER BY i.lastInfoUpdate desc")
+    Page<Item> findAllActiveByStatusAndCategoryNotAndLastInfoUpdateGreaterThanEqualAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(
+            ItemStatus status, ItemCategory notCategory, ZonedDateTime from, ZonedDateTime until, Pageable pageable);
+
+    @Query("SELECT i FROM Item i INNER JOIN VersionedItem v ON i.versionedItem  = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory AND i.lastInfoUpdate >= :from ORDER BY i.lastInfoUpdate desc")
+    Page<Item> findAllActiveByStatusAndCategoryNotAndLastInfoUpdateGreaterThanEqualOrderByLastInfoUpdateDesc(
+            ItemStatus status, ItemCategory notCategory, ZonedDateTime from, Pageable pageable);
+
+    @Query("SELECT i FROM Item i INNER JOIN VersionedItem v ON i.versionedItem = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory AND i.lastInfoUpdate <= :until ORDER BY i.lastInfoUpdate desc")
+    Page<Item> findAllActiveByStatusAndCategoryNotAndLastInfoUpdateLessThanEqualOrderByLastInfoUpdateDesc(ItemStatus status,
+            ItemCategory notCategory, ZonedDateTime until, Pageable pageable);
+
+    @Query("SELECT i FROM Item i INNER JOIN VersionedItem v ON i.versionedItem = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory ORDER BY i.lastInfoUpdate desc")
+    Page<Item> findAllActiveByStatusAndCategoryNotOrderByLastInfoUpdateDesc(ItemStatus status, ItemCategory notCategory,
+            Pageable pageable);
+
+    @Query("SELECT MIN(i.lastInfoUpdate) FROM Item i INNER JOIN VersionedItem v ON i.versionedItem = v WHERE i.status=:status" +
+            " AND v.active=true AND i.category <> :notCategory")
+    Optional<ZonedDateTime> getMinLastUpdateDateOfActiveItemByStatusAndNotCategory(ItemStatus status,
+            ItemCategory notCategory);
+
+    @Query("select i from Item i inner join VersionedItem v ON i.versionedItem = v" +
+            " WHERE i.status = :status AND v.active = true AND v.persistentId = :persistentId AND i.category <> :notCategory")
+    Optional<Item> findActiveByPersistentIdAndStatusAndCategoryNot(String persistentId, ItemStatus status,
+            ItemCategory notCategory);
 }
