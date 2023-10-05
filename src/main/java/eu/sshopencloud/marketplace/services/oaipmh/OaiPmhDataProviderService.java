@@ -73,7 +73,7 @@ public class OaiPmhDataProviderService {
                 .withMaxListSets(100).withEarliestDate(setupProviderMinDate()).withGranularity(Granularity.Day)
                 .withDeleteMethod(DeletedRecord.NO).withDescription(description)
                 .withResumptionTokenFormat(new SimpleResumptionTokenFormat()).build();
-        Context context = new Context().withMetadataFormat(FORMAT, createIdentity());
+        Context context = new Context().withMetadataFormat(FORMAT, createIdentity()).withTransformer(createIdentity());
         // no support for sets, only item repository is supported in a limited way
         Repository repository = new Repository(repositoryConfiguration).withSetRepository(List::of)
                 .withItemRepository(oaiItemRepository);
