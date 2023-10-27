@@ -198,7 +198,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
             throws VersionNotChangedException {
         I currentItem = loadItemForCurrentUser(persistentId);
         ComparisonResult comparisonResult = ComparisonResult.UPDATED;
-        if (!draft && currentItem.getStatus() != ItemStatus.DRAFT && !(approved && currentItem.getStatus() != ItemStatus.APPROVED)) {
+        if (!draft && currentItem.getStatus() != ItemStatus.DRAFT &&
+                !(approved && LoggedInUserHolder.getLoggedInUser() != null &&
+                        !LoggedInUserHolder.getLoggedInUser().isContributor() &&
+                        currentItem.getStatus() != ItemStatus.APPROVED)) {
             comparisonResult = recognizePotentialChanges(currentItem, (ItemCore) itemCore);
             if (comparisonResult == ComparisonResult.UNMODIFIED) {
                 throw new VersionNotChangedException();
