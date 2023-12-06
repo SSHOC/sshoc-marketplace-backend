@@ -1,7 +1,10 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.vocabularies.*;
+import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
+import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedVocabularies;
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyBasicDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
@@ -17,7 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.rio.*;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,7 +141,7 @@ public class VocabularyService {
         if (vocabularyRepository.findById(vocabularyCode).isPresent())
             throw new VocabularyAlreadyExistsException(vocabularyCode);
 
-        return constructVocabularyAndSave(vocabularyCode, turtleInputStream, closed);
+        return constructVocabularyAndSave(vocabularyCode, turtleInputStream, closed, 1);
     }
 
     public Vocabulary updateVocabulary(String vocabularyCode, InputStream turtleInputStream, boolean forceUpdate, boolean closed)
@@ -143,7 +151,11 @@ public class VocabularyService {
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Vocabulary.class.getName() + " with code " + vocabularyCode));
 
         List<Concept> oldConcepts = new ArrayList<>(oldVocabulary.getConcepts());
-        Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream, closed);
+        @SuppressWarnings({"ConstantConditions"}) Concept maxOrdConcept = oldConcepts.stream().filter(Objects::nonNull)
+                .filter(c -> Objects.nonNull(c.getOrd())).reduce((c1, c2) -> c1.getOrd() > c2.getOrd() ? c1 : c2)
+                .orElse(null);
+        int startOrd = maxOrdConcept != null ? (maxOrdConcept.getOrd() != null ? maxOrdConcept.getOrd() : 1) : 1 + 1;
+        Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream, closed, startOrd);
 
         List<Concept> conceptsToRemove = missingConcepts(oldConcepts, updatedVocabulary.getConcepts());
 
@@ -207,7 +219,7 @@ public class VocabularyService {
         conceptService.removeConcepts(concepts);
     }
 
-    private Vocabulary constructVocabularyAndSave(String vocabularyCode, InputStream turtleInputStream, boolean closed)
+    private Vocabulary constructVocabularyAndSave(String vocabularyCode, InputStream turtleInputStream, boolean closed, int startOrd)
             throws IOException, RDFParseException, UnsupportedRDFormatException {
 
         Model rdfModel = Rio.parse(turtleInputStream, "", RDFFormat.TURTLE);         // TODO own exceptions
@@ -216,7 +228,11 @@ public class VocabularyService {
 
         // TODO change possible candidate concepts and relations to the proper one
         Map<String, Concept> conceptMap = RDFModelParser.createConcepts(rdfModel, vocabulary);
-        vocabulary.setConcepts(new ArrayList<>(conceptMap.values()));
+        ArrayList<Concept> concepts = new ArrayList<>(conceptMap.values());
+        for (int i = 0; i < concepts.size(); i++) {
+            concepts.get(i).setOrd(i+startOrd);
+        }
+        vocabulary.setConcepts(concepts);
         vocabulary.setClosed(closed);
 
         vocabularyRepository.save(vocabulary);
