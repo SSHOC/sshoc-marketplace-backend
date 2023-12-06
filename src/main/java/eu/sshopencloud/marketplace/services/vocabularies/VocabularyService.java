@@ -154,7 +154,7 @@ public class VocabularyService {
         @SuppressWarnings({"ConstantConditions"}) Concept maxOrdConcept = oldConcepts.stream().filter(Objects::nonNull)
                 .filter(c -> Objects.nonNull(c.getOrd())).reduce((c1, c2) -> c1.getOrd() > c2.getOrd() ? c1 : c2)
                 .orElse(null);
-        int startOrd = maxOrdConcept != null ? (maxOrdConcept.getOrd() != null ? maxOrdConcept.getOrd() : 1) : 1 + 1;
+        int startOrd = (maxOrdConcept != null ? (maxOrdConcept.getOrd() != null ? maxOrdConcept.getOrd() : 1) : 1) + 1;
         Vocabulary updatedVocabulary = constructVocabularyAndSave(vocabularyCode, turtleInputStream, closed, startOrd);
 
         List<Concept> conceptsToRemove = missingConcepts(oldConcepts, updatedVocabulary.getConcepts());
