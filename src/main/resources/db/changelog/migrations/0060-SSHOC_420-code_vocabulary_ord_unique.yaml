@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_420-code_vocabulary_ord_unique
+      author: tparkola
+      description: Makes sure that each concept has a unique ord value
+      changes:
+          - sql:
+                sql: update concepts c set ord = c2.position from (select c2.*, row_number() over (partition by c2.vocabulary_code order by c2.vocabulary_code, c2.ord, c2.code) as position from concepts c2) c2 where c.vocabulary_code = c2.vocabulary_code and c.code = c2.code;
+          - sql:
+                sql: alter table concepts add constraint unique_vocabulary_ord unique (vocabulary_code, ord);
+

@@ -4,7 +4,6 @@ import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +20,6 @@ public interface ConceptRepository extends JpaRepository<Concept, ConceptId> {
     List<Concept> findByVocabularyCode(String vocabularyCode);
 
     Optional<Concept> findByCodeAndVocabularyCode(String code, String vocabularyCode );
+
+    long countAllByVocabularyCode(String vocabularyCode);
 }
