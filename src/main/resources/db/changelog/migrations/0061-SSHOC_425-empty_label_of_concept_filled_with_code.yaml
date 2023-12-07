@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: SSHOC_425-empty_label_of_concept_filled_with_code
+      author: tparkola
+      description: Updates all concepts that have empty label - sets the label with code value.
+      changes:
+          - sql:
+                sql: update concepts set label=code where label='';
