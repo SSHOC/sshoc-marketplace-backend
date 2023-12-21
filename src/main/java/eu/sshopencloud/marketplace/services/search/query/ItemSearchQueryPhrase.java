@@ -70,7 +70,7 @@ public class ItemSearchQueryPhrase extends SearchQueryPhrase {
 
 
     private Criteria initialCriteria() {
-        return new SimpleStringCriteria("q={!boost b=product(related_items,2)}*");
+        return new SimpleStringCriteria("q={!boost b=scale(related_items,0,1)}*");
     }
 
 }

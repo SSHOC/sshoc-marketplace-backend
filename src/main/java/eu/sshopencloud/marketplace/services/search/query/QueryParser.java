@@ -7,14 +7,12 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @UtilityClass
 @Slf4j
 public class QueryParser {
 
-    private List<String> QUERY_UNACCEPTABLE_CHARACTERS = List.of("-", "–");
+    private final List<String> QUERY_UNACCEPTABLE_CHARACTERS = List.of("-", "–", "/", "+", "&", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":");
 
     public List<QueryPart> parsePhrase(String phrase) {
         List<QueryPart> result = new ArrayList<>();
@@ -62,14 +60,14 @@ public class QueryParser {
     }
 
     private boolean isAcceptableExpression(String expression) {
-        return !expression.isEmpty() && hasAllUnacceptableCharacters(expression);
+        return !expression.isEmpty() && !hasAllUnacceptableCharacters(expression);
     }
 
     private boolean hasAllUnacceptableCharacters(String expression) {
         for (String character : QUERY_UNACCEPTABLE_CHARACTERS) {
             expression = expression.replace(character, "");
         }
-        return !expression.isEmpty();
+        return expression.isEmpty();
     }
 
 }
