@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Entity
 @IdClass(ConceptId.class)
-@Table(name = "concepts")
+@Table(name = "concepts", uniqueConstraints = {@UniqueConstraint(name ="UniqueVocabularyOrd", columnNames = {"vocabulary_code", "ord"})})
 @Data
 @ToString(exclude = "vocabulary")
 @NoArgsConstructor
