@@ -105,11 +105,7 @@ public class ConceptService {
 
 
     private int getMaxOrdForConceptInVocabulary(Vocabulary vocabulary) {
-        ExampleMatcher queryConceptMatcher = ExampleMatcher.matching()
-                .withMatcher("vocabulary", ExampleMatcher.GenericPropertyMatchers.exact());
-        Concept queryConcept = new Concept();
-        queryConcept.setVocabulary(vocabulary);
-        int count = (int) conceptRepository.count(Example.of(queryConcept, queryConceptMatcher));
+        int count = (int)conceptRepository.countAllByVocabularyCode(vocabulary.getCode());
         return count + 1;
     }
 

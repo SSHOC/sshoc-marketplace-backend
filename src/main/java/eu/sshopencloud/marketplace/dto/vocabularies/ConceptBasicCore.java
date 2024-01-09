@@ -5,13 +5,17 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.NotEmpty;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
 public class ConceptBasicCore {
-    
+
+    @NotEmpty(message = "The code of a concept cannot be empty or null!")
     private String code;
 
+    @NotEmpty(message = "The label of a concept cannot be empty or null!")
     private String label;
 
     private String notation;

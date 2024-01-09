@@ -173,6 +173,11 @@ public class RDFModelPrinter {
             );
         }
 
+        if (Objects.nonNull(concept.getLabel()) && (Objects.isNull(concept.getLabels()) || (Objects.nonNull(concept.getLabels()) &&
+                Strings.isBlank(concept.getLabels().get("en"))))) {
+            builder.subject(concept.getUri()).add(SKOS.PREF_LABEL, factory.createLiteral(concept.getLabel(), "en"));
+        }
+
 
         conceptRelatedConcepts.forEach(
                 conceptRelated -> {
