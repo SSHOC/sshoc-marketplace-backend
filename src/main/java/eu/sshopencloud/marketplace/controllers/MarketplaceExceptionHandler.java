@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -98,4 +99,15 @@ public class MarketplaceExceptionHandler {
         }
     }
 
+    @ExceptionHandler(value = { MethodArgumentNotValidException.class })
+    public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex, WebRequest request) {
+        log.error("MethodArgumentNotValidException", ex);
+        ValidationResponse validationResponse = ValidationResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errors(ex.getBindingResult().getFieldErrors().stream().map(error -> ValidatedError.builder().field(error.getField())
+                        .code(error.getCode()).args(error.getArguments()).message(error.getDefaultMessage()).build()).toArray(ValidatedError[]::new))
+                .build();
+        return ResponseEntity.badRequest().body(validationResponse);
+    }
 }

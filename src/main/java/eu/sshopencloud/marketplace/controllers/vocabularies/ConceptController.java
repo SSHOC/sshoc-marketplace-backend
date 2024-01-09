@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -34,7 +35,7 @@ public class ConceptController {
     public ResponseEntity<ConceptDto> createConcept(@Parameter(
             description = "Created concept",
             required = true,
-            schema = @Schema(implementation = ConceptCore.class)) @RequestBody ConceptCore newConcept,
+            schema = @Schema(implementation = ConceptCore.class)) @Valid @RequestBody ConceptCore newConcept,
                                                     @PathVariable("vocabulary-code") String vocabularyCode,
                                                     @RequestParam(value = "candidate", defaultValue = "true") boolean candidate)
             throws ConceptAlreadyExistsException, VocabularyIsClosedException {
@@ -47,7 +48,7 @@ public class ConceptController {
     public ResponseEntity<ConceptDto> updateConcept(@Parameter(
             description = "Updated concept",
             required = true,
-            schema = @Schema(implementation = ConceptCore.class)) @RequestBody ConceptCore updatedConcept,
+            schema = @Schema(implementation = ConceptCore.class)) @Valid @RequestBody ConceptCore updatedConcept,
                                                     @PathVariable("vocabulary-code") String vocabularyCode,
                                                     @PathVariable("code") String code) {
 
