@@ -32,7 +32,7 @@ import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -165,7 +165,7 @@ public class SearchService {
         } else {
             facetName = fieldName.replace('_', '-');
         }
-        return Pair.create(
+        return Pair.of(
                 facetName,
                 createFacetDetails(
                         facetPage.getFacetResultPage(fieldName).getContent(),
@@ -240,7 +240,7 @@ public class SearchService {
     private Map<String, Map<String, CheckedCount>> gatherSearchConceptFacets(FacetPage<IndexConcept> facetPage, Map<String, List<String>> filterParams) {
         return facetPage.getFacetFields().stream()
                 .filter(field -> !IndexConcept.TYPES_FIELD.equals(field.getName()))
-                .map(field -> Pair.create(
+                .map(field -> Pair.of(
                         field.getName().replace('_', '-'),
                         createFacetDetails(
                                 facetPage.getFacetResultPage(field.getName()).getContent(),
