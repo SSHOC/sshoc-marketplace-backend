@@ -46,18 +46,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-solr</artifactId>
-            <exclusions>
-                <!-- This is excluded as the version 8.2.0 used by this data solr version
-                is not able to handle suggester response of solr 9.3 -->
-                <exclusion>
-                    <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-solrj</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-data-solr</artifactId>-->
+<!--            <exclusions>-->
+<!--                &lt;!&ndash; This is excluded as the version 8.2.0 used by this data solr version-->
+<!--                is not able to handle suggester response of solr 9.3 &ndash;&gt;-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.apache.solr</groupId>-->
+<!--                    <artifactId>solr-solrj</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
         <!-- This is included to support solr 9.3 -->
         <dependency>
             <groupId>org.apache.solr</groupId>

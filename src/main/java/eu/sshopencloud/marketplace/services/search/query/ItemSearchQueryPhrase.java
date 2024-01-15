@@ -10,18 +10,22 @@ import java.util.List;
 @Slf4j
 public class ItemSearchQueryPhrase extends SearchQueryPhrase {
 
+    private static final String INITIAL_QUERY_CRITERIA = "{!boost b=scale(related_items,0,1)}*";
+
     public ItemSearchQueryPhrase(String phrase, boolean advanced) {
         super(phrase, advanced);
     }
 
     @Override
-    protected Criteria getPhraseQueryCriteria() {
+    protected String getPhraseQueryCriteria() {
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
         if (queryParts.isEmpty()) {
             return initialCriteria();
         } else {
-            Criteria andCriteria = initialCriteria();
+            StringBuilder queryCriteria = new StringBuilder(INITIAL_QUERY_CRITERIA);
+            //Criteria andCriteria = initialCriteria();
             for (QueryPart queryPart : queryParts) {
+
                 Criteria persistentIdCriteria = Criteria.where(IndexItem.PERSISTENT_ID_FIELD).boost(3f).is(queryPart.getExpression());
                 Criteria externalIdCriteria = Criteria.where(IndexItem.EXTERNAL_IDENTIFIER_FIELD).boost(3f).is(queryPart.getExpression());
                 Criteria labelTextEnCriteria = Criteria.where(IndexItem.LABEL_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
@@ -69,8 +73,9 @@ public class ItemSearchQueryPhrase extends SearchQueryPhrase {
     }
 
 
-    private Criteria initialCriteria() {
-        return new SimpleStringCriteria("q={!boost b=scale(related_items,0,1)}*");
+    private String initialCriteria() {
+        return INITIAL_QUERY_CRITERIA;
+        //return new SimpleStringCriteria("q={!boost b=scale(related_items,0,1)}*");
     }
 
 }

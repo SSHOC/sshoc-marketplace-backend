@@ -20,6 +20,7 @@ import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.search.SearchConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.*;
 import org.springframework.data.solr.core.query.Criteria;
@@ -134,10 +135,11 @@ public class ItemsService extends ItemVersionService<Item> {
             queryBuilder.append(" AND source_item_id:");
             queryBuilder.append("\"").append(sourceItemId).append("\"");
         }
-        Criteria queryCriteria = new SimpleStringCriteria(queryBuilder.toString());
+//        Criteria queryCriteria = new SimpleStringCriteria(queryBuilder.toString());
+        SolrQuery solrQuery = new SolrQuery(queryBuilder.toString());
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        FacetPage<IndexItem> facetPage = searchItemRepository.findByQuery(queryCriteria, currentUser, ItemSearchOrder.LABEL, pageable);
+        FacetPage<IndexItem> facetPage = searchItemRepository.findByQuery(solrQuery, currentUser, ItemSearchOrder.LABEL, pageable);
 
         return PaginatedSearchItemsBasic.builder()
                 .items(
