@@ -1,60 +1,86 @@
 package eu.sshopencloud.marketplace.services.search.query;
 
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
-import org.springframework.data.solr.core.query.AnyCriteria;
-import org.springframework.data.solr.core.query.Criteria;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.common.params.SimpleParams;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConceptSearchQueryPhrase extends SearchQueryPhrase {
+
+    public enum ConceptCriteriaParams {
+        CODE (IndexConcept.CODE_FIELD, 10f),
+        URI (IndexConcept.URI_FIELD, 10f),
+        NOTATION (IndexConcept.NOTATION_FIELD, 4f),
+        LABEL_EN (IndexConcept.LABEL_TEXT_EN_FIELD, 4f),
+        DEFINITION_EN (IndexConcept.DEFINITION_TEXT_EN_FIELD, 2f),
+        LABEL(IndexConcept.LABEL_TEXT_FIELD, 2f, true),
+        DEFINITION(IndexConcept.DEFINITION_TEXT_FIELD, 1f, true);
+
+        private final String fieldName;
+        private final float boost;
+        private final boolean noQuoteOnly;
+
+        ConceptCriteriaParams(String fieldName, float boost) {
+            this(fieldName, boost, false);
+        }
+
+        ConceptCriteriaParams(String fieldName, float boost, boolean noQuoteOnly) {
+            this.fieldName = fieldName;
+            this.boost = boost;
+            this.noQuoteOnly = noQuoteOnly;
+        }
+
+        public boolean isQuoteParam() {
+            return !noQuoteOnly;
+        }
+
+        public String getCondition(String expression, boolean advanced) {
+            if (noQuoteOnly && !advanced) {
+                return fieldName + COLON + WILDCARD + expression + WILDCARD + CIRCUMFLEX + boost;
+            }
+            return fieldName + COLON + expression + CIRCUMFLEX + boost;
+        }
+    }
 
     public ConceptSearchQueryPhrase(String phrase, boolean advanced) {
         super(phrase, advanced);
     }
 
     @Override
-    protected Criteria getPhraseQueryCriteria() {
+    protected String getPhraseQueryCriteria() {
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
         if (queryParts.isEmpty()) {
-            return AnyCriteria.any();
+            return QUERY_ALL;
         } else {
-            Criteria andCriteria = AnyCriteria.any();
+            StringBuilder queryCriteria = new StringBuilder(QUERY_ALL);
             for (QueryPart queryPart : queryParts) {
-                Criteria codeCriteria = Criteria.where(IndexConcept.CODE_FIELD).boost(10f).is(queryPart.getExpression());
-                Criteria uriCriteria = Criteria.where(IndexConcept.URI_FIELD).boost(10f).is(queryPart.getExpression());
-                Criteria notationCriteria = Criteria.where(IndexConcept.NOTATION_FIELD).boost(4f).is(queryPart.getExpression());
-                Criteria labelTextEnCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).is(queryPart.getExpression());
-                Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).is(queryPart.getExpression());
-                Criteria orCriteria;
-                if (!queryPart.isQuotedPhrase()) {
-                    Criteria labelTextCriteria = Criteria.where(IndexConcept.LABEL_TEXT_FIELD).boost(2f).contains(queryPart.getExpression());
-                    Criteria definitionTextCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_FIELD).boost(1f).contains(queryPart.getExpression());
-                    orCriteria = codeCriteria.or(uriCriteria).or(notationCriteria).or(labelTextCriteria)
-                            .or(definitionTextCriteria).or(labelTextEnCriteria).or(definitionTextEnCriteria);
-                } else {
-                    orCriteria = codeCriteria.or(uriCriteria).or(notationCriteria).or(labelTextEnCriteria).
-                            or(definitionTextEnCriteria);
-                }
-                andCriteria = andCriteria.and(orCriteria);
+                List<String> queryPartsCriteria = Arrays.stream(ConceptCriteriaParams.values())
+                        .filter(c -> !queryPart.isQuotedPhrase() || c.isQuoteParam())
+                        .map(c -> c.getCondition(queryPart.getExpression(), false)).collect(Collectors.toList());
+
+                queryCriteria.append(StringUtils.SPACE + SimpleParams.AND_OPERATOR + StringUtils.SPACE).append(
+                                LEFT_BRACKET)
+                        .append(StringUtils.join(queryPartsCriteria,
+                                StringUtils.SPACE + SimpleParams.OR_OPERATOR + StringUtils.SPACE)).append(RIGHT_BRACKET);
             }
-            return andCriteria;
+
+            return queryCriteria.toString();
         }
     }
 
     @Override
-    protected Criteria getAdvancedQueryCriteria() {
+    protected String getAdvancedQueryCriteria() {
         if (phrase.isEmpty()) {
-            return AnyCriteria.any();
+            return QUERY_ALL;
         } else {
-            Criteria codeCriteria = Criteria.where(IndexConcept.CODE_FIELD).boost(10f).expression(phrase);
-            Criteria uriCriteria = Criteria.where(IndexConcept.URI_FIELD).boost(10f).expression(phrase);
-            Criteria notationCriteria = Criteria.where(IndexConcept.NOTATION_FIELD).boost(4f).expression(phrase);
-            Criteria labelCriteria = Criteria.where(IndexConcept.LABEL_TEXT_FIELD).boost(4f).expression(phrase);
-            Criteria definitionTextCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_FIELD).boost(2f).expression(phrase);
-            Criteria labelTextEnCriteria = Criteria.where(IndexConcept.LABEL_TEXT_EN_FIELD).boost(4f).expression(phrase);
-            Criteria definitionTextEnCriteria = Criteria.where(IndexConcept.DEFINITION_TEXT_EN_FIELD).boost(2f).expression(phrase);
-            return codeCriteria.or(uriCriteria).or(notationCriteria).or(labelCriteria)
-                    .or(definitionTextCriteria).or(labelTextEnCriteria).or(definitionTextEnCriteria);
+            List<String> queryPartsCriteria = Arrays.stream(ConceptCriteriaParams.values())
+                    .map(c -> c.getCondition(phrase, true)).collect(Collectors.toList());
+
+            return StringUtils.join(queryPartsCriteria,
+                    StringUtils.SPACE + SimpleParams.OR_OPERATOR + StringUtils.SPACE);
         }
     }
 

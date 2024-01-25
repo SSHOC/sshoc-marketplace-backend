@@ -2,10 +2,15 @@ package eu.sshopencloud.marketplace.services.search.query;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.solr.core.query.Criteria;
 
 @Slf4j
 public abstract class SearchQueryPhrase implements SearchQueryCriteria {
+    public static final String QUERY_ALL = "*:*";
+    public static final String COLON = ":";
+    public static final String WILDCARD = "*";
+    public static final String CIRCUMFLEX = "^";
+    public static final String LEFT_BRACKET = "(";
+    public static final String RIGHT_BRACKET = ")";
 
     protected String phrase;
 
@@ -21,7 +26,7 @@ public abstract class SearchQueryPhrase implements SearchQueryCriteria {
     }
 
     @Override
-    public Criteria getQueryCriteria() {
+    public String getQueryCriteria() {
         log.debug("Original query {}: {}", advanced, phrase);
         if (advanced) {
             return getAdvancedQueryCriteria();
@@ -30,8 +35,8 @@ public abstract class SearchQueryPhrase implements SearchQueryCriteria {
         }
     }
 
-    protected abstract Criteria getPhraseQueryCriteria();
+    protected abstract String getPhraseQueryCriteria();
 
-    protected abstract Criteria getAdvancedQueryCriteria();
+    protected abstract String getAdvancedQueryCriteria();
 
 }

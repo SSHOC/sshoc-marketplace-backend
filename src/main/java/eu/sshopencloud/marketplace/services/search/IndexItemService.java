@@ -3,7 +3,6 @@ package eu.sshopencloud.marketplace.services.search;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
-import eu.sshopencloud.marketplace.repositories.search.IndexItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.repositories.sources.projection.DetailedSourceView;
@@ -13,13 +12,16 @@ import eu.sshopencloud.marketplace.services.items.event.ItemsMergedEvent;
 import eu.sshopencloud.marketplace.services.sources.event.SourceChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrInputDocument;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,7 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IndexItemService {
 
-    private final IndexItemRepository indexItemRepository;
+    private final SolrClient solrClient;
     private final ItemRepository itemRepository;
 
     private final SearchItemRepository searchItemRepository;
@@ -39,10 +41,10 @@ public class IndexItemService {
     private final SourceRepository sourceRepository;
 
 
-    public IndexItem indexItem(Item item) {
+    public void indexItem(Item item) {
 
         if (!item.isNewestVersion() && !item.isProposedVersion()) {
-            return null;
+            return;
         }
 
         if (item.isNewestVersion())
@@ -51,18 +53,27 @@ public class IndexItemService {
         List<Map<String, Object>> results = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId());
         List<DetailedSourceView> detailedSources = results.stream().map(DetailedSourceView::new).collect(Collectors.toList());
 
-        IndexItem indexedItem = IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item),
+        SolrInputDocument indexedItem = IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item),
                 detailedSources);
 
-        return indexItemRepository.save(indexedItem);
+        try {
+            solrClient.add(IndexItem.COLLECTION_NAME, indexedItem);
+            solrClient.commit(IndexItem.COLLECTION_NAME);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public IndexItem indexItemAfterReindex(Item item) {
-
+    public void indexItemAfterReindex(Item item) {
         List<DetailedSourceView> detailedSources = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId()).stream().map(DetailedSourceView::new).collect(Collectors.toList());
 
-        return indexItemRepository.save(IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item),
-                detailedSources));
+        try {
+            solrClient.add(IndexItem.COLLECTION_NAME, IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item),
+                    detailedSources));
+            solrClient.commit(IndexItem.COLLECTION_NAME);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -76,12 +87,27 @@ public class IndexItemService {
     }
 
     public void clearItemIndex() {
-        indexItemRepository.deleteAll();
+        try {
+            solrClient.deleteByQuery(IndexItem.COLLECTION_NAME, "*:*");
+            solrClient.commit(IndexItem.COLLECTION_NAME);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
     public void removeItemVersions(Item item) {
-        indexItemRepository.deleteByPersistentId(item.getPersistentId());
+        deleteByPersistentId(item.getPersistentId());
+        //indexItemRepository.deleteByPersistentId(item.getPersistentId());
+    }
+
+    private void deleteByPersistentId(String persistentId) {
+        try {
+            solrClient.deleteByQuery(IndexItem.COLLECTION_NAME, IndexItem.PERSISTENT_ID_FIELD + ":" + persistentId);
+            solrClient.commit(IndexItem.COLLECTION_NAME);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -118,7 +144,7 @@ public class IndexItemService {
     @TransactionalEventListener(classes = {ItemsMergedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
     public void handleMergedEvent(ItemsMergedEvent event) {
         for (String persistentId : event.getPersistentIdsToMerge()) {
-            indexItemRepository.deleteByPersistentId(persistentId);
+            deleteByPersistentId(persistentId);
         }
         for (Item item : itemRepository.findByVersionedItemPersistentId(event.getNewPersistentId())) {
             indexItem(item);
