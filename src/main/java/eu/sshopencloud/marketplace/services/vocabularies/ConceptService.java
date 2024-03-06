@@ -105,7 +105,7 @@ public class ConceptService {
 
 
     private int getMaxOrdForConceptInVocabulary(Vocabulary vocabulary) {
-        int count = (int)conceptRepository.countAllByVocabularyCode(vocabulary.getCode());
+        int count = conceptRepository.findMaxOrdByVocabularyCode(vocabulary.getCode());
         return count + 1;
     }
 

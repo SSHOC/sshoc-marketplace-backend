@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.model.vocabularies.ConceptId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,5 +22,6 @@ public interface ConceptRepository extends JpaRepository<Concept, ConceptId> {
 
     Optional<Concept> findByCodeAndVocabularyCode(String code, String vocabularyCode );
 
-    long countAllByVocabularyCode(String vocabularyCode);
+    @Query("SELECT COALESCE(MAX(c.ord), 0) FROM Concept c WHERE c.vocabulary.code = :vocabularyCode")
+    int findMaxOrdByVocabularyCode(String vocabularyCode);
 }
