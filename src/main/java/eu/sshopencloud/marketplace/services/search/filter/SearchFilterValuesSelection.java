@@ -1,14 +1,15 @@
 package eu.sshopencloud.marketplace.services.search.filter;
 
 import lombok.Getter;
-import org.springframework.data.solr.core.query.Criteria;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class SearchFilterValuesSelection extends SearchFilterCriteria {
 
-    private List<String> values;
+    private final List<String> values;
 
     public SearchFilterValuesSelection(SearchFilter filter, List<String> values) {
         super(filter);
@@ -16,9 +17,8 @@ public class SearchFilterValuesSelection extends SearchFilterCriteria {
     }
 
     @Override
-    public Criteria getFilterCriteria() {
-        Criteria filterField = new Criteria(getFilterFieldSpecifier());
-        return filterField.in(getValues());
+    public String getFilterCriteria() {
+        return getFilterFieldSpecifier() + ":(" + StringUtils.join(getValues().stream().map(v -> "\"" + v +"\"").collect(
+                Collectors.toList()), StringUtils.SPACE) + ")";
     }
-
 }

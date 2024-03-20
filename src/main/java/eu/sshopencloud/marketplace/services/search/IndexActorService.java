@@ -3,24 +3,30 @@ package eu.sshopencloud.marketplace.services.search;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
-import eu.sshopencloud.marketplace.repositories.search.IndexActorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class IndexActorService {
-
-    private final IndexActorRepository indexActorRepository;
+    private final SolrClient solrClient;
     private final ActorRepository actorRepository;
 
-    public IndexActor indexActor(Actor actor) {
-        IndexActor indexedActor = IndexConverter.covertActor(actor);
-        return indexActorRepository.save(indexedActor);
+    public void indexActor(Actor actor) {
+        try {
+            solrClient.add(IndexActor.COLLECTION_NAME, IndexConverter.covertActor(actor));
+            solrClient.commit(IndexActor.COLLECTION_NAME);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void reindexActors() {
@@ -33,12 +39,20 @@ public class IndexActorService {
     }
 
     public void clearActorIndex() {
-        indexActorRepository.deleteAll();
+        try {
+            solrClient.deleteByQuery(IndexActor.COLLECTION_NAME, "*:*");
+            solrClient.commit(IndexActor.COLLECTION_NAME);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void removeActor(Long actorId) {
-        indexActorRepository.deleteById(actorId.toString());
+        try {
+            solrClient.deleteById(IndexActor.COLLECTION_NAME, actorId.toString());
+            solrClient.commit(IndexActor.COLLECTION_NAME);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-
-
 }

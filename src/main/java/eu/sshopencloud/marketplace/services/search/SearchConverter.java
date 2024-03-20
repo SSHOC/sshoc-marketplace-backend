@@ -1,20 +1,27 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.conf.datetime.SolrDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.search.*;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
-import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import lombok.experimental.UtilityClass;
-import org.springframework.data.solr.core.query.result.FacetFieldEntry;
+import org.apache.solr.client.solrj.response.FacetField;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -22,7 +29,7 @@ public class SearchConverter {
 
     public SearchItem convertIndexItem(IndexItem indexItem) {
         return SearchItem.builder()
-                .id(indexItem.getVersionId())
+                .id(Long.valueOf(indexItem.getVersionId()))
                 .persistentId(indexItem.getPersistentId())
                 .label(indexItem.getLabel())
                 .version(indexItem.getVersion())
@@ -30,18 +37,20 @@ public class SearchConverter {
                 .category(ItemCategoryConverter.convertCategory(indexItem.getCategory()))
                 .status(ItemStatus.of(indexItem.getStatus()))
                 .owner(indexItem.getOwner())
-                .lastInfoUpdate(indexItem.getLastInfoUpdate())
+                .lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(ZonedDateTime.of(
+                                LocalDateTime.ofInstant(indexItem.getLastInfoUpdate().toInstant(), ZoneOffset.UTC), ZoneOffset.UTC)))
                 .build();
     }
 
     public SearchItemBasic convertIndexItemBasic(IndexItem indexItem) {
         return SearchItemBasic.builder()
-                .id(indexItem.getVersionId())
+                .id(Long.valueOf(indexItem.getVersionId()))
                 .persistentId(indexItem.getPersistentId())
                 .label(indexItem.getLabel())
                 .version(indexItem.getVersion())
                 .category(ItemCategoryConverter.convertCategory(indexItem.getCategory()))
-                .lastInfoUpdate(indexItem.getLastInfoUpdate())
+                .lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(ZonedDateTime.of(
+                        LocalDateTime.ofInstant(indexItem.getLastInfoUpdate().toInstant(), ZoneOffset.UTC), ZoneOffset.UTC)))
                 .build();
     }
 
@@ -70,11 +79,11 @@ public class SearchConverter {
 
     }
 
-    public LabeledCheckedCount convertCategoryFacet(FacetFieldEntry entry, List<ItemCategory> categories) {
-        String code = entry.getValue();
+    public LabeledCheckedCount convertCategoryFacet(FacetField.Count entry, List<ItemCategory> categories) {
+        String code = entry.getName();
         ItemCategory category = ItemCategoryConverter.convertCategory(code);
 
-        return convertCategoryFacet(category, entry.getValueCount(), categories);
+        return convertCategoryFacet(category, entry.getCount(), categories);
     }
 
     public LabeledCheckedCount convertCategoryFacet(ItemCategory category, long count, List<ItemCategory> categories) {
@@ -93,8 +102,8 @@ public class SearchConverter {
         return SearchConcept.builder()
                 .code(indexConcept.getCode()).vocabulary(vocabulary).label(indexConcept.getLabel()).notation(indexConcept.getNotation()).definition(indexConcept.getDefinition())
                 .uri(indexConcept.getUri())
-                .candidate(indexConcept.getCandidate())
-                .types(indexConcept.getTypes().stream()
+                .candidate(Optional.ofNullable(indexConcept.getCandidate()).orElse(false))
+                .types(Optional.ofNullable(indexConcept.getTypes()).orElse(List.of()).stream()
                         .map(type -> {
                             PropertyTypeId propertyType = new PropertyTypeId();
                             propertyType.setCode(type);
@@ -104,12 +113,12 @@ public class SearchConverter {
                 .build();
     }
 
-    public CountedPropertyType convertPropertyTypeFacet(FacetFieldEntry entry, List<String> types, Map<String, PropertyType> propertyTypes) {
-        String code = entry.getValue();
+    public CountedPropertyType convertPropertyTypeFacet(FacetField.Count entry, List<String> types, Map<String, PropertyType> propertyTypes) {
+        String code = entry.getName();
         PropertyType propertyType = propertyTypes.get(code);
         CountedPropertyType.CountedPropertyTypeBuilder builder = CountedPropertyType.builder();
         builder.code(code).label(propertyType.getLabel());
-        builder.count(entry.getValueCount());
+        builder.count(entry.getCount());
         if (types == null) {
             builder.checked(false);
         } else {
