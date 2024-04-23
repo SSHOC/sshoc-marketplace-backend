@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.dto.search;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
-import org.springframework.data.domain.Sort;
+import org.apache.solr.client.solrj.SolrQuery;
 
 public enum ActorSearchOrder {
 
@@ -32,7 +32,7 @@ public enum ActorSearchOrder {
         return getValue();
     }
 
-    public Sort toSort() {
-        return Sort.by(asc ? Sort.Direction.ASC : Sort.Direction.DESC, name);
+    public SolrQuery.SortClause toSort() {
+        return asc ? SolrQuery.SortClause.asc(name) : SolrQuery.SortClause.desc(name);
     }
 }

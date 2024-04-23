@@ -2,18 +2,14 @@ package eu.sshopencloud.marketplace.model.search;
 
 import lombok.*;
 import org.apache.solr.client.solrj.beans.Field;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.solr.core.mapping.Dynamic;
-import org.springframework.data.solr.core.mapping.Indexed;
-import org.springframework.data.solr.core.mapping.SolrDocument;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Map.entry;
 
 
-@SolrDocument(collection = IndexItem.COLLECTION_NAME)
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor
@@ -66,83 +62,79 @@ public class IndexItem {
             entry(FACETING_DYNAMIC_PROPERTY_KEYWORD_TAG, "dynamic_property_keyword_ss"),
             entry(FACETING_DYNAMIC_PROPERTY_ACTIVITY_TAG, "dynamic_property_activity_ss"),
             entry(FACETING_DYNAMIC_PROPERTY_LANGUAGE_TAG, "dynamic_property_language_ss"));
+    public static final String DETAILED_SOURCE = "detailed_source";
+    public static final String DYNAMIC_PROPERTY = "dynamic_property_*";
 
 
-    @Id
-    @Indexed(name = ID_FIELD, type = "string")
-    private Long versionId;
+    @Field(ID_FIELD)
+    private String versionId;
 
-    @Indexed(name = DOC_CONTENT_TYPE_FIELD, type = "string")
+    @Field(DOC_CONTENT_TYPE_FIELD)
     private String docContentType;
 
-    @Indexed(name = PERSISTENT_ID_FIELD, type = "string")
+    @Field(PERSISTENT_ID_FIELD)
     private String persistentId;
 
-    @Indexed(name = LABEL_FIELD, type = "string")
+    @Field(LABEL_FIELD)
     private String label;
 
-    @Indexed(name = LABEL_TEXT_FIELD, type = "text_general_rev")
+    @Field(LABEL_TEXT_FIELD)
     private String labelText;
 
-    @Indexed(name = LABEL_TEXT_EN_FIELD, type = "text_en")
+    @Field(LABEL_TEXT_EN_FIELD)
     private String labelTextEn;
 
-    @Indexed(name = VERSION_FIELD, type = "string")
+    @Field(VERSION_FIELD)
     private String version;
 
-    @Indexed(name = DESCRIPTION_FIELD, type = "string")
+    @Field(DESCRIPTION_FIELD)
     private String description;
 
-    @Indexed(name = DESCRIPTION_TEXT_FIELD, type = "text_general_rev")
+    @Field(DESCRIPTION_TEXT_FIELD)
     private String descriptionText;
 
-    @Indexed(name = DESCRIPTION_TEXT_EN_FIELD, type = "text_en")
+    @Field(DESCRIPTION_TEXT_EN_FIELD)
     private String descriptionTextEn;
 
-    @Indexed(name = CONTRIBUTOR_FIELD, type = "strings")
-    @Singular
+    @Field(CONTRIBUTOR_FIELD)
     private List<String> contributors;
 
-    @Indexed(name = CONTRIBUTOR_TEXT_FIELD, type = "text_general_rev")
-    @Singular("contributorText")
+    @Field(CONTRIBUTOR_TEXT_FIELD)
     private List<String> contributorsText;
 
-    @Indexed(name = EXTERNAL_IDENTIFIER_FIELD, type = "strings")
-    @Singular
+    @Field(EXTERNAL_IDENTIFIER_FIELD)
     private List<String> externalIdentifiers;
 
-    @Indexed(name = CATEGORY_FIELD, type = "string")
+    @Field(CATEGORY_FIELD)
     private String category;
 
-    @Indexed(name = CONTEXT_FIELD, type = "text_context")
+    @Field(CONTEXT_FIELD)
     private String context;
 
-    @Indexed(name = STATUS_FIELD, type = "string")
+    @Field(STATUS_FIELD)
     private String status;
 
-    @Indexed(name = OWNER_FIELD, type = "string")
+    @Field(OWNER_FIELD)
     private String owner;
 
-    @Indexed(name = LAST_INFO_UPDATE_FIELD, type = "pdate")
-    private String lastInfoUpdate;
+    @Field(LAST_INFO_UPDATE_FIELD)
+    private Date lastInfoUpdate;
 
-    @Indexed(name = SOURCE_FIELD, type = "strings")
+    @Field(SOURCE_FIELD)
     @Singular
     private List<String> sources;
 
-    @Field(value = "detailed_source", child = true)
+    @Field(value = DETAILED_SOURCE, child = true)
     @Singular
     private List<IndexSource> detailedSources;
 
-    @Indexed(name = KEYWORD_TEXT_FIELD, type = "text_general_rev")
-    @Singular("keywordText")
+    @Field(KEYWORD_TEXT_FIELD)
     private List<String> keywordsTexts;
 
-    @Indexed(name = RELATED_ITEMS_FIELD, type = "pint")
+    @Field(RELATED_ITEMS_FIELD)
     private int relatedItems;
 
-    @Dynamic
-    @Field("dynamic_property_*")
+    @Field(DYNAMIC_PROPERTY)
     private Map<String, List<String>> dynamicProperties;
 
 }

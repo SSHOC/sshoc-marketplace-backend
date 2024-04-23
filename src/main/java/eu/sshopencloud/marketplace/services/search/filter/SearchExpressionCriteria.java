@@ -1,7 +1,5 @@
 package eu.sshopencloud.marketplace.services.search.filter;
 
-import org.springframework.data.solr.core.query.Criteria;
-
 public class SearchExpressionCriteria {
 
     protected String field;
@@ -13,9 +11,8 @@ public class SearchExpressionCriteria {
         this.expression = expression;
     }
 
-    public Criteria getFilterCriteria() {
-        Criteria filterField = new Criteria(getQueryFieldSpecifier());
-        return filterField.expression(expression);
+    public String getFilterCriteria() {
+        return getQueryFieldSpecifier() + ":" + expression;
     }
 
     protected String getQueryFieldSpecifier() {
