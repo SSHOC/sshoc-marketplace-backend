@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.dto.search.*;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.mappers.actors.ActorExternalIdMapper;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
+import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.mappers.items.ItemContributorMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.PropertyMapper;
 import eu.sshopencloud.marketplace.model.actors.Actor;
@@ -17,8 +18,6 @@ import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.search.SearchActorRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
-import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
-import eu.sshopencloud.marketplace.dto.search.SuggestedSearchPhrases;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
@@ -32,12 +31,12 @@ import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.solr.core.query.result.FacetFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,8 +69,12 @@ public class SearchService {
         SearchQueryCriteria queryCriteria = new ItemSearchQueryPhrase(q, advanced);
 
         List<SearchFilterCriteria> filterCriteria = new ArrayList<>();
-        filterCriteria.add(makeCategoryCriteria(categories));
-        filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.ITEMS));
+        if (Objects.nonNull(categories) && !categories.isEmpty()) {
+            filterCriteria.add(makeCategoryCriteria(categories));
+        }
+        if (!filterParams.isEmpty()) {
+            filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.ITEMS));
+        }
 
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
@@ -81,7 +84,7 @@ public class SearchService {
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
 
-        FacetPage<IndexItem> facetPage = searchItemRepository.findByQueryAndFilters(queryCriteria, expressionCriteria,
+        QueryResponse facetPage = searchItemRepository.findByQueryAndFilters(queryCriteria, expressionCriteria,
                 currentUser, includeSteps, filterCriteria, order, pageable);
 
         Map<ItemCategory, LabeledCheckedCount> categoryFacet = gatherCategoryFacet(facetPage, categories);
@@ -91,14 +94,14 @@ public class SearchService {
                 .q(q)
                 .order(order)
                 .items(
-                        facetPage.get()
+                        facetPage.getBeans(IndexItem.class).stream()
                                 .map(SearchConverter::convertIndexItem)
                                 .collect(Collectors.toList())
                 )
-                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .hits(facetPage.getResults().getNumFound()).count(facetPage.getResults().size())
                 .page(pageCoords.getPage())
                 .perpage(pageCoords.getPerpage())
-                .pages(facetPage.getTotalPages())
+                .pages((int) Math.ceil((double)facetPage.getResults().getNumFound() / (double)pageCoords.getPerpage()))
                 .categories(categoryFacet)
                 .facets(facets)
                 .build();
@@ -114,14 +117,14 @@ public class SearchService {
         return result;
     }
 
-    private Map<ItemCategory, LabeledCheckedCount> gatherCategoryFacet(FacetPage<IndexItem> facetPage, List<ItemCategory> categories) {
+    private Map<ItemCategory, LabeledCheckedCount> gatherCategoryFacet(QueryResponse facetPage, List<ItemCategory> categories) {
         Map<ItemCategory, LabeledCheckedCount> countedCategories = facetPage.getFacetFields().stream()
                 .filter(field -> IndexItem.CATEGORY_FIELD.equals(field.getName()))
-                .map(facetPage::getFacetResultPage)
-                .flatMap(facetFieldEntries -> facetFieldEntries.getContent().stream())
+                .map(FacetField::getValues)
+                .flatMap(Collection::stream)
                 .collect(
                         Collectors.toMap(
-                                facet -> ItemCategoryConverter.convertCategory(facet.getValue()),
+                                facet -> ItemCategoryConverter.convertCategory(facet.getName()),
                                 facet -> SearchConverter.convertCategoryFacet(facet, categories)
                         )
                 );
@@ -145,7 +148,7 @@ public class SearchService {
         return SearchConverter.convertCategoryFacet(category, 0, categories);
     }
 
-    private Map<String, Map<String, CheckedCount>> gatherSearchItemFacets(FacetPage<IndexItem> facetPage, Map<String, List<String>> filterParams) {
+    private Map<String, Map<String, CheckedCount>> gatherSearchItemFacets(QueryResponse facetPage, Map<String, List<String>> filterParams) {
         return facetPage.getFacetFields().stream()
                 .filter(field -> !IndexItem.CATEGORY_FIELD.equals(field.getName()))
                 .map(field -> createFacetsDetails(field.getName(), facetPage, filterParams))
@@ -157,7 +160,7 @@ public class SearchService {
     }
 
 
-    private static Pair<String, Map<String, CheckedCount>> createFacetsDetails(String fieldName, FacetPage<IndexItem> facetPage, Map<String, List<String>> filterParams) {
+    private static Pair<String, Map<String, CheckedCount>> createFacetsDetails(String fieldName, QueryResponse facetPage, Map<String, List<String>> filterParams) {
         String facetName;
         if (fieldName.startsWith(SearchExpressionDynamicFieldCriteria.DYNAMIC_FIELD_PREFIX)) {
             facetName = fieldName.replace(SearchExpressionDynamicFieldCriteria.DYNAMIC_FIELD_PREFIX, "");
@@ -165,31 +168,24 @@ public class SearchService {
         } else {
             facetName = fieldName.replace('_', '-');
         }
-        return Pair.create(
+        return Pair.of(
                 facetName,
                 createFacetDetails(
-                        facetPage.getFacetResultPage(fieldName).getContent(),
+                        facetPage.getFacetField(fieldName).getValues(),
                         filterParams.get(facetName)
                 ));
     }
 
-    private static Map<String, CheckedCount> createFacetDetails(List<FacetFieldEntry> facetValues, List<String> checkedValues) {
+    private static Map<String, CheckedCount> createFacetDetails(List<FacetField.Count> facetValues, List<String> checkedValues) {
         if (checkedValues != null) {
-            return facetValues.stream()
-                    .collect(
-                            Collectors.toMap(FacetFieldEntry::getValue, facetValue -> CheckedCount.builder().count(facetValue.getValueCount()).checked(checkedValues.contains(facetValue.getValue())).build(),
-                                    (u, v) -> u,
-                                    LinkedHashMap::new
-                            )
-                    );
+            return facetValues.stream().collect(Collectors.toMap(FacetField.Count::getName,
+                    facetValue -> CheckedCount.builder().count(facetValue.getCount())
+                            .checked(checkedValues.contains(facetValue.getName())).build(), (u, v) -> u,
+                    LinkedHashMap::new));
         } else {
-            return facetValues.stream()
-                    .collect(
-                            Collectors.toMap(FacetFieldEntry::getValue, facetValue -> CheckedCount.builder().count(facetValue.getValueCount()).build(),
-                                    (u, v) -> u,
-                                    LinkedHashMap::new
-                            )
-                    );
+            return facetValues.stream().collect(Collectors.toMap(FacetField.Count::getName,
+                    facetValue -> CheckedCount.builder().count(facetValue.getCount()).build(), (u, v) -> u,
+                    LinkedHashMap::new));
         }
     }
 
@@ -203,31 +199,34 @@ public class SearchService {
         SearchQueryCriteria queryCriteria = new ConceptSearchQueryPhrase(q, advanced);
 
         List<SearchFilterCriteria> filterCriteria = new ArrayList<>();
-        filterCriteria.add(makePropertyTypeCriteria(types));
-        filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.CONCEPTS));
+        if (Objects.nonNull(types) && !types.isEmpty()) {
+            filterCriteria.add(makePropertyTypeCriteria(types));
+        }
+        if (!filterParams.isEmpty()) {
+            filterCriteria.addAll(makeFiltersCriteria(filterParams, IndexType.CONCEPTS));
+        }
 
-        FacetPage<IndexConcept> facetPage = searchConceptRepository.findByQueryAndFilters(queryCriteria, filterCriteria, pageable, order);
+        QueryResponse facetPage = searchConceptRepository.findByQueryAndFilters(queryCriteria, filterCriteria, pageable, order);
 
         Map<String, CountedPropertyType> typeFacet = gatherTypeFacet(facetPage, types);
         Map<String, Map<String, CheckedCount>> facets = gatherSearchConceptFacets(facetPage, filterParams);
 
         return PaginatedSearchConcepts.builder()
-                .q(q).concepts(facetPage.get().map(SearchConverter::convertIndexConcept).collect(Collectors.toList()))
-                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .q(q).concepts(facetPage.getBeans(IndexConcept.class).stream().map(SearchConverter::convertIndexConcept).collect(Collectors.toList()))
+                .hits(facetPage.getResults().getNumFound()).count(facetPage.getResults().size())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
-                .pages(facetPage.getTotalPages())
+                .pages((int) Math.ceil((double)facetPage.getResults().getNumFound() / (double)pageCoords.getPerpage()))
                 .types(typeFacet)
                 .facets(facets)
                 .build();
-
     }
 
-    private Map<String, CountedPropertyType> gatherTypeFacet(FacetPage<IndexConcept> facetPage, List<String> types) {
+    private Map<String, CountedPropertyType> gatherTypeFacet(QueryResponse facetPage, List<String> types) {
         Map<String, PropertyType> propertyTypes = propertyTypeService.getAllPropertyTypes();
         List<CountedPropertyType> countedPropertyTypes = facetPage.getFacetFields().stream()
                 .filter(field -> IndexConcept.TYPES_FIELD.equals(field.getName()))
-                .map(facetPage::getFacetResultPage)
-                .flatMap(facetFieldEntries -> facetFieldEntries.getContent().stream())
+                .map(FacetField::getValues)
+                .flatMap(Collection::stream)
                 .map(entry -> SearchConverter.convertPropertyTypeFacet(entry, types, propertyTypes))
                 .collect(Collectors.toList());
 
@@ -237,13 +236,13 @@ public class SearchService {
                         LinkedHashMap::new));
     }
 
-    private Map<String, Map<String, CheckedCount>> gatherSearchConceptFacets(FacetPage<IndexConcept> facetPage, Map<String, List<String>> filterParams) {
+    private Map<String, Map<String, CheckedCount>> gatherSearchConceptFacets(QueryResponse facetPage, Map<String, List<String>> filterParams) {
         return facetPage.getFacetFields().stream()
                 .filter(field -> !IndexConcept.TYPES_FIELD.equals(field.getName()))
-                .map(field -> Pair.create(
+                .map(field -> Pair.of(
                         field.getName().replace('_', '-'),
                         createFacetDetails(
-                                facetPage.getFacetResultPage(field.getName()).getContent(),
+                                facetPage.getFacetField(field.getName()).getValues(),
                                 filterParams.get(field.getName().replace('_', '-'))
                         )
                 ))
@@ -318,14 +317,14 @@ public class SearchService {
 
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
 
-        FacetPage<IndexActor> facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable, order);
+        QueryResponse facetPage = searchActorRepository.findByQueryAndFilters(queryCriteria, expressionCriteria, pageable, order);
 
         PaginatedSearchActor result = PaginatedSearchActor.builder()
                 .q(q)
-                .actors(facetPage.get().map(SearchConverter::convertIndexActor).collect(Collectors.toList()))
-                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .actors(facetPage.getBeans(IndexActor.class).stream().map(SearchConverter::convertIndexActor).collect(Collectors.toList()))
+                .hits(facetPage.getResults().getNumFound()).count(facetPage.getResults().size())
                 .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
-                .pages(facetPage.getTotalPages())
+                .pages((int) Math.ceil((double)facetPage.getResults().getNumFound() / (double)pageCoords.getPerpage()))
                 .build();
 
 

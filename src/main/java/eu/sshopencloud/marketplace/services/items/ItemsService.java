@@ -20,11 +20,10 @@ import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.search.SearchConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.*;
-import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.SimpleStringCriteria;
-import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,21 +133,23 @@ public class ItemsService extends ItemVersionService<Item> {
             queryBuilder.append(" AND source_item_id:");
             queryBuilder.append("\"").append(sourceItemId).append("\"");
         }
-        Criteria queryCriteria = new SimpleStringCriteria(queryBuilder.toString());
+//        Criteria queryCriteria = new SimpleStringCriteria(queryBuilder.toString());
+        SolrQuery solrQuery = new SolrQuery(queryBuilder.toString());
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
-        FacetPage<IndexItem> facetPage = searchItemRepository.findByQuery(queryCriteria, currentUser, ItemSearchOrder.LABEL, pageable);
+        QueryResponse facetPage = searchItemRepository.findByQuery(solrQuery, currentUser, ItemSearchOrder.LABEL, pageable);
 
         return PaginatedSearchItemsBasic.builder()
                 .items(
-                        facetPage.get()
+                        facetPage.getBeans(IndexItem.class).stream()
                                 .map(SearchConverter::convertIndexItemBasic)
                                 .collect(Collectors.toList())
                 )
-                .hits(facetPage.getTotalElements()).count(facetPage.getNumberOfElements())
+                .hits(facetPage.getResults().getNumFound())
+                .count(facetPage.getResults().size())
                 .page(pageCoords.getPage())
                 .perpage(pageCoords.getPerpage())
-                .pages(facetPage.getTotalPages())
+                .pages((int) Math.ceil((double)facetPage.getResults().getNumFound() / (double)pageCoords.getPerpage()))
                 .build();
     }
 
@@ -255,7 +256,9 @@ public class ItemsService extends ItemVersionService<Item> {
 
         if (order == null) order = ItemOrder.MODIFIED_ON;
 
-        List<Item> list = itemRepository.getDeletedItemsIds().stream().map(id -> itemRepository.findById(id).get()).collect(Collectors.toList());
+        List<Item> list = itemRepository.getDeletedItemsIds().stream().map(id -> itemRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Could not find item with id: " + id)))
+                .collect(Collectors.toList());
 
         Page<Item> pages = new PageImpl<>(list, PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage(), Sort.by(getSortOrderByItemOrder(order, false))), list.size());
 
