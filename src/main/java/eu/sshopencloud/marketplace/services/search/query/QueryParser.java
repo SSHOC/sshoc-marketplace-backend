@@ -31,9 +31,9 @@ public class QueryParser {
                     expression = new StringBuilder();
                 }
             } else if (token.equals("\"")) {
-                if (expression.length() > 0 && expression.substring(expression.length() - 1, expression.length()).equals("\\")) {
+                if (expression.length() > 1 && expression.substring(expression.length() - 1, expression.length()).equals("\\")) {
                     // escaped quote
-                    expression.replace(expression.length() - 1, expression.length(), "\"");
+                    expression.replace(expression.length() - 2, expression.length(), "\"");
                 } else {
                     if (insideQuote) {
                         insideQuote = false;
@@ -46,7 +46,7 @@ public class QueryParser {
                     }
                 }
             } else {
-                expression.append(token);
+                expression.append(ClientUtils.escapeQueryChars(token));
             }
         }
         if (isAcceptableExpression(expression.toString())) {

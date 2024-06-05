@@ -42,7 +42,17 @@ public class QueryParserTest {
 
         assertThat(queryParts, hasSize(2));
         assertThat(queryParts, contains(new QueryPart("gephi", false),
-                                        new QueryPart("complex+test", false)));
+                                        new QueryPart("complex\\+test", false)));
+    }
+
+    @Test
+    public void canQueryURL() throws Exception {
+        String phrase = "https://test.eu/test";
+
+        List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
+
+        assertThat(queryParts, hasSize(1));
+        assertThat(queryParts, contains(new QueryPart("https\\:\\/\\/test.eu\\/test", false)));
     }
 
     @Test

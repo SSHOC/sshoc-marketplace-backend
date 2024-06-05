@@ -10,21 +10,26 @@ import java.util.stream.Collectors;
 
 public class ActorSearchQueryPhrase extends SearchQueryPhrase {
     public enum ActorCriteriaParams {
-        ID(IndexActor.ID_FIELD, 10f),
-        EXT_ID(IndexActor.EXTERNAL_IDENTIFIER_FIELD, 10f),
-        NAME(IndexActor.NAME_FIELD, 4f),
-        EMAIL(IndexActor.EMAIL_FIELD, 4f),
-        WEBSITE(IndexActor.WEBSITE_FIELD, 4f);
+        ID(IndexActor.ID_FIELD, 10f, false),
+        EXT_ID(IndexActor.EXTERNAL_IDENTIFIER_FIELD, 10f, false),
+        NAME(IndexActor.NAME_FIELD, 4f, true),
+        EMAIL(IndexActor.EMAIL_FIELD, 4f, true),
+        WEBSITE(IndexActor.WEBSITE_FIELD, 4f, true);
 
         private final String fieldName;
         private final float boost;
+        private final boolean containsCondition;
 
-        ActorCriteriaParams(String fieldName, float boost) {
+        ActorCriteriaParams(String fieldName, float boost, boolean containsCondition) {
             this.fieldName = fieldName;
             this.boost = boost;
+            this.containsCondition = containsCondition;
         }
 
         public String getCondition(String expression) {
+            if (containsCondition) {
+                return fieldName + COLON + WILDCARD + expression + WILDCARD + CIRCUMFLEX + boost;
+            }
             return fieldName + COLON + expression + CIRCUMFLEX + boost;
         }
     }
