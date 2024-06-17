@@ -3,14 +3,12 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.publications.PaginatedPublications;
 import eu.sshopencloud.marketplace.dto.publications.PublicationCore;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
-import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.publications.PublicationMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.publications.Publication;
@@ -83,6 +81,11 @@ public class PublicationService extends ItemCrudService<Publication, Publication
 
     public PublicationDto revertPublication(String persistentId, long versionId) {
         Publication publication = revertItemVersion(persistentId, versionId);
+        return prepareItemDto(publication);
+    }
+
+    public PublicationDto revertPublication(String persistentId) {
+        Publication publication = revertItemVersion(persistentId);
         return prepareItemDto(publication);
     }
 
