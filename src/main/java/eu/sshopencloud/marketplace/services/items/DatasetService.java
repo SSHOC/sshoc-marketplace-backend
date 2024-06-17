@@ -90,6 +90,10 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
         return prepareItemDto(dataset);
     }
 
+    public DatasetDto revertDataset(String persistentId) {
+        Dataset dataset = revertItemVersion(persistentId);
+        return prepareItemDto(dataset);
+    }
 
     public DatasetDto commitDraftDataset(String persistentId) {
         Dataset dataset = publishDraftItem(persistentId);

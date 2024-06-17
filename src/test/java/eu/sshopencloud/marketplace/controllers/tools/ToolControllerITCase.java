@@ -1677,6 +1677,62 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("properties", hasSize(0)));
     }
 
+    @Test
+    public void shouldDeleteAndRevertTool() throws Exception {
 
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Tool to revert");
+        tool.setDescription("Lorem ipsum dolor");
 
+        String toolPayload = mapper.writeValueAsString(tool);
+
+        String toolJSON = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(toolPayload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJSON, ToolDto.class);
+
+        mvc.perform(delete("/api/tools-services/{id}", toolDto.getPersistentId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk());
+
+        mvc.perform(
+                        put("/api/tools-services/{id}/revert", toolDto.getPersistentId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                        get("/api/tools-services/{id}", toolDto.getPersistentId())
+                                .param("approved", "true")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(toolDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())));
+    }
 }

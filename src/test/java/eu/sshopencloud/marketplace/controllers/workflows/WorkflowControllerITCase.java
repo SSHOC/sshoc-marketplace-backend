@@ -40,7 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static eu.sshopencloud.marketplace.util.MatcherUtils.*;
+import static eu.sshopencloud.marketplace.util.MatcherUtils.equalValue;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -3008,4 +3008,62 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("other.composedOf[3]", nullValue()));
     }
 
+    @Test
+    public void shouldDeleteAndRevertWorkflow() throws Exception {
+
+        WorkflowCore workflow = new WorkflowCore();
+        workflow.setLabel("Workflow to revert");
+        workflow.setDescription("Lorem ipsum dolor");
+
+        String workflowPayload = mapper.writeValueAsString(workflow);
+
+        String workflowJSON = mvc.perform(
+                        post("/api/workflows")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(workflowPayload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(workflow.getLabel())))
+                .andExpect(jsonPath("description", is(workflow.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        WorkflowDto workflowDto = mapper.readValue(workflowJSON, WorkflowDto.class);
+
+        mvc.perform(delete("/api/workflows/{id}", workflowDto.getPersistentId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk());
+
+        mvc.perform(
+                        put("/api/workflows/{id}/revert", workflowDto.getPersistentId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(workflow.getLabel())))
+                .andExpect(jsonPath("description", is(workflow.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                        get("/api/workflows/{id}", workflowDto.getPersistentId())
+                                .param("approved", "true")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(workflowDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(workflowDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("workflow")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(workflow.getLabel())))
+                .andExpect(jsonPath("description", is(workflow.getDescription())));
+    }
 }

@@ -474,6 +474,18 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         return targetVersion;
     }
 
+    protected I revertItemVersion(String persistentId) {
+        I currentVersion = loadCurrentItem(persistentId, false);
+
+        currentVersion.setStatus(ItemStatus.APPROVED);
+        currentVersion.getVersionedItem().setActive(true);
+        currentVersion.getVersionedItem().setStatus(VersionedItemStatus.REVIEWED);
+
+        indexItemService.indexItem(currentVersion);
+
+        return currentVersion;
+    }
+
     protected I liftItemVersion(String persistentId, boolean draft) {
         return liftItemVersion(persistentId, draft, true);
     }
@@ -691,7 +703,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         for (int i = 0; i < mergeList.size(); i++) {
 
-            Optional<Item> toMergeHolder = itemRepository.findCurrentVersion(mergeList.get(i));
+            Optional<Item> toMergeHolder = itemRepository.findCurrentActiveVersion(mergeList.get(i));
             if (toMergeHolder.isEmpty())
                 continue;
             Item toMerge = toMergeHolder.get();
@@ -791,7 +803,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         Optional<Item> otherHolder;
         if (Objects.isNull(otherVersionId))
-            otherHolder = itemRepository.findCurrentVersion(otherPersistentId);
+            otherHolder = itemRepository.findCurrentActiveVersion(otherPersistentId);
         else
             otherHolder = itemRepository.findByVersionedItemPersistentIdAndId(otherPersistentId, otherVersionId);
 

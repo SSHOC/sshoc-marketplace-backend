@@ -148,6 +148,27 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         Workflow revWorkflow = revertItemVersion(persistentId, versionId);
         return prepareItemDto(revWorkflow);
     }
+    public WorkflowDto revertWorkflow(String persistentId) {
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (!currentUser.isAdministrator())
+            throw new AccessDeniedException("Current user is not an Administrator and is not allowed to revert workflow");
+
+        Workflow revWorkflow = revertItemVersion(persistentId);
+
+        revWorkflow.getStepsTree().visit(new StepsTreeVisitor() {
+            @Override
+            public void onNextStep(StepsTree stepTree) {
+                Step step = stepTree.getStep();
+                stepService.revertItemVersion(step.getPersistentId());
+            }
+
+            @Override
+            public void onBackToParent() {
+            }
+        });
+
+        return prepareItemDto(revWorkflow);
+    }
 
     public void deleteWorkflow(String persistentId, boolean draft) {
         if (draft) {
