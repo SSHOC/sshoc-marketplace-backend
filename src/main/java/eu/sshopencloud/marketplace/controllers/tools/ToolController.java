@@ -88,6 +88,13 @@ public class ToolController {
         return ResponseEntity.ok(toolService.revertTool(persistentId, versionId));
     }
 
+    @Operation(summary = "Revert tool by its persistentId. This method will set its status to ACTIVE " +
+            "and its versioned item to REVIEWED status and active state.")
+    @PutMapping(path = "/{persistentId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> revertTool(@PathVariable("persistentId") String persistentId) {
+        return ResponseEntity.ok(toolService.revertTool(persistentId));
+    }
+
     @Operation(summary = "Delete tool by its persistentId")
     @DeleteMapping(path = "/{persistentId}")
     public void deleteTool(@PathVariable("persistentId") String persistentId, @RequestParam(value = "draft", defaultValue = "false") boolean draft) {

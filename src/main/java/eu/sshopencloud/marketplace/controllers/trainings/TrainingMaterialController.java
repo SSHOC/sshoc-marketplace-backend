@@ -91,6 +91,13 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterialService.revertTrainingMaterial(persistentId, versionId));
     }
 
+    @Operation(summary = ("Revert training material by its persistentId. This method " +
+            "will set its status to ACTIVE and its versioned item to REVIEWED status and active state."))
+    @PutMapping(path = "/{persistentId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> revertTrainingMaterial(@PathVariable("persistentId") String persistentId) {
+        return ResponseEntity.ok(trainingMaterialService.revertTrainingMaterial(persistentId));
+    }
+
     @Operation(summary = "Delete training material by its persistentId")
     @DeleteMapping(path = "/{persistentId}")
     public void deleteTrainingMaterial(@PathVariable("persistentId") String persistentId,

@@ -56,15 +56,26 @@ abstract class ItemVersionService<I extends Item> {
     }
 
     /**
-     * Loads the most recent item for update. Does not necessarily need to be approved
+     * Loads the most recent item for update. Does not need to be approved.
+     * For the internal use only, as this method does not validate user access privileges
+     * @param onlyActive if true seeks for active items only
+     */
+    protected I loadCurrentItem(String persistentId, boolean onlyActive) {
+        // Here - why not to load VersionedItem, and then do getCurrentVersion() ?
+        // Because getCurrentVersion() and getCurrentActiveVersion() returns Item, and we want the generic item type I
+        // Hence, there is a dedicated method in the repository - do not remove
+        return (onlyActive ? getItemRepository().findCurrentActiveVersion(
+                persistentId) : getItemRepository().findCurrentVersion(persistentId)).orElseThrow(
+                () -> new EntityNotFoundException(
+                        String.format("Unable to find current %s with id %s", getItemTypeName(), persistentId)));
+    }
+
+    /**
+     * Loads the most recent item for update. Does not need to be approved, but needs to be active.
      * For the internal use only, as this method does not validate user access privileges
      */
     protected I loadCurrentItem(String persistentId) {
-        // Here - why not to load VersionedItem, and then do getCurrentVersion() ?
-        // Because getCurrentVersion() returns Item, and we want the generic item type I
-        // Hence, there is a dedicated method in the repository - do not remove
-        return getItemRepository().findCurrentVersion(persistentId).orElseThrow(() -> new EntityNotFoundException(
-                String.format("Unable to find current %s with id %s", getItemTypeName(), persistentId)));
+        return loadCurrentItem(persistentId, true);
     }
 
 
@@ -166,6 +177,6 @@ abstract class ItemVersionService<I extends Item> {
         while (isMerged(itemPersistentId)) {
             itemPersistentId = getItemRepository().findMergedWithPersistentId(itemPersistentId);
         }
-        return getItemRepository().findCurrentVersion(itemPersistentId);
+        return getItemRepository().findCurrentActiveVersion(itemPersistentId);
     }
 }

@@ -59,8 +59,14 @@ public interface ItemVersionRepository<T extends Item> extends JpaRepository<T, 
                     "where i.persistentId = :persistentId " +
                     "and i.active = true"
     )
-    Optional<T> findCurrentVersion(@Param("persistentId") String persistentId);
+    Optional<T> findCurrentActiveVersion(@Param("persistentId") String persistentId);
 
+    @Query(
+            "select v from #{#entityName} v " +
+                    "join VersionedItem i on i.currentVersion = v " +
+                    "where i.persistentId = :persistentId"
+    )
+    Optional<T> findCurrentVersion(@Param("persistentId") String persistentId);
 
     @Query(
             "select v from #{#entityName} v " +

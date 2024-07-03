@@ -96,6 +96,13 @@ public class PublicationController {
         publicationService.deletePublication(persistentId, draft);
     }
 
+    @Operation(summary = "Revert publication by its persistentId. This method will set its status to ACTIVE " +
+            "and its versioned item to REVIEWED status and active state.")
+    @PutMapping(path = "/{persistentId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> revertPublication(@PathVariable("persistentId") String persistentId) {
+        return ResponseEntity.ok(publicationService.revertPublication(persistentId));
+    }
+
     @Operation(summary = "Delete publication by its persistentId and versionId")
     @DeleteMapping(path = "/{persistentId}/versions/{versionId}")
     public void deletePublicationVersion(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {
