@@ -26,7 +26,7 @@ spring:
             hibernate:
                 dialect: org.hibernate.dialect.PostgreSQL9Dialect
                 jdbc:
-                    lob: 
+                    lob:
                         non_contextual_creation: true
 
     jackson:
@@ -72,7 +72,7 @@ spring:
                         token-uri: ${aai_base_uri:https://proxy.acc.myaccessid.org/OIDC}/token
                         authorization-uri: ${aai_base_uri:https://proxy.acc.myaccessid.org/OIDC}/authorization
                         user-info-uri: ${aai_base_uri:https://proxy.acc.myaccessid.org/OIDC}/userinfo
-                        jwk-set-uri: ${aai_base_uri:https://proxy.acc.myaccessid.org/OIDC}/jwk
+                        jwk-set-uri: ${aai_base_uri:https://proxy.acc.myaccessid.org/OIDC}/jwks
                         user-name-attribute: sub
 
     profiles:
