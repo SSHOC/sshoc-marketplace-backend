@@ -1,10 +1,10 @@
 version: "2"
 services:
   marketplace-stage:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile-acdh-ch
-      args: 
+      args:
         - GID=1057
         - UID=1057
     image: docker.gitlab.gwdg.de/sshoc/sshoc-marketplace-backend/api-stage:latest
@@ -23,7 +23,7 @@ services:
       POSTGRES_PORT: 5432
       SOLR_HOST: solr-stage
       SOLR_PORT: 8983
-      aai_base_uri: https://aai.eosc-portal.eu/oidc
+      aai_base_uri: https://proxy.acc.myaccessid.org/OIDC
       egi_id: ${egi_id}
       egi_secret: ${egi_secret}
       token_secret: ${token_secret}
