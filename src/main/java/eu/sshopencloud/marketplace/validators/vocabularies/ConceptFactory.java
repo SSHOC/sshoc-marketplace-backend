@@ -7,12 +7,18 @@ import eu.sshopencloud.marketplace.model.vocabularies.*;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.web.util.UriUtils;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -22,6 +28,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ConceptFactory {
 
     private final ConceptRepository conceptRepository;
@@ -62,20 +69,33 @@ public class ConceptFactory {
 
         concept.setDefinition(conceptCore.getDefinition());
 
-        if (StringUtils.isBlank(conceptCore.getUri())) {
-            concept.setUri(vocabulary.getNamespace() + concept.getCode());
+        if (StringUtils.isNotBlank(conceptCore.getUri()) &&
+                !StringUtils.equals(conceptCore.getUri(), vocabulary.getNamespace() + concept.getCode()) &&
+                !StringUtils.equals(conceptCore.getUri(), vocabulary.getNamespace() + URLEncoder.encode(concept.getCode(), StandardCharsets.UTF_8))) {
+            errors.rejectValue("uri", "field.invalid",
+                    "Uri is not consistent with vocabulary namespace and concept code.");
         } else {
-            if (conceptCore.getUri().equals(vocabulary.getNamespace() + concept.getCode())) {
-                concept.setUri(conceptCore.getUri());
-            } else {
-                errors.rejectValue("uri", "field.invalid", "Uri is not consistent with vocabulary namespace and concept code.");
-            }
+            concept.setUri(vocabulary.getNamespace() + (isURLEncoded(concept.getCode()) ? concept.getCode() : UriUtils.encode(concept.getCode(), StandardCharsets.UTF_8)));
         }
 
         if (errors.hasErrors())
             throw new ValidationException(errors);
 
         return concept;
+    }
+
+    private boolean isURLEncoded(String code) {
+        try {
+            String decoded = UriUtils.decode(code, StandardCharsets.UTF_8);
+            String reEncoded = UriUtils.encode(decoded, StandardCharsets.UTF_8);
+            if (code.equals(reEncoded)) {
+                return true;
+            }
+        } catch (IllegalArgumentException e) {
+            log.debug(e.getMessage());
+            return false;
+        }
+        return false;
     }
 
     public List<ConceptRelatedConcept> createConceptRelations(Concept concept, List<RelatedConceptCore> relatedConcepts) throws ValidationException {
