@@ -3,11 +3,13 @@ package eu.sshopencloud.marketplace.validators.vocabularies;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.RelatedConceptCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
-import eu.sshopencloud.marketplace.model.vocabularies.*;
+import eu.sshopencloud.marketplace.model.vocabularies.Concept;
+import eu.sshopencloud.marketplace.model.vocabularies.ConceptId;
+import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
+import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -16,12 +18,10 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.util.UriUtils;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 
