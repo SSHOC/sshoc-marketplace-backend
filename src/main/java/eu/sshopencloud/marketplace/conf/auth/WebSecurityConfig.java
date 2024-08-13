@@ -1,16 +1,16 @@
 package eu.sshopencloud.marketplace.conf.auth;
 
+import eu.sshopencloud.marketplace.filters.auth.JwtTokenAuthenticationFilter;
 import eu.sshopencloud.marketplace.filters.auth.OidcAuthenticationFailureHandler;
+import eu.sshopencloud.marketplace.filters.auth.OidcAuthenticationSuccessHandler;
 import eu.sshopencloud.marketplace.filters.auth.UsernamePasswordBodyAuthenticationFilter;
 import eu.sshopencloud.marketplace.model.auth.Authority;
 import eu.sshopencloud.marketplace.repositories.auth.HttpCookieOAuth2AuthorizationRequestRepository;
+import eu.sshopencloud.marketplace.services.auth.CustomOidcUserService;
 import eu.sshopencloud.marketplace.services.auth.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import eu.sshopencloud.marketplace.filters.auth.JwtTokenAuthenticationFilter;
-import eu.sshopencloud.marketplace.filters.auth.OidcAuthenticationSuccessHandler;
-import eu.sshopencloud.marketplace.services.auth.CustomOidcUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,14 +23,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -48,6 +50,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final OidcAuthenticationFailureHandler oidcAuthenticationFailureHandler;
 
+    private final ClientRegistrationRepository clientRegistrationRepository;
+
     private final CustomOidcUserService customOidcUserService;
 
     private final CustomUserDetailsService customUserDetailsService;
@@ -56,7 +60,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${marketplace.cors.max-age-sec}")
     private Long corsMaxAgeInSec;
-
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -197,13 +200,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll();
 
         http
-                .oauth2Login()
-                    .authorizationEndpoint()
-                    .baseUri("/oauth2/authorize")
-                    .authorizationRequestRepository(authorizationRequestRepository())
+                .oauth2Login().authorizationEndpoint()
+                .authorizationRequestResolver(defaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository))
+                .baseUri("/oauth2/authorize").authorizationRequestRepository(authorizationRequestRepository()).and()
+                .tokenEndpoint()
                 .and()
-                .userInfoEndpoint()
-                    .oidcUserService(customOidcUserService)
+                .userInfoEndpoint().oidcUserService(customOidcUserService)
                 .and()
                 .successHandler(oidcAuthenticationSuccessHandler)
                 .failureHandler(oidcAuthenticationFailureHandler);
@@ -276,4 +278,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return firewall;
     }
 
+    @Bean
+    public OAuth2AuthorizationRequestResolver defaultOAuth2AuthorizationRequestResolver(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        OAuth2AuthorizationRequestResolver authorizationRequestResolver = new PkceAuthorizationRequestResolver(
+                clientRegistrationRepository);
+        return authorizationRequestResolver;
+    }
 }
