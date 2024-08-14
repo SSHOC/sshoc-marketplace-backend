@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.datasets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
@@ -20,12 +20,12 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import eu.sshopencloud.marketplace.util.MediaTestUploadUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -33,7 +33,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,25 +47,26 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @AutoConfigureMockMvc
 @AutoConfigureTestEntityManager
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
 public class DatasetControllerITCase {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+    @RegisterExtension
+    public static WireMockExtension wireMockExtension = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
+    //public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
 
     @Autowired
     private MockMvc mvc;
@@ -82,7 +83,7 @@ public class DatasetControllerITCase {
     private String ADMINISTRATOR_JWT;
     private String SYSTEM_MODERATOR_JWT;
 
-    @Before
+    @BeforeEach
     public void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
@@ -971,13 +972,13 @@ public class DatasetControllerITCase {
     public void shouldCreateDatasetWithMediaAndImportedThumbnail() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
         UUID grumpycatId = MediaTestUploadUtils.importMedia(
-                mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
+                mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
         ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
 
-        URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
+        URL grumpyUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/grumpycat.png");
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("A dataset of cats");
@@ -1023,13 +1024,13 @@ public class DatasetControllerITCase {
     public void shouldUpdateDatasetWithMediaAndUploadedThumbnail() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
         UUID grumpycatId = MediaTestUploadUtils.importMedia(
-                mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
+                mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
         ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
 
-        URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
+        URL grumpyUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/grumpycat.png");
 
         String datasetId = "OdKfPc";
         DatasetCore dataset = new DatasetCore();
@@ -1076,7 +1077,7 @@ public class DatasetControllerITCase {
     public void shouldPreventInvalidMediaUpload() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
         UUID grumpycatId = MediaTestUploadUtils.importMedia(
-                mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
+                mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
         );
 
 
@@ -1118,13 +1119,13 @@ public class DatasetControllerITCase {
     @Test
     public void shouldCreateDatasetWithMediaWithoutThumbnailIncludedInMedia() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
-        UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
+        UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
         UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg", CONTRIBUTOR_JWT);
 
         ItemMediaCore seriouscat = new ItemMediaCore(new MediaDetailsId(seriouscatId), "Serious Cat", null);
         ItemMediaCore grumpycat = new ItemMediaCore(new MediaDetailsId(grumpycatId), "Grumpy Cat", null);
 
-        URL grumpyUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpycat.png");
+        URL grumpyUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/grumpycat.png");
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("A dataset of cats");
@@ -1209,7 +1210,7 @@ public class DatasetControllerITCase {
 
     @Test
     public void shouldCreateDatasetWithMediaWithLicenseFromCodeAndVocabularyCode() throws Exception {
-        UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockRule, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
+        UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
 
         ConceptId conceptIdCode = new ConceptId();
         conceptIdCode.setCode("AFL-3.0");

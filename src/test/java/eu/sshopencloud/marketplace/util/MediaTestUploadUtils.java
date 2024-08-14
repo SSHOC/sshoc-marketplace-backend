@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.sshopencloud.marketplace.controllers.media.MediaUploadControllerITCase;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
@@ -17,7 +17,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,7 +50,7 @@ public class MediaTestUploadUtils {
         return mediaDetails.getMediaId();
     }
 
-    public UUID importMedia(MockMvc mvc, ObjectMapper mapper, WireMockRule wireMockRule,
+    public UUID importMedia(MockMvc mvc, ObjectMapper mapper, WireMockExtension wireMockExtension,
                             String mediaFilename, String contentType, String userJwt) throws Exception {
 
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream(
@@ -65,17 +66,17 @@ public class MediaTestUploadUtils {
                 .withHeader("Content-Length", String.valueOf(mediaContent.length))
                 .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", mediaFilename));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo(mediaPath))
                         .willReturn(mediaResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo(mediaPath))
                         .willReturn(mediaResponse.withBody(mediaContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), mediaPath);
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), mediaPath);
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
 

@@ -1,15 +1,13 @@
 package eu.sshopencloud.marketplace.util;
 
-import lombok.experimental.UtilityClass;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 
-@UtilityClass
 public class MatcherUtils {
 
-    public Matcher<Number> equalValue(long value) {
+    public static Matcher<Number> equalValue(long value) {
         return new TypeSafeMatcher<>() {
             @Override
             protected boolean matchesSafely(Number item) {
