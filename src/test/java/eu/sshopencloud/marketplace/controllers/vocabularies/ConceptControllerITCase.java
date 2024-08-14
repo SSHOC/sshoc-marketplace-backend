@@ -127,7 +127,7 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.code", is("New Candidate")))
                 .andExpect(jsonPath("$.label", is("New candidate concept")))
                 .andExpect(jsonPath("$.candidate", is(true)))
-                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New Candidate")))
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New%20Candidate")))
                 .andExpect(jsonPath("$.relatedConcepts[0].code", is("Journal")))
                 .andExpect(jsonPath("$.relatedConcepts[1].code", is("Book")))
                 .andExpect(jsonPath("$.relatedConcepts[2].code", is("Conference")));
@@ -447,7 +447,7 @@ public class ConceptControllerITCase {
                 .andExpect(jsonPath("$.code", is("New Candidate")))
                 .andExpect(jsonPath("$.label", is("New candidate concept")))
                 .andExpect(jsonPath("$.candidate", is(true)))
-                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New Candidate")))
+                .andExpect(jsonPath("$.uri", is("http://purl.org/ontology/bibo/New%20Candidate")))
                 .andExpect(jsonPath("$.relatedConcepts[0].code", is("Journal")))
                 .andExpect(jsonPath("$.relatedConcepts[1].code", is("Conference")));
 
