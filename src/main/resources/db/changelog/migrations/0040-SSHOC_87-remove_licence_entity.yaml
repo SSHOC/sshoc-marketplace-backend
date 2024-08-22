@@ -4,15 +4,21 @@ databaseChangeLog:
       author: ekalata
       description: Removing licence entity
       changes:
-        -dropTable:
-          cascadeConstraints: true
-          tableName: licence_types
+# this change was not effective in older versions of liquidbase becuase there was no space between dash and dropTable, newer version raised error
+# we keep this file for backward compatibility, hence validCheckSum is set to ANY and everything else is commented
+#        - dropTable:
+#            cascadeConstraints: true
+#            tableName: licence_types
+      validCheckSum: ANY
 
   - changeSet:
       id: 0040-SSHOC_87-remove_licence_entity-2
       author: ekalata
       description: Removing licence entity
       changes:
-        -dropTable:
-          cascadeConstraints:  true
-          tableName:  licences
+# this change was not effective in older versions of liquidbase becuase there was no space between dash and dropTable, newer version raised error
+# we keep this file for backward compatibility, hence validCheckSum is set to ANY and everything else is commented
+#        - dropTable:
+#            cascadeConstraints:  true
+#            tableName:  licences
+      validCheckSum: ANY

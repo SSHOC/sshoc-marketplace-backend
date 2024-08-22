@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.repositories.common;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 
 @RequiredArgsConstructor

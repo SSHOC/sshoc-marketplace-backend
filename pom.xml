@@ -16,7 +16,7 @@
         <api.version>0.1.1</api.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <org.projectlombok.version>1.18.22</org.projectlombok.version>
-        <liquibase-hibernate.version>3.6</liquibase-hibernate.version>
+        <liquibase-hibernate.version>4.29.1</liquibase-hibernate.version>
 <!--        <liquibase.version>3.6.0</liquibase.version>-->
         <skip.it>false</skip.it>
     </properties>
@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.18</version>
+        <version>3.1.0</version>
         <relativePath />
     </parent>
 
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>
-            <version>2.31.0</version>
+            <version>3.0.1</version>
             <scope>test</scope>
         </dependency>
         <!-- Lombok -->
@@ -238,8 +238,8 @@
         <!-- https://mvnrepository.com/artifact/com.vladmihalcea/hibernate-types-52 -->
         <dependency>
             <groupId>com.vladmihalcea</groupId>
-            <artifactId>hibernate-types-52</artifactId>
-            <version>2.14.0</version>
+            <artifactId>hibernate-types-60</artifactId>
+            <version>2.21.1</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.gdcc/xoai-data-provider -->
@@ -371,7 +371,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.liquibase.ext</groupId>
-                        <artifactId>liquibase-hibernate5</artifactId>
+                        <artifactId>liquibase-hibernate6</artifactId>
                         <version>${liquibase-hibernate.version}</version>
                     </dependency>
                     <dependency>

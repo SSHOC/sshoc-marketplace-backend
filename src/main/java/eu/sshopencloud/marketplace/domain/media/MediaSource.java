@@ -5,7 +5,7 @@ import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.net.URL;
 
 @Entity

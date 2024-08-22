@@ -615,7 +615,7 @@ public class ConceptControllerITCase {
                 .build();
 
         mvc.perform(
-                        post("/api/vocabularies/{vocabulary-code}/concepts/", vocabularyCode)
+                        post("/api/vocabularies/{vocabulary-code}/concepts", vocabularyCode)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .header("Authorization", moderatorJwt)
                                 .contentType(MediaType.APPLICATION_JSON)

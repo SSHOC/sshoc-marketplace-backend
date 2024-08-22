@@ -3,13 +3,15 @@ package eu.sshopencloud.marketplace.model.actors;
 import com.google.gson.annotations.Expose;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import lombok.*;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 import org.springframework.lang.Nullable;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
@@ -19,8 +21,8 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@TypeDefs({ @TypeDef(name = "json", typeClass = JsonStringType.class),
-        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class) })
+@Converts({ @Convert(attributeName = "json", converter = JsonStringType.class),
+        @Convert(attributeName = "jsonb", converter = JsonBinaryType.class)})
 public class ActorHistory implements Serializable {
 
     @Id
@@ -35,7 +37,7 @@ public class ActorHistory implements Serializable {
     @Column(nullable = false)
     private ZonedDateTime dateCreated;
 
-    @Type(type = "jsonb")
+    @Type(JsonType.class)
     @Column(name = "history", columnDefinition = "jsonb")
     @Nullable
     @Expose

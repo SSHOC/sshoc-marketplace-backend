@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.tools;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
@@ -26,6 +27,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -1317,7 +1320,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Moderator")))
                 .andExpect(jsonPath("$[0].displayName", is("Moderator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("moderator")))
                 .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));
@@ -1358,7 +1361,7 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("$[1].username", is("Moderator")))
                 .andExpect(jsonPath("$[1].displayName", is("Moderator")))
                 .andExpect(jsonPath("$[1].status", is("enabled")))
-                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[1].role", is("moderator")))
                 .andExpect(jsonPath("$[1].email", is("moderator@example.com")))
                 .andExpect(jsonPath("$[1].config", is(true)));

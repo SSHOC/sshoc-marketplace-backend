@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.model.vocabularies;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "concept_relations")

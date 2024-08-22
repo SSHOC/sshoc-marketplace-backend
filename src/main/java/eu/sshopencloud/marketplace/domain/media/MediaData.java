@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.http.MediaType;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDateTime;

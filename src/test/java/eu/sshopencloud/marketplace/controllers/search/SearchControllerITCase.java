@@ -70,7 +70,7 @@ public class SearchControllerITCase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(3)))
                 .andExpect(jsonPath("items[0].id", is(1)))
-                .andExpect(jsonPath("items[0].lastInfoUpdate", is("2020-08-04T10:29:00Z")))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", is("2020-08-04T12:29:00Z")))
                 .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
                 .andExpect(jsonPath("items[0].label", is("Gephi")))
                 .andExpect(jsonPath("items[1].id", is(7)))

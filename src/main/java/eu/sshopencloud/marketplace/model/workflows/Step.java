@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.model.workflows;
 import eu.sshopencloud.marketplace.model.items.Item;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 @Entity

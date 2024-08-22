@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.workflows;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
@@ -2127,7 +2128,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[0].displayName", is("Administrator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("administrator")))
                 .andExpect(jsonPath("$[0].email", is("administrator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));
@@ -2147,7 +2148,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Contributor")))
                 .andExpect(jsonPath("$[0].displayName", is("Contributor")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("contributor")))
                 .andExpect(jsonPath("$[0].email", is("contributor@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));
@@ -2194,7 +2195,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[0].displayName", is("Administrator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("administrator")))
                 .andExpect(jsonPath("$[0].email", is("administrator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));
@@ -2243,7 +2244,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[0].displayName", is("Administrator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("administrator")))
                 .andExpect(jsonPath("$[0].email", is("administrator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)))
@@ -2251,7 +2252,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[1].username", is("Contributor")))
                 .andExpect(jsonPath("$[1].displayName", is("Contributor")))
                 .andExpect(jsonPath("$[1].status", is("enabled")))
-                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[1].role", is("contributor")))
                 .andExpect(jsonPath("$[1].email", is("contributor@example.com")))
                 .andExpect(jsonPath("$[1].config", is(true)));
