@@ -3,14 +3,12 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.trainings.PaginatedTrainingMaterials;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialCore;
 import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
-import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.trainings.TrainingMaterialMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.trainings.TrainingMaterial;
@@ -87,6 +85,11 @@ public class TrainingMaterialService
 
     public TrainingMaterialDto revertTrainingMaterial(String persistentId, long versionId) {
         TrainingMaterial trainingMaterial = revertItemVersion(persistentId, versionId);
+        return prepareItemDto(trainingMaterial);
+    }
+
+    public TrainingMaterialDto revertTrainingMaterial(String persistentId) {
+        TrainingMaterial trainingMaterial = revertItemVersion(persistentId);
         return prepareItemDto(trainingMaterial);
     }
 

@@ -2468,4 +2468,62 @@ public class DatasetControllerITCase {
                 .andExpect(status().is4xxClientError());
     }
 
+    @Test
+    public void shouldDeleteAndRevertDataset() throws Exception {
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Dataset to revert");
+        dataset.setDescription("Lorem ipsum dolor");
+
+        String datasetPayload = mapper.writeValueAsString(dataset);
+
+        String datasetJSON = mvc.perform(
+                        post("/api/datasets")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(datasetPayload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        DatasetDto datasetDto = mapper.readValue(datasetJSON, DatasetDto.class);
+
+        mvc.perform(delete("/api/datasets/{id}", datasetDto.getPersistentId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk());
+
+        mvc.perform(
+                        put("/api/datasets/{id}/revert", datasetDto.getPersistentId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())))
+                .andReturn().getResponse().getContentAsString();
+
+        mvc.perform(
+                        get("/api/datasets/{id}", datasetDto.getPersistentId())
+                                .param("approved", "true")
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(datasetDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())));
+    }
 }

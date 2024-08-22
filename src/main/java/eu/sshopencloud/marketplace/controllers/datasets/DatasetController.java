@@ -87,6 +87,13 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.revertDataset(persistentId, versionId));
     }
 
+    @Operation(summary = "Revert dataset by its persistentId. This method will set its status to ACTIVE " +
+            "and its versioned item to REVIEWED status and active state.")
+    @PutMapping(path = "/{persistentId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> revertDataset(@PathVariable("persistentId") String persistentId) {
+        return ResponseEntity.ok(datasetService.revertDataset(persistentId));
+    }
+
     @Operation(summary = "Delete dataset by its persistentId")
     @DeleteMapping(path = "/{persistentId}")
     public void deleteDataset(@PathVariable("persistentId") String persistentId,

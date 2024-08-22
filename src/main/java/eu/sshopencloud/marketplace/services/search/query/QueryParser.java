@@ -26,7 +26,7 @@ public class QueryParser {
                     expression.append(token);
                 } else {
                     if (isAcceptableExpression(expression.toString())) {
-                        result.add(new QueryPart(ClientUtils.escapeQueryChars(expression.toString()), false));
+                        result.add(new QueryPart(expression.toString(), false));
                     }
                     expression = new StringBuilder();
                 }
@@ -46,7 +46,9 @@ public class QueryParser {
                     }
                 }
             } else {
-                expression.append(ClientUtils.escapeQueryChars(token));
+                if (isAcceptableExpression(token)) {
+                    expression.append(ClientUtils.escapeQueryChars(token));
+                }
             }
         }
         if (isAcceptableExpression(expression.toString())) {

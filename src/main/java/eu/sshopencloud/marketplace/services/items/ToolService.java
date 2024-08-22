@@ -3,14 +3,12 @@ package eu.sshopencloud.marketplace.services.items;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
-import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
-import eu.sshopencloud.marketplace.mappers.datasets.DatasetMapper;
 import eu.sshopencloud.marketplace.mappers.tools.ToolMapper;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.tools.Tool;
@@ -83,6 +81,11 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
 
     public ToolDto revertTool(String persistentId, long versionId) {
         Tool tool = revertItemVersion(persistentId, versionId);
+        return prepareItemDto(tool);
+    }
+
+    public ToolDto revertTool(String persistentId) {
+        Tool tool = revertItemVersion(persistentId);
         return prepareItemDto(tool);
     }
 
