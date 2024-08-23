@@ -15,7 +15,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <api.version>0.1.1</api.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
-        <org.projectlombok.version>1.18.22</org.projectlombok.version>
+        <org.projectlombok.version>1.18.30</org.projectlombok.version>
         <liquibase-hibernate.version>4.29.1</liquibase-hibernate.version>
 <!--        <liquibase.version>3.6.0</liquibase.version>-->
         <skip.it>false</skip.it>
