@@ -1,9 +1,9 @@
 package eu.sshopencloud.marketplace.model.actors;
 
 import com.google.gson.annotations.Expose;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import io.hypersistence.utils.hibernate.type.json.JsonStringType;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
