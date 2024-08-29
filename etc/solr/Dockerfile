@@ -1,15 +1,15 @@
-FROM solr:9.3.0
+FROM solr:9.6.1
 
 USER root
 
 RUN mkdir -p /usr/solr && \
 	chown solr -hR /usr/solr && \
-	chown solr -hR /opt/solr-9.3.0 && \
+	chown solr -hR /opt/solr-9.6.1 && \
 	chown solr -hR /var/solr
 
 USER solr
 
-WORKDIR /opt/solr-9.3.0
+WORKDIR /opt/solr-9.6.1
 
 RUN /opt/solr/docker/scripts/init-var-solr && \
     ./bin/solr start && \
