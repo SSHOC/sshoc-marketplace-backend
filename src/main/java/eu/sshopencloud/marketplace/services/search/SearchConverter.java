@@ -39,6 +39,8 @@ public class SearchConverter {
                 .owner(indexItem.getOwner())
                 .lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(ZonedDateTime.of(
                                 LocalDateTime.ofInstant(indexItem.getLastInfoUpdate().toInstant(), ZoneOffset.UTC), ZoneOffset.UTC)))
+                .accessibleAt(indexItem.getAccessibleAt())
+                .thumbnailId(indexItem.getThumbnailId())
                 .build();
     }
 

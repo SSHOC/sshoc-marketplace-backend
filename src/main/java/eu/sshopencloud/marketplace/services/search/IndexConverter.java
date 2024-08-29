@@ -26,10 +26,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @UtilityClass
 @Slf4j
@@ -95,6 +92,9 @@ public class IndexConverter {
 
         constructDynamicProperties(item.getProperties()).forEach(
                 (key, value) -> value.forEach(v -> sid.addField(IndexItem.DYNAMIC_PROPERTY.replace("*", key), v)));
+
+        Optional.ofNullable(item.getAccessibleAt()).ifPresent(aaList -> aaList.forEach(aa -> sid.addField(IndexItem.ACCESSIBLE_AT, aa)));
+        Optional.ofNullable(item.getThumbnail()).ifPresent(thumbnail -> sid.setField(IndexItem.THUMBNAIL_ID, thumbnail.getMediaId().toString()));
 
         return sid;
     }

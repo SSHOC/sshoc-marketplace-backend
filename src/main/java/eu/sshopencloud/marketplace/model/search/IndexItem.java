@@ -64,7 +64,8 @@ public class IndexItem {
             entry(FACETING_DYNAMIC_PROPERTY_LANGUAGE_TAG, "dynamic_property_language_ss"));
     public static final String DETAILED_SOURCE = "detailed_source";
     public static final String DYNAMIC_PROPERTY = "dynamic_property_*";
-
+    public static final String ACCESSIBLE_AT = "accessible_at";
+    public static final String THUMBNAIL_ID = "thumbnail_id";
 
     @Field(ID_FIELD)
     private String versionId;
@@ -137,4 +138,9 @@ public class IndexItem {
     @Field(DYNAMIC_PROPERTY)
     private Map<String, List<String>> dynamicProperties;
 
+    @Field(ACCESSIBLE_AT)
+    private List<String> accessibleAt;
+
+    @Field(THUMBNAIL_ID)
+    private String thumbnailId;
 }

@@ -140,6 +140,9 @@
 
     <field name="related_items" type="pint" indexed="true" stored="false" required="false" multiValued="false" />
 
+    <field name="accessible_at" type="string" indexed="false" stored="true" required="false" multiValued="true" />
+    <field name="thumbnail_id" type="string" indexed="false" stored="true" required="false" multiValued="false" />
+
     <copyField source="label_text" dest="suggestions"/>
     <!-- <copyField source="keyword_text" dest="suggestions"/> -->
 
