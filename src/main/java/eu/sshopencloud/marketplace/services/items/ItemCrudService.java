@@ -203,7 +203,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                         !LoggedInUserHolder.getLoggedInUser().isContributor() &&
                         currentItem.getStatus() != ItemStatus.APPROVED)) {
             comparisonResult = recognizePotentialChanges(currentItem, (ItemCore) itemCore);
-            if (comparisonResult == ComparisonResult.UNMODIFIED) {
+            if (comparisonResult == ComparisonResult.UNMODIFIED
+                    && !(currentItem.getStatus() != ItemStatus.APPROVED && approved
+                            && LoggedInUserHolder.getLoggedInUser() != null
+                            && LoggedInUserHolder.getLoggedInUser().isModerator())) {
                 throw new VersionNotChangedException();
             }
         }
