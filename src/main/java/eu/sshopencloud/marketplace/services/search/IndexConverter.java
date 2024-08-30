@@ -93,7 +93,8 @@ public class IndexConverter {
         constructDynamicProperties(item.getProperties()).forEach(
                 (key, value) -> value.forEach(v -> sid.addField(IndexItem.DYNAMIC_PROPERTY.replace("*", key), v)));
 
-        Optional.ofNullable(item.getAccessibleAt()).ifPresent(aaList -> aaList.forEach(aa -> sid.addField(IndexItem.ACCESSIBLE_AT, aa)));
+        Optional.ofNullable(item.getAccessibleAt()).ifPresent(aaList -> aaList.stream()
+                .filter(Objects::nonNull).forEach(aa -> sid.addField(IndexItem.ACCESSIBLE_AT, aa)));
         Optional.ofNullable(item.getThumbnail()).ifPresent(thumbnail -> sid.setField(IndexItem.THUMBNAIL_ID, thumbnail.getMediaId().toString()));
 
         return sid;

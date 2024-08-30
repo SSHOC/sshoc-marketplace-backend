@@ -18,10 +18,7 @@ import org.apache.solr.client.solrj.response.FacetField;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -38,8 +35,8 @@ public class SearchConverter {
                 .status(ItemStatus.of(indexItem.getStatus()))
                 .owner(indexItem.getOwner())
                 .lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(ZonedDateTime.of(
-                                LocalDateTime.ofInstant(indexItem.getLastInfoUpdate().toInstant(), ZoneOffset.UTC), ZoneOffset.UTC)))
-                .accessibleAt(indexItem.getAccessibleAt())
+                        LocalDateTime.ofInstant(indexItem.getLastInfoUpdate().toInstant(), ZoneOffset.UTC), ZoneOffset.UTC)))
+                .accessibleAt((Objects.isNull(indexItem.getAccessibleAt()) || indexItem.getAccessibleAt().isEmpty()) ? null : indexItem.getAccessibleAt())
                 .thumbnailId(indexItem.getThumbnailId())
                 .build();
     }
