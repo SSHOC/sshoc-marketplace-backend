@@ -9,10 +9,14 @@ import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
+import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.*;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
+import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.items.DraftItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
@@ -24,6 +28,7 @@ import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedExc
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
+import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,10 +37,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -56,6 +58,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private final SourceService sourceService;
 
     private final ApplicationEventPublisher eventPublisher;
+    private final VocabularyService vocabularyService;
 
 
     public ItemCrudService(ItemRepository itemRepository, VersionedItemRepository versionedItemRepository,
@@ -63,7 +66,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
                            MediaStorageService mediaStorageService, SourceService sourceService,
-                           ApplicationEventPublisher eventPublisher) {
+                           ApplicationEventPublisher eventPublisher, VocabularyService vocabularyService) {
 
         super(versionedItemRepository, itemVisibilityService);
 
@@ -82,6 +85,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         this.sourceService = sourceService;
 
         this.eventPublisher = eventPublisher;
+        this.vocabularyService = vocabularyService;
     }
 
 
@@ -626,37 +630,54 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
     private void complete(ItemDto dto, Item item) {
         completeDtoProperties(dto);
 
+        List<UUID> mediaIds = item.getMedia().stream().map(ItemMedia::getMediaId).collect(Collectors.toList());
+
+        Optional.ofNullable(item.getThumbnail()).ifPresent(thumbnail -> mediaIds.add(thumbnail.getMediaId()));
+
+        List<MediaDetails> listOfMediaWithThumbnail = mediaStorageService.getMediaDetails(mediaIds);
+
+        Map<UUID, List<MediaDetails>> groupedById = listOfMediaWithThumbnail.stream().collect(Collectors.groupingBy(MediaDetails::getMediaId));
+
         for (int i = 0; i < item.getMedia().size(); ++i) {
             ItemMedia media = item.getMedia().get(i);
-            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(media.getMediaId());
-            dto.getMedia().get(i).setInfo(mediaDetails);
+            getMediaDetails(groupedById, media).ifPresent(dto.getMedia().get(i)::setInfo);
         }
 
         ItemMedia thumbnail = item.getThumbnail();
         if (thumbnail != null) {
-            MediaDetails mediaDetails = mediaStorageService.getMediaDetails(thumbnail.getMediaId());
-            dto.getThumbnail().setInfo(mediaDetails);
+            getMediaDetails(groupedById, thumbnail).ifPresent(dto.getThumbnail()::setInfo);
         }
+    }
+
+    private static Optional<MediaDetails> getMediaDetails(Map<UUID, List<MediaDetails>> groupedById, ItemMedia media) {
+        if (groupedById.get(media.getMediaId()) != null && !groupedById.get(media.getMediaId()).isEmpty()) {
+            return Optional.of(groupedById.get(media.getMediaId()).get(0));
+        }
+        return Optional.empty();
     }
 
 
     private void completeDtoProperties(ItemDto dto) {
-        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        Map<String, List<Vocabulary>> allowedVocabularies = vocabularyService.getAllowedVocabulariesForPropertyTypes(
+                dto.getProperties().stream()
+                        .map(PropertyDto::getType)
+                        .map(PropertyTypeDto::getCode)
+                        .collect(Collectors.toList()));
+
+
         List<PropertyDto> properties = dto.getProperties().stream()
-                .filter(property -> shouldRenderProperty(property, currentUser))
-                .peek(property -> propertyTypeService.completePropertyType(property.getType()))
+                .map(property -> {
+                    List<Vocabulary> vocabularies = allowedVocabularies.getOrDefault(property.getType().getCode(), Collections.emptyList());
+                    if (!vocabularies.isEmpty()) {
+                        property.getType().setAllowedVocabularies(
+                                VocabularyBasicMapper.INSTANCE.toDto(vocabularies));
+                    }
+                    return property;
+                })
                 .collect(Collectors.toList());
 
         dto.setProperties(properties);
     }
-
-
-    private boolean shouldRenderProperty(PropertyDto property, User user) {
-        // hidden properties have to be always rendered
-        //return (!property.getType().isHidden() || (user != null && user.isModerator()));
-        return true;
-    }
-
 
     protected List<ItemExtBasicDto> getItemHistory(String persistentId, Long versionId) {
         I item = loadItemVersion(persistentId, versionId);

@@ -20,6 +20,7 @@ import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedExc
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
+import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import eu.sshopencloud.marketplace.validators.tools.ToolFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -44,12 +45,13 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
                        ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Tool> itemUpgradeRegistry,
                        DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                        PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
-                       MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
+                       MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher,
+                       VocabularyService vocabularyService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService, sourceService,
-                eventPublisher
+                eventPublisher, vocabularyService
         );
 
         this.toolRepository = toolRepository;
