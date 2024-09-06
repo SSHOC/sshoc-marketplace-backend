@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.vocabularies;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.domain.media.MediaTestUtils;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
@@ -10,10 +9,9 @@ import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.util.MediaTestUploadUtils;
 import eu.sshopencloud.marketplace.util.VocabularyTestUploadUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -23,7 +21,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,15 +29,13 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @AutoConfigureMockMvc
@@ -47,8 +43,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class ConceptControllerITCase {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+//    @RegisterExtension
+//    public static WireMockExtension wireMockExtension = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
+//    @Rule
+//    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
 
     @Autowired
     private MockMvc mvc;
@@ -64,7 +62,7 @@ public class ConceptControllerITCase {
     @Autowired
     private TestEntityManager entityManager;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         contributorJwt = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         systemImporterJwt = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
@@ -617,7 +615,7 @@ public class ConceptControllerITCase {
                 .build();
 
         mvc.perform(
-                        post("/api/vocabularies/{vocabulary-code}/concepts/", vocabularyCode)
+                        post("/api/vocabularies/{vocabulary-code}/concepts", vocabularyCode)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .header("Authorization", moderatorJwt)
                                 .contentType(MediaType.APPLICATION_JSON)

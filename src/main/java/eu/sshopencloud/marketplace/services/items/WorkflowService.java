@@ -366,12 +366,12 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         for (String s : workflowList) {
             Workflow workflowTmp = loadCurrentItem(s);
             if (!workflowTmp.getAllSteps().isEmpty())
-                collectTrees(workflow.getStepsTree(), workflowTmp.getAllSteps());
+                collectTrees(workflow.getStepsTree(), workflowTmp.getStepsTree().getSubTrees(), workflowTmp.getStepsTree().getId());
         }
 
     }
 
-    public void collectTrees(StepsTree parent, List<StepsTree> stepsTrees) {
+    public void collectTrees(StepsTree parent, List<StepsTree> stepsTrees, Long currentParentStepId) {
         StepsTree s;
         List<StepsTree> subTrees = new ArrayList<>();
 
@@ -384,8 +384,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                     List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
                     StepsTree nextParent = nextParentList.get(0);
                     subTrees.addAll(s.getSubTrees());
-                    collectTrees(nextParent, s.getSubTrees());
-                } else {
+                    collectTrees(nextParent, s.getSubTrees(), s.getId());
+                } else if (Objects.nonNull(s.getParent()) && Objects.equals(s.getParent().getId(), currentParentStepId)) {
                     if (!subTrees.contains(s))
                         stepService.addStepToTree(s.getStep(), null, parent, false);
                 }

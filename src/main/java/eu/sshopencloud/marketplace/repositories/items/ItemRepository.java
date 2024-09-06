@@ -92,7 +92,7 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
     @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept = :concept")
     List<Item> findAllByMediaConcept(@Param("concept") Concept concept);
 
-    @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept.vocabulary = :vocabulary")
+    @Query("select i from Item i inner join ItemMedia m ON m.item.id = i.id WHERE m.concept.vocabulary.code = :vocabulary")
     List<Item> findAllByMediaConceptVocabulary(@Param("vocabulary") String vocabulary);
 
     boolean existsByMediaConceptVocabularyCode(String vocabularyCode);

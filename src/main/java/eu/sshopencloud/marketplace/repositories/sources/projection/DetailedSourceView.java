@@ -4,7 +4,6 @@ package eu.sshopencloud.marketplace.repositories.sources.projection;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Map;
 
 // Projection that is simultaneously extensions
@@ -20,7 +19,7 @@ public class DetailedSourceView implements Serializable {
     private String sourceItemId;
 
     public DetailedSourceView(Map<String, Object> values) {
-        this.id = values.get(ID_FIELD_NAME) != null ? ((BigInteger) values.get(ID_FIELD_NAME)).longValue(): null;
+        this.id = values.get(ID_FIELD_NAME) != null ? ((Long) values.get(ID_FIELD_NAME)).longValue(): null;
         this.label = values.get(LABEL_FIELD_NAME) != null ? (String) values.get(LABEL_FIELD_NAME) : null;
         this.sourceItemId = values.get(SOURCE_ITEM_ID_FIELD_NAME) != null ? (String) values.get(SOURCE_ITEM_ID_FIELD_NAME) : null;
     }

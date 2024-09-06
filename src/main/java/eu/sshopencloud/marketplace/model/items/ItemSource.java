@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.model.items;
 import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 @Entity

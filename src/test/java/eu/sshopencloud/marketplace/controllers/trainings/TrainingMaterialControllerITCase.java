@@ -17,17 +17,13 @@ import eu.sshopencloud.marketplace.dto.trainings.TrainingMaterialDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,10 +39,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
 public class TrainingMaterialControllerITCase {
@@ -64,7 +60,7 @@ public class TrainingMaterialControllerITCase {
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
 
-    @Before
+    @BeforeEach
     public void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
@@ -2142,7 +2138,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(status().isForbidden());
     }
 
-    @Ignore(value = "hidden properties have to be always rendered")
+    @Disabled(value = "hidden properties have to be always rendered")
     @Test
     public void shouldNotRenderHiddenProperty() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
@@ -2348,7 +2344,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Moderator")))
                 .andExpect(jsonPath("$[0].displayName", is("Moderator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("moderator")))
                 .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));
@@ -2382,7 +2378,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Moderator")))
                 .andExpect(jsonPath("$[0].displayName", is("Moderator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("moderator")))
                 .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));
@@ -2418,7 +2414,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[1].username", is("Moderator")))
                 .andExpect(jsonPath("$[1].displayName", is("Moderator")))
                 .andExpect(jsonPath("$[1].status", is("enabled")))
-                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[1].role", is("moderator")))
                 .andExpect(jsonPath("$[1].email", is("moderator@example.com")))
                 .andExpect(jsonPath("$[1].config", is(true)));
@@ -2442,7 +2438,7 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Moderator")))
                 .andExpect(jsonPath("$[0].displayName", is("Moderator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("moderator")))
                 .andExpect(jsonPath("$[0].email", is("moderator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));

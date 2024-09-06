@@ -32,6 +32,12 @@ public class PopulateVersionedItemsMigration implements CustomTaskChange {
                 PreparedStatement versionedItemsBatch = connection.prepareStatement(versionedItemInsert);
                 PreparedStatement itemsBatch = connection.prepareStatement(itemUpdate)
         ) {
+            ResultSet itemsWithoutPID = itemsSelect.executeQuery("select * from items where persistent_id is null");
+
+            if (!itemsWithoutPID.next()) {
+                return;
+            }
+
             ResultSet itemIds = itemsSelect.executeQuery("select id from items");
             Set<String> persistentIds = new HashSet<>();
 
