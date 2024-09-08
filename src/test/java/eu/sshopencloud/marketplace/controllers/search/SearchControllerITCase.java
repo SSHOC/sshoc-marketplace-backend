@@ -73,6 +73,7 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("items[0].lastInfoUpdate", is("2020-08-04T12:29:00Z")))
                 .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
                 .andExpect(jsonPath("items[0].label", is("Gephi")))
+                .andExpect(jsonPath("items[0].accessibleAt[0]", is("https://gephi.org/")))
                 .andExpect(jsonPath("items[1].id", is(7)))
                 .andExpect(jsonPath("items[1].persistentId", is("WfcKvG")))
                 .andExpect(jsonPath("items[1].label", is("Introduction to GEPHI")))
