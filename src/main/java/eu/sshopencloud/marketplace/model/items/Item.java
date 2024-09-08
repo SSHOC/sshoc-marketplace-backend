@@ -11,10 +11,7 @@ import org.springframework.lang.Nullable;
 
 import jakarta.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -151,6 +148,9 @@ public abstract class Item {
         this.media = baseItem.getMedia().stream()
                 .map(media -> new ItemMedia(this, media.getMediaId(), media.getCaption(), media.getItemMediaThumbnail()))
                 .collect(Collectors.toList());
+
+        Optional.ofNullable(baseItem.getThumbnail()).ifPresent(thumbnail -> media.add(
+                new ItemMedia(this, thumbnail.getMediaId(), thumbnail.getCaption(), thumbnail.getItemMediaThumbnail())));
     }
 
     public String getPersistentId() {
