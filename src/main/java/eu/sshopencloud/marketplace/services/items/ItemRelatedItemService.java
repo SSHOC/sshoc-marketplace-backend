@@ -46,7 +46,11 @@ public class ItemRelatedItemService {
 
         Map<Long, Long> result = new HashMap<>();
         oc.forEach(objectsArray -> {
-            result.put(objectsArray[0], objectsArray[1] + getSubjectCountForId(objectsArray[0], sc));
+            result.put(objectsArray[0], objectsArray[1]);
+        });
+
+        sc.forEach(subjectArray -> {
+            result.compute(subjectArray[0], (key, objCount) -> objCount == null ? subjectArray[1] : objCount + subjectArray[1]);
         });
 
         return result;
