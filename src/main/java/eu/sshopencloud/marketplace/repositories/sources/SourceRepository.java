@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Repository
 public interface SourceRepository extends JpaRepository<Source, Long> {
-    public static final String PERSISTENT_ID_COLUMN_NAME = "persistent_id";
+    String PERSISTENT_ID_COLUMN_NAME = "persistent_id";
 
     Source findByDomain(String domain);
 

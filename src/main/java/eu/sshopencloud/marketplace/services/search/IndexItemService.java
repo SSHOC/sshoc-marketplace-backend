@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
-import eu.sshopencloud.marketplace.model.sources.Source;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
@@ -25,7 +24,10 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,18 +66,6 @@ public class IndexItemService {
 
         try {
             solrClient.add(IndexItem.COLLECTION_NAME, indexedItem);
-            solrClient.commit(IndexItem.COLLECTION_NAME);
-        } catch (SolrServerException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void indexItemAfterReindex(Item item) {
-        List<DetailedSourceView> detailedSources = sourceRepository.findDetailedSourcesOfItem(item.getPersistentId()).stream().map(DetailedSourceView::new).collect(Collectors.toList());
-
-        try {
-            solrClient.add(IndexItem.COLLECTION_NAME, IndexConverter.convertItem(item, itemRelatedItemService.countAllRelatedItems(item),
-                    detailedSources));
             solrClient.commit(IndexItem.COLLECTION_NAME);
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException(e);
