@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.repositories.sources;
 
 import eu.sshopencloud.marketplace.model.sources.Source;
-import eu.sshopencloud.marketplace.repositories.sources.projection.DetailedSourceView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

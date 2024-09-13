@@ -45,19 +45,11 @@ public class ItemRelatedItemService {
         List<Long[]> sc = itemRelatedItemRepository.countAllBySubject(itemsIds);
 
         Map<Long, Long> result = new HashMap<>();
-        oc.forEach(objectsArray -> {
-            result.put(objectsArray[0], objectsArray[1]);
-        });
+        oc.forEach(objectsArray -> result.put(objectsArray[0], objectsArray[1]));
 
-        sc.forEach(subjectArray -> {
-            result.compute(subjectArray[0], (key, objCount) -> objCount == null ? subjectArray[1] : objCount + subjectArray[1]);
-        });
+        sc.forEach(subjectArray -> result.compute(subjectArray[0], (key, objCount) -> objCount == null ? subjectArray[1] : objCount + subjectArray[1]));
 
         return result;
-    }
-
-    private static long getSubjectCountForId(Long key, List<Long[]> counts) {
-        return counts.stream().filter(sbjArray -> sbjArray[0] == key).findFirst().orElse(new Long[]{0L, 0L})[1];
     }
 
     public List<RelatedItemDto> getItemRelatedItems(Item item) {
