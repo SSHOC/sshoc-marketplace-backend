@@ -40,6 +40,22 @@ public class ItemRelatedItemService {
         return itemRelatedItemRepository.countAllBySubjectId(item.getId()) + itemRelatedItemRepository.countAllByObjectId(item.getId());
     }
 
+    public Map<Long, Long> countAllRelatedItems(List<Long> itemsIds) {
+        List<Long[]> oc = itemRelatedItemRepository.countAllByObject(itemsIds);
+        List<Long[]> sc = itemRelatedItemRepository.countAllBySubject(itemsIds);
+
+        Map<Long, Long> result = new HashMap<>();
+        oc.forEach(objectsArray -> {
+            result.put(objectsArray[0], objectsArray[1] + getSubjectCountForId(objectsArray[0], sc));
+        });
+
+        return result;
+    }
+
+    private static long getSubjectCountForId(Long key, List<Long[]> counts) {
+        return counts.stream().filter(sbjArray -> sbjArray[0] == key).findFirst().orElse(new Long[]{0L, 0L})[1];
+    }
+
     public List<RelatedItemDto> getItemRelatedItems(Item item) {
         long itemId = item.getId();
 

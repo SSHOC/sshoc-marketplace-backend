@@ -168,6 +168,9 @@ marketplace:
                     - "programmer"
                     - "reviewer"
                     - "curator"
+    index:
+        reindexItemsBatchSize: 500
+        reindexActorsBatchSize: 500
 
 management:
     endpoints:
