@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.controllers.workflows;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
@@ -20,17 +21,17 @@ import eu.sshopencloud.marketplace.dto.workflows.StepDto;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +41,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static eu.sshopencloud.marketplace.util.MatcherUtils.*;
+import static eu.sshopencloud.marketplace.util.MatcherUtils.equalValue;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -48,11 +49,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @AutoConfigureMockMvc
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
 public class WorkflowControllerITCase {
@@ -68,7 +69,7 @@ public class WorkflowControllerITCase {
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
@@ -2127,7 +2128,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[0].displayName", is("Administrator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("administrator")))
                 .andExpect(jsonPath("$[0].email", is("administrator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));
@@ -2147,7 +2148,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Contributor")))
                 .andExpect(jsonPath("$[0].displayName", is("Contributor")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("contributor")))
                 .andExpect(jsonPath("$[0].email", is("contributor@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));
@@ -2194,7 +2195,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[0].displayName", is("Administrator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("administrator")))
                 .andExpect(jsonPath("$[0].email", is("administrator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)));
@@ -2243,7 +2244,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[0].username", is("Administrator")))
                 .andExpect(jsonPath("$[0].displayName", is("Administrator")))
                 .andExpect(jsonPath("$[0].status", is("enabled")))
-                .andExpect(jsonPath("$[0].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[0].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[0].role", is("administrator")))
                 .andExpect(jsonPath("$[0].email", is("administrator@example.com")))
                 .andExpect(jsonPath("$[0].config", is(true)))
@@ -2251,7 +2252,7 @@ public class WorkflowControllerITCase {
                 .andExpect(jsonPath("$[1].username", is("Contributor")))
                 .andExpect(jsonPath("$[1].displayName", is("Contributor")))
                 .andExpect(jsonPath("$[1].status", is("enabled")))
-                .andExpect(jsonPath("$[1].registrationDate", is("2020-08-04T12:29:00+0200")))
+                .andExpect(jsonPath("$[1].registrationDate", is(LocalDateTime.parse("2020-08-04T12:29:00").atZone(ZoneOffset.UTC).format(ApiDateTimeFormatter.dateTimeFormatter))))
                 .andExpect(jsonPath("$[1].role", is("contributor")))
                 .andExpect(jsonPath("$[1].email", is("contributor@example.com")))
                 .andExpect(jsonPath("$[1].config", is(true)));

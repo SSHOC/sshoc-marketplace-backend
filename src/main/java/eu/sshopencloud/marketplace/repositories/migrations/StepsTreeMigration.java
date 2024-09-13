@@ -63,6 +63,10 @@ public class StepsTreeMigration implements CustomTaskChange {
                 Statement workflowsStatement = connection.createStatement();
                 PreparedStatement insertBatch = connection.prepareStatement(stepsInsert)
         ) {
+            ResultSet step_ids = workflowsStatement.executeQuery("select * from steps where step_id is not null");
+            if (!step_ids.next()) {
+                return;
+            }
             ResultSet workflowIds = workflowsStatement.executeQuery("select id from workflows");
 
             while (workflowIds.next()) {
@@ -102,6 +106,8 @@ public class StepsTreeMigration implements CustomTaskChange {
             }
 
             insertBatch.executeBatch();
+
+            workflowsStatement.executeUpdate("update steps set step_id = null");
         }
         catch (DatabaseException | SQLException e) {
             throw new CustomChangeException(e);

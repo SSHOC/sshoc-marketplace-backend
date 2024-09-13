@@ -6,16 +6,16 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeReorder;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypesReordering;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @AutoConfigureMockMvc
@@ -44,7 +44,7 @@ public class PropertyTypeControllerITCase {
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -341,7 +341,7 @@ public class PropertyTypeControllerITCase {
                 .andExpect(status().isNotFound());
     }
 
-    @Ignore(value = "hidden properties have to be always rendered")
+    @Disabled(value = "hidden properties have to be always rendered")
     @Test
     public void shouldRetrieveHiddenPropertyForModeratorsOnly() throws Exception {
         String code = "http-status";

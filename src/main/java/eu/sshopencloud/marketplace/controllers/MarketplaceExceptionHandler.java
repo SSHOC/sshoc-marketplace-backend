@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.OptimisticLockException;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDateTime;

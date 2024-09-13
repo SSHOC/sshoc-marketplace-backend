@@ -35,8 +35,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 
-import javax.persistence.EntityNotFoundException;
-import java.util.*;
+import jakarta.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -206,7 +209,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                         !LoggedInUserHolder.getLoggedInUser().isContributor() &&
                         currentItem.getStatus() != ItemStatus.APPROVED)) {
             comparisonResult = recognizePotentialChanges(currentItem, (ItemCore) itemCore);
-            if (comparisonResult == ComparisonResult.UNMODIFIED) {
+            if (comparisonResult == ComparisonResult.UNMODIFIED
+                    && !(currentItem.getStatus() != ItemStatus.APPROVED && approved
+                            && LoggedInUserHolder.getLoggedInUser() != null
+                            && LoggedInUserHolder.getLoggedInUser().isModerator())) {
                 throw new VersionNotChangedException();
             }
         }

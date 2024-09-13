@@ -5,7 +5,7 @@ import eu.sshopencloud.marketplace.services.items.exception.ItemsRelationAlready
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
