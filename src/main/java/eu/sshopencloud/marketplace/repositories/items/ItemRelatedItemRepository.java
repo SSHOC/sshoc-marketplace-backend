@@ -20,6 +20,12 @@ public interface ItemRelatedItemRepository extends JpaRepository<ItemRelatedItem
 
     int countAllByObjectId(long subjectId);
 
+    @Query("SELECT i.subject.id, count(i.subject) FROM ItemRelatedItem i WHERE i.subject.id in :ids group by i.subject.id")
+    List<Long[]> countAllBySubject(List<Long> ids);
+
+    @Query("SELECT i.object.id, count(i.object) FROM ItemRelatedItem i WHERE i.object.id in :ids group by i.object.id")
+    List<Long[]> countAllByObject(List<Long> ids);
+
     List<ItemRelatedItem> findAllByObjectId(long objectId);
 
     boolean existsByRelation(ItemRelation itemRelation);

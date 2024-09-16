@@ -1,14 +1,12 @@
 package eu.sshopencloud.marketplace.services.vocabularies;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedConcepts;
-import eu.sshopencloud.marketplace.dto.vocabularies.PaginatedVocabularies;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyBasicDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyMapper;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.model.vocabularies.ConceptRelatedConcept;
+import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.model.vocabularies.Vocabulary;
 import eu.sshopencloud.marketplace.repositories.vocabularies.VocabularyRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.projection.VocabularyBasicView;
@@ -276,4 +274,16 @@ public class VocabularyService {
         return VocabularyBasicMapper.INSTANCE.toDto(vocabulary);
     }
 
+    public Map<String, List<Vocabulary>> getAllowedVocabulariesForPropertyTypes(List<String> propertyTypesIds) {
+        List<Object[]> allowedVocabularies = vocabularyRepository.findAllByPropertyTypeCode(propertyTypesIds);
+        return allowedVocabularies.stream()
+                .filter(singleRes -> singleRes.length == 2 && Objects.nonNull(singleRes[0]) && Objects.nonNull(singleRes[1]))
+                .collect(Collectors.toMap(
+                        table -> ((PropertyType) table[1]).getCode(),
+                        table -> new ArrayList<>(List.of((Vocabulary) table[0])),
+                        (list1, list2) -> {
+                            list1.addAll(list2);
+                            return list1;
+                        }));
+    }
 }
