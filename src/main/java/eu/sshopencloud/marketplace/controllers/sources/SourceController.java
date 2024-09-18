@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.controllers.sources;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.dto.search.PaginatedSearchItemsBasic;
 import eu.sshopencloud.marketplace.dto.sources.PaginatedSources;
 import eu.sshopencloud.marketplace.dto.sources.SourceCore;

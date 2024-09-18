@@ -1,4 +1,4 @@
-FROM maven:3-eclipse-temurin-11 as build
+FROM maven:3-eclipse-temurin-21 AS build
 
 WORKDIR /usr/src/app
 
@@ -8,7 +8,7 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 mvn package
 
-FROM eclipse-temurin:11-jre-jammy
+FROM eclipse-temurin:21
 
 WORKDIR /usr/app
 COPY --from=build /usr/src/app/target/marketplace-*.jar ./app.jar
@@ -18,4 +18,4 @@ ENV APPLICATION_PROFILE=''
 VOLUME /log
 
 EXPOSE 8080
-ENTRYPOINT [ "java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9990", "-jar", "app.jar", "--logging.file=/log/sshoc-marketplace-backend-app.log" ]
+ENTRYPOINT [ "java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9990", "-jar", "app.jar", "--logging.file.name=/log/sshoc-marketplace-backend-app.log" ]

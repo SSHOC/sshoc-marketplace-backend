@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.conf.jpa.FilePathConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.nio.file.Path;
 import java.util.UUID;
 

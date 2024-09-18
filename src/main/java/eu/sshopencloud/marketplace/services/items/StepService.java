@@ -30,6 +30,7 @@ import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedExc
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
+import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import eu.sshopencloud.marketplace.validators.workflows.StepFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -38,7 +39,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,11 +61,11 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
                        ItemUpgradeRegistry<Step> itemUpgradeRegistry, DraftItemRepository draftItemRepository,
                        ItemRelatedItemService itemRelatedItemService, PropertyTypeService propertyTypeService,
                        IndexItemService indexItemService, UserService userService, MediaStorageService mediaStorageService,
-                       SourceService sourceService, ApplicationEventPublisher eventPublisher) {
+                       SourceService sourceService, ApplicationEventPublisher eventPublisher, VocabularyService vocabularyService) {
 
         super(itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService,
-                sourceService, eventPublisher);
+                sourceService, eventPublisher, vocabularyService);
 
         this.stepRepository = stepRepository;
         this.stepsTreeRepository = stepsTreeRepository;

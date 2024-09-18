@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 @Entity

@@ -2,7 +2,8 @@ server:
     port: 8080
     forward-headers-strategy: native
     tomcat:
-        internal-proxies: .*
+        remoteip:
+            internal-proxies: .*
 
 
 spring:
@@ -24,7 +25,6 @@ spring:
         open-in-view: false
         properties:
             hibernate:
-                dialect: org.hibernate.dialect.PostgreSQL9Dialect
                 jdbc:
                     lob:
                         non_contextual_creation: true
@@ -168,6 +168,9 @@ marketplace:
                     - "programmer"
                     - "reviewer"
                     - "curator"
+    index:
+        reindexItemsBatchSize: 500
+        reindexActorsBatchSize: 500
 
 management:
     endpoints:

@@ -4,7 +4,7 @@ import eu.sshopencloud.marketplace.domain.common.OrderableEntity;
 import eu.sshopencloud.marketplace.dto.items.ItemRelationId;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "item_relations")

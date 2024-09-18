@@ -27,4 +27,7 @@ public class SearchItem extends SearchItemBasic {
 
     private String owner;
 
+    private List<String> accessibleAt;
+
+    private String thumbnailId;
 }

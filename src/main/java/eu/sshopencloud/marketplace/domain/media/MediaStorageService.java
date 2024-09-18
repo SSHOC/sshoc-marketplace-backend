@@ -15,10 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MimeType;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -94,6 +96,11 @@ public class MediaStorageService {
     public MediaDetails getMediaDetails(UUID mediaId) {
         MediaData mediaData = loadMediaData(mediaId);
         return toMediaDetails(mediaData);
+    }
+
+    public List<MediaDetails> getMediaDetails(List<UUID> listOfMediaIds) {
+        List<MediaData> listOfMediaData = mediaDataRepository.finaAllByIds(listOfMediaIds);
+        return listOfMediaData.stream().map(this::toMediaDetails).collect(Collectors.toList());
     }
 
     public MediaDetails saveCompleteMedia(Resource mediaFile, Optional<MediaType> mimeType) {

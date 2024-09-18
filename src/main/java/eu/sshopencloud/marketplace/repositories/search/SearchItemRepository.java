@@ -44,7 +44,7 @@ public class SearchItemRepository {
 
     public static final List<String> RESPONSE_FIELDS = List.of(IndexItem.ID_FIELD, IndexItem.PERSISTENT_ID_FIELD,
             IndexItem.LABEL_FIELD, IndexItem.DESCRIPTION_FIELD, IndexItem.CATEGORY_FIELD, IndexItem.STATUS_FIELD,
-            IndexItem.OWNER_FIELD, IndexItem.LAST_INFO_UPDATE_FIELD);
+            IndexItem.OWNER_FIELD, IndexItem.LAST_INFO_UPDATE_FIELD, IndexItem.ACCESSIBLE_AT, IndexItem.THUMBNAIL_ID);
     private final SolrClient solrClient;
 
     public QueryResponse findByQueryAndFilters(SearchQueryCriteria queryCriteria,

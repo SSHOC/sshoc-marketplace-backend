@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +38,18 @@ public class ItemRelatedItemService {
 
     public int countAllRelatedItems(Item item) {
         return itemRelatedItemRepository.countAllBySubjectId(item.getId()) + itemRelatedItemRepository.countAllByObjectId(item.getId());
+    }
+
+    public Map<Long, Long> countAllRelatedItems(List<Long> itemsIds) {
+        List<Long[]> oc = itemRelatedItemRepository.countAllByObject(itemsIds);
+        List<Long[]> sc = itemRelatedItemRepository.countAllBySubject(itemsIds);
+
+        Map<Long, Long> result = new HashMap<>();
+        oc.forEach(objectsArray -> result.put(objectsArray[0], objectsArray[1]));
+
+        sc.forEach(subjectArray -> result.compute(subjectArray[0], (key, objCount) -> objCount == null ? subjectArray[1] : objCount + subjectArray[1]));
+
+        return result;
     }
 
     public List<RelatedItemDto> getItemRelatedItems(Item item) {

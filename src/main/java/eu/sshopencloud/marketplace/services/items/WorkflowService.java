@@ -31,6 +31,7 @@ import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedExc
 import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
+import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -59,12 +60,13 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                            ItemVisibilityService itemVisibilityService, ItemUpgradeRegistry<Workflow> itemUpgradeRegistry,
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
-                           MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher) {
+                           MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher,
+                           VocabularyService vocabularyService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
                 itemRelatedItemService, propertyTypeService, indexItemService, userService, mediaStorageService, sourceService,
-                eventPublisher
+                eventPublisher, vocabularyService
         );
 
         this.workflowRepository = workflowRepository;
@@ -366,12 +368,12 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         for (String s : workflowList) {
             Workflow workflowTmp = loadCurrentItem(s);
             if (!workflowTmp.getAllSteps().isEmpty())
-                collectTrees(workflow.getStepsTree(), workflowTmp.getAllSteps());
+                collectTrees(workflow.getStepsTree(), workflowTmp.getStepsTree().getSubTrees(), workflowTmp.getStepsTree().getId());
         }
 
     }
 
-    public void collectTrees(StepsTree parent, List<StepsTree> stepsTrees) {
+    public void collectTrees(StepsTree parent, List<StepsTree> stepsTrees, Long currentParentStepId) {
         StepsTree s;
         List<StepsTree> subTrees = new ArrayList<>();
 
@@ -384,8 +386,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                     List<StepsTree> nextParentList = parent.getSubTrees().stream().filter(c -> c.getStep().equals(step)).collect(Collectors.toList());
                     StepsTree nextParent = nextParentList.get(0);
                     subTrees.addAll(s.getSubTrees());
-                    collectTrees(nextParent, s.getSubTrees());
-                } else {
+                    collectTrees(nextParent, s.getSubTrees(), s.getId());
+                } else if (Objects.nonNull(s.getParent()) && Objects.equals(s.getParent().getId(), currentParentStepId)) {
                     if (!subTrees.contains(s))
                         stepService.addStepToTree(s.getStep(), null, parent, false);
                 }

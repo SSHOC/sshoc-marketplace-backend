@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.model.items;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 

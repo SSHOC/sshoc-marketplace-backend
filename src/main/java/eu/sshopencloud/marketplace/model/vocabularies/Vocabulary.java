@@ -1,13 +1,10 @@
 package eu.sshopencloud.marketplace.model.vocabularies;
 
 import eu.sshopencloud.marketplace.conf.jpa.HashMapConverter;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +15,7 @@ import java.util.Map;
 @ToString(exclude = "concepts")
 @EqualsAndHashCode(exclude = "concepts")
 @NoArgsConstructor
+@AllArgsConstructor
 public class Vocabulary {
 
     @Id

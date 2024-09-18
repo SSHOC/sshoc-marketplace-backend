@@ -3,21 +3,24 @@ package eu.sshopencloud.marketplace.controllers.media;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.domain.media.MediaCategory;
-import eu.sshopencloud.marketplace.domain.media.dto.*;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaSourceCore;
+import eu.sshopencloud.marketplace.domain.media.dto.MediaUploadInfo;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,25 +34,27 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @AutoConfigureMockMvc
 @Transactional
 public class MediaUploadControllerITCase {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+    @RegisterExtension
+    public static WireMockExtension wireMockExtension = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
     @Autowired
     private MockMvc mvc;
@@ -62,7 +67,7 @@ public class MediaUploadControllerITCase {
     private String ADMINISTRATOR_JWT;
 
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -694,7 +699,7 @@ public class MediaUploadControllerITCase {
 
     @Test
     public void shouldImportVideoMedia() throws Exception {
-        String localYoutubeUrl = String.format("http://localhost:%d", wireMockRule.port());
+        String localYoutubeUrl = String.format("http://localhost:%d", wireMockExtension.getRuntimeInfo().getHttpPort());
         String youtubeVideoUrl = "/youtube/watch?v=r8mtXJh3hzM&ab_channel=VoxxedDaysVienna";
         URL videoUrl = new URL(localYoutubeUrl + youtubeVideoUrl);
 
@@ -709,7 +714,7 @@ public class MediaUploadControllerITCase {
         )
                 .andExpect(status().isOk());
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo(youtubeVideoUrl))
                 .willReturn(
                         aResponse()
@@ -761,17 +766,17 @@ public class MediaUploadControllerITCase {
                 .withHeader("Content-Type", "image/png")
                 .withHeader("Content-Length", String.valueOf(grumpyContent.length));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo("/grumpy"))
                         .willReturn(grumpyResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo("/grumpy"))
                         .willReturn(grumpyResponse.withBody(grumpyContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpy");
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/grumpy");
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
         String payload = mapper.writeValueAsString(mediaLocation);
@@ -822,17 +827,17 @@ public class MediaUploadControllerITCase {
                 .withHeader("Content-Type", "")
                 .withHeader("Content-Length", String.valueOf(imageContent.length));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo("/bmp"))
                         .willReturn(grumpyResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo("/bmp"))
                         .willReturn(grumpyResponse.withBody(imageContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/bmp");
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/bmp");
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
         String payload = mapper.writeValueAsString(mediaLocation);
@@ -883,17 +888,17 @@ public class MediaUploadControllerITCase {
                 .withHeader("Content-Type", "")
                 .withHeader("Content-Length", String.valueOf(imageContent.length));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo("/gif"))
                         .willReturn(grumpyResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo("/gif"))
                         .willReturn(grumpyResponse.withBody(imageContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/gif");
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/gif");
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
         String payload = mapper.writeValueAsString(mediaLocation);
@@ -944,17 +949,17 @@ public class MediaUploadControllerITCase {
                 .withHeader("Content-Type", "")
                 .withHeader("Content-Length", String.valueOf(imageContent.length));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo("/jpeg"))
                         .willReturn(grumpyResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo("/jpeg"))
                         .willReturn(grumpyResponse.withBody(imageContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/jpeg");
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/jpeg");
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
         String payload = mapper.writeValueAsString(mediaLocation);
@@ -1005,17 +1010,17 @@ public class MediaUploadControllerITCase {
                 .withHeader("Content-Type", "")
                 .withHeader("Content-Length", String.valueOf(imageContent.length));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo("/png"))
                         .willReturn(grumpyResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo("/png"))
                         .willReturn(grumpyResponse.withBody(imageContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/png");
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/png");
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
         String payload = mapper.writeValueAsString(mediaLocation);
@@ -1066,17 +1071,17 @@ public class MediaUploadControllerITCase {
                 .withHeader("Content-Type", "")
                 .withHeader("Content-Length", String.valueOf(imageContent.length));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo("/svg"))
                         .willReturn(grumpyResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo("/svg"))
                         .willReturn(grumpyResponse.withBody(imageContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/svg");
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/svg");
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
         String payload = mapper.writeValueAsString(mediaLocation);
@@ -1127,17 +1132,17 @@ public class MediaUploadControllerITCase {
                 .withHeader("Content-Type", "")
                 .withHeader("Content-Length", String.valueOf(imageContent.length));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo("/tiff"))
                         .willReturn(grumpyResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo("/tiff"))
                         .willReturn(grumpyResponse.withBody(imageContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/tiff");
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/tiff");
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
         String payload = mapper.writeValueAsString(mediaLocation);
@@ -1187,17 +1192,17 @@ public class MediaUploadControllerITCase {
                 .withHeader("Content-Type", "")
                 .withHeader("Content-Length", String.valueOf(imageContent.length));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo("/webp"))
                         .willReturn(grumpyResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo("/webp"))
                         .willReturn(grumpyResponse.withBody(imageContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/webp");
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/webp");
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
         String payload = mapper.writeValueAsString(mediaLocation);
@@ -1248,17 +1253,17 @@ public class MediaUploadControllerITCase {
                 //.withHeader("Content-Type", "image/png")
                 .withHeader("Content-Length", String.valueOf(grumpyContent.length));
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.head(urlEqualTo("/grumpy"))
                         .willReturn(grumpyResponse)
         );
 
-        stubFor(
+        wireMockExtension.stubFor(
                 WireMock.get(urlEqualTo("/grumpy"))
                         .willReturn(grumpyResponse.withBody(grumpyContent))
         );
 
-        URL imageUrl = new URL("http", "localhost", wireMockRule.port(), "/grumpy");
+        URL imageUrl = new URL("http", "localhost", wireMockExtension.getRuntimeInfo().getHttpPort(), "/grumpy");
         MediaLocation mediaLocation = MediaLocation.builder().sourceUrl(imageUrl).build();
 
         String payload = mapper.writeValueAsString(mediaLocation);

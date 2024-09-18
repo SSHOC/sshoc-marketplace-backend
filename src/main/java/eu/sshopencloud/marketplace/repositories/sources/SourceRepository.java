@@ -1,7 +1,6 @@
 package eu.sshopencloud.marketplace.repositories.sources;
 
 import eu.sshopencloud.marketplace.model.sources.Source;
-import eu.sshopencloud.marketplace.repositories.sources.projection.DetailedSourceView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +11,7 @@ import java.util.Map;
 
 @Repository
 public interface SourceRepository extends JpaRepository<Source, Long> {
+    String PERSISTENT_ID_COLUMN_NAME = "persistent_id";
 
     Source findByDomain(String domain);
 
@@ -82,4 +82,13 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
                     " WHERE i.status = 'APPROVED' and i.persistent_id = :persistentId", nativeQuery = true
     )
     List<Map<String, Object>> findDetailedSourcesOfItem(@Param("persistentId") String persistentId);
+
+    @Query(value =
+            "SELECT s.id, s.domain, s.label, s.last_harvested_date, s.url, s.url_template, i.source_item_id, i.persistent_id "+
+                    " FROM sources s " +
+                    " INNER JOIN items i" +
+                    " ON i.source_id = s.id"+
+                    " WHERE i.status = 'APPROVED' and i.persistent_id IN :persistentIds", nativeQuery = true
+    )
+    List<Map<String, Object>> findDetailedSourcesOfItems(@Param("persistentIds") List<String> persistentIds);
 }
