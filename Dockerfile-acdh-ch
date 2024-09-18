@@ -18,4 +18,4 @@ ENV APPLICATION_PROFILE=''
 VOLUME /log
 
 EXPOSE 8080
-ENTRYPOINT [ "java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9990", "-jar", "app.jar", "--logging.file=/log/sshoc-marketplace-backend-app.log" ]
+ENTRYPOINT [ "java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9990", "-jar", "app.jar", "--logging.file.name=/log/sshoc-marketplace-backend-app.log" ]
