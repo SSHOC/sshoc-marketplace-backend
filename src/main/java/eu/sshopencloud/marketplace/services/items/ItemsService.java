@@ -19,6 +19,7 @@ import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.search.SearchConverter;
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -27,7 +28,6 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -112,15 +112,49 @@ public class ItemsService extends ItemVersionService<Item> {
     }
 
 
-    public PaginatedSearchItemsBasic getItemsBySource(Long sourceId, PageCoords pageCoords) {
-        return getItemsBySource(sourceId, null, pageCoords);
+    public PaginatedSearchItemsBasic searchItemsBySource(Long sourceId, PageCoords pageCoords) {
+        return searchItemsBySource(sourceId, null, pageCoords);
     }
 
-    public PaginatedSearchItemsBasic getItemsBySource(Long sourceId, String sourceItemId, PageCoords pageCoords) {
+    public PaginatedSearchItemsBasic searchItemsBySource(Long sourceId, String sourceItemId, PageCoords pageCoords) {
         Source source = sourceRepository.findById(sourceId)
                 .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + sourceId));
 
         return findLatestItemsForSource(source, sourceItemId, pageCoords);
+    }
+
+    public PaginatedItemsBasic<ItemBasicDto> getItemsBySource(Long sourceId, String sourceItemId, PageCoords pageCoords) {
+        Source source = sourceRepository.findById(sourceId)
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find " + Source.class.getName() + " with id " + sourceId));
+
+        return getItemsBySourceOrderByLabel(source.getId(), sourceItemId, pageCoords);
+    }
+
+    public PaginatedItemsBasic<ItemBasicDto> getItemsBySourceOrderByLabel(Long sourceId, String sourceItemId, PageCoords pageCoords) {
+        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage()); // DB counts from page 0
+
+        Page<Item> itemsPage;
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+        if (currentUser == null || !currentUser.isModerator()) {
+            if (currentUser == null || !currentUser.isContributor()) {
+                itemsPage = itemRepository.getActiveItemsBySourceOrderByLabel(sourceId, sourceItemId, ItemStatus.APPROVED, pageable);
+            }
+            else {
+                itemsPage = itemRepository.getActiveOrOwnedItemsBySourceOrderByLabel(sourceId, sourceItemId, ItemStatus.APPROVED, currentUser.getId(), pageable);
+            }
+        }
+        else {
+            itemsPage = itemRepository.getActiveItemsBySourceOrderByLabel(sourceId, sourceItemId, pageable);
+        }
+
+        return PaginatedItemsBasic.<ItemBasicDto>builder()
+                .items(itemsPage.stream().map(ItemConverter::convertItem).collect(Collectors.toList()))
+                .hits(itemsPage.getTotalElements())
+                .count(itemsPage.getSize())
+                .page(pageCoords.getPage())
+                .perpage(pageCoords.getPerpage())
+                .pages((int) Math.ceil((double)itemsPage.getTotalElements() / (double)pageCoords.getPerpage()))
+                .build();
     }
 
     public PaginatedSearchItemsBasic findLatestItemsForSource(Source source, String sourceItemId, PageCoords pageCoords) {
@@ -133,7 +167,7 @@ public class ItemsService extends ItemVersionService<Item> {
             queryBuilder.append(" AND source_item_id:");
             queryBuilder.append("\"").append(sourceItemId).append("\"");
         }
-//        Criteria queryCriteria = new SimpleStringCriteria(queryBuilder.toString());
+
         SolrQuery solrQuery = new SolrQuery(queryBuilder.toString());
 
         User currentUser = LoggedInUserHolder.getLoggedInUser();
