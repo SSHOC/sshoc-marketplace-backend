@@ -373,6 +373,22 @@ public class SourceControllerITCase {
                 .andExpect(jsonPath("items[0].persistentId", is(datasetsPIDs.getFirst())))
                 .andExpect(jsonPath("items[0].category", is("dataset")))
                 .andExpect(jsonPath("items[0].label", is("Test dataset with source and actor 1")));
+
+        mvc.perform(get("/api/sources/{sourceId}/items/{sourceItemId}", sourceId, sourceItemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(jsonPath("items", hasSize(11)))
+                .andExpect(jsonPath("items[0].persistentId", is(datasetsPIDs.getFirst())))
+                .andExpect(jsonPath("items[0].category", is("dataset")))
+                .andExpect(jsonPath("items[0].label", is("Test dataset with source and actor 1")));
+
+        mvc.perform(get("/api/sources/{sourceId}/items/{sourceItemId}", sourceId, sourceItemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(jsonPath("items", hasSize(11)))
+                .andExpect(jsonPath("items[0].persistentId", is(datasetsPIDs.getFirst())))
+                .andExpect(jsonPath("items[0].category", is("dataset")))
+                .andExpect(jsonPath("items[0].label", is("Test dataset with source and actor 1")));
     }
 
 }
