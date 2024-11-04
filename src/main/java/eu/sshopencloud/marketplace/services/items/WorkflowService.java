@@ -119,8 +119,8 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     }
 
 
-    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved) throws VersionNotChangedException {
-        Workflow workflow = updateItem(persistentId, workflowCore, draft, approved);
+    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved, boolean patchMode) throws VersionNotChangedException {
+        Workflow workflow = updateItem(persistentId, workflowCore, draft, approved, patchMode);
 
         if (!draft)
             commitSteps(workflow.getStepsTree());

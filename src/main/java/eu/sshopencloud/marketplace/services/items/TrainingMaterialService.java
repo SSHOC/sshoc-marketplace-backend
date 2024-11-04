@@ -80,8 +80,8 @@ public class TrainingMaterialService
 
     public TrainingMaterialDto updateTrainingMaterial(String persistentId,
                                                       TrainingMaterialCore trainingMaterialCore,
-                                                      boolean draft, boolean approved) throws VersionNotChangedException {
-        TrainingMaterial trainingMaterial = updateItem(persistentId, trainingMaterialCore, draft, approved);
+                                                      boolean draft, boolean approved, boolean patchMode) throws VersionNotChangedException {
+        TrainingMaterial trainingMaterial = updateItem(persistentId, trainingMaterialCore, draft, approved, patchMode);
         return prepareItemDto(trainingMaterial);
     }
 

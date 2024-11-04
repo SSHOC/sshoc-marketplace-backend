@@ -2735,4 +2735,192 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("label", is(trainingMaterial1.getLabel())))
                 .andExpect(jsonPath("description", is(trainingMaterial1.getDescription())));
     }
+
+    @Test
+    public void shouldPatchTrainingMaterialWithRelations() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setDescription("Lorem ipsum");
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(3L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("language");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("eng");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iso-639-3");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("material");
+        property2.setType(propertyType2);
+        property2.setValue("paper");
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2018, Month.APRIL, 1), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        trainingMaterial.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2018, Month.DECEMBER, 17), LocalTime.of(12, 20), ZoneId.of("UTC"));
+        trainingMaterial.setDateLastUpdated(dateLastUpdated);
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("patchedTool");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[0].role.label", is("Author")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists());
+
+        trainingMaterial.setDescription("Patched TM");
+        trainingMaterial.setProperties(List.of());
+
+
+        String payloadPatch = mapper.writeValueAsString(trainingMaterial);
+
+        String toolJsonPatched = mvc.perform(
+                        patch("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("description", is("Patched TM")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    public void shouldNotPatchTrainingMaterialWithRelations() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setDescription("Lorem ipsum");
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(3L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("language");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("eng");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iso-639-3");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("material");
+        property2.setType(propertyType2);
+        property2.setValue("paper");
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2018, Month.APRIL, 1), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        trainingMaterial.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2018, Month.DECEMBER, 17), LocalTime.of(12, 20), ZoneId.of("UTC"));
+        trainingMaterial.setDateLastUpdated(dateLastUpdated);
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("patchedTool");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[0].role.label", is("Author")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists());
+
+        trainingMaterial.setDescription("Patched TM");
+        trainingMaterial.setProperties(null);
+
+
+        String payloadPatch = mapper.writeValueAsString(trainingMaterial);
+
+        String toolJsonPatched = mvc.perform(
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("description", is("Patched TM")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
+    }
 }

@@ -79,7 +79,20 @@ public class WorkflowController {
                                                       @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                       @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
-        return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft, approved));
+        return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft, approved, false));
+    }
+
+    @Operation(summary = "Patch  workflow for given persistentId")
+    @PatchMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WorkflowDto> patchWorkflow(@PathVariable("persistentId") String workflowPersistentId,
+                                                      @Parameter(
+                                                              description = "Workflow patch",
+                                                              required = true,
+                                                              schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore updatedWorkflow,
+                                                      @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
+
+        return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft, approved, true));
     }
 
     @Operation(summary = "Revert workflow to target version by its persistentId and versionId that is reverted to")
@@ -167,7 +180,21 @@ public class WorkflowController {
                                               @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                               @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
-        return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft, approved));
+        return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft, approved, false));
+    }
+
+    @Operation(summary = "Patch step for given persistentId and workflow persistentId")
+    @PatchMapping(path = "/{persistentId}/steps/{stepPersistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StepDto> patchStep(@PathVariable("persistentId") String workflowPersistentId,
+                                              @PathVariable("stepPersistentId") String stepPersistentId,
+                                              @Parameter(
+                                                      description = "Updated step",
+                                                      required = true,
+                                                      schema = @Schema(implementation = StepCore.class)) @RequestBody StepCore updatedStep,
+                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
+
+        return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft, approved, true));
     }
 
     @Operation(summary = "Revert step to target version by its persistentId and versionId that is reverted to")

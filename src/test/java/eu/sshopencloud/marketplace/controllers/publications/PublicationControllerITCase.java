@@ -874,4 +874,173 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("label", is(publication1.getLabel())))
                 .andExpect(jsonPath("description", is(publication1.getDescription())));
     }
+
+    @Test
+    public void shouldPatchPublication() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test publication");
+        publication.setDescription("New unknown publication");
+
+        String payload = mapper.writeValueAsString(publication);
+
+        String publicationJson = mvc.perform(
+                        post("/api/publications")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(publication.getLabel())))
+                .andExpect(jsonPath("description", is(publication.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto publicationDto = mapper.readValue(publicationJson, PublicationDto.class);
+        String publicationId = publicationDto.getPersistentId();
+
+        PublicationCore publicationV2 = new PublicationCore();
+        publicationV2.setLabel("Test Publication");
+        publicationV2.setDescription("New recognized Publication and changed desc");
+        publicationV2.setExternalIds(
+                List.of(
+                        new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "https://github.com/tesseract-ocr/tessdoc"),
+                        new ItemExternalIdCore(new ItemExternalIdId("Wikidata"), "Q945242")
+                )
+        );
+
+        String payloadV2 = mapper.writeValueAsString(publicationV2);
+
+        mvc.perform(
+                        put("/api/publications/{id}", publicationId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadV2)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(publicationV2.getLabel())))
+                .andExpect(jsonPath("description", is(publicationV2.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("GitHub")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://github.com/{source-item-id}")))
+                .andExpect(jsonPath("externalIds[0].identifier", is(publicationV2.getExternalIds().get(0).getIdentifier())))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-item-id}")))
+                .andExpect(jsonPath("externalIds[1].identifier", is(publicationV2.getExternalIds().get(1).getIdentifier())));
+
+        publicationV2.setDescription("Parched desc");
+        List<ItemExternalIdCore> ids = publicationV2.getExternalIds();
+        publicationV2.setExternalIds(null);
+
+        String payloadPatch = mapper.writeValueAsString(publicationV2);
+
+        mvc.perform(
+                        patch("/api/publications/{id}", publicationId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(publicationId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(publicationV2.getLabel())))
+                .andExpect(jsonPath("description", is(publicationV2.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("GitHub")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://github.com/{source-item-id}")))
+                .andExpect(jsonPath("externalIds[0].identifier", is(ids.get(0).getIdentifier())))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-item-id}")))
+                .andExpect(jsonPath("externalIds[1].identifier", is(ids.get(1).getIdentifier())));
+    }
+
+    @Test
+    public void shouldNotPatchPublication() throws Exception {
+        PublicationCore publication = new PublicationCore();
+        publication.setLabel("Test publication");
+        publication.setDescription("New unknown publication");
+
+        String payload = mapper.writeValueAsString(publication);
+
+        String publicationJson = mvc.perform(
+                        post("/api/publications")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(publication.getLabel())))
+                .andExpect(jsonPath("description", is(publication.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        PublicationDto publicationDto = mapper.readValue(publicationJson, PublicationDto.class);
+        String publicationId = publicationDto.getPersistentId();
+
+        PublicationCore publicationV2 = new PublicationCore();
+        publicationV2.setLabel("Test Publication");
+        publicationV2.setDescription("New recognized Publication and changed desc");
+        publicationV2.setExternalIds(
+                List.of(
+                        new ItemExternalIdCore(new ItemExternalIdId("GitHub"), "https://github.com/tesseract-ocr/tessdoc"),
+                        new ItemExternalIdCore(new ItemExternalIdId("Wikidata"), "Q945242")
+                )
+        );
+
+        String payloadV2 = mapper.writeValueAsString(publicationV2);
+
+        mvc.perform(
+                        put("/api/publications/{id}", publicationId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadV2)
+                                .header("Authorization", CONTRIBUTOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("suggested")))
+                .andExpect(jsonPath("label", is(publicationV2.getLabel())))
+                .andExpect(jsonPath("description", is(publicationV2.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(2)))
+                .andExpect(jsonPath("externalIds[0].identifierService.code", is("GitHub")))
+                .andExpect(jsonPath("externalIds[0].identifierService.urlTemplate", is("https://github.com/{source-item-id}")))
+                .andExpect(jsonPath("externalIds[0].identifier", is(publicationV2.getExternalIds().get(0).getIdentifier())))
+                .andExpect(jsonPath("externalIds[1].identifierService.code", is("Wikidata")))
+                .andExpect(jsonPath("externalIds[1].identifierService.urlTemplate", is("https://www.wikidata.org/wiki/{source-item-id}")))
+                .andExpect(jsonPath("externalIds[1].identifier", is(publicationV2.getExternalIds().get(1).getIdentifier())));
+
+        publicationV2.setDescription("Parched desc");
+        publicationV2.setExternalIds(null);
+
+        String payloadPatch = mapper.writeValueAsString(publicationV2);
+
+        mvc.perform(
+                        put("/api/publications/{id}", publicationId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(publicationId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("publication")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(publicationV2.getLabel())))
+                .andExpect(jsonPath("description", is(publicationV2.getDescription())))
+                .andExpect(jsonPath("externalIds", hasSize(0)));
+    }
 }

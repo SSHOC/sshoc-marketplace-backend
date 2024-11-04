@@ -2527,4 +2527,215 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("label", is(dataset.getLabel())))
                 .andExpect(jsonPath("description", is(dataset.getDescription())));
     }
+
+    @Test
+    public void shouldPatchDataset() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test simple dataset");
+        dataset.setDescription("Lorem ipsum");
+        dataset.setVersion("1.0.0");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        dataset.setSource(sourceId);
+        dataset.setSourceItemId("patchedDataset");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        String datasetResponse = mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test simple dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("sourceItemId", is("patchedDataset")))
+                .andExpect(jsonPath("version", is("1.0.0")))
+                .andExpect(jsonPath("contributors", hasSize(0))).andReturn().getResponse().getContentAsString();
+
+        DatasetDto datasetDto = mapper.readValue(datasetResponse, DatasetDto.class);
+        String datasetPID = datasetDto.getPersistentId();
+
+        mvc.perform(get("/api/datasets/{id}", datasetPID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(datasetDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())));
+
+        dataset.setSourceItemId(null);
+        dataset.setSource(null);
+        dataset.setDescription("New description");
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("license");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("MIT");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("software-license");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        dataset.setProperties(properties);
+
+        String payloadUpdated = mapper.writeValueAsString(dataset);
+        String jsonUpdated = mvc.perform(
+                        put("/api/datasets/{id}", datasetPID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(datasetDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        dataset.setDescription("Patched dataset description changed!");
+        dataset.setSource(sourceId);
+        dataset.setSourceItemId("patchedDataset");
+        dataset.setVersion(null);
+
+        String payloadPatch = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                        patch("/api/datasets/{id}", datasetPID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is("Patched dataset description changed!")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId", is("patchedDataset")))
+                .andExpect(jsonPath("source").exists())
+                .andExpect(jsonPath("version", is("1.0.0")))
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    public void shouldNotPatchButUpdateDataset() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test simple dataset");
+        dataset.setDescription("Lorem ipsum");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        dataset.setSource(sourceId);
+        dataset.setSourceItemId("patchedDataset");
+        dataset.setVersion("1.0.0");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        String datasetResponse = mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test simple dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("sourceItemId", is("patchedDataset")))
+                .andExpect(jsonPath("contributors", hasSize(0))).andReturn().getResponse().getContentAsString();
+
+        DatasetDto datasetDto = mapper.readValue(datasetResponse, DatasetDto.class);
+        String datasetPID = datasetDto.getPersistentId();
+
+        mvc.perform(get("/api/datasets/{id}", datasetPID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(datasetDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())));
+
+        dataset.setSourceItemId(null);
+        dataset.setSource(null);
+        dataset.setDescription("New description");
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("license");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("MIT");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("software-license");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        dataset.setProperties(properties);
+
+        String payloadUpdated = mapper.writeValueAsString(dataset);
+        String jsonUpdated = mvc.perform(
+                        put("/api/datasets/{id}", datasetPID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(datasetDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        dataset.setDescription("Patched dataset description changed!");
+        dataset.setSource(sourceId);
+        dataset.setSourceItemId("patchedDataset");
+        dataset.setVersion(null);
+
+        String payloadPatch = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                        put("/api/datasets/{id}", datasetPID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is("Patched dataset description changed!")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId", is("patchedDataset")))
+                .andExpect(jsonPath("source").exists())
+                .andExpect(jsonPath("version").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+    }
 }

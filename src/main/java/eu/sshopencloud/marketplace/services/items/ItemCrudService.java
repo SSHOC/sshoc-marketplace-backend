@@ -5,11 +5,12 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
+import eu.sshopencloud.marketplace.dto.actors.ActorId;
+import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.*;
 import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
 import eu.sshopencloud.marketplace.mappers.items.ItemExtBasicConverter;
 import eu.sshopencloud.marketplace.mappers.vocabularies.VocabularyBasicMapper;
@@ -28,14 +29,13 @@ import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
-
-import jakarta.persistence.EntityNotFoundException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -200,17 +200,22 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
     protected I updateItem(String persistentId, C itemCore, boolean draft, boolean approved)
             throws VersionNotChangedException {
+        return updateItem(persistentId, itemCore, draft, approved, false);
+    }
+
+    protected I updateItem(String persistentId, C itemCore, boolean draft, boolean approved, boolean patchMode)
+            throws VersionNotChangedException {
         I currentItem = loadItemForCurrentUser(persistentId);
         ComparisonResult comparisonResult = ComparisonResult.UPDATED;
         if (!draft && currentItem.getStatus() != ItemStatus.DRAFT &&
                 !(approved && LoggedInUserHolder.getLoggedInUser() != null &&
                         !LoggedInUserHolder.getLoggedInUser().isContributor() &&
                         currentItem.getStatus() != ItemStatus.APPROVED)) {
-            comparisonResult = recognizePotentialChanges(currentItem, (ItemCore) itemCore);
+            comparisonResult = compareAndPatch(currentItem, itemCore, patchMode);
             if (comparisonResult == ComparisonResult.UNMODIFIED
                     && !(currentItem.getStatus() != ItemStatus.APPROVED && approved
-                            && LoggedInUserHolder.getLoggedInUser() != null
-                            && LoggedInUserHolder.getLoggedInUser().isModerator())) {
+                    && LoggedInUserHolder.getLoggedInUser() != null
+                    && LoggedInUserHolder.getLoggedInUser().isModerator())) {
                 throw new VersionNotChangedException();
             }
         }
@@ -218,8 +223,14 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 comparisonResult == ComparisonResult.CONFLICT);
     }
 
+    protected ComparisonResult compareAndPatch(I currentItem, C itemRelCore) {
+        return compareAndPatch(currentItem, itemRelCore, false);
+    }
 
-    protected ComparisonResult recognizePotentialChanges(I currentItem, ItemCore itemCore) {
+
+    protected ComparisonResult compareAndPatch(I currentItem, C itemRelCore, boolean patchMode) {
+        ItemCore itemCore = itemRelCore instanceof WorkflowStepCore ?
+                ((WorkflowStepCore) itemRelCore).getStepCore() : ((ItemCore) itemRelCore);
         ItemDto currentItemDto = ItemsComparator.toDto(currentItem);
         currentItemDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(currentItem));
         complete(currentItemDto, currentItem);
@@ -234,28 +245,107 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                 complete(itemDtoFromSource, itemFromSource);
             }
         }
+        ComparisonResult comparisonResult;
         ItemDifferencesCore currentItemDifferences = ItemsComparator.differentiateItems(itemCore, currentItemDto);
         if (itemDtoFromSource != null) {
             ItemDifferencesCore itemFromSourceDifferences = ItemsComparator.differentiateItems(itemCore,
                     itemDtoFromSource);
             if (itemFromSourceDifferences.isEqual()) {
-                return ComparisonResult.UNMODIFIED;
+                comparisonResult = ComparisonResult.UNMODIFIED;
             } else {
                 if (currentItemDifferences.isEqual()) {
-                    return ComparisonResult.UNMODIFIED;
+                    comparisonResult = ComparisonResult.UNMODIFIED;
                 } else {
                     if (ItemsConflictComparator.isConflict(currentItemDifferences, itemFromSourceDifferences)) {
-                        return ComparisonResult.CONFLICT;
+                        comparisonResult = ComparisonResult.CONFLICT;
                     } else {
-                        return ComparisonResult.UPDATED;
+                        comparisonResult = ComparisonResult.UPDATED;
                     }
                 }
             }
         } else {
             if (currentItemDifferences.isEqual()) {
-                return ComparisonResult.UNMODIFIED;
+                comparisonResult = ComparisonResult.UNMODIFIED;
             } else {
-                return ComparisonResult.UPDATED;
+                comparisonResult = ComparisonResult.UPDATED;
+            }
+        }
+
+        if (patchMode) {
+            if (comparisonResult == ComparisonResult.CONFLICT || comparisonResult == ComparisonResult.UPDATED) {
+                patchItemCore(currentItemDto, itemCore, currentItem);
+            }
+        }
+        return comparisonResult;
+    }
+
+    private void patchItemCore(ItemDto currentItemDto, ItemCore itemCore, I currentItem) {
+        if (StringUtils.isBlank(itemCore.getLabel())) {
+            itemCore.setLabel(currentItemDto.getLabel());
+        }
+
+        if (StringUtils.isBlank(itemCore.getDescription())) {
+            itemCore.setDescription(currentItemDto.getDescription());
+        }
+
+        if (StringUtils.isBlank(itemCore.getVersion())) {
+            itemCore.setVersion(currentItemDto.getVersion());
+        }
+
+        if (Objects.isNull(itemCore.getContributors()) || itemCore.getContributors().isEmpty()) {
+            itemCore.setContributors(currentItemDto.getContributors().stream()
+                    .map(cid -> new ItemContributorId(new ActorId(cid.getActor().getId()), new ActorRoleId(cid.getRole().getCode())))
+                    .collect(Collectors.toList())
+            );
+        }
+
+        if (Objects.isNull(itemCore.getAccessibleAt()) || itemCore.getAccessibleAt().isEmpty()) {
+            itemCore.setAccessibleAt(currentItemDto.getAccessibleAt());
+        }
+
+        if (Objects.isNull(itemCore.getExternalIds()) || itemCore.getExternalIds().isEmpty()) {
+            itemCore.setExternalIds(currentItemDto.getExternalIds().stream()
+                    .map(eid -> new ItemExternalIdCore(new ItemExternalIdId(eid.getIdentifierService().getCode()), eid.getIdentifier()))
+                    .collect(Collectors.toList()));
+        }
+
+        if (Objects.isNull(itemCore.getProperties()) || itemCore.getProperties().isEmpty()) {
+            itemCore.setProperties(currentItemDto.getProperties().stream()
+                    .map(cip -> {
+                        PropertyCore pc = new PropertyCore(new PropertyTypeId(cip.getType().getCode()), cip.getValue());
+                        if (Objects.nonNull(cip.getConcept())) {
+                            pc.setConcept(new ConceptId(cip.getConcept().getCode(),
+                                    new VocabularyId(cip.getConcept().getVocabulary().getCode()), cip.getConcept().getUri()));
+                        }
+                        return pc;
+                    })
+                    .collect(Collectors.toList()));
+        }
+
+        if (Objects.isNull(itemCore.getRelatedItems()) || itemCore.getRelatedItems().isEmpty()) {
+            itemCore.setRelatedItems(currentItemDto.getRelatedItems().stream()
+                    .map(rid -> new RelatedItemCore(rid.getPersistentId(),new ItemRelationId(rid.getRelation().getCode())))
+                    .collect(Collectors.toList()));
+        }
+
+        if (Objects.isNull(itemCore.getMedia()) || itemCore.getMedia().isEmpty()) {
+            itemCore.setMedia(currentItemDto.getMedia().stream()
+                    .map(cim -> new ItemMediaCore(new MediaDetailsId(cim.getInfo().getMediaId()), cim.getCaption(),
+                            new ConceptId(cim.getConcept().getCode(),
+                                    new VocabularyId(cim.getConcept().getVocabulary().getCode()),
+                                    cim.getConcept().getUri())))
+                    .collect(Collectors.toList()));
+        }
+
+        if (itemCore instanceof DigitalObjectCore && currentItemDto instanceof DigitalObjectDto) {
+            DigitalObjectCore itemDigitalObject = (DigitalObjectCore) itemCore;
+            DigitalObjectDto digitalObjectDto = (DigitalObjectDto) currentItemDto;
+            if (Objects.isNull(itemDigitalObject.getDateCreated())) {
+                itemDigitalObject.setDateCreated(digitalObjectDto.getDateCreated());
+            }
+
+            if (Objects.isNull(itemDigitalObject.getDateLastUpdated())) {
+                itemDigitalObject.setDateLastUpdated(digitalObjectDto.getDateLastUpdated());
             }
         }
     }
