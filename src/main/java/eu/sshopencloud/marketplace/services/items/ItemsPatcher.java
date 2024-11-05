@@ -8,23 +8,24 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.parameters.P;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 class ItemsPatcher {
-    static void patchItemCore(ItemDto currentItemDto, ItemCore itemCore) {
-        if (StringUtils.isBlank(itemCore.getLabel())) {
-            itemCore.setLabel(currentItemDto.getLabel());
-        }
+    static void patchItemCore(ItemDto currentItemDto, ItemDto firstIngestDto, ItemCore itemCore) {
+        boolean previouslyIngested = Objects.nonNull(firstIngestDto);
+        itemCore.setLabel(determinePatchValue(currentItemDto.getLabel(), Objects.isNull(firstIngestDto) ? null : firstIngestDto.getLabel(), itemCore.getLabel(), previouslyIngested));
 
-        if (StringUtils.isBlank(itemCore.getDescription())) {
-            itemCore.setDescription(currentItemDto.getDescription());
-        }
-
-        if (StringUtils.isBlank(itemCore.getVersion())) {
-            itemCore.setVersion(currentItemDto.getVersion());
-        }
+        itemCore.setDescription(determinePatchValue(currentItemDto.getDescription(), Objects.isNull(firstIngestDto) ? null : firstIngestDto.getDescription(), itemCore.getDescription(), previouslyIngested));
+//        if (StringUtils.isBlank(itemCore.getDescription())) {
+//            itemCore.setDescription(currentItemDto.getDescription());
+//        }
+        itemCore.setVersion(determinePatchValue(currentItemDto.getVersion(), Objects.isNull(firstIngestDto) ? null : firstIngestDto.getVersion(), itemCore.getVersion(), previouslyIngested));
+//        if (StringUtils.isBlank(itemCore.getVersion())) {
+//            itemCore.setVersion(currentItemDto.getVersion());
+//        }
 
         if (Objects.isNull(itemCore.getContributors()) || itemCore.getContributors().isEmpty()) {
             itemCore.setContributors(currentItemDto.getContributors().stream()
@@ -82,5 +83,39 @@ class ItemsPatcher {
                 itemDigitalObject.setDateLastUpdated(digitalObjectDto.getDateLastUpdated());
             }
         }
+    }
+
+    private static String determinePatchValue(String currentValue, String firstIngestValue, String newValue, boolean previouslyIngested) {
+        if (previouslyIngested && !StringUtils.isBlank(newValue)) {
+            // nothing has changed -> new value has the proper value
+            if (Objects.isNull(currentValue) && Objects.isNull(firstIngestValue)) {
+                return newValue;
+            }
+            // first ingest has been modified along the way as it is the sane as new value, so we need to take a modified version,
+            // and we know current value is not null from previous condition
+            if (Objects.isNull(firstIngestValue) && !Objects.equals(newValue, currentValue)) {
+                return currentValue;
+            }
+            // first ingest has been modified along the way and new value is the same as current value, so we need to take a modified version
+            // and we know firstIngestValue is not null from previous condition
+            if (Objects.isNull(currentValue) && !Objects.equals(newValue, firstIngestValue)) {
+                return newValue;
+            }
+            // change at source happened, so we take new value
+            if (Objects.nonNull(firstIngestValue) && Objects.nonNull(currentValue) && Objects.equals(currentValue, firstIngestValue) && !Objects.equals(newValue, currentValue)) {
+                return newValue;
+            }
+            // conflict, so we take current value
+            if (Objects.nonNull(firstIngestValue) && Objects.nonNull(currentValue) && !Objects.equals(currentValue, firstIngestValue) && !Objects.equals(newValue, currentValue) && !Objects.equals(newValue, firstIngestValue)) {
+                return currentValue;
+            }
+        } else {
+            // if no new value is provided then keep current value as we are in patch mode
+            if (StringUtils.isBlank(newValue)) {
+                return currentValue;
+            }
+        }
+
+        return newValue;
     }
 }

@@ -5,8 +5,6 @@ import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.PaginatedResult;
-import eu.sshopencloud.marketplace.dto.actors.ActorId;
-import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.*;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
@@ -235,10 +233,10 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         currentItemDto.setRelatedItems(itemRelatedItemService.getItemRelatedItems(currentItem));
         complete(currentItemDto, currentItem);
         ItemDto itemDtoFromSource = null;
-        if (itemCore.getSource() != null && itemCore.getSource().getId() != null
+        if (patchMode && itemCore.getSource() != null && itemCore.getSource().getId() != null
                 && itemCore.getSourceItemId() != null) {
-            Item itemFromSource = getLastItemBySource(currentItem, itemCore.getSource().getId(),
-                    itemCore.getSourceItemId());
+            Item itemFromSource = getItemBySource(currentItem, itemCore.getSource().getId(),
+                    itemCore.getSourceItemId(), patchMode);
             if (itemFromSource != null) {
                 itemDtoFromSource = ItemsComparator.toDtoSource(itemFromSource);
                 itemDtoFromSource.setRelatedItems(itemRelatedItemService.getItemRelatedItems(itemFromSource));
@@ -247,7 +245,7 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
         }
         ComparisonResult comparisonResult;
         ItemDifferencesCore currentItemDifferences = ItemsComparator.differentiateItems(itemCore, currentItemDto);
-        if (itemDtoFromSource != null) {
+        if (itemDtoFromSource != null && patchMode) {
             ItemDifferencesCore itemFromSourceDifferences = ItemsComparator.differentiateItems(itemCore,
                     itemDtoFromSource);
             if (itemFromSourceDifferences.isEqual()) {
@@ -273,19 +271,22 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
 
         if (patchMode) {
             if (comparisonResult == ComparisonResult.CONFLICT || comparisonResult == ComparisonResult.UPDATED) {
-                ItemsPatcher.patchItemCore(currentItemDto, itemCore);
+                ItemsPatcher.patchItemCore(currentItemDto, itemDtoFromSource, itemCore);
             }
         }
         return comparisonResult;
     }
 
 
-    private Item getLastItemBySource(@NonNull I currentItem, @NonNull Long sourceId, @NonNull String sourceItemId) {
+    private Item getItemBySource(@NonNull I currentItem, @NonNull Long sourceId, @NonNull String sourceItemId, boolean patchMode) {
         List<Item> history = loadItemHistory(currentItem);
+        if (patchMode) {
+            history = history.reversed();
+        }
         for (Item historicalItem : history)
             if (historicalItem.getSource() != null) {
                 if (sourceId.equals(historicalItem.getSource().getId()) && sourceItemId.equals(
-                        historicalItem.getSourceItemId()) && historicalItem.getInformationContributor().isSystemContributor()) {
+                        historicalItem.getSourceItemId()) && historicalItem.getInformationContributor().getRole().hasContributorPrivileges()) {
                     return historicalItem;
                 }
             }
