@@ -150,4 +150,19 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
             " WHERE i.status = :status AND v.active = true AND v.persistentId = :persistentId AND i.category <> :notCategory")
     Optional<Item> findActiveByPersistentIdAndStatusAndCategoryNot(String persistentId, ItemStatus status,
             ItemCategory notCategory);
+
+    @Query("select i from Item i, VersionedItem v" +
+            " WHERE i.versionedItem = v AND v.active = true AND i.status=:status AND i.source.id = :sourceId AND (:sourceItemId is null OR i.sourceItemId = :sourceItemId)" +
+            " ORDER BY i.label, i.id")
+    Page<Item> getActiveItemsBySourceOrderByLabel(Long sourceId, String sourceItemId, ItemStatus status, Pageable pageable);
+
+    @Query("select i from Item i, VersionedItem v" +
+            " WHERE i.versionedItem = v AND v.active = true AND i.source.id = :sourceId AND (:sourceItemId is null OR i.sourceItemId = :sourceItemId)" +
+            " ORDER BY i.label, i.id")
+    Page<Item> getActiveItemsBySourceOrderByLabel(Long sourceId, String sourceItemId, Pageable pageable);
+
+    @Query("select i from Item i, VersionedItem v" +
+            " WHERE i.versionedItem = v AND v.active = true AND (i.status=:status OR i.informationContributor.id = :userId) AND i.source.id = :sourceId AND (:sourceItemId is null OR i.sourceItemId = :sourceItemId)" +
+            " ORDER BY i.label, i.id")
+    Page<Item> getActiveOrOwnedItemsBySourceOrderByLabel(Long sourceId, String sourceItemId, ItemStatus status, Long userId, Pageable pageable);
 }

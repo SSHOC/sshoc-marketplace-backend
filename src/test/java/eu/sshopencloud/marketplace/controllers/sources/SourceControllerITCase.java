@@ -1,10 +1,18 @@
 package eu.sshopencloud.marketplace.controllers.sources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
+import eu.sshopencloud.marketplace.dto.actors.ActorCore;
+import eu.sshopencloud.marketplace.dto.actors.ActorId;
+import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetCore;
+import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
+import eu.sshopencloud.marketplace.dto.items.ItemContributorId;
 import eu.sshopencloud.marketplace.dto.sources.SourceCore;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -19,6 +27,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -279,6 +291,103 @@ public class SourceControllerITCase {
                 .andExpect(jsonPath("items[0].persistentId", is("JmBgWa")))
                 .andExpect(jsonPath("items[0].category", is("training-material")))
                 .andExpect(jsonPath("items[0].label", is("Webinar on DH")));
+    }
+
+    @Test
+    public void shouldUpdateActorRelatedToItemAngGetThisItem() throws Exception {
+        Long sourceId = 2L;
+        String sourceItemId = "rT8gg";
+        Long actorIdToUpdate = 4L;
+
+        // create datasets that relate to the actor we are going to update
+        ItemContributorId contributor = new ItemContributorId(new ActorId(4L), new ActorRoleId("contributor"));
+
+        List<String> datasetsPIDs = new ArrayList<>();
+
+        IntStream.range(1, 11).forEach(i -> {
+            DatasetCore dataset = new DatasetCore();
+            dataset.setLabel("Test dataset with source and actor " + i);
+            dataset.setDescription("Lorem ipsum");
+            SourceId source = new SourceId();
+            source.setId(sourceId);
+            dataset.setSource(source);
+            dataset.setSourceItemId(sourceItemId);
+            dataset.setContributors(List.of(contributor));
+
+            String payload = null;
+            try {
+                payload = mapper.writeValueAsString(dataset);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            log.debug("JSON: " + payload);
+
+            try {
+                mvc.perform(post("/api/datasets")
+                                .content(payload)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", MODERATOR_JWT))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("status", is("approved")))
+                        .andExpect(jsonPath("category", is("dataset")))
+                        .andExpect(jsonPath("label", is("Test dataset with source and actor " + i)))
+                        .andExpect(jsonPath("description", is("Lorem ipsum")))
+                        .andExpect(jsonPath("properties", hasSize(0)))
+                        .andExpect(jsonPath("source.id", is(2)))
+                        .andExpect(jsonPath("source.label", is("Programming Historian")))
+                        .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                        .andExpect(jsonPath("sourceItemId", is("rT8gg"))).andDo(h -> {
+                            datasetsPIDs.add(mapper.readValue(h.getResponse().getContentAsString(), DatasetDto.class).getPersistentId());
+                        });
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        ActorCore actor = new ActorCore();
+        actor.setName("Test actor");
+        actor.setEmail("test@example.org");
+        List<ActorId> affiliations = new ArrayList<>();
+        ActorId affiliation1 = new ActorId();
+        affiliation1.setId(1L);
+        affiliations.add(affiliation1);
+        actor.setAffiliations(affiliations);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(actor);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/actors/{id}", actorIdToUpdate)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name", is("Test actor")))
+                .andExpect(jsonPath("email", is("test@example.org")))
+                .andExpect(jsonPath("affiliations", hasSize(1)))
+                .andExpect(jsonPath("affiliations[0].name", is("Austrian Academy of Sciences")));
+
+        mvc.perform(get("/api/sources/{sourceId}/items/{sourceItemId}", sourceId, sourceItemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(jsonPath("items", hasSize(11)))
+                .andExpect(jsonPath("items[0].persistentId", is(datasetsPIDs.getFirst())))
+                .andExpect(jsonPath("items[0].category", is("dataset")))
+                .andExpect(jsonPath("items[0].label", is("Test dataset with source and actor 1")));
+
+        mvc.perform(get("/api/sources/{sourceId}/items/{sourceItemId}", sourceId, sourceItemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(jsonPath("items", hasSize(11)))
+                .andExpect(jsonPath("items[0].persistentId", is(datasetsPIDs.getFirst())))
+                .andExpect(jsonPath("items[0].category", is("dataset")))
+                .andExpect(jsonPath("items[0].label", is("Test dataset with source and actor 1")));
+
+        mvc.perform(get("/api/sources/{sourceId}/items/{sourceItemId}", sourceId, sourceItemId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("items", hasSize(11)))
+                .andExpect(jsonPath("items[0].persistentId", is(datasetsPIDs.getFirst())))
+                .andExpect(jsonPath("items[0].category", is("dataset")))
+                .andExpect(jsonPath("items[0].label", is("Test dataset with source and actor 1")));
     }
 
 }
