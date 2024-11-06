@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.*;
+import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
@@ -1737,5 +1738,355 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("label", is(tool.getLabel())))
                 .andExpect(jsonPath("description", is(tool.getDescription())));
+    }
+
+    @Test
+    public void shouldPatchTool2() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Patched tool");
+        tool.setDescription("This is a tool to be patched!");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(toolDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())));
+
+        tool.setAccessibleAt(List.of("http://tapor.ca/tools/patchedTool"));
+        tool.setSourceItemId(null);
+        tool.setSource(null);
+        tool.setDescription("New description");
+        String payloadUpdated = mapper.writeValueAsString(tool);
+        String toolJsonUpdated = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(toolDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        tool.setDescription("This is a tool to be patched!");
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+        tool.setAccessibleAt(null);
+
+        String payloadPatch = mapper.writeValueAsString(tool);
+
+        String toolJsonPatched = mvc.perform(
+                        patch("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isNotModified())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    public void shouldPatchTool() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Patched tool");
+        tool.setDescription("This is a tool to be patched!");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(toolDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())));
+
+        tool.setAccessibleAt(List.of("http://tapor.ca/tools/patchedTool"));
+        tool.setSourceItemId(null);
+        tool.setSource(null);
+        String payloadUpdated = mapper.writeValueAsString(tool);
+        String toolJsonUpdated = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(toolDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        tool.setDescription("New description");
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+        tool.setAccessibleAt(null);
+
+        String payloadPatch = mapper.writeValueAsString(tool);
+
+        String toolJsonPatched = mvc.perform(
+                        patch("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    public void shouldConflictInPatchTool() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Patched tool");
+        tool.setDescription("This is a tool to be patched!");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(toolDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())));
+
+        tool.setAccessibleAt(List.of("http://tapor.ca/tools/patchedTool"));
+        tool.setDescription("New description");
+        tool.setSourceItemId(null);
+        tool.setSource(null);
+        String payloadUpdated = mapper.writeValueAsString(tool);
+        String toolJsonUpdated = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(toolDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        tool.setDescription("New description even more");
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+        tool.setAccessibleAt(null);
+
+        String payloadPatch = mapper.writeValueAsString(tool);
+
+        String toolJsonPatched = mvc.perform(
+                        patch("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("properties[0].type.code", is("conflict-at-source")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    public void shouldNotPatchButUpdateTool() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Patched tool");
+        tool.setDescription("This is a tool to be patched!");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(toolDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())));
+
+        tool.setAccessibleAt(List.of("http://tapor.ca/tools/patchedTool"));
+        tool.setSourceItemId(null);
+        tool.setSource(null);
+        String payloadUpdated = mapper.writeValueAsString(tool);
+        String toolJsonUpdated = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(toolDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        tool.setDescription("Patched tool description changed!");
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+        tool.setAccessibleAt(null);
+
+        String payloadPatch = mapper.writeValueAsString(tool);
+
+        String toolJsonPatched = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("Patched tool description changed!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
     }
 }

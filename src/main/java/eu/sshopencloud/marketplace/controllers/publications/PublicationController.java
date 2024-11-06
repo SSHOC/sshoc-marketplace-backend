@@ -79,7 +79,20 @@ public class PublicationController {
                                                             @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft,
                                                             @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
-        return ResponseEntity.ok(publicationService.updatePublication(persistentId, updatedPublication, draft, approved));
+        return ResponseEntity.ok(publicationService.updatePublication(persistentId, updatedPublication, draft, approved, false));
+    }
+
+    @Operation(summary = "Patch publication for given persistentId")
+    @PatchMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PublicationDto> patchPublication(@PathVariable("persistentId") String persistentId,
+                                                            @Parameter(
+                                                                    description = "Publication patch",
+                                                                    required = true,
+                                                                    schema = @Schema(implementation = PublicationCore.class)) @RequestBody PublicationCore updatedPublication,
+                                                            @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft,
+                                                            @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
+
+        return ResponseEntity.ok(publicationService.updatePublication(persistentId, updatedPublication, draft, approved, true));
     }
 
     @Operation(summary = "Revert publication to target version by its persistentId and versionId that is reverted to")
