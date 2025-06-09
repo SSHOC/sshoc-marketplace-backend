@@ -32,6 +32,8 @@ import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
+import eu.sshopencloud.marketplace.validators.workflows.HandleServerException;
+import eu.sshopencloud.marketplace.validators.workflows.HandleServerService;
 import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -53,6 +55,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     private final WorkflowRepository workflowRepository;
     private final WorkflowFactory workflowFactory;
     private final StepService stepService;
+    private final HandleServerService handleServerService;
 
 
     public WorkflowService(WorkflowRepository workflowRepository, WorkflowFactory workflowFactory, @Lazy StepService stepService,
@@ -61,7 +64,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
                            DraftItemRepository draftItemRepository, ItemRelatedItemService itemRelatedItemService,
                            PropertyTypeService propertyTypeService, IndexItemService indexItemService, UserService userService,
                            MediaStorageService mediaStorageService, SourceService sourceService, ApplicationEventPublisher eventPublisher,
-                           VocabularyService vocabularyService) {
+                           VocabularyService vocabularyService, HandleServerService handleServerService) {
 
         super(
                 itemRepository, versionedItemRepository, itemVisibilityService, itemUpgradeRegistry, draftItemRepository,
@@ -72,6 +75,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         this.workflowRepository = workflowRepository;
         this.workflowFactory = workflowFactory;
         this.stepService = stepService;
+        this.handleServerService = handleServerService;
     }
 
 
@@ -115,9 +119,18 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     public WorkflowDto createWorkflow(WorkflowCore workflowCore, boolean draft) {
         Workflow workflow = createItem(workflowCore, draft);
+        try{
+            handleServerService.createHandleFor(workflow);
+            addExternalSourceForHandleServer(workflow);
+        }catch (HandleServerException e){
+            log.error("Error while adding externalId for workflow", e);
+        }
         return prepareItemDto(workflow);
     }
 
+    private void addExternalSourceForHandleServer(Workflow workflow) {
+        handleServerService.createExternalIdForHandleServerAndFor(workflow);
+    }
 
     public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved, boolean patchMode) throws VersionNotChangedException {
         Workflow workflow = updateItem(persistentId, workflowCore, draft, approved, patchMode);
