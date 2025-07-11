@@ -36,6 +36,7 @@ import eu.sshopencloud.marketplace.validators.workflows.HandleServerException;
 import eu.sshopencloud.marketplace.validators.workflows.HandleServerService;
 import eu.sshopencloud.marketplace.validators.workflows.WorkflowFactory;
 import lombok.extern.slf4j.Slf4j;
+import net.handle.hdllib.AbstractResponse;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -120,9 +121,11 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     public WorkflowDto createWorkflow(WorkflowCore workflowCore, boolean draft) {
         Workflow workflow = createItem(workflowCore, draft);
         try{
-            handleServerService.createHandleFor(workflow);
-            addExternalSourceForHandleServer(workflow);
-        }catch (HandleServerException e){
+            AbstractResponse handleServerResponse = handleServerService.createHandleFor(workflow);
+            if (handleServerService.requestSuccessful(handleServerResponse)) {
+                addExternalSourceForHandleServer(workflow);
+            }
+        } catch (HandleServerException e) {
             log.error("Error while adding externalId for workflow", e);
         }
         return prepareItemDto(workflow);

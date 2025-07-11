@@ -36,7 +36,7 @@ public class HandleServerService {
     this.itemSourceService = itemSourceService;
   }
 
-  public void createHandleFor(Workflow workflow) throws HandleServerException {
+  public AbstractResponse createHandleFor(Workflow workflow) throws HandleServerException {
     try {
       AbstractRequest request = createRequest(workflow);
       AbstractResponse response = sendRequest(request);
@@ -48,6 +48,7 @@ public class HandleServerService {
             AbstractMessage.getResponseCodeMessage(response.responseCode),
             workflow);
       }
+      return response;
     } catch (Exception e) {
       throw new HandleServerException(e);
     }
@@ -57,31 +58,36 @@ public class HandleServerService {
     Optional<ItemSource> itemSource = itemSourceService.loadItemSource(getHandleServerExternalId().getCode());
     if (itemSource.isEmpty()) {
       itemSourceService.createItemSource(getHandleServerExternalId());
-    } else {
-      List<ItemExternalId> externalIds = workflow.getExternalIds();
-      ItemExternalId externalId = new ItemExternalId(itemSource.get(), workflow.getPersistentId(), workflow);
-      ArrayList<ItemExternalId> itemExternalIds =  new ArrayList<>(externalIds);
-      itemExternalIds.add(externalId);
-      workflow.addExternalIds(itemExternalIds);
     }
+
+    itemSourceService.loadItemSource(getHandleServerExternalId().getCode()).ifPresent(
+        createdItemSource -> {
+          List<ItemExternalId> externalIds = workflow.getExternalIds();
+          ItemExternalId externalId = new ItemExternalId(createdItemSource, externalIdentifier(workflow), workflow);
+          ArrayList<ItemExternalId> itemExternalIds = new ArrayList<>(externalIds);
+          itemExternalIds.add(externalId);
+          workflow.addExternalIds(itemExternalIds);
+        }
+    );
   }
 
   private ItemSourceCore getHandleServerExternalId() {
     return ItemSourceCore.builder()
                   .code("Handle")
                   .label("Handle")
-                  .urlTemplate("https://handle.net/" + handleServerConfiguration.getAppHandleValue() + "/{source-item-id}")
+                  .urlTemplate("https://hdl.handle.net/" + handleServerConfiguration.getAppHandleValue() + "/{source-item-id}")
                   .build();
   }
-  private boolean requestSuccessful(AbstractResponse response) {
+
+  public boolean requestSuccessful(AbstractResponse response) {
       return response.responseCode == AbstractMessage.RC_SUCCESS;
   }
 
   private AbstractRequest createRequest(Workflow workflow) throws Exception {
-    byte[] newHandle = Util.encodeString(handleServerConfiguration.getAppHandleValue() + "/" + workflow.getPersistentId());
+    byte[] newHandle = Util.encodeString(handleKey(workflow));
     HandleValue[] values = new HandleValue[]{
         new net.handle.hdllib.HandleValue(1, Common.STD_TYPE_URL,
-            Util.encodeString(handleServerConfiguration.getBaseUrl() + "/workflow/" + workflow.getPersistentId()))
+            Util.encodeString(handleValue(workflow)))
     };
 
     return new CreateHandleRequest(
@@ -90,6 +96,38 @@ public class HandleServerService {
         authInfo()
     );
   }
+
+  private String handleKey(Workflow workflow) {
+    String value = String.join(
+        "/",
+        handleServerConfiguration.getAppHandleValue(),
+        workflow.getPersistentId(),
+        String.valueOf(workflow.getVersionedItem().getCurrentVersion().getId())
+    );
+    return value;
+  }
+
+  private String handleValue(Workflow workflow) {
+    String value =  String.join(
+        "/",
+        handleServerConfiguration.getBaseUrl(),
+        "workflow",
+        workflow.getPersistentId(),
+        "version",
+        String.valueOf(workflow.getVersionedItem().getCurrentVersion().getId())
+    );
+    return value;
+  }
+
+  private String externalIdentifier(Workflow workflow) {
+    String value =  String.join(
+        "/",
+        workflow.getPersistentId(),
+        String.valueOf(workflow.getVersionedItem().getCurrentVersion().getId())
+    );
+    return value;
+  }
+
 
   private AbstractResponse sendRequest(AbstractRequest request) throws HandleException {
     HandleResolver resolver = new HandleResolver();
