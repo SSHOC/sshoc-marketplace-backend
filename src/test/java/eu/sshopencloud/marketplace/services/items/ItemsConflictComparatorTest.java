@@ -390,7 +390,9 @@ class ItemsConflictComparatorTest {
         ItemDto item2 = prepareItemTemplate();
 
         //when
-        ItemMediaDto itemMediaDto = new ItemMediaDto(new MediaDetails(UUID.randomUUID(), MediaCategory.IMAGE,
+        ItemMediaDto itemMediaDto = new ItemMediaDto(new MediaDetails(
+                UUID.fromString("f9133f04-e3fc-1111-1111-157f32621018"),
+                MediaCategory.IMAGE,
                 MediaLocation.builder().build(), "fileName", "mimeType", true), "caption", new ConceptBasicDto());
         item1.setMedia(List.of(itemMediaDto));
 
