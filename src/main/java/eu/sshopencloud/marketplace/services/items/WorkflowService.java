@@ -118,9 +118,22 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         dto.setComposedOf(rootSteps);
     }
 
-    public WorkflowDto createWorkflow(WorkflowCore workflowCore, boolean draft) {
+    public WorkflowDto createWorkflow(WorkflowCore workflowCore, boolean draft, boolean createHandle) {
         Workflow workflow = createItem(workflowCore, draft);
-        try{
+        if (handleShouldBeCreated(createHandle)) {
+            createHandleFor(workflow);
+        } else {
+            log.debug("Handle for workflow will not be created");
+        }
+        return prepareItemDto(workflow);
+    }
+
+    private boolean handleShouldBeCreated(boolean createHandle) {
+        return createHandle;
+    }
+
+    private void createHandleFor(Workflow workflow) {
+        try {
             AbstractResponse handleServerResponse = handleServerService.createHandleFor(workflow);
             if (handleServerService.requestSuccessful(handleServerResponse)) {
                 addExternalSourceForHandleServer(workflow);
@@ -128,7 +141,6 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         } catch (HandleServerException e) {
             log.error("Error while adding externalId for workflow", e);
         }
-        return prepareItemDto(workflow);
     }
 
     private void addExternalSourceForHandleServer(Workflow workflow) {
