@@ -38,6 +38,8 @@ spec:
               value: /log
             - name: marketplace_media_dir
               value: /var/sshoc/media
+            - name: marketplace_handle_dir
+              value: /var/sshoc/handle
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}
@@ -77,6 +79,8 @@ spec:
               name: media-data
             - mountPath: /log
               name: app-log
+            - mountPath: /var/sshoc/handle
+              name: app-handle
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       volumes:
@@ -86,3 +90,7 @@ spec:
         - name: media-data
           persistentVolumeClaim:
             claimName: {{ print (.Values.pvc.namePrefix) ( include "fullname" . ) "-media-data"| quote }}
+        - name: app-handle
+          persistentVolumeClaim:
+            claimName: {{ print (.Values.pvc.namePrefix) ( include "fullname" . ) "-app-handle"| quote }}
+

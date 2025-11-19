@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ print (.Values.pvc.namePrefix) ( include "fullname" . ) "-app-handle"| quote }}
+spec:
+  accessModes:
+  {{- range .Values.pvc.accessModes}}
+    - {{ toYaml . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: 10Mi
