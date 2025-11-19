@@ -65,8 +65,9 @@ public class WorkflowController {
             description = "Created workflow",
             required = true,
             schema = @Schema(implementation = WorkflowCore.class)) @RequestBody WorkflowCore newWorkflow,
-                                                      @RequestParam(value = "draft", defaultValue = "false") boolean draft) {
-        return ResponseEntity.ok(workflowService.createWorkflow(newWorkflow, draft));
+                                                      @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                      @RequestParam(value = "createHandle", defaultValue = "false") boolean createHandle) {
+        return ResponseEntity.ok(workflowService.createWorkflow(newWorkflow, draft, createHandle));
     }
 
     @Operation(summary = "Updating workflow for given persistentId")

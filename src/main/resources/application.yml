@@ -181,3 +181,9 @@ management:
         health:
             show-details: when_authorized
             roles: 'ADMINISTRATOR'
+handle:
+    base-url: "https://marketplace.sshopencloud.eu"
+    app-handle-value: "21.11160"
+    user-id-handle: "0.NA/21.11160"
+    user-id-index: "300"
+    key-location: "/etc/sshomp/handle/admpriv.bin"
