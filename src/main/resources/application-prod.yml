@@ -9,3 +9,10 @@ spring:
 
     liquibase:
         contexts: prod
+
+handle:
+  base-url: ${HANDLE_BASE_URL}
+  app-handle-value: ${HANDLE_APP_VALUE}
+  user-id-handle: ${HANDLE_USER_ID}
+  user-id-index: ${HANDLE_USER_ID_INDEX}
+  key-location: ${HANDLE_KEY_LOCATION}
