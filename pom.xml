@@ -19,12 +19,13 @@
         <liquibase-hibernate.version>4.29.1</liquibase-hibernate.version>
 <!--        <liquibase.version>3.6.0</liquibase.version>-->
         <skip.it>false</skip.it>
+        <jetty.version>12.0.11</jetty.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.8</version>
+        <version>3.5.8</version>
         <relativePath />
     </parent>
 
@@ -96,7 +97,7 @@
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock-jetty12</artifactId>
-            <version>3.9.1</version>
+            <version>3.9.2</version>
             <scope>test</scope>
         </dependency>
         <!-- Lombok -->
@@ -302,7 +303,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.33.0</version>
+                <version>0.48.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <verbose>all</verbose>
