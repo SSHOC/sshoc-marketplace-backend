@@ -68,7 +68,7 @@ public class MediaUploadControllerITCase {
 
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
@@ -76,7 +76,7 @@ public class MediaUploadControllerITCase {
 
 
     @Test
-    public void shouldUploadImageMediaFile() throws Exception {
+    void shouldUploadImageMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "seriouscat.jpg", "image/jpeg", mediaStream
@@ -111,7 +111,7 @@ public class MediaUploadControllerITCase {
 
     //With content-type in heads
     @Test
-    public void shouldUploadBmpImageMediaFile() throws Exception {
+    void shouldUploadBmpImageMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "bmp_example.bmp", "image/bmp", mediaStream
@@ -145,7 +145,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadGiffImageMediaFile() throws Exception {
+    void shouldUploadGiffImageMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "gif_example.gif", "image/gif", mediaStream
@@ -179,7 +179,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadJpegImageMediaFile() throws Exception {
+    void shouldUploadJpegImageMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "jpeg_example.jpeg", "image/jpeg", mediaStream
@@ -213,7 +213,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadPngImageMediaFile() throws Exception {
+    void shouldUploadPngImageMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "png_example.png", "image/png", mediaStream
@@ -247,7 +247,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadPngImageMediaFileWithTransparentBackground() throws Exception {
+    void shouldUploadPngImageMediaFileWithTransparentBackground() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "png_with_transparent_bg", "image/png", mediaStream
@@ -286,7 +286,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadSvgImageMediaFile() throws Exception {
+    void shouldUploadSvgImageMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "svg_example.svg", "image/svg+xml", mediaStream
@@ -320,7 +320,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadTiffImageMediaFile() throws Exception {
+    void shouldUploadTiffImageMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "tiff_example.tiff", "image/tiff", mediaStream
@@ -354,7 +354,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadWebpImageMediaFile() throws Exception {
+    void shouldUploadWebpImageMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "webp_example.webp", "image/webp", mediaStream
@@ -388,7 +388,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadBmpImageMediaFileWithoutContentType() throws Exception {
+    void shouldUploadBmpImageMediaFileWithoutContentType() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "bmp_example.bmp", null, mediaStream
@@ -422,7 +422,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadGiffImageMediaFileWithoutContentType() throws Exception {
+    void shouldUploadGiffImageMediaFileWithoutContentType() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "gif_example.gif", null, mediaStream
@@ -456,7 +456,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadJpegImageMediaFileWithoutContentType() throws Exception {
+    void shouldUploadJpegImageMediaFileWithoutContentType() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "jpeg_example.jpeg", null, mediaStream
@@ -490,7 +490,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadPngImageMediaFileWithoutContentType() throws Exception {
+    void shouldUploadPngImageMediaFileWithoutContentType() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "png_example.png", null, mediaStream
@@ -524,7 +524,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadSvgImageMediaFileWithoutContentType() throws Exception {
+    void shouldUploadSvgImageMediaFileWithoutContentType() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "svg_example.svg", null, mediaStream
@@ -558,7 +558,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadTiffImageMediaFileWithoutContentType() throws Exception {
+    void shouldUploadTiffImageMediaFileWithoutContentType() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "tiff_example.tiff", null, mediaStream
@@ -592,7 +592,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadWebpImageMediaFileWithoutContentType() throws Exception {
+    void shouldUploadWebpImageMediaFileWithoutContentType() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "webp_example.webp", null, mediaStream
@@ -626,7 +626,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadImageMediaFileWithoutContentType() throws Exception {
+    void shouldUploadImageMediaFileWithoutContentType() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         MockMultipartFile mediaFile = new MockMultipartFile(
                 "file", "seriouscat.jpg", null, mediaStream
@@ -663,7 +663,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadTextMediaFile() throws Exception {
+    void shouldUploadTextMediaFile() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream(
                 "/initial-data/media/sample-2mb-text-file.txt"
         );
@@ -698,7 +698,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldImportVideoMedia() throws Exception {
+    void shouldImportVideoMedia() throws Exception {
         String localYoutubeUrl = String.format("http://localhost:%d", wireMockExtension.getRuntimeInfo().getHttpPort());
         String youtubeVideoUrl = "/youtube/watch?v=r8mtXJh3hzM&ab_channel=VoxxedDaysVienna";
         URL videoUrl = new URL(localYoutubeUrl + youtubeVideoUrl);
@@ -757,7 +757,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldImportImageMedia() throws Exception {
+    void shouldImportImageMedia() throws Exception {
         InputStream grumpyStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/grumpycat.png");
         byte[] grumpyContent = FileCopyUtils.copyToByteArray(grumpyStream);
 
@@ -818,7 +818,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldImportBmpImageMediaWithoutContentType() throws Exception {
+    void shouldImportBmpImageMediaWithoutContentType() throws Exception {
         InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/bmp_example.bmp");
         byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
 
@@ -879,7 +879,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldImportGifImageMediaWithoutContentType() throws Exception {
+    void shouldImportGifImageMediaWithoutContentType() throws Exception {
         InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/gif_example.gif");
         byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
 
@@ -940,7 +940,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldImportJpegImageMediaWithoutContentType() throws Exception {
+    void shouldImportJpegImageMediaWithoutContentType() throws Exception {
         InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/jpeg_example.jpeg");
         byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
 
@@ -1001,7 +1001,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldImportPngImageMediaWithoutContentType() throws Exception {
+    void shouldImportPngImageMediaWithoutContentType() throws Exception {
         InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/png_example.png");
         byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
 
@@ -1062,7 +1062,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldImportSvgImageMediaWithoutContentType() throws Exception {
+    void shouldImportSvgImageMediaWithoutContentType() throws Exception {
         InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/svg_example.svg");
         byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
 
@@ -1123,7 +1123,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldImportTiffImageMediaWithoutContentType() throws Exception {
+    void shouldImportTiffImageMediaWithoutContentType() throws Exception {
         InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/tiff_example.tiff");
         byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
 
@@ -1183,7 +1183,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldImportWebpImageMediaWithoutContentType() throws Exception {
+    void shouldImportWebpImageMediaWithoutContentType() throws Exception {
         InputStream imageStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/webp_example.webp");
         byte[] imageContent = FileCopyUtils.copyToByteArray(imageStream);
 
@@ -1244,7 +1244,7 @@ public class MediaUploadControllerITCase {
 
 
     @Test
-    public void shouldImportImageMediaWithoutContentType() throws Exception {
+    void shouldImportImageMediaWithoutContentType() throws Exception {
         InputStream grumpyStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/grumpycat.png");
         byte[] grumpyContent = FileCopyUtils.copyToByteArray(grumpyStream);
 
@@ -1305,7 +1305,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadImageInChunks() throws Exception {
+    void shouldUploadImageInChunks() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/seriouscat.jpg");
         byte[] mediaContent = FileCopyUtils.copyToByteArray(mediaStream);
 
@@ -1335,7 +1335,7 @@ public class MediaUploadControllerITCase {
     }
 
     @Test
-    public void shouldUploadPdfInChunks() throws Exception {
+    void shouldUploadPdfInChunks() throws Exception {
         InputStream mediaStream = MediaUploadControllerITCase.class.getResourceAsStream("/initial-data/media/jwt-handbook.pdf");
         byte[] mediaContent = FileCopyUtils.copyToByteArray(mediaStream);
 

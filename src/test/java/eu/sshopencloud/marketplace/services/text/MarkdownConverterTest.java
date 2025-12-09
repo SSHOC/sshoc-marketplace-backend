@@ -11,10 +11,10 @@ import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-public class MarkdownConverterTest {
+class MarkdownConverterTest {
 
     @Test
-    public void shouldConvertSimpleHtmlToMarkdown() throws Exception {
+    void shouldConvertSimpleHtmlToMarkdown() throws Exception {
         String html = "<div>Description</div>";
 
         String markdown = MarkdownConverter.convertHtmlToMarkdown(html);
@@ -23,7 +23,7 @@ public class MarkdownConverterTest {
     }
 
     @Test
-    public void shouldConvertComplexHtmlToMarkdown() throws Exception {
+    void shouldConvertComplexHtmlToMarkdown() throws Exception {
         String html = "<div>Description\n"
                 + "  <p>Lorem ipsum <code>class</code> <i>Ctrl</i> <strong>Alt</strong> <a href='http://example.com'>link</a></p>\n"
                 + "  <ul>\n"
@@ -59,7 +59,7 @@ public class MarkdownConverterTest {
     }
 
     @Test
-    public void shouldRemainMarkdownWithUrlIntact() throws Exception {
+    void shouldRemainMarkdownWithUrlIntact() throws Exception {
         String source = "Click http://example.com/ *here*";
 
         String markdown = MarkdownConverter.convertHtmlToMarkdown(source);
@@ -68,7 +68,7 @@ public class MarkdownConverterTest {
     }
 
     @Test
-    public void shouldRemainMarkdownWithJsIntact() throws Exception {
+    void shouldRemainMarkdownWithJsIntact() throws Exception {
         String source = "# Heading\n"
                 + "\n"
                 + "Some **bold** text.\n"
@@ -90,7 +90,7 @@ public class MarkdownConverterTest {
 
 
     @Test
-    public void shouldConvertHtmlAndRemainMarkdownIntact() throws Exception {
+    void shouldConvertHtmlAndRemainMarkdownIntact() throws Exception {
         String source = "# Heading\n"
                 + "\n"
                 + "Some <strong>bold</strong> text.\n"
@@ -112,7 +112,7 @@ public class MarkdownConverterTest {
 
 
     @Test
-    public void shouldRemainComplexMarkdownIntact() throws Exception {
+    void shouldRemainComplexMarkdownIntact() throws Exception {
         String source = "Description\n"
                 + "\n"
                 + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"
@@ -145,7 +145,7 @@ public class MarkdownConverterTest {
     }
 
     @Test
-    public void shouldRemainComplexMarkdownWithAngleBracketsIntact() throws Exception {
+    void shouldRemainComplexMarkdownWithAngleBracketsIntact() throws Exception {
         String source = "Description <http://example.com>\n"
                 + "\n"
                 + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"
@@ -178,7 +178,7 @@ public class MarkdownConverterTest {
     }
 
     @Test
-    public void shouldConvertMarkdownToText() throws Exception {
+    void shouldConvertMarkdownToText() throws Exception {
         String markdown = "Description\n"
                 + "\n"
                 + "Lorem ipsum `class` *Ctrl* **Alt** [link](http://example.com)\n"

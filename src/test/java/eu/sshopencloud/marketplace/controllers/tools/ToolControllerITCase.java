@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class ToolControllerITCase {
+class ToolControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -61,7 +61,7 @@ public class ToolControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -69,7 +69,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldReturnTools() throws Exception {
+    void shouldReturnTools() throws Exception {
 
         mvc.perform(get("/api/tools-services")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -77,7 +77,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldReturnTool() throws Exception {
+    void shouldReturnTool() throws Exception {
         String toolPersistentId = "n21Kfc";
         Integer toolId = 1;
 
@@ -93,7 +93,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnToolWhenNotExist() throws Exception {
+    void shouldNotReturnToolWhenNotExist() throws Exception {
         String toolPersistentId = "xxxxxx7";
 
         mvc.perform(get("/api/tools-services/{id}", toolPersistentId)
@@ -102,7 +102,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithoutSource() throws Exception {
+    void shouldCreateToolWithoutSource() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
@@ -127,7 +127,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithRelations() throws Exception {
+    void shouldCreateToolWithRelations() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
@@ -181,7 +181,7 @@ public class ToolControllerITCase {
 
 
     @Test
-    public void shouldNotCreateToolWhenLabelIsNull() throws Exception {
+    void shouldNotCreateToolWhenLabelIsNull() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setDescription("Lorem ipsum");
 
@@ -202,7 +202,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenContributorIsUnknown() throws Exception {
+    void shouldNotCreateToolWhenContributorIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -233,7 +233,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenContributorRoleIsIncorrect() throws Exception {
+    void shouldNotCreateToolWhenContributorRoleIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -264,7 +264,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenPropertyTypeIsUnknown() throws Exception {
+    void shouldNotCreateToolWhenPropertyTypeIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -302,7 +302,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenConceptIsIncorrect() throws Exception {
+    void shouldNotCreateToolWhenConceptIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -340,7 +340,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenVocabularyIsDisallowed() throws Exception {
+    void shouldNotCreateToolWhenVocabularyIsDisallowed() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -380,7 +380,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    void shouldNotCreateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -413,7 +413,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolAsDraft() throws Exception {
+    void shouldUpdateToolAsDraft() throws Exception {
         String toolPersistentId = "DstBL5";
 
         ToolCore tool = new ToolCore();
@@ -464,7 +464,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithoutSource() throws Exception {
+    void shouldUpdateToolWithoutSource() throws Exception {
         String toolPersistentId = "Xgufde";
         Integer toolCurrentId = 3;
 
@@ -493,7 +493,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithRelations() throws Exception {
+    void shouldUpdateToolWithRelations() throws Exception {
         String toolPersistentId = "Xgufde";
         Integer toolCurrentId = 3;
 
@@ -552,7 +552,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenNotExist() throws Exception {
+    void shouldNotUpdateToolWhenNotExist() throws Exception {
         String toolPersistentId = "xxxxxx7";
 
         ToolCore tool = new ToolCore();
@@ -572,7 +572,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateTool() throws Exception {
+    void shouldUpdateTool() throws Exception {
         String toolPersistentId = "n21Kfc";
         int toolCurrentId = 1;
 
@@ -613,7 +613,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolAddAndRemoveExternalId() throws Exception {
+    void shouldUpdateToolAddAndRemoveExternalId() throws Exception {
         String toolPersistentId = "n21Kfc";
         int toolCurrentId = 1;
 
@@ -664,7 +664,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenLabelIsNull() throws Exception {
+    void shouldNotUpdateToolWhenLabelIsNull() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -686,7 +686,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenContributorIsUnknown() throws Exception {
+    void shouldNotUpdateToolWhenContributorIsUnknown() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -719,7 +719,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenContributorRoleIsIncorrect() throws Exception {
+    void shouldNotUpdateToolWhenContributorRoleIsIncorrect() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -752,7 +752,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenPropertyTypeIsUnknown() throws Exception {
+    void shouldNotUpdateToolWhenPropertyTypeIsUnknown() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -792,7 +792,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenConceptIsIncorrect() throws Exception {
+    void shouldNotUpdateToolWhenConceptIsIncorrect() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -819,7 +819,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenVocabularyIsDisallowed() throws Exception {
+    void shouldNotUpdateToolWhenVocabularyIsDisallowed() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -861,7 +861,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    void shouldNotUpdateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -886,7 +886,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldDeleteTool() throws Exception {
+    void shouldDeleteTool() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Tool to delete");
         tool.setDescription("Lorem ipsum");
@@ -924,7 +924,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteToolWhenNotExist() throws Exception {
+    void shouldNotDeleteToolWhenNotExist() throws Exception {
         Integer toolId = 100;
 
         mvc.perform(delete("/api/tools-services/{id}", toolId)
@@ -934,7 +934,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithMultipleAccessibleAtUrlsWithoutSource() throws Exception {
+    void shouldCreateToolWithMultipleAccessibleAtUrlsWithoutSource() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
@@ -967,7 +967,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithPropertyValuesValidation() throws Exception {
+    void shouldUpdateToolWithPropertyValuesValidation() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
                 .code("rating")
                 .label("Rating")
@@ -1027,7 +1027,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWithInvalidFloatProperty() throws Exception {
+    void shouldNotCreateToolWithInvalidFloatProperty() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
                 .code("rating")
                 .label("Rating")
@@ -1067,7 +1067,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveSuggestedTool() throws Exception {
+    void shouldRetrieveSuggestedTool() throws Exception {
         String toolId = "n21Kfc";
         int toolVersionId = 1;
 
@@ -1120,7 +1120,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithExternalId() throws Exception {
+    void shouldCreateToolWithExternalId() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Tesseract");
         tool.setDescription("The best tool for Optical Character Recognition");
@@ -1166,7 +1166,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithAccessibleAtUrlSameAsExistingSource() throws Exception {
+    void shouldCreateToolWithAccessibleAtUrlSameAsExistingSource() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Tapor related tool");
         tool.setDescription("The tool that has tapor url in the accessible at property");
@@ -1206,7 +1206,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateMultipleToolDrafts() throws Exception {
+    void shouldCreateMultipleToolDrafts() throws Exception {
         String toolId = "DstBL5";
 
         ToolCore firstDraft = new ToolCore();
@@ -1271,7 +1271,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWhenDraftIsPresent() throws Exception {
+    void shouldUpdateToolWhenDraftIsPresent() throws Exception {
         String toolId = "Xgufde";
 
         ToolCore draftTool = new ToolCore();
@@ -1309,7 +1309,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldReturnToolInformationContributors() throws Exception {
+    void shouldReturnToolInformationContributors() throws Exception {
 
         String toolPersistentId = "n21Kfc";
 
@@ -1328,7 +1328,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldReturnToolInformationContributorsForVersion() throws Exception {
+    void shouldReturnToolInformationContributorsForVersion() throws Exception {
 
         String toolPersistentId = "n21Kfc";
 
@@ -1370,7 +1370,7 @@ public class ToolControllerITCase {
 
 
     @Test
-    public void shouldGetMergeForTool() throws Exception {
+    void shouldGetMergeForTool() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1392,7 +1392,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldMergeIntoTool() throws Exception {
+    void shouldMergeIntoTool() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1551,7 +1551,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldGetHistoryForMergedTool() throws Exception {
+    void shouldGetHistoryForMergedTool() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1619,7 +1619,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithoutLineBreakInLabel() throws Exception {
+    void shouldUpdateToolWithoutLineBreakInLabel() throws Exception {
         String toolPersistentId = "Xgufde";
         Integer toolCurrentId = 3;
 
@@ -1657,7 +1657,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithoutLineBreaksInLabel() throws Exception {
+    void shouldCreateToolWithoutLineBreaksInLabel() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test \n\rsimple \nsoftware\r");
         tool.setDescription("Lorem ipsum");
@@ -1682,7 +1682,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldDeleteAndRevertTool() throws Exception {
+    void shouldDeleteAndRevertTool() throws Exception {
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Tool to revert");
@@ -1741,7 +1741,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldPatchTool2() throws Exception {
+    void shouldPatchTool2() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Patched tool");
         tool.setDescription("This is a tool to be patched!");
@@ -1822,7 +1822,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldPatchTool() throws Exception {
+    void shouldPatchTool() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Patched tool");
         tool.setDescription("This is a tool to be patched!");
@@ -1911,7 +1911,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldConflictInPatchTool() throws Exception {
+    void shouldConflictInPatchTool() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Patched tool");
         tool.setDescription("This is a tool to be patched!");
@@ -2002,7 +2002,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotPatchButUpdateTool() throws Exception {
+    void shouldNotPatchButUpdateTool() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Patched tool");
         tool.setDescription("This is a tool to be patched!");

@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class UserControllerITCase {
+class UserControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -52,7 +52,7 @@ public class UserControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init()
+    void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -60,7 +60,7 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldReturnUsers() throws Exception {
+    void shouldReturnUsers() throws Exception {
         mvc.perform(get("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", ADMINISTRATOR_JWT))
@@ -68,14 +68,14 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnUsersForUnauthorized() throws Exception {
+    void shouldNotReturnUsersForUnauthorized() throws Exception {
         mvc.perform(get("/api/users")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    public void shouldNotReturnUsersForContributor() throws Exception {
+    void shouldNotReturnUsersForContributor() throws Exception {
         mvc.perform(get("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", CONTRIBUTOR_JWT))
@@ -83,7 +83,7 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldReturnUser() throws Exception {
+    void shouldReturnUser() throws Exception {
         Integer userId = 1;
 
         mvc.perform(get("/api/users/{id}", userId)
@@ -94,7 +94,7 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnUserWhenNotExist() throws Exception {
+    void shouldNotReturnUserWhenNotExist() throws Exception {
         Integer userId = 51;
 
         mvc.perform(get("/api/users/{id}", userId)
@@ -104,7 +104,7 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldCreateConfigUserAndChangePassword() throws Exception {
+    void shouldCreateConfigUserAndChangePassword() throws Exception {
         UserCore user = new UserCore();
         String username = "New Config";
         user.setUsername(username);
@@ -159,7 +159,7 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldCreateConfigContributorUserWhenRoleNotSpecified() throws Exception {
+    void shouldCreateConfigContributorUserWhenRoleNotSpecified() throws Exception {
         UserCore user = new UserCore();
         user.setUsername("New Config");
         user.setDisplayName("New Config User");
@@ -183,7 +183,7 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateConfigUserForModerator() throws Exception {
+    void shouldNotCreateConfigUserForModerator() throws Exception {
         UserCore user = new UserCore();
         user.setUsername("New Config");
         user.setDisplayName("New Config User");
@@ -202,7 +202,7 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldReturnUsersSortedByLabel() throws Exception {
+    void shouldReturnUsersSortedByLabel() throws Exception {
 
         mvc.perform(get("/api/users?order=username")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -217,7 +217,7 @@ public class UserControllerITCase {
     }
 
     @Test
-    public void shouldReturnUsersSortedByRegistrationDate() throws Exception {
+    void shouldReturnUsersSortedByRegistrationDate() throws Exception {
 
         mvc.perform(get("/api/users?order=date")
                 .contentType(MediaType.APPLICATION_JSON)

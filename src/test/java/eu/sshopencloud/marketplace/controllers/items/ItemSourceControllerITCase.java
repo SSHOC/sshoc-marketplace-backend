@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext
 @AutoConfigureMockMvc
 @Transactional
-public class ItemSourceControllerITCase {
+class ItemSourceControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -46,7 +46,7 @@ public class ItemSourceControllerITCase {
 
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
@@ -54,7 +54,7 @@ public class ItemSourceControllerITCase {
 
 
     @Test
-    public void shouldReturnAllItemSources() throws Exception {
+    void shouldReturnAllItemSources() throws Exception {
         mvc.perform(get("/api/item-sources")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -66,7 +66,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemSource() throws Exception {
+    void shouldCreateItemSource() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test source service")
@@ -101,7 +101,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemSourceWithoutOrd() throws Exception {
+    void shouldCreateItemSourceWithoutOrd() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test source service")
@@ -136,7 +136,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemSourceAtWrongPosition() throws Exception {
+    void shouldNotCreateItemSourceAtWrongPosition() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test...")
@@ -155,7 +155,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveItemSource() throws Exception {
+    void shouldRetrieveItemSource() throws Exception {
         mvc.perform(get("/api/item-sources/GitHub"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("GitHub")))
@@ -163,7 +163,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldUpdateItemSource() throws Exception {
+    void shouldUpdateItemSource() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("Wikidata")
                 .label("Wikidata v2")
@@ -194,7 +194,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldUpdateItemSourceWithoutOrder() throws Exception {
+    void shouldUpdateItemSourceWithoutOrder() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("Wikidata")
                 .label("Wikidata test")
@@ -227,7 +227,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldRemoveItemSource() throws Exception {
+    void shouldRemoveItemSource() throws Exception {
         mvc.perform(
                 delete("/api/item-sources/{sourceId}", "Wikidata")
                         .header("Authorization", MODERATOR_JWT)
@@ -242,7 +242,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotRemoveItemSourceInUse() throws Exception {
+    void shouldNotRemoveItemSourceInUse() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Imported training material");
         trainingMaterial.setDescription("Test Training Material imported from Wikidata and GitHub");
@@ -284,7 +284,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemSourceUnauthorized() throws Exception {
+    void shouldNotCreateItemSourceUnauthorized() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test...")
@@ -302,7 +302,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateItemSourceUnauthorized() throws Exception {
+    void shouldNotUpdateItemSourceUnauthorized() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("GitHub")
                 .label("GitHub v2")
@@ -320,13 +320,13 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteItemSourceUnauthorized() throws Exception {
+    void shouldNotDeleteItemSourceUnauthorized() throws Exception {
         mvc.perform(delete("/api/item-sources/{sourceId}", "Wikidata"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    public void shouldCreateItemSourceAsAdministrator() throws Exception {
+    void shouldCreateItemSourceAsAdministrator() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test v2")
@@ -346,7 +346,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemSourceWithoutUrlTemplate() throws Exception {
+    void shouldCreateItemSourceWithoutUrlTemplate() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test...")
@@ -368,7 +368,7 @@ public class ItemSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemSourceWithWrongUrlTemplate() throws Exception {
+    void shouldNotCreateItemSourceWithWrongUrlTemplate() throws Exception {
         ItemSourceCore itemSource = ItemSourceCore.builder()
                 .code("test")
                 .label("Test...")

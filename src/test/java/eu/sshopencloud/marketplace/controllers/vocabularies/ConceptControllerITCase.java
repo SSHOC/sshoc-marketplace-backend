@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @AutoConfigureTestEntityManager
 @Transactional
-public class ConceptControllerITCase {
+class ConceptControllerITCase {
 
 //    @RegisterExtension
 //    public static WireMockExtension wireMockExtension = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
@@ -63,7 +63,7 @@ public class ConceptControllerITCase {
     private TestEntityManager entityManager;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         contributorJwt = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         systemImporterJwt = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         moderatorJwt = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -71,7 +71,7 @@ public class ConceptControllerITCase {
     }
 
     @Test
-    public void shouldCreateNewCandidateConcept() throws Exception {
+    void shouldCreateNewCandidateConcept() throws Exception {
         String vocabularyCode = "publication-type";
 
         mvc.perform(
@@ -153,7 +153,7 @@ public class ConceptControllerITCase {
     }
 
     @Test
-    public void shouldUpdateConcept() throws Exception {
+    void shouldUpdateConcept() throws Exception {
         String vocabularyCode = "nemo-activity-type";
         String conceptCode = "ActivityType-Printing";
 
@@ -244,7 +244,7 @@ public class ConceptControllerITCase {
 
 
     @Test
-    public void shouldNotUpdateConceptWithInconsistentUri() throws Exception {
+    void shouldNotUpdateConceptWithInconsistentUri() throws Exception {
         String vocabularyCode = "nemo-activity-type";
         String conceptCode = "ActivityType-Printing";
 
@@ -291,7 +291,7 @@ public class ConceptControllerITCase {
 
 
     @Test
-    public void shouldCommitCandidateConcept() throws Exception {
+    void shouldCommitCandidateConcept() throws Exception {
         String vocabularyCode = "publication-type";
         String conceptCode = "New";
 
@@ -343,7 +343,7 @@ public class ConceptControllerITCase {
     }
 
     @Test
-    public void shouldDeleteConcept() throws Exception {
+    void shouldDeleteConcept() throws Exception {
         String vocabularyCode = "publication-type";
         String conceptCode = "Book";
 
@@ -371,7 +371,7 @@ public class ConceptControllerITCase {
     }
 
     @Test
-    public void shouldDeleteAndCreateConcept() throws Exception {
+    void shouldDeleteAndCreateConcept() throws Exception {
         String vocabularyCode = "publication-type";
         String conceptCode = "Book";
 
@@ -471,7 +471,7 @@ public class ConceptControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteConceptInUse() throws Exception {
+    void shouldNotDeleteConceptInUse() throws Exception {
         String vocabularyCode = "tadirah-activity";
         String conceptCode = "25";
 
@@ -505,7 +505,7 @@ public class ConceptControllerITCase {
     }
 
     @Test
-    public void shouldDeleteConceptWithForce() throws Exception {
+    void shouldDeleteConceptWithForce() throws Exception {
         String vocabularyCode = "tadirah-activity";
         String conceptCode = "25";
 
@@ -536,7 +536,7 @@ public class ConceptControllerITCase {
 
 
     @Test
-    public void shouldNotCreateNewCandidateConceptForClosedVocabulary() throws Exception {
+    void shouldNotCreateNewCandidateConceptForClosedVocabulary() throws Exception {
 
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
@@ -626,7 +626,7 @@ public class ConceptControllerITCase {
     }
 
     @Test
-    public void shouldQueryConceptWithURLAsCode() throws Exception {
+    void shouldQueryConceptWithURLAsCode() throws Exception {
         String vocabularyCode = "publication-type";
 
         mvc.perform(
@@ -696,7 +696,7 @@ public class ConceptControllerITCase {
 
 
     @Test
-    public void shouldMergeConcepts() throws Exception {
+    void shouldMergeConcepts() throws Exception {
         String vocabularyCode = "publication-type";
 
         mvc.perform(
@@ -830,7 +830,7 @@ public class ConceptControllerITCase {
 
 
     @Test
-    public void shouldNotMergeConceptsWithDifferentVocabularies() throws Exception {
+    void shouldNotMergeConceptsWithDifferentVocabularies() throws Exception {
         String vocabularyCode = "publication-type";
         String mergeVocabularyCode = "nemo-activity-type";
 
@@ -952,7 +952,7 @@ public class ConceptControllerITCase {
 
 
     @Test
-    public void shouldMergeConceptsWithMediaItemReassigned() throws Exception {
+    void shouldMergeConceptsWithMediaItemReassigned() throws Exception {
         String vocabularyCode = "software-license";
 
         mvc.perform(
@@ -1137,7 +1137,7 @@ public class ConceptControllerITCase {
 
 
     @Test
-    public void shouldMergeConceptsWithPropertiesReassigned() throws Exception {
+    void shouldMergeConceptsWithPropertiesReassigned() throws Exception {
         String vocabularyCode = "nemo-activity-type";
         String conceptCode = "ActivityType-Developing";
         String mergeConceptCode = "ActivityType-Seeking";
@@ -1241,7 +1241,7 @@ public class ConceptControllerITCase {
     }
 
     @Test
-    public void shouldMergeConceptsWithConceptRelatedConceptReassigned() throws Exception {
+    void shouldMergeConceptsWithConceptRelatedConceptReassigned() throws Exception {
         String vocabularyCode = "publication-type";
 
         mvc.perform(

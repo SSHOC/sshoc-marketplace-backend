@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class MediaSourceControllerITCase {
+class MediaSourceControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -40,7 +40,7 @@ public class MediaSourceControllerITCase {
 
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
@@ -48,7 +48,7 @@ public class MediaSourceControllerITCase {
 
 
     @Test
-    public void shouldReturnAllMediaSources() throws Exception {
+    void shouldReturnAllMediaSources() throws Exception {
         mvc.perform(get("/api/media-sources")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -60,7 +60,7 @@ public class MediaSourceControllerITCase {
     }
 
     @Test
-    public void shouldCreateMediaSource() throws Exception {
+    void shouldCreateMediaSource() throws Exception {
         MediaSourceCore itemSource = MediaSourceCore.builder()
                 .code("google-images")
                 .serviceUrl("https://www.google.com/imgres")
@@ -96,7 +96,7 @@ public class MediaSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateMediaSourceAtWrongPosition() throws Exception {
+    void shouldNotCreateMediaSourceAtWrongPosition() throws Exception {
         MediaSourceCore itemSource = MediaSourceCore.builder()
                 .code("test")
                 .serviceUrl("http://test.org")
@@ -116,7 +116,7 @@ public class MediaSourceControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveMediaSource() throws Exception {
+    void shouldRetrieveMediaSource() throws Exception {
         mvc.perform(get("/api/media-sources/vimeo"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("vimeo")))
@@ -125,7 +125,7 @@ public class MediaSourceControllerITCase {
     }
 
     @Test
-    public void shouldUpdateMediaSource() throws Exception {
+    void shouldUpdateMediaSource() throws Exception {
         MediaSourceCore itemSource = MediaSourceCore.builder()
                 .code("youtube")
                 .mediaCategory(MediaCategory.VIDEO)
@@ -156,7 +156,7 @@ public class MediaSourceControllerITCase {
     }
 
     @Test
-    public void shouldRemoveMediaSource() throws Exception {
+    void shouldRemoveMediaSource() throws Exception {
         mvc.perform(
                 delete("/api/media-sources/{sourceId}", "youtube")
                         .header("Authorization", MODERATOR_JWT)
@@ -171,7 +171,7 @@ public class MediaSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateMediaSourceUnauthorized() throws Exception {
+    void shouldNotCreateMediaSourceUnauthorized() throws Exception {
         MediaSourceCore itemSource = MediaSourceCore.builder()
                 .code("test")
                 .mediaCategory(MediaCategory.OBJECT)
@@ -190,7 +190,7 @@ public class MediaSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateMediaSourceUnauthorized() throws Exception {
+    void shouldNotUpdateMediaSourceUnauthorized() throws Exception {
         MediaSourceCore itemSource = MediaSourceCore.builder()
                 .code("vimeo")
                 .mediaCategory(MediaCategory.OBJECT)
@@ -209,13 +209,13 @@ public class MediaSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteMediaSourceUnauthorized() throws Exception {
+    void shouldNotDeleteMediaSourceUnauthorized() throws Exception {
         mvc.perform(delete("/api/media-sources/{sourceId}", "vimeo"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    public void shouldCreateMediaSourceAsAdministrator() throws Exception {
+    void shouldCreateMediaSourceAsAdministrator() throws Exception {
         MediaSourceCore itemSource = MediaSourceCore.builder()
                 .code("twitch")
                 .serviceUrl("https://www.twitch.tv")

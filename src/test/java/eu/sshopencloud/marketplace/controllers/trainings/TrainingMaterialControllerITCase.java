@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class TrainingMaterialControllerITCase {
+class TrainingMaterialControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -61,7 +61,7 @@ public class TrainingMaterialControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init()
+    void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
@@ -72,7 +72,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnTrainingMaterials() throws Exception {
+    void shouldReturnTrainingMaterials() throws Exception {
 
         mvc.perform(get("/api/training-materials")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -80,7 +80,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnApprovedAndProposedTrainingMaterials() throws Exception {
+    void shouldReturnApprovedAndProposedTrainingMaterials() throws Exception {
         String trainingMaterialId = "JmBgWa";
 
         TrainingMaterialCore trainingMaterial1 = new TrainingMaterialCore();
@@ -242,7 +242,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnTrainingMaterial() throws Exception {
+    void shouldReturnTrainingMaterial() throws Exception {
         String trainingMaterialId = "WfcKvG";
         int newestVersionId = 7;
 
@@ -258,7 +258,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotFindANonExistentDraftTrainingMaterial() throws Exception {
+    void shouldNotFindANonExistentDraftTrainingMaterial() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(
@@ -269,7 +269,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnTrainingMaterialHistoricalVersion() throws Exception {
+    void shouldReturnTrainingMaterialHistoricalVersion() throws Exception {
         String trainingMaterialId = "WfcKvG";
         int versionId = 5;
 
@@ -289,7 +289,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnTrainingMaterialWhenNotExist() throws Exception {
+    void shouldNotReturnTrainingMaterialWhenNotExist() throws Exception {
         Integer trainingMaterialId = 51;
 
         mvc.perform(get("/api/training-materials/{id}", trainingMaterialId)
@@ -298,7 +298,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateDraftTrainingMaterial() throws Exception {
+    void shouldCreateDraftTrainingMaterial() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("First attempt of making a test simple blog");
         trainingMaterial.setDescription("Lorem ipsum is not enough for a blog");
@@ -360,7 +360,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemId() throws Exception {
+    void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemId() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -400,7 +400,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAsSystemImporterWithLastHarvestDate() throws Exception {
+    void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAsSystemImporterWithLastHarvestDate() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -440,7 +440,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAndMultipleLinks() throws Exception {
+    void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAndMultipleLinks() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -487,7 +487,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateTrainingMaterialWithRelations() throws Exception {
+    void shouldCreateTrainingMaterialWithRelations() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -546,7 +546,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldNotCreateTrainingMaterialWithImplicitSourceButWithoutSourceItemId() throws Exception {
+    void shouldNotCreateTrainingMaterialWithImplicitSourceButWithoutSourceItemId() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -569,7 +569,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenLabelIsNull() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenLabelIsNull() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setDescription("Lorem ipsum");
         List<PropertyCore> properties = new ArrayList<>();
@@ -589,7 +589,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenContributorIsUnknown() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenContributorIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -620,7 +620,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -651,7 +651,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -689,7 +689,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -727,7 +727,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -767,7 +767,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -800,7 +800,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldPerformDraftUpdateAndCommit() throws Exception {
+    void shouldPerformDraftUpdateAndCommit() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(get("/api/training-materials/{id}/history?draft=false", trainingMaterialId)
@@ -961,7 +961,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldUpdateTrainingMaterialWhenNewVersionIsEqualToDeprecatedOne() throws Exception {
+    void shouldUpdateTrainingMaterialWhenNewVersionIsEqualToDeprecatedOne() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
@@ -1096,7 +1096,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldPatchTrainingMaterialWithConflictAtSourceOnLabel() throws Exception {
+    void shouldPatchTrainingMaterialWithConflictAtSourceOnLabel() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1225,7 +1225,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldUpdateTrainingMaterialWithConflictAtSourceOnLabel() throws Exception {
+    void shouldUpdateTrainingMaterialWithConflictAtSourceOnLabel() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1354,7 +1354,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldUpdateTrainingMaterialWithConflictAtSourceOnAccessibleAt() throws Exception {
+    void shouldUpdateTrainingMaterialWithConflictAtSourceOnAccessibleAt() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1483,7 +1483,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldPatchTrainingMaterialWithConflictAtSourceOnAccessibleAt() throws Exception {
+    void shouldPatchTrainingMaterialWithConflictAtSourceOnAccessibleAt() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1612,7 +1612,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldUpdateTrainingMaterialWithConflictAtSourceOnProperties() throws Exception {
+    void shouldUpdateTrainingMaterialWithConflictAtSourceOnProperties() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1761,7 +1761,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldPatchTrainingMaterialWithConflictAtSourceOnProperties() throws Exception {
+    void shouldPatchTrainingMaterialWithConflictAtSourceOnProperties() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1910,7 +1910,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldUpdateTrainingMaterialWithImplicitSource() throws Exception {
+    void shouldUpdateTrainingMaterialWithImplicitSource() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1946,7 +1946,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldUpdateTrainingMaterialWithRelations() throws Exception {
+    void shouldUpdateTrainingMaterialWithRelations() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -2009,7 +2009,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenNotExist() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenNotExist() throws Exception {
         String trainingMaterialId = "noting";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -2030,7 +2030,7 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     @Deprecated
-    public void shouldUpdateTrainingMaterialWithHistory() throws Exception {
+    void shouldUpdateTrainingMaterialWithHistory() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
@@ -2094,7 +2094,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenLabelIsNull() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenLabelIsNull() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -2117,7 +2117,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenContributorIsUnknown() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenContributorIsUnknown() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -2150,7 +2150,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -2183,7 +2183,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -2223,7 +2223,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -2263,7 +2263,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -2305,7 +2305,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -2340,7 +2340,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldDeleteTrainingMaterial() throws Exception {
+    void shouldDeleteTrainingMaterial() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem Ipsum ...");
@@ -2383,7 +2383,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldDeleteTrainingMaterialHistoricalVersion() throws Exception {
+    void shouldDeleteTrainingMaterialHistoricalVersion() throws Exception {
         String trainingMaterialId = "WfcKvG";
         int versionId = 5;
 
@@ -2403,7 +2403,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWithInvalidDateProperty() throws Exception {
+    void shouldNotCreateTrainingMaterialWithInvalidDateProperty() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription(
@@ -2433,7 +2433,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveSuggestedTrainingMaterial() throws Exception {
+    void shouldRetrieveSuggestedTrainingMaterial() throws Exception {
         String trainingMaterialId = "WfcKvG";
         int trainingMaterialVersionId = 7;
 
@@ -2486,7 +2486,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotAccessNotOwnedVersion() throws Exception {
+    void shouldNotAccessNotOwnedVersion() throws Exception {
         mvc.perform(
                         get("/api/training-materials/{id}/versions/{verId}", "WfcKvG", 5)
                                 .header("Authorization", CONTRIBUTOR_JWT)
@@ -2495,7 +2495,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateAndValidateAccessToSuggestedItemVersion() throws Exception {
+    void shouldCreateAndValidateAccessToSuggestedItemVersion() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Suggested training material version");
         trainingMaterial.setDescription("This is a suggested training material version");
@@ -2561,7 +2561,7 @@ public class TrainingMaterialControllerITCase {
 
     @Disabled(value = "hidden properties have to be always rendered")
     @Test
-    public void shouldNotRenderHiddenProperty() throws Exception {
+    void shouldNotRenderHiddenProperty() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
                 .code("http-status")
                 .label("HTTP resource status code")
@@ -2646,7 +2646,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldApproveTrainingMaterialRelatedToATool() throws Exception {
+    void shouldApproveTrainingMaterialRelatedToATool() throws Exception {
         String trainingMaterialId = "heBAGQ";
         String relatedObjectId = "n21Kfc";
 
@@ -2699,7 +2699,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldRemoveMultiVersionRelationToItem() throws Exception {
+    void shouldRemoveMultiVersionRelationToItem() throws Exception {
         String trainingMaterialId = "heBAGQ";
         String relatedObjectId = "n21Kfc";
 
@@ -2753,7 +2753,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldReturnTrainingMaterialInformationContributors() throws Exception {
+    void shouldReturnTrainingMaterialInformationContributors() throws Exception {
 
         String trainingMaterialPersistentId = "heBAGQ";
 
@@ -2772,7 +2772,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnTrainingMaterialInformationContributorsForVersion() throws Exception {
+    void shouldReturnTrainingMaterialInformationContributorsForVersion() throws Exception {
 
         String trainingMaterialPersistentId = "heBAGQ";
         int trainingMaterialId = 4;
@@ -2867,7 +2867,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldGetMergeForTrainingMaterial() throws Exception {
+    void shouldGetMergeForTrainingMaterial() throws Exception {
 
         String trainingMaterialId = "heBAGQ";
         String workflowId = "tqmbGY";
@@ -2889,7 +2889,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldMergeIntoTrainingMaterial() throws Exception {
+    void shouldMergeIntoTrainingMaterial() throws Exception {
 
         String trainingMaterialId = "heBAGQ";
         String workflowId = "tqmbGY";
@@ -2931,7 +2931,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldGetSourcesForTrainingMaterial() throws Exception {
+    void shouldGetSourcesForTrainingMaterial() throws Exception {
 
         String trainingMaterialId = "WfcKvG";
 
@@ -2951,7 +2951,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldGetSourcesForMergedTrainingMaterial() throws Exception {
+    void shouldGetSourcesForMergedTrainingMaterial() throws Exception {
 
         String trainingMaterialId = "WfcKvG";
         String datasetId = "OdKfPc";
@@ -3049,7 +3049,7 @@ public class TrainingMaterialControllerITCase {
     }
     
     @Test
-    public void shouldReturnDifferenceBetweenVersionsOfTrainingMaterials() throws Exception {
+    void shouldReturnDifferenceBetweenVersionsOfTrainingMaterials() throws Exception {
         String trainingMaterialPersistentId = "WfcKvG";
         Long trainingMaterialVersionId = 5L;
 
@@ -3099,7 +3099,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldDeleteAndRevertTrainingMaterial() throws Exception {
+    void shouldDeleteAndRevertTrainingMaterial() throws Exception {
 
         TrainingMaterialCore trainingMaterial1 = new TrainingMaterialCore();
         trainingMaterial1.setLabel("Abc: Test proposed training material");
@@ -3158,7 +3158,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldPatchTrainingMaterialWithRelations() throws Exception {
+    void shouldPatchTrainingMaterialWithRelations() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -3253,7 +3253,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotPatchTrainingMaterialWithRelations() throws Exception {
+    void shouldNotPatchTrainingMaterialWithRelations() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
