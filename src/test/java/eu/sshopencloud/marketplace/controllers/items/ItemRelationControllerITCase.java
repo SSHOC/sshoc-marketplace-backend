@@ -49,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class ItemRelationControllerITCase {
+class ItemRelationControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -62,7 +62,7 @@ public class ItemRelationControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init()
+    void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -70,7 +70,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldReturnAllItemRelations() throws Exception {
+    void shouldReturnAllItemRelations() throws Exception {
 
         mvc.perform(get("/api/items-relations")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -87,7 +87,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemRelationWithoutInverseOf() throws Exception {
+    void shouldCreateItemRelationWithoutInverseOf() throws Exception {
 
         ItemRelationCore itemRelationCore = new ItemRelationCore();
         itemRelationCore.setCode("test");
@@ -108,7 +108,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemRelationWithInverseOf() throws Exception {
+    void shouldCreateItemRelationWithInverseOf() throws Exception {
 
         ItemRelationCore itemRelationCore = new ItemRelationCore();
         itemRelationCore.setCode("test");
@@ -162,7 +162,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldUpdateItemRelationWithoutInverseOf() throws Exception {
+    void shouldUpdateItemRelationWithoutInverseOf() throws Exception {
         ItemRelationCore itemRelationCore = new ItemRelationCore();
         itemRelationCore.setCode("test");
         itemRelationCore.setLabel("Test");
@@ -264,7 +264,7 @@ public class ItemRelationControllerITCase {
 
 
     @Test
-    public void shouldUpdateItemRelationWithInverseOf() throws Exception {
+    void shouldUpdateItemRelationWithInverseOf() throws Exception {
         ItemRelationCore itemRelationCore = new ItemRelationCore();
         itemRelationCore.setCode("test");
         itemRelationCore.setLabel("Test");
@@ -395,7 +395,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateItemRelationLeavingInverseUntouched() throws Exception {
+    void shouldNotUpdateItemRelationLeavingInverseUntouched() throws Exception {
         mvc.perform(get("/api/items-relations/mentions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -448,7 +448,7 @@ public class ItemRelationControllerITCase {
 
 
     @Test
-    public void shouldNotUpdateItemRelationWhenInverseRelationHasAnInverse() throws Exception {
+    void shouldNotUpdateItemRelationWhenInverseRelationHasAnInverse() throws Exception {
         ItemRelationCore itemRelationCore = new ItemRelationCore();
         itemRelationCore.setCode("mentions");
         itemRelationCore.setLabel("Mentions");
@@ -469,7 +469,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldDeleteItemRelationWithInverseOf() throws Exception {
+    void shouldDeleteItemRelationWithInverseOf() throws Exception {
 
         ItemRelationCore itemRelationCore = new ItemRelationCore();
         itemRelationCore.setCode("test");
@@ -546,7 +546,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteItemRelationInUse() throws Exception {
+    void shouldNotDeleteItemRelationInUse() throws Exception {
         mvc.perform(delete("/api/items-relations/is-mentioned-in")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT)
@@ -560,7 +560,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldDeleteItemRelationInUse() throws Exception {
+    void shouldDeleteItemRelationInUse() throws Exception {
         mvc.perform(get("/api/items-relations/is-mentioned-in")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", MODERATOR_JWT))
@@ -598,7 +598,7 @@ public class ItemRelationControllerITCase {
 
 
     @Test
-    public void shouldCreateItemsRelations() throws Exception {
+    void shouldCreateItemsRelations() throws Exception {
         String subjectPersistentId = "n21Kfc";
         String objectPersistentId = "DstBL5";
 
@@ -681,7 +681,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldAddRelationBetweenStepsFromTheSameWorkflow() throws Exception {
+    void shouldAddRelationBetweenStepsFromTheSameWorkflow() throws Exception {
         String subjectPersistentId = "sQY6US";
         String objectPersistentId = "BNw43H";
         String workflowPersistentId = "vHQEhe";
@@ -756,7 +756,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemsRelationsAsDraft() throws Exception {
+    void shouldCreateItemsRelationsAsDraft() throws Exception {
         String subjectPersistentId = "n21Kfc";
 
         ToolCore tool = new ToolCore();
@@ -884,7 +884,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemsRelationsWhenRelationIsIncorrect() throws Exception {
+    void shouldNotCreateItemsRelationsWhenRelationIsIncorrect() throws Exception {
         String subjectPersistentId = "n21Kfc";
         String objectPersistentId = "DstBL5";
 
@@ -905,7 +905,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemsRelationsWhenExists() throws Exception {
+    void shouldNotCreateItemsRelationsWhenExists() throws Exception {
         String subjectPersistentId = "n21Kfc";
         String objectPersistentId = "Xgufde";
 
@@ -924,7 +924,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemsRelationsWhenItemNotExist() throws Exception {
+    void shouldNotCreateItemsRelationsWhenItemNotExist() throws Exception {
         String subjectPersistentId = "n21Kfc";
         String objectPersistentId = "xxxxxx7";
 
@@ -942,7 +942,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldCreateAndDeleteItemsRelations() throws Exception {
+    void shouldCreateAndDeleteItemsRelations() throws Exception {
         String subjectPersistentId = "DstBL5";
         String objectPersistentId = "dU0BZc";
 
@@ -1075,7 +1075,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldCreateAndDeleteItemsRelationsAsDraft() throws Exception {
+    void shouldCreateAndDeleteItemsRelationsAsDraft() throws Exception {
         String subjectPersistentId = "DstBL5";
 
         ToolCore tool = new ToolCore();
@@ -1187,7 +1187,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteItemsRelationsWhenItemNotExist() throws Exception {
+    void shouldNotDeleteItemsRelationsWhenItemNotExist() throws Exception {
         String subjectPersistentId = "DstBL5";
         String objectPersistentId = "xxxxxx7";
 
@@ -1198,7 +1198,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldCreateNewItemWithRelations() throws Exception {
+    void shouldCreateNewItemWithRelations() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Problems Dataset");
         dataset.setDescription("A dataset of algorithmic problems ...");
@@ -1320,7 +1320,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldUpdateItemRelations() throws Exception {
+    void shouldUpdateItemRelations() throws Exception {
         String toolId = "n21Kfc";
 
         mvc.perform(
@@ -1411,7 +1411,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldUpdateItemRelationsUnmodified() throws Exception {
+    void shouldUpdateItemRelationsUnmodified() throws Exception {
         String toolId = "n21Kfc";
 
         mvc.perform(
@@ -1494,7 +1494,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldCommitUpdatedDraftItemRelations() throws Exception {
+    void shouldCommitUpdatedDraftItemRelations() throws Exception {
         String toolId = "n21Kfc";
 
         mvc.perform(
@@ -1644,7 +1644,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateWhenDuplicateRelation() throws Exception {
+    void shouldNotUpdateWhenDuplicateRelation() throws Exception {
         String toolId = "n21Kfc";
 
         ToolCore tool = new ToolCore();
@@ -1669,7 +1669,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldAddRelationToWorkflowStepVersion() throws Exception {
+    void shouldAddRelationToWorkflowStepVersion() throws Exception {
         String workflowId = "tqmbGY";
 
         WorkflowCore workflow = new WorkflowCore();
@@ -1732,7 +1732,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldNotModifyReferencedItemStatus() throws Exception {
+    void shouldNotModifyReferencedItemStatus() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Another new proposed publication");
         publication.setDescription("One of the many of proposed publications");
@@ -1833,7 +1833,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldReturnWorkflowIdForStepRelatedToNewItem() throws Exception {
+    void shouldReturnWorkflowIdForStepRelatedToNewItem() throws Exception {
         String workflowId = "tqmbGY";
 
         PublicationCore publication = new PublicationCore();
@@ -1863,7 +1863,7 @@ public class ItemRelationControllerITCase {
     }
 
     @Test
-    public void shouldReturnWorkflowIdForStepRelatedToExistingItem() throws Exception {
+    void shouldReturnWorkflowIdForStepRelatedToExistingItem() throws Exception {
         String subjectPersistentId = "gQu2wl";
         String objectPersistentId = "EPax9f";
 

@@ -46,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class SourceControllerITCase {
+class SourceControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -60,7 +60,7 @@ public class SourceControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init()
+    void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         SYSTEM_IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
@@ -69,7 +69,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldReturnSources() throws Exception {
+    void shouldReturnSources() throws Exception {
 
         mvc.perform(get("/api/sources")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -77,7 +77,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldReturnSourcesSortedByLabel() throws Exception {
+    void shouldReturnSourcesSortedByLabel() throws Exception {
 
         SourceCore source = new SourceCore();
         source.setLabel("Source Test");
@@ -108,7 +108,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldReturnSourcesSortedByDate() throws Exception {
+    void shouldReturnSourcesSortedByDate() throws Exception {
 
         SourceCore source = new SourceCore();
         source.setLabel("Test");
@@ -133,7 +133,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldReturnSourcesByLabel() throws Exception {
+    void shouldReturnSourcesByLabel() throws Exception {
 
         mvc.perform(get("/api/sources?q=tapor")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -146,7 +146,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldReturnSourcesByPartOfUrl() throws Exception {
+    void shouldReturnSourcesByPartOfUrl() throws Exception {
 
         mvc.perform(get("/api/sources?q=historian")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -158,7 +158,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldReturnSource() throws Exception {
+    void shouldReturnSource() throws Exception {
         Integer sourceId = 1;
 
         mvc.perform(get("/api/sources/{id}", sourceId)
@@ -172,7 +172,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnSourceWhenNotExist() throws Exception {
+    void shouldNotReturnSourceWhenNotExist() throws Exception {
         Integer sourceId = -1;
 
         mvc.perform(get("/api/sources/{id}", sourceId)
@@ -181,7 +181,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateSourceWhenUrlIsMalformed() throws Exception {
+    void shouldNotCreateSourceWhenUrlIsMalformed() throws Exception {
         SourceCore source = new SourceCore();
         source.setLabel("Test source");
         source.setUrl("example.com");
@@ -201,7 +201,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateSourceWhenUrlTemplateHasNoSourceItemId() throws Exception {
+    void shouldNotCreateSourceWhenUrlTemplateHasNoSourceItemId() throws Exception {
         SourceCore source = new SourceCore();
         source.setLabel("Test source");
         source.setUrl("http://example.com");
@@ -221,7 +221,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldCreateUpdateAndDeleteSource() throws Exception {
+    void shouldCreateUpdateAndDeleteSource() throws Exception {
         SourceCore source = new SourceCore();
         source.setLabel("Test source");
         source.setUrl("http://example.com");
@@ -265,7 +265,7 @@ public class SourceControllerITCase {
 
 
     @Test
-    public void shouldGetItemsBySourceId() throws Exception {
+    void shouldGetItemsBySourceId() throws Exception {
         Long sourceId = 1L;
 
         mvc.perform(get("/api/sources/{sourceId}/items", sourceId)
@@ -280,7 +280,7 @@ public class SourceControllerITCase {
 
 
     @Test
-    public void shouldGetItemsBySourceIdAndSourceItemId() throws Exception {
+    void shouldGetItemsBySourceIdAndSourceItemId() throws Exception {
         Long sourceId = 2L;
         String sourceItemId = "rT8gg";
 
@@ -294,7 +294,7 @@ public class SourceControllerITCase {
     }
 
     @Test
-    public void shouldUpdateActorRelatedToItemAngGetThisItem() throws Exception {
+    void shouldUpdateActorRelatedToItemAngGetThisItem() throws Exception {
         Long sourceId = 2L;
         String sourceItemId = "rT8gg";
         Long actorIdToUpdate = 4L;

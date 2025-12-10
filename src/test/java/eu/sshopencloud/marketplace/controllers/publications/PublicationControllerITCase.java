@@ -57,7 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class PublicationControllerITCase {
+class PublicationControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -71,7 +71,7 @@ public class PublicationControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -79,7 +79,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldReturnPublications() throws Exception {
+    void shouldReturnPublications() throws Exception {
 
         mvc.perform(get("/api/publications")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -87,7 +87,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldReturnPublicationsAndTheProposedOnes() throws Exception {
+    void shouldReturnPublicationsAndTheProposedOnes() throws Exception {
         PublicationCore publication1 = new PublicationCore();
         publication1.setLabel("Test proposed publication");
         publication1.setDescription("Lorem ipsum dolor");
@@ -191,7 +191,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldCreateSimplePublicationAsDraft() throws Exception {
+    void shouldCreateSimplePublicationAsDraft() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test simple publication");
         publication.setDescription("Lorem ipsum");
@@ -247,7 +247,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldCreatePublicationWithDateInZZone() throws Exception {
+    void shouldCreatePublicationWithDateInZZone() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test publication with Z zone");
         publication.setDescription("Lorem ipsum");
@@ -294,7 +294,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldCreatePublicationWithDateInZZoneAndMilliseconds() throws Exception {
+    void shouldCreatePublicationWithDateInZZoneAndMilliseconds() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test publication with Z zone");
         publication.setDescription("Lorem ipsum");
@@ -342,7 +342,7 @@ public class PublicationControllerITCase {
 
 
     @Test
-    public void shouldCreatePublicationWithDateInOffsetZone() throws Exception {
+    void shouldCreatePublicationWithDateInOffsetZone() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test publication with offset zone");
         publication.setDescription("Lorem ipsum");
@@ -389,7 +389,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldCreatePublicationWithDateInOffsetZoneAndMilliseconds() throws Exception {
+    void shouldCreatePublicationWithDateInOffsetZoneAndMilliseconds() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test publication with offset zone");
         publication.setDescription("Lorem ipsum");
@@ -436,7 +436,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldCreateSimplePublicationAsDraftAndRemoveIt() throws Exception {
+    void shouldCreateSimplePublicationAsDraftAndRemoveIt() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test simple publication");
         publication.setDescription("Lorem ipsum");
@@ -496,7 +496,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldCreatePublicationWithValidDateProperty() throws Exception {
+    void shouldCreatePublicationWithValidDateProperty() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test publication with time");
         publication.setDescription("Lorem ipsum");
@@ -524,7 +524,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveSuggestedPublication() throws Exception {
+    void shouldRetrieveSuggestedPublication() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Suggested publication");
         publication.setDescription("This is a suggested publication");
@@ -582,7 +582,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldUpdatePublicationAndAddExternalIds() throws Exception {
+    void shouldUpdatePublicationAndAddExternalIds() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test publication");
         publication.setDescription("New unknown publication");
@@ -644,7 +644,7 @@ public class PublicationControllerITCase {
 
 
     @Test
-    public void shouldNotUpdatePublicationWhenTheSame() throws Exception {
+    void shouldNotUpdatePublicationWhenTheSame() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test publication");
         publication.setDescription("New unknown publication");
@@ -704,7 +704,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldReturnPublicationInformationContributors() throws Exception {
+    void shouldReturnPublicationInformationContributors() throws Exception {
 
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test ingested publication 1");
@@ -746,7 +746,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldReturnPublicationInformationContributorsForVersion() throws Exception {
+    void shouldReturnPublicationInformationContributorsForVersion() throws Exception {
 
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test ingested publication 1");
@@ -815,7 +815,7 @@ public class PublicationControllerITCase {
                 .andExpect(jsonPath("$[1].config", is(true)));
     }
     @Test
-    public void shouldDeleteAndRevertPublication() throws Exception {
+    void shouldDeleteAndRevertPublication() throws Exception {
         PublicationCore publication1 = new PublicationCore();
         publication1.setLabel("Publication to revert");
         publication1.setDescription("Lorem ipsum dolor");
@@ -876,7 +876,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldPatchPublication() throws Exception {
+    void shouldPatchPublication() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test publication");
         publication.setDescription("New unknown publication");
@@ -964,7 +964,7 @@ public class PublicationControllerITCase {
     }
 
     @Test
-    public void shouldNotPatchPublication() throws Exception {
+    void shouldNotPatchPublication() throws Exception {
         PublicationCore publication = new PublicationCore();
         publication.setLabel("Test publication");
         publication.setDescription("New unknown publication");

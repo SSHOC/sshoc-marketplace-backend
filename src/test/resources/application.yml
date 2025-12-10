@@ -1,0 +1,183 @@
+server:
+  port: 8080
+  forward-headers-strategy: native
+  tomcat:
+    remoteip:
+      internal-proxies: .*
+
+
+spring:
+  datasource:
+    driver-class-name: "org.postgresql.Driver"
+    url: "jdbc:postgresql://localhost:5433/marketplace_db"
+    username: marketplace
+    password: marketplace
+
+    hikari:
+      initialization-fail-timeout: 10000
+      connection-timeout: 60000
+      maximum-pool-size: 5
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+    default-property-inclusion: non_null
+  data:
+    solr:
+      host: "http://localhost:8984/solr"
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  cache:
+    cache-names: mediaMetadata
+    caffeine:
+      spec: maximumSize=500,expireAfterAccess=60s
+
+  security:
+    oauth2:
+      client:
+        registration:
+          eosc:
+            client-id: ${egi_id:default-egi-id}
+            client-secret: ${egi_secret:default-egi-secret}
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+              - profile
+              - email
+              - eduperson_scoped_affiliation
+              - eduperson_entitlement
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-name: MyAccessId
+        provider:
+          eosc:
+            token-uri: ${aai_base_uri:https://proxy.acc.myaccessid.org/OIDC}/token
+            authorization-uri: ${aai_base_uri:https://proxy.acc.myaccessid.org/OIDC}/authorization
+            user-info-uri: ${aai_base_uri:https://proxy.acc.myaccessid.org/OIDC}/userinfo
+            jwk-set-uri: ${aai_base_uri:https://proxy.acc.myaccessid.org/OIDC}/jwks
+            user-name-attribute: sub
+
+  profiles:
+    active: ${APPLICATION_PROFILE:}
+
+springdoc:
+  version: '@api.version@'
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
+marketplace:
+  cors:
+    max-age-sec: 3600
+  pagination:
+    default-perpage: 20
+    maximal-perpage: 100
+  security:
+    auth:
+      jwt-token-secret: ${token_secret:default-token-secret}
+      jwt-token-expiration-msec: 86400000
+    oauth:
+      implicit-grant-token-expiration-msec: 30000
+  logging:
+    path: ${marketplace_log_dir:/tmp}
+  media:
+    files:
+      path: ${marketplace_media_dir:/var/sshoc/media}
+      maxFilenameLength: 128
+      maxSize: 100MB
+      maxChunks: 100
+
+    thumbnail:
+      size:
+        width: 150
+        height: 100
+
+    retention:
+      temporary: 2h
+      upload: 2h
+  oai-pmh-data-provider:
+    name: "OAI-PMH Repository of SSH Open Marketplace"
+    adminEmails: "sshopenmarketplace@sshopencloud.eu"
+    baseUrl: "https://marketplace.sshopencloud.eu"
+    description: "<oai-identifier xmlns=\"http://www.openarchives.org/OAI/2.0/oai-identifier\"  
+                     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+                     xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai-identifier
+                     http://www.openarchives.org/OAI/2.0/oai-identifier.xsd\">
+                     <scheme>oai</scheme>
+                     <repositoryIdentifier>marketplace.sshopencloud.eu</repositoryIdentifier>
+                     <delimiter>:</delimiter>
+                     <sampleIdentifier>oai:marketplace.sshopencloud.eu:sQY6US</sampleIdentifier> 
+                     </oai-identifier>"
+    max:
+      list:
+        identifiers: 100
+        records: 100
+    identifier:
+      domain: marketplace.sshopencloud.eu
+    mapping:
+      dcToPropertyCode:
+        subject:
+          - "keyword"
+          - "activity"
+        publisher:
+          - "publisher"
+        date:
+          - "year"
+        type:
+          - "publication-type"
+          - "resource-category"
+        format:
+          - "object-format"
+        language:
+          - "language"
+        relation:
+          - "see-also"
+        rights:
+          - "license"
+          - "terms-of-use"
+          - "terms-of-use-url"
+      dcToActorRole:
+        creator:
+          - "author"
+          - "creator"
+        contributor:
+          - "contributor"
+          - "provider"
+          - "contact"
+          - "funder"
+          - "helpdesk"
+          - "editor"
+          - "programmer"
+          - "reviewer"
+          - "curator"
+  index:
+    reindexItemsBatchSize: 500
+    reindexActorsBatchSize: 500
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
+  endpoint:
+    health:
+      show-details: when_authorized
+      roles: 'ADMINISTRATOR'

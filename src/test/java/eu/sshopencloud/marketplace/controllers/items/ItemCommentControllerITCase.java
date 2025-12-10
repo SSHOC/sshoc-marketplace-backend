@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class ItemCommentControllerITCase {
+class ItemCommentControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -42,7 +42,7 @@ public class ItemCommentControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init()
+    void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -50,7 +50,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemComment() throws Exception {
+    void shouldCreateItemComment() throws Exception {
         String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -68,7 +68,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemCommentWithHtml() throws Exception {
+    void shouldCreateItemCommentWithHtml() throws Exception {
         String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -100,7 +100,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemCommentWhenCommentIsEmpty() throws Exception {
+    void shouldNotCreateItemCommentWhenCommentIsEmpty() throws Exception {
         String itemPersistentId = "Xgufde";
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -117,7 +117,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemCommentWhenItemNotExist() throws Exception {
+    void shouldNotCreateItemCommentWhenItemNotExist() throws Exception {
         String itemPersistentId = "xxxxxx7";
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -134,7 +134,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldUpdateItemCommentForCreator() throws Exception {
+    void shouldUpdateItemCommentForCreator() throws Exception {
         String itemPersistentId = "n21Kfc";
         Integer commentId = 1;
 
@@ -153,7 +153,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldUpdateItemCommentForModerator() throws Exception {
+    void shouldUpdateItemCommentForModerator() throws Exception {
         String itemPersistentId = "n21Kfc";
         Integer commentId = 2;
 
@@ -173,7 +173,7 @@ public class ItemCommentControllerITCase {
 
 
     @Test
-    public void shouldNotUpdateItemCommentForNonCreatorAndNonModerator() throws Exception {
+    void shouldNotUpdateItemCommentForNonCreatorAndNonModerator() throws Exception {
         String itemPersistentId = "n21Kfc";
         Integer commentId = 2;
 
@@ -192,7 +192,7 @@ public class ItemCommentControllerITCase {
 
 
     @Test
-    public void shouldNotUpdateItemCommentWhenNotBelongToItem() throws Exception {
+    void shouldNotUpdateItemCommentWhenNotBelongToItem() throws Exception {
         String itemPersistentId = "DstBL5";
         Integer commentId = 1;
 
@@ -210,7 +210,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateItemCommentWhenNotExist() throws Exception {
+    void shouldNotUpdateItemCommentWhenNotExist() throws Exception {
         String itemPersistentId = "n21Kfc";
         Integer commentId = -50;
 
@@ -228,7 +228,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldDeleteItemCommentForCreator() throws Exception {
+    void shouldDeleteItemCommentForCreator() throws Exception {
         String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -274,7 +274,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldDeleteItemCommentForModerator() throws Exception {
+    void shouldDeleteItemCommentForModerator() throws Exception {
         String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -299,7 +299,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteItemCommentForNonCreatorAndNonModerator() throws Exception {
+    void shouldNotDeleteItemCommentForNonCreatorAndNonModerator() throws Exception {
         String itemPersistentId = "n21Kfc";
 
         ItemCommentCore itemComment = new ItemCommentCore();
@@ -325,7 +325,7 @@ public class ItemCommentControllerITCase {
 
 
     @Test
-    public void shouldNotDeleteItemCommentWhenNotBelongToItem() throws Exception {
+    void shouldNotDeleteItemCommentWhenNotBelongToItem() throws Exception {
         String itemPersistentId = "DstBL5";
         Integer commentId = 2;
 
@@ -336,7 +336,7 @@ public class ItemCommentControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteItemCommentWhenNotExist() throws Exception {
+    void shouldNotDeleteItemCommentWhenNotExist() throws Exception {
         String itemPersistentId = "n21Kfc";
         Integer commentId = -50;
 

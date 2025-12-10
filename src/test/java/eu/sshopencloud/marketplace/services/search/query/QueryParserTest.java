@@ -14,10 +14,10 @@ import static org.hamcrest.Matchers.hasSize;
 
 @ExtendWith(SpringExtension.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-public class QueryParserTest {
+class QueryParserTest {
 
     @Test
-    public void shouldParseEmptyPhrase() {
+    void shouldParseEmptyPhrase() {
         String phrase = "";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -26,7 +26,7 @@ public class QueryParserTest {
     }
 
     @Test
-    public void shouldParseOneWordPhrase() throws Exception {
+    void shouldParseOneWordPhrase() throws Exception {
         String phrase = "gephi";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -36,7 +36,7 @@ public class QueryParserTest {
     }
 
     @Test
-    public void shouldParseTwoWordPhrase() throws Exception {
+    void shouldParseTwoWordPhrase() throws Exception {
         String phrase = "gephi complex+test";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -47,7 +47,7 @@ public class QueryParserTest {
     }
 
     @Test
-    public void canQueryURL() throws Exception {
+    void canQueryURL() throws Exception {
         String phrase = "https://test.eu/test";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -57,7 +57,7 @@ public class QueryParserTest {
     }
 
     @Test
-    public void shouldParseThreeWordsPhrase() throws Exception {
+    void shouldParseThreeWordsPhrase() throws Exception {
         String phrase = "gephi complex test";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -69,7 +69,7 @@ public class QueryParserTest {
     }
 
     @Test
-    public void shouldParseOneWordQuotedPhrase() throws Exception {
+    void shouldParseOneWordQuotedPhrase() throws Exception {
         String phrase = "\"gephi\"";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -79,7 +79,7 @@ public class QueryParserTest {
     }
 
     @Test
-    public void shouldParseOneQuotedPhrase() throws Exception {
+    void shouldParseOneQuotedPhrase() throws Exception {
         String phrase = "\"gephi complex\"";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -89,7 +89,7 @@ public class QueryParserTest {
     }
 
     @Test
-    public void shouldParseOneQuotedAndTwoWordsPhrase() throws Exception {
+    void shouldParseOneQuotedAndTwoWordsPhrase() throws Exception {
         String phrase = "\"gephi complex\" test 2";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -101,7 +101,7 @@ public class QueryParserTest {
     }
 
     @Test
-    public void shouldParseOneQuotedAndOneWordsPhrase() throws Exception {
+    void shouldParseOneQuotedAndOneWordsPhrase() throws Exception {
         String phrase = "\"star\\\" complex\" test ";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);
@@ -112,7 +112,7 @@ public class QueryParserTest {
     }
 
     @Test
-    public void shouldParseTwoQuotedPhrase() throws Exception {
+    void shouldParseTwoQuotedPhrase() throws Exception {
         String phrase = "\"gephi complex\" \"test 2";
 
         List<QueryPart> queryParts = QueryParser.parsePhrase(phrase);

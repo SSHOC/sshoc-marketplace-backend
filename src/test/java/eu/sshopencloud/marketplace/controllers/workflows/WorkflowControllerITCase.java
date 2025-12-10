@@ -56,7 +56,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class WorkflowControllerITCase {
+class WorkflowControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -70,7 +70,7 @@ public class WorkflowControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -78,7 +78,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldReturnWorkflows() throws Exception {
+    void shouldReturnWorkflows() throws Exception {
 
         mvc.perform(get("/api/workflows")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -86,7 +86,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldReturnWorkflow() throws Exception {
+    void shouldReturnWorkflow() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
@@ -122,7 +122,7 @@ public class WorkflowControllerITCase {
 
 
     @Test
-    public void shouldCreateSimpleWorkflow() throws Exception {
+    void shouldCreateSimpleWorkflow() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test simple workflow");
         workflow.setDescription("Lorem ipsum");
@@ -143,7 +143,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldCreateWorkflowWithSourceAndImplicitSourceAndSourceItemId() throws Exception {
+    void shouldCreateWorkflowWithSourceAndImplicitSourceAndSourceItemId() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test workflow with source");
         workflow.setDescription("Lorem ipsum");
@@ -173,7 +173,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldCreateSimpleWorkflowWithSteps() throws Exception {
+    void shouldCreateSimpleWorkflowWithSteps() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test simple workflow with steps");
         workflow.setDescription("Lorem ipsum");
@@ -244,7 +244,7 @@ public class WorkflowControllerITCase {
 
 
     @Test
-    public void shouldCreateSimpleWorkflowWithStepsInGivenOrder() throws Exception {
+    void shouldCreateSimpleWorkflowWithStepsInGivenOrder() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test simple workflow with steps");
         workflow.setDescription("Lorem ipsum");
@@ -316,7 +316,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldCreateComplexWorkflowWithNestedSteps() throws Exception {
+    void shouldCreateComplexWorkflowWithNestedSteps() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test complex workflow with nested steps");
         workflow.setDescription("Lorem ipsum");
@@ -474,7 +474,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldCreateComplexWorkflowAsDraftWithNestedSteps() throws Exception {
+    void shouldCreateComplexWorkflowAsDraftWithNestedSteps() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test complex workflow with nested steps");
         workflow.setDescription("Lorem ipsum");
@@ -723,7 +723,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldMakeDraftUpdate() throws Exception {
+    void shouldMakeDraftUpdate() throws Exception {
         String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
@@ -894,7 +894,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotAddDraftStepToNonDraftWorkflow() throws Exception {
+    void shouldNotAddDraftStepToNonDraftWorkflow() throws Exception {
         String workflowId = "vHQEhe";
 
         StepCore step = new StepCore();
@@ -913,7 +913,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotAddNonDraftStepToDraftWorkflow() throws Exception {
+    void shouldNotAddNonDraftStepToDraftWorkflow() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test complex workflow with nested steps");
         workflow.setDescription("Lorem ipsum");
@@ -962,7 +962,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldDeleteStepFromWorkflow() throws Exception {
+    void shouldDeleteStepFromWorkflow() throws Exception {
         String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
         String stepIdToDelete = "BNw43H";
@@ -1060,7 +1060,7 @@ public class WorkflowControllerITCase {
 
 
     @Test
-    public void shouldDeleteStepFromDraftWorkflow() throws Exception {
+    void shouldDeleteStepFromDraftWorkflow() throws Exception {
         String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
@@ -1161,7 +1161,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldAddStepToWorkflow() throws Exception {
+    void shouldAddStepToWorkflow() throws Exception {
         String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
@@ -1285,7 +1285,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldAddSubstepToWorkflow() throws Exception {
+    void shouldAddSubstepToWorkflow() throws Exception {
         String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
@@ -1419,7 +1419,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldUpdateStepInWorkflowWhenActorHasManyRoles() throws Exception {
+    void shouldUpdateStepInWorkflowWhenActorHasManyRoles() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
@@ -1507,7 +1507,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotAddStepToWorkflowWhenActorHasRepeatedRoles() throws Exception {
+    void shouldNotAddStepToWorkflowWhenActorHasRepeatedRoles() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
@@ -1543,7 +1543,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotAddStepToWorkflowWhenStepNoIsIncorrect() throws Exception {
+    void shouldNotAddStepToWorkflowWhenStepNoIsIncorrect() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
@@ -1575,7 +1575,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldUpdateStep() throws Exception {
+    void shouldUpdateStep() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
         String stepPersistentId = "2CwYCU";
@@ -1689,7 +1689,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldDeleteWorkflow() throws Exception {
+    void shouldDeleteWorkflow() throws Exception {
         String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
@@ -1743,7 +1743,7 @@ public class WorkflowControllerITCase {
 
 
     @Test
-    public void shouldDeletePreviousWorkflow() throws Exception {
+    void shouldDeletePreviousWorkflow() throws Exception {
         String workflowPersistentId = "vHQEhe";
         Integer workflowId = 21;
 
@@ -1894,7 +1894,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateWorkflowWithInvalidIntProperty() throws Exception {
+    void shouldNotCreateWorkflowWithInvalidIntProperty() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test workflow with invalid year");
         workflow.setDescription("Lorem ipsum...");
@@ -1918,7 +1918,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveSuggestedWorkflow() throws Exception {
+    void shouldRetrieveSuggestedWorkflow() throws Exception {
         String workflowId = "vHQEhe";
         int workflowVersionId = 21;
 
@@ -1971,7 +1971,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveWorkflowStepsRelations() throws Exception {
+    void shouldRetrieveWorkflowStepsRelations() throws Exception {
         String workflowId = "vHQEhe";
 
         StepCore step = new StepCore();
@@ -2040,7 +2040,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldCorrectlyCreateRelationBetweenStepsFromTheSameWorkflow() throws Exception {
+    void shouldCorrectlyCreateRelationBetweenStepsFromTheSameWorkflow() throws Exception {
         String workflowId = "vHQEhe";
 
         StepCore step = new StepCore();
@@ -2116,7 +2116,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldReturnWorkflowInformationContributors() throws Exception {
+    void shouldReturnWorkflowInformationContributors() throws Exception {
 
         String workflowPersistentId = "vHQEhe";
 
@@ -2135,7 +2135,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldReturnStepInformationContributors() throws Exception {
+    void shouldReturnStepInformationContributors() throws Exception {
 
         String workflowPersistentId = "vHQEhe";
         String stepPersistentId = "BNw43H";
@@ -2155,7 +2155,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldReturnWorkflowInformationContributorsForVersion() throws Exception {
+    void shouldReturnWorkflowInformationContributorsForVersion() throws Exception {
 
         String workflowPersistentId = "vHQEhe";
 
@@ -2203,7 +2203,7 @@ public class WorkflowControllerITCase {
 
 
     @Test
-    public void shouldReturnStepInformationContributorsForVersion() throws Exception {
+    void shouldReturnStepInformationContributorsForVersion() throws Exception {
 
         String workflowPersistentId = "vHQEhe";
         String stepPersistentId = "BNw43H";
@@ -2259,7 +2259,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldGetMergeForWorkflow() throws Exception {
+    void shouldGetMergeForWorkflow() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -2280,7 +2280,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldMergeIntoWorkflow() throws Exception {
+    void shouldMergeIntoWorkflow() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -2322,7 +2322,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldGetMergeForStep() throws Exception {
+    void shouldGetMergeForStep() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -2344,7 +2344,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldMergeIntoStep() throws Exception {
+    void shouldMergeIntoStep() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -2388,7 +2388,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotMergeStepsFromDifferentWorkflows() throws Exception {
+    void shouldNotMergeStepsFromDifferentWorkflows() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "vHQEhe";
@@ -2419,7 +2419,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldMergeStepsFromTheSameWorkflow() throws Exception {
+    void shouldMergeStepsFromTheSameWorkflow() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "vHQEhe";
@@ -2532,7 +2532,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldMergeDifferentWorkflowsWithStepCollection() throws Exception {
+    void shouldMergeDifferentWorkflowsWithStepCollection() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowOneId = "tqmbGY";
@@ -2744,7 +2744,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldWorkflowWithStepsAndChangeItsOrder() throws Exception {
+    void shouldWorkflowWithStepsAndChangeItsOrder() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test simple workflow with steps");
         workflow.setDescription("Lorem ipsum");
@@ -2891,7 +2891,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldReturnDifferenceBetweenStepAndTrainingMaterial() throws Exception {
+    void shouldReturnDifferenceBetweenStepAndTrainingMaterial() throws Exception {
         String workflowPersistentId = "tqmbGY";
         String stepPersistentId = "prblMo";
         Long stepId = 13L;
@@ -2956,7 +2956,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldReturnDifferenceBetweenWorkflows() throws Exception {
+    void shouldReturnDifferenceBetweenWorkflows() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
         String otherWorkflowPersistentId = "vHQEhe";
@@ -2985,7 +2985,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnDifferenceBetweenComposedOf() throws Exception {
+    void shouldNotReturnDifferenceBetweenComposedOf() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
 
@@ -3010,7 +3010,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldDeleteAndRevertWorkflow() throws Exception {
+    void shouldDeleteAndRevertWorkflow() throws Exception {
 
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Workflow to revert");
@@ -3069,7 +3069,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotPatchStep() throws Exception {
+    void shouldNotPatchStep() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
         String stepPersistentId = "2CwYCU";
@@ -3210,7 +3210,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldPatchStep() throws Exception {
+    void shouldPatchStep() throws Exception {
         String workflowPersistentId = "tqmbGY";
         Integer workflowId = 12;
         String stepPersistentId = "2CwYCU";
@@ -3352,7 +3352,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldPatchSimpleWorkflow() throws Exception {
+    void shouldPatchSimpleWorkflow() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test simple workflow");
         workflow.setDescription("Lorem ipsum");
@@ -3416,7 +3416,7 @@ public class WorkflowControllerITCase {
     }
 
     @Test
-    public void shouldNotPatchSimpleWorkflow() throws Exception {
+    void shouldNotPatchSimpleWorkflow() throws Exception {
         WorkflowCore workflow = new WorkflowCore();
         workflow.setLabel("Test simple workflow");
         workflow.setDescription("Lorem ipsum");

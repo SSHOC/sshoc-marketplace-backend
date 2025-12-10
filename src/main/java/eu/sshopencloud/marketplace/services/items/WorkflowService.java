@@ -305,7 +305,6 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
     protected Workflow saveItemVersion(Workflow workflow) {
         workflow = super.saveItemVersion(workflow);
         workflowRepository.flush();
-        workflowRepository.refresh(workflow);
 
         return workflowRepository.getOne(workflow.getId());
     }

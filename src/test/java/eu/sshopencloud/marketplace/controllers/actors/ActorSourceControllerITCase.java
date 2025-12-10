@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext
 @AutoConfigureMockMvc
 @Transactional
-public class ActorSourceControllerITCase {
+class ActorSourceControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -46,7 +46,7 @@ public class ActorSourceControllerITCase {
 
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
@@ -54,7 +54,7 @@ public class ActorSourceControllerITCase {
 
 
     @Test
-    public void shouldReturnAllActorSources() throws Exception {
+    void shouldReturnAllActorSources() throws Exception {
 
         mvc.perform(get("/api/actor-sources")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -68,7 +68,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorSource() throws Exception {
+    void shouldCreateActorSource() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test source service")
@@ -100,7 +100,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorSourceWithoutOrd() throws Exception {
+    void shouldCreateActorSourceWithoutOrd() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test source service")
@@ -136,7 +136,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateActorSourceAtWrongPosition() throws Exception {
+    void shouldNotCreateActorSourceAtWrongPosition() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test...")
@@ -155,7 +155,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveActorSource() throws Exception {
+    void shouldRetrieveActorSource() throws Exception {
         mvc.perform(get("/api/actor-sources/Wikidata"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("Wikidata")))
@@ -164,7 +164,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldUpdateActorSource() throws Exception {
+    void shouldUpdateActorSource() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("Wikidata")
                 .label("Wikidata v2")
@@ -195,7 +195,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldRemoveActorSource() throws Exception {
+    void shouldRemoveActorSource() throws Exception {
         mvc.perform(
                 delete("/api/actor-sources/{sourceId}", "DBLP")
                         .header("Authorization", MODERATOR_JWT)
@@ -210,7 +210,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotRemoveActorSourceInUse() throws Exception {
+    void shouldNotRemoveActorSourceInUse() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -238,7 +238,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateActorSourceUnauthorized() throws Exception {
+    void shouldNotCreateActorSourceUnauthorized() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test...")
@@ -256,7 +256,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateActorSourceUnauthorized() throws Exception {
+    void shouldNotUpdateActorSourceUnauthorized() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("OCRID")
                 .label("OCRID v2")
@@ -274,13 +274,13 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteActorSourceUnauthorized() throws Exception {
+    void shouldNotDeleteActorSourceUnauthorized() throws Exception {
         mvc.perform(delete("/api/actor-sources/{sourceId}", "Wikidata"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    public void shouldCreateActorSourceAsAdministrator() throws Exception {
+    void shouldCreateActorSourceAsAdministrator() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test v2")
@@ -300,7 +300,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldCreateItemSourceWithoutUrlTemplate() throws Exception {
+    void shouldCreateItemSourceWithoutUrlTemplate() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test...")
@@ -321,7 +321,7 @@ public class ActorSourceControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateItemSourceWithWrongUrlTemplate() throws Exception {
+    void shouldNotCreateItemSourceWithWrongUrlTemplate() throws Exception {
         ActorSourceCore actorSource = ActorSourceCore.builder()
                 .code("test")
                 .label("Test...")
