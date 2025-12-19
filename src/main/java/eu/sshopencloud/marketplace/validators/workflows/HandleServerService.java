@@ -28,6 +28,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class HandleServerService {
 
+  public static final String HANDLE_CODE = "Handle";
+  public static final String HANDLE_LABEL = "Handle";
+
   private final HandleServerConfiguration handleServerConfiguration;
   private final ItemSourceService itemSourceService;
 
@@ -73,8 +76,8 @@ public class HandleServerService {
 
   private ItemSourceCore getHandleServerExternalId() {
     return ItemSourceCore.builder()
-                  .code("Handle")
-                  .label("Handle")
+                  .code(HANDLE_CODE)
+                  .label(HANDLE_LABEL)
                   .urlTemplate("https://hdl.handle.net/" + handleServerConfiguration.getAppHandleValue() + "/{source-item-id}")
                   .build();
   }

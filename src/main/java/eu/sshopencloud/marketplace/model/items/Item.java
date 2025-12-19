@@ -218,4 +218,23 @@ public abstract class Item {
 
         return user.equals(informationContributor);
     }
+
+    /**
+     *  Verifies if given item contains identifier assigned to external source with the specified code
+     *
+     * @param code external source code to be compared to
+     * @return
+     *  <p>true if items contains identifier to external source</p>
+     *  <p>false if item doesn't contain identifier to external source</p>
+     *
+     */
+    public boolean containsExternalIdentifierFromSource(String code) {
+
+        for (ItemExternalId itemExternalId : getExternalIds()) {
+            if (itemExternalId.getIdentifierService().getCode().equals(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
