@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.model.items.VersionedItemStatus;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.auth.UserService;
+import eu.sshopencloud.marketplace.validators.workflows.HandleServerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -87,6 +88,10 @@ class ItemVisibilityService {
         if (itemStatus.equals(ItemStatus.APPROVED))
             return true;
 
+        if (itemContainsExternalIdentifierToHandleServer(version)) {
+            return true;
+        }
+
         if (user == null)
             return false;
 
@@ -98,6 +103,9 @@ class ItemVisibilityService {
                 && user.equals(version.getInformationContributor());
     }
 
+    private boolean itemContainsExternalIdentifierToHandleServer(Item version) {
+        return version.containsExternalIdentifierFromSource(HandleServerService.HANDLE_CODE);
+    }
 
     public boolean isTheLatestVersion(Item item) {
         User currentUser = LoggedInUserHolder.getLoggedInUser();
