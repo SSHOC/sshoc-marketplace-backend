@@ -6,15 +6,10 @@ import eu.sshopencloud.marketplace.dto.auth.UserDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExtBasicDto;
 import eu.sshopencloud.marketplace.dto.items.ItemsDifferencesDto;
 import eu.sshopencloud.marketplace.dto.sources.SourceDto;
-import eu.sshopencloud.marketplace.dto.workflows.PaginatedWorkflows;
-import eu.sshopencloud.marketplace.dto.workflows.StepDto;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
+import eu.sshopencloud.marketplace.dto.workflows.*;
 import eu.sshopencloud.marketplace.mappers.workflows.WorkflowMapper;
 import eu.sshopencloud.marketplace.model.auth.User;
-import eu.sshopencloud.marketplace.model.items.Item;
-import eu.sshopencloud.marketplace.model.items.ItemCategory;
-import eu.sshopencloud.marketplace.model.items.ItemStatus;
+import eu.sshopencloud.marketplace.model.items.*;
 import eu.sshopencloud.marketplace.model.workflows.Step;
 import eu.sshopencloud.marketplace.model.workflows.StepsTree;
 import eu.sshopencloud.marketplace.model.workflows.StepsTreeVisitor;
@@ -118,18 +113,28 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
         dto.setComposedOf(rootSteps);
     }
 
-    public WorkflowDto createWorkflow(WorkflowCore workflowCore, boolean draft, boolean createHandle) {
+    public WorkflowDto createWorkflow(WorkflowCreationCore workflowCore, boolean draft) {
         Workflow workflow = createItem(workflowCore, draft);
-        if (handleShouldBeCreated(createHandle)) {
+        workflow.setFlags(workflowCore.getFlags());
+        return prepareItemDto(workflow);
+    }
+
+    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved, boolean patchMode) throws VersionNotChangedException {
+        Workflow workflow = updateItem(persistentId, workflowCore, draft, approved, patchMode);
+
+        if (!draft)
+            commitSteps(workflow.getStepsTree());
+
+        if (approved && handleShouldBeCreated(workflow)) {
+            log.debug("Creating handle for {}", workflow);
             createHandleFor(workflow);
-        } else {
-            log.debug("Handle for workflow will not be created");
+            workflow.getFlags().remove(ItemFlag.HANDLE_TO_BE_ISSUED);
         }
         return prepareItemDto(workflow);
     }
 
-    private boolean handleShouldBeCreated(boolean createHandle) {
-        return createHandle;
+    private boolean handleShouldBeCreated(Workflow workflow) {
+        return workflow.getFlags().contains(ItemFlag.HANDLE_TO_BE_ISSUED);
     }
 
     private void createHandleFor(Workflow workflow) {
@@ -145,15 +150,6 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
     private void addExternalSourceForHandleServer(Workflow workflow) {
         handleServerService.createExternalIdForHandleServerAndFor(workflow);
-    }
-
-    public WorkflowDto updateWorkflow(String persistentId, WorkflowCore workflowCore, boolean draft, boolean approved, boolean patchMode) throws VersionNotChangedException {
-        Workflow workflow = updateItem(persistentId, workflowCore, draft, approved, patchMode);
-
-        if (!draft)
-            commitSteps(workflow.getStepsTree());
-
-        return prepareItemDto(workflow);
     }
 
     private void commitSteps(StepsTree stepsTree) {
