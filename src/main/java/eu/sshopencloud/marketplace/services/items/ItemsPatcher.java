@@ -65,10 +65,17 @@ class ItemsPatcher {
 
         if (Objects.isNull(itemCore.getMedia()) || itemCore.getMedia().isEmpty()) {
             itemCore.setMedia(currentItemDto.getMedia().stream()
-                    .map(cim -> new ItemMediaCore(new MediaDetailsId(cim.getInfo().getMediaId()), cim.getCaption(),
-                            new ConceptId(cim.getConcept().getCode(),
-                                    new VocabularyId(cim.getConcept().getVocabulary().getCode()),
-                                    cim.getConcept().getUri())))
+                    .map(cim -> {
+                        // Media may exist without an associated concept
+                        ConceptId conceptId = null;
+                        if (Objects.nonNull(cim.getConcept())) {
+                            conceptId = new ConceptId(cim.getConcept().getCode(),
+                                    new VocabularyId(cim.getConcept().getVocabulary().getCode()), cim.getConcept().getUri());
+                        }
+                        // Create media core with concept (may be null)
+                        return new ItemMediaCore(
+                                new MediaDetailsId(cim.getInfo().getMediaId()), cim.getCaption(), conceptId);
+                    })
                     .collect(Collectors.toList()));
         }
 
