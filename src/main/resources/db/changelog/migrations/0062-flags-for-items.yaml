@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0062-flags-for-workflows
+      author: woz
+      comment: Add table `workflow_flags` containing boolean values for workflows
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: flags
+                  type: VARCHAR(255)
+              - column:
+                  name: workflow_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: item_flags_fk
+                    references: workflows(id)
+            tableName: workflow_flags

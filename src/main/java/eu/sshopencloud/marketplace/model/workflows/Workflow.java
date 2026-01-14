@@ -1,10 +1,14 @@
 package eu.sshopencloud.marketplace.model.workflows;
 
 import eu.sshopencloud.marketplace.model.items.Item;
+import eu.sshopencloud.marketplace.model.items.ItemFlag;
 import lombok.*;
 
 import jakarta.persistence.*;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -22,6 +26,9 @@ public class Workflow extends Item {
     // For the data loading optimization purposes only
     private List<StepsTree> allSteps;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    Set<ItemFlag> flags = new HashSet<>();
 
     public Workflow() {
         super();
@@ -31,6 +38,7 @@ public class Workflow extends Item {
     public Workflow(Workflow baseWorkflow) {
         super(baseWorkflow);
         this.stepsTree = StepsTree.newVersion(this, baseWorkflow.gatherSteps());
+        this.setFlags(new HashSet<>(baseWorkflow.getFlags()));
     }
 
     public StepsTree gatherSteps() {
