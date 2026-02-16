@@ -1267,7 +1267,8 @@ class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[3].composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{workflowId}/history", workflowPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("workflow")))
@@ -1373,7 +1374,8 @@ class WorkflowControllerITCase {
 
 
         mvc.perform(get("/api/workflows/{workflowId}/steps/{stepId}/history", workflowPersistentId, stepPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].category", is("step")))
@@ -1409,7 +1411,8 @@ class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{workflowId}/history", workflowPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("workflow")))
