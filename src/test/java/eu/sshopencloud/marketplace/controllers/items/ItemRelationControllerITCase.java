@@ -640,7 +640,8 @@ class ItemRelationControllerITCase {
 
 
         mvc.perform(get("/api/tools-services/{id}/history", subjectPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
@@ -666,7 +667,8 @@ class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("is-mentioned-in")));
 
         mvc.perform(get("/api/tools-services/{id}/history", objectPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
@@ -739,7 +741,8 @@ class ItemRelationControllerITCase {
                 .andExpect(jsonPath("composedOf[2].composedOf", hasSize(0)));
 
         mvc.perform(get("/api/workflows/{id}/history", workflowPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", not(is(21))))
@@ -977,7 +980,8 @@ class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems[0].relation.code", is("mentions")));
 
         mvc.perform(get("/api/tools-services/{id}/history", subjectPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
@@ -1002,7 +1006,8 @@ class ItemRelationControllerITCase {
 
 
         mvc.perform(get("/api/datasets/{id}/history", objectPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
@@ -1030,7 +1035,8 @@ class ItemRelationControllerITCase {
                 .andExpect(jsonPath("relatedItems", hasSize(0)));
 
         mvc.perform(get("/api/tools-services/{id}/history", subjectPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].category", is("tool-or-service")))
@@ -1057,7 +1063,8 @@ class ItemRelationControllerITCase {
 
 
         mvc.perform(get("/api/datasets/{id}/history", objectPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))

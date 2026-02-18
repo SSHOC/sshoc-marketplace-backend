@@ -711,7 +711,9 @@ abstract class ItemCrudService<I extends Item, D extends ItemDto, P extends Pagi
                     String.format("User is not authorized to access the given item version with id %s (version id: %d)",
                             persistentId, versionId));
         }
-        return loadItemHistory(item).stream().map(ItemExtBasicConverter::convertItem).collect(Collectors.toList());
+        return loadItemHistory(item).stream()
+                .filter(historyItem -> itemVisibilityService.hasAccessToVersion(historyItem, currentUser))
+                .map(ItemExtBasicConverter::convertItem).collect(Collectors.toList());
     }
 
 
