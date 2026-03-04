@@ -43,11 +43,11 @@ spec:
               name: solr-data
           resources:
             limits:
-              memory: {{ .Values.resourcesSolr.limits | default "128Mi" }}
-              cpu: {{ .Values.resourcesSolr.limits | default "100m" }}
+              memory: {{ .Values.resourcesSolr.limits.memory | default "128Mi" }}
+              cpu: {{ .Values.resourcesSolr.limits.cpu | default "100m" }}
             requests:
-              memory: {{ .Values.resourcesSolr.requests | default "128Mi" }}  
-              cpu: {{ .Values.resourcesSolr.requests | default "100m" }} 
+              memory: {{ .Values.resourcesSolr.requests.memory | default "128Mi" }}  
+              cpu: {{ .Values.resourcesSolr.requests.cpu | default "100m" }} 
       dnsPolicy: ClusterFirst
       initContainers:
         - args:
