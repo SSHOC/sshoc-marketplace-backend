@@ -41,6 +41,13 @@ spec:
           volumeMounts:
             - mountPath: /var/solr/data
               name: solr-data
+          resources:
+            limits:
+              memory: {{ .Values.resourcesSolr.limits | default "128Mi" }}
+              cpu: {{ .Values.resourcesSolr.limits | default "100m" }}
+            requests:
+              memory: {{ .Values.resourcesSolr.requests | default "128Mi" }}  
+              cpu: {{ .Values.resourcesSolr.requests | default "100m" }} 
       dnsPolicy: ClusterFirst
       initContainers:
         - args:

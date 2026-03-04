@@ -73,7 +73,11 @@ spec:
             timeoutSeconds: 3
           resources:
             limits:
-              memory: 1Gi
+              memory: {{ .Values.resources.limits | default "128Mi" }}
+              cpu: {{ .Values.resources.limits | default "100m" }}
+            requests:
+              memory: {{ .Values.resources.requests | default "128Mi" }}  
+              cpu: {{ .Values.resources.requests | default "100m" }}        
           volumeMounts:
             - mountPath: /var/sshoc/media
               name: media-data
