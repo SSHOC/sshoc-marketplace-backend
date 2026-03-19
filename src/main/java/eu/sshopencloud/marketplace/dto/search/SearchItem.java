@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.dto.search;
 
 import eu.sshopencloud.marketplace.dto.items.ItemContributorDto;
+import eu.sshopencloud.marketplace.dto.sources.SourceDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import lombok.AllArgsConstructor;
@@ -30,4 +31,6 @@ public class SearchItem extends SearchItemBasic {
     private List<String> accessibleAt;
 
     private String thumbnailId;
+
+    private List<SourceDto> sources;
 }

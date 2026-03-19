@@ -26,6 +26,7 @@ import eu.sshopencloud.marketplace.services.search.query.ActorSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.ConceptSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.ItemSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +58,7 @@ public class SearchService {
     private final PropertyTypeService propertyTypeService;
     private final SearchActorRepository searchActorRepository;
     private final ActorService actorService;
+    private final SourceService sourceService;
 
     public PaginatedSearchItems searchItems(String q, boolean advanced, boolean includeSteps,
                                             @NotNull Map<String, String> expressionParams,
@@ -110,6 +112,7 @@ public class SearchService {
         // TODO in a similar way add external identifiers to the result
         for (SearchItem searchItem : result.getItems()) {
             searchItem.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(searchItem.getId())));
+            searchItem.setSources(sourceService.getSourcesOfItem(searchItem.getPersistentId()));
             searchItem.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(searchItem.getId())));
             searchItem.getProperties().stream().map(PropertyDto::getType).forEach(propertyTypeService::completePropertyType);
         }
