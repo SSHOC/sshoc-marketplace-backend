@@ -30,4 +30,6 @@ public class SearchItem extends SearchItemBasic {
     private List<String> accessibleAt;
 
     private String thumbnailId;
+
+    private List<String> sources;
 }

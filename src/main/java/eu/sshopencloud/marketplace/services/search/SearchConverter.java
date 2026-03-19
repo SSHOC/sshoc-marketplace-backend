@@ -37,6 +37,7 @@ public class SearchConverter {
                 .lastInfoUpdate(SolrDateTimeFormatter.formatDateTime(ZonedDateTime.of(
                         LocalDateTime.ofInstant(indexItem.getLastInfoUpdate().toInstant(), ZoneOffset.UTC), ZoneOffset.UTC)))
                 .accessibleAt((Objects.isNull(indexItem.getAccessibleAt()) || indexItem.getAccessibleAt().isEmpty()) ? null : indexItem.getAccessibleAt())
+                .sources(indexItem.getSources())
                 .thumbnailId(indexItem.getThumbnailId())
                 .build();
     }
