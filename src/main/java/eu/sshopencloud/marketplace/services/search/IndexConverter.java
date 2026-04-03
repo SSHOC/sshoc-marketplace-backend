@@ -77,6 +77,8 @@ public class IndexConverter {
             String contributor = getItemContributorName(itemContributor);
             sid.addField(IndexItem.CONTRIBUTOR_FIELD, contributor);
             sid.addField(IndexItem.CONTRIBUTOR_TEXT_FIELD, contributor);
+            sid.addField(IndexItem.CONTRIBUTOR_ACTOR_ROLE_FIELD, itemContributor.getActorRoleLabel());
+            sid.addField(IndexItem.CONTRIBUTOR_ACTOR_ID_FIELD, itemContributor.getActorId());
         }
 
         for (ItemExternalId itemExternalId : item.getExternalIds()) {
