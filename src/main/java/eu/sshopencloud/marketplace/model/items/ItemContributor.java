@@ -47,4 +47,12 @@ public class ItemContributor implements Serializable {
         this.role = role;
         this.ord = null;
     }
+
+    public String getActorRoleLabel() {
+        return role.getLabel();
+    }
+
+    public long getActorId() {
+        return actor.getId();
+    }
 }

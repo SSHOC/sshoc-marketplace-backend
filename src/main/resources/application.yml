@@ -16,7 +16,7 @@ spring:
         hikari:
             initialization-fail-timeout: 10000
             connection-timeout: 60000
-            maximum-pool-size: 5
+            maximum-pool-size: 10
     jpa:
         hibernate:
             ddl-auto: validate
