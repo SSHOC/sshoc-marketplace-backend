@@ -19,9 +19,7 @@ public class ItemSearchQueryPhrase extends SearchQueryPhrase {
         CATEGORY (IndexItem.KEYWORD_TEXT_FIELD, 2f),
         CONTRIBUTOR (IndexItem.CONTRIBUTOR_TEXT_FIELD, 1f),
         LABEL(IndexItem.LABEL_TEXT_FIELD, 2f, true),
-        DESCRIPTION(IndexItem.DESCRIPTION_TEXT_FIELD, 1f, true),
-        CONTRIBUTOR_ROLE_CODE(IndexItem.CONTRIBUTOR_ACTOR_ROLE_FIELD, 1f),
-        CONTRIBUTOR_ACTOR_ID(IndexItem.CONTRIBUTOR_ACTOR_ID_FIELD, 1f, true);
+        DESCRIPTION(IndexItem.DESCRIPTION_TEXT_FIELD, 1f, true);
 
         private final String fieldName;
         private final float boost;
