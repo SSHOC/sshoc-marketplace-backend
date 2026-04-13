@@ -125,7 +125,7 @@
     <field name="contributor" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="contributor_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
     <field name="contributor_actor_role_code_text" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
-    <field name="contributor_actor_role_id" type="text_general_rev" indexed="true" stored="false" required="false" multiValued="true" />
+    <field name="contributor_actor_id" type="plong" indexed="true" stored="false" required="false" multiValued="true" />
     <field name="external_identifier" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="category" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="status" type="string" indexed="true" stored="true" required="false" multiValued="false" />
