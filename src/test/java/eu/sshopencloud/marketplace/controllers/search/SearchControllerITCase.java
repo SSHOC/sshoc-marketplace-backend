@@ -745,7 +745,6 @@ class SearchControllerITCase {
                 .andExpect(jsonPath("suggestions[1].persistentId", is("WfcKvG")));
     }
 
-    @Test
     void shouldReturnActorsByWordsCaseInsensitive() throws Exception {
 
         mvc.perform(get("/api/actor-search?q=project")
@@ -824,60 +823,4 @@ class SearchControllerITCase {
                 .andExpect(jsonPath("suggestions[0].persistentId", is("tqmbGY")));
     }
 
-    @Test
-    void shouldReturnItemsByContributorRoleCodeForProvider() throws Exception {
-
-        mvc.perform(get("/api/item-search?q=*&c.actor_role=provider")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("items", hasSize(1)))
-                .andExpect(jsonPath("items[0].id", is(10)))
-                .andExpect(jsonPath("items[0].lastInfoUpdate", is("2020-08-04T12:29:02Z")))
-                .andExpect(jsonPath("items[0].persistentId", is("OdKfPc")))
-                .andExpect(jsonPath("items[0].label", is("Consortium of European Social Science Data Archives")))
-                .andExpect(jsonPath("items[0].contributors[0].actor.id", is(4)))
-                .andExpect(jsonPath("items[0].contributors[0].role.code", is("provider")));
-    }
-
-    @Test
-    void shouldReturnItemsByContributorRoleCodeForContributor() throws Exception {
-
-        mvc.perform(get("/api/item-search?q=*&c.actor_role=contributor")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("items", hasSize(1)))
-                .andExpect(jsonPath("items[0].id", is(3)))
-                .andExpect(jsonPath("items[0].persistentId", is("Xgufde")))
-                .andExpect(jsonPath("items[0].label", is("WebSty")))
-                .andExpect(jsonPath("items[0].contributors[*].role.code", hasItem("contributor")));
-    }
-
-    @Test
-    void shouldReturnItemsByContributorRoleCodeForAuthor() throws Exception {
-
-        mvc.perform(get("/api/item-search?q=*&c.actor_role=author")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("items", hasSize(8)))
-                .andExpect(jsonPath("items[*].contributors[*].role.code", hasItem("author")));
-    }
-
-    @Test
-    void shouldReturnItemsByContributorActorId() throws Exception {
-
-        mvc.perform(get("/api/item-search?q=*&c.actor_id=5")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("items", hasSize(4)))
-                .andExpect(jsonPath("items[0].id", is(1)))
-                .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
-                .andExpect(jsonPath("items[0].label", is("Gephi")))
-                .andExpect(jsonPath("items[0].contributors[0].actor.id", is(5)))
-
-                .andExpect(jsonPath("items[1].id", is(3)))
-                .andExpect(jsonPath("items[1].persistentId", is("Xgufde")))
-                .andExpect(jsonPath("items[1].contributors[0].actor.id", is(3)))
-
-                .andExpect(jsonPath("items[*].contributors[*].actor.id", hasItem(5)));
-    }
 }

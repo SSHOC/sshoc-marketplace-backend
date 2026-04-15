@@ -62,7 +62,6 @@ public class SearchService {
 
     public PaginatedSearchItems searchItems(String q, boolean advanced, boolean includeSteps,
                                             @NotNull Map<String, String> expressionParams,
-                                            Map<String, String> contributorRelatedParams,
                                             List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams,
                                             List<ItemSearchOrder> order, PageCoords pageCoords) throws IllegalFilterException {
 
@@ -80,7 +79,6 @@ public class SearchService {
         }
 
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
-        expressionCriteria.addAll(makeExpressionCriteriaForContributor(contributorRelatedParams));
 
         if (order == null || order.isEmpty()) {
             order = Collections.singletonList(ItemSearchOrder.SCORE);
@@ -298,10 +296,6 @@ public class SearchService {
         return expressionParams.keySet().stream()
                 .map(code -> createExpressionCriteria(code, expressionParams.get(code)))
                 .collect(Collectors.toList());
-    }
-
-    private List<SearchExpressionCriteria> makeExpressionCriteriaForContributor(@NotNull Map<String, String> expressionParams) {
-        return expressionParams.keySet().stream().map(code -> new SearchExpressionContributorRelatedFieldCriteria(code, expressionParams.get(code))).collect(Collectors.toList());
     }
 
     private SearchExpressionCriteria createExpressionCriteria(String code, String expression) {

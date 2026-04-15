@@ -56,11 +56,8 @@ class SearchController {
 
         Map<String, String> expressionParams = UrlParamsExtractor.extractExpressionParams(d);
         Map<String, List<String>> filterParams = UrlParamsExtractor.extractFilterParams(f);
-        Map<String, String> contributorRelatedParams = UrlParamsExtractor.extractContributorRelatedSolrFilterQueryParams(f);
 
-        return ResponseEntity.ok(searchService.searchItems(q, advanced, includeSteps, expressionParams,
-                contributorRelatedParams,
-                categories, filterParams, order,
+        return ResponseEntity.ok(searchService.searchItems(q, advanced, includeSteps, expressionParams, categories, filterParams, order,
                 pageCoordsValidator.validate(page, perpage)));
     }
 

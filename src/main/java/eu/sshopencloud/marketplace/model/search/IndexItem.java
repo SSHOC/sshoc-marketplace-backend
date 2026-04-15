@@ -35,8 +35,6 @@ public class IndexItem {
 
     public static final String CONTRIBUTOR_FIELD = "contributor";
     public static final String CONTRIBUTOR_TEXT_FIELD = "contributor_text";
-    public static final String CONTRIBUTOR_ACTOR_ROLE_FIELD = "contributor_actor_role_code_text";
-    public static final String CONTRIBUTOR_ACTOR_ID_FIELD = "contributor_actor_id";
 
     public static final String EXTERNAL_IDENTIFIER_FIELD = "external_identifier";
 

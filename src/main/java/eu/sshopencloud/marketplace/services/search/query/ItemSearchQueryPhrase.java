@@ -79,16 +79,7 @@ public class ItemSearchQueryPhrase extends SearchQueryPhrase {
             return INITIAL_QUERY_CRITERIA;
         } else {
             StringBuilder queryCriteria = new StringBuilder(INITIAL_QUERY_CRITERIA);
-            List<String> queryPartsCriteria = Arrays.stream(ItemCriteriaParams.values()).filter(param -> {
-                        if (param == ItemCriteriaParams.CONTRIBUTOR_ACTOR_ID) {
-                            try {
-                                Integer.parseInt(phrase);
-                            } catch (NumberFormatException e) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    })
+            List<String> queryPartsCriteria = Arrays.stream(ItemCriteriaParams.values())
                     .map(c -> c.getCondition(phrase, true))
                     .collect(Collectors.toList());
 
