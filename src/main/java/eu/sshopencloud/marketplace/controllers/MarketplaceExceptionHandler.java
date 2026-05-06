@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -23,6 +24,12 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 @Slf4j
 public class MarketplaceExceptionHandler {
+
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public ResponseEntity<?> handleClientAbortException(AsyncRequestNotUsableException ex, WebRequest request) {
+        log.debug("Client disconnected before the response was written: {}", ex.getMessage());
+        return ResponseEntity.noContent().build();
+    }
 
     @ExceptionHandler(value = { ValidationException.class })
     public ResponseEntity<Object> handleValidationException(ValidationException ex, WebRequest request) {
@@ -81,14 +88,22 @@ public class MarketplaceExceptionHandler {
     }
 
     @ExceptionHandler(value = { IOException.class, Exception.class })
-    public ResponseEntity<Object> handleServerException(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleServerException(Exception ex, WebRequest request) {
+        if (isClientAbortException(ex)) {
+            log.debug("Client disconnected before the response was written: {}", ex.getMessage());
+            return ResponseEntity.noContent().build();
+        }
         log.error("Server Exception", ex);
         ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.INTERNAL_SERVER_ERROR.value()).error(ex.getMessage()).build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
     @ExceptionHandler(value = RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleServerError(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleServerError(Exception ex, WebRequest request) {
+        if (isClientAbortException(ex)) {
+            log.debug("Client disconnected before the response was written: {}", ex.getMessage());
+            return ResponseEntity.noContent().build();
+        }
         log.error("Runtime exception", ex);
         if (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getCause() != null && ex.getCause().getCause().getCause() instanceof ParseException) {
             ErrorResponse errorResponse = ErrorResponse.builder().timestamp(LocalDateTime.now()).status(HttpStatus.BAD_REQUEST.value()).error(ex.getCause().getCause().getMessage()).build();
@@ -109,5 +124,30 @@ public class MarketplaceExceptionHandler {
                         .code(error.getCode()).args(error.getArguments()).message(error.getDefaultMessage()).build()).toArray(ValidatedError[]::new))
                 .build();
         return ResponseEntity.badRequest().body(validationResponse);
+    }
+
+    private boolean isClientAbortException(Throwable ex) {
+        Throwable current = ex;
+        while (current != null) {
+            if (current instanceof AsyncRequestNotUsableException) {
+                return true;
+            }
+            if (current instanceof java.io.EOFException || current instanceof java.net.SocketException) {
+                return true;
+            }
+            String className = current.getClass().getName();
+            if (className.endsWith("ClientAbortException") || className.endsWith("AsyncRequestNotUsableException")) {
+                return true;
+            }
+            String message = current.getMessage();
+            if (message != null) {
+                String normalized = message.toLowerCase();
+                if (normalized.contains("broken pipe") || normalized.contains("connection reset by peer")) {
+                    return true;
+                }
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 }
