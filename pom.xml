@@ -310,7 +310,7 @@
                     <images>
                         <image>
                             <alias>psql-test</alias>
-                            <name>postgres:9.6</name>
+                            <name>postgres:18.4</name>
                             <run>
                                 <containerNamePattern>%a-%i</containerNamePattern>
                                 <ports>
