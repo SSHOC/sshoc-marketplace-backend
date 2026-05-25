@@ -1,7 +1,7 @@
 package eu.sshopencloud.marketplace.conf.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -17,6 +17,6 @@ public class SolrConfig {
     @Bean
     public SolrClient solrClient() {
         //@TODO change to Http2SolrClient or alike, once the spring boot version is updated
-        return new HttpSolrClient.Builder(solrUrl).build();
+        return new HttpJdkSolrClient.Builder(solrUrl).build();
     }
 }
