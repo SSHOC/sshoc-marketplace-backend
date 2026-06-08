@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class ActorControllerITCase {
+class ActorControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -52,14 +52,14 @@ public class ActorControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
     }
 
     @Test
-    public void shouldReturnActors() throws Exception {
+    void shouldReturnActors() throws Exception {
 
         mvc.perform(get("/api/actors")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -67,7 +67,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldReturnActor() throws Exception {
+    void shouldReturnActor() throws Exception {
         Integer actorId = 5;
 
         mvc.perform(get("/api/actors/{id}", actorId)
@@ -83,7 +83,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldReturnActorForModerator() throws Exception {
+    void shouldReturnActorForModerator() throws Exception {
         Integer actorId = 5;
 
         mvc.perform(get("/api/actors/{id}", actorId)
@@ -100,7 +100,7 @@ public class ActorControllerITCase {
                 .andExpect(jsonPath("affiliations[0].website", is("https://sshopencloud.eu/")));
     }
     @Test
-    public void shouldReturnActorWithItems() throws Exception {
+    void shouldReturnActorWithItems() throws Exception {
         Integer actorId = 5;
 
         mvc.perform(get("/api/actors/{id}", actorId)
@@ -126,7 +126,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldReturnActorWithoutItems() throws Exception {
+    void shouldReturnActorWithoutItems() throws Exception {
         Integer actorId = 5;
 
         mvc.perform(get("/api/actors/{id}", actorId)
@@ -144,7 +144,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnActorWhenNotExist() throws Exception {
+    void shouldNotReturnActorWhenNotExist() throws Exception {
         Integer actorId = 51;
 
         mvc.perform(get("/api/actors/{id}", actorId)
@@ -153,7 +153,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorWithoutAffiliations() throws Exception {
+    void shouldCreateActorWithoutAffiliations() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setWebsite("http://www.example.org");
@@ -173,7 +173,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorWithAffiliations() throws Exception {
+    void shouldCreateActorWithAffiliations() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -202,7 +202,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorWithExternalId() throws Exception {
+    void shouldCreateActorWithExternalId() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -247,7 +247,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorWithExternalIds() throws Exception {
+    void shouldCreateActorWithExternalIds() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -303,7 +303,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateActorWithUnknownExternalId() throws Exception {
+    void shouldNotCreateActorWithUnknownExternalId() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -326,7 +326,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateActorWithDuplicateExternalId() throws Exception {
+    void shouldNotCreateActorWithDuplicateExternalId() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -347,7 +347,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateActorWithMalformedWebsiteAndEmail() throws Exception {
+    void shouldNotCreateActorWithMalformedWebsiteAndEmail() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test malformed actor");
         actor.setWebsite("Malformed Website");
@@ -371,7 +371,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateActorWhenAffiliationNotExist() throws Exception {
+    void shouldNotCreateActorWhenAffiliationNotExist() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -398,7 +398,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldUpdateActorWithoutAffiliations() throws Exception {
+    void shouldUpdateActorWithoutAffiliations() throws Exception {
         Integer actorId = 2;
 
         ActorCore actor = new ActorCore();
@@ -423,7 +423,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldUpdateActorWithAffiliations() throws Exception {
+    void shouldUpdateActorWithAffiliations() throws Exception {
         Integer actorId = 2;
 
         ActorCore actor = new ActorCore();
@@ -455,7 +455,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateActorWhenAffiliationNotExist() throws Exception {
+    void shouldNotUpdateActorWhenAffiliationNotExist() throws Exception {
         Integer actorId = 2;
 
         ActorCore actor = new ActorCore();
@@ -484,7 +484,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldUpdateActorAndModifyExternalIds() throws Exception {
+    void shouldUpdateActorAndModifyExternalIds() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -558,7 +558,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateActorWithUnknownExternalId() throws Exception {
+    void shouldNotUpdateActorWithUnknownExternalId() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -580,7 +580,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateActorWhenNotExist() throws Exception {
+    void shouldNotUpdateActorWhenNotExist() throws Exception {
         Integer actorId = 99;
 
         ActorCore actor = new ActorCore();
@@ -599,7 +599,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldForceDeleteActor() throws Exception {
+    void shouldForceDeleteActor() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Actor to delete");
         actor.setEmail("test@example.org");
@@ -660,7 +660,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldDeleteActor() throws Exception {
+    void shouldDeleteActor() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Actor to delete");
         actor.setEmail("test@example.org");
@@ -696,7 +696,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorWithExternalIdsInUse() throws Exception {
+    void shouldCreateActorWithExternalIdsInUse() throws Exception {
         ActorCore actor = new ActorCore();
         actor.setName("Test actor");
         actor.setEmail("test@example.org");
@@ -783,7 +783,7 @@ public class ActorControllerITCase {
 
 
     @Test
-    public void shouldMergeActorsWithAffiliationsAndExternalIds() throws Exception {
+    void shouldMergeActorsWithAffiliationsAndExternalIds() throws Exception {
 
         ActorCore actor = new ActorCore();
         actor.setName("Actor test 1");
@@ -844,7 +844,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldMergeActorsWithDuplicatedAffiliationsAndExternalIds() throws Exception {
+    void shouldMergeActorsWithDuplicatedAffiliationsAndExternalIds() throws Exception {
 
         ActorCore actor = new ActorCore();
         actor.setName("Actor test 1");
@@ -906,7 +906,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldMergeActorsWithoutAffiliationsAndExternalIds() throws Exception {
+    void shouldMergeActorsWithoutAffiliationsAndExternalIds() throws Exception {
 
         ActorCore actor = new ActorCore();
         actor.setName("Actor test 1");
@@ -955,7 +955,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldReturnMergedHistory() throws Exception {
+    void shouldReturnMergedHistory() throws Exception {
 
         ActorCore actor = new ActorCore();
         actor.setName("Actor test 1");
@@ -1029,7 +1029,7 @@ public class ActorControllerITCase {
     }
 
     @Test
-    public void shouldMergeThreeActors() throws Exception {
+    void shouldMergeThreeActors() throws Exception {
 
         ActorCore actor = new ActorCore();
         actor.setName("Actor test 1");

@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Transactional
-public class SearchControllerITCase {
+class SearchControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -49,13 +49,13 @@ public class SearchControllerITCase {
 
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
     }
 
     @Test
-    public void shouldReturnAllItems() throws Exception {
+    void shouldReturnAllItems() throws Exception {
 
         mvc.perform(get("/api/item-search")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -63,7 +63,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByWord() throws Exception {
+    void shouldReturnItemsByWord() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -99,7 +99,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldSearchForProposedItem() throws Exception {
+    void shouldSearchForProposedItem() throws Exception {
         String datasetId = "dU0BZc";
         int datasetVersionId = 11;
 
@@ -156,7 +156,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByPhrase() throws Exception {
+    void shouldReturnItemsByPhrase() throws Exception {
 
         mvc.perform(get("/api/item-search?q=\"dummy text ever\"")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -178,7 +178,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByKeyword() throws Exception {
+    void shouldReturnItemsByKeyword() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic modeling")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -206,7 +206,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByKeywordAndFilterByCategories() throws Exception {
+    void shouldReturnItemsByKeywordAndFilterByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic modeling&categories=tool-or-service,training-material")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -231,7 +231,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByKeywordPhrase() throws Exception {
+    void shouldReturnItemsByKeywordPhrase() throws Exception {
 
         mvc.perform(get("/api/item-search?q=\"topic modeling\"")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -255,7 +255,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsWildcardPhrase() throws Exception {
+    void shouldReturnItemsWildcardPhrase() throws Exception {
 
         mvc.perform(get("/api/item-search?q=(topi* OR \"Introduction to GEPHI\")&advanced=true")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -279,7 +279,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByKeywordPhraseAndFilterByCategories() throws Exception {
+    void shouldReturnItemsByKeywordPhraseAndFilterByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=\"topic modeling\"&categories=tool-or-service,training-material")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -305,7 +305,7 @@ public class SearchControllerITCase {
 
 
     @Test
-    public void shouldReturnItemsByKeywordPart() throws Exception {
+    void shouldReturnItemsByKeywordPart() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -333,7 +333,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByKeywordPartAndFilterByCategories() throws Exception {
+    void shouldReturnItemsByKeywordPartAndFilterByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic&categories=tool-or-service,training-material")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -364,7 +364,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByKeywordPartAndFilterBySubfilters() throws Exception {
+    void shouldReturnItemsByKeywordPartAndFilterBySubfilters() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic&f.keyword=Lorem ipsum&f.keyword=topic modeling")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -390,7 +390,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByKeywordPartAndFilterByCategoriesAndSubfilters() throws Exception {
+    void shouldReturnItemsByKeywordPartAndFilterByCategoriesAndSubfilters() throws Exception {
 
         mvc.perform(get("/api/item-search?q=topic&categories=tool-or-service,training-material&f.keyword=Lorem ipsum&f.keyword=topic modeling")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -417,7 +417,7 @@ public class SearchControllerITCase {
 
 
     @Test
-    public void shouldReturnItemsByWordAndSortedByLabel() throws Exception {
+    void shouldReturnItemsByWordAndSortedByLabel() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&order=label")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -447,7 +447,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByWordAndFilteredByCategories() throws Exception {
+    void shouldReturnItemsByWordAndFilteredByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&categories=tool-or-service,dataset")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -471,7 +471,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsByWordAndFilteredBySubfilters() throws Exception {
+    void shouldReturnItemsByWordAndFilteredBySubfilters() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&f.keyword=social network analysis")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -496,7 +496,7 @@ public class SearchControllerITCase {
 
 
     @Test
-    public void shouldReturnItemsByWordAndFilteredByCategoriesAndSubfilters() throws Exception {
+    void shouldReturnItemsByWordAndFilteredByCategoriesAndSubfilters() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&categories=tool-or-service,dataset&f.keyword=social network analysis")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -521,7 +521,7 @@ public class SearchControllerITCase {
 
 
     @Test
-    public void shouldReturnItemsByWordAndFilteredByCategoriesAndSubfiltersWithNonExistentValue() throws Exception {
+    void shouldReturnItemsByWordAndFilteredByCategoriesAndSubfiltersWithNonExistentValue() throws Exception {
 
         mvc.perform(get("/api/item-search?q=gephi&categories=tool-or-service,dataset&f.keyword=non_existent_value")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -543,7 +543,7 @@ public class SearchControllerITCase {
 
 
     @Test
-    public void shouldReturnItemsByExpressionOnContributors() throws Exception {
+    void shouldReturnItemsByExpressionOnContributors() throws Exception {
 
         mvc.perform(get("/api/item-search?d.contributor=(+CESSDE~ -*Academy*)")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -578,7 +578,7 @@ public class SearchControllerITCase {
 
 
     @Test
-    public void shouldReturnItemsByExpressionOnContributorsAndExpressionOnLanguage() throws Exception {
+    void shouldReturnItemsByExpressionOnContributorsAndExpressionOnLanguage() throws Exception {
 
         mvc.perform(get("/api/item-search?d.contributor=(+CESSDE~ -*Academy*)&d.language=(en?)")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -601,7 +601,7 @@ public class SearchControllerITCase {
 
 
     @Test
-    public void shouldReturnAllConcepts() throws Exception {
+    void shouldReturnAllConcepts() throws Exception {
 
         mvc.perform(get("/api/concept-search")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -609,7 +609,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnConceptsByWordAndFilteredByTypes() throws Exception {
+    void shouldReturnConceptsByWordAndFilteredByTypes() throws Exception {
 
         mvc.perform(get("/api/concept-search?q=software&types=object-type,activity")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -626,7 +626,7 @@ public class SearchControllerITCase {
 
 
     @Test
-    public void shouldNotCrashWhenSearchingItemsForASlash() throws Exception {
+    void shouldNotCrashWhenSearchingItemsForASlash() throws Exception {
         mvc.perform(
                         get("/api/item-search")
                                 .param("q", " / ")
@@ -636,7 +636,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldNotCrashWhenSearchingConceptsForASlash() throws Exception {
+    void shouldNotCrashWhenSearchingConceptsForASlash() throws Exception {
         mvc.perform(
                         get("/api/concept-search")
                                 .param("q", "teaching / learning")
@@ -645,7 +645,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnConceptsWithCandidateFacet() throws Exception {
+    void shouldReturnConceptsWithCandidateFacet() throws Exception {
 
         mvc.perform(get("/api/concept-search?q=new&f.candidate=false")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -657,7 +657,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnAllActors() throws Exception {
+    void shouldReturnAllActors() throws Exception {
 
         mvc.perform(get("/api/actor-search")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -665,7 +665,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnActorsByWebsite() throws Exception {
+    void shouldReturnActorsByWebsite() throws Exception {
 
         mvc.perform(get("/api/actor-search?q=CESSDA")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -679,7 +679,7 @@ public class SearchControllerITCase {
 
 
     @Test
-    public void shouldReturnActorsByDynamicParametersEmail() throws Exception {
+    void shouldReturnActorsByDynamicParametersEmail() throws Exception {
 
         mvc.perform(get("/api/actor-search?d.email=cessda@cessda.eu")
                         .header("Authorization", MODERATOR_JWT)
@@ -694,7 +694,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnActorsByEmailExpression() throws Exception {
+    void shouldReturnActorsByEmailExpression() throws Exception {
 
         mvc.perform(get("/api/actor-search?d.email=(*@*)")
                         .header("Authorization", MODERATOR_JWT)
@@ -716,7 +716,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnAutocompleteSuggestionForItems() throws Exception {
+    void shouldReturnAutocompleteSuggestionForItems() throws Exception {
 
         mvc.perform(get("/api/item-search/autocomplete?q=gep")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -732,7 +732,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnAutocompleteSuggestionWithCategoryForItems() throws Exception {
+    void shouldReturnAutocompleteSuggestionWithCategoryForItems() throws Exception {
 
         mvc.perform(get("/api/item-search/autocomplete?q=gep&category=training-material")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -745,7 +745,8 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("suggestions[1].persistentId", is("WfcKvG")));
     }
 
-    public void shouldReturnActorsByWordsCaseInsensitive() throws Exception {
+    @Test
+    void shouldReturnActorsByWordsCaseInsensitive() throws Exception {
 
         mvc.perform(get("/api/actor-search?q=project")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -769,7 +770,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsWithStepsIncluded() throws Exception {
+    void shouldReturnItemsWithStepsIncluded() throws Exception {
 
         mvc.perform(get("/api/item-search?q=model&includeSteps=true")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -792,7 +793,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnItemsWithStepsIncludedAndFilterByCategories() throws Exception {
+    void shouldReturnItemsWithStepsIncludedAndFilterByCategories() throws Exception {
 
         mvc.perform(get("/api/item-search?q=&includeSteps=true&categories=step")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -814,7 +815,7 @@ public class SearchControllerITCase {
     }
 
     @Test
-    public void shouldReturnAutocompleteWithoutSteps() throws Exception {
+    void shouldReturnAutocompleteWithoutSteps() throws Exception {
 
         mvc.perform(get("/api/item-search/autocomplete?q=dictionary")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -823,4 +824,60 @@ public class SearchControllerITCase {
                 .andExpect(jsonPath("suggestions[0].persistentId", is("tqmbGY")));
     }
 
+    @Test
+    void shouldReturnItemsByContributorRoleCodeForProvider() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=*&c.actor_role=provider")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(1)))
+                .andExpect(jsonPath("items[0].id", is(10)))
+                .andExpect(jsonPath("items[0].lastInfoUpdate", is("2020-08-04T12:29:02Z")))
+                .andExpect(jsonPath("items[0].persistentId", is("OdKfPc")))
+                .andExpect(jsonPath("items[0].label", is("Consortium of European Social Science Data Archives")))
+                .andExpect(jsonPath("items[0].contributors[0].actor.id", is(4)))
+                .andExpect(jsonPath("items[0].contributors[0].role.code", is("provider")));
+    }
+
+    @Test
+    void shouldReturnItemsByContributorRoleCodeForContributor() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=*&c.actor_role=contributor")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(1)))
+                .andExpect(jsonPath("items[0].id", is(3)))
+                .andExpect(jsonPath("items[0].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("items[0].label", is("WebSty")))
+                .andExpect(jsonPath("items[0].contributors[*].role.code", hasItem("contributor")));
+    }
+
+    @Test
+    void shouldReturnItemsByContributorRoleCodeForAuthor() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=*&c.actor_role=author")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(8)))
+                .andExpect(jsonPath("items[*].contributors[*].role.code", hasItem("author")));
+    }
+
+    @Test
+    void shouldReturnItemsByContributorActorId() throws Exception {
+
+        mvc.perform(get("/api/item-search?q=*&c.actor_id=5")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(4)))
+                .andExpect(jsonPath("items[0].id", is(1)))
+                .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
+                .andExpect(jsonPath("items[0].label", is("Gephi")))
+                .andExpect(jsonPath("items[0].contributors[0].actor.id", is(5)))
+
+                .andExpect(jsonPath("items[1].id", is(3)))
+                .andExpect(jsonPath("items[1].persistentId", is("Xgufde")))
+                .andExpect(jsonPath("items[1].contributors[0].actor.id", is(3)))
+
+                .andExpect(jsonPath("items[*].contributors[*].actor.id", hasItem(5)));
+    }
 }

@@ -116,7 +116,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
 
     public StepDto updateStep(String workflowId, String stepId, StepCore updatedStepCore, boolean draft,
-                              boolean approved) throws VersionNotChangedException {
+                              boolean approved, boolean patchMode) throws VersionNotChangedException {
         validateCurrentWorkflowAndStepConsistency(workflowId, stepId, draft);
 
         Workflow newWorkflow = workflowService.liftWorkflowForNewStep(workflowId, draft);
@@ -127,7 +127,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
 
         WorkflowStepCore workflowStepCore = new WorkflowStepCore(updatedStepCore, parentStepTree);
 
-        Step updatedStep = updateItem(stepId, workflowStepCore, draft, approved);
+        Step updatedStep = updateItem(stepId, workflowStepCore, draft, approved, patchMode);
 
         addStepToTree(updatedStep, updatedStepCore.getStepNo(), parentStepTree, draft);
 
@@ -139,7 +139,7 @@ public class StepService extends ItemCrudService<Step, StepDto, PaginatedResult<
         Step currentItem = loadItemForCurrentUser(persistentId);
         ComparisonResult comparisonResult = ComparisonResult.UPDATED;
         if (!draft && currentItem.getStatus() != ItemStatus.DRAFT) {
-            comparisonResult = recognizePotentialChanges(currentItem, itemCore.getStepCore());
+            comparisonResult = compareAndPatch(currentItem, itemCore);
             if (comparisonResult == ComparisonResult.UNMODIFIED) {
                 throw new VersionNotChangedException();
             }

@@ -76,11 +76,10 @@ public class ItemsConflictComparator {
     private boolean isConflictOnContributors(ItemDto item1, ItemDto item2) {
         int item1Size = item1.getContributors() != null ? item1.getContributors().size() : 0;
         int item2Size = item2.getContributors() != null ? item2.getContributors().size() : 0;
+        if (item1Size != item2Size) return true;
         for (int i = 0; i < item1Size; i++) {
-            if (i < item2Size) {
-                if (item1.getContributors().get(i) != null && item2.getContributors().get(i) != null && !item1.getContributors().get(i).equals(item2.getContributors().get(i))) {
-                    return true;
-                }
+            if (item1.getContributors().get(i) != null && item2.getContributors().get(i) != null && !item1.getContributors().get(i).equals(item2.getContributors().get(i))) {
+                return true;
             }
         }
         return false;
@@ -89,11 +88,10 @@ public class ItemsConflictComparator {
     private boolean isConflictOnAccessibleAt(ItemDto item1, ItemDto item2) {
         int item1Size = item1.getAccessibleAt() != null ? item1.getAccessibleAt().size() : 0;
         int item2Size = item2.getAccessibleAt() != null ? item2.getAccessibleAt().size() : 0;
+        if (item1Size != item2Size) return true;
         for (int i = 0; i < item1Size; i++) {
-            if (i < item2Size) {
-                if (item1.getAccessibleAt().get(i) != null && item2.getAccessibleAt().get(i) != null && !item1.getAccessibleAt().get(i).equals(item2.getAccessibleAt().get(i))) {
-                    return true;
-                }
+            if (item1.getAccessibleAt().get(i) != null && item2.getAccessibleAt().get(i) != null && !item1.getAccessibleAt().get(i).equals(item2.getAccessibleAt().get(i))) {
+                return true;
             }
         }
         return false;
@@ -102,11 +100,10 @@ public class ItemsConflictComparator {
     private boolean isConflictOnExternalIds(ItemDto item1, ItemDto item2) {
         int item1Size = item1.getExternalIds() != null ? item1.getExternalIds().size() : 0;
         int item2Size = item2.getExternalIds() != null ? item2.getExternalIds().size() : 0;
+        if (item1Size != item2Size) return true;
         for (int i = 0; i < item1Size; i++) {
-            if (i < item2Size) {
-                if (item1.getExternalIds().get(i) != null && item2.getExternalIds().get(i) != null && !item1.getExternalIds().get(i).equals(item2.getExternalIds().get(i))) {
-                    return true;
-                }
+            if (item1.getExternalIds().get(i) != null && item2.getExternalIds().get(i) != null && !item1.getExternalIds().get(i).equals(item2.getExternalIds().get(i))) {
+                return true;
             }
         }
         return false;
@@ -115,11 +112,10 @@ public class ItemsConflictComparator {
     private boolean isConflictOnProperties(ItemDto item1, ItemDto item2) {
         int item1Size = item1.getProperties() != null ? item1.getProperties().size() : 0;
         int item2Size = item2.getProperties() != null ? item2.getProperties().size() : 0;
+        if (item1Size != item2Size) return true;
         for (int i = 0; i < item1Size; i++) {
-            if (i < item2Size) {
-                if (item1.getProperties().get(i) != null && item2.getProperties().get(i) != null && !item1.getProperties().get(i).equals(item2.getProperties().get(i))) {
-                    return true;
-                }
+            if (item1.getProperties().get(i) != null && item2.getProperties().get(i) != null && !item1.getProperties().get(i).equals(item2.getProperties().get(i))) {
+                return true;
             }
         }
         return false;
@@ -128,11 +124,10 @@ public class ItemsConflictComparator {
     private boolean isConflictOnRelatedItems(ItemDto item1, ItemDto item2) {
         int item1Size = item1.getRelatedItems() != null ? item1.getRelatedItems().size() : 0;
         int item2Size = item2.getRelatedItems() != null ? item2.getRelatedItems().size() : 0;
+        if (item1Size != item2Size) return true;
         for (int i = 0; i < item1Size; i++) {
-            if (i < item2Size) {
-                if (item1.getRelatedItems().get(i) != null && item2.getRelatedItems().get(i) != null && !item1.getRelatedItems().get(i).equals(item2.getRelatedItems().get(i))) {
-                    return true;
-                }
+            if (item1.getRelatedItems().get(i) != null && item2.getRelatedItems().get(i) != null && !item1.getRelatedItems().get(i).equals(item2.getRelatedItems().get(i))) {
+                return true;
             }
         }
         return false;
@@ -141,11 +136,10 @@ public class ItemsConflictComparator {
     private boolean isConflictOnMedia(ItemDto item1, ItemDto item2) {
         int item1Size = item1.getMedia() != null ? item1.getMedia().size() : 0;
         int item2Size = item2.getMedia() != null ? item2.getMedia().size() : 0;
+        if (item1Size != item2Size) return true;
         for (int i = 0; i < item1Size; i++) {
-            if (i < item2Size) {
-                if (item1.getMedia().get(i) != null && item2.getMedia().get(i) != null && !item1.getMedia().get(i).equals(item2.getMedia().get(i))) {
-                    return true;
-                }
+            if (item1.getMedia().get(i) != null && item2.getMedia().get(i) != null && !item1.getMedia().get(i).equals(item2.getMedia().get(i))) {
+                return true;
             }
         }
         if (item1.getThumbnail() != null && item2.getThumbnail() != null && !item1.getThumbnail().equals(item2.getThumbnail())) {

@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext
 @AutoConfigureMockMvc
 @Transactional
-public class ActorRoleControllerITCase {
+class ActorRoleControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -40,7 +40,7 @@ public class ActorRoleControllerITCase {
 
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
@@ -48,7 +48,7 @@ public class ActorRoleControllerITCase {
 
 
     @Test
-    public void shouldReturnAllActorRoles() throws Exception {
+    void shouldReturnAllActorRoles() throws Exception {
 
         mvc.perform(get("/api/actor-roles")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -68,7 +68,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorRole() throws Exception {
+    void shouldCreateActorRole() throws Exception {
         ActorRoleCore actorRole = ActorRoleCore.builder()
                 .code("test")
                 .label("Test...")
@@ -100,7 +100,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorRoleWithoutOrder() throws Exception {
+    void shouldCreateActorRoleWithoutOrder() throws Exception {
         ActorRoleCore actorRole = ActorRoleCore.builder()
                 .code("test")
                 .label("Test...")
@@ -133,7 +133,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateActorRoleAtWrongPosition() throws Exception {
+    void shouldNotCreateActorRoleAtWrongPosition() throws Exception {
         ActorRoleCore actorRole = ActorRoleCore.builder()
                 .code("test")
                 .label("Test...")
@@ -152,7 +152,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveActorRole() throws Exception {
+    void shouldRetrieveActorRole() throws Exception {
         mvc.perform(get("/api/actor-roles/contact"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code", is("contact")))
@@ -160,7 +160,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldUpdateActorRole() throws Exception {
+    void shouldUpdateActorRole() throws Exception {
         ActorRoleCore actorRole = ActorRoleCore.builder()
                 .code("provider")
                 .label("Provider v2")
@@ -191,7 +191,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldRemoveActorRole() throws Exception {
+    void shouldRemoveActorRole() throws Exception {
         mvc.perform(
                 delete("/api/actor-roles/{roleId}", "contact")
                         .header("Authorization", MODERATOR_JWT)
@@ -209,7 +209,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldNotRemoveActorRoleInUse() throws Exception {
+    void shouldNotRemoveActorRoleInUse() throws Exception {
         mvc.perform(
                 delete("/api/actor-roles/{roleId}", "author")
                         .header("Authorization", MODERATOR_JWT)
@@ -218,7 +218,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateActorRoleUnauthorized() throws Exception {
+    void shouldNotCreateActorRoleUnauthorized() throws Exception {
         ActorRoleCore actorRole = ActorRoleCore.builder()
                 .code("test")
                 .label("Test...")
@@ -236,7 +236,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateActorRoleUnauthorized() throws Exception {
+    void shouldNotUpdateActorRoleUnauthorized() throws Exception {
         ActorRoleCore actorRole = ActorRoleCore.builder()
                 .code("author")
                 .label("Author v2")
@@ -254,13 +254,13 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteActorRoleUnauthorized() throws Exception {
+    void shouldNotDeleteActorRoleUnauthorized() throws Exception {
         mvc.perform(delete("/api/actor-roles/{roleId}", "helpdesk"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    public void shouldNotCreateActorRoleAsContributor() throws Exception {
+    void shouldNotCreateActorRoleAsContributor() throws Exception {
         ActorRoleCore actorRole = ActorRoleCore.builder()
                 .code("test")
                 .label("Test...")
@@ -279,7 +279,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateActorRoleAsContributor() throws Exception {
+    void shouldNotUpdateActorRoleAsContributor() throws Exception {
         ActorRoleCore actorRole = ActorRoleCore.builder()
                 .code("author")
                 .label("Author v2")
@@ -298,7 +298,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteActorRoleAsContributor() throws Exception {
+    void shouldNotDeleteActorRoleAsContributor() throws Exception {
         mvc.perform(
                 delete("/api/actor-roles/{roleId}", "helpdesk")
                         .header("Authorization", CONTRIBUTOR_JWT)
@@ -307,7 +307,7 @@ public class ActorRoleControllerITCase {
     }
 
     @Test
-    public void shouldCreateActorRoleAsAdministrator() throws Exception {
+    void shouldCreateActorRoleAsAdministrator() throws Exception {
         ActorRoleCore actorRole = ActorRoleCore.builder()
                 .code("test")
                 .label("Test v2")

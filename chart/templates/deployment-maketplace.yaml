@@ -38,6 +38,8 @@ spec:
               value: /log
             - name: marketplace_media_dir
               value: /var/sshoc/media
+            - name: marketplace_handle_dir
+              value: /var/sshoc/handle
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}
@@ -71,12 +73,18 @@ spec:
             timeoutSeconds: 3
           resources:
             limits:
-              memory: 1Gi
+              memory: {{ .Values.resources.limits.memory | default "128Mi" }}
+              cpu: {{ .Values.resources.limits.cpu | default "100m" }}
+            requests:
+              memory: {{ .Values.resources.requests.memory | default "128Mi" }}  
+              cpu: {{ .Values.resources.requests.cpu | default "100m" }}        
           volumeMounts:
             - mountPath: /var/sshoc/media
               name: media-data
             - mountPath: /log
               name: app-log
+            - mountPath: /var/sshoc/handle
+              name: app-handle
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       volumes:
@@ -86,3 +94,7 @@ spec:
         - name: media-data
           persistentVolumeClaim:
             claimName: {{ print (.Values.pvc.namePrefix) ( include "fullname" . ) "-media-data"| quote }}
+        - name: app-handle
+          persistentVolumeClaim:
+            claimName: {{ print (.Values.pvc.namePrefix) ( include "fullname" . ) "-app-handle"| quote }}
+

@@ -26,6 +26,7 @@ import eu.sshopencloud.marketplace.services.search.query.ActorSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.ConceptSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.ItemSearchQueryPhrase;
 import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
+import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
 import lombok.RequiredArgsConstructor;
@@ -57,9 +58,11 @@ public class SearchService {
     private final PropertyTypeService propertyTypeService;
     private final SearchActorRepository searchActorRepository;
     private final ActorService actorService;
+    private final SourceService sourceService;
 
     public PaginatedSearchItems searchItems(String q, boolean advanced, boolean includeSteps,
                                             @NotNull Map<String, String> expressionParams,
+                                            Map<String, String> contributorRelatedParams,
                                             List<ItemCategory> categories, @NotNull Map<String, List<String>> filterParams,
                                             List<ItemSearchOrder> order, PageCoords pageCoords) throws IllegalFilterException {
 
@@ -77,6 +80,7 @@ public class SearchService {
         }
 
         List<SearchExpressionCriteria> expressionCriteria = makeExpressionCriteria(expressionParams);
+        expressionCriteria.addAll(makeExpressionCriteriaForContributor(contributorRelatedParams));
 
         if (order == null || order.isEmpty()) {
             order = Collections.singletonList(ItemSearchOrder.SCORE);
@@ -110,6 +114,7 @@ public class SearchService {
         // TODO in a similar way add external identifiers to the result
         for (SearchItem searchItem : result.getItems()) {
             searchItem.setContributors(ItemContributorMapper.INSTANCE.toDto(itemContributorService.getItemContributors(searchItem.getId())));
+            searchItem.setSources(sourceService.getSourcesOfItem(searchItem.getPersistentId()));
             searchItem.setProperties(PropertyMapper.INSTANCE.toDto(propertyService.getItemProperties(searchItem.getId())));
             searchItem.getProperties().stream().map(PropertyDto::getType).forEach(propertyTypeService::completePropertyType);
         }
@@ -293,6 +298,10 @@ public class SearchService {
         return expressionParams.keySet().stream()
                 .map(code -> createExpressionCriteria(code, expressionParams.get(code)))
                 .collect(Collectors.toList());
+    }
+
+    private List<SearchExpressionCriteria> makeExpressionCriteriaForContributor(@NotNull Map<String, String> expressionParams) {
+        return expressionParams.keySet().stream().map(code -> new SearchExpressionContributorRelatedFieldCriteria(code, expressionParams.get(code))).collect(Collectors.toList());
     }
 
     private SearchExpressionCriteria createExpressionCriteria(String code, String expression) {

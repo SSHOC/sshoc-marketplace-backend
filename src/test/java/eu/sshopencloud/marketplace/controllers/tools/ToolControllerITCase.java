@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.*;
+import eu.sshopencloud.marketplace.dto.sources.SourceId;
 import eu.sshopencloud.marketplace.dto.tools.ToolCore;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.*;
@@ -46,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class ToolControllerITCase {
+class ToolControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -60,7 +61,7 @@ public class ToolControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
@@ -68,7 +69,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldReturnTools() throws Exception {
+    void shouldReturnTools() throws Exception {
 
         mvc.perform(get("/api/tools-services")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -76,7 +77,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldReturnTool() throws Exception {
+    void shouldReturnTool() throws Exception {
         String toolPersistentId = "n21Kfc";
         Integer toolId = 1;
 
@@ -92,7 +93,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnToolWhenNotExist() throws Exception {
+    void shouldNotReturnToolWhenNotExist() throws Exception {
         String toolPersistentId = "xxxxxx7";
 
         mvc.perform(get("/api/tools-services/{id}", toolPersistentId)
@@ -101,7 +102,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithoutSource() throws Exception {
+    void shouldCreateToolWithoutSource() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
@@ -126,7 +127,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithRelations() throws Exception {
+    void shouldCreateToolWithRelations() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test complex software");
         tool.setDescription("Lorem ipsum");
@@ -180,7 +181,7 @@ public class ToolControllerITCase {
 
 
     @Test
-    public void shouldNotCreateToolWhenLabelIsNull() throws Exception {
+    void shouldNotCreateToolWhenLabelIsNull() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setDescription("Lorem ipsum");
 
@@ -201,7 +202,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenContributorIsUnknown() throws Exception {
+    void shouldNotCreateToolWhenContributorIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -232,7 +233,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenContributorRoleIsIncorrect() throws Exception {
+    void shouldNotCreateToolWhenContributorRoleIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -263,7 +264,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenPropertyTypeIsUnknown() throws Exception {
+    void shouldNotCreateToolWhenPropertyTypeIsUnknown() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -301,7 +302,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenConceptIsIncorrect() throws Exception {
+    void shouldNotCreateToolWhenConceptIsIncorrect() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -339,7 +340,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenVocabularyIsDisallowed() throws Exception {
+    void shouldNotCreateToolWhenVocabularyIsDisallowed() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -379,7 +380,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    void shouldNotCreateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test Software");
         tool.setDescription("Lorem ipsum");
@@ -412,7 +413,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolAsDraft() throws Exception {
+    void shouldUpdateToolAsDraft() throws Exception {
         String toolPersistentId = "DstBL5";
 
         ToolCore tool = new ToolCore();
@@ -463,7 +464,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithoutSource() throws Exception {
+    void shouldUpdateToolWithoutSource() throws Exception {
         String toolPersistentId = "Xgufde";
         Integer toolCurrentId = 3;
 
@@ -492,7 +493,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithRelations() throws Exception {
+    void shouldUpdateToolWithRelations() throws Exception {
         String toolPersistentId = "Xgufde";
         Integer toolCurrentId = 3;
 
@@ -551,7 +552,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenNotExist() throws Exception {
+    void shouldNotUpdateToolWhenNotExist() throws Exception {
         String toolPersistentId = "xxxxxx7";
 
         ToolCore tool = new ToolCore();
@@ -571,7 +572,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateTool() throws Exception {
+    void shouldUpdateTool() throws Exception {
         String toolPersistentId = "n21Kfc";
         int toolCurrentId = 1;
 
@@ -612,7 +613,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolAddAndRemoveExternalId() throws Exception {
+    void shouldUpdateToolAddAndRemoveExternalId() throws Exception {
         String toolPersistentId = "n21Kfc";
         int toolCurrentId = 1;
 
@@ -663,7 +664,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenLabelIsNull() throws Exception {
+    void shouldNotUpdateToolWhenLabelIsNull() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -685,7 +686,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenContributorIsUnknown() throws Exception {
+    void shouldNotUpdateToolWhenContributorIsUnknown() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -718,7 +719,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenContributorRoleIsIncorrect() throws Exception {
+    void shouldNotUpdateToolWhenContributorRoleIsIncorrect() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -751,7 +752,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenPropertyTypeIsUnknown() throws Exception {
+    void shouldNotUpdateToolWhenPropertyTypeIsUnknown() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -791,7 +792,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenConceptIsIncorrect() throws Exception {
+    void shouldNotUpdateToolWhenConceptIsIncorrect() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -818,7 +819,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenVocabularyIsDisallowed() throws Exception {
+    void shouldNotUpdateToolWhenVocabularyIsDisallowed() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -860,7 +861,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    void shouldNotUpdateToolWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         String toolPersistentId = "Xgufde";
 
         ToolCore tool = new ToolCore();
@@ -885,7 +886,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldDeleteTool() throws Exception {
+    void shouldDeleteTool() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Tool to delete");
         tool.setDescription("Lorem ipsum");
@@ -923,7 +924,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteToolWhenNotExist() throws Exception {
+    void shouldNotDeleteToolWhenNotExist() throws Exception {
         Integer toolId = 100;
 
         mvc.perform(delete("/api/tools-services/{id}", toolId)
@@ -933,7 +934,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithMultipleAccessibleAtUrlsWithoutSource() throws Exception {
+    void shouldCreateToolWithMultipleAccessibleAtUrlsWithoutSource() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test simple software");
         tool.setDescription("Lorem ipsum");
@@ -966,7 +967,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithPropertyValuesValidation() throws Exception {
+    void shouldUpdateToolWithPropertyValuesValidation() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
                 .code("rating")
                 .label("Rating")
@@ -1026,7 +1027,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateToolWithInvalidFloatProperty() throws Exception {
+    void shouldNotCreateToolWithInvalidFloatProperty() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
                 .code("rating")
                 .label("Rating")
@@ -1066,7 +1067,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveSuggestedTool() throws Exception {
+    void shouldRetrieveSuggestedTool() throws Exception {
         String toolId = "n21Kfc";
         int toolVersionId = 1;
 
@@ -1119,7 +1120,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithExternalId() throws Exception {
+    void shouldCreateToolWithExternalId() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Tesseract");
         tool.setDescription("The best tool for Optical Character Recognition");
@@ -1165,7 +1166,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithAccessibleAtUrlSameAsExistingSource() throws Exception {
+    void shouldCreateToolWithAccessibleAtUrlSameAsExistingSource() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Tapor related tool");
         tool.setDescription("The tool that has tapor url in the accessible at property");
@@ -1205,7 +1206,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateMultipleToolDrafts() throws Exception {
+    void shouldCreateMultipleToolDrafts() throws Exception {
         String toolId = "DstBL5";
 
         ToolCore firstDraft = new ToolCore();
@@ -1270,7 +1271,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWhenDraftIsPresent() throws Exception {
+    void shouldUpdateToolWhenDraftIsPresent() throws Exception {
         String toolId = "Xgufde";
 
         ToolCore draftTool = new ToolCore();
@@ -1308,7 +1309,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldReturnToolInformationContributors() throws Exception {
+    void shouldReturnToolInformationContributors() throws Exception {
 
         String toolPersistentId = "n21Kfc";
 
@@ -1327,7 +1328,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldReturnToolInformationContributorsForVersion() throws Exception {
+    void shouldReturnToolInformationContributorsForVersion() throws Exception {
 
         String toolPersistentId = "n21Kfc";
 
@@ -1369,7 +1370,7 @@ public class ToolControllerITCase {
 
 
     @Test
-    public void shouldGetMergeForTool() throws Exception {
+    void shouldGetMergeForTool() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1391,7 +1392,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldMergeIntoTool() throws Exception {
+    void shouldMergeIntoTool() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1550,7 +1551,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldGetHistoryForMergedTool() throws Exception {
+    void shouldGetHistoryForMergedTool() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1618,7 +1619,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldUpdateToolWithoutLineBreakInLabel() throws Exception {
+    void shouldUpdateToolWithoutLineBreakInLabel() throws Exception {
         String toolPersistentId = "Xgufde";
         Integer toolCurrentId = 3;
 
@@ -1656,7 +1657,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldCreateToolWithoutLineBreaksInLabel() throws Exception {
+    void shouldCreateToolWithoutLineBreaksInLabel() throws Exception {
         ToolCore tool = new ToolCore();
         tool.setLabel("Test \n\rsimple \nsoftware\r");
         tool.setDescription("Lorem ipsum");
@@ -1681,7 +1682,7 @@ public class ToolControllerITCase {
     }
 
     @Test
-    public void shouldDeleteAndRevertTool() throws Exception {
+    void shouldDeleteAndRevertTool() throws Exception {
 
         ToolCore tool = new ToolCore();
         tool.setLabel("Tool to revert");
@@ -1737,5 +1738,355 @@ public class ToolControllerITCase {
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("label", is(tool.getLabel())))
                 .andExpect(jsonPath("description", is(tool.getDescription())));
+    }
+
+    @Test
+    void shouldPatchTool2() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Patched tool");
+        tool.setDescription("This is a tool to be patched!");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(toolDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())));
+
+        tool.setAccessibleAt(List.of("http://tapor.ca/tools/patchedTool"));
+        tool.setSourceItemId(null);
+        tool.setSource(null);
+        tool.setDescription("New description");
+        String payloadUpdated = mapper.writeValueAsString(tool);
+        String toolJsonUpdated = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(toolDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        tool.setDescription("This is a tool to be patched!");
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+        tool.setAccessibleAt(null);
+
+        String payloadPatch = mapper.writeValueAsString(tool);
+
+        String toolJsonPatched = mvc.perform(
+                        patch("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isNotModified())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    void shouldPatchTool() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Patched tool");
+        tool.setDescription("This is a tool to be patched!");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(toolDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())));
+
+        tool.setAccessibleAt(List.of("http://tapor.ca/tools/patchedTool"));
+        tool.setSourceItemId(null);
+        tool.setSource(null);
+        String payloadUpdated = mapper.writeValueAsString(tool);
+        String toolJsonUpdated = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(toolDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        tool.setDescription("New description");
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+        tool.setAccessibleAt(null);
+
+        String payloadPatch = mapper.writeValueAsString(tool);
+
+        String toolJsonPatched = mvc.perform(
+                        patch("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    void shouldConflictInPatchTool() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Patched tool");
+        tool.setDescription("This is a tool to be patched!");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(toolDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())));
+
+        tool.setAccessibleAt(List.of("http://tapor.ca/tools/patchedTool"));
+        tool.setDescription("New description");
+        tool.setSourceItemId(null);
+        tool.setSource(null);
+        String payloadUpdated = mapper.writeValueAsString(tool);
+        String toolJsonUpdated = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(toolDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        tool.setDescription("New description even more");
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+        tool.setAccessibleAt(null);
+
+        String payloadPatch = mapper.writeValueAsString(tool);
+
+        String toolJsonPatched = mvc.perform(
+                        patch("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("properties[0].type.code", is("conflict-at-source")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    void shouldNotPatchButUpdateTool() throws Exception {
+        ToolCore tool = new ToolCore();
+        tool.setLabel("Patched tool");
+        tool.setDescription("This is a tool to be patched!");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+
+        String payload = mapper.writeValueAsString(tool);
+
+        String toolJson = mvc.perform(
+                        post("/api/tools-services")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", notNullValue()))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        ToolDto toolDto = mapper.readValue(toolJson, ToolDto.class);
+        String toolId = toolDto.getPersistentId();
+        int toolVersionId = toolDto.getId().intValue();
+
+        mvc.perform(get("/api/tools-services/{id}", toolId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(toolDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is(tool.getDescription())));
+
+        tool.setAccessibleAt(List.of("http://tapor.ca/tools/patchedTool"));
+        tool.setSourceItemId(null);
+        tool.setSource(null);
+        String payloadUpdated = mapper.writeValueAsString(tool);
+        String toolJsonUpdated = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(toolDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("This is a tool to be patched!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        tool.setDescription("Patched tool description changed!");
+        tool.setSource(sourceId);
+        tool.setSourceItemId("patchedTool");
+        tool.setAccessibleAt(null);
+
+        String payloadPatch = mapper.writeValueAsString(tool);
+
+        String toolJsonPatched = mvc.perform(
+                        put("/api/tools-services/{id}", toolId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(toolDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("tool-or-service")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(tool.getLabel())))
+                .andExpect(jsonPath("description", is("Patched tool description changed!")))
+                .andExpect(jsonPath("accessibleAt", hasSize(0)))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
     }
 }

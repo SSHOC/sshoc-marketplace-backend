@@ -6,10 +6,7 @@ import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.repositories.sources.SourceRepository;
 import eu.sshopencloud.marketplace.repositories.sources.projection.DetailedSourceView;
-import eu.sshopencloud.marketplace.services.actors.event.ActorChangedEvent;
 import eu.sshopencloud.marketplace.services.items.ItemRelatedItemService;
-import eu.sshopencloud.marketplace.services.items.event.ItemsMergedEvent;
-import eu.sshopencloud.marketplace.services.sources.event.SourceChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
@@ -185,42 +182,6 @@ public class IndexItemService {
 
     public void rebuildAutocompleteIndex() {
         searchItemRepository.rebuildAutocompleteIndex();
-    }
-
-
-    @Async
-    @TransactionalEventListener(classes = {SourceChangedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
-    public void handleChangedSource(SourceChangedEvent event) {
-        if (event.isDeleted()) {
-            reindexItems();
-        } else {
-            for (Item item : itemRepository.findBySourceId(event.getId())) {
-                indexItem(item);
-            }
-        }
-    }
-
-    @Async
-    @TransactionalEventListener(classes = {ActorChangedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
-    public void handleChangedActor(ActorChangedEvent event) {
-        if (event.isDeleted()) {
-            reindexItems();
-        } else {
-            for (Item item : itemRepository.findByContributorActorId(event.getId())) {
-                indexItem(item);
-            }
-        }
-    }
-
-    @Async
-    @TransactionalEventListener(classes = {ItemsMergedEvent.class}, phase = TransactionPhase.AFTER_COMMIT)
-    public void handleMergedEvent(ItemsMergedEvent event) {
-        for (String persistentId : event.getPersistentIdsToMerge()) {
-            deleteByPersistentId(persistentId);
-        }
-        for (Item item : itemRepository.findByVersionedItemPersistentId(event.getNewPersistentId())) {
-            indexItem(item);
-        }
     }
 
 }

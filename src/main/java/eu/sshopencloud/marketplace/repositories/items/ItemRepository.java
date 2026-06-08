@@ -77,7 +77,10 @@ public interface ItemRepository extends ItemVersionRepository<Item> {
 
     List<Item> findBySourceId(Long sourceId);
 
-    @Query("select v from Item v join v.contributors c where c.actor.id = :actorId ")
+    @Query("select v from Item v " +
+            "join v.contributors c " +
+            "join fetch v.versionedItem " +
+            "where c.actor.id = :actorId ")
     List<Item> findByContributorActorId(@Param("actorId") Long actorId);
 
     @Query("SELECT count(v) FROM Item v,  ItemContributor c, VersionedItem vi WHERE" +

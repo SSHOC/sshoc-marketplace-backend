@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class TrainingMaterialControllerITCase {
+class TrainingMaterialControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -61,7 +61,7 @@ public class TrainingMaterialControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init()
+    void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
@@ -72,7 +72,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnTrainingMaterials() throws Exception {
+    void shouldReturnTrainingMaterials() throws Exception {
 
         mvc.perform(get("/api/training-materials")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -80,7 +80,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnApprovedAndProposedTrainingMaterials() throws Exception {
+    void shouldReturnApprovedAndProposedTrainingMaterials() throws Exception {
         String trainingMaterialId = "JmBgWa";
 
         TrainingMaterialCore trainingMaterial1 = new TrainingMaterialCore();
@@ -242,7 +242,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnTrainingMaterial() throws Exception {
+    void shouldReturnTrainingMaterial() throws Exception {
         String trainingMaterialId = "WfcKvG";
         int newestVersionId = 7;
 
@@ -258,7 +258,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotFindANonExistentDraftTrainingMaterial() throws Exception {
+    void shouldNotFindANonExistentDraftTrainingMaterial() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(
@@ -269,7 +269,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnTrainingMaterialHistoricalVersion() throws Exception {
+    void shouldReturnTrainingMaterialHistoricalVersion() throws Exception {
         String trainingMaterialId = "WfcKvG";
         int versionId = 5;
 
@@ -289,7 +289,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnTrainingMaterialWhenNotExist() throws Exception {
+    void shouldNotReturnTrainingMaterialWhenNotExist() throws Exception {
         Integer trainingMaterialId = 51;
 
         mvc.perform(get("/api/training-materials/{id}", trainingMaterialId)
@@ -298,7 +298,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateDraftTrainingMaterial() throws Exception {
+    void shouldCreateDraftTrainingMaterial() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("First attempt of making a test simple blog");
         trainingMaterial.setDescription("Lorem ipsum is not enough for a blog");
@@ -360,7 +360,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemId() throws Exception {
+    void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemId() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -400,7 +400,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAsSystemImporterWithLastHarvestDate() throws Exception {
+    void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAsSystemImporterWithLastHarvestDate() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -440,7 +440,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAndMultipleLinks() throws Exception {
+    void shouldCreateTrainingMaterialWithImplicitSourceAndSourceItemIdAndMultipleLinks() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -487,7 +487,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateTrainingMaterialWithRelations() throws Exception {
+    void shouldCreateTrainingMaterialWithRelations() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -546,7 +546,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldNotCreateTrainingMaterialWithImplicitSourceButWithoutSourceItemId() throws Exception {
+    void shouldNotCreateTrainingMaterialWithImplicitSourceButWithoutSourceItemId() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test simple blog");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -569,7 +569,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenLabelIsNull() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenLabelIsNull() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setDescription("Lorem ipsum");
         List<PropertyCore> properties = new ArrayList<>();
@@ -589,7 +589,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenContributorIsUnknown() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenContributorIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -620,7 +620,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -651,7 +651,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -689,7 +689,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -727,7 +727,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -767,7 +767,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    void shouldNotCreateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription("Lorem ipsum");
@@ -800,11 +800,12 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldPerformDraftUpdateAndCommit() throws Exception {
+    void shouldPerformDraftUpdateAndCommit() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(get("/api/training-materials/{id}/history?draft=false", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
 
@@ -937,7 +938,8 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("label", is(trainingMaterial.getLabel())));
 
         mvc.perform(get("/api/training-materials/{id}/history?draft=false", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].category", is("training-material")))
@@ -961,11 +963,12 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenNewVersionIsEqualToDeprecatedOne() throws Exception {
+    void shouldUpdateTrainingMaterialWhenNewVersionIsEqualToDeprecatedOne() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
 
@@ -1075,13 +1078,157 @@ public class TrainingMaterialControllerITCase {
                         .content(oldVersion)
                         .header("Authorization", IMPORTER_JWT)
         )
-                .andExpect(status().isNotModified());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")))
+                .andReturn().getResponse().getContentAsString();
+    }
 
+    @Test
+    void shouldPatchTrainingMaterialWithConflictAtSourceOnLabel() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI 2");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
+        trainingMaterial.setAccessibleAt(List.of("https://www.youtube.com/watch?v=2FqM4gKeNO4"));
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(2L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("object-format");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("video/mp4");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iana-mime-type");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("activity");
+        property2.setType(propertyType2);
+        ConceptId concept2 = new ConceptId();
+        concept2.setCode("ActivityType-Collecting");
+        VocabularyId vocabulary2 = new VocabularyId();
+        vocabulary2.setCode("nemo-activity-type");
+        concept2.setVocabulary(vocabulary2);
+        property2.setConcept(concept2);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+
+        String payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", IMPORTER_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI 2")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+
+        mvc.perform(
+                        get("/api/training-materials/{id}/versions/6", trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+
+        trainingMaterial.setLabel("Introduction to GEPHI 3");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("33367890");
+
+        payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                        patch("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", IMPORTER_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI 2")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(3)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("properties[2].type.code", is("conflict-at-source")))
+                .andExpect(jsonPath("properties[2].value", is("TRUE")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
     }
 
 
     @Test
-    public void shouldUpdateTrainingMaterialWithConflictAtSourceOnLabel() throws Exception {
+    void shouldUpdateTrainingMaterialWithConflictAtSourceOnLabel() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1193,11 +1340,11 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
-                .andExpect(jsonPath("properties", hasSize(3)))
+                .andExpect(jsonPath("properties", hasSize(2)))
                 .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
                 .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
-                .andExpect(jsonPath("properties[2].type.code", is("conflict-at-source")))
-                .andExpect(jsonPath("properties[2].value", is("TRUE")))
+//                .andExpect(jsonPath("properties[2].type.code", is("conflict-at-source")))
+//                .andExpect(jsonPath("properties[2].value", is("TRUE")))
                 .andExpect(jsonPath("externalIds", hasSize(0)))
                 .andExpect(jsonPath("contributors", hasSize(1)))
                 .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
@@ -1210,7 +1357,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldUpdateTrainingMaterialWithConflictAtSourceOnAccessibleAt() throws Exception {
+    void shouldUpdateTrainingMaterialWithConflictAtSourceOnAccessibleAt() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1323,6 +1470,135 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("accessibleAt", hasSize(2)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://sshoc.marketplace.com")))
                 .andExpect(jsonPath("accessibleAt[1]", is("https://example.com")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+//                .andExpect(jsonPath("properties[2].type.code", is("conflict-at-source")))
+//                .andExpect(jsonPath("properties[2].value", is("TRUE")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+    }
+
+    @Test
+    void shouldPatchTrainingMaterialWithConflictAtSourceOnAccessibleAt() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
+        trainingMaterial.setAccessibleAt(List.of("https://example.com"));
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(2L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("object-format");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("video/mp4");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iana-mime-type");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("activity");
+        property2.setType(propertyType2);
+        ConceptId concept2 = new ConceptId();
+        concept2.setCode("ActivityType-Collecting");
+        VocabularyId vocabulary2 = new VocabularyId();
+        vocabulary2.setCode("nemo-activity-type");
+        concept2.setVocabulary(vocabulary2);
+        property2.setConcept(concept2);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+
+        String payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://example.com")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+
+        mvc.perform(
+                        get("/api/training-materials/{id}/versions/6", trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+
+        trainingMaterial.setAccessibleAt(List.of("https://sshoc.marketplace.com", "https://example.com"));
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("33367890");
+
+        payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                        patch("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", IMPORTER_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(2)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://sshoc.marketplace.com")))
+                .andExpect(jsonPath("accessibleAt[1]", is("https://example.com")))
                 .andExpect(jsonPath("properties", hasSize(3)))
                 .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
                 .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
@@ -1338,9 +1614,8 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("sourceItemId", is("33367890")));
     }
 
-
     @Test
-    public void shouldUpdateTrainingMaterialWithConflictAtSourceOnProperties() throws Exception {
+    void shouldUpdateTrainingMaterialWithConflictAtSourceOnProperties() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1473,6 +1748,155 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
                 .andExpect(jsonPath("accessibleAt", hasSize(1)))
                 .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
+//                .andExpect(jsonPath("properties[2].type.code", is("conflict-at-source")))
+//                .andExpect(jsonPath("properties[2].value", is("TRUE")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+    }
+
+    @Test
+    void shouldPatchTrainingMaterialWithConflictAtSourceOnProperties() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
+        trainingMaterial.setAccessibleAt(List.of("https://www.youtube.com/watch?v=2FqM4gKeNO4"));
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(2L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("language");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("eng");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iso-639-3");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("activity");
+        property2.setType(propertyType2);
+        ConceptId concept2 = new ConceptId();
+        concept2.setCode("ActivityType-Collecting");
+        VocabularyId vocabulary2 = new VocabularyId();
+        vocabulary2.setCode("nemo-activity-type");
+        concept2.setVocabulary(vocabulary2);
+        property2.setConcept(concept2);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+
+        String payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("eng")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)));
+
+        mvc.perform(
+                        get("/api/training-materials/{id}/versions/6", trainingMaterialId)
+                                .header("Authorization", MODERATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("deprecated")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
+                .andExpect(jsonPath("properties[1].concept.code", is("ActivityType-Collecting")))
+                .andExpect(jsonPath("externalIds", hasSize(0)))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.name", is("Gertrude Stein")))
+                .andExpect(jsonPath("relatedItems", hasSize(0)))
+                .andExpect(jsonPath("source.id", is(2)))
+                .andExpect(jsonPath("source.label", is("Programming Historian")))
+                .andExpect(jsonPath("source.url", is("https://programminghistorian.org")))
+                .andExpect(jsonPath("sourceItemId", is("33367890")));
+
+        PropertyCore property3 = new PropertyCore();
+        PropertyTypeId propertyType3 = new PropertyTypeId();
+        propertyType3.setCode("object-format");
+        property3.setType(propertyType3);
+        ConceptId concept3 = new ConceptId();
+        concept3.setCode("video/mp4");
+        VocabularyId vocabulary3 = new VocabularyId();
+        vocabulary3.setCode("iana-mime-type");
+        concept3.setVocabulary(vocabulary3);
+        property3.setConcept(concept3);
+
+        PropertyCore property4 = new PropertyCore();
+        PropertyTypeId propertyType4 = new PropertyTypeId();
+        propertyType4.setCode("material");
+        property4.setType(propertyType4);
+        property4.setValue("paper");
+
+        List<PropertyCore> properties2 = new ArrayList<>();
+        properties2.add(property3);
+        properties2.add(property4);
+        trainingMaterial.setProperties(properties2);
+
+        SourceId sourceId = new SourceId();
+        sourceId.setId(2L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("33367890");
+
+        payload = testMapper.writeValueAsString(trainingMaterial);
+
+        mvc.perform(
+                        patch("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payload)
+                                .header("Authorization", IMPORTER_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("ingested")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")))
+                .andExpect(jsonPath("accessibleAt", hasSize(1)))
+                .andExpect(jsonPath("accessibleAt[0]", is("https://www.youtube.com/watch?v=2FqM4gKeNO4")))
                 .andExpect(jsonPath("properties", hasSize(3)))
                 .andExpect(jsonPath("properties[0].concept.code", is("video/mp4")))
                 .andExpect(jsonPath("properties[1].value", is("paper")))
@@ -1489,7 +1913,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldUpdateTrainingMaterialWithImplicitSource() throws Exception {
+    void shouldUpdateTrainingMaterialWithImplicitSource() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1525,7 +1949,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldUpdateTrainingMaterialWithRelations() throws Exception {
+    void shouldUpdateTrainingMaterialWithRelations() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1588,7 +2012,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenNotExist() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenNotExist() throws Exception {
         String trainingMaterialId = "noting";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1609,11 +2033,12 @@ public class TrainingMaterialControllerITCase {
 
     @Test
     @Deprecated
-    public void shouldUpdateTrainingMaterialWithHistory() throws Exception {
+    void shouldUpdateTrainingMaterialWithHistory() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].category", is("training-material")))
@@ -1649,7 +2074,8 @@ public class TrainingMaterialControllerITCase {
 
 
         mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].category", is("training-material")))
@@ -1673,7 +2099,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenLabelIsNull() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenLabelIsNull() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1696,7 +2122,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenContributorIsUnknown() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenContributorIsUnknown() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1729,7 +2155,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenContributorRoleIsIncorrect() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1762,7 +2188,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenPropertyTypeIsUnknown() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1802,7 +2228,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenConceptIsIncorrect() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1842,7 +2268,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenVocabularyIsDisallowed() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1884,7 +2310,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
+    void shouldNotUpdateTrainingMaterialWhenValueIsGivenForMandatoryVocabulary() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
@@ -1919,7 +2345,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldDeleteTrainingMaterial() throws Exception {
+    void shouldDeleteTrainingMaterial() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test complex online course");
         trainingMaterial.setDescription("Lorem Ipsum ...");
@@ -1962,7 +2388,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldDeleteTrainingMaterialHistoricalVersion() throws Exception {
+    void shouldDeleteTrainingMaterialHistoricalVersion() throws Exception {
         String trainingMaterialId = "WfcKvG";
         int versionId = 5;
 
@@ -1982,7 +2408,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateTrainingMaterialWithInvalidDateProperty() throws Exception {
+    void shouldNotCreateTrainingMaterialWithInvalidDateProperty() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Test training material");
         trainingMaterial.setDescription(
@@ -2012,7 +2438,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveSuggestedTrainingMaterial() throws Exception {
+    void shouldRetrieveSuggestedTrainingMaterial() throws Exception {
         String trainingMaterialId = "WfcKvG";
         int trainingMaterialVersionId = 7;
 
@@ -2065,7 +2491,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldNotAccessNotOwnedVersion() throws Exception {
+    void shouldNotAccessNotOwnedVersion() throws Exception {
         mvc.perform(
                         get("/api/training-materials/{id}/versions/{verId}", "WfcKvG", 5)
                                 .header("Authorization", CONTRIBUTOR_JWT)
@@ -2074,7 +2500,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldCreateAndValidateAccessToSuggestedItemVersion() throws Exception {
+    void shouldCreateAndValidateAccessToSuggestedItemVersion() throws Exception {
         TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
         trainingMaterial.setLabel("Suggested training material version");
         trainingMaterial.setDescription("This is a suggested training material version");
@@ -2140,7 +2566,7 @@ public class TrainingMaterialControllerITCase {
 
     @Disabled(value = "hidden properties have to be always rendered")
     @Test
-    public void shouldNotRenderHiddenProperty() throws Exception {
+    void shouldNotRenderHiddenProperty() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
                 .code("http-status")
                 .label("HTTP resource status code")
@@ -2225,7 +2651,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldApproveTrainingMaterialRelatedToATool() throws Exception {
+    void shouldApproveTrainingMaterialRelatedToATool() throws Exception {
         String trainingMaterialId = "heBAGQ";
         String relatedObjectId = "n21Kfc";
 
@@ -2278,7 +2704,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldRemoveMultiVersionRelationToItem() throws Exception {
+    void shouldRemoveMultiVersionRelationToItem() throws Exception {
         String trainingMaterialId = "heBAGQ";
         String relatedObjectId = "n21Kfc";
 
@@ -2332,7 +2758,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldReturnTrainingMaterialInformationContributors() throws Exception {
+    void shouldReturnTrainingMaterialInformationContributors() throws Exception {
 
         String trainingMaterialPersistentId = "heBAGQ";
 
@@ -2351,7 +2777,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldReturnTrainingMaterialInformationContributorsForVersion() throws Exception {
+    void shouldReturnTrainingMaterialInformationContributorsForVersion() throws Exception {
 
         String trainingMaterialPersistentId = "heBAGQ";
         int trainingMaterialId = 4;
@@ -2422,7 +2848,8 @@ public class TrainingMaterialControllerITCase {
         int beforeVersion = 2;
 
         mvc.perform(get("/api/training-materials/{id}/history", trainingMaterialPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].persistentId", is(trainingMaterialPersistentId)))
@@ -2446,7 +2873,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldGetMergeForTrainingMaterial() throws Exception {
+    void shouldGetMergeForTrainingMaterial() throws Exception {
 
         String trainingMaterialId = "heBAGQ";
         String workflowId = "tqmbGY";
@@ -2468,7 +2895,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldMergeIntoTrainingMaterial() throws Exception {
+    void shouldMergeIntoTrainingMaterial() throws Exception {
 
         String trainingMaterialId = "heBAGQ";
         String workflowId = "tqmbGY";
@@ -2510,7 +2937,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldGetSourcesForTrainingMaterial() throws Exception {
+    void shouldGetSourcesForTrainingMaterial() throws Exception {
 
         String trainingMaterialId = "WfcKvG";
 
@@ -2530,7 +2957,7 @@ public class TrainingMaterialControllerITCase {
 
 
     @Test
-    public void shouldGetSourcesForMergedTrainingMaterial() throws Exception {
+    void shouldGetSourcesForMergedTrainingMaterial() throws Exception {
 
         String trainingMaterialId = "WfcKvG";
         String datasetId = "OdKfPc";
@@ -2628,7 +3055,7 @@ public class TrainingMaterialControllerITCase {
     }
     
     @Test
-    public void shouldReturnDifferenceBetweenVersionsOfTrainingMaterials() throws Exception {
+    void shouldReturnDifferenceBetweenVersionsOfTrainingMaterials() throws Exception {
         String trainingMaterialPersistentId = "WfcKvG";
         Long trainingMaterialVersionId = 5L;
 
@@ -2678,7 +3105,7 @@ public class TrainingMaterialControllerITCase {
     }
 
     @Test
-    public void shouldDeleteAndRevertTrainingMaterial() throws Exception {
+    void shouldDeleteAndRevertTrainingMaterial() throws Exception {
 
         TrainingMaterialCore trainingMaterial1 = new TrainingMaterialCore();
         trainingMaterial1.setLabel("Abc: Test proposed training material");
@@ -2734,5 +3161,193 @@ public class TrainingMaterialControllerITCase {
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("label", is(trainingMaterial1.getLabel())))
                 .andExpect(jsonPath("description", is(trainingMaterial1.getDescription())));
+    }
+
+    @Test
+    void shouldPatchTrainingMaterialWithRelations() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setDescription("Lorem ipsum");
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(3L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("language");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("eng");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iso-639-3");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("material");
+        property2.setType(propertyType2);
+        property2.setValue("paper");
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2018, Month.APRIL, 1), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        trainingMaterial.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2018, Month.DECEMBER, 17), LocalTime.of(12, 20), ZoneId.of("UTC"));
+        trainingMaterial.setDateLastUpdated(dateLastUpdated);
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("patchedTool");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[0].role.label", is("Author")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists());
+
+        trainingMaterial.setDescription("Patched TM");
+        trainingMaterial.setProperties(List.of());
+
+
+        String payloadPatch = mapper.writeValueAsString(trainingMaterial);
+
+        String toolJsonPatched = mvc.perform(
+                        patch("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("description", is("Patched TM")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    void shouldNotPatchTrainingMaterialWithRelations() throws Exception {
+        String trainingMaterialId = "WfcKvG";
+
+        TrainingMaterialCore trainingMaterial = new TrainingMaterialCore();
+        trainingMaterial.setLabel("Introduction to GEPHI");
+        trainingMaterial.setDescription("Lorem ipsum");
+        ItemContributorId contributor = new ItemContributorId();
+        ActorId actor = new ActorId();
+        actor.setId(3L);
+        contributor.setActor(actor);
+        ActorRoleId role = new ActorRoleId();
+        role.setCode("author");
+        contributor.setRole(role);
+        List<ItemContributorId> contributors = new ArrayList<>();
+        contributors.add(contributor);
+        trainingMaterial.setContributors(contributors);
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("language");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("eng");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("iso-639-3");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        PropertyCore property2 = new PropertyCore();
+        PropertyTypeId propertyType2 = new PropertyTypeId();
+        propertyType2.setCode("material");
+        property2.setType(propertyType2);
+        property2.setValue("paper");
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        properties.add(property2);
+        trainingMaterial.setProperties(properties);
+        ZonedDateTime dateCreated = ZonedDateTime.of(LocalDate.of(2018, Month.APRIL, 1), LocalTime.of(12, 0), ZoneId.of("UTC"));
+        trainingMaterial.setDateCreated(dateCreated);
+        ZonedDateTime dateLastUpdated = ZonedDateTime.of(LocalDate.of(2018, Month.DECEMBER, 17), LocalTime.of(12, 20), ZoneId.of("UTC"));
+        trainingMaterial.setDateLastUpdated(dateLastUpdated);
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        trainingMaterial.setSource(sourceId);
+        trainingMaterial.setSourceItemId("patchedTool");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(trainingMaterial);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/training-materials/{id}", trainingMaterialId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("label", is("Introduction to GEPHI")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.id", is(3)))
+                .andExpect(jsonPath("contributors[0].role.label", is("Author")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("properties[0].concept.label", is("eng")))
+                .andExpect(jsonPath("properties[1].value", is("paper")))
+                .andExpect(jsonPath("dateCreated", is(ApiDateTimeFormatter.formatDateTime(dateCreated))))
+                .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists());
+
+        trainingMaterial.setDescription("Patched TM");
+        trainingMaterial.setProperties(null);
+
+
+        String payloadPatch = mapper.writeValueAsString(trainingMaterial);
+
+        String toolJsonPatched = mvc.perform(
+                        put("/api/training-materials/{id}", trainingMaterialId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(trainingMaterialId)))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("training-material")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(trainingMaterial.getLabel())))
+                .andExpect(jsonPath("description", is("Patched TM")))
+                .andExpect(jsonPath("properties", hasSize(0)))
+                .andExpect(jsonPath("sourceItemId", is("patchedTool")))
+                .andExpect(jsonPath("source").exists())
+                .andReturn().getResponse().getContentAsString();
     }
 }

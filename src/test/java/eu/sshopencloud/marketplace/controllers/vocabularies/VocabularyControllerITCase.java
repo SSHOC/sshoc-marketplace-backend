@@ -62,13 +62,13 @@ public class VocabularyControllerITCase {
     private ObjectMapper mapper;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         contributorJwt = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         moderatorJwt = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
     }
 
     @Test
-    public void shouldReturnVocabularies() throws Exception {
+    void shouldReturnVocabularies() throws Exception {
 
         mvc.perform(get("/api/vocabularies")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -95,7 +95,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldNotReturnNonexistentVocabulary() throws Exception {
+    void shouldNotReturnNonexistentVocabulary() throws Exception {
 
         mvc.perform(get("/api/vocabularies/non-existent-code")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -103,7 +103,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldCreateNewVocabulary() throws Exception {
+    void shouldCreateNewVocabulary() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
 
@@ -142,7 +142,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldCreateNewMultilingualVocabulary() throws Exception {
+    void shouldCreateNewMultilingualVocabulary() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/sshoc-keyword-test.ttl");
 
@@ -181,7 +181,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldUpdateVocabularyWithNoAssociatedProperties() throws Exception {
+    void shouldUpdateVocabularyWithNoAssociatedProperties() throws Exception {
         InputStream newVocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
 
@@ -245,7 +245,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateNonexistentVocabulary() throws Exception {
+    void shouldNotUpdateNonexistentVocabulary() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/non-existent-code.ttl");
 
@@ -263,7 +263,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateVocabularyWithRemovalOfPropertiesInUse() throws Exception {
+    void shouldNotUpdateVocabularyWithRemovalOfPropertiesInUse() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iso-639-3-test-missing-eng.ttl");
 
@@ -286,7 +286,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldUpdateVocabularyWithRemovalOfPropertiesWithForce() throws Exception {
+    void shouldUpdateVocabularyWithRemovalOfPropertiesWithForce() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iso-639-3-test-missing-eng.ttl");
 
@@ -324,7 +324,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldPreventVocabularyUpdateOnFilenameMismatch() throws Exception {
+    void shouldPreventVocabularyUpdateOnFilenameMismatch() throws Exception {
         InputStream newVocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
 
@@ -359,7 +359,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldRemoveVocabularyAndConceptsWithAssociatedPropertiesWithForce() throws Exception {
+    void shouldRemoveVocabularyAndConceptsWithAssociatedPropertiesWithForce() throws Exception {
         mvc.perform(
                         delete("/api/vocabularies/{code}", "iana-mime-type")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -387,7 +387,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldNotRemoveVocabularyWithPropertiesInUse() throws Exception {
+    void shouldNotRemoveVocabularyWithPropertiesInUse() throws Exception {
         mvc.perform(
                         delete("/api/vocabularies/{code}", "iana-mime-type")
                                 .header("Authorization", moderatorJwt)
@@ -413,7 +413,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateVocabularyUnauthorized() throws Exception {
+    void shouldNotCreateVocabularyUnauthorized() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
 
@@ -436,7 +436,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateVocabularyUnauthorized() throws Exception {
+    void shouldNotUpdateVocabularyUnauthorized() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
 
@@ -459,7 +459,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldNotDeleteVocabularyUnauthorized() throws Exception {
+    void shouldNotDeleteVocabularyUnauthorized() throws Exception {
         mvc.perform(delete("/api/vocabularies/iana-mime-type")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -474,7 +474,7 @@ public class VocabularyControllerITCase {
 
 
     @Test
-    public void shouldNotDeleteNonexistentVocabulary() throws Exception {
+    void shouldNotDeleteNonexistentVocabulary() throws Exception {
         mvc.perform(delete("/api/vocabularies/non-existent-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", moderatorJwt))
@@ -483,7 +483,7 @@ public class VocabularyControllerITCase {
 
 
     @Test
-    public void shouldNotCreateNewVocabularyUnauthorized() throws Exception {
+    void shouldNotCreateNewVocabularyUnauthorized() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
 
@@ -506,7 +506,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldOpenClosedVocabulary() throws Exception {
+    void shouldOpenClosedVocabulary() throws Exception {
         InputStream vocabularyStream = VocabularyControllerITCase.class
                 .getResourceAsStream("/initial-data/vocabularies/iana-mime-type-test.ttl");
 
@@ -563,7 +563,7 @@ public class VocabularyControllerITCase {
 
 
     @Test
-    public void shouldExportVocabulary() throws Exception {
+    void shouldExportVocabulary() throws Exception {
         String code = "nemo-activity-type";
         String namespace = "http://dcu.gr/ontologies/scholarlyontology/";
 
@@ -598,7 +598,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldRemoveVocabularyAndConceptsWithAssociatedItemMediaWithForce() throws Exception {
+    void shouldRemoveVocabularyAndConceptsWithAssociatedItemMediaWithForce() throws Exception {
         String vocabularyCode = "software-license";
         String conceptCode = "Qhull";
         String persistenId = "WfcKvG";
@@ -677,7 +677,7 @@ public class VocabularyControllerITCase {
     }
 
     @Test
-    public void shouldNotRemoveVocabularyAndConceptsWithAssociatedItemMediaWithoutForce() throws Exception {
+    void shouldNotRemoveVocabularyAndConceptsWithAssociatedItemMediaWithoutForce() throws Exception {
         String vocabularyCode = "software-license";
         String conceptCode = "Qhull";
         String persistenId = "WfcKvG";

@@ -78,7 +78,20 @@ public class DatasetController {
                                                     @RequestParam(value = "draft", defaultValue = "false") boolean draft,
                                                     @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
-        return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft, approved));
+        return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft, approved, false));
+    }
+
+    @Operation(summary = "Patch dataset for given persistentId")
+    @PatchMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DatasetDto> patchDataset(@PathVariable("persistentId") String persistentId,
+                                                    @Parameter(
+                                                            description = "Dataset patch",
+                                                            required = true,
+                                                            schema = @Schema(implementation = DatasetCore.class)) @RequestBody DatasetCore updatedDataset,
+                                                    @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
+
+        return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft, approved, true));
     }
 
     @Operation(summary = "Revert dataset to target version by its persistentId and versionId that is reverted to")

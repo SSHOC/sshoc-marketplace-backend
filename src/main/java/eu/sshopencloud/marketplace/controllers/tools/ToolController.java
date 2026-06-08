@@ -82,6 +82,19 @@ public class ToolController {
         return ResponseEntity.ok(toolService.updateTool(persistentId, updatedTool, draft, approved));
     }
 
+    @Operation(summary = "Patching a tool with new data for a given persistentId")
+    @PatchMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ToolDto> patchTool(@PathVariable("persistentId") String persistentId,
+                                              @Parameter(
+                                                      description = "Tool patch",
+                                                      required = true,
+                                                      schema = @Schema(implementation = ToolCore.class)) @RequestBody ToolCore updatedTool,
+                                              @RequestParam(value = "draft", defaultValue = "false") boolean draft,
+                                              @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
+
+        return ResponseEntity.ok(toolService.updateTool(persistentId, updatedTool, draft, approved, true));
+    }
+
     @Operation(summary = "Revert tool to target version by its persistentId and versionId that is reverted to")
     @PutMapping(path = "/{persistentId}/versions/{versionId}/revert", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> revertTool(@PathVariable("persistentId") String persistentId, @PathVariable("versionId") long versionId) {

@@ -77,7 +77,11 @@ public class ToolService extends ItemCrudService<Tool, ToolDto, PaginatedTools, 
     }
 
     public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft, boolean approved) throws VersionNotChangedException {
-        Tool tool = updateItem(persistentId, toolCore, draft, approved);
+        return updateTool(persistentId, toolCore, draft, approved, false);
+    }
+
+    public ToolDto updateTool(String persistentId, ToolCore toolCore, boolean draft, boolean approved, boolean patchMode) throws VersionNotChangedException {
+        Tool tool = updateItem(persistentId, toolCore, draft, approved, patchMode);
         return prepareItemDto(tool);
     }
 

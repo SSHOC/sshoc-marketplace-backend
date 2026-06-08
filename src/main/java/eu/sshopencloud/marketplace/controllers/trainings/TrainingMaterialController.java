@@ -80,7 +80,20 @@ public class TrainingMaterialController {
                                                                       @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft,
                                                                       @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
 
-        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(persistentId, updatedTrainingMaterial, draft, approved));
+        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(persistentId, updatedTrainingMaterial, draft, approved, false));
+    }
+
+    @Operation(summary = "Patch training material for given persistentId")
+    @PatchMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrainingMaterialDto> patchTrainingMaterial(@PathVariable("persistentId") String persistentId,
+                                                                      @Parameter(
+                                                                              description = "Training material patch",
+                                                                              required = true,
+                                                                              schema = @Schema(implementation = TrainingMaterialCore.class)) @RequestBody TrainingMaterialCore updatedTrainingMaterial,
+                                                                      @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft,
+                                                                      @RequestParam(value = "approved", defaultValue = "true") boolean approved) throws VersionNotChangedException {
+
+        return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(persistentId, updatedTrainingMaterial, draft, approved, true));
     }
 
     @Operation(summary = "Revert training material to target version by its persistentId and versionId that is reverted to")

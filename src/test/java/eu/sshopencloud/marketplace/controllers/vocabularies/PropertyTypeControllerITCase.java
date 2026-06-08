@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext
 @AutoConfigureMockMvc
 @Transactional
-public class PropertyTypeControllerITCase {
+class PropertyTypeControllerITCase {
 
     @Autowired
     private MockMvc mvc;
@@ -45,7 +45,7 @@ public class PropertyTypeControllerITCase {
     private String ADMINISTRATOR_JWT;
 
     @BeforeEach
-    public void init() throws Exception {
+    void init() throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
@@ -53,7 +53,7 @@ public class PropertyTypeControllerITCase {
 
 
     @Test
-    public void shouldReturnPropertyTypes() throws Exception {
+    void shouldReturnPropertyTypes() throws Exception {
         mvc.perform(
                 get("/api/property-types")
                         .param("page", "1")
@@ -97,7 +97,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldCreatePropertyTypeWithConceptValueType() throws Exception {
+    void shouldCreatePropertyTypeWithConceptValueType() throws Exception {
         PropertyTypeCore propertyTypeData = PropertyTypeCore.builder()
                 .code("new-property-type")
                 .label("New property type")
@@ -136,7 +136,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldCreatePropertyTypeAtPosition() throws Exception {
+    void shouldCreatePropertyTypeAtPosition() throws Exception {
         assertPropertyTypeOrder("language", 1);
         assertPropertyTypeOrder("activity", 2);
         assertPropertyTypeOrder("technique", 3);
@@ -186,7 +186,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldNotRetrieveNonExistentPropertyType() throws Exception {
+    void shouldNotRetrieveNonExistentPropertyType() throws Exception {
         mvc.perform(
                 get("/api/property-types/{code}", "not-a-property-type")
                         .accept(MediaType.APPLICATION_JSON)
@@ -195,7 +195,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldUpdatePropertyType() throws Exception {
+    void shouldUpdatePropertyType() throws Exception {
         PropertyTypeCore request = PropertyTypeCore.builder()
                 .label("Language code")
                 .type(PropertyTypeClass.CONCEPT)
@@ -233,7 +233,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldUpdatePropertyTypeWithReorder() throws Exception {
+    void shouldUpdatePropertyTypeWithReorder() throws Exception {
         assertPropertyTypeOrder("language", 1);
         assertPropertyTypeOrder("activity", 2);
         assertPropertyTypeOrder("technique", 3);
@@ -288,7 +288,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldDeletePropertyTypeSafely() throws Exception {
+    void shouldDeletePropertyTypeSafely() throws Exception {
         assertPropertyTypeOrder("activity", 2);
         assertPropertyTypeOrder("technique", 3);
         assertPropertyTypeOrder("web-usable", 11);
@@ -317,7 +317,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldNotDeletePropertyTypeInUse() throws Exception {
+    void shouldNotDeletePropertyTypeInUse() throws Exception {
         mvc.perform(
                 delete("/api/property-types/{code}", "activity")
                         .header("Authorization", MODERATOR_JWT)
@@ -329,7 +329,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldDeletePropertyTypeWithForce() throws Exception {
+    void shouldDeletePropertyTypeWithForce() throws Exception {
         mvc.perform(
                 delete("/api/property-types/{code}", "activity")
                         .param("force", "true")
@@ -343,7 +343,7 @@ public class PropertyTypeControllerITCase {
 
     @Disabled(value = "hidden properties have to be always rendered")
     @Test
-    public void shouldRetrieveHiddenPropertyForModeratorsOnly() throws Exception {
+    void shouldRetrieveHiddenPropertyForModeratorsOnly() throws Exception {
         String code = "http-status";
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
                 .code(code)
@@ -443,7 +443,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldCreatePropertyWithGroupName() throws Exception {
+    void shouldCreatePropertyWithGroupName() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
                 .code("grouped-property")
                 .label("This property is grouped")
@@ -466,7 +466,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldUpdatePropertyGroupName() throws Exception {
+    void shouldUpdatePropertyGroupName() throws Exception {
         PropertyTypeCore propertyType = PropertyTypeCore.builder()
                 .code("media")
                 .label("Media")
@@ -499,7 +499,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldProperlyReorderPropertyTypes() throws Exception {
+    void shouldProperlyReorderPropertyTypes() throws Exception {
         assertPropertyTypeOrder("object-format", 5);
         assertPropertyTypeOrder("keyword", 6);
         assertPropertyTypeOrder("tadirah-goals", 7);
@@ -533,7 +533,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldNotReorderWithOrdBelowBounds() throws Exception {
+    void shouldNotReorderWithOrdBelowBounds() throws Exception {
         assertPropertyTypeOrder("object-format", 5);
         assertPropertyTypeOrder("keyword", 6);
         assertPropertyTypeOrder("tadirah-goals", 7);
@@ -560,7 +560,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldNotReorderUnauthorized() throws Exception {
+    void shouldNotReorderUnauthorized() throws Exception {
         assertPropertyTypeOrder("object-format", 5);
         assertPropertyTypeOrder("keyword", 6);
         assertPropertyTypeOrder("tadirah-goals", 7);
@@ -587,7 +587,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldNotReorderWithNotExistentPropertyType() throws Exception {
+    void shouldNotReorderWithNotExistentPropertyType() throws Exception {
         assertPropertyTypeOrder("object-format", 5);
         assertPropertyTypeOrder("keyword", 6);
         assertPropertyTypeOrder("tadirah-goals", 7);
@@ -614,7 +614,7 @@ public class PropertyTypeControllerITCase {
     }
 
     @Test
-    public void shouldNotReorderWithOrdOutOfBounds() throws Exception {
+    void shouldNotReorderWithOrdOutOfBounds() throws Exception {
         assertPropertyTypeOrder("object-format", 5);
         assertPropertyTypeOrder("keyword", 6);
         assertPropertyTypeOrder("tadirah-goals", 7);

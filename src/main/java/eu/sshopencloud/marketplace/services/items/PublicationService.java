@@ -76,8 +76,8 @@ public class PublicationService extends ItemCrudService<Publication, Publication
         return prepareItemDto(publication);
     }
 
-    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore, boolean draft, boolean approved) throws VersionNotChangedException {
-        Publication publication = updateItem(persistentId, publicationCore, draft, approved);
+    public PublicationDto updatePublication(String persistentId, PublicationCore publicationCore, boolean draft, boolean approved, boolean patchMode) throws VersionNotChangedException {
+        Publication publication = updateItem(persistentId, publicationCore, draft, approved, patchMode);
         return prepareItemDto(publication);
     }
 

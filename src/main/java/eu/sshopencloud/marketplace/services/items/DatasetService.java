@@ -80,9 +80,9 @@ public class DatasetService extends ItemCrudService<Dataset, DatasetDto, Paginat
     }
 
 
-    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft, boolean approved)
+    public DatasetDto updateDataset(String persistentId, DatasetCore datasetCore, boolean draft, boolean approved, boolean patchMode)
             throws VersionNotChangedException {
-        Dataset dataset = updateItem(persistentId, datasetCore, draft, approved);
+        Dataset dataset = updateItem(persistentId, datasetCore, draft, approved, patchMode);
         return prepareItemDto(dataset);
     }
 

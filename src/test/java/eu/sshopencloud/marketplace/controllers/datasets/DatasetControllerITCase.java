@@ -62,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-public class DatasetControllerITCase {
+class DatasetControllerITCase {
 
     @RegisterExtension
     public static WireMockExtension wireMockExtension = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
@@ -84,7 +84,7 @@ public class DatasetControllerITCase {
     private String SYSTEM_MODERATOR_JWT;
 
     @BeforeEach
-    public void init()
+    void init()
             throws Exception {
         CONTRIBUTOR_JWT = LogInTestClient.getJwt(mvc, "Contributor", "q1w2e3r4t5");
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
@@ -94,7 +94,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldReturnDatasets() throws Exception {
+    void shouldReturnDatasets() throws Exception {
 
         mvc.perform(get("/api/datasets")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -102,7 +102,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldReturnDataset() throws Exception {
+    void shouldReturnDataset() throws Exception {
         String datasetPersistentId = "dmbq4v";
         Integer datasetId = 9;
 
@@ -118,7 +118,7 @@ public class DatasetControllerITCase {
 
 
     @Test
-    public void shouldReturnDatasetHistory() throws Exception {
+    void shouldReturnDatasetHistory() throws Exception {
 
         String datasetPersistentId = "dmbq4v";
         Integer datasetId = 9;
@@ -137,7 +137,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldReturnDatasetInformationContributors() throws Exception {
+    void shouldReturnDatasetInformationContributors() throws Exception {
 
         String datasetPersistentId = "dmbq4v";
 
@@ -156,7 +156,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldReturnDatasetInformationContributorsForVersion() throws Exception {
+    void shouldReturnDatasetInformationContributorsForVersion() throws Exception {
 
         String datasetPersistentId = "dmbq4v";
 
@@ -221,7 +221,7 @@ public class DatasetControllerITCase {
 
 
     @Test
-    public void shouldNotReturnDatasetWhenNotExist() throws Exception {
+    void shouldNotReturnDatasetWhenNotExist() throws Exception {
         String datasetPersistentId = "xxxxxx7";
 
         mvc.perform(get("/api/datasets/{id}", datasetPersistentId)
@@ -231,7 +231,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWithoutRelation() throws Exception {
+    void shouldCreateDatasetWithoutRelation() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
         dataset.setDescription("Lorem ipsum");
@@ -260,7 +260,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWithSourceAndSourceItemId() throws Exception {
+    void shouldCreateDatasetWithSourceAndSourceItemId() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
@@ -289,7 +289,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWithHtmlInDescription() throws Exception {
+    void shouldCreateDatasetWithHtmlInDescription() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with HTML in description");
         dataset.setDescription("<div>Description\n"
@@ -338,7 +338,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateDatasetWhenAccessibleAtIsMalformed() throws Exception {
+    void shouldNotCreateDatasetWhenAccessibleAtIsMalformed() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with malformed Url");
         dataset.setDescription("Lorem ipsum");
@@ -358,7 +358,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWithAccessibleAtAndSourceAndSourceItemId() throws Exception {
+    void shouldCreateDatasetWithAccessibleAtAndSourceAndSourceItemId() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
@@ -399,7 +399,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWithAccessibleAtWithSourceUrl() throws Exception {
+    void shouldCreateDatasetWithAccessibleAtWithSourceUrl() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
@@ -439,7 +439,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateDatasetWhenSourceNotExist() throws Exception {
+    void shouldNotCreateDatasetWhenSourceNotExist() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with source");
         dataset.setDescription("Lorem ipsum");
@@ -461,7 +461,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateDatasetWhenActorHasRepeatedRoles() throws Exception {
+    void shouldNotCreateDatasetWhenActorHasRepeatedRoles() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
         dataset.setDescription("Lorem ipsum");
@@ -486,7 +486,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWhenActorHasManyRoles() throws Exception {
+    void shouldCreateDatasetWhenActorHasManyRoles() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Label");
         dataset.setDescription("Lorem ipsum dolor");
@@ -521,7 +521,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldUpdateDatasetWithoutRelation() throws Exception {
+    void shouldUpdateDatasetWithoutRelation() throws Exception {
         String datasetPersistentId = "dmbq4v";
 
         DatasetCore dataset = new DatasetCore();
@@ -562,7 +562,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldUpdateDatasetWithRelations() throws Exception {
+    void shouldUpdateDatasetWithRelations() throws Exception {
         String datasetPersistentId = "dmbq4v";
         Integer datasetCurrentId = 9;
 
@@ -627,7 +627,8 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("dateLastUpdated", is(ApiDateTimeFormatter.formatDateTime(dateLastUpdated))));
 
         mvc.perform(get("/api/datasets/{id}/history", datasetPersistentId)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].category", is("dataset")))
@@ -647,7 +648,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldUpdateDatasetWithApprovedFalseForSystemModerator() throws Exception {
+    void shouldUpdateDatasetWithApprovedFalseForSystemModerator() throws Exception {
         String datasetPersistentId = "dmbq4v";
 
         DatasetCore dataset = new DatasetCore();
@@ -689,7 +690,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateDatasetWithSourceButWithoutSourceItemId() throws Exception {
+    void shouldNotUpdateDatasetWithSourceButWithoutSourceItemId() throws Exception {
         String datasetPersistentId = "dmbq4v";
 
         DatasetCore dataset = new DatasetCore();
@@ -714,7 +715,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldNotUpdateDatasetWithSourceItemIdButWithoutSource() throws Exception {
+    void shouldNotUpdateDatasetWithSourceItemIdButWithoutSource() throws Exception {
         String datasetPersistentId = "dmbq4v";
 
         DatasetCore dataset = new DatasetCore();
@@ -738,7 +739,7 @@ public class DatasetControllerITCase {
 
 
     @Test
-    public void shouldNotUpdateDatasetWhenSourceNotExist() throws Exception {
+    void shouldNotUpdateDatasetWhenSourceNotExist() throws Exception {
         String datasetPersistentId = "dmbq4v";
 
         DatasetCore dataset = new DatasetCore();
@@ -763,7 +764,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldDeleteDataset() throws Exception {
+    void shouldDeleteDataset() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Dataset to delete");
         dataset.setDescription("Lorem ipsum");
@@ -825,7 +826,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldNotCreateDatasetWithInvalidUrlProperty() throws Exception {
+    void shouldNotCreateDatasetWithInvalidUrlProperty() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test dataset with no url");
         dataset.setDescription("Lorem ipsum dolor sit amet");
@@ -849,7 +850,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldRetrieveSuggestedDataset() throws Exception {
+    void shouldRetrieveSuggestedDataset() throws Exception {
         String datasetId = "OdKfPc";
         int datasetVersionId = 10;
 
@@ -902,7 +903,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldUpdateAndValidateAccessToSuggestedItemVersion() throws Exception {
+    void shouldUpdateAndValidateAccessToSuggestedItemVersion() throws Exception {
         String datasetId = "OdKfPc";
         int datasetVersionId = 10;
 
@@ -969,7 +970,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWithMediaAndImportedThumbnail() throws Exception {
+    void shouldCreateDatasetWithMediaAndImportedThumbnail() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
         UUID grumpycatId = MediaTestUploadUtils.importMedia(
                 mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
@@ -1021,7 +1022,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldUpdateDatasetWithMediaAndUploadedThumbnail() throws Exception {
+    void shouldUpdateDatasetWithMediaAndUploadedThumbnail() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
         UUID grumpycatId = MediaTestUploadUtils.importMedia(
                 mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
@@ -1074,7 +1075,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldPreventInvalidMediaUpload() throws Exception {
+    void shouldPreventInvalidMediaUpload() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
         UUID grumpycatId = MediaTestUploadUtils.importMedia(
                 mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT
@@ -1117,7 +1118,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWithMediaWithoutThumbnailIncludedInMedia() throws Exception {
+    void shouldCreateDatasetWithMediaWithoutThumbnailIncludedInMedia() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
         UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
         UUID backgoundId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "jpeg_example.jpeg", CONTRIBUTOR_JWT);
@@ -1171,7 +1172,7 @@ public class DatasetControllerITCase {
 
 
     @Test
-    public void shouldCreateDatasetWithMediaWithLicenseFromUri() throws Exception {
+    void shouldCreateDatasetWithMediaWithLicenseFromUri() throws Exception {
         UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
 
         ConceptId conceptIdUri = new ConceptId();
@@ -1209,7 +1210,7 @@ public class DatasetControllerITCase {
 
 
     @Test
-    public void shouldCreateDatasetWithMediaWithLicenseFromCodeAndVocabularyCode() throws Exception {
+    void shouldCreateDatasetWithMediaWithLicenseFromCodeAndVocabularyCode() throws Exception {
         UUID grumpycatId = MediaTestUploadUtils.importMedia(mvc, mapper, wireMockExtension, "grumpycat.png", "image/png", CONTRIBUTOR_JWT);
 
         ConceptId conceptIdCode = new ConceptId();
@@ -1246,7 +1247,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldGetMergeForDataset() throws Exception {
+    void shouldGetMergeForDataset() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1267,7 +1268,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldMergeIntoDataset() throws Exception {
+    void shouldMergeIntoDataset() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1312,7 +1313,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldGetHistoryForMergedDataset() throws Exception {
+    void shouldGetHistoryForMergedDataset() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1379,7 +1380,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldGetHistoryForMergedDatasetAndTrainingMaterialWithHistory() throws Exception {
+    void shouldGetHistoryForMergedDatasetAndTrainingMaterialWithHistory() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1455,7 +1456,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldGetInformationContributorsForMergedDataset() throws Exception {
+    void shouldGetInformationContributorsForMergedDataset() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1567,7 +1568,7 @@ public class DatasetControllerITCase {
 
 
     @Test
-    public void shouldGetInformationContributorsForMultipleMergedDataset() throws Exception {
+    void shouldGetInformationContributorsForMultipleMergedDataset() throws Exception {
 
         String datasetId = "OdKfPc";
         String workflowId = "tqmbGY";
@@ -1707,7 +1708,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldGetHistoryForMultipleMergedDataset() throws Exception {
+    void shouldGetHistoryForMultipleMergedDataset() throws Exception {
 
         String datasetPersistentId = "OdKfPc";
         int datasetId = 10;
@@ -1926,7 +1927,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldCreateDatasetWithContributorMultipleRoles() throws Exception {
+    void shouldCreateDatasetWithContributorMultipleRoles() throws Exception {
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Test simple dataset");
         dataset.setDescription("Lorem ipsum");
@@ -1957,7 +1958,7 @@ public class DatasetControllerITCase {
 
 
     @Test
-    public void shouldReturnDifferenceBetweenDatasets() throws Exception {
+    void shouldReturnDifferenceBetweenDatasets() throws Exception {
         String datasetPersistentId = "dmbq4v";
         Integer datasetId = 9;
         String otherDatasetPersistentId = "OdKfPc";
@@ -1988,7 +1989,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldReturnNoDifferenceBetweenDatasets() throws Exception {
+    void shouldReturnNoDifferenceBetweenDatasets() throws Exception {
         String datasetPersistentId = "dmbq4v";
         Integer datasetId = 9;
         String otherDatasetPersistentId = "dmbq4v";
@@ -2013,7 +2014,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldReturnDifferenceBetweenDatasetAndTool() throws Exception {
+    void shouldReturnDifferenceBetweenDatasetAndTool() throws Exception {
         String datasetPersistentId = "dmbq4v";
         Integer datasetId = 9;
 
@@ -2130,7 +2131,7 @@ public class DatasetControllerITCase {
 
 
     @Test
-    public void shouldReturnDifferenceBetweenDatasetAndVersionOfTrainingMaterial() throws Exception {
+    void shouldReturnDifferenceBetweenDatasetAndVersionOfTrainingMaterial() throws Exception {
         String datasetPersistentId = "dmbq4v";
         Integer datasetId = 9;
 
@@ -2157,7 +2158,7 @@ public class DatasetControllerITCase {
 
 
     @Test
-    public void shouldNotReturnDifferenceBetweenTrainingMaterialWhenNotExists() throws Exception {
+    void shouldNotReturnDifferenceBetweenTrainingMaterialWhenNotExists() throws Exception {
         String trainingMaterialPersistentId = "NONEXISTING";
 
         String otherDatasetPersistentId = "dmbq4v";
@@ -2170,7 +2171,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldRedirectToMergedDataset() throws Exception {
+    void shouldRedirectToMergedDataset() throws Exception {
 
         String datasetPersistentId = "OdKfPc";
 
@@ -2303,7 +2304,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldNotRedirectToMergedDataset() throws Exception {
+    void shouldNotRedirectToMergedDataset() throws Exception {
 
         String datasetPersistentId = "OdKfPc";
 
@@ -2470,7 +2471,7 @@ public class DatasetControllerITCase {
     }
 
     @Test
-    public void shouldDeleteAndRevertDataset() throws Exception {
+    void shouldDeleteAndRevertDataset() throws Exception {
 
         DatasetCore dataset = new DatasetCore();
         dataset.setLabel("Dataset to revert");
@@ -2526,5 +2527,216 @@ public class DatasetControllerITCase {
                 .andExpect(jsonPath("status", is("approved")))
                 .andExpect(jsonPath("label", is(dataset.getLabel())))
                 .andExpect(jsonPath("description", is(dataset.getDescription())));
+    }
+
+    @Test
+    void shouldPatchDataset() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test simple dataset");
+        dataset.setDescription("Lorem ipsum");
+        dataset.setVersion("1.0.0");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        dataset.setSource(sourceId);
+        dataset.setSourceItemId("patchedDataset");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        String datasetResponse = mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test simple dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("sourceItemId", is("patchedDataset")))
+                .andExpect(jsonPath("version", is("1.0.0")))
+                .andExpect(jsonPath("contributors", hasSize(0))).andReturn().getResponse().getContentAsString();
+
+        DatasetDto datasetDto = mapper.readValue(datasetResponse, DatasetDto.class);
+        String datasetPID = datasetDto.getPersistentId();
+
+        mvc.perform(get("/api/datasets/{id}", datasetPID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(datasetDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())));
+
+        dataset.setSourceItemId(null);
+        dataset.setSource(null);
+        dataset.setDescription("New description");
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("license");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("MIT");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("software-license");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        dataset.setProperties(properties);
+
+        String payloadUpdated = mapper.writeValueAsString(dataset);
+        String jsonUpdated = mvc.perform(
+                        put("/api/datasets/{id}", datasetPID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(datasetDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        dataset.setDescription("Patched dataset description changed!");
+        dataset.setSource(sourceId);
+        dataset.setSourceItemId("patchedDataset");
+        dataset.setVersion(null);
+
+        String payloadPatch = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                        patch("/api/datasets/{id}", datasetPID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("properties", hasSize(2)))
+                .andExpect(jsonPath("sourceItemId", is("patchedDataset")))
+                .andExpect(jsonPath("source").exists())
+                .andExpect(jsonPath("version", is("1.0.0")))
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
+    void shouldNotPatchButUpdateDataset() throws Exception {
+        String datasetPersistentId = "dmbq4v";
+
+        DatasetCore dataset = new DatasetCore();
+        dataset.setLabel("Test simple dataset");
+        dataset.setDescription("Lorem ipsum");
+        SourceId sourceId = new SourceId();
+        sourceId.setId(1L);
+        dataset.setSource(sourceId);
+        dataset.setSourceItemId("patchedDataset");
+        dataset.setVersion("1.0.0");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dataset);
+        log.debug("JSON: " + payload);
+
+        String datasetResponse = mvc.perform(put("/api/datasets/{id}", datasetPersistentId)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", ADMINISTRATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetPersistentId)))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("label", is("Test simple dataset")))
+                .andExpect(jsonPath("description", is("Lorem ipsum")))
+                .andExpect(jsonPath("informationContributor.username", is("Administrator")))
+                .andExpect(jsonPath("sourceItemId", is("patchedDataset")))
+                .andExpect(jsonPath("contributors", hasSize(0))).andReturn().getResponse().getContentAsString();
+
+        DatasetDto datasetDto = mapper.readValue(datasetResponse, DatasetDto.class);
+        String datasetPID = datasetDto.getPersistentId();
+
+        mvc.perform(get("/api/datasets/{id}", datasetPID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", is(datasetDto.getId().intValue())))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is(dataset.getDescription())));
+
+        dataset.setSourceItemId(null);
+        dataset.setSource(null);
+        dataset.setDescription("New description");
+        PropertyCore property1 = new PropertyCore();
+        PropertyTypeId propertyType1 = new PropertyTypeId();
+        propertyType1.setCode("license");
+        property1.setType(propertyType1);
+        ConceptId concept1 = new ConceptId();
+        concept1.setCode("MIT");
+        VocabularyId vocabulary1 = new VocabularyId();
+        vocabulary1.setCode("software-license");
+        concept1.setVocabulary(vocabulary1);
+        property1.setConcept(concept1);
+        List<PropertyCore> properties = new ArrayList<>();
+        properties.add(property1);
+        dataset.setProperties(properties);
+
+        String payloadUpdated = mapper.writeValueAsString(dataset);
+        String jsonUpdated = mvc.perform(
+                        put("/api/datasets/{id}", datasetPID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadUpdated)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", not(is(datasetDto.getId().intValue()))))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is("New description")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId").doesNotExist())
+                .andExpect(jsonPath("source").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+
+        dataset.setDescription("Patched dataset description changed!");
+        dataset.setSource(sourceId);
+        dataset.setSourceItemId("patchedDataset");
+        dataset.setVersion(null);
+
+        String payloadPatch = mapper.writeValueAsString(dataset);
+
+        mvc.perform(
+                        put("/api/datasets/{id}", datasetPID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadPatch)
+                                .header("Authorization", ADMINISTRATOR_JWT)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("persistentId", is(datasetDto.getPersistentId())))
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("category", is("dataset")))
+                .andExpect(jsonPath("status", is("approved")))
+                .andExpect(jsonPath("label", is(dataset.getLabel())))
+                .andExpect(jsonPath("description", is("Patched dataset description changed!")))
+                .andExpect(jsonPath("properties", hasSize(1)))
+                .andExpect(jsonPath("sourceItemId", is("patchedDataset")))
+                .andExpect(jsonPath("source").exists())
+                .andExpect(jsonPath("version").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
     }
 }
