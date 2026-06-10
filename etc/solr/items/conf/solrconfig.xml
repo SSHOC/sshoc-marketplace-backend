@@ -35,7 +35,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>8.2.0</luceneMatchVersion>
+  <luceneMatchVersion>10.3.2</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in
@@ -1355,7 +1355,9 @@
        in Solr's conf/xslt directory.  Changes to xslt files are checked for
        every xsltCacheLifetimeSeconds.
     -->
-  <queryResponseWriter name="xslt" class="solr.scripting.xslt.XSLTResponseWriter">
+  <queryResponseWriter name="xslt"
+                       startup="lazy"
+                       class="solr.scripting.xslt.XSLTResponseWriter">
     <int name="xsltCacheLifetimeSeconds">5</int>
   </queryResponseWriter>
 
