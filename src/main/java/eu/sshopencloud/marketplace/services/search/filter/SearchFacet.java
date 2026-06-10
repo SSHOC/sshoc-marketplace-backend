@@ -3,7 +3,7 @@ package eu.sshopencloud.marketplace.services.search.filter;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import lombok.Getter;
-import org.apache.solr.client.solrj.request.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.FacetParams;
 
 import java.util.Arrays;
