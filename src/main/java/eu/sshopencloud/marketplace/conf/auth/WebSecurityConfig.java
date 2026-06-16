@@ -196,6 +196,10 @@ public class WebSecurityConfig {
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/oauth2/authorize/eosc")
                 .permitAll();
+        http
+                .authorizeRequests()
+                .requestMatchers(HttpMethod.POST, "/api/collections/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/collections/**").authenticated();
 
         http
                 .oauth2Login(OA2LogingConfig -> {
