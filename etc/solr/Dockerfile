@@ -1,21 +1,21 @@
-FROM solr:9.6.1
+FROM solr:10.0.0
 
 USER root
 
 RUN mkdir -p /usr/solr && \
 	chown solr -hR /usr/solr && \
-	chown solr -hR /opt/solr-9.6.1 && \
+	chown solr -hR /opt/solr-10.0.0 && \
 	chown solr -hR /var/solr
 
 USER solr
 
-WORKDIR /opt/solr-9.6.1
+WORKDIR /opt/solr-10.0.0
 
 RUN /opt/solr/docker/scripts/init-var-solr && \
-    ./bin/solr start && \
-    ./bin/solr create_core -c marketplace-items && \
-    ./bin/solr create_core -c marketplace-concepts && \
-    ./bin/solr create_core -c marketplace-actors && \
+    ./bin/solr start --user-managed && \
+    ./bin/solr create -c marketplace-items && \
+    ./bin/solr create -c marketplace-concepts && \
+    ./bin/solr create -c marketplace-actors && \
     ./bin/solr stop && \
     cp -R /var/solr/data/marketplace-items /usr/solr && \
 	cp -R /var/solr/data/marketplace-concepts /usr/solr && \
@@ -31,4 +31,4 @@ COPY concepts/conf/managed-schema concepts/conf/solrconfig.xml ./marketplace-con
 COPY actors/conf/managed-schema actors/conf/solrconfig.xml ./marketplace-actors/conf/
 
 COPY docker-entrypoint.sh ./
-ENTRYPOINT [ "./docker-entrypoint.sh", "solr-foreground" ]
+ENTRYPOINT [ "./docker-entrypoint.sh", "--user-managed" ]
