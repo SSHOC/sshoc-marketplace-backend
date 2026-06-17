@@ -2,7 +2,7 @@ package eu.sshopencloud.marketplace.dto.search;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
-import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.request.SolrQuery;
 
 public enum ConceptSearchOrder {
 
