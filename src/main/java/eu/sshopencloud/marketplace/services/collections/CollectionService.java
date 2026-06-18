@@ -1,12 +1,13 @@
 package eu.sshopencloud.marketplace.services.collections;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
-import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
-import eu.sshopencloud.marketplace.dto.collections.PaginatedCollections;
+import eu.sshopencloud.marketplace.dto.collections.*;
+import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
+import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.mappers.collections.CollectionMapper;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
+import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.collections.CollectionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
@@ -30,7 +31,8 @@ public class CollectionService {
     private final VersionedItemRepository versionedItemRepository;
 
 
-    public CollectionService(CollectionRepository collectionRepository, VersionedItemRepository versionedItemRepository) {
+    public CollectionService(CollectionRepository collectionRepository,
+                             VersionedItemRepository versionedItemRepository) {
         this.collectionRepository = collectionRepository;
         this.versionedItemRepository = versionedItemRepository;
     }
@@ -65,33 +67,17 @@ public class CollectionService {
     private PaginatedCollections getPublicCollections(PageCoords pageCoords) {
         PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());
         Page<Collection> collections = collectionRepository.findAllByVisibleTrue(pageRequest);
-        return PaginatedCollections.builder()
-                .collections(CollectionMapper.INSTANCE.toDto(collections.getContent()))
-                .count(collections.getContent().size())
-                .hits(collections.getTotalElements())
-                .page(pageRequest.getPageNumber())
-                .perpage(pageRequest.getPageSize())
-                .pages(collections.getTotalPages()).build();
+        return PaginatedCollections.builder().collections(CollectionMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
     }
 
     private PaginatedCollections getUserPrivateCollections(PageCoords pageCoords) {
-        if(LoggedInUserHolder.getLoggedInUser() == null){
-            return PaginatedCollections.builder().collections(Collections.emptyList())
-                    .count(0)
-                    .hits(0)
-                    .page(0)
-                    .perpage(0)
-                    .pages(0).build();
+        if (LoggedInUserHolder.getLoggedInUser() == null) {
+            return PaginatedCollections.builder().collections(Collections.emptyList()).count(0).hits(0).page(0).perpage(0).pages(0).build();
         }
         PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());
-        Page<Collection> collections = collectionRepository.findAllByOwner(LoggedInUserHolder.getLoggedInUser(), pageRequest);
-        return PaginatedCollections.builder()
-                .collections(CollectionMapper.INSTANCE.toDto(collections.getContent()))
-                .count(collections.getContent().size())
-                .hits(collections.getTotalElements())
-                .page(pageRequest.getPageNumber())
-                .perpage(pageRequest.getPageSize())
-                .pages(collections.getTotalPages()).build();
+        Page<Collection> collections = collectionRepository.findAllByOwner(LoggedInUserHolder.getLoggedInUser(),
+                pageRequest);
+        return PaginatedCollections.builder().collections(CollectionMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
     }
 
     public CollectionDto getCollection(long id) {
@@ -104,18 +90,73 @@ public class CollectionService {
 
     public CollectionDto updateCollection(long collectionId, CollectionCreationDto collectionCreationDto) {
         Collection collection =
-                collectionRepository.findById(collectionId).orElseThrow(() -> new EntityNotFoundException(String.format(
-                        "Collection with id %s not found", collectionId)));
+                collectionRepository.findById(collectionId).orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", collectionId)));
 
-        if(collection.getOwner().equals(LoggedInUserHolder.getLoggedInUser())){
+        if (collection.getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
             collection.setTitle(collectionCreationDto.getTitle());
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
             collection.setUpdatedAt(ZonedDateTime.now());
 
             return CollectionMapper.INSTANCE.toDto(collection);
-        }else{
+        } else {
             throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    public void addSuggestionToCollection(long collectionId, CollectionSuggestionCreationDto suggestionCreationDto) {
+        Collection collection =
+                collectionRepository.findById(collectionId).orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", collectionId)));
+
+        if (isCollectionSuggestionAddingPossible(collection)) {
+            VersionedItem versionedItem =
+                    versionedItemRepository.findById(suggestionCreationDto.getItemPersistentId()).orElseThrow(() -> new EntityNotFoundException());
+
+            CollectionItem collectionItem = new CollectionItem();
+            collectionItem.setSuggested(true);
+            collectionItem.setCollection(collection);
+            collectionItem.setItem(versionedItem.getCurrentVersion());
+            collectionItem.setComment(suggestionCreationDto.getComment());
+            collection.getCollectionItems().add(collectionItem);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    public void changeCollectionSuggestionStatus(long collectionId, long suggestionId,  CollectionSuggestionStatusActionDto collectionSuggestionStatusActionDto) {
+        Collection collection =
+                collectionRepository.findById(collectionId).orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", collectionId)));
+
+        if (isCollectionSuggestionStatusPossibleToChange(collection)) {
+            collection.getCollectionItems().forEach(collectionItem -> {
+                if (collectionItem.getId().equals(suggestionId)) {
+                    if (collectionSuggestionStatusActionDto.getAction() == CollectionSuggestionStatusActionDto.ACTION.APPROVE) {
+                        collectionItem.setSuggested(false);
+                        collectionItem.setComment(null);
+                    }
+                    if (collectionSuggestionStatusActionDto.getAction() == CollectionSuggestionStatusActionDto.ACTION.REJECT)
+                        collection.getCollectionItems().remove(collectionItem);
+                }
+            });
+        }
+    }
+
+
+    private boolean isCollectionSuggestionAddingPossible(Collection collection) {
+        if(collection.isVisible() || collection.getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
+            return true;
+        }else{
+            log.debug("It is not possible to add suggestions to the collection: {}", collection);
+            return false;
+        }
+    }
+
+    private boolean isCollectionSuggestionStatusPossibleToChange(Collection collection) {
+        if(collection.getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
+            return true;
+        }else{
+            log.debug("It is not possible to change suggestion status for collection: {}", collection);
+            return false;
         }
     }
 }

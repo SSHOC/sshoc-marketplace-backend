@@ -1,9 +1,7 @@
 package eu.sshopencloud.marketplace.controllers.collections;
 
 import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
-import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
-import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
-import eu.sshopencloud.marketplace.dto.collections.PaginatedCollections;
+import eu.sshopencloud.marketplace.dto.collections.*;
 import eu.sshopencloud.marketplace.services.collections.CollectionService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,10 +22,15 @@ public class CollectionController {
 
     @Operation(summary = "Get all collections in pages")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedCollections> getCollections(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "perpage", required = false) Integer perpage, @RequestParam(value = "private", defaultValue = "false") boolean privateOnly) throws PageTooLargeException {
+    public ResponseEntity<PaginatedCollections> getCollections(
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "perpage", required = false) Integer perpage,
+            @RequestParam(value = "private", defaultValue = "false") boolean privateOnly) throws PageTooLargeException {
 
-        return ResponseEntity.ok(collectionService.getCollections(pageCoordsValidator.validate(page, perpage),
-                privateOnly));
+        return ResponseEntity.ok(
+                collectionService.getCollections(
+                        pageCoordsValidator.validate(page, perpage),
+                        privateOnly));
     }
 
     @Operation(summary = "Get single collection by its id")
@@ -42,7 +45,6 @@ public class CollectionController {
     public ResponseEntity<CollectionDto> createCollection(@Parameter(description = "Created collection",
             required = true, schema = @Schema(implementation = CollectionCreationDto.class)) @RequestBody CollectionCreationDto newCollection) {
 
-
         return ResponseEntity.ok(collectionService.createCollection(newCollection));
     }
 
@@ -56,6 +58,32 @@ public class CollectionController {
 
     ) {
         return ResponseEntity.ok(collectionService.updateCollection(collectionId, collectionCreationDto));
+    }
+
+    @Operation(summary = "Add suggestion to given collection")
+    @PostMapping(path = "/{collectionId}/suggestions", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> addCollectionSuggestions(@PathVariable("collectionId") long collectionId,
+                                                         @Parameter(description = "Suggestion for collection", required =
+                                                                                              true, schema = @Schema(implementation =
+                                                                                              CollectionSuggestionCreationDto.class)) @RequestBody CollectionSuggestionCreationDto suggestionCreationDto) {
+
+        collectionService.addSuggestionToCollection(collectionId, suggestionCreationDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Change the suggestion status for given collection")
+    @PostMapping(path = "/{collectionId}/suggestions/{suggestionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> changeCollectionSuggestionStatus(
+            @PathVariable("collectionId") long collectionId,
+            @PathVariable("suggestionId") long suggestionId,
+            @Parameter(
+                    description = "Suggestion for collection",
+                    required = true,
+                    schema = @Schema(implementation = CollectionSuggestionCreationDto.class))
+            @RequestBody CollectionSuggestionStatusActionDto collectionSuggestionStatusActionDto) {
+
+        collectionService.changeCollectionSuggestionStatus(collectionId, suggestionId, collectionSuggestionStatusActionDto);
+        return ResponseEntity.ok().build();
     }
 
 }

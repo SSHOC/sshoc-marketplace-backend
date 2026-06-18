@@ -199,7 +199,8 @@ public class WebSecurityConfig {
         http
                 .authorizeRequests()
                 .requestMatchers(HttpMethod.POST, "/api/collections/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/collections/**").authenticated();
+                .requestMatchers(HttpMethod.PUT, "/api/collections/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/collections/*/suggestions/**").authenticated();
 
         http
                 .oauth2Login(OA2LogingConfig -> {

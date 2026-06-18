@@ -32,7 +32,8 @@ public class Collection {
     @OneToMany(
             mappedBy = "collection",
             cascade = CascadeType.ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
     )
     private List<CollectionItem> collectionItems = new ArrayList<>();
 

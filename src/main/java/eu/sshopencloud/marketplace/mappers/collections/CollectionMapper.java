@@ -7,7 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(uses = CollectionItemMapper.class)
 public interface CollectionMapper {
 
     CollectionMapper INSTANCE = Mappers.getMapper(CollectionMapper.class);

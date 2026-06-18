@@ -19,4 +19,8 @@ public class CollectionItem {
 
     @ManyToOne
     private Item item;
+
+    private boolean isSuggested;
+
+    private String comment;
 }
