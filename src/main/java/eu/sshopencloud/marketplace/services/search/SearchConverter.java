@@ -8,6 +8,7 @@ import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.items.ItemStatus;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
+import eu.sshopencloud.marketplace.model.search.IndexCollection;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
@@ -76,6 +77,14 @@ public class SearchConverter {
                 else
                     return convertNotRestrictedIndexActor(indexActor);
 
+    }
+
+    public SearchCollection convertIndexCollection(IndexCollection indexCollection) {
+        return SearchCollection.builder()
+                .id(Long.valueOf(indexCollection.getId()))
+                .title(indexCollection.getTitle())
+                .description(indexCollection.getDescription())
+                .build();
     }
 
     public LabeledCheckedCount convertCategoryFacet(FacetField.Count entry, List<ItemCategory> categories) {

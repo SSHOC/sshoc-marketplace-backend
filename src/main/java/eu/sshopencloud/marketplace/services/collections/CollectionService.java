@@ -11,6 +11,7 @@ import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.collections.CollectionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.search.IndexCollectionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,12 +30,14 @@ public class CollectionService {
 
     private final CollectionRepository collectionRepository;
     private final VersionedItemRepository versionedItemRepository;
+    private final IndexCollectionService indexCollectionService;
 
 
     public CollectionService(CollectionRepository collectionRepository,
-                             VersionedItemRepository versionedItemRepository) {
+                             VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService) {
         this.collectionRepository = collectionRepository;
         this.versionedItemRepository = versionedItemRepository;
+        this.indexCollectionService = indexCollectionService;
     }
 
 
@@ -52,6 +55,7 @@ public class CollectionService {
             collection.getCollectionItems().add(collectionItem);
         });
         collectionRepository.save(collection);
+        indexCollectionService.indexCollection(collection);
 
         return CollectionMapper.INSTANCE.toDto(collection);
     }

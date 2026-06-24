@@ -79,7 +79,7 @@ public class CollectionController {
             @Parameter(
                     description = "Suggestion for collection",
                     required = true,
-                    schema = @Schema(implementation = CollectionSuggestionCreationDto.class))
+                    schema = @Schema(implementation = CollectionSuggestionStatusActionDto.class))
             @RequestBody CollectionSuggestionStatusActionDto collectionSuggestionStatusActionDto) {
 
         collectionService.changeCollectionSuggestionStatus(collectionId, suggestionId, collectionSuggestionStatusActionDto);

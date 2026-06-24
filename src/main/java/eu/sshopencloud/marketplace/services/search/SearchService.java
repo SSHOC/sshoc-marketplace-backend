@@ -12,20 +12,19 @@ import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.auth.User;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
+import eu.sshopencloud.marketplace.model.search.IndexCollection;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.PropertyType;
 import eu.sshopencloud.marketplace.repositories.search.SearchActorRepository;
+import eu.sshopencloud.marketplace.repositories.search.SearchCollectionRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchConceptRepository;
 import eu.sshopencloud.marketplace.repositories.search.SearchItemRepository;
 import eu.sshopencloud.marketplace.services.actors.ActorService;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.items.ItemContributorService;
 import eu.sshopencloud.marketplace.services.search.filter.*;
-import eu.sshopencloud.marketplace.services.search.query.ActorSearchQueryPhrase;
-import eu.sshopencloud.marketplace.services.search.query.ConceptSearchQueryPhrase;
-import eu.sshopencloud.marketplace.services.search.query.ItemSearchQueryPhrase;
-import eu.sshopencloud.marketplace.services.search.query.SearchQueryCriteria;
+import eu.sshopencloud.marketplace.services.search.query.*;
 import eu.sshopencloud.marketplace.services.sources.SourceService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyService;
 import eu.sshopencloud.marketplace.services.vocabularies.PropertyTypeService;
@@ -57,6 +56,7 @@ public class SearchService {
     private final SearchConceptRepository searchConceptRepository;
     private final PropertyTypeService propertyTypeService;
     private final SearchActorRepository searchActorRepository;
+    private final SearchCollectionRepository  searchCollectionRepository;
     private final ActorService actorService;
     private final SourceService sourceService;
 
@@ -351,6 +351,22 @@ public class SearchService {
         return result;
     }
 
+    public PaginatedSearchCollection searchCollections(String q, boolean advanced, PageCoords pageCoords) {
+
+        Pageable pageable = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());// SOLR counts from page 0
+
+        SearchQueryCriteria queryCriteria = new CollectionSearchQueryPhrase(q, advanced);
+
+        QueryResponse facetPage = searchCollectionRepository.findByQuery(queryCriteria, pageable);
+
+        return PaginatedSearchCollection.builder()
+                .q(q)
+                .collections(facetPage.getBeans(IndexCollection.class).stream().map(SearchConverter::convertIndexCollection).toList())
+                .hits(facetPage.getResults().getNumFound()).count(facetPage.getResults().size())
+                .page(pageCoords.getPage()).perpage(pageCoords.getPerpage())
+                .pages((int) Math.ceil((double)facetPage.getResults().getNumFound() / (double)pageCoords.getPerpage()))
+                .build();
+    }
 
     public SuggestedSearchPhrases autocompleteItemsSearch(String searchPhrase, ItemCategory context) {
         if (StringUtils.isBlank(searchPhrase))
