@@ -2,6 +2,7 @@ package eu.sshopencloud.marketplace.services.collections;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.collections.*;
+import eu.sshopencloud.marketplace.dto.inbox.MessageDto;
 import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
 import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.mappers.collections.CollectionMapper;
@@ -11,6 +12,7 @@ import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.collections.CollectionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
+import eu.sshopencloud.marketplace.services.inbox.MessagesService;
 import eu.sshopencloud.marketplace.services.search.IndexCollectionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -31,13 +34,15 @@ public class CollectionService {
     private final CollectionRepository collectionRepository;
     private final VersionedItemRepository versionedItemRepository;
     private final IndexCollectionService indexCollectionService;
+    private final MessagesService messagesService;
 
 
     public CollectionService(CollectionRepository collectionRepository,
-                             VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService) {
+                             VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, MessagesService messagesService) {
         this.collectionRepository = collectionRepository;
         this.versionedItemRepository = versionedItemRepository;
         this.indexCollectionService = indexCollectionService;
+        this.messagesService = messagesService;
     }
 
 
@@ -49,9 +54,11 @@ public class CollectionService {
         collection.setOwner(LoggedInUserHolder.getLoggedInUser());
 
         collectionCore.getContainedItems().forEach(item -> {
+            VersionedItem versionedItem =
+                    versionedItemRepository.findById(item).orElseThrow(() -> new CollectionException("Item not found"));
             CollectionItem collectionItem = new CollectionItem();
             collectionItem.setCollection(collection);
-            collectionItem.setItem(versionedItemRepository.findById(item).get().getCurrentVersion());
+            collectionItem.setItem(versionedItem.getCurrentVersion());
             collection.getCollectionItems().add(collectionItem);
         });
         collectionRepository.save(collection);
@@ -79,8 +86,8 @@ public class CollectionService {
             return PaginatedCollections.builder().collections(Collections.emptyList()).count(0).hits(0).page(0).perpage(0).pages(0).build();
         }
         PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());
-        Page<Collection> collections = collectionRepository.findAllByOwner(LoggedInUserHolder.getLoggedInUser(),
-                pageRequest);
+        Page<Collection> collections =
+                collectionRepository.findAllByOwnerAndVisible(LoggedInUserHolder.getLoggedInUser(), true, pageRequest);
         return PaginatedCollections.builder().collections(CollectionMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
     }
 
@@ -114,7 +121,7 @@ public class CollectionService {
 
         if (isCollectionSuggestionAddingPossible(collection)) {
             VersionedItem versionedItem =
-                    versionedItemRepository.findById(suggestionCreationDto.getItemPersistentId()).orElseThrow(() -> new EntityNotFoundException());
+                    versionedItemRepository.findById(suggestionCreationDto.getItemPersistentId()).orElseThrow(() -> new CollectionException("Provided persistenId does not exist"));
 
             CollectionItem collectionItem = new CollectionItem();
             collectionItem.setSuggested(true);
@@ -122,6 +129,11 @@ public class CollectionService {
             collectionItem.setItem(versionedItem.getCurrentVersion());
             collectionItem.setComment(suggestionCreationDto.getComment());
             collection.getCollectionItems().add(collectionItem);
+
+            MessageDto messageDto = new MessageDto();
+            messageDto.setContent("New collection suggestion received");
+
+            messagesService.sendMessageToUser(messageDto, collection.getOwner());
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -132,16 +144,28 @@ public class CollectionService {
                 collectionRepository.findById(collectionId).orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", collectionId)));
 
         if (isCollectionSuggestionStatusPossibleToChange(collection)) {
-            collection.getCollectionItems().forEach(collectionItem -> {
-                if (collectionItem.getId().equals(suggestionId)) {
-                    if (collectionSuggestionStatusActionDto.getAction() == CollectionSuggestionStatusActionDto.ACTION.APPROVE) {
-                        collectionItem.setSuggested(false);
-                        collectionItem.setComment(null);
-                    }
-                    if (collectionSuggestionStatusActionDto.getAction() == CollectionSuggestionStatusActionDto.ACTION.REJECT)
-                        collection.getCollectionItems().remove(collectionItem);
-                }
-            });
+            CollectionSuggestionStatusActionDto.ACTION action = collectionSuggestionStatusActionDto.getAction();
+
+            if (action == CollectionSuggestionStatusActionDto.ACTION.APPROVE) {
+                collection.getCollectionItems().stream()
+                        .filter(item -> item.getId().equals(suggestionId))
+                        .findFirst()
+                        .ifPresent(item -> {
+                            item.setSuggested(false);
+                            item.setComment(null);
+                        });
+            }
+
+            if (action == CollectionSuggestionStatusActionDto.ACTION.REJECT) {
+                collection.getCollectionItems().removeIf(item -> item.getId().equals(suggestionId));
+            }
+        }
+    }
+
+    public void deleteCollection(long collectionId) {
+        Optional<Collection> collection = collectionRepository.findById(collectionId);
+        if (collection.isPresent() && collection.get().getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
+            collectionRepository.deleteById(collectionId);
         }
     }
 

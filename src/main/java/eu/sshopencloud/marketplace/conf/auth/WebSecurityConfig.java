@@ -200,6 +200,7 @@ public class WebSecurityConfig {
                 .authorizeRequests()
                 .requestMatchers(HttpMethod.POST, "/api/collections/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/collections/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/collections/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/collections/*/suggestions/**").authenticated();
 
         http

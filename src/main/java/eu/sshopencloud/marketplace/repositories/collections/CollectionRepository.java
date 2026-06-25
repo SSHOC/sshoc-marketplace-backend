@@ -13,4 +13,6 @@ public interface CollectionRepository extends JpaRepository<Collection, Long> {
     Page<Collection> findAllByVisibleTrue(PageRequest pageRequest);
 
     Page<Collection> findAllByOwner(User owner, PageRequest pageRequest);
+
+    Page<Collection> findAllByOwnerAndVisible(User owner, boolean visible, PageRequest pageRequest);
 }

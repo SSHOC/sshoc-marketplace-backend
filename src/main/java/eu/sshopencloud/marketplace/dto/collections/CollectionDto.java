@@ -2,7 +2,6 @@ package eu.sshopencloud.marketplace.dto.collections;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import eu.sshopencloud.marketplace.conf.datetime.ApiDateTimeFormatter;
-import eu.sshopencloud.marketplace.dto.items.ItemDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;

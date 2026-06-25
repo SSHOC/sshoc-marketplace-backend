@@ -86,4 +86,13 @@ public class CollectionController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Remove collection")
+    @DeleteMapping(path = "/{collectionId}")
+    public ResponseEntity<Void> deleteCollection(
+            @PathVariable("collectionId") long collectionId) {
+
+        collectionService.deleteCollection(collectionId);
+        return ResponseEntity.ok().build();
+    }
+
 }

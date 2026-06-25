@@ -21,7 +21,7 @@ public class InboxController {
     private final MessagesService messagesService;
     private final PageCoordsValidator pageCoordsValidator;
 
-    @Operation(summary = "Get all collections in pages")
+    @Operation(summary = "Get user massages")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedMessages> getUserMessages(
             @RequestParam(value = "page", required = false) Integer page,
