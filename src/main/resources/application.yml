@@ -187,3 +187,5 @@ handle:
     user-id-handle: "0.NA/21.11160"
     user-id-index: "300"
     key-location: "/etc/sshomp/handle/admpriv.bin"
+skg:
+    base-uri: "https://marketplace.sshopencloud.eu/"
