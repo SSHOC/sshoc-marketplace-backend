@@ -5,10 +5,12 @@ import eu.sshopencloud.marketplace.conf.datetime.SolrDateTimeFormatter;
 import eu.sshopencloud.marketplace.mappers.items.ItemCategoryConverter;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorExternalId;
+import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.items.ItemContributor;
 import eu.sshopencloud.marketplace.model.items.ItemExternalId;
 import eu.sshopencloud.marketplace.model.search.IndexActor;
+import eu.sshopencloud.marketplace.model.search.IndexCollection;
 import eu.sshopencloud.marketplace.model.search.IndexConcept;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.model.vocabularies.Concept;
@@ -183,6 +185,17 @@ public class IndexConverter {
                 .forEach(id -> sid.addField(IndexActor.EXTERNAL_IDENTIFIER_FIELD, id));
 
         return sid;
+    }
+
+    public SolrInputDocument convertCollection(Collection collection) {
+        SolrInputDocument document = new SolrInputDocument();
+
+        document.addField(IndexCollection.ID_FIELD, collection.getId());
+        document.addField(IndexCollection.OWNER_NAME_FIELD, collection.getOwner().getUsername());
+        document.addField(IndexCollection.TITLE_FIELD, collection.getTitle());
+        document.addField(IndexCollection.DESCRIPTION_FIELD, collection.getDescription());
+
+        return document;
     }
 
 

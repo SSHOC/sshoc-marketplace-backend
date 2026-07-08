@@ -16,19 +16,23 @@ RUN /opt/solr/docker/scripts/init-var-solr && \
     ./bin/solr create_core -c marketplace-items && \
     ./bin/solr create_core -c marketplace-concepts && \
     ./bin/solr create_core -c marketplace-actors && \
+    ./bin/solr create_core -c marketplace-collections && \
     ./bin/solr stop && \
     cp -R /var/solr/data/marketplace-items /usr/solr && \
 	cp -R /var/solr/data/marketplace-concepts /usr/solr && \
 	cp -R /var/solr/data/marketplace-actors /usr/solr && \
+	cp -R /var/solr/data/marketplace-collections /usr/solr && \
 	rm -r /var/solr/data/marketplace-items && \
 	rm -r /var/solr/data/marketplace-concepts && \
-	rm -r /var/solr/data/marketplace-actors
+	rm -r /var/solr/data/marketplace-actors && \
+	rm -r /var/solr/data/marketplace-collections
 
 WORKDIR /usr/solr
 
 COPY items/conf/managed-schema items/conf/solrconfig.xml ./marketplace-items/conf/
 COPY concepts/conf/managed-schema concepts/conf/solrconfig.xml ./marketplace-concepts/conf/
 COPY actors/conf/managed-schema actors/conf/solrconfig.xml ./marketplace-actors/conf/
+COPY collections/conf/managed-schema collections/conf/solrconfig.xml ./marketplace-collections/conf/
 
 COPY docker-entrypoint.sh ./
 ENTRYPOINT [ "./docker-entrypoint.sh", "solr-foreground" ]

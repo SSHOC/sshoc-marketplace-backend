@@ -109,4 +109,15 @@ class SearchController {
         return ResponseEntity.ok(searchService.searchActors(q, advanced, expressionParams, pageCoordsValidator.validate(page, perpage), order));
     }
 
+    @GetMapping(path = "/collection-search", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Search among actors.")
+    public ResponseEntity<PaginatedSearchCollection> searchCollections(
+            @RequestParam(value = "q", required = false) String q,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "advanced", defaultValue = "false") boolean advanced,
+            @RequestParam(value = "perpage", required = false) Integer perpage)
+            throws PageTooLargeException {
+
+        return ResponseEntity.ok(searchService.searchCollections(q, advanced, pageCoordsValidator.validate(page, perpage)));
+    }
 }

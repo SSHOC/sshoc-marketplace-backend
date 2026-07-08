@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.controllers;
 
+import eu.sshopencloud.marketplace.services.collections.CollectionException;
 import eu.sshopencloud.marketplace.services.items.exception.ItemIsAlreadyMergedException;
 import eu.sshopencloud.marketplace.services.items.exception.VersionNotChangedException;
 import eu.sshopencloud.marketplace.validators.ValidationException;
@@ -124,6 +125,12 @@ public class MarketplaceExceptionHandler {
                         .code(error.getCode()).args(error.getArguments()).message(error.getDefaultMessage()).build()).toArray(ValidatedError[]::new))
                 .build();
         return ResponseEntity.badRequest().body(validationResponse);
+    }
+
+    @ExceptionHandler(value = { CollectionException.class })
+    public ResponseEntity<Object> handleCollectionException(CollectionException ex) {
+        log.error("CollectionException", ex);
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     private boolean isClientAbortException(Throwable ex) {
