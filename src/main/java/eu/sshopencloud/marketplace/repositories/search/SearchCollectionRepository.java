@@ -36,7 +36,7 @@ public class SearchCollectionRepository {
         solrQuery.setStart((pageable.getPageNumber()) * pageable.getPageSize());
 
         try {
-            return solrClient.query(IndexCollection.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.GET);
+            return solrClient.query(IndexCollection.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException(e);
         }
