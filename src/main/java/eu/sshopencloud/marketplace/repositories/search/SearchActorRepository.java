@@ -42,7 +42,7 @@ public class SearchActorRepository {
         expressionCriteria.forEach(actor -> solrQuery.addFilterQuery(actor.getFilterCriteria()));
 
         try {
-            return solrClient.query(IndexActor.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.GET);
+            return solrClient.query(IndexActor.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException(e);
         }
