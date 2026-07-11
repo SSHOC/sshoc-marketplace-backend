@@ -22,7 +22,7 @@ public class ResearchProduct {
     @JsonProperty("entity_type")
     private String entityType;
 
-    private Map<String, String> titles;
+    private Map<String, List<String>> titles;
     private Map<String, List<String>> abstracts;
     private List<Contribution> contributions;
     private List<RelatedProduct> relatedProducts;

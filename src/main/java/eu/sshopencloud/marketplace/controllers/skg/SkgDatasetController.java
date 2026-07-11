@@ -18,7 +18,7 @@ public class SkgDatasetController {
 
     private final SkgDatasetService skgDatasetService;
 
-    @Operation(summary = "Get single dataset by its persistentId")
+    @Operation(summary = "Get single dataset by its persistentId in SKG format")
     @GetMapping(path = "/{persistentId}", produces = "application/ld+json")
     public ResponseEntity<JsonLdDocument> getDataset(@PathVariable("persistentId") String persistentId) {
 
