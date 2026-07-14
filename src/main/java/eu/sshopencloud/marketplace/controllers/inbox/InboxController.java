@@ -26,7 +26,7 @@ public class InboxController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedMessages> getUserMessages(
             @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
-            @RequestParam(value = "perpage", required = false) Integer perpage) throws PageTooLargeException {
+            @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage) throws PageTooLargeException {
 
         return ResponseEntity.ok(
                 messagesService.getUserMessages(

@@ -30,7 +30,7 @@ public class UserController {
     public ResponseEntity<PaginatedUsers> getUsers(@RequestParam(value = "order", required = false) UserOrder order,
                                                    @RequestParam(value = "q", required = false) String q,
                                                    @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
-                                                   @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                   @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(userService.getUsers(order, q, pageCoordsValidator.validate(page, perpage)));
     }

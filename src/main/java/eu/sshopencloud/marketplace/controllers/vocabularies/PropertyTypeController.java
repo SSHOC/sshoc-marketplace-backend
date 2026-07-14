@@ -31,7 +31,7 @@ public class PropertyTypeController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedPropertyTypes> getPropertyTypes(@RequestParam(value = "q", required = false) String q,
                                                                    @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
-                                                                   @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                                   @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage)
             throws PageTooLargeException {
 
         return ResponseEntity.ok(propertyTypeService.getPropertyTypes(q, pageCoordsValidator.validate(page, perpage)));

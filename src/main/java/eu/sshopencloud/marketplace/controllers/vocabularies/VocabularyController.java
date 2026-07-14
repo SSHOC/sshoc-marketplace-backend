@@ -33,7 +33,7 @@ public class VocabularyController {
     @Operation(summary = "Get all vocabularies in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedVocabularies> getVocabularies(@RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
-                                                                 @RequestParam(value = "perpage", required = false) Integer perpage)
+                                                                 @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(vocabularyService.getVocabularies(pageCoordsValidator.validate(page, perpage)));
     }
@@ -42,7 +42,7 @@ public class VocabularyController {
     @GetMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VocabularyDto> getVocabulary(@PathVariable("code") String code,
                                                        @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
-                                                       @RequestParam(value = "perpage", required = false) Integer perPage)
+                                                       @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perPage)
             throws PageTooLargeException {
 
         PageCoords pageCoords = pageCoordsValidator.validate(page, perPage);
