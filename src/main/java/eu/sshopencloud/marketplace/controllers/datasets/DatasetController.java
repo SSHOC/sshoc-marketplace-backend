@@ -34,7 +34,7 @@ public class DatasetController {
 
     @Operation(summary = "Retrieve all datasets in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedDatasets> getDatasets(@RequestParam(value = "page", required = false) Integer page,
+    public ResponseEntity<PaginatedDatasets> getDatasets(@RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
                                                          @RequestParam(value = "perpage", required = false) Integer perpage,
                                                          @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {

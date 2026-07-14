@@ -28,7 +28,7 @@ public class ActorController {
 
     @Operation(summary = "Get list of actors in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedActors> getActors(@RequestParam(value = "page", required = false) Integer page,
+    public ResponseEntity<PaginatedActors> getActors(@RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
                                                      @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(actorService.getActors(pageCoordsValidator.validate(page, perpage)));

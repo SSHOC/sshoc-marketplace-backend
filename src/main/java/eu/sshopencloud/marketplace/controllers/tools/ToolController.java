@@ -15,6 +15,7 @@ import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,8 @@ public class ToolController {
 
     @Operation(summary = "Retrieve all tools services in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) Integer page,
-                                                   @RequestParam(value = "perpage", required = false) Integer perpage,
+    public ResponseEntity<PaginatedTools> getTools(@RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+                                                   @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage,
                                                    @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
         return ResponseEntity.ok(toolService.getTools(pageCoordsValidator.validate(page, perpage), approved));

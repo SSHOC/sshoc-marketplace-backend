@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.dto.inbox.PaginatedMessages;
 import eu.sshopencloud.marketplace.services.inbox.MessagesService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class InboxController {
     @Operation(summary = "Get user massages")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedMessages> getUserMessages(
-            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
             @RequestParam(value = "perpage", required = false) Integer perpage) throws PageTooLargeException {
 
         return ResponseEntity.ok(

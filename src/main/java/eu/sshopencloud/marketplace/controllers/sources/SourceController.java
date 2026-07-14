@@ -33,7 +33,7 @@ public class SourceController {
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedSources> getSources(@RequestParam(value = "order", required = false) SourceOrder order,
                                                        @RequestParam(value = "q", required = false) String q,
-                                                       @RequestParam(value = "page", required = false) Integer page,
+                                                       @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
                                                        @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(sourceService.getSources(order, q, pageCoordsValidator.validate(page, perpage)));
@@ -70,7 +70,7 @@ public class SourceController {
     @Operation(summary = "Get list of items for given source")
     @GetMapping(path = "/{sourceId}/items", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedItemsBasic<ItemBasicDto>> getItemsForSource(@PathVariable("sourceId") Long sourceId,
-                                                                       @RequestParam(value = "page", required = false) Integer page,
+                                                                       @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
                                                                        @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(itemService.getItemsBySource(sourceId, null, pageCoordsValidator.validate(page, perpage)));
@@ -80,7 +80,7 @@ public class SourceController {
     @GetMapping(path = "/{sourceId}/items/{sourceItemId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedItemsBasic<ItemBasicDto>> getItemsForSourceAndSourceItemId(@PathVariable("sourceId") Long sourceId,
                                                                                               @PathVariable("sourceItemId") String sourceItemId,
-                                                                                              @RequestParam(value = "page", required = false) Integer page,
+                                                                                              @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
                                                                                               @RequestParam(value = "perpage", required = false) Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(itemService.getItemsBySource(sourceId, sourceItemId, pageCoordsValidator.validate(page, perpage)));
