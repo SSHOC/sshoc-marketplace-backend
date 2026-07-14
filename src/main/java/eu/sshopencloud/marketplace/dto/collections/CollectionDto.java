@@ -26,11 +26,11 @@ public class CollectionDto {
 
     private List<CollectionItemDto> collectionItems;
 
-    @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
+    @Schema(format = "date-time", example = ApiDateTimeFormatter.outputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
     private ZonedDateTime createdAt;
 
-    @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
+    @Schema(format = "date-time", example = ApiDateTimeFormatter.outputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
     private ZonedDateTime updatedAt;
 
