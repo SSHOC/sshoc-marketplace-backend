@@ -83,7 +83,16 @@ public class TrainingMaterialController {
         return ResponseEntity.ok(trainingMaterialService.updateTrainingMaterial(persistentId, updatedTrainingMaterial, draft, approved, false));
     }
 
-    @Operation(summary = "Patch training material for given persistentId")
+    @Operation(
+        summary = "Patch training material for given persistentId",
+        description = """
+            Updates a trainging material record by replacing field values with those supplied in
+            the patch body. Note that providing a value for any field completely replaces the
+            previous value. This is especially important to remember when updating any of the array
+            value fields, as all existing entires will be removed and replaced with the values
+            provided in the patch. If you wish to add to an existing array then you **must** provide
+            the existing values as well as the new value in the patch body otherwise data loss will occur."""
+    )
     @PatchMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrainingMaterialDto> patchTrainingMaterial(@PathVariable("persistentId") String persistentId,
                                                                       @Parameter(

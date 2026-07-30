@@ -82,7 +82,16 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.updateWorkflow(workflowPersistentId, updatedWorkflow, draft, approved, false));
     }
 
-    @Operation(summary = "Patch  workflow for given persistentId")
+    @Operation(
+        summary = "Patch workflow for given persistentId",
+        description = """
+            Updates a workflow record by replacing field values with those supplied in the patch body.
+            Note that providing a value for any field completely replaces the previous value. This is
+            especially important to remember when updating any of the array value fields, as all
+            existing entires will be removed and replaced with the values provided in the patch. If
+            you wish to add to an existing array then you **must** provide the existing values as well
+            as the new value in the patch body otherwise data loss will occur."""
+    )
     @PatchMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> patchWorkflow(@PathVariable("persistentId") String workflowPersistentId,
                                                       @Parameter(
@@ -183,7 +192,16 @@ public class WorkflowController {
         return ResponseEntity.ok(stepService.updateStep(workflowPersistentId, stepPersistentId, updatedStep, draft, approved, false));
     }
 
-    @Operation(summary = "Patch step for given persistentId and workflow persistentId")
+    @Operation(
+        summary = "Patch step for given persistentId and workflow persistentId",
+        description = """
+            Updates a workflow step record by replacing field values with those supplied in the patch body.
+            Note that providing a value for any field completely replaces the previous value. This is
+            especially important to remember when updating any of the array value fields, as all
+            existing entires will be removed and replaced with the values provided in the patch. If
+            you wish to add to an existing array then you **must** provide the existing values as well
+            as the new value in the patch body otherwise data loss will occur."""
+    )
     @PatchMapping(path = "/{persistentId}/steps/{stepPersistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StepDto> patchStep(@PathVariable("persistentId") String workflowPersistentId,
                                               @PathVariable("stepPersistentId") String stepPersistentId,
