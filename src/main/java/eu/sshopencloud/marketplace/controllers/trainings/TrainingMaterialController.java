@@ -86,7 +86,7 @@ public class TrainingMaterialController {
     @Operation(
         summary = "Patch training material for given persistentId",
         description = """
-            Updates a trainging material record by replacing field values with those supplied in
+            Updates a training material record by replacing field values with those supplied in
             the patch body. Note that providing a value for any field completely replaces the
             previous value. This is especially important to remember when updating any of the array
             value fields, as all existing entires will be removed and replaced with the values
