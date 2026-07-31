@@ -69,7 +69,16 @@ public class ToolController {
     }
 
 
-    @Operation(summary = "Updating tool for given persistentId")
+    @Operation(
+        summary = "Updating tool for given persistentId",
+        description = """
+            Updates a tool record by replacing field values with those supplied in the patch body.
+            Note that providing a value for any field completely replaces the previous value. This is
+            especially important to remember when updating any of the array value fields, as all
+            existing entires will be removed and replaced with the values provided in the patch. If
+            you wish to add to an existing array then you **must** provide the existing values as well
+            as the new value in the patch body otherwise data loss will occur."""
+    )
     @PutMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ToolDto> updateTool(@PathVariable("persistentId") String persistentId,
                                               @Parameter(
