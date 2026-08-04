@@ -85,7 +85,7 @@ public class CollectionService {
         }
         PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());
         Page<Collection> collections =
-                collectionRepository.findAllByOwnerAndVisible(LoggedInUserHolder.getLoggedInUser(), true, pageRequest);
+                collectionRepository.findAllByOwnerAndVisible(LoggedInUserHolder.getLoggedInUser(), false, pageRequest);
         return PaginatedCollections.builder().collections(CollectionMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
     }
 
@@ -106,6 +106,8 @@ public class CollectionService {
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
             collection.setUpdatedAt(ZonedDateTime.now());
+
+            indexCollectionService.indexCollection(collection);
 
             return CollectionMapper.INSTANCE.toDto(collection);
         } else {
