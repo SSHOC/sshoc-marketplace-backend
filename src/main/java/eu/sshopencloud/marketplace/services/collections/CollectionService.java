@@ -3,8 +3,6 @@ package eu.sshopencloud.marketplace.services.collections;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.collections.*;
 import eu.sshopencloud.marketplace.dto.inbox.MessageDto;
-import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
-import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.mappers.collections.CollectionMapper;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
@@ -131,7 +129,7 @@ public class CollectionService {
             collection.getCollectionItems().add(collectionItem);
 
             MessageDto messageDto = new MessageDto();
-            messageDto.setContent("New collection suggestion received");
+            messageDto.setContent("There is a new suggestion for your collection: " + collection.getTitle());
 
             messagesService.sendMessageToUser(messageDto, collection.getOwner());
         } else {
@@ -166,6 +164,7 @@ public class CollectionService {
         Optional<Collection> collection = collectionRepository.findById(collectionId);
         if (collection.isPresent() && collection.get().getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
             collectionRepository.deleteById(collectionId);
+            indexCollectionService.removeFromIndex(collection.get());
         }
     }
 
