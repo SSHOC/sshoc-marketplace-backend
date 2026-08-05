@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.services.search;
 
 import eu.sshopencloud.marketplace.model.collections.Collection;
+import eu.sshopencloud.marketplace.model.search.IndexCollection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
@@ -27,6 +28,19 @@ public class IndexCollectionService {
         try {
             solrClient.add(COLLECTION_NAME, indexedCollection);
             solrClient.commit(COLLECTION_NAME);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Removes Solr document describing provided {@link Collection}
+     * @param collection collection that should be removed from Solr index
+     */
+    public void removeFromIndex(Collection collection) {
+        try {
+            solrClient.deleteByQuery(COLLECTION_NAME, IndexCollection.ID_FIELD + ":" + collection.getId());
+            solrClient.commit(IndexCollection.COLLECTION_NAME);
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException(e);
         }

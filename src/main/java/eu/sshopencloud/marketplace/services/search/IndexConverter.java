@@ -192,8 +192,10 @@ public class IndexConverter {
 
         document.addField(IndexCollection.ID_FIELD, collection.getId());
         document.addField(IndexCollection.OWNER_NAME_FIELD, collection.getOwner().getUsername());
+        document.addField(IndexCollection.OWNER_ID_FIELD, collection.getOwner().getId());
         document.addField(IndexCollection.TITLE_FIELD, collection.getTitle());
         document.addField(IndexCollection.DESCRIPTION_FIELD, collection.getDescription());
+        document.addField(IndexCollection.VISIBLE_FIELD, collection.isVisible());
 
         return document;
     }

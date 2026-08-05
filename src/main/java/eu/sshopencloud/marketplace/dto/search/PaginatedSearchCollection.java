@@ -20,7 +20,7 @@ public class PaginatedSearchCollection extends PaginatedResult<SearchCollection>
     private List<SearchCollection> collections;
 
     @Override
-    @JsonGetter("actors")
+    @JsonGetter("collections")
     public List<SearchCollection> getResults() {
         return collections;
     }

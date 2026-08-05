@@ -7,7 +7,13 @@ import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionSuggestionCreationDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionSuggestionStatusActionDto;
+import eu.sshopencloud.marketplace.model.search.IndexCollection;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -37,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
 @Transactional
-class CollectionControllerITCase {
+class CollectionControllerITCase extends CollectionControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -49,6 +55,8 @@ class CollectionControllerITCase {
     private String IMPORTER_JWT;
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
+    @Autowired
+    private SolrClient solrClient;
 
 
     @BeforeEach
@@ -68,27 +76,6 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("collections", Matchers.hasSize(0)));
     }
 
-    private CollectionDto createCollection(CollectionCreationDto dto) throws Exception {
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dto);
-
-        String cratedCollection = mvc.perform(post("/api/collections")
-                        .content(payload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", CONTRIBUTOR_JWT))
-                .andReturn().getResponse().getContentAsString();
-
-        return mapper.readValue(cratedCollection, CollectionDto.class);
-    }
-
-    private void removeCollection(long collectionId) throws Exception {
-
-        mvc.perform(delete("/api/collections/{collectionId}", collectionId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isOk());
-    }
-
     @Test
     void shouldReturnAllPublicCollections() throws Exception {
 
@@ -98,7 +85,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //then
         mvc.perform(get("/api/collections")
@@ -111,7 +98,7 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("collections[0].collectionItems", Matchers.hasSize(0)));
 
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -123,7 +110,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(false);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //then
         mvc.perform(get("/api/collections")
@@ -132,7 +119,7 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("collections", Matchers.hasSize(0)));
 
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -144,7 +131,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //then
         mvc.perform(get("/api/collections?private=true")
@@ -153,7 +140,7 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("collections", Matchers.hasSize(0)));
 
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -165,26 +152,26 @@ class CollectionControllerITCase {
         publicCollection.setDescription("Simple collection description");
         publicCollection.setVisible(true);
 
-        CollectionDto createdPublicCollection = createCollection(publicCollection);
+        CollectionDto createdPublicCollection = createCollection(publicCollection, CONTRIBUTOR_JWT);
 
 
         CollectionCreationDto privateCollection = new CollectionCreationDto();
-        privateCollection.setTitle("Simple  private collection");
+        privateCollection.setTitle("Simple private collection");
         privateCollection.setDescription("Simple private collection description");
         privateCollection.setVisible(false);
 
-        CollectionDto createdPrivateCollection = createCollection(privateCollection);
-
+        CollectionDto createdPrivateCollection = createCollection(privateCollection, CONTRIBUTOR_JWT);
         //then
         mvc.perform(get("/api/collections?private=true")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("collections", Matchers.hasSize(1)));
+                .andExpect(jsonPath("collections", Matchers.hasSize(1)))
+                .andExpect(jsonPath("collections[0].title", Matchers.is("Simple private collection")));
 
         //cleanup
-        removeCollection(createdPrivateCollection.getId());
-        removeCollection(createdPublicCollection.getId());
+        removeCollection(createdPrivateCollection.getId(), CONTRIBUTOR_JWT);
+        removeCollection(createdPublicCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -219,7 +206,7 @@ class CollectionControllerITCase {
 
         //cleanup
         CollectionDto createdCollection = mapper.readValue(cratedCollection, CollectionDto.class);
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -267,7 +254,7 @@ class CollectionControllerITCase {
 
         //cleanup
         CollectionDto createdCollection = mapper.readValue(cratedCollection, CollectionDto.class);
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -278,7 +265,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
@@ -290,7 +277,7 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -302,7 +289,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //when
         collection.setTitle("Modified collection title");
@@ -327,9 +314,73 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
+    @Test
+    void shouldReindexExistingCollectionDuringCollectionModification() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when
+        collection.setTitle("Modified collection title");
+        collection.setDescription("Modified collection description");
+        collection.setVisible(false);
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Modified collection title")))
+                .andExpect(jsonPath("description", is("Modified collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("false"))))
+                .andReturn().getResponse().getContentAsString();
+
+        //then
+        SolrQuery solrQuery = new SolrQuery("id:\"" + createdCollection.getId()+"\"");
+
+        QueryResponse results = solrClient.query(IndexCollection.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
+
+
+        MatcherAssert.assertThat(results.getResults(), Matchers.hasSize(1));
+        MatcherAssert.assertThat(results.getResults().getFirst().get(IndexCollection.ID_FIELD), Matchers.is(String.valueOf(createdCollection.getId())));
+        MatcherAssert.assertThat(results.getResults().getFirst().get(IndexCollection.TITLE_FIELD), Matchers.is("Modified collection title"));
+        MatcherAssert.assertThat(results.getResults().getFirst().get(IndexCollection.DESCRIPTION_FIELD), Matchers.is("Modified collection description"));
+        MatcherAssert.assertThat(results.getResults().getFirst().get(IndexCollection.VISIBLE_FIELD), Matchers.is(Boolean.valueOf("false")));
+
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldRemoveIndexedCollectionFromSolrDuringCollectionRemoval() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+
+        //then
+        SolrQuery solrQuery = new SolrQuery("id:\"" + createdCollection.getId()+"\"");
+        QueryResponse results = solrClient.query(IndexCollection.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
+
+        MatcherAssert.assertThat(results.getResults(), Matchers.hasSize(0));
+    }
 
     @Test
     void shouldRemoveCollection() throws Exception {
@@ -339,7 +390,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //when
         mvc.perform(delete("/api/collections/{collectionId}", createdCollection.getId())
@@ -362,7 +413,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(false);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //when
         collection.setVisible(true);
@@ -387,7 +438,7 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -399,7 +450,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //when
         CollectionSuggestionCreationDto collectionSuggestionCreationDto = new CollectionSuggestionCreationDto();
@@ -426,7 +477,7 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("collectionItems[0].persistentId", is("WfcKvG")))
                 .andExpect(jsonPath("collectionItems[0].comment", is("Example comment")));
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -438,7 +489,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(false);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //when
         CollectionSuggestionCreationDto collectionSuggestionCreationDto = new CollectionSuggestionCreationDto();
@@ -454,7 +505,7 @@ class CollectionControllerITCase {
                 .andExpect(status().isBadRequest());
 
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
 
     }
 
@@ -467,7 +518,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //when
         CollectionSuggestionCreationDto collectionSuggestionCreationDto = new CollectionSuggestionCreationDto();
@@ -489,9 +540,9 @@ class CollectionControllerITCase {
                 .andExpect(status().isOk())
 
                 .andExpect(jsonPath("messages", Matchers.hasSize(1)))
-                .andExpect(jsonPath("messages[0].content", is("New collection suggestion received")));
+                .andExpect(jsonPath("messages[0].content", is("There is a new suggestion for your collection: Simple collection")));
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
 
@@ -504,7 +555,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         CollectionSuggestionCreationDto collectionSuggestionCreationDto = new CollectionSuggestionCreationDto();
         collectionSuggestionCreationDto.setComment("Example comment");
@@ -552,7 +603,7 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("collectionItems[0].suggested", is(Boolean.valueOf("false"))));
 
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
     @Test
@@ -563,7 +614,7 @@ class CollectionControllerITCase {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        CollectionDto createdCollection = createCollection(collection);
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         CollectionSuggestionCreationDto collectionSuggestionCreationDto = new CollectionSuggestionCreationDto();
         collectionSuggestionCreationDto.setComment("Example comment");
@@ -609,6 +660,6 @@ class CollectionControllerITCase {
                 .andExpect(jsonPath("collectionItems", Matchers.hasSize(0)));
 
         //cleanup
-        removeCollection(createdCollection.getId());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 }

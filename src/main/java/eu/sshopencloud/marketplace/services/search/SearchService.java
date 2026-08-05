@@ -56,7 +56,7 @@ public class SearchService {
     private final SearchConceptRepository searchConceptRepository;
     private final PropertyTypeService propertyTypeService;
     private final SearchActorRepository searchActorRepository;
-    private final SearchCollectionRepository  searchCollectionRepository;
+    private final SearchCollectionRepository searchCollectionRepository;
     private final ActorService actorService;
     private final SourceService sourceService;
 
@@ -357,7 +357,9 @@ public class SearchService {
 
         SearchQueryCriteria queryCriteria = new CollectionSearchQueryPhrase(q, advanced);
 
-        QueryResponse facetPage = searchCollectionRepository.findByQuery(queryCriteria, pageable);
+        User currentUser = LoggedInUserHolder.getLoggedInUser();
+
+        QueryResponse facetPage = searchCollectionRepository.findByQuery(queryCriteria, currentUser, pageable);
 
         return PaginatedSearchCollection.builder()
                 .q(q)

@@ -14,5 +14,6 @@ public class SearchCollection {
     private Long id;
     private String title;
     private String description;
+    private String visible;
 
 }

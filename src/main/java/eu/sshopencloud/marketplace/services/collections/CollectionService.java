@@ -3,8 +3,6 @@ package eu.sshopencloud.marketplace.services.collections;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.collections.*;
 import eu.sshopencloud.marketplace.dto.inbox.MessageDto;
-import eu.sshopencloud.marketplace.dto.items.ItemBasicDto;
-import eu.sshopencloud.marketplace.dto.items.PaginatedItemsBasic;
 import eu.sshopencloud.marketplace.mappers.collections.CollectionMapper;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
@@ -87,7 +85,7 @@ public class CollectionService {
         }
         PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());
         Page<Collection> collections =
-                collectionRepository.findAllByOwnerAndVisible(LoggedInUserHolder.getLoggedInUser(), true, pageRequest);
+                collectionRepository.findAllByOwnerAndVisible(LoggedInUserHolder.getLoggedInUser(), false, pageRequest);
         return PaginatedCollections.builder().collections(CollectionMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
     }
 
@@ -108,6 +106,8 @@ public class CollectionService {
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
             collection.setUpdatedAt(ZonedDateTime.now());
+
+            indexCollectionService.indexCollection(collection);
 
             return CollectionMapper.INSTANCE.toDto(collection);
         } else {
@@ -131,7 +131,7 @@ public class CollectionService {
             collection.getCollectionItems().add(collectionItem);
 
             MessageDto messageDto = new MessageDto();
-            messageDto.setContent("New collection suggestion received");
+            messageDto.setContent("There is a new suggestion for your collection: " + collection.getTitle());
 
             messagesService.sendMessageToUser(messageDto, collection.getOwner());
         } else {
@@ -166,6 +166,7 @@ public class CollectionService {
         Optional<Collection> collection = collectionRepository.findById(collectionId);
         if (collection.isPresent() && collection.get().getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
             collectionRepository.deleteById(collectionId);
+            indexCollectionService.removeFromIndex(collection.get());
         }
     }
 
