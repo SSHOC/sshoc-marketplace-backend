@@ -84,6 +84,9 @@ public class SearchConverter {
                 .id(Long.valueOf(indexCollection.getId()))
                 .title(indexCollection.getTitle())
                 .description(indexCollection.getDescription())
+                .createdAt(indexCollection.getCreatedAt())
+                .updatedAt(indexCollection.getUpdatedAt())
+                .itemsCount(indexCollection.getItemsCount())
                 .build();
     }
 

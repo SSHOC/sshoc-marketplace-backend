@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,5 +17,7 @@ public class SearchCollection {
     private String title;
     private String description;
     private String visible;
-
+    private int itemsCount;
+    private Date createdAt;
+    private Date updatedAt;
 }

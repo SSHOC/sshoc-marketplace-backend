@@ -196,6 +196,9 @@ public class IndexConverter {
         document.addField(IndexCollection.TITLE_FIELD, collection.getTitle());
         document.addField(IndexCollection.DESCRIPTION_FIELD, collection.getDescription());
         document.addField(IndexCollection.VISIBLE_FIELD, collection.isVisible());
+        document.addField(IndexCollection.ITEMS_COUNT_FIELD, collection.getCollectionItems().size());
+        document.addField(IndexCollection.CREATED_AT_FIELD, Date.from(collection.getCreatedAt().toInstant()));
+        document.addField(IndexCollection.UPDATED_AT_FIELD, Date.from(collection.getUpdatedAt().toInstant()));
 
         return document;
     }

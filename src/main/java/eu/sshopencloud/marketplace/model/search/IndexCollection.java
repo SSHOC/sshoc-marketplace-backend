@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.solr.client.solrj.beans.Field;
 
+import java.util.Date;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -20,7 +22,9 @@ public class IndexCollection {
     public static final String TITLE_FIELD = "title";
     public static final String DESCRIPTION_FIELD = "description";
     public static final String VISIBLE_FIELD = "visible";
-
+    public static final String ITEMS_COUNT_FIELD = "items_count";
+    public static final String CREATED_AT_FIELD = "created_at";
+    public static final String UPDATED_AT_FIELD = "updated_at";
 
     @Field(ID_FIELD)
     private String id;
@@ -32,5 +36,11 @@ public class IndexCollection {
     private String description;
     @Field(VISIBLE_FIELD)
     private String visible;
+    @Field(ITEMS_COUNT_FIELD)
+    private int itemsCount;
+    @Field(CREATED_AT_FIELD)
+    private Date createdAt;
+    @Field(UPDATED_AT_FIELD)
+    private Date updatedAt;
 
 }
