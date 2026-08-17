@@ -200,6 +200,10 @@ public class IndexConverter {
         document.addField(IndexCollection.CREATED_AT_FIELD, Date.from(collection.getCreatedAt().toInstant()));
         document.addField(IndexCollection.UPDATED_AT_FIELD, Date.from(collection.getUpdatedAt().toInstant()));
 
+
+        constructDynamicProperties(collection.getProperties()).forEach(
+                (key, value) -> value.forEach(v -> document.addField(IndexItem.DYNAMIC_PROPERTY.replace("*", key), v)));
+
         return document;
     }
 

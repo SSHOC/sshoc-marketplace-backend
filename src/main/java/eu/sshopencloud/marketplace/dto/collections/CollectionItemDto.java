@@ -14,4 +14,10 @@ public class CollectionItemDto {
     private boolean isSuggested;
 
     private String comment;
+
+    private String type;
+
+    private String title;
+
+    private String description;
 }

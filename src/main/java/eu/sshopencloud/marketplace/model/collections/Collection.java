@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.collections;
 
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -44,4 +45,17 @@ public class Collection {
 
     @CreationTimestamp
     private ZonedDateTime updatedAt;
+
+    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(
+            name = "collection_properties",
+            joinColumns = @JoinColumn(
+                    name = "collection_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "collection_properties_item_fk")
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "property_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "item_properties_property_fk")
+            )
+    )
+    @OrderColumn(name = "ord", nullable = false)
+    private List<Property> properties;
 }

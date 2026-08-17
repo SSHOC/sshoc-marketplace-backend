@@ -18,6 +18,11 @@ public class PageCoordsValidator {
         if (perpage != null && perpage > maximalPerpage) {
             throw new PageTooLargeException(maximalPerpage);
         }
+
+        if (page != null && page <= 0) {
+            throw new IllegalArgumentException("Page index must be 1 or more");
+        }
+
         return PageCoords.builder()
                 .perpage(perpage == null ? defualtPerpage : perpage)
                 .page(page == null ? 1 : page)

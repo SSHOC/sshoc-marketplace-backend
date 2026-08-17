@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0064-properties_for_collections
+      author: woz
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_collection_properties
+                  name: collection_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_collection_properties
+                  name: ord
+                  type: INT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: property_id
+                  type: BIGINT
+            tableName: collection_properties
+  - changeSet:
+      id: 1786970456273-5
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: collection_id
+            baseTableName: collection_properties
+            constraintName: collection_properties_item_fk
+            referencedColumnNames: id
+            referencedTableName: collections
+  - changeSet:
+      id: 1786970456273-6
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: property_id
+            baseTableName: collection_properties
+            constraintName: collection_properties_item_fkMux5DF
+            referencedColumnNames: id
+            referencedTableName: properties

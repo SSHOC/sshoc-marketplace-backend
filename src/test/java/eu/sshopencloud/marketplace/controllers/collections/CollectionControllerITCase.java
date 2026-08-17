@@ -7,6 +7,8 @@ import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionSuggestionCreationDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionSuggestionStatusActionDto;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
+import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.model.search.IndexCollection;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
@@ -290,6 +292,52 @@ class CollectionControllerITCase extends CollectionControllerTest {
     }
 
     @Test
+    void shouldCreateCollectionWithProperty() throws Exception {
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection with property");
+        collection.setDescription("Simple collection description");
+        collection.setContainedItems(List.of("vHQEhe", "WfcKvG"));
+        collection.setVisible(true);
+
+        PropertyCore propertyCore = new PropertyCore();
+        PropertyTypeId propertyTypeId = new PropertyTypeId();
+        propertyTypeId.setCode("keyword");
+        propertyCore.setType(propertyTypeId);
+        propertyCore.setValue("recommended");
+        collection.setProperties(List.of(propertyCore));
+
+        //when
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //then
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection with property")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("properties", Matchers.hasSize(1)))
+                .andExpect(jsonPath("properties[0].value", is("recommended")))
+                .andExpect(jsonPath("properties[0].type.code", is("keyword")));
+
+        SolrQuery solrQuery = new SolrQuery("id:\"" + createdCollection.getId()+"\"");
+
+        QueryResponse results = solrClient.query(IndexCollection.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
+
+        MatcherAssert.assertThat(results.getResults(), Matchers.hasSize(1));
+        MatcherAssert.assertThat(results.getResults().getFirst().get(IndexCollection.ID_FIELD), Matchers.is(String.valueOf(createdCollection.getId())));
+        MatcherAssert.assertThat(
+                (List<String>) results.getResults().getFirst().get("dynamic_property_keyword_ss"),
+                Matchers.contains("recommended")
+        );
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
     void shouldReadCreatedCollection() throws Exception {
         //given
         CollectionCreationDto collection = new CollectionCreationDto();
@@ -380,7 +428,6 @@ class CollectionControllerITCase extends CollectionControllerTest {
         SolrQuery solrQuery = new SolrQuery("id:\"" + createdCollection.getId()+"\"");
 
         QueryResponse results = solrClient.query(IndexCollection.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
-
 
         MatcherAssert.assertThat(results.getResults(), Matchers.hasSize(1));
         MatcherAssert.assertThat(results.getResults().getFirst().get(IndexCollection.ID_FIELD), Matchers.is(String.valueOf(createdCollection.getId())));

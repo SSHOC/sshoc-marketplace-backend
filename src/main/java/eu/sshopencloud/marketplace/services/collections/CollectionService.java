@@ -8,11 +8,14 @@ import eu.sshopencloud.marketplace.mappers.collections.CollectionMapper;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
 import eu.sshopencloud.marketplace.model.items.VersionedItem;
+import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.repositories.collections.CollectionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.inbox.MessagesService;
 import eu.sshopencloud.marketplace.services.search.IndexCollectionService;
+import eu.sshopencloud.marketplace.validators.ValidationException;
+import eu.sshopencloud.marketplace.validators.vocabularies.PropertyFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BeanPropertyBindingResult;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -34,14 +38,16 @@ public class CollectionService {
     private final VersionedItemRepository versionedItemRepository;
     private final IndexCollectionService indexCollectionService;
     private final MessagesService messagesService;
+    private final PropertyFactory propertyFactory;
 
 
     public CollectionService(CollectionRepository collectionRepository,
-                             VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, MessagesService messagesService) {
+                             VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, MessagesService messagesService, PropertyFactory propertyFactory) {
         this.collectionRepository = collectionRepository;
         this.versionedItemRepository = versionedItemRepository;
         this.indexCollectionService = indexCollectionService;
         this.messagesService = messagesService;
+        this.propertyFactory = propertyFactory;
     }
 
 
@@ -54,6 +60,12 @@ public class CollectionService {
         collection.setCreatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
         collection.setUpdatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
 
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(collectionCore, "CollectionDto");
+
+        List<Property> properties = propertyFactory.create(collectionCore.getProperties(), null, errors, "properties");
+
+        collection.setProperties(properties);
+
         collectionCore.getContainedItems().forEach(item -> {
             VersionedItem versionedItem =
                     versionedItemRepository.findById(item).orElseThrow(() -> new CollectionException("Item not found"));
@@ -62,6 +74,10 @@ public class CollectionService {
             collectionItem.setItem(versionedItem.getCurrentVersion());
             collection.getCollectionItems().add(collectionItem);
         });
+
+        if (errors.hasErrors())
+            throw new ValidationException(errors);
+
         collectionRepository.save(collection);
         indexCollectionService.indexCollection(collection);
 
