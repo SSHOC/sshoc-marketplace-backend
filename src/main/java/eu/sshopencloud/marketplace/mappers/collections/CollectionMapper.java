@@ -1,18 +1,75 @@
 package eu.sshopencloud.marketplace.mappers.collections;
 
+import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
+import eu.sshopencloud.marketplace.dto.collections.CollectionItemDto;
+import eu.sshopencloud.marketplace.dto.collections.PaginatedCollectionItems;
 import eu.sshopencloud.marketplace.model.collections.Collection;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import eu.sshopencloud.marketplace.model.collections.CollectionItem;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-@Mapper(uses = CollectionItemMapper.class)
-public interface CollectionMapper {
+/**
+ * Mapper used of single collection. It maps collection items too.
+ */
+public class CollectionMapper {
 
-    CollectionMapper INSTANCE = Mappers.getMapper(CollectionMapper.class);
+    public static final CollectionMapper INSTANCE = new CollectionMapper();
 
-    CollectionDto toDto(Collection collection);
+    private CollectionMapper() {
+    }
 
-    List<CollectionDto> toDto(List<Collection> collections);
+    public CollectionDto toDto(Collection collection, PageCoords pageCoords) {
+        if (collection == null) {
+            return null;
+        }
+
+        CollectionDto collectionDto = new CollectionDto();
+
+        collectionDto.setId(collection.getId());
+        collectionDto.setTitle(collection.getTitle());
+        collectionDto.setDescription(collection.getDescription());
+        collectionDto.setVisible(collection.isVisible());
+
+        List<CollectionItemDto> collectionItemDtos = mapCollectionItems(collection, pageCoords);
+
+        collectionDto.setCollectionItems(PaginatedCollectionItems.builder().items(collectionItemDtos).count(collectionItemDtos.size()).hits(collection.getCollectionItems().size()).page(pageCoords.getPage()).perpage(pageCoords.getPerpage()).pages(0).build());
+
+        collectionDto.setCreatedAt(collection.getCreatedAt());
+        collectionDto.setUpdatedAt(collection.getUpdatedAt());
+
+        return collectionDto;
+    }
+
+
+    private List<CollectionItemDto> mapCollectionItems(Collection collection, PageCoords pageCoords) {
+        List<CollectionItem> collectionItems = getPage(collection.getCollectionItems(), pageCoords.getPage(),
+                pageCoords.getPerpage());
+        List<CollectionItemDto> collectionItemDtos = new ArrayList<>();
+        collectionItems.forEach(collectionItem -> {
+            CollectionItemDto collectionItemDto = new CollectionItemDto();
+            collectionItemDto.setId(collectionItem.getId());
+            collectionItemDto.setPersistentId(collectionItem.getItem().getPersistentId());
+            collectionItemDto.setComment(collectionItem.getComment());
+            collectionItemDto.setSuggested(collectionItem.isSuggested());
+            collectionItemDtos.add(collectionItemDto);
+        });
+
+        return collectionItemDtos;
+    }
+
+    public List<CollectionItem> getPage(List<CollectionItem> collectionItems, int pageNumber, int pageSize) {
+        if (collectionItems == null || collectionItems.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        int fromIndex = (pageNumber - 1) * pageSize;
+        if (fromIndex >= collectionItems.size() || fromIndex < 0) {
+            return Collections.emptyList();
+        }
+        int toIndex = Math.min(fromIndex + pageSize, collectionItems.size());
+        return collectionItems.subList(fromIndex, toIndex);
+    }
 }

@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -95,7 +95,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("collections[0].title", is("Simple collection")))
                 .andExpect(jsonPath("collections[0].description", is("Simple collection description")))
                 .andExpect(jsonPath("collections[0].visible", is(Boolean.valueOf("true"))))
-                .andExpect(jsonPath("collections[0].collectionItems", Matchers.hasSize(0)));
+                .andExpect(jsonPath("collections[0].collectionItems").doesNotExist());
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
@@ -134,7 +134,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //then
-        mvc.perform(get("/api/collections?private=true")
+        mvc.perform(get("/api/collections?readMode=PRIVATE")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("collections", Matchers.hasSize(0)));
@@ -162,12 +162,44 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         CollectionDto createdPrivateCollection = createCollection(privateCollection, CONTRIBUTOR_JWT);
         //then
-        mvc.perform(get("/api/collections?private=true")
+        mvc.perform(get("/api/collections?readMode=PRIVATE")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("collections", Matchers.hasSize(1)))
                 .andExpect(jsonPath("collections[0].title", Matchers.is("Simple private collection")));
+
+        //cleanup
+        removeCollection(createdPrivateCollection.getId(), CONTRIBUTOR_JWT);
+        removeCollection(createdPublicCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldReturnAllCollectionsOwnedByAuthenticatedUser() throws Exception {
+
+        //given
+        CollectionCreationDto userPrivateCollection = new CollectionCreationDto();
+        userPrivateCollection.setTitle("Simple collection");
+        userPrivateCollection.setDescription("Simple collection description");
+        userPrivateCollection.setVisible(true);
+
+        CollectionDto createdPrivateCollection = createCollection(userPrivateCollection, CONTRIBUTOR_JWT);
+
+
+        CollectionCreationDto userPublicCollection = new CollectionCreationDto();
+        userPublicCollection.setTitle("Simple public collection");
+        userPublicCollection.setDescription("Simple public collection description");
+        userPublicCollection.setVisible(false);
+
+        CollectionDto createdPublicCollection = createCollection(userPublicCollection, CONTRIBUTOR_JWT);
+        //then
+        mvc.perform(get("/api/collections?readMode=OWNED_BY_CALLER")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("collections", Matchers.hasSize(2)))
+                .andExpect(jsonPath("collections[*].title", hasItems("Simple public collection", "Simple collection")))
+                .andExpect(jsonPath("collections[*].description", hasItems("Simple collection description", "Simple public collection description")));
 
         //cleanup
         removeCollection(createdPrivateCollection.getId(), CONTRIBUTOR_JWT);
@@ -201,7 +233,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
-                .andExpect(jsonPath("collectionItems", Matchers.hasSize(0)))
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(0)))
                 .andReturn().getResponse().getContentAsString();
 
         //cleanup
@@ -247,9 +279,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
-                .andExpect(jsonPath("collectionItems", Matchers.hasSize(2)))
-                .andExpect(jsonPath("collectionItems[0].persistentId", is("vHQEhe")))
-                .andExpect(jsonPath("collectionItems[1].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(2)))
+                .andExpect(jsonPath("collectionItems.items[0].persistentId", is("vHQEhe")))
+                .andExpect(jsonPath("collectionItems.items[1].persistentId", is("WfcKvG")))
                 .andReturn().getResponse().getContentAsString();
 
         //cleanup
@@ -473,9 +505,10 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
-                .andExpect(jsonPath("collectionItems", Matchers.hasSize(1)))
-                .andExpect(jsonPath("collectionItems[0].persistentId", is("WfcKvG")))
-                .andExpect(jsonPath("collectionItems[0].comment", is("Example comment")));
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(1)))
+                .andExpect(jsonPath("collectionItems.items[0].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("collectionItems.items[0].comment", is("Example comment")));
+
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
@@ -573,9 +606,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("collectionItems", Matchers.hasSize(1)))
-                .andExpect(jsonPath("collectionItems[0].persistentId", is("WfcKvG")))
-                .andExpect(jsonPath("collectionItems[0].suggested", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(1)))
+                .andExpect(jsonPath("collectionItems.items[0].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("collectionItems.items[0].suggested", is(Boolean.valueOf("true"))))
                 .andReturn().getResponse().getContentAsString();
 
         CollectionDto collectionDto = mapper.readValue(retrievedCollection, CollectionDto.class);
@@ -586,7 +619,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         String suggestionPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(suggestionStatusActionDto);
 
-        mvc.perform(post("/api/collections/{id}/suggestions/{suggestionId}", createdCollection.getId(), collectionDto.getCollectionItems().get(0).getId())
+        mvc.perform(post("/api/collections/{id}/suggestions/{suggestionId}", createdCollection.getId(), collectionDto.getCollectionItems().getItems().get(0).getId())
                         .content(suggestionPayload)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
@@ -598,9 +631,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("collectionItems", Matchers.hasSize(1)))
-                .andExpect(jsonPath("collectionItems[0].persistentId", is("WfcKvG")))
-                .andExpect(jsonPath("collectionItems[0].suggested", is(Boolean.valueOf("false"))));
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(1)))
+                .andExpect(jsonPath("collectionItems.items[0].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("collectionItems.items[0].suggested", is(Boolean.valueOf("false"))));
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
@@ -632,9 +665,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("collectionItems", Matchers.hasSize(1)))
-                .andExpect(jsonPath("collectionItems[0].persistentId", is("WfcKvG")))
-                .andExpect(jsonPath("collectionItems[0].suggested", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(1)))
+                .andExpect(jsonPath("collectionItems.items[0].persistentId", is("WfcKvG")))
+                .andExpect(jsonPath("collectionItems.items[0].suggested", is(Boolean.valueOf("true"))))
                 .andReturn().getResponse().getContentAsString();
 
         CollectionDto collectionDto = mapper.readValue(retrievedCollection, CollectionDto.class);
@@ -645,7 +678,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         String suggestionPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(suggestionStatusActionDto);
 
-        mvc.perform(post("/api/collections/{id}/suggestions/{suggestionId}", createdCollection.getId(), collectionDto.getCollectionItems().get(0).getId())
+        mvc.perform(post("/api/collections/{id}/suggestions/{suggestionId}", createdCollection.getId(), collectionDto.getCollectionItems().getItems().get(0).getId())
                         .content(suggestionPayload)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
@@ -657,7 +690,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("collectionItems", Matchers.hasSize(0)));
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(0)));
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);

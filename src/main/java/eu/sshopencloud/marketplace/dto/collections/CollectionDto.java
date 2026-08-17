@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 
 /**
  * DTO containing general information about collection
@@ -24,7 +23,7 @@ public class CollectionDto {
 
     private boolean visible;
 
-    private List<CollectionItemDto> collectionItems;
+    PaginatedCollectionItems collectionItems;
 
     @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)

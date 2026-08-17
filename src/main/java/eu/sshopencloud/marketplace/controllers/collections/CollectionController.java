@@ -25,19 +25,21 @@ public class CollectionController {
     public ResponseEntity<PaginatedCollections> getCollections(
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "perpage", required = false) Integer perpage,
-            @RequestParam(value = "private", defaultValue = "false") boolean privateOnly) throws PageTooLargeException {
+            @RequestParam(value = "readMode", defaultValue = "PUBLIC") CollectionService.CollectionsReadMode mode) throws PageTooLargeException {
 
         return ResponseEntity.ok(
                 collectionService.getCollections(
-                        pageCoordsValidator.validate(page, perpage),
-                        privateOnly));
+                        pageCoordsValidator.validate(page, perpage), mode));
     }
 
     @Operation(summary = "Get single collection by its id")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionDto> getCollection(@PathVariable("id") long id) {
+    public ResponseEntity<CollectionDto> getCollection(
+            @PathVariable("id") long id,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "perpage", required = false) Integer perpage) throws PageTooLargeException {
 
-        return ResponseEntity.ok(collectionService.getCollection(id));
+        return ResponseEntity.ok(collectionService.getCollection(id, pageCoordsValidator.validate(page, perpage)));
     }
 
     @Operation(summary = "Creating collection")

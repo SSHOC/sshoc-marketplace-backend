@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.services.collections;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.collections.*;
 import eu.sshopencloud.marketplace.dto.inbox.MessageDto;
+import eu.sshopencloud.marketplace.mappers.collections.CollectionListMapper;
 import eu.sshopencloud.marketplace.mappers.collections.CollectionMapper;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
@@ -20,9 +21,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -50,6 +51,8 @@ public class CollectionService {
         collection.setDescription(collectionCore.getDescription());
         collection.setVisible(collectionCore.isVisible());
         collection.setOwner(LoggedInUserHolder.getLoggedInUser());
+        collection.setCreatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
+        collection.setUpdatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
 
         collectionCore.getContainedItems().forEach(item -> {
             VersionedItem versionedItem =
@@ -62,21 +65,30 @@ public class CollectionService {
         collectionRepository.save(collection);
         indexCollectionService.indexCollection(collection);
 
-        return CollectionMapper.INSTANCE.toDto(collection);
+        return CollectionMapper.INSTANCE.toDto(collection, PageCoords.builder().page(1).perpage(20).build());
     }
 
-    public PaginatedCollections getCollections(PageCoords pageCoords, boolean privateOnly) {
-        if (privateOnly) {
-            return getUserPrivateCollections(pageCoords);
-        } else {
-            return getPublicCollections(pageCoords);
+    public PaginatedCollections getCollections(PageCoords pageCoords, CollectionsReadMode mode) {
+        switch (mode) {
+            case PUBLIC -> {
+                return getPublicCollections(pageCoords);
+            }
+            case PRIVATE -> {
+                return getUserPrivateCollections(pageCoords);
+            }
+            case OWNED_BY_CALLER -> {
+                return getCollectionsOwnedByCaller(pageCoords);
+            }
+            default -> {
+                return PaginatedCollections.builder().collections(Collections.emptyList()).count(0).hits(0).page(0).perpage(0).pages(0).build();
+            }
         }
     }
 
     private PaginatedCollections getPublicCollections(PageCoords pageCoords) {
         PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());
         Page<Collection> collections = collectionRepository.findAllByVisibleTrue(pageRequest);
-        return PaginatedCollections.builder().collections(CollectionMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
+        return PaginatedCollections.builder().collections(CollectionListMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
     }
 
     private PaginatedCollections getUserPrivateCollections(PageCoords pageCoords) {
@@ -86,15 +98,25 @@ public class CollectionService {
         PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());
         Page<Collection> collections =
                 collectionRepository.findAllByOwnerAndVisible(LoggedInUserHolder.getLoggedInUser(), false, pageRequest);
-        return PaginatedCollections.builder().collections(CollectionMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
+        return PaginatedCollections.builder().collections(CollectionListMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
     }
 
-    public CollectionDto getCollection(long id) {
+    private PaginatedCollections getCollectionsOwnedByCaller(PageCoords pageCoords) {
+        if (LoggedInUserHolder.getLoggedInUser() == null) {
+            return PaginatedCollections.builder().collections(Collections.emptyList()).count(0).hits(0).page(0).perpage(0).pages(0).build();
+        }
+        PageRequest pageRequest = PageRequest.of(pageCoords.getPage() - 1, pageCoords.getPerpage());
+        Page<Collection> collections =
+                collectionRepository.findAllByOwner(LoggedInUserHolder.getLoggedInUser(), pageRequest);
+        return PaginatedCollections.builder().collections(CollectionListMapper.INSTANCE.toDto(collections.getContent())).count(collections.getContent().size()).hits(collections.getTotalElements()).page(pageRequest.getPageNumber()).perpage(pageRequest.getPageSize()).pages(collections.getTotalPages()).build();
+    }
+
+    public CollectionDto getCollection(long id, PageCoords pageCoords) {
         Collection collection =
                 collectionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format(
                         "Collection with id %s not found", id)));
 
-        return CollectionMapper.INSTANCE.toDto(collection);
+        return CollectionMapper.INSTANCE.toDto(collection, pageCoords);
     }
 
     public CollectionDto updateCollection(long collectionId, CollectionCreationDto collectionCreationDto) {
@@ -105,11 +127,22 @@ public class CollectionService {
             collection.setTitle(collectionCreationDto.getTitle());
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
+            collection.setOwner(LoggedInUserHolder.getLoggedInUser());
             collection.setUpdatedAt(ZonedDateTime.now());
+            collection.getCollectionItems().clear();
+
+            collectionCreationDto.getContainedItems().forEach(item -> {
+                VersionedItem versionedItem =
+                        versionedItemRepository.findById(item).orElseThrow(() -> new CollectionException("Item not found"));
+                CollectionItem collectionItem = new CollectionItem();
+                collectionItem.setCollection(collection);
+                collectionItem.setItem(versionedItem.getCurrentVersion());
+                collection.getCollectionItems().add(collectionItem);
+            });
 
             indexCollectionService.indexCollection(collection);
 
-            return CollectionMapper.INSTANCE.toDto(collection);
+            return CollectionListMapper.INSTANCE.toDto(collection);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -187,5 +220,9 @@ public class CollectionService {
             log.debug("It is not possible to change suggestion status for collection: {}", collection);
             return false;
         }
+    }
+
+    public enum CollectionsReadMode {
+        PRIVATE, PUBLIC, OWNED_BY_CALLER
     }
 }
