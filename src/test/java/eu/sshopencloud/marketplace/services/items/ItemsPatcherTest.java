@@ -1,14 +1,18 @@
 package eu.sshopencloud.marketplace.services.items;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.ExpectedToFail;
 
 import eu.sshopencloud.marketplace.domain.media.MediaCategory;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaLocation;
+import eu.sshopencloud.marketplace.dto.items.DigitalObjectCore;
+import eu.sshopencloud.marketplace.dto.items.DigitalObjectDto;
 import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
 import eu.sshopencloud.marketplace.dto.items.ItemExternalIdDto;
@@ -21,6 +25,23 @@ import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyBasicDto;
 import eu.sshopencloud.marketplace.model.items.ItemCategory;
 
 class ItemsPatcherTest {
+
+    /**
+     * A test to ensure that dates are correctly preserved during patching.
+     * This test was added specifically to help test development of the new
+     * patching algorithm, as the Jackson based approach initially failed
+     * to handle the ZonedDateTime instances used in DigitalObject[DTO|Core]
+     */
+    @Test
+    public void testDateSerialization() {
+        DigitalObjectDto itemDto = prepareItemDto();
+
+        DigitalObjectCore itemCore = new DigitalObjectCore();
+
+        ItemsPatcher.patchItemCore(itemDto, null, itemCore);
+
+        Assertions.assertEquals(itemDto.getDateCreated(), itemCore.getDateCreated());
+    }
     
     /**
      * This test ensures that when applying a patch which does not include a thumbnail,
@@ -54,7 +75,11 @@ class ItemsPatcherTest {
         );
     }
 
-    /** */
+    /**
+     * This test ensures that when applying a patch, which does not contain
+     * any related items, that the related items are correctly copied from
+     * the ItemDto instance.
+     */
     @Test
     public void testRelatedItemsRetention() {
         
@@ -87,13 +112,91 @@ class ItemsPatcherTest {
     }
 
     /**
+     * This test is setup to patch the description field, where the current item
+     * has a valid value, but the first ingest version has a null description.
+     * My assumption is that the description should get updated to the value in the
+     * patch. What actually happens though is that the current value is retained
+     * due to the weird logic in ItemsPatcher.determinePatchValue(). This causes
+     * the test to fail and hence it's currently annotated with @ExpectedToFail.
+     * Note that the same failure would happen when updating the label or version
+     * field as well given that both pass through ItemsPatcher.determinePatchValue()
+     */
+    @Test
+    @ExpectedToFail
+    public void testPatchNullDescription() {
+        // create a sample ItemDto, with a related item, which we want to patch
+        // note that this has a description field
+        ItemDto itemDto = prepareItemDto();
+
+        // create an ItemDto to represent the first ingest DTO. I still don't understand
+        // exactly what this is used for inside the patcher
+        ItemDto firstIngestDto = prepareItemDto();
+
+        // moduify this so that the description field is null
+        firstIngestDto.setDescription(null);
+
+        // create a patch to update the description of the item
+        ItemCore patch = new ItemCore();
+        patch.setLabel("updatedDescription");
+
+        // apply the patch to the item.
+        ItemsPatcher.patchItemCore(itemDto, firstIngestDto, patch);
+
+        // verify that the label matches the patch value
+        // Note that currently this will fail due to the odd logic
+        // in ItemPatcher.determinePatchValue
+        Assertions.assertEquals("updatedDescription", patch.getDescription());
+    }
+
+    /**
+     * This test is setup to patch the description field, where both the current item
+     * and the first ingest version have none null but different values.
+     * My assumption is that the description should get updated to the value in the
+     * patch. What actually happens though is that the current value is retained
+     * due to the weird logic in ItemsPatcher.determinePatchValue(). This causes
+     * the test to fail and hence it's currently annotated with @ExpectedToFail.
+     * Note that the same failure would happen when updating the label or version
+     * field as well given that both pass through ItemsPatcher.determinePatchValue()
+     */
+    @Test
+    @ExpectedToFail
+    public void testPatchDifferentDescription() {
+        // create a sample ItemDto, with a related item, which we want to patch
+        // note that this has a description field
+        ItemDto itemDto = prepareItemDto();
+
+        // create an ItemDto to represent the first ingest DTO. I still don't understand
+        // exactly what this is used for inside the patcher
+        ItemDto firstIngestDto = prepareItemDto();
+
+        // moduify this so that the description field is null
+        firstIngestDto.setDescription("firstDescription");
+
+        // create a patch to update the description of the item
+        ItemCore patch = new ItemCore();
+        patch.setLabel("updatedDescription");
+
+        // apply the patch to the item.
+        ItemsPatcher.patchItemCore(itemDto, firstIngestDto, patch);
+
+        // verify that the label matches the patch value
+        // Note that currently this will fail due to the odd logic
+        // in ItemPatcher.determinePatchValue
+        Assertions.assertEquals("updatedDescription", patch.getDescription());
+    }
+
+    /**
      * Prepares an ItemDto object with test data for use in unit tests.
      * Note that not all fields are populated, only those relevant for the tests,
-     * which ensure that the ItemsPatcher does not throw any NPEs.
+     * which ensures that the ItemsPatcher does not throw a NPE. A richer
+     * test object would be beneficial for thorough testing, although that may
+     * be better done during integration rather than unit testing.
      * @return An ItemDto object populated with test data.
      */
-    private ItemDto prepareItemDto(){
-        ItemDto item = new ItemDto();
+    private DigitalObjectDto prepareItemDto(){
+        DigitalObjectDto item = new DigitalObjectDto();
+
+        item.setDateCreated(ZonedDateTime.parse("2026-08-18T14:05:55+01:00"));
 
         item.setDescription("testDescription");
         item.setCategory(ItemCategory.STEP);
