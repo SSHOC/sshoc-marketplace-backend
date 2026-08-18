@@ -1,6 +1,5 @@
 package eu.sshopencloud.marketplace.services.items;
 
-import eu.sshopencloud.marketplace.dto.items.*;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -10,6 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import eu.sshopencloud.marketplace.dto.items.ItemCore;
+import eu.sshopencloud.marketplace.dto.items.ItemDto;
 
 import java.io.IOException;
 import java.util.Map;
