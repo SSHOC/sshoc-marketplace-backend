@@ -1,13 +1,6 @@
 package eu.sshopencloud.marketplace.services.items;
 
-import eu.sshopencloud.marketplace.dto.actors.ActorId;
-import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.*;
-import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,12 +31,9 @@ class ItemsPatcher {
         // reading back an encoded version
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         
-        // by default Jackson won't serialise the old Java 8 date/time classes, including ZonedDateTime
+        // by default Jackson won't serialise the old Java 8 date/time classes which includes ZonedDateTime
         // which is used to store created/updated dates. This adds support for that so we can correctly
-        // round trip them when converting between the DTO and Core versions. Annoyingly this wouldn't be
-        // a problem if we could use convertValue but we can't given we are modifying the version
-        // of ItemCore passed in by reference. Note that there does seem to be a slight loss in precision
-        // as fractions of a second appear to be dropped during the conversion
+        // round trip them when converting between the DTO and Core versions.
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
