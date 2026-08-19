@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.mappers.collections.CollectionListMapper;
 import eu.sshopencloud.marketplace.mappers.collections.CollectionMapper;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
+import eu.sshopencloud.marketplace.model.items.CollectionThumbnail;
 import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import eu.sshopencloud.marketplace.repositories.collections.CollectionRepository;
@@ -75,6 +76,8 @@ public class CollectionService {
             collection.getCollectionItems().add(collectionItem);
         });
 
+        createThumbnail(collectionCore, collection,errors);
+
         if (errors.hasErrors())
             throw new ValidationException(errors);
 
@@ -82,6 +85,28 @@ public class CollectionService {
         indexCollectionService.indexCollection(collection);
 
         return CollectionMapper.INSTANCE.toDto(collection, PageCoords.builder().page(1).perpage(20).build());
+    }
+
+    private void createThumbnail(CollectionCreationDto collectionCore, Collection collection, BeanPropertyBindingResult errors) {
+
+        if (collectionCore.getThumbnail() != null && collectionCore.getThumbnail().getInfo() != null) {
+
+            CollectionThumbnail collectionThumbnail = new CollectionThumbnail();
+
+            if (collectionCore.getThumbnail().getInfo().getMediaId() == null) {
+                errors.pushNestedPath("info");
+                errors.rejectValue(
+                        "mediaId", "field.required", "The field mediaId is required"
+                );
+                errors.popNestedPath();
+                return;
+            }
+            collectionThumbnail.setThumbnailId(collectionCore.getThumbnail().getInfo().getMediaId());
+            collectionThumbnail.setCaption(collectionCore.getThumbnail().getCaption());
+
+            collectionThumbnail.setCollection(collection);
+            collection.setThumbnail(collectionThumbnail);
+        }
     }
 
     public PaginatedCollections getCollections(PageCoords pageCoords, CollectionsReadMode mode) {

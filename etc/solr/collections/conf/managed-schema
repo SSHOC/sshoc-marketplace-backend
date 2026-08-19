@@ -119,6 +119,7 @@
     <field name="items_count" type="pint" indexed="true" stored="true" multiValued="false"/>
     <field name="created_at" type="pdate" indexed="true" stored="true"/>
     <field name="updated_at" type="pdate" indexed="true" stored="true"/>
+    <field name="thumbnail_id" type="string" indexed="false" stored="true" required="false" multiValued="false" />
 
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
     <field name="_version_" type="plong" indexed="false" stored="false"/>

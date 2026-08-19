@@ -199,7 +199,7 @@ public class IndexConverter {
         document.addField(IndexCollection.ITEMS_COUNT_FIELD, collection.getCollectionItems().size());
         document.addField(IndexCollection.CREATED_AT_FIELD, Date.from(collection.getCreatedAt().toInstant()));
         document.addField(IndexCollection.UPDATED_AT_FIELD, Date.from(collection.getUpdatedAt().toInstant()));
-
+        document.addField(IndexCollection.THUMBNAIL_ID_FIELD, collection.getThumbnail().getThumbnailId().toString());
 
         constructDynamicProperties(collection.getProperties()).forEach(
                 (key, value) -> value.forEach(v -> document.addField(IndexItem.DYNAMIC_PROPERTY.replace("*", key), v)));

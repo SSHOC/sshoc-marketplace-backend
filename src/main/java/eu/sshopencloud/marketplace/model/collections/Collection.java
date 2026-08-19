@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.collections;
 
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.items.CollectionThumbnail;
 import eu.sshopencloud.marketplace.model.vocabularies.Property;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -58,4 +59,7 @@ public class Collection {
     )
     @OrderColumn(name = "ord", nullable = false)
     private List<Property> properties;
+
+    @OneToOne(mappedBy = "collection", cascade =  CascadeType.ALL)
+    private CollectionThumbnail thumbnail;
 }

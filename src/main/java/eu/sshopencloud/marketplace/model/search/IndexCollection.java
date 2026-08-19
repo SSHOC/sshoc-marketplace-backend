@@ -25,6 +25,7 @@ public class IndexCollection {
     public static final String ITEMS_COUNT_FIELD = "items_count";
     public static final String CREATED_AT_FIELD = "created_at";
     public static final String UPDATED_AT_FIELD = "updated_at";
+    public static final String THUMBNAIL_ID_FIELD = "thumbnail_id";
 
     @Field(ID_FIELD)
     private String id;

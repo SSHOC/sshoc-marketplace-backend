@@ -36,4 +36,6 @@ public class CollectionDto {
     private ZonedDateTime updatedAt;
 
     private List<PropertyDto> properties;
+
+    private CollectionThumbnailDto thumbnail;
 }

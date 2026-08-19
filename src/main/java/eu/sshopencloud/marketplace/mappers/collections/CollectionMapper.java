@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.mappers.collections;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionItemDto;
+import eu.sshopencloud.marketplace.dto.collections.CollectionThumbnailDto;
 import eu.sshopencloud.marketplace.dto.collections.PaginatedCollectionItems;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyDto;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeDto;
@@ -36,6 +37,7 @@ public class CollectionMapper {
         collectionDto.setVisible(collection.isVisible());
 
         collectionDto.setProperties(mapCollectionProperties(collection));
+        collectionDto.setThumbnail(mapCollectionThumbnail(collection));
         List<CollectionItemDto> collectionItemDtos = mapCollectionItems(collection, pageCoords);
 
         collectionDto.setCollectionItems(PaginatedCollectionItems.builder().items(collectionItemDtos).count(collectionItemDtos.size()).hits(collection.getCollectionItems().size()).page(pageCoords.getPage()).perpage(pageCoords.getPerpage()).pages(0).build());
@@ -86,6 +88,15 @@ public class CollectionMapper {
             collectionProperties.add(propertyDto);
         });
         return collectionProperties;
+    }
+
+    private CollectionThumbnailDto mapCollectionThumbnail(Collection collection) {
+        CollectionThumbnailDto collectionThumbnailDto = new CollectionThumbnailDto();
+        if(collection.getThumbnail() != null) {
+            collectionThumbnailDto.setCaption(collection.getThumbnail().getCaption());
+            collectionThumbnailDto.setMediaId(collection.getThumbnail().getThumbnailId());
+        }
+        return collectionThumbnailDto;
     }
 
     public List<CollectionItem> getPage(List<CollectionItem> collectionItems, int pageNumber, int pageSize) {
