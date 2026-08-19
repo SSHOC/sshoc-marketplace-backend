@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.mappers.collections;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionItemDto;
+import eu.sshopencloud.marketplace.dto.collections.CollectionThumbnailDto;
 import eu.sshopencloud.marketplace.dto.collections.PaginatedCollectionItems;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
@@ -33,6 +34,7 @@ public class CollectionMapper {
         collectionDto.setDescription(collection.getDescription());
         collectionDto.setVisible(collection.isVisible());
 
+        collectionDto.setThumbnail(mapCollectionThumbnail(collection));
         List<CollectionItemDto> collectionItemDtos = mapCollectionItems(collection, pageCoords);
 
         collectionDto.setCollectionItems(PaginatedCollectionItems.builder().items(collectionItemDtos).count(collectionItemDtos.size()).hits(collection.getCollectionItems().size()).page(pageCoords.getPage()).perpage(pageCoords.getPerpage()).pages(0).build());
@@ -54,10 +56,22 @@ public class CollectionMapper {
             collectionItemDto.setPersistentId(collectionItem.getItem().getPersistentId());
             collectionItemDto.setComment(collectionItem.getComment());
             collectionItemDto.setSuggested(collectionItem.isSuggested());
+            collectionItemDto.setTitle(collectionItem.getItem().getLabel());
+            collectionItemDto.setDescription(collectionItem.getItem().getDescription());
+            collectionItemDto.setType(collectionItem.getItem().getCategory().getLabel());
             collectionItemDtos.add(collectionItemDto);
         });
 
         return collectionItemDtos;
+    }
+
+    private CollectionThumbnailDto mapCollectionThumbnail(Collection collection) {
+        CollectionThumbnailDto collectionThumbnailDto = new CollectionThumbnailDto();
+        if(collection.getThumbnail() != null) {
+            collectionThumbnailDto.setCaption(collection.getThumbnail().getCaption());
+            collectionThumbnailDto.setMediaId(collection.getThumbnail().getThumbnailId());
+        }
+        return collectionThumbnailDto;
     }
 
     public List<CollectionItem> getPage(List<CollectionItem> collectionItems, int pageNumber, int pageSize) {

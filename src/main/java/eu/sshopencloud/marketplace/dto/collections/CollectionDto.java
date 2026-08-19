@@ -33,4 +33,5 @@ public class CollectionDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
     private ZonedDateTime updatedAt;
 
+    private CollectionThumbnailDto thumbnail;
 }

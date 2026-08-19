@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.dto.collections;
 
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +22,5 @@ public class CollectionCreationDto {
 
     private boolean visible;
 
+    private ItemMediaCore thumbnail;
 }
