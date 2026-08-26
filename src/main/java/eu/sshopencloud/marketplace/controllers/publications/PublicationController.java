@@ -34,8 +34,8 @@ public class PublicationController {
 
     @Operation(summary = "Retrieve all publications in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedPublications> getPublications(@RequestParam(value = "page", required = false) Integer page,
-                                                                 @RequestParam(value = "perpage", required = false) Integer perpage,
+    public ResponseEntity<PaginatedPublications> getPublications(@RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+                                                                 @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage,
                                                                  @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
 

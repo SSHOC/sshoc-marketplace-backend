@@ -23,8 +23,8 @@ public class CollectionController {
     @Operation(summary = "Get all collections in pages")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PaginatedCollections> getCollections(
-            @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "perpage", required = false) Integer perpage,
+            @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+            @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage,
             @RequestParam(value = "private", defaultValue = "false") boolean privateOnly) throws PageTooLargeException {
 
         return ResponseEntity.ok(

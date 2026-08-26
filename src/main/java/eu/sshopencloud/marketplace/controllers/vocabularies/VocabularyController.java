@@ -9,6 +9,7 @@ import eu.sshopencloud.marketplace.services.vocabularies.exception.VocabularyAlr
 import eu.sshopencloud.marketplace.services.vocabularies.VocabularyService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -31,8 +32,8 @@ public class VocabularyController {
 
     @Operation(summary = "Get all vocabularies in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedVocabularies> getVocabularies(@RequestParam(value = "page", required = false) Integer page,
-                                                                 @RequestParam(value = "perpage", required = false) Integer perpage)
+    public ResponseEntity<PaginatedVocabularies> getVocabularies(@RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+                                                                 @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage)
             throws PageTooLargeException {
         return ResponseEntity.ok(vocabularyService.getVocabularies(pageCoordsValidator.validate(page, perpage)));
     }
@@ -40,8 +41,8 @@ public class VocabularyController {
     @Operation(summary = "Get vocabulary for given code")
     @GetMapping(path = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VocabularyDto> getVocabulary(@PathVariable("code") String code,
-                                                       @RequestParam(value = "page", required = false) Integer page,
-                                                       @RequestParam(value = "perpage", required = false) Integer perPage)
+                                                       @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+                                                       @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perPage)
             throws PageTooLargeException {
 
         PageCoords pageCoords = pageCoordsValidator.validate(page, perPage);

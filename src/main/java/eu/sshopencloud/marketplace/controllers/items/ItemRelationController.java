@@ -27,8 +27,8 @@ public class ItemRelationController {
 
     @Operation(summary = "Retrieve all types of relations between items")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedItemRelation> getItemRelations(@RequestParam(value = "page", required = false) Integer page,
-                                                                  @RequestParam(value = "perpage", required = false) Integer perpage)
+    public ResponseEntity<PaginatedItemRelation> getItemRelations(@RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+                                                                  @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage)
             throws PageTooLargeException {
 
         return ResponseEntity.ok(itemRelationService.getItemRelations(pageCoordsValidator.validate(page, perpage)));
