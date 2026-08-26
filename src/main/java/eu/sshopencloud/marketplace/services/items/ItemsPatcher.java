@@ -8,7 +8,6 @@ import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.core.parameters.P;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -77,6 +76,20 @@ class ItemsPatcher {
                                 new MediaDetailsId(cim.getInfo().getMediaId()), cim.getCaption(), conceptId);
                     })
                     .collect(Collectors.toList()));
+        }
+
+        if (Objects.isNull(itemCore.getThumbnail())) {
+            if (Objects.nonNull(currentItemDto.getThumbnail())) {
+                ItemMediaDto thumbnail = currentItemDto.getThumbnail();
+                ConceptId conceptId = null;
+                if (Objects.nonNull(thumbnail.getConcept())) {
+                    conceptId = new ConceptId(thumbnail.getConcept().getCode(),
+                            new VocabularyId(thumbnail.getConcept().getVocabulary().getCode()), thumbnail.getConcept().getUri());
+                }
+                itemCore.setThumbnail(new ItemMediaCore(
+                        new MediaDetailsId(thumbnail.getInfo().getMediaId()),
+                        thumbnail.getCaption(), conceptId));
+            }
         }
 
         if (itemCore instanceof DigitalObjectCore && currentItemDto instanceof DigitalObjectDto) {
