@@ -14,6 +14,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -59,10 +60,10 @@ class ItemsPatcher {
         // the same as null values. This doesn't match the semantics of PATCH, as defined
         // in RFC 5789, because it means that you could never patch an object to remove
         // all elements of a list because passing in an empty list would result in the
-        // values from the current item being used instead. If the prior behaviour
-        // is necessary then it can be implemented by uncommenting the following line
-        // and add an import statement for java.util.Collection
-        // core.values().removeIf(e -> e instanceof Collection && ((Collection<?>)e).isEmpty());
+        // values from the current item being used instead. The following line replicates
+        // that behaviour. It seems odd to me that this is the desired behaviour but I
+        // have left it in place for now as it matches the previous implementation.
+        core.values().removeIf(e -> e instanceof Collection && ((Collection<?>)e).isEmpty());
 
         // patch the original object by replacing all the fields in the map based
         // version with those from the patch that has been supplied
