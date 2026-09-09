@@ -1,99 +1,160 @@
 package eu.sshopencloud.marketplace.services.items;
 
-import eu.sshopencloud.marketplace.dto.actors.ActorId;
-import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
-import eu.sshopencloud.marketplace.dto.items.*;
-import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
-import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
-import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.core.parameters.P;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import eu.sshopencloud.marketplace.dto.items.ItemCore;
+import eu.sshopencloud.marketplace.dto.items.ItemDto;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 class ItemsPatcher {
+
+    // static Jackson ObjectMapper so we don't have to keep creating
+    // and configuring one for each patch operaion
+    private static ObjectMapper objectMapper = new ObjectMapper();
+    
+    // a TypeReference we can reusue for mapping an object to a simple
+    // String to Object Map
+    private static TypeReference<Map<String, Object>> TO_MAP = new TypeReference<Map<String, Object>>() {};
+
+    static {
+        // because of the differences between DTO and Core versions of the
+        // same object we want to be able to ignire missing values when
+        // reading back an encoded version
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        
+        // by default Jackson won't serialise the old Java 8 date/time classes which includes ZonedDateTime
+        // which is used to store created/updated dates. This adds support for that so we can correctly
+        // round trip them when converting between the DTO and Core versions.
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
+    }
+
     static void patchItemCore(ItemDto currentItemDto, ItemDto firstIngestDto, ItemCore itemCore) {
+
+        try {
+        // convert the current item to a map (i.e. all the fields from the item become
+        // keys in the map)
+        Map<String, Object> dto = objectMapper.convertValue(currentItemDto, TO_MAP);
+
+        // convert the patch into a map in the same way
+        Map<String, Object> core = objectMapper.convertValue(itemCore, TO_MAP);
+        
+        // any fields in the ItemCore that are null should be ignored as these are
+        // just the fields that are not specified in the patch
+        core.values().removeIf(Objects::isNull);
+
+        // note that in the previous approach empty lists in the patch were treated
+        // the same as null values. This doesn't match the semantics of PATCH, as defined
+        // in RFC 5789, because it means that you could never patch an object to remove
+        // all elements of a list because passing in an empty list would result in the
+        // values from the current item being used instead. The following line replicates
+        // that behaviour. It seems odd to me that this is the desired behaviour but I
+        // have left it in place for now as it matches the previous implementation.
+        core.values().removeIf(e -> e instanceof Collection && ((Collection<?>)e).isEmpty());
+
+        // patch the original object by replacing all the fields in the map based
+        // version with those from the patch that has been supplied
+        dto.putAll(core);
+
+        // handle any special cases based on if there is a previously ingested
+        // version of the DTO (I don't really understand the logic of what this
+        // is trying to achieve but it matches the logic in the previous version
+        // of this method). Note that the logic in determinePatchValue seems to
+        // result in updates that violate the semantics of RFC 5789 in that
+        // under some circumstances the current value will be retained even when
+        // when a new value is provided. Whilst that may make some sense for
+        // the version field (should that even be patchable) I think it would
+        // be wrong (or at least counter intuitive) for both label and
+        // description fields.
         boolean previouslyIngested = Objects.nonNull(firstIngestDto);
-        itemCore.setLabel(determinePatchValue(currentItemDto.getLabel(), Objects.isNull(firstIngestDto) ? null : firstIngestDto.getLabel(), itemCore.getLabel(), previouslyIngested));
+        dto.put("label",
+            determinePatchValue(
+                currentItemDto.getLabel(),
+                !previouslyIngested ? null : firstIngestDto.getLabel(),
+                itemCore.getLabel(),
+                previouslyIngested));
 
-        itemCore.setDescription(determinePatchValue(currentItemDto.getDescription(), Objects.isNull(firstIngestDto) ? null : firstIngestDto.getDescription(), itemCore.getDescription(), previouslyIngested));
-//        if (StringUtils.isBlank(itemCore.getDescription())) {
-//            itemCore.setDescription(currentItemDto.getDescription());
-//        }
-        itemCore.setVersion(determinePatchValue(currentItemDto.getVersion(), Objects.isNull(firstIngestDto) ? null : firstIngestDto.getVersion(), itemCore.getVersion(), previouslyIngested));
-//        if (StringUtils.isBlank(itemCore.getVersion())) {
-//            itemCore.setVersion(currentItemDto.getVersion());
-//        }
+        dto.put("description",
+            determinePatchValue(
+                currentItemDto.getDescription(),
+                !previouslyIngested ? null : firstIngestDto.getDescription(),
+                itemCore.getDescription(),
+                previouslyIngested));
 
-        if (Objects.isNull(itemCore.getContributors()) || itemCore.getContributors().isEmpty()) {
-            itemCore.setContributors(currentItemDto.getContributors().stream()
-                    .map(cid -> new ItemContributorId(new ActorId(cid.getActor().getId()), new ActorRoleId(cid.getRole().getCode())))
-                    .collect(Collectors.toList())
-            );
-        }
+        dto.put("version",
+            determinePatchValue(
+                currentItemDto.getVersion(),
+                !previouslyIngested ? null : firstIngestDto.getVersion(),
+                itemCore.getVersion(),
+                previouslyIngested));
 
-        if (Objects.isNull(itemCore.getAccessibleAt()) || itemCore.getAccessibleAt().isEmpty()) {
-            itemCore.setAccessibleAt(currentItemDto.getAccessibleAt());
-        }
+        // we now have a map instance holding values for all the fields of
+        // the fully updated object. the final step is to use these values
+        // to update the ItemCore instance we were passed. This would be
+        // a simple case of using ObjectMapper.convertValue() to create a
+        // new instance of ItemCore if we were returning the updated object.
+        // Unfortunately we aren't returning an instance rather we need to update
+        // the object passed in by reference. Fortunately we can still do this
+        // using Jackson for all the heavy lifting....
+        try {
+            // first we convert the map into JSON stroed in a byte array
+            byte[] bytes = objectMapper.writeValueAsBytes(dto);
+            
+            // create a reader that will update the original object
+            // we want to patch rather than creating a new instance
+            ObjectReader reader = objectMapper.readerForUpdating(itemCore);
 
-        if (Objects.isNull(itemCore.getExternalIds()) || itemCore.getExternalIds().isEmpty()) {
-            itemCore.setExternalIds(currentItemDto.getExternalIds().stream()
-                    .map(eid -> new ItemExternalIdCore(new ItemExternalIdId(eid.getIdentifierService().getCode()), eid.getIdentifier()))
-                    .collect(Collectors.toList()));
-        }
+            // finally we patch the object by reading back the updated values
+            // from the byte array we generated above.
+            reader.readValue(bytes);
+        } catch (JsonProcessingException jpe) {
+            jpe.printStackTrace();
+            // this should be impossible because both ItemDto and ItemCore are
+            // clearly serializable to JSON as both are returned/consumed by
+            // numerous endpoints within the backend, and as all values in the
+            // map have come from one or other type then logically the map
+            // itself must also be serializbale
 
-        if (Objects.isNull(itemCore.getProperties()) || itemCore.getProperties().isEmpty()) {
-            itemCore.setProperties(currentItemDto.getProperties().stream()
-                    .map(cip -> {
-                        PropertyCore pc = new PropertyCore(new PropertyTypeId(cip.getType().getCode()), cip.getValue());
-                        if (Objects.nonNull(cip.getConcept())) {
-                            pc.setConcept(new ConceptId(cip.getConcept().getCode(),
-                                    new VocabularyId(cip.getConcept().getVocabulary().getCode()), cip.getConcept().getUri()));
-                        }
-                        return pc;
-                    })
-                    .collect(Collectors.toList()));
-        }
+            // we will raise an exception though just in case, as if we ignore
+            // this and it does happen then the result would be that itemCore
+            // would not be correctly updated which could result in data loss
+            throw new RuntimeException("Unable to serialize item field values", jpe);
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            // this should also be impossible because if we get as far as reading
+            // from the byte array then it must hold valid JSON. The only issue
+            // would be (I think) if ItemCore had a field with the same name as
+            // ItemDto but they had very different types. I think that would
+            // probably trigger a JSON deserialization rutime exception rather
+            // than an IOException though
 
-        if (Objects.isNull(itemCore.getRelatedItems()) || itemCore.getRelatedItems().isEmpty()) {
-            itemCore.setRelatedItems(currentItemDto.getRelatedItems().stream()
-                    .map(rid -> new RelatedItemCore(rid.getPersistentId(),new ItemRelationId(rid.getRelation().getCode())))
-                    .collect(Collectors.toList()));
-        }
-
-        if (Objects.isNull(itemCore.getMedia()) || itemCore.getMedia().isEmpty()) {
-            itemCore.setMedia(currentItemDto.getMedia().stream()
-                    .map(cim -> {
-                        // Media may exist without an associated concept
-                        ConceptId conceptId = null;
-                        if (Objects.nonNull(cim.getConcept())) {
-                            conceptId = new ConceptId(cim.getConcept().getCode(),
-                                    new VocabularyId(cim.getConcept().getVocabulary().getCode()), cim.getConcept().getUri());
-                        }
-                        // Create media core with concept (may be null)
-                        return new ItemMediaCore(
-                                new MediaDetailsId(cim.getInfo().getMediaId()), cim.getCaption(), conceptId);
-                    })
-                    .collect(Collectors.toList()));
-        }
-
-        if (itemCore instanceof DigitalObjectCore && currentItemDto instanceof DigitalObjectDto) {
-            DigitalObjectCore itemDigitalObject = (DigitalObjectCore) itemCore;
-            DigitalObjectDto digitalObjectDto = (DigitalObjectDto) currentItemDto;
-            if (Objects.isNull(itemDigitalObject.getDateCreated())) {
-                itemDigitalObject.setDateCreated(digitalObjectDto.getDateCreated());
-            }
-
-            if (Objects.isNull(itemDigitalObject.getDateLastUpdated())) {
-                itemDigitalObject.setDateLastUpdated(digitalObjectDto.getDateLastUpdated());
-            }
+            // either way we will re-throw the exception so that the  error propogates
+            // back up rather than silently hiding it which would result in itemCore
+            // not being updated correctly and potential data loss
+            throw new RuntimeException("unable to update ItemCore instance", ioe);
+        }}
+        catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
     private static String determinePatchValue(String currentValue, String firstIngestValue, String newValue, boolean previouslyIngested) {
         if (previouslyIngested && !StringUtils.isBlank(newValue)) {
+
             // nothing has changed -> new value has the proper value
             if (Objects.isNull(currentValue) && Objects.isNull(firstIngestValue)) {
                 return newValue;
