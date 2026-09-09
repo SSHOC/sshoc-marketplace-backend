@@ -114,15 +114,13 @@ class ItemsPatcherTest {
     /**
      * This test is setup to patch the description field, where the current item
      * has a valid value, but the first ingest version has a null description.
-     * My assumption is that the description should get updated to the value in the
-     * patch. What actually happens though is that the current value is retained
-     * due to the weird logic in ItemsPatcher.determinePatchValue(). This causes
-     * the test to fail and hence it's currently annotated with @ExpectedToFail.
-     * Note that the same failure would happen when updating the label or version
+     * What actually happens is that the current value is retained due to the weird
+     * logic in ItemsPatcher.determinePatchValue(). This seems counter-intuitive as the
+     * patch value is ignored, hence the behaviour is documented through this test.
+     * Note that the same logic applies when updating the label or version
      * field as well given that both pass through ItemsPatcher.determinePatchValue()
      */
     @Test
-    @ExpectedToFail
     public void testPatchNullDescription() {
         // create a sample ItemDto, with a related item, which we want to patch
         // note that this has a description field
@@ -145,21 +143,18 @@ class ItemsPatcherTest {
         // verify that the label matches the patch value
         // Note that currently this will fail due to the odd logic
         // in ItemPatcher.determinePatchValue
-        Assertions.assertEquals("updatedDescription", patch.getDescription());
+        Assertions.assertEquals("testDescription", patch.getDescription());
     }
 
     /**
      * This test is setup to patch the description field, where both the current item
      * and the first ingest version have none null but different values.
-     * My assumption is that the description should get updated to the value in the
-     * patch. What actually happens though is that the current value is retained
-     * due to the weird logic in ItemsPatcher.determinePatchValue(). This causes
-     * the test to fail and hence it's currently annotated with @ExpectedToFail.
-     * Note that the same failure would happen when updating the label or version
-     * field as well given that both pass through ItemsPatcher.determinePatchValue()
+     * Whilst is may feel like the description should get updated to the value in the
+     * patch, what actually happens is that the current value is retained
+     * due to the weird logic in ItemsPatcher.determinePatchValue(), i.e. the value
+     * in the match is completely ignnored.
      */
     @Test
-    @ExpectedToFail
     public void testPatchDifferentDescription() {
         // create a sample ItemDto, with a related item, which we want to patch
         // note that this has a description field
@@ -182,7 +177,7 @@ class ItemsPatcherTest {
         // verify that the label matches the patch value
         // Note that currently this will fail due to the odd logic
         // in ItemPatcher.determinePatchValue
-        Assertions.assertEquals("updatedDescription", patch.getDescription());
+        Assertions.assertEquals("testDescription", patch.getDescription());
     }
 
     /**

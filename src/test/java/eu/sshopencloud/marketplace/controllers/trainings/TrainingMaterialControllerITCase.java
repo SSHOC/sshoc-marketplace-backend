@@ -19,7 +19,6 @@ import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junitpioneer.jupiter.ExpectedToFail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -3165,7 +3164,6 @@ class TrainingMaterialControllerITCase {
     }
 
     @Test
-    @ExpectedToFail
     void shouldPatchTrainingMaterialWithRelations() throws Exception {
         String trainingMaterialId = "WfcKvG";
 
