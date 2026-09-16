@@ -249,7 +249,7 @@ public class WorkflowService extends ItemCrudService<Workflow, WorkflowDto, Pagi
 
 
     private void deleteWorkflowDraft(String persistentId) {
-        Workflow workflow = loadLatestItem(persistentId);
+        Workflow workflow = loadItemDraftForCurrentUser(persistentId);
         workflow.getStepsTree().visit(new StepsTreeVisitor() {
             @Override
             public void onNextStep(StepsTree stepTree) {
