@@ -87,7 +87,9 @@ public class TrainingMaterialController {
         summary = "Patch training material for given persistentId",
         description = """
             Updates a training material record by replacing field values with those supplied in
-            the patch body. Note that providing a value for any field completely replaces the
+            the patch body. This method is **only** intended to be used during the continuous
+            ingestion process and is not intended to be used by end users. Further it is important
+            to note that providing Note that providing a value for any field completely replaces the
             previous value. This is especially important to remember when updating any of the array
             value fields, as all existing entires will be removed and replaced with the values
             provided in the patch. If you wish to add to an existing array then you **must** provide
