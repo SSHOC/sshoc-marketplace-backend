@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1790599288034-3
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: is_recommended
+                  type: BOOLEAN
+            tableName: collections
+  - changeSet:
+      id: 1790599288034-4
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addNotNullConstraint:
+            columnName: is_recommended
+            tableName: collections

@@ -53,6 +53,7 @@ public class CollectionService {
         collection.setTitle(collectionCore.getTitle());
         collection.setDescription(collectionCore.getDescription());
         collection.setVisible(collectionCore.isVisible());
+        collection.setRecommended(collectionCore.isRecommended());
         collection.setOwner(LoggedInUserHolder.getLoggedInUser());
         collection.setCreatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
         collection.setUpdatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
@@ -68,7 +69,7 @@ public class CollectionService {
             collection.getCollectionItems().add(collectionItem);
         });
 
-        createThumbnail(collectionCore, collection,errors);
+        createThumbnail(collectionCore, collection, errors);
 
         if (errors.hasErrors())
             throw new ValidationException(errors);

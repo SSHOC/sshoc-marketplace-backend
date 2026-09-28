@@ -23,4 +23,7 @@ public class CollectionCreationDto {
     private boolean visible;
 
     private ItemMediaCore thumbnail;
+
+    private boolean isRecommended = false;
+
 }

@@ -199,7 +199,11 @@ public class IndexConverter {
         document.addField(IndexCollection.ITEMS_COUNT_FIELD, collection.getCollectionItems().size());
         document.addField(IndexCollection.CREATED_AT_FIELD, Date.from(collection.getCreatedAt().toInstant()));
         document.addField(IndexCollection.UPDATED_AT_FIELD, Date.from(collection.getUpdatedAt().toInstant()));
-        document.addField(IndexCollection.THUMBNAIL_ID_FIELD, collection.getThumbnail().getThumbnailId().toString());
+        if (collection.getThumbnail() != null) {
+            document.addField(IndexCollection.THUMBNAIL_ID_FIELD,
+                    collection.getThumbnail().getThumbnailId().toString());
+        }
+
 
         return document;
     }

@@ -234,6 +234,8 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
                 .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(0)))
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(0)))
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))))
                 .andReturn().getResponse().getContentAsString();
 
         //cleanup
@@ -693,6 +695,35 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(0)));
 
         //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldCreateRecommendedCollection() throws Exception {
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+        collection.setRecommended(true);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        //then
+        String cratedCollection = mvc.perform(post("/api/collections")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(0)))
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))))
+                .andReturn().getResponse().getContentAsString();
+
+        //cleanup
+        CollectionDto createdCollection = mapper.readValue(cratedCollection, CollectionDto.class);
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 }

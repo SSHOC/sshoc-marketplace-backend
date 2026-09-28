@@ -41,6 +41,7 @@ public class CollectionMapper {
 
         collectionDto.setCreatedAt(collection.getCreatedAt());
         collectionDto.setUpdatedAt(collection.getUpdatedAt());
+        collectionDto.setRecommended(collection.isRecommended());
 
         return collectionDto;
     }

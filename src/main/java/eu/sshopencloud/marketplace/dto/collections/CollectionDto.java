@@ -34,4 +34,6 @@ public class CollectionDto {
     private ZonedDateTime updatedAt;
 
     private CollectionThumbnailDto thumbnail;
+
+    private boolean isRecommended;
 }

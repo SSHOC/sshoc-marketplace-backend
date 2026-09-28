@@ -48,4 +48,6 @@ public class Collection {
 
     @OneToOne(mappedBy = "collection", cascade =  CascadeType.ALL)
     private CollectionThumbnail thumbnail;
+
+    private boolean isRecommended = false;
 }
