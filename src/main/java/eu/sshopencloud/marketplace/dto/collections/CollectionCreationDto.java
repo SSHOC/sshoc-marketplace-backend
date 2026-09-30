@@ -24,6 +24,8 @@ public class CollectionCreationDto {
 
     private ItemMediaCore thumbnail;
 
+    private List<CollectionCreationContributorDto> contributors = new ArrayList<>();
+
     private boolean isRecommended = false;
 
 }

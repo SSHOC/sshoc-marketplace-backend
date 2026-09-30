@@ -1,10 +1,9 @@
 package eu.sshopencloud.marketplace.mappers.collections;
 
 import eu.sshopencloud.marketplace.dto.PageCoords;
-import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
-import eu.sshopencloud.marketplace.dto.collections.CollectionItemDto;
-import eu.sshopencloud.marketplace.dto.collections.CollectionThumbnailDto;
-import eu.sshopencloud.marketplace.dto.collections.PaginatedCollectionItems;
+import eu.sshopencloud.marketplace.dto.collections.*;
+import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
+import eu.sshopencloud.marketplace.mappers.actors.ActorRoleMapper;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
 
@@ -43,6 +42,7 @@ public class CollectionMapper {
         collectionDto.setUpdatedAt(collection.getUpdatedAt());
         collectionDto.setRecommended(collection.isRecommended());
 
+        collectionDto.setContributors(mapCollectionContributors(collection));
         return collectionDto;
     }
 
@@ -73,6 +73,20 @@ public class CollectionMapper {
             collectionThumbnailDto.setMediaId(collection.getThumbnail().getThumbnailId());
         }
         return collectionThumbnailDto;
+    }
+
+    private List<CollectionContributorDto> mapCollectionContributors(Collection collection) {
+        List<CollectionContributorDto> collectionContributors = new ArrayList<>();
+
+        collection.getContributors().forEach(contributor -> {
+            CollectionContributorDto collectionContributorDto = new CollectionContributorDto();
+
+            collectionContributorDto.setActor(ActorMapper.INSTANCE.toDto(contributor.getActor()));
+            collectionContributorDto.setRole(ActorRoleMapper.INSTANCE.toDto(contributor.getRole()));
+
+            collectionContributors.add(collectionContributorDto);
+        });
+        return  collectionContributors;
     }
 
     public List<CollectionItem> getPage(List<CollectionItem> collectionItems, int pageNumber, int pageSize) {

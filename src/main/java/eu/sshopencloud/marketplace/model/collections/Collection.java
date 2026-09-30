@@ -49,5 +49,9 @@ public class Collection {
     @OneToOne(mappedBy = "collection", cascade =  CascadeType.ALL)
     private CollectionThumbnail thumbnail;
 
+    @OneToMany(mappedBy = "collection", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true)
+    @OrderColumn(name = "ord")
+    private List<CollectionContributor> contributors;
+
     private boolean isRecommended = false;
 }

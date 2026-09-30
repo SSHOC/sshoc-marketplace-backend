@@ -15,6 +15,7 @@ import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.inbox.MessagesService;
 import eu.sshopencloud.marketplace.services.search.IndexCollectionService;
 import eu.sshopencloud.marketplace.validators.ValidationException;
+import eu.sshopencloud.marketplace.validators.collections.CollectionFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,39 +38,24 @@ public class CollectionService {
     private final VersionedItemRepository versionedItemRepository;
     private final IndexCollectionService indexCollectionService;
     private final MessagesService messagesService;
+    private final CollectionFactory collectionFactory;
 
 
     public CollectionService(CollectionRepository collectionRepository,
-                             VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, MessagesService messagesService) {
+                             VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, MessagesService messagesService,
+                             CollectionFactory collectionFactory) {
         this.collectionRepository = collectionRepository;
         this.versionedItemRepository = versionedItemRepository;
         this.indexCollectionService = indexCollectionService;
         this.messagesService = messagesService;
+        this.collectionFactory = collectionFactory;
     }
 
-
     public CollectionDto createCollection(CollectionCreationDto collectionCore) {
-        Collection collection = new Collection();
-        collection.setTitle(collectionCore.getTitle());
-        collection.setDescription(collectionCore.getDescription());
-        collection.setVisible(collectionCore.isVisible());
-        collection.setRecommended(collectionCore.isRecommended());
-        collection.setOwner(LoggedInUserHolder.getLoggedInUser());
-        collection.setCreatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
-        collection.setUpdatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
 
-        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(collectionCore, "CollectionDto");
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(collectionCore, "Collection");
 
-        collectionCore.getContainedItems().forEach(item -> {
-            VersionedItem versionedItem =
-                    versionedItemRepository.findById(item).orElseThrow(() -> new CollectionException("Item not found"));
-            CollectionItem collectionItem = new CollectionItem();
-            collectionItem.setCollection(collection);
-            collectionItem.setItem(versionedItem.getCurrentVersion());
-            collection.getCollectionItems().add(collectionItem);
-        });
-
-        createThumbnail(collectionCore, collection, errors);
+        Collection collection = collectionFactory.create(collectionCore, errors);
 
         if (errors.hasErrors())
             throw new ValidationException(errors);
@@ -78,28 +64,6 @@ public class CollectionService {
         indexCollectionService.indexCollection(collection);
 
         return CollectionMapper.INSTANCE.toDto(collection, PageCoords.builder().page(1).perpage(20).build());
-    }
-
-    private void createThumbnail(CollectionCreationDto collectionCore, Collection collection, BeanPropertyBindingResult errors) {
-
-        if (collectionCore.getThumbnail() != null && collectionCore.getThumbnail().getInfo() != null) {
-
-            CollectionThumbnail collectionThumbnail = new CollectionThumbnail();
-
-            if (collectionCore.getThumbnail().getInfo().getMediaId() == null) {
-                errors.pushNestedPath("info");
-                errors.rejectValue(
-                        "mediaId", "field.required", "The field mediaId is required"
-                );
-                errors.popNestedPath();
-                return;
-            }
-            collectionThumbnail.setThumbnailId(collectionCore.getThumbnail().getInfo().getMediaId());
-            collectionThumbnail.setCaption(collectionCore.getThumbnail().getCaption());
-
-            collectionThumbnail.setCollection(collection);
-            collection.setThumbnail(collectionThumbnail);
-        }
     }
 
     public PaginatedCollections getCollections(PageCoords pageCoords, CollectionsReadMode mode) {
