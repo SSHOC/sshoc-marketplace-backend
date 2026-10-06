@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.services.search;
 
+import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.items.Item;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.repositories.items.ItemRepository;
@@ -99,6 +100,45 @@ public class IndexItemService {
         try {
             solrClient.add(IndexItem.COLLECTION_NAME, solrInputDocuments);
             solrClient.commit(IndexItem.COLLECTION_NAME);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void removeOldValues(List<Long> collectionItems, long collectionId) {
+        try{
+            List<SolrInputDocument> batch = new ArrayList<>();
+
+            collectionItems.forEach(item -> {
+                SolrInputDocument doc = new SolrInputDocument();
+                doc.addField("id", item);
+                doc.addField("collections", Map.of("remove", collectionId));
+                batch.add(doc);
+            });
+            if (!batch.isEmpty()) {
+                solrClient.add(IndexItem.COLLECTION_NAME, batch);
+                solrClient.commit(IndexItem.COLLECTION_NAME);
+            }
+
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void reIndexItemsInCollection(Collection collection) {
+        try{
+            List<SolrInputDocument> batch = new ArrayList<>();
+
+            collection.getCollectionItems().forEach(item -> {
+                SolrInputDocument doc = new SolrInputDocument();
+                doc.addField("id", item.getItem().getId());
+                doc.addField("collections", Map.of("add-distinct", collection.getId()));
+                batch.add(doc);
+            });
+            if(!batch.isEmpty()) {
+                solrClient.add(IndexItem.COLLECTION_NAME, batch);
+                solrClient.commit(IndexItem.COLLECTION_NAME);
+            }
+
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException(e);
         }

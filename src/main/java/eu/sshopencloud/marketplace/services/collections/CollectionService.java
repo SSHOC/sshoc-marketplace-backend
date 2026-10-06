@@ -14,6 +14,7 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.inbox.MessagesService;
 import eu.sshopencloud.marketplace.services.search.IndexCollectionService;
+import eu.sshopencloud.marketplace.services.search.IndexItemService;
 import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.collections.CollectionFactory;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,6 +29,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -37,16 +39,18 @@ public class CollectionService {
     private final CollectionRepository collectionRepository;
     private final VersionedItemRepository versionedItemRepository;
     private final IndexCollectionService indexCollectionService;
+    private final IndexItemService indexItemService;
     private final MessagesService messagesService;
     private final CollectionFactory collectionFactory;
 
 
     public CollectionService(CollectionRepository collectionRepository,
-                             VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, MessagesService messagesService,
+                             VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, IndexItemService indexItemService, MessagesService messagesService,
                              CollectionFactory collectionFactory) {
         this.collectionRepository = collectionRepository;
         this.versionedItemRepository = versionedItemRepository;
         this.indexCollectionService = indexCollectionService;
+        this.indexItemService = indexItemService;
         this.messagesService = messagesService;
         this.collectionFactory = collectionFactory;
     }
@@ -62,6 +66,7 @@ public class CollectionService {
 
         collectionRepository.save(collection);
         indexCollectionService.indexCollection(collection);
+        indexItemService.reIndexItemsInCollection(collection);
 
         return CollectionMapper.INSTANCE.toDto(collection, PageCoords.builder().page(1).perpage(20).build());
     }
@@ -127,6 +132,7 @@ public class CollectionService {
             collection.setVisible(collectionCreationDto.isVisible());
             collection.setOwner(LoggedInUserHolder.getLoggedInUser());
             collection.setUpdatedAt(ZonedDateTime.now());
+            List<Long> oldValues = collection.getCollectionItems().stream().map(item->item.getItem().getId()).collect(Collectors.toUnmodifiableList());
             collection.getCollectionItems().clear();
 
             collectionCreationDto.getContainedItems().forEach(item -> {
@@ -139,6 +145,8 @@ public class CollectionService {
             });
 
             indexCollectionService.indexCollection(collection);
+            indexItemService.removeOldValues(oldValues, collection.getId());
+            indexItemService.reIndexItemsInCollection(collection);
 
             return CollectionListMapper.INSTANCE.toDto(collection);
         } else {

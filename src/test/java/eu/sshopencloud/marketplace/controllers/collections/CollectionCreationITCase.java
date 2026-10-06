@@ -6,7 +6,13 @@ import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.collections.*;
+import eu.sshopencloud.marketplace.model.search.IndexItem;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -20,7 +26,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.is;
+import java.util.Collection;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,6 +55,9 @@ class CollectionCreationITCase extends CollectionControllerTest {
     private String IMPORTER_JWT;
     private String MODERATOR_JWT;
     private String ADMINISTRATOR_JWT;
+
+    @Autowired
+    private SolrClient solrClient;
 
     @BeforeEach
     void init() throws Exception {
@@ -205,4 +217,75 @@ class CollectionCreationITCase extends CollectionControllerTest {
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
+    @Test
+    void shouldReindexItemsContainedInCollectionDuringCollectionCreation() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setContainedItems(List.of("vHQEhe", "WfcKvG"));
+        collection.setVisible(true);
+
+        //when
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //then
+        for (String containedItem : collection.getContainedItems()) {
+            SolrQuery solrQuery = new SolrQuery("persistent_id:\"" + containedItem + "\"");
+
+            QueryResponse results = solrClient.query(IndexItem.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
+            MatcherAssert.assertThat(results.getResults(), Matchers.hasSize(1));
+            MatcherAssert.assertThat(results.getResults().getFirst().get(IndexItem.PERSISTENT_ID_FIELD), is(String.valueOf(containedItem)));
+            MatcherAssert.assertThat((Collection<String>) results.getResults().getFirst().get(IndexItem.COLLECTIONS_FIELD), hasItems(createdCollection.getId() + ""));
+        }
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldReindexItemsContainedInCollectionDuringCollectionUpdate() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setContainedItems(List.of("vHQEhe", "WfcKvG"));
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when
+        collection.setContainedItems(List.of("2CwYCU"));
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk());
+
+        //then
+        SolrQuery solrQuery = new SolrQuery("persistent_id:\"vHQEhe\"");
+        QueryResponse results = solrClient.query(IndexItem.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
+        MatcherAssert.assertThat(results.getResults(), Matchers.hasSize(1));
+        MatcherAssert.assertThat(results.getResults().getFirst().get(IndexItem.PERSISTENT_ID_FIELD), is("vHQEhe"));
+        MatcherAssert.assertThat((Collection<String>) results.getResults().getFirst().get(IndexItem.COLLECTIONS_FIELD), Matchers.not(hasItem(createdCollection.getId() + "")));
+
+        solrQuery = new SolrQuery("persistent_id:\"WfcKvG\"");
+        results = solrClient.query(IndexItem.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
+        MatcherAssert.assertThat(results.getResults(), Matchers.hasSize(1));
+        MatcherAssert.assertThat(results.getResults().getFirst().get(IndexItem.PERSISTENT_ID_FIELD), is("WfcKvG"));
+        MatcherAssert.assertThat((Collection<String>) results.getResults().getFirst().get(IndexItem.COLLECTIONS_FIELD), Matchers.not(hasItem(createdCollection.getId() + "")));
+
+
+        solrQuery = new SolrQuery("persistent_id:\"2CwYCU\"");
+        results = solrClient.query(IndexItem.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
+        MatcherAssert.assertThat(results.getResults(), Matchers.hasSize(1));
+        MatcherAssert.assertThat(results.getResults().getFirst().get(IndexItem.PERSISTENT_ID_FIELD), is("2CwYCU"));
+        MatcherAssert.assertThat((Collection<String>) results.getResults().getFirst().get(IndexItem.COLLECTIONS_FIELD), hasItem(createdCollection.getId() + ""));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
 }
