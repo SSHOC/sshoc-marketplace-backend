@@ -7,7 +7,6 @@ import eu.sshopencloud.marketplace.mappers.collections.CollectionListMapper;
 import eu.sshopencloud.marketplace.mappers.collections.CollectionMapper;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
-import eu.sshopencloud.marketplace.model.items.CollectionThumbnail;
 import eu.sshopencloud.marketplace.model.items.VersionedItem;
 import eu.sshopencloud.marketplace.repositories.collections.CollectionRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -126,7 +124,7 @@ public class CollectionService {
         Collection collection =
                 collectionRepository.findById(collectionId).orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", collectionId)));
 
-        if (collection.getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
+        if (isCollectionUpdatePossible(collection)) {
             collection.setTitle(collectionCreationDto.getTitle());
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
@@ -207,6 +205,14 @@ public class CollectionService {
             collectionRepository.deleteById(collectionId);
             indexCollectionService.removeFromIndex(collection.get());
         }
+    }
+
+
+    private boolean isCollectionUpdatePossible(Collection collection) {
+        if (collection.getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
+            return true;
+        }
+        return LoggedInUserHolder.getLoggedInUser().isModerator();
     }
 
 

@@ -19,13 +19,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +34,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @AutoConfigureMockMvc
@@ -51,10 +48,10 @@ class CollectionControllerITCase extends CollectionControllerTest {
     @Autowired
     private ObjectMapper mapper;
 
-    private String CONTRIBUTOR_JWT;
-    private String IMPORTER_JWT;
-    private String MODERATOR_JWT;
-    private String ADMINISTRATOR_JWT;
+    private static String CONTRIBUTOR_JWT;
+    private static String IMPORTER_JWT;
+    private static String MODERATOR_JWT;
+    private static String ADMINISTRATOR_JWT;
     @Autowired
     private SolrClient solrClient;
 
@@ -352,6 +349,70 @@ class CollectionControllerITCase extends CollectionControllerTest {
     }
 
     @Test
+    void shouldNotAllowToModifyExistingCollectionCreatedByAnotherUser() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when
+        collection.setTitle("Modified collection title");
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        //then
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", IMPORTER_JWT))
+                .andExpect(status().isForbidden())
+                .andReturn().getResponse().getContentAsString();
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldAllowToModifyExistingCollectionCreatedByAnotherUserByModerator() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when
+        collection.setTitle("Modified collection title");
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Modified collection title")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andReturn().getResponse().getContentAsString();
+
+        //then
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Modified collection title")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
     void shouldReindexExistingCollectionDuringCollectionModification() throws Exception {
 
         //given
@@ -621,7 +682,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         String suggestionPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(suggestionStatusActionDto);
 
-        mvc.perform(post("/api/collections/{id}/suggestions/{suggestionId}", createdCollection.getId(), collectionDto.getCollectionItems().getItems().get(0).getId())
+        mvc.perform(post("/api/collections/{id}/suggestions/{suggestionId}", createdCollection.getId(), collectionDto.getCollectionItems().getItems().getFirst().getId())
                         .content(suggestionPayload)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
@@ -680,7 +741,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         String suggestionPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(suggestionStatusActionDto);
 
-        mvc.perform(post("/api/collections/{id}/suggestions/{suggestionId}", createdCollection.getId(), collectionDto.getCollectionItems().getItems().get(0).getId())
+        mvc.perform(post("/api/collections/{id}/suggestions/{suggestionId}", createdCollection.getId(), collectionDto.getCollectionItems().getItems().getFirst().getId())
                         .content(suggestionPayload)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
