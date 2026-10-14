@@ -63,7 +63,7 @@ public class CollectionSearchQueryPhrase extends SearchQueryPhrase {
         if (phrase.isEmpty()) {
             return QUERY_ALL;
         } else {
-            List<String> queryPartsCriteria = Arrays.stream(ActorSearchQueryPhrase.ActorCriteriaParams.values())
+            List<String> queryPartsCriteria = Arrays.stream(CollectionSearchQueryPhrase.CollectionCriteriaParams.values())
                     .map(c -> c.getCondition(phrase)).toList();
 
             return StringUtils.join(queryPartsCriteria,
