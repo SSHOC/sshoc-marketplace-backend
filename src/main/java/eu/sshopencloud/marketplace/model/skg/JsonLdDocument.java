@@ -27,6 +27,7 @@ public class JsonLdDocument {
     private List<Object> buildContext(String baseUri) {
         List<Object> ctx = new ArrayList<>();
         ctx.add("https://w3id.org/skg-if/context/skg-if.json");
+        ctx.add("https://w3id.org/skg-if/context/1.0.0/skg-if-api.json");
 
         Map<String, Object> base = new LinkedHashMap<>();
         base.put("@base", baseUri);

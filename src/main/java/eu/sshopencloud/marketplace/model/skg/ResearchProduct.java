@@ -26,6 +26,6 @@ public class ResearchProduct {
     private Map<String, List<String>> abstracts;
     private List<Contribution> contributions;
     private List<RelatedProduct> relatedProducts;
-
     private List<Map<String, Map<String, String>>> manifestations;
+    private List<Identifier> identifiers;
 }

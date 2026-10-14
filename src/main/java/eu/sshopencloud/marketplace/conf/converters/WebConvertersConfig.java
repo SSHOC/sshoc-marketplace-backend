@@ -17,6 +17,7 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.UrlPathHelper;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 
 @Configuration
@@ -43,6 +44,8 @@ public class WebConvertersConfig implements WebMvcConfigurer {
         UrlPathHelper urlPathHelper = new UrlPathHelper();
         urlPathHelper.setUrlDecode(false);
         configurer.setUrlPathHelper(urlPathHelper);
+        configurer.setPatternParser(new PathPatternParser());
+
     }
 
 }
