@@ -42,8 +42,8 @@ class SearchController {
             @RequestParam(required = false) MultiValueMap<String, String> d,
             @RequestParam(value = "categories", required = false) List<ItemCategory> categories,
             @RequestParam(value = "order", required = false) List<ItemSearchOrder> order,
-            @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "perpage", required = false) Integer perpage,
+            @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+            @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage,
             @RequestParam(value = "advanced", defaultValue = "false") boolean advanced,
             @RequestParam(value = "includeSteps", defaultValue = "false") boolean includeSteps,
             @Parameter(
@@ -68,8 +68,8 @@ class SearchController {
     @Operation(description = "Search among concepts.")
     public ResponseEntity<PaginatedSearchConcepts> searchConcepts(@RequestParam(value = "q", required = false) String q,
                                                                   @RequestParam(value = "types", required = false) List<String> types,
-                                                                  @RequestParam(value = "page", required = false) Integer page,
-                                                                  @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                                  @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+                                                                  @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage,
                                                                   @Parameter(
                                                                           description = "Facets parameters should be provided with putting multiple f.{filter-name}={value} as request parameters. Allowed filter names: "
                                                                                   + SearchFilter.CONCEPT_INDEX_TYPE_FILTERS + ".", schema = @Schema(type = "string"))
@@ -94,8 +94,8 @@ class SearchController {
     @GetMapping(path = "/actor-search", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Search among actors.")
     public ResponseEntity<PaginatedSearchActor> searchActors(@RequestParam(value = "q", required = false) String q,
-                                                             @RequestParam(value = "page", required = false) Integer page,
-                                                             @RequestParam(value = "perpage", required = false) Integer perpage,
+                                                             @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+                                                             @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage,
                                                              @Parameter(
                                                                      description = "Dynamic property filter parameters should be provided with putting multiple d.{property}={expression} as request parameters. Allowed property codes: "
                                                                              + " name, email, website, external-identifier .", schema = @Schema(type = "string"))
@@ -113,9 +113,9 @@ class SearchController {
     @Operation(description = "Search among actors.")
     public ResponseEntity<PaginatedSearchCollection> searchCollections(
             @RequestParam(value = "q", required = false) String q,
-            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
             @RequestParam(value = "advanced", defaultValue = "false") boolean advanced,
-            @RequestParam(value = "perpage", required = false) Integer perpage)
+            @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage)
             throws PageTooLargeException {
 
         return ResponseEntity.ok(searchService.searchCollections(q, advanced, pageCoordsValidator.validate(page, perpage)));

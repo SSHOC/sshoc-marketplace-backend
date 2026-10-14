@@ -34,8 +34,8 @@ public class WorkflowController {
 
     @Operation(summary = "Retrieve all workflows in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedWorkflows> getWorkflows(@RequestParam(value = "page", required = false) Integer page,
-                                                           @RequestParam(value = "perpage", required = false) Integer perpage,
+    public ResponseEntity<PaginatedWorkflows> getWorkflows(@RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+                                                           @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage,
                                                            @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
         return ResponseEntity.ok(workflowService.getWorkflows(pageCoordsValidator.validate(page, perpage), approved));
@@ -86,11 +86,13 @@ public class WorkflowController {
         summary = "Patch workflow for given persistentId",
         description = """
             Updates a workflow record by replacing field values with those supplied in the patch body.
-            Note that providing a value for any field completely replaces the previous value. This is
-            especially important to remember when updating any of the array value fields, as all
-            existing entires will be removed and replaced with the values provided in the patch. If
-            you wish to add to an existing array then you **must** provide the existing values as well
-            as the new value in the patch body otherwise data loss will occur."""
+            This method is **only** intended to be used during the continuous ingestion process and
+            is not intended to be used by end users. Further it is important to note that providin
+            a value for any field completely replaces the previous value. This is especially important
+            to remember when updating any of the array value fields, as all existing entires will be
+            removed and replaced with the values provided in the patch. If you wish to add to an
+            existing array then you **must** provide the existing values as well as the new value
+            in the patch body otherwise data loss will occur."""
     )
     @PatchMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WorkflowDto> patchWorkflow(@PathVariable("persistentId") String workflowPersistentId,
@@ -196,11 +198,13 @@ public class WorkflowController {
         summary = "Patch step for given persistentId and workflow persistentId",
         description = """
             Updates a workflow step record by replacing field values with those supplied in the patch body.
-            Note that providing a value for any field completely replaces the previous value. This is
-            especially important to remember when updating any of the array value fields, as all
-            existing entires will be removed and replaced with the values provided in the patch. If
-            you wish to add to an existing array then you **must** provide the existing values as well
-            as the new value in the patch body otherwise data loss will occur."""
+            This method is **only** intended to be used during the continuous ingestion process and
+            is not intended to be used by end users. Further it is important to note that providing
+            a value for any field completely replaces the previous value. This is especially important
+            to remember when updating any of the array value fields, as all existing entires will be
+            removed and replaced with the values provided in the patch. If you wish to add to an existing
+            array then you **must** provide the existing values as well as the new value in the patch body
+            otherwise data loss will occur."""
     )
     @PatchMapping(path = "/{persistentId}/steps/{stepPersistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StepDto> patchStep(@PathVariable("persistentId") String workflowPersistentId,
