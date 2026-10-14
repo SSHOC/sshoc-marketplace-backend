@@ -27,6 +27,9 @@ public class SearchCollectionRepository {
             IndexCollection.ID_FIELD,
             IndexCollection.TITLE_FIELD,
             IndexCollection.DESCRIPTION_FIELD,
+            IndexCollection.ITEMS_COUNT_FIELD,
+            IndexCollection.CREATED_AT_FIELD,
+            IndexCollection.UPDATED_AT_FIELD,
             IndexCollection.OWNER_NAME_FIELD);
 
     private final SolrClient solrClient;

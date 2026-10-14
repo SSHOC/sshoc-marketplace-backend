@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.dto.collections;
 
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,5 +21,11 @@ public class CollectionCreationDto {
     private List<String> containedItems = new ArrayList<>();
 
     private boolean visible;
+
+    private ItemMediaCore thumbnail;
+
+    private List<CollectionCreationContributorDto> contributors = new ArrayList<>();
+
+    private boolean isRecommended = false;
 
 }

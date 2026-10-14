@@ -68,7 +68,10 @@ class CollectionsSearchControllerITCase extends CollectionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("collections", Matchers.hasSize(1)))
                 .andExpect(jsonPath("collections[0].title", is("Public collection")))
-                .andExpect(jsonPath("collections[0].description", is("Public collection description")));
+                .andExpect(jsonPath("collections[0].description", is("Public collection description")))
+                .andExpect(jsonPath("collections[0].itemsCount", is(0)))
+                .andExpect(jsonPath("collections[0].createdAt").exists())
+                .andExpect(jsonPath("collections[0].updatedAt").exists());
 
         //cleanup
         removeCollection(publicCollection.getId(), CONTRIBUTOR_JWT);
@@ -112,7 +115,10 @@ class CollectionsSearchControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("collections[0].title", is("Public collection")))
                 .andExpect(jsonPath("collections[0].description", is("Public collection description")))
                 .andExpect(jsonPath("collections[1].title", is("Private collection")))
-                .andExpect(jsonPath("collections[1].description", is("Private collection description")));
+                .andExpect(jsonPath("collections[1].description", is("Private collection description")))
+                .andExpect(jsonPath("collections[1].itemsCount", is(0)))
+                .andExpect(jsonPath("collections[1].createdAt").exists())
+                .andExpect(jsonPath("collections[1].updatedAt").exists());
 
         //cleanup
         removeCollection(publicCollection.getId(), CONTRIBUTOR_JWT);

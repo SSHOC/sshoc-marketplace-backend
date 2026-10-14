@@ -24,7 +24,9 @@ public class CollectionDto {
 
     private boolean visible;
 
-    private List<CollectionItemDto> collectionItems;
+    PaginatedCollectionItems collectionItems;
+
+    private List<CollectionContributorDto> contributors;
 
     @Schema(format = "date-time", example = ApiDateTimeFormatter.outputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
@@ -34,4 +36,7 @@ public class CollectionDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
     private ZonedDateTime updatedAt;
 
+    private CollectionThumbnailDto thumbnail;
+
+    private boolean isRecommended;
 }
