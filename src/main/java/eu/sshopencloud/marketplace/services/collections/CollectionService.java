@@ -128,7 +128,6 @@ public class CollectionService {
             collection.setTitle(collectionCreationDto.getTitle());
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
-            collection.setOwner(LoggedInUserHolder.getLoggedInUser());
             collection.setUpdatedAt(ZonedDateTime.now());
             List<Long> oldValues = collection.getCollectionItems().stream().map(item->item.getItem().getId()).collect(Collectors.toUnmodifiableList());
             collection.getCollectionItems().clear();
