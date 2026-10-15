@@ -201,10 +201,17 @@ public class CollectionService {
 
     public void deleteCollection(long collectionId) {
         Optional<Collection> collection = collectionRepository.findById(collectionId);
-        if (collection.isPresent() && collection.get().getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
-            collectionRepository.deleteById(collectionId);
-            indexCollectionService.removeFromIndex(collection.get());
+
+        if (collection.isEmpty()) {
+            throw new EntityNotFoundException(String.format("Collection with id %s not found", collectionId));
         }
+
+        if (!isCollectionUpdatePossible(collection.get())) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        collectionRepository.deleteById(collectionId);
+        indexCollectionService.removeFromIndex(collection.get());
     }
 
 
