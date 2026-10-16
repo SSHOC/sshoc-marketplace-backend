@@ -128,7 +128,6 @@ public class CollectionService {
             collection.setTitle(collectionCreationDto.getTitle());
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
-            collection.setOwner(LoggedInUserHolder.getLoggedInUser());
             collection.setUpdatedAt(ZonedDateTime.now());
             List<Long> oldValues = collection.getCollectionItems().stream().map(item->item.getItem().getId()).collect(Collectors.toUnmodifiableList());
             collection.getCollectionItems().clear();
@@ -201,10 +200,17 @@ public class CollectionService {
 
     public void deleteCollection(long collectionId) {
         Optional<Collection> collection = collectionRepository.findById(collectionId);
-        if (collection.isPresent() && collection.get().getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
-            collectionRepository.deleteById(collectionId);
-            indexCollectionService.removeFromIndex(collection.get());
+
+        if (collection.isEmpty()) {
+            throw new EntityNotFoundException(String.format("Collection with id %s not found", collectionId));
         }
+
+        if (!isCollectionUpdatePossible(collection.get())) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        collectionRepository.deleteById(collectionId);
+        indexCollectionService.removeFromIndex(collection.get());
     }
 
 
