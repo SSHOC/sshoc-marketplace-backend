@@ -108,8 +108,8 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/actors/**").hasAuthority(Authority.MODERATOR.name());
         http
                 .authorizeRequests()
-                .requestMatchers(HttpMethod.POST, "/api/sources/**").hasAuthority(Authority.CONTRIBUTOR.name())
-                .requestMatchers(HttpMethod.PUT, "/api/sources/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .requestMatchers(HttpMethod.POST, "/api/sources/**").hasAuthority(Authority.MODERATOR.name())
+                .requestMatchers(HttpMethod.PUT, "/api/sources/**").hasAuthority(Authority.MODERATOR.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/sources/**").hasAuthority(Authority.MODERATOR.name());
         http
                 .authorizeRequests()
