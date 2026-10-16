@@ -1,6 +1,8 @@
 package eu.sshopencloud.marketplace.validators.collections;
 
 import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
+import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.collections.Collection;
@@ -13,11 +15,13 @@ import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.collections.CollectionException;
+import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
+
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -38,6 +42,7 @@ public class CollectionFactory {
     private final ActorRepository actorRepository;
     private final ActorRoleRepository actorRoleRepository;
     private final VersionedItemRepository versionedItemRepository;
+    private final MediaStorageService mediaStorageService;
 
     public Collection create(CollectionCreationDto collectionCreationDto, BeanPropertyBindingResult errors) {
 
@@ -69,23 +74,38 @@ public class CollectionFactory {
 
     private void createThumbnail(CollectionCreationDto collectionCore, Collection collection, BeanPropertyBindingResult errors) {
 
-        if (collectionCore.getThumbnail() != null && collectionCore.getThumbnail().getInfo() != null) {
+        if (collectionCore.getThumbnail() != null) {
+            errors.pushNestedPath("thumbnail");
+            
+            ItemMediaCore thumbnail = collectionCore.getThumbnail();
 
-            CollectionThumbnail collectionThumbnail = new CollectionThumbnail();
-
-            if (collectionCore.getThumbnail().getInfo().getMediaId() == null) {
+            if (thumbnail.getInfo() != null) {
                 errors.pushNestedPath("info");
-                errors.rejectValue(
-                        "mediaId", "field.required", "The field mediaId is required"
-                );
-                errors.popNestedPath();
-                return;
-            }
-            collectionThumbnail.setThumbnailId(collectionCore.getThumbnail().getInfo().getMediaId());
-            collectionThumbnail.setCaption(collectionCore.getThumbnail().getCaption());
 
-            collectionThumbnail.setCollection(collection);
-            collection.setThumbnail(collectionThumbnail);
+                MediaDetailsId info = thumbnail.getInfo();
+
+                if (info.getMediaId() == null) {
+                    errors.rejectValue(
+                            "mediaId", "field.required", "The field mediaId is required"
+                    );
+                } else if (!mediaStorageService.ensureMediaAvailable(info.getMediaId())) {
+                    errors.rejectValue(
+                            "mediaId", "field.invalid", "The media with the given mediaId does not exist"
+                    );
+                } else {
+                    CollectionThumbnail collectionThumbnail = new CollectionThumbnail();
+                    collectionThumbnail.setThumbnailId(info.getMediaId());
+                    collectionThumbnail.setCaption(thumbnail.getCaption());
+
+                    collectionThumbnail.setCollection(collection);
+                    collection.setThumbnail(collectionThumbnail);
+
+                }
+
+                errors.popNestedPath();
+            }
+
+            errors.popNestedPath();
         }
     }
 

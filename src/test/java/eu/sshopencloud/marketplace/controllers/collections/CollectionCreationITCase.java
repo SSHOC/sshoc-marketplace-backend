@@ -5,8 +5,11 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
+import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.collections.*;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
+import eu.sshopencloud.marketplace.util.MediaTestUploadUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -28,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -65,6 +69,58 @@ class CollectionCreationITCase extends CollectionControllerTest {
         IMPORTER_JWT = LogInTestClient.getJwt(mvc, "System importer", "q1w2e3r4t5");
         MODERATOR_JWT = LogInTestClient.getJwt(mvc, "Moderator", "q1w2e3r4t5");
         ADMINISTRATOR_JWT = LogInTestClient.getJwt(mvc, "Administrator", "q1w2e3r4t5");
+    }
+
+    @Test
+    void shouldNotAllowToCreateCollectionWithThumbnailWithoutMediaId() throws Exception {
+
+        // Create a simple collection
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        // Create an invalid thumbnail without mediaId
+        ItemMediaCore thumbnail = new ItemMediaCore();
+        thumbnail.setInfo(new MediaDetailsId());
+        collection.setThumbnail(thumbnail);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(post("/api/collections")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("errors[0].field", is("thumbnail.info.mediaId")))
+            .andExpect(jsonPath("errors[0].code", is("field.required")))
+            .andExpect(jsonPath("errors[0].message", is("The field mediaId is required")));
+    }
+
+    @Test
+    void shouldNotAllowToCreateCollectionWithThumbnailWithUnknownMediaId() throws Exception {
+
+        // Create a simple collection
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        // Create an invalid thumbnail without mediaId
+        ItemMediaCore thumbnail = new ItemMediaCore();
+        thumbnail.setInfo(new MediaDetailsId(UUID.randomUUID()));
+        collection.setThumbnail(thumbnail);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(post("/api/collections")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("errors[0].field", is("thumbnail.info.mediaId")))
+            .andExpect(jsonPath("errors[0].code", is("field.invalid")))
+            .andExpect(jsonPath("errors[0].message", is("The media with the given mediaId does not exist")));
     }
 
     @Test
@@ -216,6 +272,55 @@ class CollectionCreationITCase extends CollectionControllerTest {
         CollectionDto createdCollection = mapper.readValue(cratedCollection, CollectionDto.class);
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
+
+    @Test
+    void shouldCreateCollectionWithThumbnail() throws Exception {
+
+        // create a simple collection
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        // add a contributor so that the collection is valuid
+        CollectionCreationContributorDto  contributor = new CollectionCreationContributorDto();
+        contributor.setActor(new ActorId(1L));
+        contributor.setRole(new ActorRoleId("funder"));
+        collection.getContributors().add(contributor);
+
+        // upload a media file to get a valid mediaId
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+
+        // Create a thumbnail using the valid mediaId
+        ItemMediaCore thumbnail = new ItemMediaCore();
+        thumbnail.setInfo(new MediaDetailsId(seriouscatId));
+        collection.setThumbnail(thumbnail);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        //then
+        String cratedCollection = mvc.perform(post("/api/collections")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("collectionItems.items", Matchers.hasSize(0)))
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))))
+                .andExpect(jsonPath("contributors[0].role.code", is("funder")))
+                .andExpect(jsonPath("contributors[0].role.label", is("Funder")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(1)))
+                .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())))
+
+                .andReturn().getResponse().getContentAsString();
+
+        //cleanup
+        CollectionDto createdCollection = mapper.readValue(cratedCollection, CollectionDto.class);
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
 
     @Test
     void shouldReindexItemsContainedInCollectionDuringCollectionCreation() throws Exception {
