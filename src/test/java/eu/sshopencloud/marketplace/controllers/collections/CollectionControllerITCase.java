@@ -425,6 +425,45 @@ class CollectionControllerITCase extends CollectionControllerTest {
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
+     @Test
+    void shouldAllowUpdateToMarkAsRecommended() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when
+        collection.setRecommended(true);
+        
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        //then
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
     @Test
     void shouldAllowToModifyExistingCollectionCreatedByAnotherUserByModerator() throws Exception {
 
@@ -837,4 +876,6 @@ class CollectionControllerITCase extends CollectionControllerTest {
         CollectionDto createdCollection = mapper.readValue(cratedCollection, CollectionDto.class);
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
+
+
 }
