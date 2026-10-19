@@ -7,6 +7,9 @@ import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionSuggestionCreationDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionSuggestionStatusActionDto;
+import eu.sshopencloud.marketplace.dto.actors.ActorId;
+import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
+import eu.sshopencloud.marketplace.dto.collections.CollectionCreationContributorDto;
 import eu.sshopencloud.marketplace.model.search.IndexCollection;
 import eu.sshopencloud.marketplace.util.MediaTestUploadUtils;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
@@ -425,7 +428,52 @@ class CollectionControllerITCase extends CollectionControllerTest {
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
-     @Test
+    @Test
+    void shouldAllowUpdateToSetContributors() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        CollectionCreationContributorDto  contributor = new CollectionCreationContributorDto();
+        contributor.setActor(new ActorId(1L));
+        contributor.setRole(new ActorRoleId("funder"));
+        collection.getContributors().add(contributor);
+
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("contributors[0].role.code", is("funder")))
+                .andExpect(jsonPath("contributors[0].role.label", is("Funder")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(1)));
+
+        //then
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("contributors[0].role.code", is("funder")))
+                .andExpect(jsonPath("contributors[0].role.label", is("Funder")))
+                .andExpect(jsonPath("contributors[0].actor.id", is(1)));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
     void shouldAllowUpdateToMarkAsRecommended() throws Exception {
 
         //given

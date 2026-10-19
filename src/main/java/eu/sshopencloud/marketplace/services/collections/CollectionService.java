@@ -142,8 +142,12 @@ public class CollectionService {
                 collection.getCollectionItems().add(collectionItem);
             });
 
-            collectionFactory.createThumbnail(collectionCreationDto, collection,
-                new BeanPropertyBindingResult(collectionCreationDto, "Collection"));
+            BeanPropertyBindingResult errors = new BeanPropertyBindingResult(collectionCreationDto, "Collection");
+
+            collectionFactory.createThumbnail(collectionCreationDto, collection, errors);
+            
+            collection.getContributors().clear();
+            collection.getContributors().addAll(collectionFactory.createContributors(collectionCreationDto, collection, errors));
 
             indexCollectionService.indexCollection(collection);
             indexItemService.removeOldValues(oldValues, collection.getId());
