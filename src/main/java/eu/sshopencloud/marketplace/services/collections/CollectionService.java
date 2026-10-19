@@ -41,7 +41,6 @@ public class CollectionService {
     private final MessagesService messagesService;
     private final CollectionFactory collectionFactory;
 
-
     public CollectionService(CollectionRepository collectionRepository,
                              VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, IndexItemService indexItemService, MessagesService messagesService,
                              CollectionFactory collectionFactory) {
@@ -141,11 +140,14 @@ public class CollectionService {
                 collection.getCollectionItems().add(collectionItem);
             });
 
+            collectionFactory.createThumbnail(collectionCreationDto, collection,
+                new BeanPropertyBindingResult(collectionCreationDto, "Collection"));
+
             indexCollectionService.indexCollection(collection);
             indexItemService.removeOldValues(oldValues, collection.getId());
             indexItemService.reIndexItemsInCollection(collection);
 
-            return CollectionListMapper.INSTANCE.toDto(collection);
+            return CollectionMapper.INSTANCE.toDto(collection, PageCoords.builder().page(1).perpage(20).build());
         } else {
             throw new AccessDeniedException("Access denied");
         }

@@ -313,7 +313,6 @@ class CollectionCreationITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("contributors[0].role.label", is("Funder")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(1)))
                 .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())))
-
                 .andReturn().getResponse().getContentAsString();
 
         //cleanup

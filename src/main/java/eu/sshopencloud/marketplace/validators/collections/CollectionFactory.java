@@ -72,7 +72,7 @@ public class CollectionFactory {
         return collection;
     }
 
-    private void createThumbnail(CollectionCreationDto collectionCore, Collection collection, BeanPropertyBindingResult errors) {
+    public void createThumbnail(CollectionCreationDto collectionCore, Collection collection, BeanPropertyBindingResult errors) {
 
         if (collectionCore.getThumbnail() != null) {
             errors.pushNestedPath("thumbnail");
@@ -99,7 +99,6 @@ public class CollectionFactory {
 
                     collectionThumbnail.setCollection(collection);
                     collection.setThumbnail(collectionThumbnail);
-
                 }
 
                 errors.popNestedPath();
