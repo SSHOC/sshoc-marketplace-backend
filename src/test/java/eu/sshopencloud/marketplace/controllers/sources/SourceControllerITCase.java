@@ -305,6 +305,54 @@ class SourceControllerITCase {
                 .andExpect(jsonPath("url", is("http://tapor.ca")));
     }
 
+    @Test
+    void shouldCreateAndUpdateButNotDeleteSourceAsSystemContributor() throws Exception {
+        SourceCore source = new SourceCore();
+        source.setLabel("Test source");
+        source.setUrl("http://example.com");
+        source.setUrlTemplate("http://example.com/{source-item-id}");
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(source);
+        log.debug("JSON: " + payload);
+
+        String jsonResponse = mvc.perform(post("/api/sources")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", SYSTEM_IMPORTER_JWT))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Long sourceId = TestJsonMapper.serializingObjectMapper().readValue(jsonResponse, SourceDto.class).getId();
+
+        source = new SourceCore();
+        source.setLabel("Test another source");
+        source.setUrl("http://other.example.com");
+        source.setUrlTemplate("http://other.example.com/{source-item-id}");
+
+        payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(source);
+        log.debug("JSON: " + payload);
+
+        mvc.perform(put("/api/sources/{id}", sourceId)
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", SYSTEM_IMPORTER_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(sourceId.intValue())))
+                .andExpect(jsonPath("label", is("Test another source")))
+                .andExpect(jsonPath("url", is("http://other.example.com")))
+                .andExpect(jsonPath("urlTemplate", is("http://other.example.com/{source-item-id}")));
+
+        mvc.perform(delete("/api/sources/{id}", sourceId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", SYSTEM_IMPORTER_JWT))
+                .andExpect(status().isForbidden());
+
+        mvc.perform(get("/api/sources/{id}", sourceId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("label", is("Test another source")));
+    }
+
 
     @Test
     void shouldGetItemsBySourceId() throws Exception {
