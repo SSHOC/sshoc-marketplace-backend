@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junitpioneer.jupiter.ExpectedToFail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +33,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.UUID;
@@ -377,6 +379,45 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .header("Authorization", IMPORTER_JWT))
                 .andExpect(status().isForbidden())
                 .andReturn().getResponse().getContentAsString();
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    @ExpectedToFail
+    void shouldRollbackAfterUpdateError() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+        
+        // Create a thumbnail using an invalid mediaId to simulate an error during update
+        ItemMediaCore thumbnail = new ItemMediaCore();
+        thumbnail.setInfo(new MediaDetailsId(UUID.randomUUID())); // Use a random UUID to simulate a non-existing mediaId
+        collection.setThumbnail(thumbnail);
+
+        collection.setTitle("Modified Title");
+
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isBadRequest());
+
+        //then
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
