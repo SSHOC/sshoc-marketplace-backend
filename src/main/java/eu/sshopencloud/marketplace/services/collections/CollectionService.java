@@ -18,6 +18,7 @@ import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.collections.CollectionFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
@@ -124,10 +125,22 @@ public class CollectionService {
                 collectionRepository.findById(collectionId).orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", collectionId)));
 
         if (isCollectionUpdatePossible(collection)) {
+
+            BeanPropertyBindingResult errors = new BeanPropertyBindingResult(collectionCreationDto, "Collection");
+
+            
             collection.setTitle(collectionCreationDto.getTitle());
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
+            
+            // we need to copy the flag across so we check to ensure the new and old
+            // values are the same, otherwise we throw an exception if the user is not a moderator
+            if (collectionCreationDto.isRecommended() != collection.isRecommended() && !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+                throw new AccessDeniedException("Only moderators can set the recommended status of a collection");
+            }
+
             collection.setRecommended(collectionCreationDto.isRecommended());
+            
             collection.setUpdatedAt(ZonedDateTime.now());
             List<Long> oldValues = collection.getCollectionItems().stream().map(item->item.getItem().getId()).collect(Collectors.toUnmodifiableList());
             collection.getCollectionItems().clear();
@@ -142,12 +155,14 @@ public class CollectionService {
                 collection.getCollectionItems().add(collectionItem);
             });
 
-            BeanPropertyBindingResult errors = new BeanPropertyBindingResult(collectionCreationDto, "Collection");
-
             collectionFactory.createThumbnail(collectionCreationDto, collection, errors);
             
             collection.getContributors().clear();
             collection.getContributors().addAll(collectionFactory.createContributors(collectionCreationDto, collection, errors));
+
+            if (errors.hasErrors()) {
+                throw new ValidationException(errors);
+            }
 
             indexCollectionService.indexCollection(collection);
             indexItemService.removeOldValues(oldValues, collection.getId());

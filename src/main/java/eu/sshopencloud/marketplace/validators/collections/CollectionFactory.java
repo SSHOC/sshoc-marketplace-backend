@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.validators.collections;
 
+import org.springframework.security.access.AccessDeniedException;
+
 import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
@@ -46,12 +48,18 @@ public class CollectionFactory {
 
     public Collection create(CollectionCreationDto collectionCreationDto, BeanPropertyBindingResult errors) {
 
+        // note that only moderators can set the recommended status of a collection
+        if (collectionCreationDto.isRecommended() && LoggedInUserHolder.getLoggedInUser().isModerator())
+            throw new AccessDeniedException("Only moderators can set the recommended status of a collection");
+
         Collection collection = new Collection();
 
         collection.setTitle(collectionCreationDto.getTitle());
         collection.setDescription(collectionCreationDto.getDescription());
         collection.setVisible(collectionCreationDto.isVisible());
+        
         collection.setRecommended(collectionCreationDto.isRecommended());
+
         collection.setOwner(LoggedInUserHolder.getLoggedInUser());
         collection.setCreatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
         collection.setUpdatedAt(ZonedDateTime.now(ZoneId.systemDefault()));

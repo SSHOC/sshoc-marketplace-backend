@@ -492,7 +492,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         mvc.perform(put("/api/collections/{id}", createdCollection.getId())
                         .content(modifiedPayload)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", CONTRIBUTOR_JWT))
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
