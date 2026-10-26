@@ -5,6 +5,7 @@ import org.springframework.security.access.AccessDeniedException;
 import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.model.actors.Actor;
@@ -14,9 +15,11 @@ import eu.sshopencloud.marketplace.model.collections.CollectionContributor;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
 import eu.sshopencloud.marketplace.model.items.CollectionThumbnail;
 import eu.sshopencloud.marketplace.model.items.VersionedItem;
+import eu.sshopencloud.marketplace.model.vocabularies.Concept;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRepository;
 import eu.sshopencloud.marketplace.repositories.actors.ActorRoleRepository;
 import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
+import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.collections.CollectionException;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
@@ -50,6 +53,7 @@ public class CollectionFactory {
     private final ActorRoleRepository actorRoleRepository;
     private final VersionedItemRepository versionedItemRepository;
     private final MediaStorageService mediaStorageService;
+    private final ConceptRepository conceptRepository;
 
     public Collection create(CollectionCreationDto collectionCreationDto, BeanPropertyBindingResult errors) {
 
@@ -92,6 +96,8 @@ public class CollectionFactory {
             
             ItemMediaCore thumbnail = collectionCore.getThumbnail();
 
+            CollectionThumbnail collectionThumbnail = new CollectionThumbnail();
+
             if (thumbnail.getInfo() != null) {
                 errors.pushNestedPath("info");
 
@@ -106,15 +112,48 @@ public class CollectionFactory {
                             "mediaId", "field.invalid", "The media with the given mediaId does not exist"
                     );
                 } else {
-                    CollectionThumbnail collectionThumbnail = new CollectionThumbnail();
+                    
                     collectionThumbnail.setThumbnailId(info.getMediaId());
                     collectionThumbnail.setCaption(thumbnail.getCaption());
-
-                    collectionThumbnail.setCollection(collection);
-                    collection.setThumbnail(collectionThumbnail);
                 }
 
                 errors.popNestedPath();
+            }
+
+            if (thumbnail.getConcept() != null) {
+                errors.pushNestedPath("concept");
+
+                ConceptId conceptId = thumbnail.getConcept();
+
+                if (conceptId.getCode() == null) {
+                    errors.rejectValue("code", "field.required",
+                        "concept code is a required field");
+                } else if (conceptId.getVocabulary() == null) {
+                    errors.rejectValue("vocabulary", "field.required",
+                        "concept vocabulary is a required field");
+                } else if (conceptId.getVocabulary().getCode() == null) {
+                    errors.pushNestedPath("vocabulary");
+                    errors.rejectValue("code", "field.required",
+                        "code is a required field");
+                    errors.popNestedPath();
+                } else {
+                    Optional<Concept> concept = conceptRepository.findByCodeAndVocabularyCode(
+                        conceptId.getCode(),conceptId.getVocabulary().getCode());
+
+                    if (concept.isPresent()) {
+                        collectionThumbnail.setConcept(concept.get());
+                    } else {
+                        errors.rejectValue("concept", "field.invalid",
+                            "specified concept does not exist");
+                    }
+                }
+
+                errors.popNestedPath();
+            }
+
+            if (!errors.hasErrors()) {
+                collectionThumbnail.setCollection(collection);
+                collection.setThumbnail(collectionThumbnail);
             }
 
             errors.popNestedPath();
