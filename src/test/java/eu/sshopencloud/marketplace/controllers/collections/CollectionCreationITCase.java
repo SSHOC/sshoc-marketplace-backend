@@ -151,6 +151,34 @@ class CollectionCreationITCase extends CollectionControllerTest {
     }
 
     @Test
+    void shouldNotAllowToCreateCollectionWithActorWithoutIdAsContributor() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionCreationContributorDto  contributor = new CollectionCreationContributorDto();
+        contributor.setActor(new ActorId());
+        contributor.setRole(new ActorRoleId("code"));
+
+        collection.getContributors().add(contributor);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        //then
+        mvc.perform(post("/api/collections")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
+            .andExpect(jsonPath("errors[0].code", is("field.required")))
+            .andExpect(jsonPath("errors[0].message", is("actor must have an id field")));
+    }
+
+    @Test
     void shouldNotAllowToCreateCollectionWithActorThatDoesNotExist() throws Exception {
 
         //given
@@ -173,9 +201,37 @@ class CollectionCreationITCase extends CollectionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("contributors[0].actor")))
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].actor.id")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
-                .andExpect(jsonPath("errors[0].message", is("Such actor does not exist")));
+                .andExpect(jsonPath("errors[0].message", is("actor with id 10 does not exist")));
+    }
+
+    @Test
+    void shouldNotAllowToCreateCollectionWithActorRoleWithoutCode() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionCreationContributorDto  contributor = new CollectionCreationContributorDto();
+        contributor.setActor(new ActorId(1L));
+        contributor.setRole(new ActorRoleId());
+
+        collection.getContributors().add(contributor);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        //then
+        mvc.perform(post("/api/collections")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", is("contributor role must have a code field")));
     }
 
     @Test
@@ -228,11 +284,44 @@ class CollectionCreationITCase extends CollectionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errors[0].field", is("contributors[0].role")))
+                .andExpect(jsonPath("errors[0].field", is("contributors[0].role.code")))
                 .andExpect(jsonPath("errors[0].code", is("field.invalid")))
-                .andExpect(jsonPath("errors[0].message", is("Such role does not exist")));
+                .andExpect(jsonPath("errors[0].message", is("Role with code notExistingRole does not exist")));
     }
 
+    @Test
+    void shouldNotAllowToCreateCollectionWithDuplicateActors() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionCreationContributorDto  contributor = new CollectionCreationContributorDto();
+        contributor.setActor(new ActorId(1L));
+        contributor.setRole(new ActorRoleId("funder"));
+
+        collection.getContributors().add(contributor);
+
+        contributor = new CollectionCreationContributorDto();
+        contributor.setActor(new ActorId(1L));
+        contributor.setRole(new ActorRoleId("funder"));
+
+        collection.getContributors().add(contributor);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        //then
+        mvc.perform(post("/api/collections")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("errors[0].field", is("contributors[1]")))
+            .andExpect(jsonPath("errors[0].code", is("field.repeated")))
+            .andExpect(jsonPath("errors[0].message", is("The actor with given role (Funder) has already occurred.")));
+    }
 
     @Test
     void shouldCreateCollectionWithCorrectActorAndRole() throws Exception {

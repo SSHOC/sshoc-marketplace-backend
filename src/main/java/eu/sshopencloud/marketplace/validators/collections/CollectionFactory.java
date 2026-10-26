@@ -5,6 +5,8 @@ import org.springframework.security.access.AccessDeniedException;
 import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
+import eu.sshopencloud.marketplace.dto.actors.ActorId;
+import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.model.actors.Actor;
 import eu.sshopencloud.marketplace.model.actors.ActorRole;
 import eu.sshopencloud.marketplace.model.collections.Collection;
@@ -28,8 +30,11 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service responsible for creating new {@link eu.sshopencloud.marketplace.model.collections.Collection}
@@ -119,36 +124,76 @@ public class CollectionFactory {
     public List<CollectionContributor> createContributors(CollectionCreationDto collectionCreationDto,
                                                           Collection collection, BeanPropertyBindingResult errors) {
         List<CollectionContributor> contributors = new ArrayList<>();
+        Set<Map.Entry<Long, String>> actorRoles = new HashSet<>();
 
         if (collectionCreationDto.getContributors() != null) {
 
             for(int i = 0; i < collectionCreationDto.getContributors().size(); i++) {
                 errors.pushNestedPath("contributors[" + i + "]");
                 CollectionContributor ctrb = new CollectionContributor();
-                if (collectionCreationDto.getContributors().get(i).getActor() != null) {
-                    Optional<Actor> actor = actorRepository.findById(collectionCreationDto.getContributors().get(i).getActor().getId());
-                    if (actor.isPresent()) {
-                        ctrb.setActor(actor.get());
-                    } else {
 
-                        errors.rejectValue("actor", "field.invalid", "Such actor does not exist");
+                ActorId actorId = collectionCreationDto.getContributors().get(i).getActor();
+                if (actorId != null) {
+                    errors.pushNestedPath("actor");
+                    if (actorId.getId() != null) {
+
+                        Optional<Actor> actor = actorRepository.findById(actorId.getId());
+                        if (actor.isPresent()) {
+                            ctrb.setActor(actor.get());
+                        } else {
+                            errors.rejectValue(
+                                "id", "field.invalid",
+                                String.format("actor with id %s does not exist", actorId.getId()));
+                        }
+                    } else {
+                        errors.rejectValue("id", "field.required", "actor must have an id field");
                     }
+                    errors.popNestedPath();
                 } else {
                     errors.rejectValue("actor", "field.required", "The field actor is required");
                 }
-                if (collectionCreationDto.getContributors().get(i).getRole() != null) {
-                    Optional<ActorRole> role = actorRoleRepository.findById(collectionCreationDto.getContributors().get(i).getRole().getCode());
-                    if (role.isPresent()) {
-                        ctrb.setRole(role.get());
+
+                ActorRoleId roleId = collectionCreationDto.getContributors().get(i).getRole();
+                if (roleId != null) {
+                    errors.pushNestedPath("role");
+                    if (roleId.getCode() != null) {
+                        Optional<ActorRole> role = actorRoleRepository.findById(roleId.getCode());
+                        if (role.isPresent()) {
+                            ctrb.setRole(role.get());
+                        } else {
+                            errors.rejectValue(
+                                "code", "field.invalid",
+                                String.format("Role with code %s does not exist", roleId.getCode()));
+                        }
                     } else {
-                        errors.rejectValue("role", "field.invalid", "Such role does not exist");
+                        errors.rejectValue("code", "field.required",
+                            "contributor role must have a code field");
                     }
+                    errors.popNestedPath();
                 } else {
-                    errors.rejectValue("role", "field.required", "The field role is required");
+                    errors.rejectValue("role", "field.required",
+                        "The field role is required");
                 }
 
-                ctrb.setCollection(collection);
-                contributors.add(ctrb);
+                if (!errors.hasErrors()) {
+                    ctrb.setCollection(collection);
+
+                    Map.Entry<Long, String> actorRoleEntry = Map.entry(
+                        ctrb.getActor().getId(), ctrb.getRole().getCode()
+                    );
+
+                    if (!actorRoles.contains(actorRoleEntry)) {
+                        contributors.add(ctrb);
+                        actorRoles.add(actorRoleEntry);
+                    }
+                    else {
+                        errors.rejectValue(
+                                "", "field.repeated",
+                                String.format("The actor with given role (%s) has already occurred.", ctrb.getRole().getLabel())
+                        );
+                    }
+                }
+
                 errors.popNestedPath();
             }
         }
