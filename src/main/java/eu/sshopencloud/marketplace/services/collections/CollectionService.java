@@ -18,6 +18,7 @@ import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.collections.CollectionFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
@@ -40,7 +41,6 @@ public class CollectionService {
     private final IndexItemService indexItemService;
     private final MessagesService messagesService;
     private final CollectionFactory collectionFactory;
-
 
     public CollectionService(CollectionRepository collectionRepository,
                              VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, IndexItemService indexItemService, MessagesService messagesService,
@@ -121,17 +121,40 @@ public class CollectionService {
     }
 
     public CollectionDto updateCollection(long collectionId, CollectionCreationDto collectionCreationDto) {
-        Collection collection =
-                collectionRepository.findById(collectionId).orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", collectionId)));
+        
+        // we need to acutally retrieve the old value, not just check it exists, as we need the
+        // owner information to check that the update is actually allowed
+        Collection oldcollection = collectionRepository.findById(collectionId).orElseThrow(() ->
+            new EntityNotFoundException(String.format("Collection with id %s not found", collectionId)));
 
-        if (isCollectionUpdatePossible(collection)) {
+        if (isCollectionUpdatePossible(oldcollection)) {
+
+            // create a new collection instance to hold the updated
+            // collection information
+            Collection collection = new Collection();
+            
+            // because we are creating a new copy of the collection
+            // so we can roll back on exceptions etc. we need to copy
+            // the id, owner, and creation times from the original
+            collection.setId(collectionId);
+            collection.setOwner(oldcollection.getOwner());
+            collection.setCreatedAt(oldcollection.getCreatedAt());
+
+            // a placeholder for any validation errors which may occuir
+            BeanPropertyBindingResult errors = new BeanPropertyBindingResult(collectionCreationDto, "Collection");
+
+            // we need to copy the flag across so we check to ensure the new and old
+            // values are the same, otherwise we throw an exception if the user is not a moderator
+            if (collectionCreationDto.isRecommended() != oldcollection.isRecommended() && !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+                throw new AccessDeniedException("Only moderators can set the recommended status of a collection");
+            }
+
+            // copy the simple single value fields into the new instance
             collection.setTitle(collectionCreationDto.getTitle());
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
-            collection.setUpdatedAt(ZonedDateTime.now());
-            List<Long> oldValues = collection.getCollectionItems().stream().map(item->item.getItem().getId()).collect(Collectors.toUnmodifiableList());
-            collection.getCollectionItems().clear();
-
+            collection.setRecommended(collectionCreationDto.isRecommended());
+            
             collectionCreationDto.getContainedItems().forEach(item -> {
                 VersionedItem versionedItem =
                         versionedItemRepository.findById(item).orElseThrow(() -> new CollectionException("Item not found"));
@@ -141,12 +164,43 @@ public class CollectionService {
                 collection.getCollectionItems().add(collectionItem);
             });
 
-            indexCollectionService.indexCollection(collection);
-            indexItemService.removeOldValues(oldValues, collection.getId());
-            indexItemService.reIndexItemsInCollection(collection);
+            // create the collection thumbnail
+            collectionFactory.createThumbnail(collectionCreationDto, collection, errors);
+            
+            // handle contributors to the collection
+            collection.setContributors(collectionFactory.createContributors(collectionCreationDto, collection, errors));
 
-            return CollectionListMapper.INSTANCE.toDto(collection);
+            if (errors.hasErrors()) {
+                // unfortunately we've hit one or more validation errors
+                throw new ValidationException(errors);
+            }
+
+            // looks like the new instance is valid so correct
+            // the updated time field
+            collection.setUpdatedAt(ZonedDateTime.now());
+
+
+            // keep track of the items we need to remove from the solr index
+            // we need to do this now otherwise the object will change when we
+            // save the new version back to the repository
+            List<Long> oldValues = oldcollection.getCollectionItems().stream().map(item->item.getItem().getId()).collect(Collectors.toUnmodifiableList());
+
+            // and save the new instance of the collection
+            Collection saved_collection = collectionRepository.save(collection);
+
+            // make sure the collection is indexed properly
+            indexCollectionService.indexCollection(saved_collection);
+
+            // now remove the old values from the index
+            indexItemService.removeOldValues(oldValues, saved_collection.getId());
+            
+            // and then index the new values
+            indexItemService.reIndexItemsInCollection(saved_collection);
+
+            // return the saved instance in the expected form
+            return CollectionMapper.INSTANCE.toDto(saved_collection, PageCoords.builder().page(1).perpage(20).build());
         } else {
+            // oops the caller doesn't have permissions to update this collection
             throw new AccessDeniedException("Access denied");
         }
     }
