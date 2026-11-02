@@ -58,7 +58,7 @@ public class CollectionFactory {
     public Collection create(CollectionCreationDto collectionCreationDto, BeanPropertyBindingResult errors) {
 
         // note that only moderators can set the recommended status of a collection
-        if (collectionCreationDto.isRecommended() && LoggedInUserHolder.getLoggedInUser().isModerator())
+        if (collectionCreationDto.isRecommended() && !LoggedInUserHolder.getLoggedInUser().isModerator())
             throw new AccessDeniedException("Only moderators can set the recommended status of a collection");
 
         Collection collection = new Collection();

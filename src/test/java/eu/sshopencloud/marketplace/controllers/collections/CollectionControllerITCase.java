@@ -951,7 +951,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         String cratedCollection = mvc.perform(post("/api/collections")
                         .content(payload)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", CONTRIBUTOR_JWT))
+                        .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
@@ -962,7 +962,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         //cleanup
         CollectionDto createdCollection = mapper.readValue(cratedCollection, CollectionDto.class);
-        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+        removeCollection(createdCollection.getId(), MODERATOR_JWT);
     }
 
 
