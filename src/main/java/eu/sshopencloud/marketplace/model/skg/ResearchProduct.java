@@ -16,11 +16,11 @@ public class ResearchProduct {
     @JsonProperty("local_identifier")
     private String localIdentifier;
 
-    @JsonProperty("@product_type")
-    private String productType;
-
     @JsonProperty("entity_type")
     private String entityType;
+
+    @JsonProperty("product_type")
+    private String productType;
 
     private Map<String, List<String>> titles;
     private Map<String, List<String>> abstracts;

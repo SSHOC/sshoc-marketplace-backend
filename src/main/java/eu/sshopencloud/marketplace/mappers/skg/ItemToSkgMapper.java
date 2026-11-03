@@ -37,6 +37,7 @@ public class ItemToSkgMapper {
                         .abstracts(Map.of("none", List.of(item.getDescription())))
                         .contributions(generateContributions(item))
                         .relatedProducts(generateRelatedProducts(item))
+                        .identifiers(generateIdentifiers(item))
                         .manifestations(List.of(Map.of("dates", Map.of("modified", item.getLastInfoUpdate().toString()))))
                         .build()
         );
@@ -101,14 +102,14 @@ public class ItemToSkgMapper {
         List<Identifier> result = new ArrayList<>();
         item.getAccessibleAt().forEach(accessibleAt -> {
             Identifier identifier = new Identifier();
-            identifier.setScheme("<scheme>");
+            identifier.setScheme("url");
             identifier.setValue(accessibleAt);
             result.add(identifier);
         });
 
         item.getExternalIds().forEach(externalIdDto -> {
             Identifier identifier = new Identifier();
-            identifier.setScheme("<scheme>");
+            identifier.setScheme("url");
             identifier.setValue(externalIdDto.getIdentifier());
             result.add(identifier);
         });
