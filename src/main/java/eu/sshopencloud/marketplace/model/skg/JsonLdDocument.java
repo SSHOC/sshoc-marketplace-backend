@@ -1,5 +1,6 @@
 package eu.sshopencloud.marketplace.model.skg;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -39,5 +40,10 @@ public class JsonLdDocument {
     public JsonLdDocument addEntity(Object entity) {
         this.graph.add(entity);
         return this;
+    }
+
+    @JsonIgnore
+    public boolean isEmpty() {
+        return this.graph.isEmpty();
     }
 }

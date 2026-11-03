@@ -7,6 +7,7 @@ import eu.sshopencloud.marketplace.services.skg.SkgResearchProductService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,9 +35,11 @@ public class ProductsController {
     @Operation(summary = "Get single tool or service by its persistentId in SKG format")
     @GetMapping(path = "/{*identifier}", produces = "application/ld+json")
     public ResponseEntity<JsonLdDocument> getProduct(@PathVariable("identifier") String identifier) {
-        return ResponseEntity.ok(researchProductService.getResearchProduct(identifier));
+        JsonLdDocument researchProduct = researchProductService.getResearchProduct(identifier);
+        if (researchProduct.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(researchProduct);
+        } else {
+            return ResponseEntity.ok(researchProduct);
+        }
     }
-
-
-
 }
