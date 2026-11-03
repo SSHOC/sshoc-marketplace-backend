@@ -83,7 +83,7 @@ class ProductsControllerITCase {
                 .andExpect(jsonPath("$['@context'][1]",
                         is("https://w3id.org/skg-if/context/1.0.0/skg-if-api.json")))
                 .andExpect(jsonPath("$['@graph']", hasSize(1)))
-                .andExpect(jsonPath("$['@graph'][0]['local_identifier1']", containsString(tool.getPersistentId())))
+                .andExpect(jsonPath("$['@graph'][0]['local_identifier']", containsString(tool.getPersistentId())))
                 .andExpect(jsonPath("$['@graph'][0]['product_type']", is("research software")))
                 .andExpect(jsonPath("$['@graph'][0]['entity_type']", is("product")))
                 .andExpect(jsonPath("$['@graph'][0]['titles']['none'][0]", is("Test complex software")))
