@@ -67,9 +67,9 @@ public class ItemToSkgMapper {
 
     private String generateIdentifier(ItemDto item) {
         return switch (item) {
-            case ToolDto ignored -> skgConfiguration.getBaseUri() + "api/tools-services/" + item.getPersistentId();
-            case DatasetDto ignored -> skgConfiguration.getBaseUri() + "api/datasets/" + item.getPersistentId();
-            case PublicationDto ignored -> skgConfiguration.getBaseUri() + "api/publications/" + item.getPersistentId();
+            case ToolDto ignored -> skgConfiguration.getBaseUri() + "tool-or-service/" + item.getPersistentId();
+            case DatasetDto ignored -> skgConfiguration.getBaseUri() + "dataset/" + item.getPersistentId();
+            case PublicationDto ignored -> skgConfiguration.getBaseUri() + "publication/" + item.getPersistentId();
             case null, default -> "";
         };
     }
