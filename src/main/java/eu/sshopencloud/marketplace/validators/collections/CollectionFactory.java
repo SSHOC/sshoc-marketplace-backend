@@ -22,6 +22,7 @@ import eu.sshopencloud.marketplace.repositories.items.VersionedItemRepository;
 import eu.sshopencloud.marketplace.repositories.vocabularies.ConceptRepository;
 import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.collections.CollectionException;
+import eu.sshopencloud.marketplace.validators.items.ItemMediaFactory;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +55,8 @@ public class CollectionFactory {
     private final VersionedItemRepository versionedItemRepository;
     private final MediaStorageService mediaStorageService;
     private final ConceptRepository conceptRepository;
+
+    private final ItemMediaFactory itemMediaFactory;
 
     public Collection create(CollectionCreationDto collectionCreationDto, BeanPropertyBindingResult errors) {
 
@@ -122,32 +125,7 @@ public class CollectionFactory {
 
             if (thumbnail.getConcept() != null) {
                 errors.pushNestedPath("concept");
-
-                ConceptId conceptId = thumbnail.getConcept();
-
-                if (conceptId.getCode() == null) {
-                    errors.rejectValue("code", "field.required",
-                        "concept code is a required field");
-                } else if (conceptId.getVocabulary() == null) {
-                    errors.rejectValue("vocabulary", "field.required",
-                        "concept vocabulary is a required field");
-                } else if (conceptId.getVocabulary().getCode() == null) {
-                    errors.pushNestedPath("vocabulary");
-                    errors.rejectValue("code", "field.required",
-                        "code is a required field");
-                    errors.popNestedPath();
-                } else {
-                    Optional<Concept> concept = conceptRepository.findByCodeAndVocabularyCode(
-                        conceptId.getCode(),conceptId.getVocabulary().getCode());
-
-                    if (concept.isPresent()) {
-                        collectionThumbnail.setConcept(concept.get());
-                    } else {
-                        errors.rejectValue("", "field.invalid",
-                            "specified concept does not exist");
-                    }
-                }
-
+                collectionThumbnail.setConcept(itemMediaFactory.createLicenseConcept(thumbnail.getConcept(), errors));
                 errors.popNestedPath();
             }
 
