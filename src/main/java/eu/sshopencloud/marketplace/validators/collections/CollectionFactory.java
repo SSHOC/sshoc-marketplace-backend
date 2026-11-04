@@ -143,7 +143,7 @@ public class CollectionFactory {
                     if (concept.isPresent()) {
                         collectionThumbnail.setConcept(concept.get());
                     } else {
-                        errors.rejectValue("concept", "field.invalid",
+                        errors.rejectValue("", "field.invalid",
                             "specified concept does not exist");
                     }
                 }
