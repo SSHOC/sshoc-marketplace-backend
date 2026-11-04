@@ -261,7 +261,7 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- extra utils for use with JUnit Juputer including @ExpectedToFail-->
+        <!-- extra utils for use with JUnit Jupiter including @ExpectedToFail-->
         <dependency>
             <groupId>org.junit-pioneer</groupId>
             <artifactId>junit-pioneer</artifactId>

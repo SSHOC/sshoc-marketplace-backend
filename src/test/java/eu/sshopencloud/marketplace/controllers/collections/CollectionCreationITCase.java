@@ -371,7 +371,7 @@ class CollectionCreationITCase extends CollectionControllerTest {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        // add a contributor so that the collection is valuid
+        // add a contributor so that the collection is valid
         CollectionCreationContributorDto  contributor = new CollectionCreationContributorDto();
         contributor.setActor(new ActorId(1L));
         contributor.setRole(new ActorRoleId("funder"));
