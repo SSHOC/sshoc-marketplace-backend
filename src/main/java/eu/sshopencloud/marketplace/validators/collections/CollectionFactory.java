@@ -54,7 +54,6 @@ public class CollectionFactory {
     private final ActorRoleRepository actorRoleRepository;
     private final VersionedItemRepository versionedItemRepository;
     private final MediaStorageService mediaStorageService;
-    private final ConceptRepository conceptRepository;
 
     private final ItemMediaFactory itemMediaFactory;
 
@@ -78,6 +77,14 @@ public class CollectionFactory {
 
         collection.setContributors(createContributors(collectionCreationDto, collection, errors));
 
+        createContainedItems(collectionCreationDto, collection, errors);
+
+        createThumbnail(collectionCreationDto, collection, errors);
+
+        return collection;
+    }
+
+    public void createContainedItems(CollectionCreationDto collectionCreationDto, Collection collection, BeanPropertyBindingResult errors) {
         collectionCreationDto.getContainedItems().forEach(item -> {
             VersionedItem versionedItem =
                     versionedItemRepository.findById(item).orElseThrow(() -> new CollectionException("Item not found"));
@@ -86,10 +93,6 @@ public class CollectionFactory {
             collectionItem.setItem(versionedItem.getCurrentVersion());
             collection.getCollectionItems().add(collectionItem);
         });
-
-        createThumbnail(collectionCreationDto, collection, errors);
-
-        return collection;
     }
 
     public void createThumbnail(CollectionCreationDto collectionCore, Collection collection, BeanPropertyBindingResult errors) {
