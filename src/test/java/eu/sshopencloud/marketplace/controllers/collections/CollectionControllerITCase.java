@@ -430,6 +430,114 @@ class CollectionControllerITCase extends CollectionControllerTest {
     }
 
     @Test
+    void shouldAllowUpdateToChangeThumbnail() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        //when
+        
+        // upload a media file to get a valid mediaId
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+        // Create a thumbnail using the valid mediaId
+        ItemMediaCore thumbnail = new ItemMediaCore();
+        thumbnail.setInfo(new MediaDetailsId(seriouscatId));
+        thumbnail.setCaption("Serious Cat");
+        collection.setThumbnail(thumbnail);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())));
+
+        UUID grumpcatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "grumpycat.png", CONTRIBUTOR_JWT);
+
+        ItemMediaCore updatedThumbnail = new ItemMediaCore();
+        updatedThumbnail.setInfo(new MediaDetailsId(grumpcatId));
+        updatedThumbnail.setCaption("Grumpy Cat");
+        collection.setThumbnail(updatedThumbnail);
+
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("thumbnail.mediaId", is(grumpcatId.toString())));
+
+        //then
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("thumbnail.mediaId", is(grumpcatId.toString())));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldAllowUpdateToRemoveThumbnail() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        //when
+        
+        // upload a media file to get a valid mediaId
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+        // Create a thumbnail using the valid mediaId
+        ItemMediaCore thumbnail = new ItemMediaCore();
+        thumbnail.setInfo(new MediaDetailsId(seriouscatId));
+        thumbnail.setCaption("Serious Cat");
+        collection.setThumbnail(thumbnail);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())));
+
+        collection.setThumbnail(null); //remove thumbnail
+
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
+                .andExpect(jsonPath("thumbnail").isEmpty());
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
     void shouldAllowUpdateToSetContributors() throws Exception {
 
         //given

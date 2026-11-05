@@ -145,17 +145,15 @@ public class CollectionService {
             List<Long> oldValues = collection.getCollectionItems().stream().map(item->item.getItem().getId()).collect(Collectors.toUnmodifiableList());
             collection.getCollectionItems().clear();
 
-
-            collectionCreationDto.getContainedItems().forEach(item -> {
-                VersionedItem versionedItem =
-                        versionedItemRepository.findById(item).orElseThrow(() -> new CollectionException("Item not found"));
-                CollectionItem collectionItem = new CollectionItem();
-                collectionItem.setCollection(collection);
-                collectionItem.setItem(versionedItem.getCurrentVersion());
-                collection.getCollectionItems().add(collectionItem);
-            });
-
-            collectionFactory.createThumbnail(collectionCreationDto, collection, errors);
+            collectionFactory.createContainedItems(collectionCreationDto, collection, errors);
+            
+            // this if/else allows us to remove a thumbnailk from the collection
+            // without it if the user set the thumbnail to null it would not be removed from the collection
+            if (collectionCreationDto.getThumbnail() != null) {
+                collectionFactory.createThumbnail(collectionCreationDto, collection, errors);
+            } else {
+                collection.setThumbnail(null);
+            }
             
             collection.getContributors().clear();
             collection.getContributors().addAll(collectionFactory.createContributors(collectionCreationDto, collection, errors));

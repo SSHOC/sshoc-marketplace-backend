@@ -106,7 +106,7 @@ class CollectionCreationITCase extends CollectionControllerTest {
         collection.setDescription("Simple collection description");
         collection.setVisible(true);
 
-        // Create an invalid thumbnail without mediaId
+        // Create an invalid thumbnail with an unknown mediaId
         ItemMediaCore thumbnail = new ItemMediaCore();
         thumbnail.setInfo(new MediaDetailsId(UUID.randomUUID()));
         collection.setThumbnail(thumbnail);

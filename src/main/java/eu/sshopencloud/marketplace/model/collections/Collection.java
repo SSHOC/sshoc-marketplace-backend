@@ -46,7 +46,7 @@ public class Collection {
     @CreationTimestamp
     private ZonedDateTime updatedAt;
 
-    @OneToOne(mappedBy = "collection", cascade =  CascadeType.ALL)
+    @OneToOne(mappedBy = "collection", cascade =  CascadeType.ALL, orphanRemoval = true)
     private CollectionThumbnail thumbnail;
 
     @OneToMany(mappedBy = "collection", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true)
