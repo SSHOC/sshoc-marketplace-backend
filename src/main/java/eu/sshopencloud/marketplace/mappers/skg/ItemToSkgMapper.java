@@ -4,8 +4,12 @@ import eu.sshopencloud.marketplace.conf.SkgConfiguration;
 import eu.sshopencloud.marketplace.dto.datasets.DatasetDto;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
 import eu.sshopencloud.marketplace.dto.publications.PublicationDto;
+import eu.sshopencloud.marketplace.dto.tools.PaginatedTools;
 import eu.sshopencloud.marketplace.dto.tools.ToolDto;
 import eu.sshopencloud.marketplace.model.skg.*;
+import eu.sshopencloud.marketplace.model.skg.meta.Meta;
+import eu.sshopencloud.marketplace.model.skg.meta.PageInfo;
+import eu.sshopencloud.marketplace.model.skg.meta.PartOf;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,9 +20,11 @@ import java.util.Map;
 public class ItemToSkgMapper {
 
     private final SkgConfiguration skgConfiguration;
+    private final LocalIdentifierBuilder localIdentifierBuilder;
 
-    public ItemToSkgMapper(SkgConfiguration skgConfiguration) {
+    public ItemToSkgMapper(SkgConfiguration skgConfiguration, LocalIdentifierBuilder localIdentifierBuilder) {
         this.skgConfiguration = skgConfiguration;
+        this.localIdentifierBuilder = localIdentifierBuilder;
     }
 
     public JsonLdDocument empty() {
@@ -32,7 +38,7 @@ public class ItemToSkgMapper {
                 ResearchProduct.builder()
                         .localIdentifier(generateIdentifier(item))
                         .productType(generateProductType(item))
-                        .entityType("product")
+                        .entityType(EntityType.PRODUCT.toString())
                         .titles(Map.of("none", List.of(item.getLabel())))
                         .abstracts(Map.of("none", List.of(item.getDescription())))
                         .contributions(generateContributions(item))
@@ -41,19 +47,57 @@ public class ItemToSkgMapper {
                         .manifestations(List.of(Map.of("dates", Map.of("modified", item.getLastInfoUpdate().toString()))))
                         .build()
         );
-
         return doc;
     }
 
-    public JsonLdDocument toSkg(List<ToolDto> items) {
+    public JsonLdDocument toSkg(PaginatedTools tools) {
         JsonLdDocument doc = new JsonLdDocument(skgConfiguration.getBaseUri());
 
-        for (ItemDto item : items) {
+        mapMetaPart(tools, doc);
+        mapGraph(tools, doc);
+        return doc;
+    }
+
+    private void mapMetaPart(PaginatedTools tools, JsonLdDocument doc){
+
+        Meta.MetaBuilder builder = Meta.builder();
+
+        if (tools.getPage() != 1) {
+            builder.prevPage(PageInfo.builder()
+                    .entityType(EntityType.SEARCH_RESULT_PAGE.toString())
+                    .localIdentifier(localIdentifierBuilder.buildForPrevPage(tools)).build());
+        }
+
+        if (tools.getPage() != tools.getPages()) {
+            builder.nextPage(PageInfo.builder()
+                    .entityType(EntityType.SEARCH_RESULT_PAGE.toString())
+                    .localIdentifier(localIdentifierBuilder.buildForNextPage(tools)).build());
+        }
+
+        builder.lastPage(PageInfo.builder()
+                        .entityType(EntityType.SEARCH_RESULT_PAGE.toString())
+                        .localIdentifier(localIdentifierBuilder.buildForLastPage(tools))
+                .build());
+
+        builder.localIdentifier(localIdentifierBuilder.buildForCurrentPage(tools))
+                .entityType(EntityType.SEARCH_RESULT_PAGE.toString());
+
+        builder.partOf(PartOf.builder()
+                        .entityType(EntityType.SEARCH_RESULT.toString())
+                        .localIdentifier(skgConfiguration.getBaseUri() + "products")
+                        .totalItems(tools.getHits())
+                .build());
+
+        doc.addMetaPart(builder.build());
+    }
+
+    private void mapGraph(PaginatedTools tools, JsonLdDocument doc) {
+        for (ItemDto item : tools.getTools()) {
             doc.addEntity(
                     ResearchProduct.builder()
                             .localIdentifier(generateIdentifier(item))
                             .productType(generateProductType(item))
-                            .entityType("product")
+                            .entityType(EntityType.PRODUCT.toString())
                             .titles(Map.of("none", List.of(item.getLabel())))
                             .abstracts(Map.of("none", List.of(item.getDescription())))
                             .contributions(generateContributions(item))
@@ -63,7 +107,6 @@ public class ItemToSkgMapper {
                             .build()
             );
         }
-        return doc;
     }
 
     private String generateIdentifier(ItemDto item) {

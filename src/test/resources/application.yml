@@ -181,3 +181,6 @@ management:
     health:
       show-details: when_authorized
       roles: 'ADMINISTRATOR'
+
+skg:
+  base-uri: "https://marketplace.sshopencloud.eu/"

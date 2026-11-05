@@ -3,6 +3,7 @@ package eu.sshopencloud.marketplace.model.skg;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import eu.sshopencloud.marketplace.model.skg.meta.Meta;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -16,6 +17,9 @@ public class JsonLdDocument {
 
     @JsonProperty("@context")
     private final List<Object> context;
+
+    @JsonProperty("meta")
+    private Meta meta = Meta.builder().build();
 
     @JsonProperty("@graph")
     private final List<Object> graph;
@@ -42,6 +46,9 @@ public class JsonLdDocument {
         return this;
     }
 
+    public void addMetaPart(Meta meta){
+        this.meta = meta;
+    }
     @JsonIgnore
     public boolean isEmpty() {
         return this.graph.isEmpty();

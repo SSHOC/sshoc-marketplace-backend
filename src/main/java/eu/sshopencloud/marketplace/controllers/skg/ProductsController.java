@@ -26,8 +26,8 @@ public class ProductsController {
     @Operation(summary = "Get all tools or services by its persistentId in SKG format")
     @GetMapping(produces = "application/ld+json")
     public ResponseEntity<JsonLdDocument> getProducts(@RequestParam(value = "page", required = false) Integer page,
-                                                      @RequestParam(value = "perpage", required = false) Integer perpage) throws PageTooLargeException {
-        PageCoords pageData = pageCoordsValidator.validate(page, perpage);
+                                                      @RequestParam(value = "page_size", required = false) Integer pageSize) throws PageTooLargeException {
+        PageCoords pageData = pageCoordsValidator.validate(page, pageSize);
 
         return ResponseEntity.ok(researchProductService.getResearchProducts(pageData));
     }

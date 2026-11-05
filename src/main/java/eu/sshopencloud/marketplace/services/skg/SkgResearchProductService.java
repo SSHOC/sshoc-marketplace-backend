@@ -37,7 +37,7 @@ public class SkgResearchProductService {
     public JsonLdDocument getResearchProducts(PageCoords pageData) {
         try {
             PaginatedTools tools = toolService.getTools(pageData, true);
-            return itemToSkgMapper.toSkg(tools.getTools());
+            return itemToSkgMapper.toSkg(tools);
         } catch (Exception ex) {
             return itemToSkgMapper.empty();
         }
