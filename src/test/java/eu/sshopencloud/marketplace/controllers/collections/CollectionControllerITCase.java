@@ -14,6 +14,8 @@ import eu.sshopencloud.marketplace.model.search.IndexCollection;
 import eu.sshopencloud.marketplace.util.MediaTestUploadUtils;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -402,6 +404,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
         // Create a thumbnail using the valid mediaId
         ItemMediaCore thumbnail = new ItemMediaCore();
         thumbnail.setInfo(new MediaDetailsId(seriouscatId));
+
+        // use the same concept as in the VocabularyControllerITCase test, so that we know the concept exists in the database
+        thumbnail.setConcept(new ConceptId("Qhull", new VocabularyId("software-license"), null));
         collection.setThumbnail(thumbnail);
 
         String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
@@ -424,7 +429,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
-                .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())));
+                .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("thumbnail.concept.code", is("Qhull")))
+                .andExpect(jsonPath("thumbnail.concept.vocabulary.code", is("software-license")));
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);

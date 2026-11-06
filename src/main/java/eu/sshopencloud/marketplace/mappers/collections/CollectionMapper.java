@@ -4,6 +4,7 @@ import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.collections.*;
 import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
 import eu.sshopencloud.marketplace.mappers.actors.ActorRoleMapper;
+import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptBasicMapper;
 import eu.sshopencloud.marketplace.model.collections.Collection;
 import eu.sshopencloud.marketplace.model.collections.CollectionItem;
 
@@ -71,6 +72,7 @@ public class CollectionMapper {
         if(collection.getThumbnail() != null) {
             collectionThumbnailDto.setCaption(collection.getThumbnail().getCaption());
             collectionThumbnailDto.setMediaId(collection.getThumbnail().getThumbnailId());
+            collectionThumbnailDto.setConcept(ConceptBasicMapper.INSTANCE.toDto(collection.getThumbnail().getConcept()));
         }
         return collectionThumbnailDto;
     }
