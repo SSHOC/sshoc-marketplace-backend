@@ -155,7 +155,7 @@ public class CollectionService {
                 // this ensures we break the link between the collection and
                 // the thumbnail so that the database update will complete cleanly
                 if (collection.getThumbnail() != null) {
-                    collection.setThumbnail(null);
+                    collection.getThumbnail().setCollection(null);
                 }
                 collection.setThumbnail(null);
             }
