@@ -152,6 +152,11 @@ public class CollectionService {
             if (collectionCreationDto.getThumbnail() != null) {
                 collectionFactory.createThumbnail(collectionCreationDto, collection, errors);
             } else {
+                // this ensures we break the link between the collection and
+                // the thumbnail so that the database update will complete cleanly
+                if (collection.getThumbnail() != null) {
+                    collection.setThumbnail(null);
+                }
                 collection.setThumbnail(null);
             }
             
