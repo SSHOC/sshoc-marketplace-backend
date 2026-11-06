@@ -142,12 +142,12 @@ public class CollectionService {
             collection.setRecommended(collectionCreationDto.isRecommended());
             
             collection.setUpdatedAt(ZonedDateTime.now());
-            List<Long> oldValues = collection.getCollectionItems().stream().map(item->item.getItem().getId()).collect(Collectors.toUnmodifiableList());
-            collection.getCollectionItems().clear();
 
-            collectionFactory.createContainedItems(collectionCreationDto, collection, errors);
+            // build up the list of items in the collection, making sure 
+            // we don't lose any existing comments or suggestion flags
+            List<Long> oldValues = collectionFactory.createContainedItems(collectionCreationDto, collection, errors);
             
-            // this if/else allows us to remove a thumbnailk from the collection
+            // this if/else allows us to remove a thumbnail from the collection
             // without it if the user set the thumbnail to null it would not be removed from the collection
             if (collectionCreationDto.getThumbnail() != null) {
                 collectionFactory.createThumbnail(collectionCreationDto, collection, errors);
