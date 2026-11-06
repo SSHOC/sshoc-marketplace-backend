@@ -21,6 +21,7 @@ import eu.sshopencloud.marketplace.services.auth.LoggedInUserHolder;
 import eu.sshopencloud.marketplace.services.collections.CollectionException;
 import eu.sshopencloud.marketplace.validators.items.ItemMediaFactory;
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
+import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -79,6 +80,20 @@ public class CollectionFactory {
         createContainedItems(collectionCreationDto, collection, errors);
 
         createThumbnail(collectionCreationDto, collection, errors);
+
+        if (collection.getThumbnail() != null) {
+            try {
+                mediaStorageService.linkToMedia(collection.getThumbnail().getThumbnailId());
+            } catch (MediaNotAvailableException e) {
+                // Note that this should be impossible as we explicitly check that the media
+                // is available in the createThumbnail method, but we catch it here just in case
+                errors.rejectValue(
+                    "thumbnail.info.mediaId",
+                    "field.invalid",
+                    "The media with the given mediaId is not available"
+                );
+            }
+        }
 
         return collection;
     }
