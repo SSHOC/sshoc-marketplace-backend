@@ -124,6 +124,8 @@ public class CollectionFactory {
                 }
 
                 errors.popNestedPath();
+            } else {
+                errors.rejectValue("info", "field.required", "The field info is required");
             }
 
             if (thumbnail.getConcept() != null) {

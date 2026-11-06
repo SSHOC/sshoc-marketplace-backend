@@ -82,6 +82,31 @@ class CollectionCreationITCase extends CollectionControllerTest {
 
         // Create an invalid thumbnail without mediaId
         ItemMediaCore thumbnail = new ItemMediaCore();
+        collection.setThumbnail(thumbnail);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(post("/api/collections")
+                .content(payload)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("errors[0].field", is("thumbnail.info")))
+            .andExpect(jsonPath("errors[0].code", is("field.required")))
+            .andExpect(jsonPath("errors[0].message", is("The field info is required")));
+    }
+
+    @Test
+    void shouldNotAllowToCreateCollectionWithThumbnailWithInvalidMediaId() throws Exception {
+
+        // Create a simple collection
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        // Create an invalid thumbnail with an invalid mediaId
+        ItemMediaCore thumbnail = new ItemMediaCore();
         thumbnail.setInfo(new MediaDetailsId());
         collection.setThumbnail(thumbnail);
 
