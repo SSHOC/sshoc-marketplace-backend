@@ -406,6 +406,8 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
 
+        // we check that the values are as expected in the PUT response, but as the thumbnail
+        // isn't part of the response we can't check it here, so we check it in the GET response below
         mvc.perform(put("/api/collections/{id}", createdCollection.getId())
                         .content(modifiedPayload)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -413,8 +415,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
-                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
-                .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())));
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
@@ -467,6 +468,8 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
 
+        // we check that the values are as expected in the PUT response, but as the thumbnail
+        // isn't part of the response we can't check it here, so we check it in the GET response below
         mvc.perform(put("/api/collections/{id}", createdCollection.getId())
                         .content(modifiedPayload)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -474,8 +477,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
-                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
-                .andExpect(jsonPath("thumbnail.mediaId", is(grumpcatId.toString())));
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
@@ -523,10 +525,20 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
 
+        // we check that the values are as expected in the PUT response, but as the thumbnail
+        // isn't part of the response we can't check it here, so we check it in the GET response below
         mvc.perform(put("/api/collections/{id}", createdCollection.getId())
                         .content(modifiedPayload)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Simple collection")))
+                .andExpect(jsonPath("description", is("Simple collection description")))
+                .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
+
+        //then
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))

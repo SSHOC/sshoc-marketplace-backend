@@ -171,7 +171,7 @@ public class CollectionService {
             indexItemService.removeOldValues(oldValues, collection.getId());
             indexItemService.reIndexItemsInCollection(collection);
 
-            return CollectionMapper.INSTANCE.toDto(collection, PageCoords.builder().page(1).perpage(20).build());
+            return CollectionListMapper.INSTANCE.toDto(collection);
         } else {
             throw new AccessDeniedException("Access denied");
         }
