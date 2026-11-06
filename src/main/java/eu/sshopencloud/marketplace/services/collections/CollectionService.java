@@ -1,5 +1,7 @@
 package eu.sshopencloud.marketplace.services.collections;
 
+import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
+import eu.sshopencloud.marketplace.domain.media.exception.MediaNotAvailableException;
 import eu.sshopencloud.marketplace.dto.PageCoords;
 import eu.sshopencloud.marketplace.dto.collections.*;
 import eu.sshopencloud.marketplace.dto.inbox.MessageDto;
@@ -18,6 +20,7 @@ import eu.sshopencloud.marketplace.validators.ValidationException;
 import eu.sshopencloud.marketplace.validators.collections.CollectionFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
@@ -40,17 +43,18 @@ public class CollectionService {
     private final IndexItemService indexItemService;
     private final MessagesService messagesService;
     private final CollectionFactory collectionFactory;
-
+    private final MediaStorageService mediaStorageService;
 
     public CollectionService(CollectionRepository collectionRepository,
                              VersionedItemRepository versionedItemRepository, IndexCollectionService indexCollectionService, IndexItemService indexItemService, MessagesService messagesService,
-                             CollectionFactory collectionFactory) {
+                             CollectionFactory collectionFactory, MediaStorageService mediaStorageService) {
         this.collectionRepository = collectionRepository;
         this.versionedItemRepository = versionedItemRepository;
         this.indexCollectionService = indexCollectionService;
         this.indexItemService = indexItemService;
         this.messagesService = messagesService;
         this.collectionFactory = collectionFactory;
+        this.mediaStorageService = mediaStorageService;
     }
 
     public CollectionDto createCollection(CollectionCreationDto collectionCore) {
@@ -125,21 +129,83 @@ public class CollectionService {
                 collectionRepository.findById(collectionId).orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", collectionId)));
 
         if (isCollectionUpdatePossible(collection)) {
+
+            BeanPropertyBindingResult errors = new BeanPropertyBindingResult(collectionCreationDto, "Collection");
+
+            UUID oldThumbnailId = collection.getThumbnail() != null ? collection.getThumbnail().getThumbnailId() : null;
+
             collection.setTitle(collectionCreationDto.getTitle());
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
-            collection.setUpdatedAt(ZonedDateTime.now());
-            List<Long> oldValues = collection.getCollectionItems().stream().map(item->item.getItem().getId()).collect(Collectors.toUnmodifiableList());
-            collection.getCollectionItems().clear();
+            
+            // we need to copy the flag across so we check to ensure the new and old
+            // values are the same, otherwise we throw an exception if the user is not a moderator
+            if (collectionCreationDto.isRecommended() != collection.isRecommended() && !LoggedInUserHolder.getLoggedInUser().isModerator()) {
+                throw new AccessDeniedException("Only moderators can set the recommended status of a collection");
+            }
 
-            collectionCreationDto.getContainedItems().forEach(item -> {
-                VersionedItem versionedItem =
-                        versionedItemRepository.findById(item).orElseThrow(() -> new CollectionException("Item not found"));
-                CollectionItem collectionItem = new CollectionItem();
-                collectionItem.setCollection(collection);
-                collectionItem.setItem(versionedItem.getCurrentVersion());
-                collection.getCollectionItems().add(collectionItem);
-            });
+            collection.setRecommended(collectionCreationDto.isRecommended());
+            
+            collection.setUpdatedAt(ZonedDateTime.now());
+
+            // build up the list of items in the collection, making sure 
+            // we don't lose any existing comments or suggestion flags
+            List<Long> oldValues = collectionFactory.createContainedItems(collectionCreationDto, collection, errors);
+
+            // this if/else allows us to remove a thumbnail from the collection
+            // without it if the user set the thumbnail to null it would not be removed from the collection
+            if (collectionCreationDto.getThumbnail() != null) {
+                collectionFactory.createThumbnail(collectionCreationDto, collection, errors);
+            } else {
+                // this ensures we break the link between the collection and
+                // the thumbnail so that the database update will complete cleanly
+                if (collection.getThumbnail() != null) {
+                    collection.getThumbnail().setCollection(null);
+                }
+                collection.setThumbnail(null);
+            }
+
+            UUID newThumbnailId = collection.getThumbnail() != null ? collection.getThumbnail().getThumbnailId() : null;
+            
+            collection.getContributors().clear();
+            collection.getContributors().addAll(collectionFactory.createContributors(collectionCreationDto, collection, errors));
+
+            if (errors.hasErrors()) {
+                throw new ValidationException(errors);
+            }
+
+            try {
+                // we've put both the link and unlink of the thumbnail inside this try/catch block
+                // so that if the linking of the new one fails we can fall through to the catch
+                // block and abort the update before we unlink the old one, otherwise we could end
+                // up with a collection with no thumbnail if the new one fails to link.
+
+                if (newThumbnailId != null && !newThumbnailId.equals(oldThumbnailId)) {
+                    // if the new version has a thumbnail that is different to the old version
+                    // then we need to increment the usage counter so that it doesn't get garbage
+                    // collected in 2 hours time
+                    mediaStorageService.linkToMedia(newThumbnailId);
+                }
+
+                if (oldThumbnailId != null && !oldThumbnailId.equals(newThumbnailId)) {
+                    // if the collection had a thumbnail before and it has been changed or
+                    // removed entirely then decrement the usage counter so it can be
+                    // garbage collected if it is no longer used anywhere else
+                    mediaStorageService.removeMediaLink(oldThumbnailId);
+                }
+            } catch (MediaNotAvailableException e) {
+                // this should never happen because the call to collectionFactory.createThumbnail()
+                // checks that the media is available before it will create the new thumbnail.
+                // The only way we could get here is if the media was deleted in that short
+                // period between the two calls, which is very unlikely, but we catch it and
+                // raise an error if that is the case.
+                errors.rejectValue(
+                    "thumbnail.info.mediaId",
+                    "field.invalid",
+                    "The media with the given mediaId does not exist");
+
+                throw new ValidationException(errors);
+            }
 
             indexCollectionService.indexCollection(collection);
             indexItemService.removeOldValues(oldValues, collection.getId());

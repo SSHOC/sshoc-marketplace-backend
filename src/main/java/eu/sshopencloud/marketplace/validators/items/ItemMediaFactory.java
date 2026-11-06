@@ -125,7 +125,7 @@ public class ItemMediaFactory {
     }
 
 
-    private Concept createLicenseConcept(ConceptId concept, Errors errors) {
+    public Concept createLicenseConcept(ConceptId concept, Errors errors) {
         PropertyType licensePropertyType = propertyTypeService.loadPropertyTypeOrNull(LICENSE_PROPERTY_CODE);
         if (licensePropertyType != null) {
             List<Vocabulary> allowedVocabularies = propertyTypeService.getAllowedVocabulariesForPropertyType(licensePropertyType);
