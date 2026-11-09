@@ -7,6 +7,8 @@ import eu.sshopencloud.marketplace.dto.actors.ActorId;
 import eu.sshopencloud.marketplace.dto.actors.ActorRoleId;
 import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
+import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
+import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
 import eu.sshopencloud.marketplace.dto.collections.*;
 import eu.sshopencloud.marketplace.model.search.IndexItem;
 import eu.sshopencloud.marketplace.util.MediaTestUploadUtils;
@@ -408,6 +410,7 @@ class CollectionCreationITCase extends CollectionControllerTest {
         // Create a thumbnail using the valid mediaId
         ItemMediaCore thumbnail = new ItemMediaCore();
         thumbnail.setInfo(new MediaDetailsId(seriouscatId));
+        thumbnail.setConcept(new ConceptId("Qhull", new VocabularyId("software-license"), null));
         collection.setThumbnail(thumbnail);
 
         String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
@@ -427,6 +430,8 @@ class CollectionCreationITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("contributors[0].role.label", is("Funder")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(1)))
                 .andExpect(jsonPath("thumbnail.mediaId", is(seriouscatId.toString())))
+                .andExpect(jsonPath("thumbnail.concept.code", is("Qhull")))
+                .andExpect(jsonPath("thumbnail.concept.vocabulary.code", is("software-license")))
                 .andReturn().getResponse().getContentAsString();
 
         //cleanup
@@ -505,5 +510,25 @@ class CollectionCreationITCase extends CollectionControllerTest {
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldNotAllowContributorToCreateRecommendedCollection() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+        collection.setRecommended(true);
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        //then
+        mvc.perform(post("/api/collections")
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isForbidden());
     }
 }
