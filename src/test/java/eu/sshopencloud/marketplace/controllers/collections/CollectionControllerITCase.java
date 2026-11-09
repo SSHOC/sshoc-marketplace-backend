@@ -35,6 +35,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
+
 
 import java.util.List;
 import java.util.UUID;
@@ -64,6 +66,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
     private static String ADMINISTRATOR_JWT;
     @Autowired
     private SolrClient solrClient;
+
+    @Autowired
+    private EntityManager entityManager;
 
 
     @BeforeEach
@@ -346,6 +351,14 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
                 .andReturn().getResponse().getContentAsString();
 
+        // ensure we commit the DB changes and clear the persistence context so that
+        // we can read the updated entity from the database in the next GET request.
+        // This is important becuase without it we simply get the im-memory cached
+        // version and don't actually hit the DB so any key constraints etc. won't
+        // have been applied yet so won't have triggered exceptions
+        entityManager.flush();
+        entityManager.clear();
+
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -422,6 +435,14 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
+        // ensure we commit the DB changes and clear the persistence context so that
+        // we can read the updated entity from the database in the next GET request.
+        // This is important becuase without it we simply get the im-memory cached
+        // version and don't actually hit the DB so any key constraints etc. won't
+        // have been applied yet so won't have triggered exceptions
+        entityManager.flush();
+        entityManager.clear();
+
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -487,6 +508,14 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("contributors[0].role.code", is("contributor")))
                 .andExpect(jsonPath("contributors[1].role.code", is("author")));
 
+        // ensure we commit the DB changes and clear the persistence context so that
+        // we can read the updated entity from the database in the next GET request.
+        // This is important becuase without it we simply get the im-memory cached
+        // version and don't actually hit the DB so any key constraints etc. won't
+        // have been applied yet so won't have triggered exceptions
+        entityManager.flush();
+        entityManager.clear();
+
         // Verify persistence holds the shuffled sequence using a GET query
         mvc.perform(get("/api/collections/{id}", createdCollectionDto.getId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -547,6 +576,14 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
+
+        // ensure we commit the DB changes and clear the persistence context so that
+        // we can read the updated entity from the database in the next GET request.
+        // This is important becuase without it we simply get the im-memory cached
+        // version and don't actually hit the DB so any key constraints etc. won't
+        // have been applied yet so won't have triggered exceptions
+        entityManager.flush();
+        entityManager.clear();
 
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
@@ -647,6 +684,14 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("contributors[0].role.code", is("funder")))
                 .andExpect(jsonPath("contributors[0].role.label", is("Funder")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(1)));
+
+        // ensure we commit the DB changes and clear the persistence context so that
+        // we can read the updated entity from the database in the next GET request.
+        // This is important becuase without it we simply get the im-memory cached
+        // version and don't actually hit the DB so any key constraints etc. won't
+        // have been applied yet so won't have triggered exceptions
+        entityManager.flush();
+        entityManager.clear();
 
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
@@ -850,6 +895,14 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
                 .andReturn().getResponse().getContentAsString();
+
+        // ensure we commit the DB changes and clear the persistence context so that
+        // we can read the updated entity from the database in the next GET request.
+        // This is important becuase without it we simply get the im-memory cached
+        // version and don't actually hit the DB so any key constraints etc. won't
+        // have been applied yet so won't have triggered exceptions
+        entityManager.flush();
+        entityManager.clear();
 
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
