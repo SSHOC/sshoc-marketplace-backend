@@ -144,7 +144,7 @@ class CollectionCreationITCase extends CollectionControllerTest {
                 .header("Authorization", CONTRIBUTOR_JWT))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("errors[0].field", is("thumbnail.info.mediaId")))
-            .andExpect(jsonPath("errors[0].code", is("field.invalid")))
+            .andExpect(jsonPath("errors[0].code", is("field.notExist")))
             .andExpect(jsonPath("errors[0].message", is("The media with the given mediaId does not exist")));
     }
 
