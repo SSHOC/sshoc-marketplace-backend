@@ -75,7 +75,7 @@ public class CollectionFactory {
         collection.setCreatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
         collection.setUpdatedAt(ZonedDateTime.now(ZoneId.systemDefault()));
 
-        collection.setContributors(createContributors(collectionCreationDto, collection, errors));
+        createContributors(collectionCreationDto, collection, errors);
 
         createContainedItems(collectionCreationDto, collection, errors);
 
@@ -198,29 +198,55 @@ public class CollectionFactory {
             errors.popNestedPath();
         }
     }
+    
+    public void createContributors(CollectionCreationDto collectionCreationDto,
+                                    Collection collection, BeanPropertyBindingResult errors) {
+        
+        if (collection.getContributors() == null) {
+            // if we are called during the initial creation of a collection then the
+            // list of contributors is null, which messes up the logic below, so we need
+            // to initialize it to an empty list
+            collection.setContributors(new ArrayList<>());
+        }
 
-    public List<CollectionContributor> createContributors(CollectionCreationDto collectionCreationDto,
-                                                          Collection collection, BeanPropertyBindingResult errors) {
-        List<CollectionContributor> contributors = new ArrayList<>();
-        Set<Map.Entry<Long, String>> actorRoles = new HashSet<>();
+        // Create a map of existing contributors for quick lookup,
+        // using a composite key of actor ID and role code        
+        Map<String, CollectionContributor> existingContributorsMap = collection.getContributors().stream()
+            .filter(c -> c.getActor() != null && c.getRole() != null)
+            .collect(Collectors.toMap(
+                c -> c.getActor().getId() + "-" + c.getRole().getCode(),
+                c -> c,
+                (existing, replacement) -> existing
+            ));
 
+        // this will hold the new list of contributors that will contain a mixture of
+        // existing contributors and new contributors, in the order they were provided
+        List<CollectionContributor> mergedContributors = new ArrayList<>();
+        
         if (collectionCreationDto.getContributors() != null) {
 
-            for(int i = 0; i < collectionCreationDto.getContributors().size(); i++) {
-                errors.pushNestedPath("contributors[" + i + "]");
-                CollectionContributor ctrb = new CollectionContributor();
+            // this allows us to check for duplicates in the incoming list of contributors,
+            // so that we can reject them
+            Set<String> processedIncomingKeys = new HashSet<>();
 
+            for (int i = 0; i < collectionCreationDto.getContributors().size(); i++) {
+                errors.pushNestedPath("contributors[" + i + "]");
+                
+                Actor targetActor = null;
+                ActorRole targetRole = null;
+
+                // Here we check that the contributor has a valid actor
+                // ID that is present in the database, and depending where
+                // we find a problem reject the appropriate field with a message.
                 ActorId actorId = collectionCreationDto.getContributors().get(i).getActor();
                 if (actorId != null) {
                     errors.pushNestedPath("actor");
                     if (actorId.getId() != null) {
-
                         Optional<Actor> actor = actorRepository.findById(actorId.getId());
                         if (actor.isPresent()) {
-                            ctrb.setActor(actor.get());
+                            targetActor = actor.get();
                         } else {
-                            errors.rejectValue(
-                                "id", "field.invalid",
+                            errors.rejectValue("id", "field.invalid",
                                 String.format("actor with id %s does not exist", actorId.getId()));
                         }
                     } else {
@@ -231,50 +257,94 @@ public class CollectionFactory {
                     errors.rejectValue("actor", "field.required", "The field actor is required");
                 }
 
+                // Here we check that the contributor has a valid role
+                // ID that is present in the database, and depending where
+                // we find a problem reject the appropriate field with a message.
                 ActorRoleId roleId = collectionCreationDto.getContributors().get(i).getRole();
                 if (roleId != null) {
                     errors.pushNestedPath("role");
                     if (roleId.getCode() != null) {
                         Optional<ActorRole> role = actorRoleRepository.findById(roleId.getCode());
                         if (role.isPresent()) {
-                            ctrb.setRole(role.get());
+                            targetRole = role.get();
                         } else {
-                            errors.rejectValue(
-                                "code", "field.invalid",
+                            errors.rejectValue("code", "field.invalid",
                                 String.format("Role with code %s does not exist", roleId.getCode()));
                         }
                     } else {
-                        errors.rejectValue("code", "field.required",
-                            "contributor role must have a code field");
+                        errors.rejectValue("code", "field.required", "contributor role must have a code field");
                     }
                     errors.popNestedPath();
                 } else {
-                    errors.rejectValue("role", "field.required",
-                        "The field role is required");
+                    errors.rejectValue("role", "field.required", "The field role is required");
                 }
 
-                if (!errors.hasErrors()) {
-                    ctrb.setCollection(collection);
+                if (targetActor != null && targetRole != null) {
+                    // assuming the contributor has both a valid actor and role then....
 
-                    Map.Entry<Long, String> actorRoleEntry = Map.entry(
-                        ctrb.getActor().getId(), ctrb.getRole().getCode()
-                    );
+                    // we build the key the same as we did for the existing contributors
+                    String compositeKey = targetActor.getId() + "-" + targetRole.getCode();
 
-                    if (!actorRoles.contains(actorRoleEntry)) {
-                        contributors.add(ctrb);
-                        actorRoles.add(actorRoleEntry);
-                    }
-                    else {
-                        errors.rejectValue(
-                                "", "field.repeated",
-                                String.format("The actor with given role (%s) has already occurred.", ctrb.getRole().getLabel())
-                        );
+                    if (!processedIncomingKeys.contains(compositeKey)) {
+                        // assuming we've not alreay processed this actor/role combination...
+                        processedIncomingKeys.add(compositeKey);
+
+                        if (existingContributorsMap.containsKey(compositeKey)) {
+                            // if the contributor was already present in the list, re-use
+                            // the existing instance
+                            mergedContributors.add(existingContributorsMap.get(compositeKey));
+                        } else {
+                            // if not then create a new instance and add it to the list
+                            CollectionContributor ctrb = new CollectionContributor();
+                            ctrb.setCollection(collection);
+                            ctrb.setActor(targetActor);
+                            ctrb.setRole(targetRole);
+                            mergedContributors.add(ctrb);
+                        }
+                    } else {
+                        errors.rejectValue("", "field.repeated",
+                            String.format("The actor with given role (%s) has already occurred.", targetRole.getLabel()));
                     }
                 }
 
                 errors.popNestedPath();
             }
         }
-        return contributors;
+
+        if (!errors.hasErrors()) {
+            // assuming there have been no validation errors we now need to update the
+            // collections list of contributors using the mixture of old and new instances.
+
+            // unfortunatelty we can't just clear the list and add all the new instances
+            // because that is guaranteed to cause a DuplicateKeyException if any of the
+            // contributors are being re-used, so we need to carefully update the list in
+            // place. Note this is different to the way we updated the collection items
+            // because CollectionContributor uses a composite key, whereas it is safe
+            // to clear out CollectionItem which uses a simple auto-generated Id
+
+            // this is just a convenient shorthand so we don't need to keep typing
+            // collection.getContributors() over and over again!
+            List<CollectionContributor> targetList = collection.getContributors();
+            
+            // 1. Loop through the exact ordered sequence of reconciled contributors
+            for (int index = 0; index < mergedContributors.size(); index++) {
+                CollectionContributor incoming = mergedContributors.get(index);
+                
+                if (index < targetList.size()) {
+                    // Overwrite the slot directly if it's a different object instance
+                    if (targetList.get(index) != incoming) {
+                        targetList.set(index, incoming);
+                    }
+                } else {
+                    // Append if we have grown beyond the original size boundaries
+                    targetList.add(incoming);
+                }
+            }
+            
+            // 2. Trim away any trailing leftover slots if the incoming collection shrank
+            if (targetList.size() > mergedContributors.size()) {
+                targetList.subList(mergedContributors.size(), targetList.size()).clear();
+            }
+        }
     }
 }

@@ -167,8 +167,7 @@ public class CollectionService {
 
             UUID newThumbnailId = collection.getThumbnail() != null ? collection.getThumbnail().getThumbnailId() : null;
             
-            collection.getContributors().clear();
-            collection.getContributors().addAll(collectionFactory.createContributors(collectionCreationDto, collection, errors));
+            collectionFactory.createContributors(collectionCreationDto, collection, errors);
 
             if (errors.hasErrors()) {
                 throw new ValidationException(errors);

@@ -437,6 +437,68 @@ class CollectionControllerITCase extends CollectionControllerTest {
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
+     @Test
+    void shouldAllowUpdateToShuffleContributorOrder() throws Exception {
+        // given - Step 1: Create a brand new, clean payload for initial collection generation
+        CollectionCreationDto creationDto = new CollectionCreationDto();
+        creationDto.setTitle("Contributor Reordering Test");
+        creationDto.setDescription("Testing that shuffling composite key entities does not cause Hibernate clashes");
+        creationDto.setVisible(true);
+
+        // First Contributor: Actor 2 as Author
+        CollectionCreationContributorDto initialC1 = new CollectionCreationContributorDto();
+        initialC1.setActor(new ActorId(2L));
+        initialC1.setRole(new ActorRoleId("author"));
+        creationDto.getContributors().add(initialC1);        
+
+        // Second Contributor: Actor 1 as Contributor
+        CollectionCreationContributorDto initialC2 = new CollectionCreationContributorDto();
+        initialC2.setActor(new ActorId(1L));
+        initialC2.setRole(new ActorRoleId("contributor"));
+        creationDto.getContributors().add(initialC2);
+
+
+        // create the collection with the initial contributor order: [Actor 2 as Author, Actor 1 as Contributor]
+        CollectionDto createdCollectionDto = createCollection(creationDto, CONTRIBUTOR_JWT);
+
+        // Verify initial state order holds as expected
+        mvc.perform(get("/api/collections/{id}", createdCollectionDto.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("contributors[0].role.code", is("author")))
+                .andExpect(jsonPath("contributors[1].role.code", is("contributor")));
+
+
+        creationDto.getContributors().clear(); // Clear the initial contributors list to prepare for update
+
+        // put them in the list in the reverse order
+        creationDto.getContributors().add(initialC2); // Actor 1 as Contributor
+        creationDto.getContributors().add(initialC1); // Actor 2 as Author
+
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(creationDto);
+
+        // then - Perform the PUT update request and check the updated order
+        mvc.perform(put("/api/collections/{id}", createdCollectionDto.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("contributors", hasSize(2)))
+                .andExpect(jsonPath("contributors[0].role.code", is("contributor")))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")));
+
+        // Verify persistence holds the shuffled sequence using a GET query
+        mvc.perform(get("/api/collections/{id}", createdCollectionDto.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("contributors", hasSize(2)))
+                .andExpect(jsonPath("contributors[0].role.code", is("contributor")))
+                .andExpect(jsonPath("contributors[1].role.code", is("author")));
+
+        // cleanup
+        removeCollection(createdCollectionDto.getId(), CONTRIBUTOR_JWT);
+    }
+
     @Test
     void shouldAllowUpdateToChangeThumbnail() throws Exception {
 
