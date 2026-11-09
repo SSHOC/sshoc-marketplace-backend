@@ -171,7 +171,7 @@ public class CollectionFactory {
                     );
                 } else if (!mediaStorageService.ensureMediaAvailable(info.getMediaId())) {
                     errors.rejectValue(
-                            "mediaId", "field.invalid", "The media with the given mediaId does not exist"
+                            "mediaId", "field.notExist", "The media with the given mediaId does not exist"
                     );
                 } else {
                     
