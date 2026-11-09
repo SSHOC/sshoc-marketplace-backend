@@ -101,13 +101,22 @@ public class CollectionFactory {
     public List<Long> createContainedItems(CollectionCreationDto collectionCreationDto, Collection collection, BeanPropertyBindingResult errors) {
 
         // 1. get the incoming item IDs from the DTO, preserving order and uniqueness
-        Set<String> incomingItemIds = new LinkedHashSet<>(collectionCreationDto.getContainedItems());
+        //    do a null check as well to avoid an NPE is someone sends a null list of items,
+        //    which is valid and means "clear the collection"
+        Set<String> incomingItemIds = collectionCreationDto.getContainedItems() == null ? new LinkedHashSet<>() : new LinkedHashSet<>(collectionCreationDto.getContainedItems());
 
         // 2. Identify which items are being dropped BEFORE we clear anything
         List<Long> itemsRemoved = collection.getCollectionItems().stream()
                 .filter(existingItem -> !incomingItemIds.contains(existingItem.getItem().getVersionedItem().getPersistentId()))
                 .map(existingItem -> existingItem.getItem().getId())
                 .collect(Collectors.toList());
+
+        if (incomingItemIds.isEmpty()) {
+            // if we are being asked to create or update to a collection with no items then
+            // we can just clear the list and return the list of items that were removed
+            collection.getCollectionItems().clear();
+            return itemsRemoved;
+        }
 
         // 3. map between exiting items in the collection and their persistent IDs for quick lookup
         Map<String, CollectionItem> existingItemsMap = collection.getCollectionItems().stream()
