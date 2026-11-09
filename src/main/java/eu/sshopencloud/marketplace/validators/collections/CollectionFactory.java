@@ -120,17 +120,43 @@ public class CollectionFactory {
         // 4. Construct a fresh list to enforce the sequence provided in the payload
         List<CollectionItem> orderedCollectionItems = new ArrayList<>();
 
+        // we need to fetch the full VersionedItem objects from the database so that we
+        // can get the current version of each item, and also to validate that they exist.
+        // the easy option would have been to use findById in the loop below, but that
+        // would result in a separate database query for each item which for large collections
+        // might be a problem. Instead we fetch them all in one go and then map them by their
+        // persistent ID for quick lookup.
+        Map<String, VersionedItem> versionedItemMap =
+            versionedItemRepository.findAllById(incomingItemIds).stream()
+            .collect(Collectors.toMap(VersionedItem::getPersistentId, item -> item));
+
         for (String id : incomingItemIds) {
+
+            // get the VersionedItem from the map we created above, and if it doesn't exist
+            // then throw an exception. This will result in a 400 Bad Request response being
+            // returned to the client, which is the same as before.
+            VersionedItem versionedItem = versionedItemMap.get(id);
+            if (versionedItem == null) {
+                throw new CollectionException("Item not found");
+            }
+
             if (existingItemsMap.containsKey(id)) {
                 // if this item was already in the collection, reuse the existing record
-                // which should avoid us loosing any associated metdata like comments or suggested status
-                orderedCollectionItems.add(existingItemsMap.get(id));
+                // which should avoid us loosing any associated metdata like comments or
+                // suggested status
+
+                // note that we still need to update the item reference in case the item
+                // has been updated since it was added to the collection, otherwise it
+                // will be pinned to an old version which will also cause problems with
+                // the solr indexer which expects the current version to be present in
+                // the collection
+                CollectionItem existingItem = existingItemsMap.get(id);
+                existingItem.setItem(versionedItem.getCurrentVersion());
+
+                orderedCollectionItems.add(existingItem);
             } else {
                 // If it's a new item get the full item from the database and create
                 // a new CollectionItem record for it
-                VersionedItem versionedItem = versionedItemRepository.findById(id)
-                        .orElseThrow(() -> new CollectionException("Item not found"));
-
                 CollectionItem collectionItem = new CollectionItem();
                 collectionItem.setCollection(collection);
                 collectionItem.setItem(versionedItem.getCurrentVersion());
