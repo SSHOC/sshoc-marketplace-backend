@@ -68,12 +68,17 @@ public class CollectionMapper {
     }
 
     private CollectionThumbnailDto mapCollectionThumbnail(Collection collection) {
+        if (collection.getThumbnail() == null) return null;
+        
         CollectionThumbnailDto collectionThumbnailDto = new CollectionThumbnailDto();
-        if(collection.getThumbnail() != null) {
-            collectionThumbnailDto.setCaption(collection.getThumbnail().getCaption());
-            collectionThumbnailDto.setMediaId(collection.getThumbnail().getThumbnailId());
+        
+        collectionThumbnailDto.setCaption(collection.getThumbnail().getCaption());
+        collectionThumbnailDto.setMediaId(collection.getThumbnail().getThumbnailId());
+        
+        if (collection.getThumbnail().getConcept() != null) {
             collectionThumbnailDto.setConcept(ConceptBasicMapper.INSTANCE.toDto(collection.getThumbnail().getConcept()));
-        }
+        }        
+        
         return collectionThumbnailDto;
     }
 

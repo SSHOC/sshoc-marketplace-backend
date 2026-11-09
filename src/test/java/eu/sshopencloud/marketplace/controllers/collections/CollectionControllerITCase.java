@@ -612,7 +612,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("title", is("Simple collection")))
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
-                .andExpect(jsonPath("thumbnail").isEmpty());
+                .andExpect(jsonPath("thumbnail").doesNotExist());
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
