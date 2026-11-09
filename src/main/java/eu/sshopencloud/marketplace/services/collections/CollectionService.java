@@ -274,6 +274,12 @@ public class CollectionService {
             throw new AccessDeniedException("Access denied");
         }
 
+        if (collection.get().getThumbnail() != null) {
+            // if the collection has a thumbnail, we need to remove the link to it so
+            // that it can be garbage collected if it is no longer used anywhere else
+            mediaStorageService.removeMediaLink(collection.get().getThumbnail().getThumbnailId());
+        }
+
         collectionRepository.deleteById(collectionId);
         indexCollectionService.removeFromIndex(collection.get());
     }
