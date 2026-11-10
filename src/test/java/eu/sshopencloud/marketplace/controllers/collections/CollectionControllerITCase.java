@@ -16,6 +16,7 @@ import eu.sshopencloud.marketplace.dto.items.ItemMediaCore;
 import eu.sshopencloud.marketplace.dto.items.MediaDetailsId;
 import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
+import eu.sshopencloud.marketplace.model.collections.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -41,8 +42,14 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -1168,5 +1175,326 @@ class CollectionControllerITCase extends CollectionControllerTest {
         removeCollection(createdCollection.getId(), MODERATOR_JWT);
     }
 
+    @Test
+    void shouldNotAllowContributorToUpdateRecommendedCollectionWithoutRecommendedFlag() throws Exception {
 
+        //given - a contributor creates a collection
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        // a moderator then marks it as recommended
+        collection.setRecommended(true);
+        String recommendedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(recommendedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        //when - the owner (a contributor) updates it without setting the recommended flag
+        collection.setRecommended(false);
+        collection.setTitle("Modified collection title");
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isForbidden());
+
+        //then - the collection should still be recommended
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldAllowContributorToUpdateRecommendedCollection() throws Exception {
+
+        //given - a contributor creates a collection which a moderator marks as recommended
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        collection.setRecommended(true);
+        String recommendedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(recommendedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        //when - the owner updates the collection, echoing recommended: true back
+        collection.setTitle("Updated collection");
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Updated collection")))
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldAllowUpdateToRemoveContributor() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionCreationContributorDto contributor = new CollectionCreationContributorDto();
+        contributor.setActor(new ActorId(1L));
+        contributor.setRole(new ActorRoleId("funder"));
+        collection.getContributors().add(contributor);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when - update with an empty list of contributors (equivalent to omitting
+        // the field entirely, since both result in an empty incoming list)
+        collection.getContributors().clear();
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("contributors", hasSize(0)));
+
+        // ensure we commit the DB changes and clear the persistence context so that
+        // we can read the updated entity from the database in the next GET request.
+        entityManager.flush();
+        entityManager.clear();
+
+        //then - the contributor row should have been deleted from the database.
+        // this is the assertion that exercises orphanRemoval -- without it the row
+        // would survive with its collection_id still set
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("contributors", hasSize(0)));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldAllowUpdateToReplaceContributor() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionCreationContributorDto contributor = new CollectionCreationContributorDto();
+        contributor.setActor(new ActorId(1L));
+        contributor.setRole(new ActorRoleId("funder"));
+        collection.getContributors().add(contributor);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when - swap the contributor for a different actor/role combination
+        contributor.setActor(new ActorId(2L));
+        contributor.setRole(new ActorRoleId("author"));
+
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.id", is(2)))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // then - double check that this change was persisted to the database
+        // and not just reflected in the in-memory entity
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("contributors", hasSize(1)))
+                .andExpect(jsonPath("contributors[0].actor.id", is(2)))
+                .andExpect(jsonPath("contributors[0].role.code", is("author")));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldNotAllowToUpdateCollectionWithUnknownMediaId() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when - update with a thumbnail referencing a mediaId that does not exist
+        ItemMediaCore thumbnail = new ItemMediaCore();
+        thumbnail.setInfo(new MediaDetailsId(UUID.randomUUID()));
+        collection.setThumbnail(thumbnail);
+
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("thumbnail.info.mediaId")))
+                .andExpect(jsonPath("errors[0].code", is("field.notExist")))
+                .andExpect(jsonPath("errors[0].message", is("The media with the given mediaId does not exist")));
+
+        //then - the update should have been rolled back so the collection should
+        // still have no thumbnail
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("thumbnail").doesNotExist());
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldNotAllowToUpdateCollectionWithUnknownItem() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when - update with a contained item that does not exist
+        collection.getContainedItems().add("999999");
+
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isBadRequest());
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldRemoveAllItemsFromCollection() throws Exception {
+
+        //given - a collection containing an item
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+        collection.getContainedItems().add("vHQEhe");
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("collectionItems.items", hasSize(1)));
+
+        //when - update the collection without sending any contained items
+        // (an empty list here is equivalent to omitting the field entirely)
+        collection.getContainedItems().clear();
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("collectionItems.items").doesNotExist());
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then
+        mvc.perform(get("/api/collections/{id}", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("collectionItems.items", hasSize(0)));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+
+    @Test
+    void shouldReuseExistingCollectionItemsOnUpdate() throws Exception {
+
+        //given - a collection containing an item
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+        collection.getContainedItems().add("vHQEhe");
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        // capture the identity of the underlying CollectionItem row
+        entityManager.flush();
+        entityManager.clear();
+        Collection before = entityManager.find(Collection.class, createdCollection.getId());
+        assertEquals(1, before.getCollectionItems().size());
+        Long collectionItemIdBefore = before.getCollectionItems().get(0).getId();
+
+        //when - update the collection keeping the same item in it
+        collection.setTitle("Updated collection");
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk());
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then - the same CollectionItem row should have been re-used rather than
+        // deleted and recreated. this is what preserves any comments and suggestion
+        // flags attached to the item
+        Collection after = entityManager.find(Collection.class, createdCollection.getId());
+        assertEquals(1, after.getCollectionItems().size());
+        assertEquals(collectionItemIdBefore, after.getCollectionItems().get(0).getId(),
+                "existing CollectionItem should be re-used on update so comments/suggestion flags are not lost");
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
 }
