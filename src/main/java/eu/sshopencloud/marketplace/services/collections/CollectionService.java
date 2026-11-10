@@ -160,11 +160,9 @@ public class CollectionService {
             if (collectionCreationDto.getThumbnail() != null) {
                 collectionFactory.createThumbnail(collectionCreationDto, collection, errors);
             } else {
-                // this ensures we break the link between the collection and
-                // the thumbnail so that the database update will complete cleanly
-                if (collection.getThumbnail() != null) {
-                    collection.getThumbnail().setCollection(null);
-                }
+                // orphanRemoval on the thumbnail association will delete the
+                // row when the link is removed from the collection side — there is
+                // no need to also null the owning side of the association
                 collection.setThumbnail(null);
             }
 

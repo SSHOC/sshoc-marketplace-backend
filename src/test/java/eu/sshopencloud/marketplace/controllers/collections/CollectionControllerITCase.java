@@ -42,14 +42,9 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -358,9 +353,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
                 .andReturn().getResponse().getContentAsString();
 
-        // ensure we commit the DB changes and clear the persistence context so that
+        // Flush the SQL and clear the persistence context so that
         // we can read the updated entity from the database in the next GET request.
-        // This is important becuase without it we simply get the im-memory cached
+        // This is important because without it we simply get the in-memory cached
         // version and don't actually hit the DB so any key constraints etc. won't
         // have been applied yet so won't have triggered exceptions
         entityManager.flush();
@@ -442,9 +437,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
-        // ensure we commit the DB changes and clear the persistence context so that
+        // Flush the SQL and clear the persistence context so that
         // we can read the updated entity from the database in the next GET request.
-        // This is important becuase without it we simply get the im-memory cached
+        // This is important because without it we simply get the in-memory cached
         // version and don't actually hit the DB so any key constraints etc. won't
         // have been applied yet so won't have triggered exceptions
         entityManager.flush();
@@ -465,7 +460,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
 
-     @Test
+    @Test
     void shouldAllowUpdateToShuffleContributorOrder() throws Exception {
         // given - Step 1: Create a brand new, clean payload for initial collection generation
         CollectionCreationDto creationDto = new CollectionCreationDto();
@@ -515,9 +510,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("contributors[0].role.code", is("contributor")))
                 .andExpect(jsonPath("contributors[1].role.code", is("author")));
 
-        // ensure we commit the DB changes and clear the persistence context so that
+        // Flush the SQL and clear the persistence context so that
         // we can read the updated entity from the database in the next GET request.
-        // This is important becuase without it we simply get the im-memory cached
+        // This is important because without it we simply get the in-memory cached
         // version and don't actually hit the DB so any key constraints etc. won't
         // have been applied yet so won't have triggered exceptions
         entityManager.flush();
@@ -584,9 +579,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
-        // ensure we commit the DB changes and clear the persistence context so that
+        // Flush the SQL and clear the persistence context so that
         // we can read the updated entity from the database in the next GET request.
-        // This is important becuase without it we simply get the im-memory cached
+        // This is important because without it we simply get the in-memory cached
         // version and don't actually hit the DB so any key constraints etc. won't
         // have been applied yet so won't have triggered exceptions
         entityManager.flush();
@@ -626,6 +621,16 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
+        // we need to flush here so that the thumbnail is created otherwise
+        // when we flush after removing it we get an error because hibernate
+        // handles orphan removals before inserts which in this case means trying
+        // to remove the thumbnail before we've had a chance to actually add it.
+        // (this can only happen in the test — in production the POST and PUT are
+        // separate transactions, so the thumbnail row always exists by the time
+        // a removal happens)
+        entityManager.flush();
+        entityManager.clear();
+
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -649,7 +654,20 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))));
 
-        //then
+        entityManager.flush();
+        entityManager.clear();
+
+        // we want to check that the thumbnail has actually been removed from the DB
+        // with the orphanRemoval=true property. We do this by explicitly checking
+        // that there are no CollectionThumbnails present for this collection we created
+        Long count = entityManager.createQuery(
+                "select count(t) from CollectionThumbnail t where t.collection.id = :id", Long.class)
+                        .setParameter("id", createdCollection.getId())
+                        .getSingleResult();
+        assertEquals(0, count, "thumbnail row should have been deleted by orphan removal");
+
+        // then double check that the GET works properly now that the thumbnail has
+        // gone and that there is no thumbnail in the response
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -692,9 +710,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("contributors[0].role.label", is("Funder")))
                 .andExpect(jsonPath("contributors[0].actor.id", is(1)));
 
-        // ensure we commit the DB changes and clear the persistence context so that
+        // Flush the SQL and clear the persistence context so that
         // we can read the updated entity from the database in the next GET request.
-        // This is important becuase without it we simply get the im-memory cached
+        // This is important because without it we simply get the in-memory cached
         // version and don't actually hit the DB so any key constraints etc. won't
         // have been applied yet so won't have triggered exceptions
         entityManager.flush();
@@ -741,6 +759,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
 
+        entityManager.flush();
+        entityManager.clear();
+
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -778,6 +799,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("description", is("Simple collection description")))
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
                 .andReturn().getResponse().getContentAsString();
+
+        entityManager.flush();
+        entityManager.clear();
 
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
@@ -872,6 +896,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk());
 
+        entityManager.flush();
+        entityManager.clear();
+
         //then
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -903,9 +930,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("visible", is(Boolean.valueOf("true"))))
                 .andReturn().getResponse().getContentAsString();
 
-        // ensure we commit the DB changes and clear the persistence context so that
+        // Flush the SQL and clear the persistence context so that
         // we can read the updated entity from the database in the next GET request.
-        // This is important becuase without it we simply get the im-memory cached
+        // This is important because without it we simply get the in-memory cached
         // version and don't actually hit the DB so any key constraints etc. won't
         // have been applied yet so won't have triggered exceptions
         entityManager.flush();
@@ -1208,6 +1235,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isForbidden());
 
+        entityManager.flush();
+        entityManager.clear();
+
         //then - the collection should still be recommended
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -1238,6 +1268,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        entityManager.flush();
+        entityManager.clear();
 
         //when - the owner updates the collection, echoing recommended: true back
         collection.setTitle("Updated collection");
@@ -1283,7 +1316,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("contributors", hasSize(0)));
 
-        // ensure we commit the DB changes and clear the persistence context so that
+        // Flush the SQL and clear the persistence context so that
         // we can read the updated entity from the database in the next GET request.
         entityManager.flush();
         entityManager.clear();
@@ -1374,6 +1407,9 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(jsonPath("errors[0].code", is("field.notExist")))
                 .andExpect(jsonPath("errors[0].message", is("The media with the given mediaId does not exist")));
 
+        entityManager.flush();
+        entityManager.clear();
+
         //then - the update should have been rolled back so the collection should
         // still have no thumbnail
         mvc.perform(get("/api/collections/{id}", createdCollection.getId())
@@ -1438,6 +1474,8 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
+                // this may look odd, but the PUT response never includes the collection
+                // items (the response is intentionally kept small)
                 .andExpect(jsonPath("collectionItems.items").doesNotExist());
 
         entityManager.flush();

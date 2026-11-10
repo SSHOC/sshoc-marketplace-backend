@@ -90,7 +90,7 @@ public class CollectionFactory {
                 errors.rejectValue(
                     "thumbnail.info.mediaId",
                     "field.invalid",
-                    "The media with the given mediaId is not available"
+                    "The media with the given mediaId does not exist"
                 );
             }
         }
@@ -101,7 +101,7 @@ public class CollectionFactory {
     public List<Long> createContainedItems(CollectionCreationDto collectionCreationDto, Collection collection, BeanPropertyBindingResult errors) {
 
         // 1. get the incoming item IDs from the DTO, preserving order and uniqueness
-        //    do a null check as well to avoid an NPE is someone sends a null list of items,
+        //    do a null check as well to avoid an NPE if someone sends a null list of items,
         //    which is valid and means "clear the collection"
         Set<String> incomingItemIds = collectionCreationDto.getContainedItems() == null ? new LinkedHashSet<>() : new LinkedHashSet<>(collectionCreationDto.getContainedItems());
 
@@ -151,7 +151,7 @@ public class CollectionFactory {
 
             if (existingItemsMap.containsKey(id)) {
                 // if this item was already in the collection, reuse the existing record
-                // which should avoid us loosing any associated metdata like comments or
+                // which should avoid us losing any associated metadata like comments or
                 // suggested status
 
                 // note that we still need to update the item reference in case the item
@@ -181,7 +181,7 @@ public class CollectionFactory {
         collection.getCollectionItems().addAll(orderedCollectionItems);
 
         // return the list of items that were removed from the collection so
-        // that the calling method can handle any necessary cleanup, inlcluding
+        // that the calling method can handle any necessary cleanup, including
         // removing them from the solr index
         return itemsRemoved;
     }
@@ -321,7 +321,7 @@ public class CollectionFactory {
                     String compositeKey = targetActor.getId() + "-" + targetRole.getCode();
 
                     if (!processedIncomingKeys.contains(compositeKey)) {
-                        // assuming we've not alreay processed this actor/role combination...
+                        // assuming we've not already processed this actor/role combination...
                         processedIncomingKeys.add(compositeKey);
 
                         if (existingContributorsMap.containsKey(compositeKey)) {
@@ -350,7 +350,7 @@ public class CollectionFactory {
             // assuming there have been no validation errors we now need to update the
             // collections list of contributors using the mixture of old and new instances.
 
-            // unfortunatelty we can't just clear the list and add all the new instances
+            // unfortunately we can't just clear the list and add all the new instances
             // because that is guaranteed to cause a DuplicateKeyException if any of the
             // contributors are being re-used, so we need to carefully update the list in
             // place. Note this is different to the way we updated the collection items
