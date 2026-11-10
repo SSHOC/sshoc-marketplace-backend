@@ -110,8 +110,8 @@ public class IndexItemService {
 
             collectionItems.forEach(item -> {
                 SolrInputDocument doc = new SolrInputDocument();
-                doc.addField("id", item);
-                doc.addField("collections", Map.of("remove", collectionId));
+                doc.addField(IndexItem.ID_FIELD, item);
+                doc.addField(IndexItem.COLLECTIONS_FIELD, Map.of("remove", collectionId));
                 batch.add(doc);
             });
             if (!batch.isEmpty()) {
@@ -130,8 +130,8 @@ public class IndexItemService {
 
             collection.getCollectionItems().forEach(item -> {
                 SolrInputDocument doc = new SolrInputDocument();
-                doc.addField("id", item.getItem().getId());
-                doc.addField("collections", Map.of("add-distinct", collection.getId()));
+                doc.addField(IndexItem.ID_FIELD, item.getItem().getId());
+                doc.addField(IndexItem.COLLECTIONS_FIELD, Map.of("add-distinct", collection.getId()));
                 batch.add(doc);
             });
             if(!batch.isEmpty()) {

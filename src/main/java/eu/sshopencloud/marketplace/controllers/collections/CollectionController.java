@@ -50,7 +50,15 @@ public class CollectionController {
         return ResponseEntity.ok(collectionService.createCollection(newCollection));
     }
 
-    @Operation(summary = "Updating collection for given id")
+    @Operation(
+        summary = "Updating collection for given id",
+        description = """
+            Note that leaving out a field in the request body will result in that field being
+            cleared in the updated collection. For example, if you leave out the list of items
+            in the collection then it is assumed that you wish to remove all existing items from
+            the collection. If you wish to keep a field unchanged, you must include it in the
+            request body with its current value."""
+    )
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces =
             MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CollectionDto> updateCollection(@PathVariable("id") long collectionId,
