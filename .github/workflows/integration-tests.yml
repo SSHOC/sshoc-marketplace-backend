@@ -1,0 +1,49 @@
+name: Maven integration tests
+
+on:
+  pull_request:
+    branches:
+      - master
+      - develop
+  workflow_dispatch: {}
+
+concurrency:
+  group: integration-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration-tests:
+    name: Integration tests (failsafe + docker)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # 'verify' triggers the fabric8 docker-maven-plugin bound to
+      # pre-integration-test (builds the etc/solr image, starts postgres:9.6
+      # on :5433 and solr on :8984), then maven-failsafe-plugin runs the
+      # integration tests; 'verify' fails the build if any IT fails.
+      # skip.it defaults to false in the pom, so no extra flags are needed.
+      - name: Run integration tests
+        env:
+          APPLICATION_PROFILE: test
+        run: mvn --batch-mode --no-transfer-progress verify
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            target/surefire-reports/
+            target/failsafe-reports/
+          if-no-files-found: ignore
+          retention-days: 7
