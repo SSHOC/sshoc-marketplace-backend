@@ -5,6 +5,7 @@ import eu.sshopencloud.marketplace.conf.TestJsonMapper;
 import eu.sshopencloud.marketplace.conf.auth.LogInTestClient;
 import eu.sshopencloud.marketplace.dto.collections.CollectionCreationDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionDto;
+import eu.sshopencloud.marketplace.dto.collections.CollectionRecommendedDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionSuggestionCreationDto;
 import eu.sshopencloud.marketplace.dto.collections.CollectionSuggestionStatusActionDto;
 import eu.sshopencloud.marketplace.dto.actors.ActorId;
@@ -1534,5 +1535,204 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldReturnNotRecommendedForNewCollection() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //then - the GET endpoint is public, so no Authorization header is needed
+        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldAllowModeratorToSetCollectionAsRecommended() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when
+        CollectionRecommendedDto recommendedDto = new CollectionRecommendedDto(true);
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(recommendedDto);
+
+        mvc.perform(put("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        // Flush the SQL and clear the persistence context so that
+        // we can read the updated entity from the database in the next GET request.
+        entityManager.flush();
+        entityManager.clear();
+
+        //then - the flag should have been persisted to the database
+        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldAllowModeratorToUnsetCollectionRecommendedStatus() throws Exception {
+
+        //given - a collection which a moderator has marked as recommended
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        CollectionRecommendedDto recommendedDto = new CollectionRecommendedDto(true);
+        String recommendedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(recommendedDto);
+
+        mvc.perform(put("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .content(recommendedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then
+        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
+
+
+        //when - the moderator then unsets the flag
+        CollectionRecommendedDto unrecommendedDto = new CollectionRecommendedDto(false);
+        String unrecommendedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(unrecommendedDto);
+
+        mvc.perform(put("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .content(unrecommendedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then
+        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldNotAllowContributorToSetCollectionRecommendedStatus() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when - a contributor does not have the MODERATOR authority, so the request
+        // is rejected by the security filter chain. The 403 response has no JSON body,
+        // so we only assert the status code here.
+        CollectionRecommendedDto recommendedDto = new CollectionRecommendedDto(true);
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(recommendedDto);
+
+        mvc.perform(put("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isForbidden());
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then - the flag should still be false
+        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldNotAllowNonAuthenticatedUserToSetCollectionRecommendedStatus() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when - no Authorization header is sent with the PUT
+        CollectionRecommendedDto recommendedDto = new CollectionRecommendedDto(true);
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(recommendedDto);
+
+        //then
+        mvc.perform(put("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenReadingRecommendedStatusForNonExistingCollection() throws Exception {
+
+        //then
+        mvc.perform(get("/api/collections/{collectionId}/recommended", 999999)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenSettingRecommendedStatusForNonExistingCollection() throws Exception {
+
+        //given - the PUT requires the MODERATOR authority, so we authenticate as a
+        // moderator in order to reach the controller and get the 404 from the service
+        CollectionRecommendedDto recommendedDto = new CollectionRecommendedDto(true);
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(recommendedDto);
+
+        //then
+        mvc.perform(put("/api/collections/{collectionId}/recommended", 999999)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isNotFound());
     }
 }

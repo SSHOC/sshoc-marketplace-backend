@@ -105,4 +105,18 @@ public class CollectionController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping(path = "/{collectionId}/recommended", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CollectionRecommendedDto> isCollectionRecommended(
+            @PathVariable("collectionId") long collectionId) {
+
+        return ResponseEntity.ok(collectionService.isCollectionRecommended(collectionId));
+    }
+
+    @PutMapping(path = "/{collectionId}/recommended", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CollectionRecommendedDto> updateCollectionIsRecommended(
+            @PathVariable("collectionId") long collectionId,
+            @RequestBody CollectionRecommendedDto recommendedDto) {
+
+        return ResponseEntity.ok(collectionService.updateRecommendedStatus(collectionId, recommendedDto));    
+    }
 }

@@ -285,6 +285,22 @@ public class CollectionService {
         indexCollectionService.removeFromIndex(collection.get());
     }
 
+    public CollectionRecommendedDto isCollectionRecommended(long id) {
+        Collection collection = collectionRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", id)));
+
+        return new CollectionRecommendedDto(collection.isRecommended());
+    }
+
+    public CollectionRecommendedDto updateRecommendedStatus(long id, CollectionRecommendedDto dto) {
+
+        Collection collection = collectionRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", id)));
+
+        collection.setRecommended(dto.isRecommended());
+
+        return new CollectionRecommendedDto(collection.isRecommended());
+    }
 
     private boolean isCollectionUpdatePossible(Collection collection) {
         if (collection.getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {
