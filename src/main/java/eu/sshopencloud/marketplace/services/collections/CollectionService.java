@@ -141,14 +141,6 @@ public class CollectionService {
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
             
-            // we need to copy the flag across so we check to ensure the new and old
-            // values are the same, otherwise we throw an exception if the user is not a moderator
-            if (collectionCreationDto.isRecommended() != collection.isRecommended() && !LoggedInUserHolder.getLoggedInUser().isModerator()) {
-                throw new AccessDeniedException("Only moderators can set the recommended status of a collection");
-            }
-
-            collection.setRecommended(collectionCreationDto.isRecommended());
-            
             collection.setUpdatedAt(ZonedDateTime.now());
 
             // build up the list of items in the collection, making sure 
@@ -285,6 +277,35 @@ public class CollectionService {
         indexCollectionService.removeFromIndex(collection.get());
     }
 
+    public CollectionRecommendedDto isCollectionRecommended(long id) {
+        Collection collection = collectionRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", id)));
+
+        return new CollectionRecommendedDto(collection.isRecommended());
+    }
+
+    public CollectionRecommendedDto updateRecommendedStatus(long id, CollectionRecommendedDto dto) {
+
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(dto, "CollectionRecommended");
+
+        if (dto.getRecommended() == null) {
+            errors.rejectValue(
+                "recommended",
+                "field.required",
+                "The recommended flag must be provided");
+        }
+
+        if (errors.hasErrors()) {
+            throw new ValidationException(errors);
+        }
+
+        Collection collection = collectionRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", id)));
+
+        collection.setRecommended(dto.getRecommended());
+
+        return new CollectionRecommendedDto(collection.isRecommended());
+    }
 
     private boolean isCollectionUpdatePossible(Collection collection) {
         if (collection.getOwner().equals(LoggedInUserHolder.getLoggedInUser())) {

@@ -511,24 +511,4 @@ class CollectionCreationITCase extends CollectionControllerTest {
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
     }
-
-    @Test
-    void shouldNotAllowContributorToCreateRecommendedCollection() throws Exception {
-
-        //given
-        CollectionCreationDto collection = new CollectionCreationDto();
-        collection.setTitle("Simple collection");
-        collection.setDescription("Simple collection description");
-        collection.setVisible(true);
-        collection.setRecommended(true);
-
-        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
-
-        //then
-        mvc.perform(post("/api/collections")
-                        .content(payload)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isForbidden());
-    }
 }
