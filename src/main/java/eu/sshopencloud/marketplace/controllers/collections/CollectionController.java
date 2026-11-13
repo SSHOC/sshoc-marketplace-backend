@@ -116,7 +116,7 @@ public class CollectionController {
     }
 
     @Operation(
-        summary = "Allows moderators to change the recommended status of a collecion",
+        summary = "Allows moderators to change the recommended status of a collection",
         description = """
             Allows moderators to change the recommended status of a collection.
             Note that this is the only way of changing the status as the recommended
@@ -127,6 +127,6 @@ public class CollectionController {
             @PathVariable("collectionId") long collectionId,
             @RequestBody CollectionRecommendedDto recommendedDto) {
 
-        return ResponseEntity.ok(collectionService.updateRecommendedStatus(collectionId, recommendedDto));    
+        return ResponseEntity.ok(collectionService.updateRecommendedStatus(collectionId, recommendedDto));
     }
 }
