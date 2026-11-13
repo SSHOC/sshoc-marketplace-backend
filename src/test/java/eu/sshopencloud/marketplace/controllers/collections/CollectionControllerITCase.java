@@ -1468,7 +1468,6 @@ class CollectionControllerITCase extends CollectionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
 
-
         //when - the moderator then unsets the flag
         CollectionRecommendedDto unrecommendedDto = new CollectionRecommendedDto(false);
         String unrecommendedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(unrecommendedDto);
@@ -1629,7 +1628,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("recommended", is(true)));
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
@@ -1663,7 +1662,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("recommended", is(false)));
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))));
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);

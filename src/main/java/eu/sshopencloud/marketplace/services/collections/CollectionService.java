@@ -294,7 +294,7 @@ public class CollectionService {
                 "field.required",
                 "The recommended flag must be provided");
         }
-    
+
         if (errors.hasErrors()) {
             throw new ValidationException(errors);
         }
