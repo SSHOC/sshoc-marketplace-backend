@@ -141,14 +141,6 @@ public class CollectionService {
             collection.setDescription(collectionCreationDto.getDescription());
             collection.setVisible(collectionCreationDto.isVisible());
             
-            // we need to copy the flag across so we check to ensure the new and old
-            // values are the same, otherwise we throw an exception if the user is not a moderator
-            if (collectionCreationDto.isRecommended() != collection.isRecommended() && !LoggedInUserHolder.getLoggedInUser().isModerator()) {
-                throw new AccessDeniedException("Only moderators can set the recommended status of a collection");
-            }
-
-            collection.setRecommended(collectionCreationDto.isRecommended());
-            
             collection.setUpdatedAt(ZonedDateTime.now());
 
             // build up the list of items in the collection, making sure 
