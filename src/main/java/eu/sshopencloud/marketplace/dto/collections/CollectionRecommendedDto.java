@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CollectionRecommendedDto {
 
-    private boolean recommended;
+    private Boolean recommended;
 }

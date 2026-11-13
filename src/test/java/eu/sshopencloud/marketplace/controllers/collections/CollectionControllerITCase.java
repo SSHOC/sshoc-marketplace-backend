@@ -1578,4 +1578,94 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void shouldPreserveRecommendedStatusWhenCollectionIsUpdated() throws Exception {
+
+        //given - a contributor creates a collection which a moderator marks as recommended
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        CollectionRecommendedDto recommendedDto = new CollectionRecommendedDto(true);
+        String recommendedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(recommendedDto);
+
+        mvc.perform(put("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .content(recommendedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(true)));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(true)));
+
+        //when - the owner updates the collection. The update payload contains no
+        // recommended field, as the flag can no longer be set via this endpoint,
+        // so the update must leave the existing flag value untouched.
+        collection.setTitle("Updated collection");
+        String modifiedPayload = TestJsonMapper.serializingObjectMapper().writeValueAsString(collection);
+
+        mvc.perform(put("/api/collections/{id}", createdCollection.getId())
+                        .content(modifiedPayload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("title", is("Updated collection")))
+                .andExpect(jsonPath("recommended", is(true)));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then - the flag should still be set after the update
+        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(true)));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenRecommendedFlagIsMissingFromPutPayload() throws Exception {
+
+        //given
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        //when - the PUT body does not contain the recommended field
+        mvc.perform(put("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .content("{}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", MODERATOR_JWT))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors[0].field", is("recommended")))
+                .andExpect(jsonPath("errors[0].code", is("field.required")))
+                .andExpect(jsonPath("errors[0].message", is("The recommended flag must be provided")));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then - the flag should be unchanged
+        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("recommended", is(false)));
+
+        //cleanup
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
 }

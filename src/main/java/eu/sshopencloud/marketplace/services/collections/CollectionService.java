@@ -286,10 +286,23 @@ public class CollectionService {
 
     public CollectionRecommendedDto updateRecommendedStatus(long id, CollectionRecommendedDto dto) {
 
+        BeanPropertyBindingResult errors = new BeanPropertyBindingResult(dto, "CollectionRecommended");
+
+        if (dto.getRecommended() == null) {
+            errors.rejectValue(
+                "recommended",
+                "field.required",
+                "The recommended flag must be provided");
+        }
+    
+        if (errors.hasErrors()) {
+            throw new ValidationException(errors);
+        }
+
         Collection collection = collectionRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(String.format("Collection with id %s not found", id)));
 
-        collection.setRecommended(dto.isRecommended());
+        collection.setRecommended(dto.getRecommended());
 
         return new CollectionRecommendedDto(collection.isRecommended());
     }
