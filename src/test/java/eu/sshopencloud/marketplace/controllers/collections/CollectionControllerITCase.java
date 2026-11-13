@@ -1597,7 +1597,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", MODERATOR_JWT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("recommended", is(true)));
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
 
         entityManager.flush();
         entityManager.clear();
@@ -1605,7 +1605,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("recommended", is(true)));
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
 
         //when - the owner updates the collection. The update payload contains no
         // recommended field, as the flag can no longer be set via this endpoint,
@@ -1619,7 +1619,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
                         .header("Authorization", CONTRIBUTOR_JWT))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("title", is("Updated collection")))
-                .andExpect(jsonPath("recommended", is(true)));
+                .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
 
         entityManager.flush();
         entityManager.clear();
