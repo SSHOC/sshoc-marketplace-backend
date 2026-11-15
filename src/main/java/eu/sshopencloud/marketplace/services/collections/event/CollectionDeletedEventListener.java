@@ -46,18 +46,24 @@ public class CollectionDeletedEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onCollectionDeleted(CollectionDeletedEvent event) {
-        if (event.thumbnailMediaId() != null) {
+        if (event.getThumbnailMediaId() != null) {
             try {
-                mediaStorageService.removeMediaLink(event.thumbnailMediaId());
+                mediaStorageService.removeMediaLink(event.getThumbnailMediaId());
             } catch (Exception e) {
-                log.error("Failed to remove media link for collection {}", event.collectionId(), e);
+                // we must ensure we catch any exception here otherwise we would
+                // trigger a 500 response for a transaction that actually succeeded
+                // which would feel really really wrong!
+                log.error("Failed to remove media link for collection {}", event.getCollectionId(), e);
             }
         }
 
         try {
-            indexCollectionService.removeFromIndex(event.collectionId());
+            indexCollectionService.removeFromIndex(event.getCollectionId());
         } catch (Exception e) {
-            log.error("Failed to remove collection {} from the search index", event.collectionId(), e);
+            // we must ensure we catch any exception here otherwise we would
+            // trigger a 500 response for a transaction that actually succeeded
+            // which would feel really really wrong!
+            log.error("Failed to remove collection {} from the search index", event.getCollectionId(), e);
         }
     }
 }

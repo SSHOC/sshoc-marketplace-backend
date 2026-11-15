@@ -2,6 +2,14 @@ package eu.sshopencloud.marketplace.model.collections.event;
 
 import java.util.UUID;
 
-public record CollectionDeletedEvent(long collectionId, UUID thumbnailMediaId) {
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
+@Data
+@AllArgsConstructor
+public class CollectionDeletedEvent {
+
+    private long collectionId;
+
+    private UUID thumbnailMediaId;
 }
