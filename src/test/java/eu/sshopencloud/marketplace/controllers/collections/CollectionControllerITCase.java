@@ -892,10 +892,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //when
-        mvc.perform(delete("/api/collections/{collectionId}", createdCollection.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isOk());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
 
         entityManager.flush();
         entityManager.clear();
@@ -1618,9 +1615,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         assertEquals(1L, refCountAfterCreate, "media should only be referenced once");
 
         //when - delete via the API (the explicit deleteCollection path)
-        mvc.perform(delete("/api/collections/{id}", createdCollection.getId())
-                        .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isOk());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
 
         // the AFTER_COMMIT listener only runs when the transaction actually commits,
         // so commit here rather than letting the test roll back. this test also

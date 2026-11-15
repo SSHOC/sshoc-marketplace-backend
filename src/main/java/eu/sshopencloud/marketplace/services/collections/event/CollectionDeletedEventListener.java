@@ -7,6 +7,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import eu.sshopencloud.marketplace.domain.media.MediaStorageService;
+import eu.sshopencloud.marketplace.services.search.IndexCollectionService;
 import eu.sshopencloud.marketplace.model.collections.event.CollectionDeletedEvent;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,21 +36,28 @@ import lombok.extern.slf4j.Slf4j;
 public class CollectionDeletedEventListener {
 
     private final MediaStorageService mediaStorageService;
+    private final IndexCollectionService indexCollectionService;
 
-    public CollectionDeletedEventListener(MediaStorageService mediaStorageService) {
+    public CollectionDeletedEventListener(MediaStorageService mediaStorageService, IndexCollectionService indexCollectionService) {
         this.mediaStorageService = mediaStorageService;
+        this.indexCollectionService = indexCollectionService;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onCollectionDeleted(CollectionDeletedEvent event) {
-        if (event.thumbnailMediaId() == null) {
-            return;
+        if (event.thumbnailMediaId() != null) {
+            try {
+                mediaStorageService.removeMediaLink(event.thumbnailMediaId());
+            } catch (Exception e) {
+                log.error("Failed to remove media link for collection {}", event.collectionId(), e);
+            }
         }
+
         try {
-            mediaStorageService.removeMediaLink(event.thumbnailMediaId());
+            indexCollectionService.removeFromIndex(event.collectionId());
         } catch (Exception e) {
-            log.error("Failed to remove media link for collection {}", event.collectionId(), e);
+            log.error("Failed to remove collection {} from the search index", event.collectionId(), e);
         }
     }
 }

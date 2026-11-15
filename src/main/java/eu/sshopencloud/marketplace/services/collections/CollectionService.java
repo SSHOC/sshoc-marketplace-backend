@@ -276,7 +276,6 @@ public class CollectionService {
         }
 
         collectionRepository.deleteById(collectionId);
-        indexCollectionService.removeFromIndex(collection.get());
     }
 
 
