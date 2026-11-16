@@ -15,4 +15,5 @@ import org.springframework.context.annotation.Configuration;
 public class SkgConfiguration {
 
     private String baseUri;
+    private String apiBaseUri;
 }

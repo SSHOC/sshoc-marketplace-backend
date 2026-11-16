@@ -68,24 +68,29 @@ public class ItemToSkgMapper {
                     .localIdentifier(localIdentifierBuilder.buildForPrevPage(tools)).build());
         }
 
-        if (tools.getPage() != tools.getPages()) {
+        if (tools.getPage() <= tools.getPages()) {
             builder.nextPage(PageInfo.builder()
                     .entityType(EntityType.SEARCH_RESULT_PAGE.toString())
                     .localIdentifier(localIdentifierBuilder.buildForNextPage(tools)).build());
         }
-
-        builder.lastPage(PageInfo.builder()
-                        .entityType(EntityType.SEARCH_RESULT_PAGE.toString())
-                        .localIdentifier(localIdentifierBuilder.buildForLastPage(tools))
-                .build());
 
         builder.localIdentifier(localIdentifierBuilder.buildForCurrentPage(tools))
                 .entityType(EntityType.SEARCH_RESULT_PAGE.toString());
 
         builder.partOf(PartOf.builder()
                         .entityType(EntityType.SEARCH_RESULT.toString())
-                        .localIdentifier(skgConfiguration.getBaseUri() + "products")
+                        .localIdentifier(skgConfiguration.getApiBaseUri() + "/products")
                         .totalItems(tools.getHits())
+                        .firstPage(
+                            PageInfo.builder()
+                                .entityType(EntityType.SEARCH_RESULT_PAGE.toString())
+                                .localIdentifier(localIdentifierBuilder.buildForFirstPage(tools))
+                            .build())
+                        .lastPage(
+                            PageInfo.builder()
+                                .entityType(EntityType.SEARCH_RESULT_PAGE.toString())
+                                .localIdentifier(localIdentifierBuilder.buildForLastPage(tools))
+                            .build())
                 .build());
 
         doc.addMetaPart(builder.build());
@@ -111,9 +116,9 @@ public class ItemToSkgMapper {
 
     private String generateIdentifier(ItemDto item) {
         return switch (item) {
-            case ToolDto ignored -> skgConfiguration.getBaseUri() + "tool-or-service/" + item.getPersistentId();
-            case DatasetDto ignored -> skgConfiguration.getBaseUri() + "dataset/" + item.getPersistentId();
-            case PublicationDto ignored -> skgConfiguration.getBaseUri() + "publication/" + item.getPersistentId();
+            case ToolDto ignored -> skgConfiguration.getBaseUri() + "/tool-or-service/" + item.getPersistentId();
+            case DatasetDto ignored -> skgConfiguration.getBaseUri() + "/dataset/" + item.getPersistentId();
+            case PublicationDto ignored -> skgConfiguration.getBaseUri() + "/publication/" + item.getPersistentId();
             case null, default -> "";
         };
     }

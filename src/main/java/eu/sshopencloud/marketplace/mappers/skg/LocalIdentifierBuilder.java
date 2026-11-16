@@ -14,18 +14,22 @@ public class LocalIdentifierBuilder {
     }
 
     public String buildForPrevPage(PaginatedResult paginatedResult){
-        return skgConfiguration.getBaseUri() + "products?page=" + (paginatedResult.getPages() - 1) + "&page_size=" + paginatedResult.getPerpage();
+        return skgConfiguration.getApiBaseUri() + "/skg/products?page=" + (paginatedResult.getPage() - 1) + "&page_size=" + paginatedResult.getPerpage();
     }
 
     public String buildForNextPage(PaginatedResult paginatedResult){
-        return skgConfiguration.getBaseUri() + "products?page=" + (paginatedResult.getPage() + 1) + "&page_size=" + paginatedResult.getPerpage();
+        return skgConfiguration.getApiBaseUri() + "/skg/products?page=" + (paginatedResult.getPage() + 1) + "&page_size=" + paginatedResult.getPerpage();
+    }
+
+    public String buildForFirstPage(PaginatedResult paginatedResult){
+        return skgConfiguration.getApiBaseUri() + "/skg/products?page=" + "1" + "&page_size=" + paginatedResult.getPerpage();
     }
 
     public String buildForLastPage(PaginatedResult paginatedResult){
-        return skgConfiguration.getBaseUri() + "products?page=" + paginatedResult.getPages() + "&page_size=" + paginatedResult.getPerpage();
+        return skgConfiguration.getApiBaseUri() + "/skg/products?page=" + paginatedResult.getPages() + "&page_size=" + paginatedResult.getPerpage();
     }
 
     public String buildForCurrentPage(PaginatedResult paginatedResult){
-        return skgConfiguration.getBaseUri() + "products?page=" + paginatedResult.getPages() + "&page_size=" + paginatedResult.getPerpage();
+        return skgConfiguration.getApiBaseUri() + "/skg/products?page=" + paginatedResult.getPage() + "&page_size=" + paginatedResult.getPerpage();
     }
 }

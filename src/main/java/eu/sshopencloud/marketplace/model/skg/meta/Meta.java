@@ -12,12 +12,10 @@ public class Meta {
     private String localIdentifier;
     @JsonProperty("entity_type")
     private String entityType;
-    @JsonProperty("next_paeg")
+    @JsonProperty("next_page")
     private PageInfo nextPage;
     @JsonProperty("prev_page")
     private PageInfo prevPage;
-    @JsonProperty("last_page")
-    private PageInfo lastPage;
     @JsonProperty("part_of")
     private PartOf partOf;
 }

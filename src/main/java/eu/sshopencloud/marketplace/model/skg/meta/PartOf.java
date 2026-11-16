@@ -15,4 +15,10 @@ public class PartOf {
 
     @JsonProperty("total_items")
     private long totalItems;
+
+    @JsonProperty("first_page")
+    private PageInfo firstPage;
+
+    @JsonProperty("last_page")
+    private PageInfo lastPage;
 }
