@@ -67,15 +67,11 @@ class ItemsPatcher {
         dto.putAll(core);
 
         // handle any special cases based on if there is a previously ingested
-        // version of the DTO (I don't really understand the logic of what this
-        // is trying to achieve but it matches the logic in the previous version
-        // of this method). Note that the logic in determinePatchValue seems to
-        // result in updates that violate the semantics of RFC 5789 in that
-        // under some circumstances the current value will be retained even when
-        // when a new value is provided. Whilst that may make some sense for
-        // the version field (should that even be patchable) I think it would
-        // be wrong (or at least counter intuitive) for both label and
-        // description fields.
+        // version of the DTO. When a source is ingested continuously, corrections
+        // made within the marketplace should not be lost on re-ingestion, so where
+        // the current value differs from the first ingest value the current value
+        // is retained. Note this also means a direct PATCH supplying a new value
+        // can be ignored under some circumstances
         boolean previouslyIngested = Objects.nonNull(firstIngestDto);
         dto.put("label",
             determinePatchValue(
