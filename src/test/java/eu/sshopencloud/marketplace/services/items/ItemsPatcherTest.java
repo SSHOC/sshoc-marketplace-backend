@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.ExpectedToFail;
 
 import eu.sshopencloud.marketplace.domain.media.MediaCategory;
 import eu.sshopencloud.marketplace.domain.media.dto.MediaDetails;
