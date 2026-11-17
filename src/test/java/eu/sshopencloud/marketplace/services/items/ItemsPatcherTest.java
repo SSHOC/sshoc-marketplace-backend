@@ -135,14 +135,12 @@ class ItemsPatcherTest {
 
         // create a patch to update the description of the item
         ItemCore patch = new ItemCore();
-        patch.setLabel("updatedDescription");
+        patch.setDescription("updatedDescription");
 
         // apply the patch to the item.
         ItemsPatcher.patchItemCore(itemDto, firstIngestDto, patch);
 
-        // verify that the label matches the patch value
-        // Note that currently this will fail due to the odd logic
-        // in ItemPatcher.determinePatchValue
+        // verify that the description remains unchanged
         Assertions.assertEquals("testDescription", patch.getDescription());
     }
 
@@ -169,14 +167,12 @@ class ItemsPatcherTest {
 
         // create a patch to update the description of the item
         ItemCore patch = new ItemCore();
-        patch.setLabel("updatedDescription");
+        patch.setDescription("updatedDescription");
 
         // apply the patch to the item.
         ItemsPatcher.patchItemCore(itemDto, firstIngestDto, patch);
 
-        // verify that the label matches the patch value
-        // Note that currently this will fail due to the odd logic
-        // in ItemPatcher.determinePatchValue
+        // verify that the description remains unchanged
         Assertions.assertEquals("testDescription", patch.getDescription());
     }
 
