@@ -6,14 +6,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import eu.sshopencloud.marketplace.dto.items.ItemCore;
 import eu.sshopencloud.marketplace.dto.items.ItemDto;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -22,11 +20,11 @@ class ItemsPatcher {
 
     // static Jackson ObjectMapper so we don't have to keep creating
     // and configuring one for each patch operaion
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     
     // a TypeReference we can reusue for mapping an object to a simple
     // String to Object Map
-    private static TypeReference<Map<String, Object>> TO_MAP = new TypeReference<Map<String, Object>>() {};
+    private static final TypeReference<Map<String, Object>> TO_MAP = new TypeReference<Map<String, Object>>() {};
 
     static {
         // because of the differences between DTO and Core versions of the
@@ -44,7 +42,6 @@ class ItemsPatcher {
 
     static void patchItemCore(ItemDto currentItemDto, ItemDto firstIngestDto, ItemCore itemCore) {
 
-        try {
         // convert the current item to a map (i.e. all the fields from the item become
         // keys in the map)
         Map<String, Object> dto = objectMapper.convertValue(currentItemDto, TO_MAP);
@@ -110,18 +107,10 @@ class ItemsPatcher {
         // the object passed in by reference. Fortunately we can still do this
         // using Jackson for all the heavy lifting....
         try {
-            // first we convert the map into JSON stroed in a byte array
-            byte[] bytes = objectMapper.writeValueAsBytes(dto);
-            
-            // create a reader that will update the original object
-            // we want to patch rather than creating a new instance
-            ObjectReader reader = objectMapper.readerForUpdating(itemCore);
-
-            // finally we patch the object by reading back the updated values
-            // from the byte array we generated above.
-            reader.readValue(bytes);
+            // by having it update itemCore using the dto map
+            // to overide existing values
+            objectMapper.updateValue(itemCore, dto);
         } catch (JsonProcessingException jpe) {
-            jpe.printStackTrace();
             // this should be impossible because both ItemDto and ItemCore are
             // clearly serializable to JSON as both are returned/consumed by
             // numerous endpoints within the backend, and as all values in the
@@ -132,23 +121,6 @@ class ItemsPatcher {
             // this and it does happen then the result would be that itemCore
             // would not be correctly updated which could result in data loss
             throw new RuntimeException("Unable to serialize item field values", jpe);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            // this should also be impossible because if we get as far as reading
-            // from the byte array then it must hold valid JSON. The only issue
-            // would be (I think) if ItemCore had a field with the same name as
-            // ItemDto but they had very different types. I think that would
-            // probably trigger a JSON deserialization rutime exception rather
-            // than an IOException though
-
-            // either way we will re-throw the exception so that the  error propogates
-            // back up rather than silently hiding it which would result in itemCore
-            // not being updated correctly and potential data loss
-            throw new RuntimeException("unable to update ItemCore instance", ioe);
-        }}
-        catch (Exception e) {
-            e.printStackTrace();
-            throw e;
         }
     }
 
