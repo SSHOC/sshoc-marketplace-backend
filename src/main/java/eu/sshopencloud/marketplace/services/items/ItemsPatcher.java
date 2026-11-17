@@ -115,12 +115,12 @@ class ItemsPatcher {
             // clearly serializable to JSON as both are returned/consumed by
             // numerous endpoints within the backend, and as all values in the
             // map have come from one or other type then logically the map
-            // itself must also be serializbale
+            // itself must also be serializbale and should map to each other
 
             // we will raise an exception though just in case, as if we ignore
             // this and it does happen then the result would be that itemCore
             // would not be correctly updated which could result in data loss
-            throw new RuntimeException("Unable to serialize item field values", jpe);
+            throw new RuntimeException("Unable to apply patched values to item core", jpe);
         }
     }
 

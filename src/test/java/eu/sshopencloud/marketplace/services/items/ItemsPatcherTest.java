@@ -166,7 +166,7 @@ class ItemsPatcherTest {
         // exactly what this is used for inside the patcher
         ItemDto firstIngestDto = prepareItemDto();
 
-        // moduify this so that the description field is null
+        // moduify this so that the description field is changed
         firstIngestDto.setDescription("firstDescription");
 
         // create a patch to update the description of the item
