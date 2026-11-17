@@ -258,7 +258,7 @@ class ItemsPatcherTest {
 
         // a patch that only changes the label; every other field is left
         // unspecified and should therefore be retained from the current item
-        DigitalObjectCore patch = new DigitalObjectCore();
+        ItemCore patch = new ItemCore();
         patch.setLabel("updatedLabel");
 
         ItemsPatcher.patchItemCore(itemDto, null, patch);
@@ -376,7 +376,7 @@ class ItemsPatcherTest {
     }
 
     /**
-     * Prepares a fully populated DigitalObjectDto in which every field that is
+     * Prepares a fully populated ItemDto in which every field that is
      * mapped onto the ItemCore representation carries a distinct value, so that
      * a mismatch between two similarly shaped fields cannot cancel out.
      * Note that only the fields consumed by ItemCore need distinct values;
