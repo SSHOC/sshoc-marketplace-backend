@@ -15,12 +15,12 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 public class DigitalObjectCore extends ItemCore {
 
-    @Schema(type="string", pattern = ApiDateTimeFormatter.inputDateTimePattern, example = ApiDateTimeFormatter.inputDateTimeExample)
+    @Schema(format = "date-time", example = ApiDateTimeFormatter.inputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.inputDateTimePattern)
     @Nullable
     private ZonedDateTime dateCreated;
 
-    @Schema(type="string", pattern = ApiDateTimeFormatter.inputDateTimePattern, example = ApiDateTimeFormatter.inputDateTimeExample)
+    @Schema(format = "date-time", example = ApiDateTimeFormatter.inputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.inputDateTimePattern)
     @Nullable
     private ZonedDateTime dateLastUpdated;

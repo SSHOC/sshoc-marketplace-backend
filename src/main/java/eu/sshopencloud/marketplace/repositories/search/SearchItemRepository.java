@@ -80,7 +80,7 @@ public class SearchItemRepository {
                 .forEach(sf -> sf.updateQuery(solrQuery));
 
         try {
-            return solrClient.query(IndexItem.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.GET);
+            return solrClient.query(IndexItem.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -97,7 +97,7 @@ public class SearchItemRepository {
             solrQuery.addFilterQuery(createVisibilityFilter(currentUser));
         }
         try {
-            return solrClient.query(IndexItem.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.GET);
+            return solrClient.query(IndexItem.COLLECTION_NAME, solrQuery, SolrRequest.METHOD.POST);
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException(e);
         }

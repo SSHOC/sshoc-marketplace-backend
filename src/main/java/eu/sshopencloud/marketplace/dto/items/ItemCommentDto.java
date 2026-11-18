@@ -20,11 +20,11 @@ public class ItemCommentDto {
 
     private UserDto creator;
 
-    @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
+    @Schema(format = "date-time", example = ApiDateTimeFormatter.outputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
     private ZonedDateTime dateCreated;
 
-    @Schema(type="string", pattern = ApiDateTimeFormatter.outputDateTimePattern, example = ApiDateTimeFormatter.outputDateTimeExample)
+    @Schema(format = "date-time", example = ApiDateTimeFormatter.outputDateTimeExample)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ApiDateTimeFormatter.outputDateTimePattern)
     @Nullable
     private ZonedDateTime dateLastUpdated;

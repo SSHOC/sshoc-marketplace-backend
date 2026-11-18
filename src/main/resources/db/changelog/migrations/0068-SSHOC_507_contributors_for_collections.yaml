@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1790604500721-3
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_collections_contributors
+                  name: collection_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_collections_contributors
+                  name: actor_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_collections_contributors
+                  name: role_code
+                  type: VARCHAR(255)
+              - column:
+                  name: ord
+                  type: INT
+            tableName: collections_contributors
+  - changeSet:
+      id: 1790604500721-6
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: actor_id
+            baseTableName: collections_contributors
+            constraintName: COLLECTION_CONTRIBUTOR_ACTOR_ID_FK
+            referencedColumnNames: id
+            referencedTableName: actors
+  - changeSet:
+      id: 1790604500721-7
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: role_code
+            baseTableName: collections_contributors
+            constraintName: COLLECTION_CONTRIBUTOR_ACTOR_ROLE_CODE_FK
+            referencedColumnNames: code
+            referencedTableName: actor_roles
+  - changeSet:
+      id: 1790604500721-8
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: collection_id
+            baseTableName: collections_contributors
+            constraintName: COLLECTION_CONTRIBUTOR_COLLECTION_ID_FK
+            referencedColumnNames: id
+            referencedTableName: collections

@@ -34,8 +34,8 @@ public class DatasetController {
 
     @Operation(summary = "Retrieve all datasets in pages")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PaginatedDatasets> getDatasets(@RequestParam(value = "page", required = false) Integer page,
-                                                         @RequestParam(value = "perpage", required = false) Integer perpage,
+    public ResponseEntity<PaginatedDatasets> getDatasets(@RequestParam(value = "page", required = false) @Schema(description = "Page numbers start at 1", minimum = "1") Integer page,
+                                                         @RequestParam(value = "perpage", required = false) @Schema(minimum = "1") Integer perpage,
                                                          @RequestParam(value = "approved", defaultValue = "true") boolean approved)
             throws PageTooLargeException {
         return ResponseEntity.ok(datasetService.getDatasets(pageCoordsValidator.validate(page, perpage), approved));
@@ -81,7 +81,18 @@ public class DatasetController {
         return ResponseEntity.ok(datasetService.updateDataset(persistentId, updatedDataset, draft, approved, false));
     }
 
-    @Operation(summary = "Patch dataset for given persistentId")
+    @Operation(
+        summary = "Patch dataset for given persistentId",
+        description = """
+            Updates a dataset record by replacing field values with those supplied in the patch body.
+            This method is **only** intended to be used during the continuous ingestion process and
+            is not intended to be used by end users. Further it is important to note that providing
+            a value for any field completely replaces the previous value. This is especially important
+            to remember when updating any of the array value fields, as all existing entires will be
+            removed and replaced with the values provided in the patch. If you wish to add to an existing
+            array then you **must** provide the existing values as well as the new value in the patch body
+            otherwise data loss will occur."""
+    )
     @PatchMapping(path = "/{persistentId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DatasetDto> patchDataset(@PathVariable("persistentId") String persistentId,
                                                     @Parameter(

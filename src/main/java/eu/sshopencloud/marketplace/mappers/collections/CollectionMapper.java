@@ -1,0 +1,111 @@
+package eu.sshopencloud.marketplace.mappers.collections;
+
+import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.dto.collections.*;
+import eu.sshopencloud.marketplace.mappers.actors.ActorMapper;
+import eu.sshopencloud.marketplace.mappers.actors.ActorRoleMapper;
+import eu.sshopencloud.marketplace.mappers.vocabularies.ConceptBasicMapper;
+import eu.sshopencloud.marketplace.model.collections.Collection;
+import eu.sshopencloud.marketplace.model.collections.CollectionItem;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Mapper used of single collection. It maps collection items too.
+ */
+public class CollectionMapper {
+
+    public static final CollectionMapper INSTANCE = new CollectionMapper();
+
+    private CollectionMapper() {
+    }
+
+    public CollectionDto toDto(Collection collection, PageCoords pageCoords) {
+        if (collection == null) {
+            return null;
+        }
+
+        CollectionDto collectionDto = new CollectionDto();
+
+        collectionDto.setId(collection.getId());
+        collectionDto.setTitle(collection.getTitle());
+        collectionDto.setDescription(collection.getDescription());
+        collectionDto.setVisible(collection.isVisible());
+
+        collectionDto.setThumbnail(mapCollectionThumbnail(collection));
+        List<CollectionItemDto> collectionItemDtos = mapCollectionItems(collection, pageCoords);
+
+        collectionDto.setCollectionItems(PaginatedCollectionItems.builder().items(collectionItemDtos).count(collectionItemDtos.size()).hits(collection.getCollectionItems().size()).page(pageCoords.getPage()).perpage(pageCoords.getPerpage()).pages(0).build());
+
+        collectionDto.setCreatedAt(collection.getCreatedAt());
+        collectionDto.setUpdatedAt(collection.getUpdatedAt());
+        collectionDto.setRecommended(collection.isRecommended());
+
+        collectionDto.setContributors(mapCollectionContributors(collection));
+        return collectionDto;
+    }
+
+
+    private List<CollectionItemDto> mapCollectionItems(Collection collection, PageCoords pageCoords) {
+        List<CollectionItem> collectionItems = getPage(collection.getCollectionItems(), pageCoords.getPage(),
+                pageCoords.getPerpage());
+        List<CollectionItemDto> collectionItemDtos = new ArrayList<>();
+        collectionItems.forEach(collectionItem -> {
+            CollectionItemDto collectionItemDto = new CollectionItemDto();
+            collectionItemDto.setId(collectionItem.getId());
+            collectionItemDto.setPersistentId(collectionItem.getItem().getPersistentId());
+            collectionItemDto.setComment(collectionItem.getComment());
+            collectionItemDto.setSuggested(collectionItem.isSuggested());
+            collectionItemDto.setTitle(collectionItem.getItem().getLabel());
+            collectionItemDto.setDescription(collectionItem.getItem().getDescription());
+            collectionItemDto.setType(collectionItem.getItem().getCategory().getLabel());
+            collectionItemDtos.add(collectionItemDto);
+        });
+
+        return collectionItemDtos;
+    }
+
+    private CollectionThumbnailDto mapCollectionThumbnail(Collection collection) {
+        if (collection.getThumbnail() == null) return null;
+        
+        CollectionThumbnailDto collectionThumbnailDto = new CollectionThumbnailDto();
+        
+        collectionThumbnailDto.setCaption(collection.getThumbnail().getCaption());
+        collectionThumbnailDto.setMediaId(collection.getThumbnail().getThumbnailId());
+        
+        if (collection.getThumbnail().getConcept() != null) {
+            collectionThumbnailDto.setConcept(ConceptBasicMapper.INSTANCE.toDto(collection.getThumbnail().getConcept()));
+        }        
+        
+        return collectionThumbnailDto;
+    }
+
+    private List<CollectionContributorDto> mapCollectionContributors(Collection collection) {
+        List<CollectionContributorDto> collectionContributors = new ArrayList<>();
+
+        collection.getContributors().forEach(contributor -> {
+            CollectionContributorDto collectionContributorDto = new CollectionContributorDto();
+
+            collectionContributorDto.setActor(ActorMapper.INSTANCE.toDto(contributor.getActor()));
+            collectionContributorDto.setRole(ActorRoleMapper.INSTANCE.toDto(contributor.getRole()));
+
+            collectionContributors.add(collectionContributorDto);
+        });
+        return  collectionContributors;
+    }
+
+    public List<CollectionItem> getPage(List<CollectionItem> collectionItems, int pageNumber, int pageSize) {
+        if (collectionItems == null || collectionItems.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        int fromIndex = (pageNumber - 1) * pageSize;
+        if (fromIndex >= collectionItems.size() || fromIndex < 0) {
+            return Collections.emptyList();
+        }
+        int toIndex = Math.min(fromIndex + pageSize, collectionItems.size());
+        return collectionItems.subList(fromIndex, toIndex);
+    }
+}

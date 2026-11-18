@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0063-collections_table
+      author: woz
+      comment: New table `collections`
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_collections
+              - column:
+                  name: owner_id
+                  type: BIGINT
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+              - column:
+                  name: visible
+                  type: BOOLEAN
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+            tableName: collections
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_collection_items
+              - column:
+                   name: collection_id
+                   type: BIGINT
+              - column:
+                   name: item_id
+                   type: BIGINT
+              - column:
+                  name: is_suggested
+                  type: boolean
+              - column:
+                  name: comment
+                  type: varchar(2048)
+            tableName: collection_items
+        - createSequence:
+            sequenceName: collection_item_id_seq
+            startValue: 1
+            incrementBy: 1

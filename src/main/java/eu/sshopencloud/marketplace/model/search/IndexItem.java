@@ -68,6 +68,7 @@ public class IndexItem {
     public static final String DYNAMIC_PROPERTY = "dynamic_property_*";
     public static final String ACCESSIBLE_AT = "accessible_at";
     public static final String THUMBNAIL_ID = "thumbnail_id";
+    public static final String COLLECTIONS_FIELD = "collections";
 
     @Field(ID_FIELD)
     private String versionId;

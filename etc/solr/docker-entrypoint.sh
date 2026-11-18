@@ -3,6 +3,7 @@
 SOLR_MARKETPLACE_ITEMS_DIR="/var/solr/data/marketplace-items"
 SOLR_MARKETPLACE_CONCEPTS_DIR="/var/solr/data/marketplace-concepts"
 SOLR_MARKETPLACE_ACTORS_DIR="/var/solr/data/marketplace-actors"
+SOLR_MARKETPLACE_COLLECTIONS_DIR="/var/solr/data/marketplace-collections"
 
 /opt/solr/docker/scripts/init-var-solr
 
@@ -16,6 +17,10 @@ fi
 
 if [ ! -d $SOLR_MARKETPLACE_ACTORS_DIR ]; then
 	cp -R /usr/solr/marketplace-actors /var/solr/data
+fi
+
+if [ ! -d $SOLR_MARKETPLACE_COLLECTIONS_DIR ]; then
+	cp -R /usr/solr/marketplace-collections /var/solr/data
 fi
 
 # Execute parent entrypoint script

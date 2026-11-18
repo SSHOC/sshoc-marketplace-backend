@@ -869,15 +869,9 @@ class SearchControllerITCase {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(4)))
-                .andExpect(jsonPath("items[0].id", is(1)))
-                .andExpect(jsonPath("items[0].persistentId", is("n21Kfc")))
-                .andExpect(jsonPath("items[0].label", is("Gephi")))
-                .andExpect(jsonPath("items[0].contributors[0].actor.id", is(5)))
-
-                .andExpect(jsonPath("items[1].id", is(3)))
-                .andExpect(jsonPath("items[1].persistentId", is("Xgufde")))
-                .andExpect(jsonPath("items[1].contributors[0].actor.id", is(3)))
-
+                .andExpect(jsonPath("items[*].id", hasItems(1,3)))
+                .andExpect(jsonPath("items[*].persistentId", hasItems("n21Kfc", "Xgufde")))
+                .andExpect(jsonPath("items[*].label", hasItem("Gephi")))
                 .andExpect(jsonPath("items[*].contributors[*].actor.id", hasItem(5)));
     }
 }

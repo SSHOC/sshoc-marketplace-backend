@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1787143668957-2
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createSequence:
+              sequenceName: collection_media_id_seq
+              startValue: 1
+              incrementBy: 1
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_collections_media
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: collection_id
+                  type: BIGINT
+              - column:
+                  name: thumbnail_id
+                  type: UUID
+              - column:
+                  name: caption
+                  type: VARCHAR(255)
+              - column:
+                  name: code
+                  type: VARCHAR(255)
+              - column:
+                  name: vocabulary_code
+                  type: VARCHAR(255)
+            tableName: collections_media
+  - changeSet:
+      id: 1787143668957-3
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: collection_id
+            baseTableName: collections_media
+            constraintName: FK_COLLECTIONS_MEDIA_ON_COLLECTION
+            referencedColumnNames: id
+            referencedTableName: collections
+  - changeSet:
+      id: 1787143668957-4
+      author: woz
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: code,vocabulary_code
+            baseTableName: collections_media
+            constraintName: ITEM_MEDIA_CONCEPT_FK
+            referencedColumnNames: code,vocabulary_code
+            referencedTableName: concepts

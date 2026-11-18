@@ -108,8 +108,8 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/actors/**").hasAuthority(Authority.MODERATOR.name());
         http
                 .authorizeRequests()
-                .requestMatchers(HttpMethod.POST, "/api/sources/**").hasAuthority(Authority.CONTRIBUTOR.name())
-                .requestMatchers(HttpMethod.PUT, "/api/sources/**").hasAuthority(Authority.CONTRIBUTOR.name())
+                .requestMatchers(HttpMethod.POST, "/api/sources/**").hasAnyAuthority(Authority.SYSTEM_CONTRIBUTOR.name(), Authority.MODERATOR.name())
+                .requestMatchers(HttpMethod.PUT, "/api/sources/**").hasAnyAuthority(Authority.SYSTEM_CONTRIBUTOR.name(), Authority.MODERATOR.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/sources/**").hasAuthority(Authority.MODERATOR.name());
         http
                 .authorizeRequests()
@@ -196,6 +196,12 @@ public class WebSecurityConfig {
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/oauth2/authorize/eosc")
                 .permitAll();
+        http
+                .authorizeRequests()
+                .requestMatchers(HttpMethod.POST, "/api/collections/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/collections/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/collections/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/collections/*/suggestions/**").authenticated();
 
         http
                 .oauth2Login(OA2LogingConfig -> {

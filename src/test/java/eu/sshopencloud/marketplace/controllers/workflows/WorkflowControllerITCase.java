@@ -16,10 +16,7 @@ import eu.sshopencloud.marketplace.dto.vocabularies.ConceptId;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyCore;
 import eu.sshopencloud.marketplace.dto.vocabularies.PropertyTypeId;
 import eu.sshopencloud.marketplace.dto.vocabularies.VocabularyId;
-import eu.sshopencloud.marketplace.dto.workflows.StepCore;
-import eu.sshopencloud.marketplace.dto.workflows.StepDto;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowCore;
-import eu.sshopencloud.marketplace.dto.workflows.WorkflowDto;
+import eu.sshopencloud.marketplace.dto.workflows.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -1742,6 +1739,22 @@ class WorkflowControllerITCase {
                 .andExpect(jsonPath("composedOf[0].id", is(22)))
                 .andExpect(jsonPath("composedOf[0].status", is("approved")));
 
+    }
+
+    @Test
+    void shouldDeleteDraftWorkflow() throws Exception {
+
+        //given
+        WorkflowCreationCore workflowCore = new WorkflowCreationCore();
+        workflowCore.setLabel("createdDraftWorkflow label");
+        workflowCore.setDescription("createdDraftWorkflow description");
+        WorkflowDto workflow = createDraftWorkflow(workflowCore, CONTRIBUTOR_JWT);
+
+        //then
+        mvc.perform(delete("/api/workflows/{persistentId}/versions/{versionId}", workflow.getPersistentId(), workflow.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", CONTRIBUTOR_JWT))
+                .andExpect(status().isOk());
     }
 
 
@@ -3479,5 +3492,22 @@ class WorkflowControllerITCase {
                 .andExpect(jsonPath("version").doesNotExist())
                 .andExpect(jsonPath("properties", hasSize(0)))
                 .andExpect(jsonPath("composedOf", hasSize(0)));
+    }
+
+    protected WorkflowDto createDraftWorkflow(WorkflowCreationCore dto, String callerCredentials) throws Exception {
+        return createWorkflow(dto, callerCredentials, "/api/workflows?draft=true");
+    }
+
+    protected WorkflowDto createWorkflow(WorkflowCreationCore dto, String callerCredentials, String endpointLocation) throws Exception {
+
+        String payload = TestJsonMapper.serializingObjectMapper().writeValueAsString(dto);
+
+        String createdWorkflow = mvc.perform(post(endpointLocation)
+                        .content(payload)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", callerCredentials))
+                .andReturn().getResponse().getContentAsString();
+
+        return mapper.readValue(createdWorkflow, WorkflowDto.class);
     }
 }
