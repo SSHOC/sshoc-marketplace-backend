@@ -90,6 +90,7 @@ marketplace:
     pagination:
         default-perpage: 20
         maximal-perpage: 100
+        skg-default-perpage: 10
     security:
         auth:
             jwt-token-secret: ${token_secret:default-token-secret}
@@ -187,3 +188,6 @@ handle:
     user-id-handle: "0.NA/21.11160"
     user-id-index: "300"
     key-location: "/etc/sshomp/handle/admpriv.bin"
+skg:
+    base-uri: "https://marketplace.sshopencloud.eu"
+    api-base-uri: "https://marketplace-api.sshopencloud.eu"

@@ -15,8 +15,10 @@ import eu.sshopencloud.marketplace.model.vocabularies.PropertyTypeClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.UrlPathHelper;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 
 @Configuration
@@ -43,6 +45,14 @@ public class WebConvertersConfig implements WebMvcConfigurer {
         UrlPathHelper urlPathHelper = new UrlPathHelper();
         urlPathHelper.setUrlDecode(false);
         configurer.setUrlPathHelper(urlPathHelper);
+        configurer.setPatternParser(new PathPatternParser());
+
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addRedirectViewController("/skg", "/skg/");
+        registry.addViewController("/skg/").setViewName("forward:/skg.html");
     }
 
 }

@@ -1,0 +1,49 @@
+package eu.sshopencloud.marketplace.controllers.skg;
+
+import eu.sshopencloud.marketplace.controllers.PageTooLargeException;
+import eu.sshopencloud.marketplace.dto.PageCoords;
+import eu.sshopencloud.marketplace.model.skg.JsonLdDocument;
+import eu.sshopencloud.marketplace.services.skg.SkgResearchProductService;
+import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * Provides read-only access to the marketplace {@link eu.sshopencloud.marketplace.model.tools.Tool}s
+ * wrapped in SKG-IF Research Product entity: <a href="https://skg-if.github.io/interoperability-framework/docs/research-product.html">Research product</a>
+ */
+@RestController("skgResearchProductsController")
+@RequestMapping("/skg/products")
+public class ProductsController {
+
+    private final SkgResearchProductService researchProductService;
+    private final PageCoordsValidator pageCoordsValidator;
+
+    public ProductsController(SkgResearchProductService researchProductService, @Qualifier("skgPageCoordsValidator") PageCoordsValidator pageCoordsValidator){
+        this.researchProductService = researchProductService;
+        this.pageCoordsValidator = pageCoordsValidator;
+    }
+
+    @Operation(summary = "Get all tools or services by its persistentId in SKG format")
+    @GetMapping(produces = "application/ld+json")
+    public ResponseEntity<JsonLdDocument> getProducts(@RequestParam(value = "page", required = false) Integer page,
+                                                      @RequestParam(value = "page_size", required = false) Integer pageSize) throws PageTooLargeException {
+        PageCoords pageData = pageCoordsValidator.validate(page, pageSize);
+
+        return ResponseEntity.ok(researchProductService.getResearchProducts(pageData));
+    }
+
+    @Operation(summary = "Get single tool or service by its persistentId in SKG format")
+    @GetMapping(path = "/{*identifier}", produces = "application/ld+json")
+    public ResponseEntity<JsonLdDocument> getProduct(@PathVariable("identifier") String identifier) {
+        JsonLdDocument researchProduct = researchProductService.getResearchProduct(identifier);
+        if (researchProduct.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(researchProduct);
+        } else {
+            return ResponseEntity.ok(researchProduct);
+        }
+    }
+}
