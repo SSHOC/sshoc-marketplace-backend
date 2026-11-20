@@ -33,6 +33,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -891,10 +892,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //when
-        mvc.perform(delete("/api/collections/{collectionId}", createdCollection.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", CONTRIBUTOR_JWT))
-                .andExpect(status().isOk());
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
 
         entityManager.flush();
         entityManager.clear();
@@ -1534,5 +1532,111 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+    }
+
+    @Test
+    void shouldDecrementMediaRefCountWhenCollectionIsDeletedViaCascade() throws Exception {
+
+        //given - a collection with a thumbnail
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+
+        ItemMediaCore thumbnail = new ItemMediaCore();
+        thumbnail.setInfo(new MediaDetailsId(seriouscatId));
+        collection.setThumbnail(thumbnail);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // capture the refcount after the creation -- linkToMedia will have
+        // incremented it within this transaction
+        long refCountAfterCreate = getMediaRefCount(seriouscatId);
+
+        //when - delete the collection the way a cascade would, i.e. directly via
+        // the entity manager rather than through deleteCollection, so that the
+        // media cleanup in that method is not invoked. this triggers the same
+        // @PreRemove callback and cascade that a deletion via a cascading parent
+        // (e.g. a deleted user) would
+        Collection toDelete = entityManager.find(Collection.class, createdCollection.getId());
+        entityManager.remove(toDelete);
+
+        // the AFTER_COMMIT listener only runs when the transaction actually commits,
+        // so commit here rather than letting the test roll back. note that this
+        // test deliberately persists its data (see notes)
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+
+        //then - read the committed refcount in a fresh transaction and check it
+        // was decremented back down
+        TestTransaction.start();
+        long refCountAfterDelete = getMediaRefCount(seriouscatId);
+
+        assertEquals(refCountAfterCreate - 1, refCountAfterDelete,
+                "media refcount should have been decremented when the collection was deleted via a cascade");
+
+        // nothing was changed in this transaction so it can just roll back
+        TestTransaction.end();
+    }
+
+    @Test
+    void shouldDecrementMediaRefCountExactlyOnceWhenCollectionIsDeleted() throws Exception {
+
+        //given - a collection with a thumbnail
+        CollectionCreationDto collection = new CollectionCreationDto();
+        collection.setTitle("Simple collection");
+        collection.setDescription("Simple collection description");
+        collection.setVisible(true);
+
+        UUID seriouscatId = MediaTestUploadUtils.uploadMedia(mvc, mapper, "seriouscat.jpg", CONTRIBUTOR_JWT);
+
+        long refCountBeforeCreate = getMediaRefCount(seriouscatId);
+
+        assertEquals(0L, refCountBeforeCreate, "media shouldn't be referenced prior to use");
+
+        ItemMediaCore thumbnail = new ItemMediaCore();
+        thumbnail.setInfo(new MediaDetailsId(seriouscatId));
+        collection.setThumbnail(thumbnail);
+
+        CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // capture the refcount after the creation -- linkToMedia will have
+        // incremented it within this transaction
+        long refCountAfterCreate = getMediaRefCount(seriouscatId);
+
+        assertEquals(1L, refCountAfterCreate, "media should only be referenced once");
+
+        //when - delete via the API (the explicit deleteCollection path)
+        removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
+
+        // the AFTER_COMMIT listener only runs when the transaction actually commits,
+        // so commit here rather than letting the test roll back. this test also
+        // deliberately persists its data
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+
+        //then - exactly one decrement, not two
+        TestTransaction.start();
+        long refCountAfterDelete = getMediaRefCount(seriouscatId);
+
+        assertEquals(refCountAfterCreate - 1, refCountAfterDelete,
+                "media refcount should have been decremented exactly once when the collection was deleted");
+
+        TestTransaction.end();
+    }
+
+    private long getMediaRefCount(UUID mediaId) {
+        return entityManager.createQuery(
+                        "select m.linkCount from MediaData m where m.id = :id", Long.class)
+                .setParameter("id", mediaId)
+                .getSingleResult();
     }
 }

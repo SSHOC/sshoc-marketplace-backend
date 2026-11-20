@@ -34,15 +34,23 @@ public class IndexCollectionService {
     }
 
     /**
-     * Removes Solr document describing provided {@link Collection}
-     * @param collection collection that should be removed from Solr index
+     * Removes Solr document describing provided collection
+     * @param collection the id of the collection that should be removed from Solr index
      */
-    public void removeFromIndex(Collection collection) {
+    public void removeFromIndex(long collection) {
         try {
-            solrClient.deleteByQuery(COLLECTION_NAME, IndexCollection.ID_FIELD + ":" + collection.getId());
+            solrClient.deleteByQuery(COLLECTION_NAME, IndexCollection.ID_FIELD + ":" + collection);
             solrClient.commit(IndexCollection.COLLECTION_NAME);
         } catch (SolrServerException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Removes Solr document describing provided {@link Collection}
+     * @param collection collection that should be removed from Solr index
+     */
+    public void removeFromIndex(Collection collection) {
+        removeFromIndex(collection.getId());
     }
 }
