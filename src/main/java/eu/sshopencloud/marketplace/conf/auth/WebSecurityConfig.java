@@ -198,6 +198,7 @@ public class WebSecurityConfig {
                 .permitAll();
         http
                 .authorizeRequests()
+                .requestMatchers(HttpMethod.PUT, "/api/collections/*/recommended").hasAuthority(Authority.MODERATOR.name())
                 .requestMatchers(HttpMethod.POST, "/api/collections/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/collections/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/collections/**").authenticated()
