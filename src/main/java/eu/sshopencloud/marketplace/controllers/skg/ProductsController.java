@@ -6,6 +6,7 @@ import eu.sshopencloud.marketplace.model.skg.JsonLdDocument;
 import eu.sshopencloud.marketplace.services.skg.SkgResearchProductService;
 import eu.sshopencloud.marketplace.validators.PageCoordsValidator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController("skgResearchProductsController")
 @RequestMapping("/skg/products")
+@Tag(name = "SKG-IF")
 public class ProductsController {
 
     private final SkgResearchProductService researchProductService;
