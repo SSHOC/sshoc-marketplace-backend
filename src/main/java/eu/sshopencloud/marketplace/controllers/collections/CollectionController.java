@@ -105,4 +105,18 @@ public class CollectionController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Allows moderators to change the recommended status of a collection",
+        description = """
+            Allows moderators to change the recommended status of a collection.
+            Note that this is the only way of changing the status as the recommended
+            flag cannot be set during either creation or updates to a collection."""
+    )
+    @PutMapping(path = "/{collectionId}/recommended", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CollectionRecommendedDto> updateCollectionIsRecommended(
+            @PathVariable("collectionId") long collectionId,
+            @RequestBody CollectionRecommendedDto recommendedDto) {
+
+        return ResponseEntity.ok(collectionService.updateRecommendedStatus(collectionId, recommendedDto));
+    }
 }
