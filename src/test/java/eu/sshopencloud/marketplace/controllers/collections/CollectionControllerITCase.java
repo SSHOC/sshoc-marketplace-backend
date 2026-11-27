@@ -1392,7 +1392,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         CollectionDto createdCollection = createCollection(collection, CONTRIBUTOR_JWT);
 
         //then - the GET endpoint is public, so no Authorization header is needed
-        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+        mvc.perform(get("/api/collections/{collectionId}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))));
@@ -1429,7 +1429,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         entityManager.clear();
 
         //then - the flag should have been persisted to the database
-        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+        mvc.perform(get("/api/collections/{collectionId}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
@@ -1463,7 +1463,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         entityManager.clear();
 
         //then
-        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+        mvc.perform(get("/api/collections/{collectionId}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
@@ -1483,7 +1483,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         entityManager.clear();
 
         //then
-        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+        mvc.perform(get("/api/collections/{collectionId}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))));
@@ -1519,7 +1519,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         entityManager.clear();
 
         //then - the flag should still be false
-        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+        mvc.perform(get("/api/collections/{collectionId}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))));
@@ -1551,15 +1551,6 @@ class CollectionControllerITCase extends CollectionControllerTest {
 
         //cleanup
         removeCollection(createdCollection.getId(), CONTRIBUTOR_JWT);
-    }
-
-    @Test
-    void shouldReturnNotFoundWhenReadingRecommendedStatusForNonExistingCollection() throws Exception {
-
-        //then
-        mvc.perform(get("/api/collections/{collectionId}/recommended", 999999)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -1602,7 +1593,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         entityManager.flush();
         entityManager.clear();
 
-        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+        mvc.perform(get("/api/collections/{collectionId}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
@@ -1625,7 +1616,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         entityManager.clear();
 
         //then - the flag should still be set after the update
-        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+        mvc.perform(get("/api/collections/{collectionId}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("true"))));
@@ -1659,7 +1650,7 @@ class CollectionControllerITCase extends CollectionControllerTest {
         entityManager.clear();
 
         //then - the flag should be unchanged
-        mvc.perform(get("/api/collections/{collectionId}/recommended", createdCollection.getId())
+        mvc.perform(get("/api/collections/{collectionId}", createdCollection.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("recommended", is(Boolean.valueOf("false"))));
