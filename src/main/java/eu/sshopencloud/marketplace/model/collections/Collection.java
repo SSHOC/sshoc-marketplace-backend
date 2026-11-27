@@ -1,6 +1,7 @@
 package eu.sshopencloud.marketplace.model.collections;
 
 import eu.sshopencloud.marketplace.model.auth.User;
+import eu.sshopencloud.marketplace.model.collections.event.CollectionEntityListener;
 import eu.sshopencloud.marketplace.model.items.CollectionThumbnail;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -16,6 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "collections")
 @Data
+@EntityListeners(CollectionEntityListener.class)
 public class Collection {
 
     @Id
